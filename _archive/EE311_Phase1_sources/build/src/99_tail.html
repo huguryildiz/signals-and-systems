@@ -1,0 +1,40 @@
+<script>
+/* ---------- assemble the scene list from the content modules ---------- */
+(function(){
+  const SCENES = [].concat(
+    window.SCENES_M0||[], window.SCENES_M1||[], window.SCENES_M2||[],
+    window.SCENES_M3||[], window.SCENES_END||[]
+  );
+
+  /* glossary + conventions + help panels */
+  const gh = document.getElementById('glosshost');
+  gh.innerHTML = Object.entries(CONTENT.GLOSS).map(([k,v])=>
+    `<div class="gitem" id="g-${k}"><div class="gs">${RENDER.tex(
+        v.s.replace(/δ/g,'\\delta').replace(/ω₀/g,'\\omega_0').replace(/T₀/g,'T_0')
+         .replace(/N₀/g,'N_0').replace(/E∞/g,'E_\\infty').replace(/P∞/g,'P_\\infty')
+         .replace(/∗/g,'*').replace(/·/g,'\\cdot'), false)}</div>
+      <div class="gd">${v.d}${v.go?` <a data-act="goto" data-id="${v.go}">go to definition →</a>`:''}</div></div>`).join('');
+  document.getElementById('convhost').innerHTML = [
+    ['CTFT', CONTENT.META.conventions.ctft],
+    ['DTFT', CONTENT.META.conventions.dtft]
+  ].map(([n,t])=>`<div class="gitem"><div class="gs"><span class="eq-label">${n}</span></div>
+      <div class="gd">${RENDER.tex(t,false)}</div></div>`).join('')
+    + `<div class="gitem"><div class="gs"><span class="eq-label">sinc</span></div><div class="gd">${CONTENT.META.conventions.sinc}</div></div>`
+    + `<div class="gitem"><div class="gs"><span class="eq-label">energy</span></div><div class="gd">${CONTENT.META.conventions.energy}</div></div>`;
+  document.getElementById('helphost').innerHTML = [
+    ['→ / space','Advance one reveal state, then one scene'],
+    ['←','Step back one reveal state, then one scene'],
+    ['↑ / ↓','Previous / next scene, ignoring reveal states'],
+    ['Home / End','First / last scene'],
+    ['M','Module map'],['/ or F','Full-text search'],['G','Notation glossary'],
+    ['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],
+    ['Esc','Close any overlay']
+  ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');
+
+  APP.init({ scenes:SCENES, modules:CONTENT.MODULES, render:RENDER.draw });
+  APP.wireSearch();
+  RENDER.draw();
+})();
+</script>
+</body>
+</html>
