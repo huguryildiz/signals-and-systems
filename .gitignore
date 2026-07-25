@@ -23,3 +23,6 @@ source/EE311 - Lecture Notes.pdf
 # --- Scratch ---
 _to_delete/
 *.tmp
+
+# FUSE mount leftovers
+.fuse_hidden*
