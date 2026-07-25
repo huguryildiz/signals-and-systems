@@ -171,7 +171,7 @@ scale factors genuinely need a second source.
 ## 7. How to work in a session
 
 - Do the heavy work in the container (`/tmp/ee311`), not on the user's disk. Deliver finished files with
-  `SendUserFile`, then write them back to the right project folder with `device_commit_files`.
+  `SendUserFile`, then write them back to the right numbered folder with `device_commit_files`.
 - Re-zip `build/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
   never drifts from the delivered artifact. Move the previous archive to `archive/` rather than
   overwriting it blind.

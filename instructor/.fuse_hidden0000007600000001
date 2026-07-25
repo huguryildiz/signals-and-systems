@@ -1,7 +1,7 @@
 # EE 311 — Cowork project instructions (paste-in)
 
 Paste the block below into the Claude desktop app: project **EE311 → Instructions**.
-It is a pointer, not a second source of truth. The full operating doc is `CLAUDE.md`.
+It is a pointer, not a second source of truth. The full operating doc is `EE311/CLAUDE.md`.
 
 ---
 
@@ -35,7 +35,7 @@ Rules that hold in every session:
 - `Book.pdf` is a cross-check reference only — never reproduced, quoted or redistributed.
 - Source pages 22–88: the existing inventories are mapping-grade only. Read the pages directly at 160 dpi
   before authoring from them. Never correct the source silently; record confirmed issues from **A-09** on.
-- Do the work in the container, deliver with `SendUserFile`, then write back into the project folders
+- Do the work in the container, deliver with `SendUserFile`, then write back into the numbered folders
   (`source` / `dist` / `instructor` / `build`, superseded material to `archive`).
 
 Conversation with me is in Turkish. Everything visible in a deliverable is in academic English.
