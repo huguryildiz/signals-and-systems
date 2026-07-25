@@ -276,3 +276,61 @@ from the first build.
 Chapters 4-7 of the notes follow the same pattern: add `src/c4.js` … and extend the concat in `build.js`.
 The remaining document deliverables (student workbook, instructor solutions, formula card, 16:9
 presentation print) reuse this pipeline.
+
+---
+
+## 11. Maintenance record — 2026-07-25, inline-math pipeline repair (v0.9)
+
+Three defects were found in the way inline `$…$` reaches the canvas. All three are pipeline faults, not
+content faults, so nothing was added to the source ledger (numbering still continues from **A-09**).
+
+**D1 · innerHTML read-back.** Six sites in `70_labs.js` assigned an HTML fragment and then re-read
+`element.innerHTML` to substitute `$…$`. The read-back re-serialises a mathematical `<` as `&lt;`, which
+KaTeX cannot parse, and on assignment the parser reads `<P` as the start of a tag. Laboratory B rendered
+`E_\infty&lt;\infty` as a red parse error and left a stray `< span="">` in option B. Fix: a single helper
+`M(html)` substitutes inline math **on the string, before assignment**; every read-back was removed. Note
+that this also repaired laboratory A's "Order matters" note and laboratory E's "Do not skip the flip"
+note, whose inline math had never been typeset at all.
+
+**D2 · headings bypassed `md()`.** In `90_app.js` the `note.head`, `eq.label`, `eyebrow.text`, `wex` key
+and `instr.head` fields were interpolated raw, so `$…$` inside them stayed literal on seven scenes
+(`m1-avgpower`, `m1-ct-cexp`, `m3-ex-ct1`, `m3-ex-dt2`, `m3-steps`, `m3-convint`, `m3-representation`).
+All five now pass through `md()`. The same fields in `notes/src/render.js` (`box.hd`, `ex.hd`, `ex` row
+keys, `eqbox.cap`, `title.meta`, `toc` entries) were hardened identically; the notes content in the tree
+does not currently exercise them, so the notes PDF is byte-identical.
+
+**D3 · two captions truncated by the R1–R8 sweep.** `82_scenes_m1.js:303` and `:591` had lost the head of
+the sentence together with the banned provenance phrase, leaving `'5,1.5]\to[2,6]$.'` and `'5$): a
+sinusoid…'` — an odd number of `$`, so the remainder rendered as raw TeX. Both captions were rewritten as
+teaching text. A whole-tree scan found exactly these two.
+
+**Two gates added, so the class cannot recur:**
+
+- `tools/rule_check.py` now also reports **S1** (odd number of `$` in a string field — an inline-math span
+  left open, the D3 signature) and **S2** (`innerHTML` read back and reassigned with `$` substitution —
+  the D1 signature). Both were confirmed to fire on the original defects before the fix was applied.
+- `build/qa.js` now records, per scene, any `.katex-error` element and any `$…$` that survived into
+  rendered text, and reports them as `mathDamage`. `build/mathscan.js` is a deeper sweep of the same kind:
+  it walks all 59 scenes and additionally clicks every laboratory option and disclosure, which is how D1
+  was localised. Run it after any change to `70_labs.js` or `90_app.js`.
+
+Gate results after the repair: `qa.js` 59 scenes, 0 errors, 0 overflow, `mathDamage: []` (one scene scaled
+to 0.976, unchanged) · `labtest.js` `ERRORS: none` · `verify_m1_m3.py` 50 passed, 0 failed ·
+`rule_check.py` TOTAL VIOLATIONS: 0 · `mathscan.js` 0 scenes with math damage.
+
+### Open finding — the R1 gate is weaker than it looks
+
+`rule_check.py`'s banned-phrase list is **case-sensitive and incomplete**, so "TOTAL VIOLATIONS: 0" does
+not yet mean the editorial rule holds. Two gaps, both still present and deliberately left unfixed pending
+a decision:
+
+1. Case. Matching `re.I` surfaces five student-facing uses of "The source …" that the current gate misses
+   (`82_scenes_m1.js:280`, `:515`, `:605`; `83_scenes_m2.js:155`, `:222`). Under R1 these must be rewritten
+   so the mathematics carries the meaning. Making the list case-insensitive also produces seven false
+   positives on the legitimate solution step "Cross-check:", so the `cross-check` pattern needs narrowing
+   to its provenance sense at the same time.
+2. Page references. The list contains no pattern for `p. 15` / `(pp. 6–7)`, and roughly ten of them are
+   visible to students inside `95_qbank.js` worked solutions (e.g. `:53`, `:172`, `:327`, `:395`, `:412`,
+   `:425`, `:601`). The `src:` fields and the file's section comments are legitimate and must stay exempt.
+
+Fixing both means editing worked-solution prose, which is content, so it was not done unilaterally.
