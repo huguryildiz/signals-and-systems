@@ -10,9 +10,9 @@ Set 2026-07-25. Artifact version at this point: **v0.9**.
 ## 0. Read order at session start
 
 1. this file
-2. `02_instructor/PHASE2_HANDOFF.md` — work order, build architecture, scene / block / question schemas
-3. `02_instructor/EE311_STYLE_RULES.md` — R1–R8, binding on every deliverable
-4. `02_instructor/EE311_Phase1_Report.md` — only when you need ledger A-01…A-08, QA history or the manifest
+2. `instructor/PHASE2_HANDOFF.md` — work order, build architecture, scene / block / question schemas
+3. `instructor/EE311_STYLE_RULES.md` — R1–R8, binding on every deliverable
+4. `instructor/EE311_Phase1_Report.md` — only when you need ledger A-01…A-08, QA history or the manifest
 
 The design system, build pipeline and content schema are **locked**. Do not re-derive or redesign them.
 If something looks wrong, say so and stop — do not silently change it.
@@ -34,41 +34,41 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 
 | Path | What it is |
 |---|---|
-| `00_source/EE311 - Lecture Notes.pdf` | primary source, 88 pp., handwritten scans |
-| `00_source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only** |
-| `00_source/EE311_INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
-| `01_student/EE311_Signals_and_Systems.html` | the interactive artifact (v0.9), student-facing |
-| `01_student/EE311_Lecture_Notes.pdf` | lecture notes, A4 portrait |
-| `02_instructor/PHASE2_HANDOFF.md` | work order and architecture |
-| `02_instructor/EE311_STYLE_RULES.md` | editorial rules R1–R8 |
-| `02_instructor/EE311_Phase1_Report.md` | scope, ambiguity ledger, verification, QA, manifest |
-| `02_instructor/coverage_matrix.md` | 88-page source-coverage matrix |
-| `03_production/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
-| `03_production/EE311_Lecture_Notes.html` | notes pipeline output |
-| `_archive/` | superseded material, do not build from it |
+| `source/EE311 - Lecture Notes.pdf` | primary source, 88 pp., handwritten scans |
+| `source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only** |
+| `source/EE311_INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
+| `dist/EE311_Signals_and_Systems.html` | the interactive artifact (v0.9), student-facing |
+| `dist/EE311_Lecture_Notes.pdf` | lecture notes, A4 portrait |
+| `instructor/PHASE2_HANDOFF.md` | work order and architecture |
+| `instructor/EE311_STYLE_RULES.md` | editorial rules R1–R8 |
+| `instructor/EE311_Phase1_Report.md` | scope, ambiguity ledger, verification, QA, manifest |
+| `instructor/coverage_matrix.md` | 88-page source-coverage matrix |
+| `build/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
+| `build/EE311_Lecture_Notes.html` | notes pipeline output |
+| `archive/` | superseded material, do not build from it |
 
-Keep this structure. New instructor-only records go in `02_instructor/`, new build archives in
-`03_production/`, anything superseded moves to `_archive/`. Do not leave scratch files in the root.
+Keep this structure. New instructor-only records go in `instructor/`, new build archives in
+`build/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
 
 ---
 
 ## 3. Rebuilding the working tree
 
-Rebuild from **`03_production/EE311_Deliverables.zip`**.
+Rebuild from **`build/EE311_Deliverables.zip`**.
 
-`_archive/EE311_Phase1_sources.zip` is **stale and incomplete**. It predates the R1–R8 editorial sweep
+`archive/EE311_Phase1_sources.zip` is **stale and incomplete**. It predates the R1–R8 editorial sweep
 (the scene, laboratory and question-bank sources in it differ from the current ones) and it is missing
 `tools/rule_check.py`, the whole `notes/` pipeline, `audit/scenes.json` and `audit/page_titles.tsv`.
 Building from it silently reintroduces 82 cleared rule violations and drops the notes pipeline.
 
 ```bash
-# stage 03_production/EE311_Deliverables.zip and 00_source/EE311 - Lecture Notes.pdf first
+# stage build/EE311_Deliverables.zip and source/EE311 - Lecture Notes.pdf first
 mkdir -p /tmp/ee311 && cd /tmp/ee311
-unzip -q /mnt/user-data/uploads/EE311/03_production/EE311_Deliverables.zip -d .
+unzip -q /mnt/user-data/uploads/EE311/build/EE311_Deliverables.zip -d .
 
 # source pages for the visual audit — 160 dpi is legible, do not go lower
 mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 \
-  "/mnt/user-data/uploads/EE311/00_source/EE311 - Lecture Notes.pdf" pages/p
+  "/mnt/user-data/uploads/EE311/source/EE311 - Lecture Notes.pdf" pages/p
 
 cd build && node build.js        # → ../dist/EE311_Signals_and_Systems.html
 cd ../notes && node build.js     # → ../dist/EE311_Lecture_Notes.html
@@ -172,8 +172,8 @@ scale factors genuinely need a second source.
 
 - Do the heavy work in the container (`/tmp/ee311`), not on the user's disk. Deliver finished files with
   `SendUserFile`, then write them back to the right numbered folder with `device_commit_files`.
-- Re-zip `03_production/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
-  never drifts from the delivered artifact. Move the previous archive to `_archive/` rather than
+- Re-zip `build/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
+  never drifts from the delivered artifact. Move the previous archive to `archive/` rather than
   overwriting it blind.
 - When a task spans several hours or gets interrupted, update `PHASE2_HANDOFF.md` before ending — it is
   the only thing that survives the container.

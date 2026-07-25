@@ -1,18 +1,18 @@
 # EE 311 — Signals and Systems
 
-Folders are organised by **who the files are for**. Nothing here is deleted; older material sits in `_archive`.
+Folders are organised by **who the files are for**. Nothing here is deleted; older material sits in `archive`.
 
 | Folder | For whom | Contents |
 |---|---|---|
-| `00_source/` | you only | Course source material and the production brief. Not distributed. |
-| `01_student/` | students | Everything that may be handed out, and nothing else. |
-| `02_instructor/` | you only | Internal records: audit, verification, coverage, editorial rules, continuation brief. **Never distribute these.** |
-| `03_production/` | you only | The full source package needed to rebuild every output, plus the notes source. |
-| `_archive/` | nobody | Superseded material kept only so nothing is lost. Safe to delete. |
+| `source/` | you only | Course source material and the production brief. Not distributed. |
+| `dist/` | students | Everything that may be handed out, and nothing else. |
+| `instructor/` | you only | Internal records: audit, verification, coverage, editorial rules, continuation brief. **Never distribute these.** |
+| `build/` | you only | The full source package needed to rebuild every output, plus the notes source. |
+| `archive/` | nobody | Superseded material kept only so nothing is lost. Safe to delete. |
 
 ## What to hand out
 
-Give students the two files in `01_student/`:
+Give students the two files in `dist/`:
 
 - **`EE311_Signals_and_Systems.html`** — the interactive artifact. Open in any browser. Works offline, makes no
   network requests, and stores optional progress on the reader's own device. Keyboard: `→` advance, `M` module
@@ -24,12 +24,12 @@ source pages. Those appear only in the artifact's instructor edition, which is r
 
 ## What not to hand out
 
-`02_instructor/` contains the audit trail, the issue ledger and the coverage matrix. They exist so that any
+`instructor/` contains the audit trail, the issue ledger and the coverage matrix. They exist so that any
 claim in the student material can be traced and checked later. They are working records, not teaching material.
 
 ## Rebuilding
 
-`03_production/EE311_Deliverables.zip` contains every source file, the build scripts and the test harnesses.
+`build/EE311_Deliverables.zip` contains every source file, the build scripts and the test harnesses.
 Unzip it anywhere and run:
 
 ```bash
@@ -51,5 +51,5 @@ python3 tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
 ## Current state
 
 Chapters 1 to 3 are complete: signals, system properties, and linear time-invariant systems. Fourier series,
-the continuous- and discrete-time Fourier transforms, and sampling are the next stage; `02_instructor/PHASE2_HANDOFF.md`
+the continuous- and discrete-time Fourier transforms, and sampling are the next stage; `instructor/PHASE2_HANDOFF.md`
 describes exactly how to continue.

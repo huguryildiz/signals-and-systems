@@ -7,7 +7,7 @@ This file continues the ambiguity ledger of `EE311_Phase1_Report.md` §2 from **
 
 ## 1. Scope and method
 
-Pages 22–41 of `00_source/EE311 - Lecture Notes.pdf` were rendered at 160 dpi and read one page at a
+Pages 22–41 of `source/EE311 - Lecture Notes.pdf` were rendered at 160 dpi and read one page at a
 time. Regions carrying a candidate issue were re-cropped and enlarged before a verdict was recorded.
 Every numerical claim below was checked independently — by re-deriving the result symbolically and, where
 a plotted figure is involved, by evaluating both the correct and the printed expression numerically and
@@ -101,7 +101,7 @@ statement of what is correct on it.
 
 ## 6. Verification state at the end of this session
 
-Run against the working tree rebuilt from `03_production/EE311_Deliverables.zip`, after the two carried
+Run against the working tree rebuilt from `build/EE311_Deliverables.zip`, after the two carried
 Phase 1 open items were closed:
 
 ```

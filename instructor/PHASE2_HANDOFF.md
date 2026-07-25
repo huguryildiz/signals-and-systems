@@ -215,7 +215,7 @@ image and inspect it before shipping.
    (transform conventions, convergence conditions, scale factors) — open the ledger there.
 4. Version identifier must move to **v1.0** only when Modules 4–7 and all five PDFs are complete and
    consistent; bump the manifest in `80_content_core.js` `CONTENT.META` and in `91_scenes_end.js`.
-5. **Source pp. 22–41 are audited** (`02_instructor/EE311_Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
+5. **Source pp. 22–41 are audited** (`instructor/EE311_Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
    Module 4 may now be authored from them. Pages 42–88 are **not** audited; the same page-by-page reading
    is required before Modules 5–7.
 6. **A fifth verification gate now exists.** `build/domcheck.js` renders every scene at every reveal state
@@ -230,8 +230,8 @@ image and inspect it before shipping.
 ## 8. Suggested opening message for the new session
 
 > EE311 artifact Faz 2. Masaüstümdeki `EE311/` klasöründe `CLAUDE.md` ve `PHASE2_HANDOFF.md` var — önce
-> onları oku, sonra `02_instructor/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Çalışma ağacını
-> `03_production/EE311_Deliverables.zip` içinden kur ve Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
+> onları oku, sonra `instructor/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Çalışma ağacını
+> `build/EE311_Deliverables.zip` içinden kur ve Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
 > Q4 bankası, verify uzantısı. Kaynak s. 22–41 denetlendi; yeniden denetleme.
 
 ---

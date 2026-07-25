@@ -16,9 +16,9 @@ node_modules/
 
 # --- Large / restricted source material (kept on disk, never tracked) ---
 # Book.pdf is a cross-check reference only: never reproduced or redistributed.
-00_source/Book.pdf
+source/Book.pdf
 # 41 MB handwritten scan; too large for git history. Keep a local copy.
-00_source/EE311 - Lecture Notes.pdf
+source/EE311 - Lecture Notes.pdf
 
 # --- Scratch ---
 _to_delete/
