@@ -90,7 +90,14 @@ cd verify && python3 verify_m1_m3.py          # → "50 passed, 0 failed" (exten
 python3 tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
         "build/src/95_qbank.js" "build/src/70_labs.js" "notes/src/*.js"
                                               # → "TOTAL VIOLATIONS: 0"
+cd build && node textclash.js                 # figure labels     → "TOTAL COLLISIONS: 0"
 ```
+
+`textclash.js` walks every scene at every step, takes the glyph box of every label in every figure and
+tests it against the drawn geometry of that figure. A word, an equation or a caption crossed by a
+signal, a label sitting on another label, and a label drawn without a halo all fail. Tick numbers
+crossed by a curve are accepted, because the halo interrupts the curve around the digits; the run
+reports how many of those it accepted.
 
 New modules extend the suites; they do not replace them. Every new numerical result in the content gets
 a check in `verify/`, in the same PASS/FAIL-per-line format. Before shipping any PDF, render every page
@@ -141,6 +148,10 @@ navy `#16232F` module-opening and synthesis scenes only.
 - Fixed 1920×1080 stage. `fitScene()` scales an oversized scene down to a floor of 0.82 — it is a **safety
   net, not a licence to overfill**. A scene needing below ~0.90 must be split instead.
 - Radial / orbital compositions are reserved for course maps and synthesis scenes.
+- `Axes` places the name of the independent variable under the data area and the name of the dependent
+  variable above it, widening the bottom or top margin by itself when the given `pad` is too small.
+  Every label in a figure is drawn with a halo in `--fig-halo`, the page colour of the current palette.
+  Do not restore labels to the inside of the data area.
 - Single file, no network requests, no analytics. Progress stored on the local device only.
 
 ### 5.5 Sources

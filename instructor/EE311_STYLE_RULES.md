@@ -79,8 +79,16 @@ Plain wording is required; mathematical looseness is not permitted.
 - Every figure axis is labelled. Continuous-time signals are curves. Discrete-time signals are stems.
   Impulses are arrows whose height is the weight. Negative frequencies are shown when they exist.
 - A figure caption explains what the figure means. It never explains where the figure came from.
+- Nothing written inside a figure may be crossed by anything drawn in it. The name of a variable is
+  placed outside the data area — the independent variable under the lower edge, the dependent variable
+  above the upper edge. Annotations are placed in free space, not over a signal. Tick numbers stay on
+  the axis and carry a halo in the page colour, so a curve or stem that passes behind them is
+  interrupted rather than run through the digits.
+- No label may sit on another label, at any step of a scene.
 
 ## R8 — Automated check
 
 `tools/rule_check.py` scans every student-facing string for banned phrases and fails the build on a hit.
-Run it before any delivery.
+`build/textclash.js` renders every figure in every scene at every step and measures, glyph box against
+drawn geometry, whether any label is crossed by a signal or by another label. Both run before any
+delivery; both must report zero.
