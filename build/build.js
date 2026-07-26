@@ -13,7 +13,7 @@ const guard = s => s.replace(/<\/script>/gi, '<\\/script>');
 const scripts = jsFiles.map(f => `<script>\n/* ==== ${f} ==== */\n` + guard(read(f)) + `\n</script>`).join('\n');
 
 const out = head + '\n' + scripts + '\n' + read('99_tail.html');
-const dest = path.join(__dirname,'..','dist','EE311_Signals_and_Systems.html');
+const dest = path.join(__dirname,'..','dist','Signals_and_Systems.html');
 fs.mkdirSync(path.dirname(dest),{recursive:true});
 fs.writeFileSync(dest, out);
 console.log('built', dest, (out.length/1024/1024).toFixed(2)+' MB', '·', jsFiles.length, 'js modules');

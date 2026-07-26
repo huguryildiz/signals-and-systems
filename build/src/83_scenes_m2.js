@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EE311 · Module 2 — Systems and Their Properties   [Source: 11–14]
+   Module 2 — Systems and Their Properties   [Source: 11–14]
    ========================================================================== */
 (function(){
 const P = PLOT, C = P.COL;
@@ -11,7 +11,7 @@ const SC = [
   dark:true, keywords:'module 2 systems properties overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Systems and Their Properties', src:'pp. 11–14'},
   {t:'title', level:1, text:'Six questions,<br>asked in a fixed order'},
-  {t:'lede', text:'A system is characterised by what it does to signals, not by what it is made of. Six properties decide almost everything that follows — and two of them, together, are the entire content of Module 3.'},
+  {t:'lede', text:'A system is described by what it does to signals, not by what it is made of. Six properties decide almost everything that follows. Two of them, taken together, are the whole content of Module 3.'},
   {t:'raw', html:`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin:auto 0;max-width:1500px">
     ${['Memoryless','Invertible','Causal','BIBO stable','Time invariant','Linear'].map((n,i)=>
       `<div style="border-top:2px solid ${i>=4?'#BE5539':'rgba(239,231,216,.35)'};padding-top:14px">
@@ -30,20 +30,20 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'A system is a map between signals'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b> which transforms input signals into output signals — a “black box”, viewed as a mathematical abstraction, that <b>deterministically</b> transforms input signals into output signals.'},
+    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b> that turns input signals into output signals. Treated as a mathematical object, it is a “black box” that performs this map <b>deterministically</b>.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'Write it as an operator: {{sym:S|$S$}} maps a whole signal to a whole signal, $y=S\\{x\\}$. Not a number to a number — the entire function is the argument. That is why memory, causality and time invariance are even expressible.'}]},
+      {t:'body', html:'Write it as an operator. {{sym:S|$S$}} maps a whole signal to a whole signal, $y=S\\{x\\}$. It does not map a number to a number. The argument is the entire function. That is why memory, causality and time invariance can be expressed at all.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Two systems are equal when they act identically', html:'An RC circuit, a numerical filter and a pencil-and-paper integrator can be the <em>same</em> system. Physical realisation is irrelevant to every property in this module — which is precisely what makes the theory portable.'}]}
+      {t:'note', kind:'warn', head:'Two systems are equal when they act identically', html:'An RC circuit, a numerical filter and a pencil-and-paper integrator can be the <em>same</em> system. How a system is built does not affect any property in this module. That is what makes the theory portable.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:300,items:[
       {t:'arrow',x1:70,y1:100,x2:250,y2:100},{t:'box',x:250,y:60,w:200,h:80,label:'S'},
       {t:'arrow',x1:450,y1:100,x2:640,y2:100},
-      {t:'text',x:150,y:86,label:'x(t)',italic:true,fs:18},{t:'text',x:545,y:86,label:'y(t)',italic:true,fs:18},
+      {t:'text',x:150,y:86,label:'x(t)',tex:true,fs:18},{t:'text',x:545,y:86,label:'y(t)',tex:true,fs:18},
       {t:'arrow',x1:70,y1:225,x2:250,y2:225},{t:'box',x:250,y:185,w:200,h:80,label:'S'},
       {t:'arrow',x1:450,y1:225,x2:640,y2:225},
-      {t:'text',x:150,y:211,label:'x[n]',italic:true,fs:18},{t:'text',x:545,y:211,label:'y[n]',italic:true,fs:18}
-    ]}), caption:'The same operator viewpoint in continuous and discrete time. '}
+      {t:'text',x:150,y:211,label:'x[n]',tex:true,fs:18},{t:'text',x:545,y:211,label:'y[n]',tex:true,fs:18}
+    ]}), caption:'The same operator viewpoint in continuous time and in discrete time.'}
   ]}
 ]},
 
@@ -64,29 +64,29 @@ const SC = [
       {t:'wex', rows:[
         ['(d)','$y[n]=x[n]+y[n-1]$ — <b>not memoryless</b>.'],
         ['Proof','Substituting repeatedly: $y[n-1]=x[n-1]+y[n-2]$, $y[n-2]=x[n-2]+y[n-3]$, … so<br>$y[n]=x[n]+x[n-1]+x[n-2]+\\cdots=\\displaystyle\\sum_{k=0}^{\\infty}x[n-k]$.'],
-        ['Conclusion','$y[n]$ depends on $x[n-k]$ for every $k\\ge0$ — the whole past. Feedback on the <em>output</em> is memory just as surely as an explicit delay on the input.']
+        ['Conclusion','$y[n]$ depends on $x[n-k]$ for every $k\\ge0$, that is on the whole past. Feedback on the <em>output</em> is memory, just as much as a delay on the input.']
       ]}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'The circuit reading', html:'A resistor, $v(t)=R\\,i(t)$, is memoryless: the voltage now depends only on the current now. A capacitor, $v(t)=\\frac1C\\int_{-\\infty}^{t}i(\\tau)\\d\\tau$, is not: the voltage now encodes the entire current history. Memory is stored energy.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:150,items:[
       {t:'line',d:'M60 75 h60 l12 -22 l24 44 l24 -44 l24 44 l24 -44 l12 22 h60'},
-      {t:'text',x:340,y:52,label:'v(t) = R i(t)',fs:16,italic:true},
+      {t:'text',x:340,y:52,label:'v(t)=R\\,i(t)',fs:16,tex:true},
       {t:'text',x:340,y:96,label:'memoryless — output now, input now',fs:13},
       {t:'arrow',x1:400,y1:75,x2:470,y2:75}
     ]}), caption:'Resistor: no stored energy, therefore no memory.'},
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:150,items:[
       {t:'line',d:'M60 75 h110 M170 45 v60 M198 45 v60 M198 75 h110'},
-      {t:'text',x:430,y:52,label:'v(t) = (1/C) ∫ i(τ) dτ',fs:16,italic:true},
+      {t:'text',x:430,y:52,label:'v(t)=\\tfrac{1}{C}\\int i(\\tau)\\,d\\tau',fs:16,tex:true},
       {t:'text',x:430,y:96,label:'not memoryless — the whole past enters',fs:13}
-    ]}), caption:'Capacitor: stored charge is memory. '},
+    ]}), caption:'Capacitor: stored charge is memory.'},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:760,h:230,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
         a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
         a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
-        a.note(4.2,5.6,'y[n] = Σ x[k]',{anchor:'end',color:C.out,fs:14,italic:true});
-        a.note(8.6,1.4,'x[n]',{anchor:'end',color:C.in,fs:14,italic:true});
+        a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
+        a.note(8.6,1.4,'x[n]',{anchor:'end',color:C.in,fs:14,tex:true});
         return a.svg(); },
         caption:'The accumulator of (d): each output carries every earlier input.'}]}
   ]}
@@ -99,12 +99,12 @@ const SC = [
   {t:'title', text:'Invertible'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>invertible</b> if <b>distinct input signals produce distinct output signals</b> — the map is one-to-one.'},
-    {t:'note', kind:'warn', head:'Two ways to settle it', html:'<b>(1)</b> Find an inversion formula. <b>(2)</b> Find a counterexample showing the system is not invertible.<br>These are not symmetric in cost: one formula proves invertibility for all inputs; one counterexample destroys it.'},
+    {t:'note', kind:'warn', head:'Two ways to settle it', html:'<b>(1)</b> Find an inversion formula. <b>(2)</b> Find a counterexample showing the system is not invertible.<br>The two are not equally cheap. One formula proves invertibility for all inputs. One counterexample destroys it.'},
     {t:'reveal', at:1, items:[
       {t:'wex', rows:[
         ['(a)','$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$ — <b>invertible</b>.'],
         ['Inversion','$x(t)=\\dfrac{y(t)}{\\cos(t)+2}$.'],
-        ['Why it is safe','$\\cos(t)+2\\in[1,3]$, so the divisor never vanishes. Had the gain been $\\cos(t)$ the system would fail at every zero of the cosine.'],
+        ['Why it is safe','$\\cos(t)+2\\in[1,3]$, so the divisor is never zero. If the gain were $\\cos(t)$, the system would fail at every zero of the cosine.'],
         ['Verification','Substituting back: $[\\cos t+2]\\dfrac{y(t)}{\\cos t+2}=y(t)$ ✓']
       ]}]},
     {t:'reveal', at:2, items:[
@@ -114,7 +114,7 @@ const SC = [
         ['Conclusion','Two inputs, one output ⇒ the map is not one-to-one. The sign information is destroyed and cannot be recovered from $y$ alone.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'A trap worth naming', html:'“$x(t)=\\sqrt{y(t)}$” is <b>not</b> an inversion formula. It selects one of two pre-images by convention; it does not recover the input. An inversion formula must return the actual input for every admissible input.'}]}
+      {t:'note', kind:'err', head:'A trap worth naming', html:'“$x(t)=\\sqrt{y(t)}$” is <b>not</b> an inversion formula. It picks one of two pre-images by convention. It does not recover the input. An inversion formula must return the actual input, for every input the system accepts.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:800,h:230,items:[
       {t:'line',d:'M120 115 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
@@ -122,15 +122,15 @@ const SC = [
       {t:'text',x:120,y:20,label:'inputs',fs:14},{t:'text',x:560,y:20,label:'outputs',fs:14},
       {t:'line',d:'M120 85 C 250 60, 430 60, 560 85',color:'#14707F'},
       {t:'line',d:'M120 145 C 250 170, 430 170, 560 145',color:'#4A7A46'},
-      {t:'text',x:340,y:52,label:'one-to-one ⇒ invertible',fs:14,color:'#4A657F'}
-    ]}), caption:'Invertibility is a statement about the <em>map</em>, not about any single signal. '},
+      {t:'text',x:340,y:52,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:'#4A657F',tex:true}
+    ]}), caption:'Invertibility is a statement about the <em>map</em>, not about any single signal.'},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:800,h:260,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
         a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
         a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
-        a.note(5.7,1.28,'x₁ = 1  and  y = 1',{anchor:'end',color:C.err,fs:14});
-        a.note(5.7,-1.3,'x₂ = −1',{anchor:'end',color:C.mid,fs:14});
+        a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
+        a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
         return a.svg(); },
         caption:'The counterexample for $y=x^{2}$: two distinct inputs collapse onto one output.'}]}
   ]}
@@ -152,9 +152,9 @@ const SC = [
         ['(e)','$y(t)=x(t)\\cos(t+1)$ — <b>causal</b>: $y(t)$ uses only $x(t)$; $\\cos(t+1)$ is a known deterministic function of $t$, not a future input.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A wording correction', html:'The source justifies (e) by writing that $\\cos(t+1)$ “is constant”. It is not constant — it is a <em>known function of $t$</em>, fixed in advance and requiring no knowledge of the input. That is what preserves causality.'}]},
+      {t:'note', kind:'warn', head:'A wording correction', html:'It is tempting to justify (e) by saying that $\\cos(t+1)$ “is constant”. It is not constant. It is a <em>known function of $t$</em>, fixed in advance, and it needs no knowledge of the input. That is what keeps the system causal.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why engineers care', html:'A system that must run in real time <b>has</b> to be causal — the future has not happened. Non-causal systems are legitimate and useful whenever the record already exists: offline audio, image processing, and any smoothing filter that looks both ways along a stored signal.'}]}
+      {t:'note', kind:'def', head:'Why engineers care', html:'A system that runs in real time <b>must</b> be causal, because the future has not happened yet. Non-causal systems are fine and useful whenever the record already exists: offline audio, image processing, and any smoothing filter that looks both ways along a stored signal.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:300,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
@@ -166,14 +166,14 @@ const SC = [
       a.note(2.5,0.55,'forbidden — the future',{anchor:'middle',color:C.err,fs:15});
       a.note(0,1.12,'now',{anchor:'middle',color:C.coral,fs:14});
       return a.svg(); },
-      caption:'Causality is a constraint on which part of the input axis the output may consult.'},
+      caption:'Causality limits which part of the input axis the output is allowed to use.'},
     {t:'reveal', at:1, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:820,h:240,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
         a.stem(disc(n=>n===1?1:0,-4,4),{color:C.in});
         a.stem(disc(n=>n===-1?1:0,-4,4),{color:C.err});
-        a.note(-1,1.22,'y[−1]',{anchor:'middle',color:C.err,fs:14});
-        a.note(1,1.22,'x[1]',{anchor:'middle',color:C.in,fs:14});
+        a.note(-1,1.22,'y[-1]',{anchor:'middle',color:C.err,fs:14,tex:true});
+        a.note(1,1.22,'x[1]',{anchor:'middle',color:C.in,fs:14,tex:true});
         a.raw(`<path d="M${a.sx(0.9)},${a.sy(1.05)} C ${a.sx(0.3)},${a.sy(1.32)} ${a.sx(-0.3)},${a.sy(1.32)} ${a.sx(-0.9)},${a.sy(1.05)}"
                 fill="none" stroke="${C.err}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
         return a.svg(); },
@@ -206,20 +206,20 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'note', kind:'err', head:'The asymmetry that catches people out', html:'To <em>prove</em> stability you must bound the output for <b>every</b> bounded input. To <em>disprove</em> it you need <b>one</b>. Testing a single well-behaved input and concluding “stable” is the most common false positive in this module.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'Causal ≠ stable', html:'The accumulator is causal and unstable. $y[n]=x[-n]$ is stable and non-causal. The six properties are logically independent except where a proof connects them — memoryless ⇒ causal is the one implication that always holds.'}]}
+      {t:'note', kind:'warn', head:'Causal ≠ stable', html:'The accumulator is causal and unstable. $y[n]=x[-n]$ is stable and non-causal. The six properties are logically independent, except where a proof connects them. Memoryless ⇒ causal is the one implication that always holds.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:250,xr:[-2,12],yr:[-0.4,1.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:8,ytarget:3});
       a.stem(disc(n=>n>=0?1:0,-2,12),{color:C.in});
       a.hline(1,{color:C.in,dash:'2 5'});
-      a.note(11.6,1.32,'bounded input  u[n]',{anchor:'end',color:C.in,fs:14});
+      a.note(11.6,1.32,'\\text{bounded input }u[n]',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); }},
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:290,xr:[-2,12],yr:[-1,14],xlabel:'n',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
       a.stem(disc(n=>n>=0?n+1:0,-2,12),{color:C.err});
-      a.note(11.6,12.6,'y[n] = n + 1  → ∞',{anchor:'end',color:C.err,fs:14});
+      a.note(11.6,12.6,'y[n]=n+1\\to\\infty',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
-      caption:'The source counterexample, drawn: the input never exceeds 1, the output grows without bound. <b>The system is not stable.</b>'}
+      caption:'The counterexample, drawn. The input never exceeds 1, but the output grows without bound. <b>The system is not stable.</b>'}
   ]}
 ]},
 
@@ -246,27 +246,27 @@ const SC = [
         ['Compare','$y_1[n-1]=0$ but $y_2[n]=\\delta[n-1]\\neq0$. One counterexample settles it.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'The pattern behind every failure', html:'A system fails time invariance exactly when its rule contains the time variable <em>explicitly</em> — a coefficient $n$, a gain $\\cos(t)$, a scaled argument $x(3t)$. If $t$ or $n$ appears anywhere except inside the input, be suspicious immediately.'}]},
+      {t:'note', kind:'def', head:'The pattern behind every failure', html:'A system fails time invariance exactly when its rule contains the time variable <em>explicitly</em>: a coefficient $n$, a gain $\\cos(t)$, or a scaled argument $x(3t)$. If $t$ or $n$ appears anywhere except inside the input, test time invariance first.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'Not the same as linearity', html:'$y[n]=n\\,x[n]$ is linear and <em>not</em> time invariant; $y(t)=x^{2}(t)$ is time invariant and <em>not</em> linear. Independent properties — Module 3 needs both.'}]}
+      {t:'note', kind:'err', head:'Not the same as linearity', html:'$y[n]=n\\,x[n]$ is linear and <em>not</em> time invariant. $y(t)=x^{2}(t)$ is time invariant and <em>not</em> linear. The two properties are independent, and Module 3 needs both.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
       a.stem(disc(n=>n===0?1:0,-3,4),{color:C.in});
-      a.note(3.6,1.2,'x₁[n] = δ[n]',{anchor:'end',color:C.in,fs:14,italic:true}); return a.svg(); }},
+      a.note(3.6,1.2,'x_1[n]=\\delta[n]',{anchor:'end',color:C.in,fs:14,tex:true}); return a.svg(); }},
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
       a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true});
-      a.note(3.6,1.2,'y₁[n] = n·δ[n] = 0',{anchor:'end',color:C.out,fs:14,italic:true}); return a.svg(); }},
+      a.note(3.6,1.2,'y_1[n]=n\\cdot\\delta[n]=0',{anchor:'end',color:C.out,fs:14,tex:true}); return a.svg(); }},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
         a.stem(disc(n=>n===1?1:0,-3,4),{color:C.h});
-        a.note(3.6,1.2,'x₂[n] = δ[n−1]',{anchor:'end',color:C.h,fs:14,italic:true}); return a.svg(); }},
+        a.note(3.6,1.2,'x_2[n]=\\delta[n-1]',{anchor:'end',color:C.h,fs:14,tex:true}); return a.svg(); }},
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
         a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err});
-        a.note(3.6,1.2,'y₂[n] = δ[n−1]  ≠  y₁[n−1] = 0',{anchor:'end',color:C.err,fs:14,italic:true}); return a.svg(); },
+        a.note(3.6,1.2,'y_2[n]=\\delta[n-1]\\neq y_1[n-1]=0',{anchor:'end',color:C.err,fs:14,tex:true}); return a.svg(); },
         caption:'The counterexample, drawn.'}]}
   ]}
 ]},
@@ -283,7 +283,7 @@ const SC = [
       {t:'wex', rows:[
         ['(a)','$y(t)=2\\pi\\,x(t)$ — <b>linear</b>.'],
         ['Proof','$x_3=a x_1+b x_2 \\Rightarrow y_3=2\\pi x_3=2\\pi(ax_1+bx_2)=a\\underbrace{2\\pi x_1}_{y_1}+b\\underbrace{2\\pi x_2}_{y_2}=ay_1+by_2$ ✓'],
-        ['Bonus','This system is also time invariant, hence <b>LTI</b> — the simplest possible member of the family Module 3 studies.']
+        ['Bonus','This system is also time invariant, so it is <b>LTI</b>. It is the simplest member of the family that Module 3 studies.']
       ]}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
@@ -293,21 +293,21 @@ const SC = [
         ['Compare','$a y_1[n]+b y_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n]$. The powers of $a,b$ differ <em>and</em> a cross term appears ⇒ not linear.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'A quicker disproof, when you want one', html:'Homogeneity alone often fails: scaling the input by $a$ scales this output by $a^{2}$. Testing $a=2,b=0$ settles it in one line. Additivity and homogeneity are each <em>necessary</em>; either failure is fatal.'}]},
+      {t:'note', kind:'warn', head:'A quicker disproof, when you want one', html:'Homogeneity alone often fails. Scaling the input by $a$ scales this output by $a^{2}$. Testing $a=2$, $b=0$ settles it in one line. Additivity and homogeneity are each <em>necessary</em>. If either one fails, the system is not linear.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'“Linear” does not mean “straight line”', html:'$y(t)=x(t)+5$ is <b>not</b> linear: the zero input does not give the zero output. Any system that is linear must satisfy $S\\{0\\}=0$ — a five-second first test that rules out every affine offset.'}]}
+      {t:'note', kind:'err', head:'“Linear” does not mean “straight line”', html:'$y(t)=x(t)+5$ is <b>not</b> linear, because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$. That is a five-second first test, and it rules out any constant offset.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:330,items:[
       {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:'#4A657F'},
       {t:'arrow',x1:100,y1:90,x2:280,y2:90},{t:'box',x:280,y:58,w:150,h:64,label:'S'},
       {t:'arrow',x1:430,y1:90,x2:610,y2:90},
-      {t:'text',x:190,y:78,label:'a x₁ + b x₂',italic:true,fs:15},
-      {t:'text',x:520,y:78,label:'y₃',italic:true,fs:15},
+      {t:'text',x:190,y:78,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
+      {t:'text',x:520,y:78,label:'y_3',tex:true,fs:15},
       {t:'text',x:100,y:186,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:'#4A657F'},
       {t:'arrow',x1:100,y1:240,x2:280,y2:240},{t:'box',x:280,y:208,w:150,h:64,label:'S'},
       {t:'arrow',x1:430,y1:240,x2:610,y2:240},
-      {t:'text',x:190,y:228,label:'x₁, x₂',italic:true,fs:15},
-      {t:'text',x:520,y:228,label:'a y₁ + b y₂',italic:true,fs:15},
+      {t:'text',x:190,y:228,label:'x_1,\\;x_2',tex:true,fs:15},
+      {t:'text',x:520,y:228,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
       {t:'text',x:660,y:170,label:'equal?',fs:16,color:'#BE5539'},
       {t:'line',d:'M640 90 h40 v150 h-40',color:'#BE5539'}
     ]}), caption:'Linearity is the statement that these two routes always agree. Every proof in this module is a comparison of the two.'}
@@ -330,13 +330,13 @@ const SC = [
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const rows=[
-        ['y(t) = 2π x(t)',            [1,1,1,1,1,1]],
-        ['y[n] = x[n−1]',             [0,1,1,1,1,1]],
-        ['y(t) = x²(t)',              [1,0,1,1,1,0]],
-        ['y[n] = n x[n]',             [1,0,1,0,0,1]],
-        ['y[n] = Σ x[k]',             [0,1,1,0,1,1]],
-        ['y[n] = x[−n]',              [0,1,0,1,0,1]],
-        ['y[n] = (x[2n])²',           [0,0,0,1,0,0]]
+        ['y(t)=2\\pi x(t)',           [1,1,1,1,1,1]],
+        ['y[n]=x[n-1]',               [0,1,1,1,1,1]],
+        ['y(t)=x^{2}(t)',             [1,0,1,1,1,0]],
+        ['y[n]=n\\,x[n]',             [1,0,1,0,0,1]],
+        ['y[n]=\\sum_{k\\le n}x[k]',  [0,1,1,0,1,1]],
+        ['y[n]=x[-n]',                [0,1,0,1,0,1]],
+        ['y[n]=(x[2n])^{2}',          [0,0,0,1,0,0]]
       ];
       const cols=['mem','inv','caus','stab','TI','lin'];
       const W=820,H=360,x0=250,cw=88,rh=40;
@@ -345,12 +345,12 @@ const SC = [
       rows.forEach((r,j)=>{
         const y=58+rh*j;
         g.push(`<line x1="0" y1="${y-14}" x2="${W}" y2="${y-14}" stroke="#E2DACA"/>`);
-        g.push(`<text x="8" y="${y+6}" font-size="14" fill="#1B1A17" font-style="italic">${r[0]}</text>`);
+        g.push(P.texName(r[0],{xLeft:8, baseline:y+9, size:14, color:C.ink, figW:x0-16}));
         r[1].forEach((v,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="${y+7}" font-size="16" text-anchor="middle"
           fill="${v?'#4A7A46':'#A63B2A'}">${v?'✓':'✗'}</text>`));
       });
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
-    }, caption:'Cumulative classification of the definition examples. Read the columns, not the rows: no column determines another, which is exactly why six separate tests are required.'}
+    }, caption:'The systems used in this module, with all six verdicts. Read the columns, not the rows. No column determines another, and that is why six separate tests are needed.'}
   ]}
 ]},
 
@@ -359,7 +359,7 @@ const SC = [
   keywords:'laboratory system property checker criterion counterexample', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory D', src:'pp. 11–14, 21'},
   {t:'title', text:'Thirteen systems, six tests each'},
-  {t:'lede', text:'Every verdict below is backed by an argument or an explicit counterexample — never by inspection. Predict the six answers before opening them.'},
+  {t:'lede', text:'Every verdict below rests on an argument or on an explicit counterexample, never on inspection. Predict the six answers before you open them.'},
   {t:'lab', id:'D'}
 ]},
 
@@ -370,17 +370,17 @@ const SC = [
   {t:'title', text:'Why two of the six matter more than the rest'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:#DED5C6">Four of the six properties describe what a system is <em>allowed</em> to do: use memory, look ahead, amplify without bound, discard information. They constrain implementation.</p>
-      <p style="color:#DED5C6">Two of them — <b>linearity</b> and <b>time invariance</b> — do something different. Together they make the system <em>completely determined by a single test</em>.</p>`},
+      <p style="color:#DED5C6">Two of them, <b>linearity</b> and <b>time invariance</b>, do something different. Together they make the system <em>completely determined by a single test</em>.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:#DED5C6">If a system is linear and time invariant, then knowing its response to <b>one</b> input — the unit impulse — determines its response to <b>every</b> input. The system collapses from an infinite-dimensional map to one function $h$.</span>'}]},
+      {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:#DED5C6">If a system is linear and time invariant, then its response to <b>one</b> input, the unit impulse, determines its response to <b>every</b> input. The system reduces from an infinite-dimensional map to one function $h$.</span>'}]},
     {t:'reveal', at:2, items:[
       {t:'body', html:`<p style="color:#CFC5B4">The argument is three lines long and uses only what you already have: the representation property from Module 1 ($x$ is a sum of weighted, shifted impulses), time invariance (a shifted impulse gives a shifted impulse response), and linearity (weights and sums pass through).</p>`}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
-    {t:'lede', text:'A saturating amplifier is time invariant but not linear; a fading radio channel is linear but not time invariant. Both are ubiquitous, and neither admits an impulse response. What does that cost you in practice — and what do engineers actually do about it?'},
+    {t:'lede', text:'A saturating amplifier is time invariant but not linear. A fading radio channel is linear but not time invariant. Both are very common, and neither one has an impulse response. What does that cost you in practice? What do engineers do about it?'},
     {t:'reveal', at:2, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
-        <span style="color:#DED5C6">Both are handled by <em>local</em> LTI approximations: small-signal linearisation about an operating point for the amplifier, and block-wise time invariance over a coherence interval for the channel. The engineering question then becomes how long the approximation stays valid — which is a quantitative version of “how badly is the property violated”.</span></div></div>`}]}
+        <span style="color:#DED5C6">Both are handled by <em>local</em> LTI approximations: small-signal linearisation about an operating point for the amplifier, and block-wise time invariance over a coherence interval for the channel. The engineering question is then how long the approximation stays valid. That is a quantitative version of “how badly is the property broken”.</span></div></div>`}]}
   ]}
 ]},
 

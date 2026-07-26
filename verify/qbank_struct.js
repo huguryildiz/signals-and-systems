@@ -1,6 +1,7 @@
 const fs=require('fs');
+const path=require('path');
 const CONTENT={QBANK:[]};
-eval(fs.readFileSync('/tmp/ee311/build/src/95_qbank.js','utf8'));
+eval(fs.readFileSync(path.resolve(__dirname,'..','build','src','95_qbank.js'),'utf8'));
 const Q=CONTENT.QBANK;
 const order=['concept','concept','concept','calc','calc','calc','misconception','misconception','exam','exam','graph','synthesis'];
 let bad=0; const say=(ok,m)=>{ if(!ok){bad++;console.log('  FAIL '+m);} };

@@ -1,4 +1,4 @@
-# EE311 Signals and Systems — Page-Level Content Audit, pages 72–88
+# Signals and Systems — Page-Level Content Audit, pages 72–88
 
 Global notation note: the imaginary unit is handwritten as `J` throughout; it is recorded here as `j`.
 Global glyph note: the handwritten lowercase `a` is drawn like `2`/`∂`; occurrences are transcribed as `a` where context (e.g. `a-b`, `a^n u[n]`) forces it, and flagged where genuinely ambiguous.

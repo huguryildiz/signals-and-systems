@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Independent computational verification of every quantitative claim made in
-Modules 0-3 of the EE311 artifact, plus the laboratory mathematics.
+Modules 0-3 of the artifact, plus the laboratory mathematics.
 Symbolic where possible (SymPy), numerical as a cross-check (NumPy)."""
 import numpy as np, sympy as sp
 from fractions import Fraction

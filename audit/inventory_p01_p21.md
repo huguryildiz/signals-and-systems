@@ -1,6 +1,6 @@
-# EE311 Source Inventory — Part 1 (PDF pp. 1–21)
+# Source Inventory — Part 1 (PDF pp. 1–21)
 
-Source: `EE311 - Lecture Notes.pdf`, 88 pages, handwritten + MATLAB figures.
+Source: `Lecture Notes.pdf`, 88 pages, handwritten + MATLAB figures.
 Author/instructor: Huseyin Ugur Yildiz. Rendered at 160 dpi for visual audit.
 
 Legend: **[V]** = verified visually at 160 dpi; **[A]** = ambiguity/issue logged; **[E]** = editorial enhancement opportunity.
@@ -8,7 +8,7 @@ Legend: **[V]** = verified visually at 160 dpi; **[A]** = ambiguity/issue logged
 ---
 
 ## p.1 — Cover
-"EE 311 — SIGNALS AND SYSTEMS / Lecture Notes / Huseyin Ugur Yildiz". No technical content.
+"SIGNALS AND SYSTEMS / Lecture Notes / Huseyin Ugur Yildiz". No technical content.
 → Destination: title scene (S-000). Version/provenance block.
 
 ## p.2 — CH#1 Signals; Signal Energy and Power [Week1–Lec1]

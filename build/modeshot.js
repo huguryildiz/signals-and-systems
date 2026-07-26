@@ -7,7 +7,7 @@ const path=require('path');
               ['dark','normal','m2-open',0,'dark_m2open']];
  for(const [th,dp,id,st,name] of cases){
    const p=await b.newPage({viewport:{width:1920,height:1080}});
-   await p.goto('file://'+path.resolve(__dirname,'..','dist','EE311_Signals_and_Systems.html'),{waitUntil:'load'});
+   await p.goto('file://'+path.resolve(__dirname,'..','dist','Signals_and_Systems.html'),{waitUntil:'load'});
    await p.waitForTimeout(400);
    await p.evaluate(([t,d])=>{APP.state.theme=t;APP.state.display=d;APP.state.sidebar=d==='projector'?'off':'on';
      document.body.dataset.theme=t;document.body.dataset.display=d;document.body.dataset.sidebar=APP.state.sidebar;APP.fit();},[th,dp]);

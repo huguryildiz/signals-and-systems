@@ -1,68 +1,322 @@
-# EE 311 — Signals and Systems
+<!-- markdownlint-disable MD033 -->
+<!-- Inline HTML is intentional: centered hero header and badge row. -->
+
+<p align="center">
+  <img src="assets/icon.svg" alt="Signals and Systems logo" width="120" height="120">
+</p>
+
+<h1 align="center">Signals and Systems</h1>
+
+<p align="center">
+  <strong>Interactive Lecture Artifact and Lecture Notes</strong><br>
+  <sub>A single offline HTML file for a second-year signals course — step through a scene, watch the mathematics build itself.</sub>
+</p>
+
+<p align="center">
+  <a href="dist/Signals_and_Systems.html"><img src="https://img.shields.io/badge/Signals__and__Systems.html-1B1A17?style=for-the-badge&logo=html5&logoColor=F7F2E8" alt="The interactive artifact"></a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Offline%20%C2%B7%20one%20file-16232F?style=for-the-badge&logoColor=white" alt="Offline, one file">
+  <img src="https://img.shields.io/badge/KaTeX%20vendored-16232F?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
+  <img src="https://img.shields.io/badge/Playwright-16232F?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
+  <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-16232F?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
+  <img src="https://img.shields.io/badge/v0.9%20%C2%B7%20Modules%200--3-16232F?style=for-the-badge" alt="Version v0.9">
+</p>
+
+---
+
+## Overview
+
+**Signals and Systems** is a lecture artifact that turns a handwritten signals-and-systems course into a stepped,
+self-explaining document. It covers the first half of the course — what a signal is, energy and power,
+time transformations, periodicity, impulses and complex exponentials, system properties, and linear
+time-invariant systems through convolution — in 58 scenes that advance one idea at a time.
+
+Everything runs from one HTML file. No install, no sign-in, no server, no network request at any point.
+Progress is stored on the reader's own device and nowhere else. Beside the artifact sits a 25-page A4
+lecture-notes PDF generated from the same content.
+
+The artifact is written as teaching material, not as a report about teaching material: nothing in the
+student view mentions how it was produced. Provenance — source pages, the issue ledger, coverage —
+lives in the instructor edition and in `instructor/`.
+
+---
+
+## Why this artifact
+
+A signals course is hard to follow from a static page because the meaning is in the change: what
+happens to a signal when time is reversed and then shifted, why a sum of two periodic signals may not
+be periodic, how a convolution integral splits into cases as one pulse slides through another. This
+artifact makes that change the interface.
+
+- **One step, one idea.** A scene reveals its parts in order, so a derivation is read rather than decoded.
+- **Every figure is drawn, not pasted.** Curves, stems, impulses and block diagrams are generated per render.
+- **Five laboratories.** Move a control and the classification, the period or the convolution updates with it.
+- **Every number is checked.** 50 numerical results are recomputed independently in `verify/`.
+- **Every label is checked.** A sweep proves that nothing written inside a figure is crossed by anything drawn in it.
+- **Lecture and print from one source.** The same content produces the artifact and the printable notes.
+
+---
+
+## Modules
+
+Four modules and a closing pair, 58 scenes in all.
+
+| #   | Module                             | Scenes | What it covers                                                                                                                                                                     |
+| --- | ---------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | **Why Signals and Systems?**       | 6      | What a signal represents, what a system does, continuous versus discrete time, the course concept map, how to use the artifact                                                      |
+| 1   | **Signal Foundations**             | 23     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
+| 2   | **Systems and Their Properties**   | 12     | The input–output abstraction, memory, invertibility, causality, BIBO stability, time invariance, linearity, and a classification workflow that puts the six properties in order      |
+| 3   | **Linear Time-Invariant Systems**  | 15     | Impulse response, the representation property, the convolution sum and integral, flip–shift–multiply–add, four worked convolutions including a five-case continuous-time split, convolution properties, LTI property criteria |
+| 4+  | **Closing**                        | 2      | Synthesis of the first half, and the full table of conventions and symbols                                                                                                          |
+
+### Laboratories
+
+| Lab   | In module | What it does                                                                        |
+| ----- | --------- | ----------------------------------------------------------------------------------- |
+| **A** | 1         | Signal transformation laboratory — shift, reverse and scale, with the support tracked |
+| **B** | 1         | Energy and power classifier over six signals, each resolved to energy, power or neither |
+| **C** | 1         | Periodicity explorer for continuous- and discrete-time cases                        |
+| **D** | 2         | System property checker over a catalogue of systems and the six property criteria    |
+| **E** | 3         | Graphical convolution explorer — the sliding overlap, case by case                   |
+
+### Question banks
+
+Q1–Q3, twelve questions per module, 36 in all: 9 concept, 9 calculation, 6 misconception, 6 exam-style,
+3 graph-reading and 3 synthesis. Each question carries its answer, its distractor rationales and its
+source pages as instructor-only metadata.
+
+---
+
+## Concept Chain
+
+Each module is a link in one argument. The course map scene renders this chain; `M` opens it at any point.
+
+```text
+signal → transformation → system → LTI system → convolution → output
+   │            │            │          │            │
+Module 1    Module 1     Module 2   Module 3     Module 3
+notation,   shift ·      memory ·   impulse      y = x * h
+energy,     reverse ·    causal ·   response     case by
+periodic    scale        stable     h(t), h[n]   case
+```
+
+---
+
+## Architecture
+
+| Layer            | Stack                                                                            |
+| ---------------- | -------------------------------------------------------------------------------- |
+| Artifact         | One self-contained HTML file · no runtime dependency · no network request         |
+| Stage            | Fixed 1920×1080 · `fitScene()` scales an oversized scene down to a floor of 0.82  |
+| Math typesetting | KaTeX, vendored and font-inlined in `20_katex.css` / `30_katex.js`                |
+| Figures          | Custom SVG primitives in `60_plot.js` — axes, curves, stems, impulses, blocks, TeX labels |
+| Content          | Plain JavaScript data: scenes, blocks, laboratories, questions                     |
+| State            | `localStorage` on the reader's device only                                        |
+| Build            | Node · `build/build.js` concatenates `build/src/*` · byte-reproducible            |
+| Notes            | `notes/build.js` → HTML · `notes/topdf.js` → 25-page A4 PDF, 18 worked examples   |
+| Gates            | Playwright (`qa` · `labtest` · `textclash`) · Python (NumPy · SymPy) · `rule_check` |
+| Distribution     | Two files in `dist/` · no server, no analytics                                    |
+
+The pipeline enforces a hard boundary between content and rendering. Scenes are data; `90_app.js`
+renders them and `60_plot.js` draws them. A figure is produced per render rather than once at load
+time, so it belongs to the palette it is drawn in instead of carrying a stale one.
+
+---
+
+## Design System
+
+One visual language throughout: an ivory page with a matching dark page, a fixed set of signal colours,
+and mathematics typeset in the same face wherever it appears — running text, figure axis, block diagram.
+
+- **Signal colour is semantic.** Cyan `#14707F` input and CT signal · amber `#C08422` impulse response
+  and system · green `#4A7A46` output · violet `#6A5A92` intermediate transformation ·
+  red `#A63B2A` error, misconception and aliasing.
+- **Page colours.** Canvas ivory `#F7F2E8` · ink `#1B1A17` · coral `#BE5539` emphasis ·
+  slate `#4A657F` metadata · navy `#16232F` for module openings and synthesis scenes only.
+- **Typography.** Iowan Old Style / Palatino for headings and prose, Inter for interface text,
+  a monospace stack for metadata, readouts and identifiers.
+- **Figures belong to their palette.** `setTheme` swaps plate, canvas and rule together with the signal
+  colours, so a figure on the dark page is a dark figure and not a light one pasted onto it.
+- **Every figure label is mathematics.** Axis names, block-diagram signals and annotations are TeX,
+  typeset with KaTeX — never a plain string and never a Unicode substitute for a symbol.
+- **Every label carries a halo** in the page colour, and axis names live outside the data area:
+  the independent variable below the tick row, the dependent variable above the arrowhead.
+- **Radial and orbital compositions** are reserved for course maps and synthesis scenes.
+
+---
+
+## Project Structure
+
+```text
+build/
+├── src/
+│   ├── 00_head.html            Document shell, rail, overlays
+│   ├── 10_style.css            Design tokens, layout, print CSS
+│   ├── 20_katex.css            Vendored KaTeX, fonts inlined
+│   ├── 30_katex.js             Vendored KaTeX renderer
+│   ├── 40_core.js              Navigation, keyboard, overlays, persisted state
+│   ├── 60_plot.js              SVG plotting: Axes, curve, poly, stem, blocks, texName
+│   ├── 70_labs.js              Laboratories A–E
+│   ├── 80_content_core.js      Metadata, conventions, glossary, system catalogue
+│   ├── 81_scenes_m0.js         Module 0 — why signals and systems (6 scenes)
+│   ├── 82_scenes_m1.js         Module 1 — signal foundations (23 scenes)
+│   ├── 83_scenes_m2.js         Module 2 — system properties (12 scenes)
+│   ├── 84_scenes_m3.js         Module 3 — LTI systems and convolution (15 scenes)
+│   ├── 90_app.js               Scene renderer and block types
+│   ├── 91_scenes_end.js        Closing synthesis and symbol table
+│   ├── 95_qbank.js             Question banks Q1–Q3
+│   └── 99_tail.html            Scene registration and boot
+├── build.js                    Concatenates src/ → dist/Signals_and_Systems.html
+├── qa.js labtest.js textclash.js   Three of the five gates
+└── domcheck.js mathscan.js     Two extra sweeps, not gates
+
+notes/
+├── build.js topdf.js           Lecture-notes pipeline → HTML → PDF
+└── src/                        c1.js · c23.js · render.js · notes.css
+
+verify/                         verify_m1_m3.py · qbank_check.py · qbank_struct.js
+tools/rule_check.py             The editorial banned-phrase scanner
+audit/                          Page inventories, page_titles.tsv, scenes.json  (never distribute)
+instructor/                     PHASE2_HANDOFF.md, coverage_matrix.md           (never distribute)
+dist/                           The two deliverables
+source/                         Course source material (git-ignored)
+```
 
 Folders are organised by **who the files are for**. Superseded material is deleted rather than kept
-alongside the current files; git history is where it survives.
+beside the current files; git history is where it survives.
 
-| Folder | For whom | Contents |
-|---|---|---|
-| `source/` | you only | Course source material. Not distributed. |
-| `dist/` | students | Everything that may be handed out, and nothing else. |
-| `build/`, `notes/` | you only | The two pipelines that generate everything in `dist/`. |
-| `verify/`, `tools/` | you only | Numerical, structural and editorial check suites. |
-| `audit/` | you only | Page-mapping inventories and scene inventory. **Never distribute these.** |
-| `instructor/` | you only | Internal records: the continuation brief and the coverage matrix. **Never distribute these.** |
-| `.claude/` | you only | Working material — prompts, audit reports, plans, notes. Untracked; this machine only. |
+---
 
-Two files in `source/` are deliberately untracked (see `.gitignore`): `Book.pdf`, which is
-third-party material and must not be redistributed, and `EE311 - Lecture Notes.pdf`, the 41 MB
-handwritten scan. A fresh clone will not contain them — copy them in from an existing working copy
-before rebuilding or auditing source pages.
+## Quick Start
+
+Requires Node.js 18+ and, for the numerical gate, a local arm64 Python 3.12 virtualenv.
+
+```bash
+cd build    && node build.js     # → dist/Signals_and_Systems.html
+cd ../notes && node build.js     # → dist/Lecture_Notes.html
+cd ../notes && node topdf.js     # → dist/Lecture_Notes.pdf
+```
+
+The artifact build is byte-reproducible: building twice from unchanged sources leaves `git status`
+clean. A rebuild that produces a diff you did not author is a signal, not noise.
+
+`.venv` is git-ignored; create it once:
+
+```bash
+/opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy
+```
+
+Two files in `source/` are deliberately untracked: `Book.pdf`, which is third-party material and must
+not be redistributed, and the 41 MB handwritten scan, which is too large for git history. A fresh clone
+will not contain them — copy them in from an existing working copy before rebuilding or reading source
+pages. Nothing else in the repository needs network access.
+
+---
+
+## Verification Gates
+
+Five gates. Nothing is done until all five pass, and the number a run printed is the number that gets
+reported.
+
+| Gate                    | Command                                          | Must print              |
+| ----------------------- | ------------------------------------------------ | ----------------------- |
+| Layout                  | `cd build && node qa.js`                         | 0 errors, 0 overflow    |
+| Interaction             | `cd build && node labtest.js`                    | `ERRORS: none`          |
+| Labels                  | `cd build && node textclash.js`                  | `TOTAL COLLISIONS: 0`   |
+| Numbers                 | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`   |
+| Wording                 | `tools/rule_check.py` (below)                    | `TOTAL VIOLATIONS: 0`   |
+
+```bash
+.venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
+        "build/src/95_qbank.js" "build/src/70_labs.js" "notes/src/*.js"
+```
+
+`qa.js` renders every scene at its last step and measures it against the stage. `labtest.js` drives
+every laboratory control, quiz path and mode toggle. `textclash.js` walks every scene at every step and
+tests the glyph box of every figure label against the drawn geometry of that figure. `verify_m1_m3.py`
+recomputes every numerical result, one PASS/FAIL line each. `rule_check.py` scans every student-facing
+string for phrases that would reveal how the material was made.
+
+The five Playwright harnesses — `qa.js`, `labtest.js`, `textclash.js`, `domcheck.js`, `mathscan.js` —
+and `notes/topdf.js` require Playwright at a fixed absolute path. Elsewhere they run unmodified behind
+a short module-resolution redirect; the `require` line itself is not rewritten in place.
+
+---
+
+## Keyboard
+
+| Group    | Key                | Action                          |
+| -------- | ------------------ | ------------------------------- |
+| Steps    | `→` `Space` `PgDn` | Next step                       |
+| Steps    | `←` `PgUp`         | Previous step                   |
+| Scenes   | `↓` `↑`            | Next / previous scene           |
+| Scenes   | `Home` `End`       | First / last scene              |
+| Overlays | `M`                | Module map                      |
+| Overlays | `/` `F`            | Search                          |
+| Overlays | `G`                | Notation and glossary           |
+| Overlays | `?`                | Help                            |
+| Overlays | `Esc`              | Close any overlay               |
+| Modes    | `L`                | Lecture / study mode            |
+| Modes    | `I`                | Student / instructor edition    |
+| Modes    | `D`                | Light / dark page               |
+| Modes    | `P`                | Projector display               |
+| Modes    | `R`                | Full / reduced motion           |
+| Modes    | `S`                | Show / hide the rail            |
+
+---
 
 ## What to hand out
 
 Give students the two files in `dist/`:
 
-- **`EE311_Signals_and_Systems.html`** — the interactive artifact. Open in any browser. Works offline, makes no
-  network requests, and stores optional progress on the reader's own device. Keyboard: `→` advance, `M` module
-  map, `/` search, `G` notation, `?` help.
-- **`EE311_Lecture_Notes.pdf`** — 25 pages, A4, printable and annotatable.
+- **`Signals_and_Systems.html`** — the interactive artifact, about 1 MB. Opens in any browser,
+  works offline, makes no network request, stores optional progress on the reader's own device.
+- **`Lecture_Notes.pdf`** — 25 pages, A4, printable and annotatable, with 18 worked examples.
 
-Both are written as self-contained teaching material. Neither mentions how it was produced, and neither shows
-source pages. Those appear only in the artifact's instructor edition, which is reached with the `I` key.
+Both are self-contained teaching material. Neither mentions how it was produced and neither shows
+source pages; those appear only in the instructor edition of the artifact, reached with `I`.
 
-## What not to hand out
+`instructor/` holds the continuation brief and the coverage matrix, and `audit/` holds the page-mapping
+inventories. They exist so that any claim in the student material can be traced and checked later. They
+are working records, not teaching material, and they are not handed out.
 
-`instructor/` holds the continuation brief and the coverage matrix; `.claude/reports/` holds the audit
-trail and the issue ledger. They exist so that any claim in the student material can be traced and
-checked later. They are working records, not teaching material.
+---
 
-## Rebuilding
+## Conventions
 
-Everything needed is tracked in the repository. From the repository root:
+Fixed for the whole course, stated in the artifact where a reader first needs them.
 
-```bash
-cd build  && node build.js && node qa.js && node labtest.js
-cd ../notes && node build.js && node topdf.js
-cd ../verify && ../.venv/bin/python verify_m1_m3.py
-```
+- Energy and power are **normalised**, R = 1 Ω.
+- The imaginary unit is `j`.
+- `X(jω) = ∫ x(t)e^{−jωt} dt` · `x(t) = (1/2π)∫ X(jω)e^{jωt} dω`
+- `X(e^{jω}) = Σ x[n]e^{−jωn}` · `x[n] = (1/2π)∫_{2π} X(e^{jω})e^{jωn} dω`
+- sinc is **unnormalised**, `sinc(θ) = sin θ / θ`, restated at every point of use.
 
-Expected: zero errors, zero overflow, 50 of 50 checks passing.
+---
 
-`.venv` is a local arm64 virtualenv with numpy and sympy, untracked; create it once with
-`/opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy`. The three Playwright
-harnesses — `qa.js`, `labtest.js`, `topdf.js` — require Playwright at a fixed absolute path and run only
-in the container the project was built in.
+## Reference
 
-Before delivering anything to students, run the editorial rule check:
+The content is built from the course's own handwritten lecture notes, 88 pages. A standard text is used
+as a cross-check for transform conventions, convergence conditions and scale factors only; it is never
+reproduced, quoted or redistributed in any form. `instructor/coverage_matrix.md` maps scenes to source
+pages, and `instructor/PHASE2_HANDOFF.md` carries the work order for the second half.
 
-```bash
-.venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
-        "build/src/95_qbank.js" "build/src/70_labs.js" "notes/src/*.js"
-# expected: TOTAL VIOLATIONS: 0
-```
+---
 
-## Current state
+## Current State
 
-Chapters 1 to 3 are complete: signals, system properties, and linear time-invariant systems. Fourier series,
-the continuous- and discrete-time Fourier transforms, and sampling are the next stage; `instructor/PHASE2_HANDOFF.md`
-describes exactly how to continue.
+**v0.9 — Phase 1 complete.** Modules 0–3 in 58 scenes, laboratories A–E, question banks Q1–Q3 with 36
+questions, 50 numerical checks, zero clipping, zero runtime errors, and the lecture-notes PDF beside the
+artifact.
+
+**Next.** Fourier series, the continuous- and discrete-time Fourier transforms, and sampling: Modules
+4–7, laboratories F–J, question banks Q4–Q7, an extended `verify/`, and the five PDF editions. Version
+v1.0 is reached only when all of it is complete and consistent. `instructor/PHASE2_HANDOFF.md` describes
+exactly how to continue.
+
+---
+
+<p align="center">
+  <strong>Signals and Systems</strong><br>
+  <sub>📐 One file, offline, and readable on the first pass.</sub>
+</p>

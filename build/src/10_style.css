@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EE311 — Signals and Systems · Interactive Learning Artifact
+   Signals and Systems · Interactive Learning Artifact
    Visual system: "Scientific Editorial". Warm ivory canvas, restrained
    terracotta/slate accents, editorial serif display, precise engineering
    graphics. Original identity — no card-heavy dashboard chrome.
@@ -157,6 +157,24 @@ html,body{
 body[data-sidebar=off] #viewport{ --sbw:0px; }
 :root{ --sbw:268px; }
 
+/* --- brand mark ------------------------------------------------------- */
+#appheader .eelogo{ width:22px; height:22px; flex:none; display:block; }
+.eelogo-trace{ fill:none; stroke:url(#eelogo-gt); stroke-width:3.6;
+  stroke-linecap:round; stroke-linejoin:round; }
+.eelogo-halo{ fill:none; stroke:url(#eelogo-gt); stroke-width:4.6;
+  stroke-linecap:round; stroke-linejoin:round; filter:url(#eelogo-soft);
+  opacity:.16; animation:eelogo-glow 2.6s ease-in-out infinite; }
+.eelogo-beat{ transform-box:view-box; transform-origin:32px 32px;
+  animation:eelogo-beat 2.6s ease-in-out infinite; }
+
+@keyframes eelogo-beat{ 0%{transform:scale(1)} 7%{transform:scale(1.055)} 15%{transform:scale(1)}
+  22%{transform:scale(1.03)} 31%{transform:scale(1)} 100%{transform:scale(1)} }
+@keyframes eelogo-glow{ 0%{opacity:.16} 7%{opacity:.62} 15%{opacity:.24}
+  22%{opacity:.45} 31%{opacity:.16} 100%{opacity:.16} }
+body[data-motion=reduced] .eelogo-beat,
+body[data-motion=reduced] .eelogo-halo{ animation:none; }
+@media (prefers-reduced-motion:reduce){ .eelogo-beat, .eelogo-halo{ animation:none; } }
+
 /* --- top bar --------------------------------------------------------- */
 #appheader{
   grid-area:hd; display:flex; align-items:center; gap:8px; padding:0 14px 0 8px;
@@ -293,9 +311,25 @@ h3.sub{
 .stack{ display:flex; flex-direction:column; gap:16px; }
 .grow{ flex:1; min-height:0; }
 
+/* card: a raised panel for a scene that is a set of short independent notes
+   rather than one running argument. A hairline rule under the heading, no
+   shadow and no tinted chrome, so it reads as paper and not as a dashboard. */
+.card{
+  --flow:11px;
+  background:var(--paper-2); border:1px solid var(--rule);
+  border-radius:var(--radius); padding:20px 22px 19px;
+  height:100%; box-sizing:border-box;
+}
+.card-h{
+  font-family:var(--sans); font-weight:600; font-size:calc(17.5px * var(--ts));
+  line-height:1.3; color:var(--ink); margin:0 0 13px;
+  padding-bottom:10px; border-bottom:1px solid var(--rule);
+}
+.card .body{ font-size:calc(17px * var(--ts)); line-height:1.5; }
+
 /* vertical rhythm: two blocks in the same flow never touch. Headings, the lede
    and rules carry their own bottom margin, so nothing is added after them. */
-:where(.scene-inner, .col, .reveal, .gcell)
+:where(.scene-inner, .col, .reveal, .gcell, .card)
   > :not(.eyebrow, h1, h2, h3, .lede, hr) + *{ margin-top:var(--flow); }
 
 /* ==========================================================================
@@ -392,7 +426,7 @@ figcaption b{ color:var(--graphite); font-weight:600; }
        finished figure, so the still state is exactly the printed one. --- */
 .mtf-h{
   height:34px; display:flex; align-items:center; justify-content:center;
-  color:var(--sig-h); font-size:17px; line-height:1;
+  font-size:17px; line-height:1;
 }
 .mtf-h .katex{ font-size:1.06em; }
 .mtf-trace{ animation:mtf-draw 1.5s var(--ease) both; }
@@ -408,14 +442,25 @@ figcaption b{ color:var(--graphite); font-weight:600; }
 }
 @keyframes mtf-rise{ from{ transform:scaleY(0); opacity:0 } to{ transform:scaleY(1); opacity:1 } }
 
-/* the travelling highlight — one 7 s cycle, shared by every moving part */
-.mtf-spark{
-  stroke-dasharray:46 4000; stroke-dashoffset:46;
-  animation:mtf-spark 7s cubic-bezier(.4,0,.5,1) 2.1s infinite;
+/* the travelling highlight — one 7 s cycle, shared by every moving part. On the
+   scope it reads as the beam: a bright head with a fading tail behind it. Head
+   and tail are one dash each on the same path, offset so that the leading edge
+   of the tail sits on the head for the whole sweep. */
+.mtf-beam{
+  stroke-dasharray:30 6000; stroke-dashoffset:30;
+  animation:mtf-beam 7s cubic-bezier(.4,0,.5,1) 2.1s infinite;
 }
-@keyframes mtf-spark{
-  0%      { stroke-dashoffset:46 }
+@keyframes mtf-beam{
+  0%      { stroke-dashoffset:30 }
   26%,100%{ stroke-dashoffset:var(--len-neg) }
+}
+.mtf-beam-tail{
+  stroke-dasharray:170 6000; stroke-dashoffset:170;
+  animation:mtf-beamtail 7s cubic-bezier(.4,0,.5,1) 2.1s infinite;
+}
+@keyframes mtf-beamtail{
+  0%      { stroke-dashoffset:170 }
+  26%,100%{ stroke-dashoffset:var(--tail-e) }
 }
 .mtf-sparkwrap{ opacity:0; animation:mtf-sparkfade 7s linear 2.1s infinite; }
 @keyframes mtf-sparkfade{ 0%{ opacity:0 } 4%,20%{ opacity:1 } 26%,100%{ opacity:0 } }
@@ -424,21 +469,21 @@ figcaption b{ color:var(--graphite); font-weight:600; }
 .mtf-wire-in { animation:mtf-wire-in  7s var(--ease) 2.1s infinite; }
 .mtf-wire-out{ animation:mtf-wire-out 7s var(--ease) 2.1s infinite; }
 @keyframes mtf-wire-in{
-  0%,23%  { stroke:#1B1A17; fill:#1B1A17; stroke-width:1.4 }
-  27%,33% { stroke:#14707F; fill:#14707F; stroke-width:2.4 }
-  40%,100%{ stroke:#1B1A17; fill:#1B1A17; stroke-width:1.4 }
+  0%,23%  { stroke:var(--mtf-ink); fill:var(--mtf-ink); stroke-width:1.4 }
+  27%,33% { stroke:var(--mtf-in);  fill:var(--mtf-in);  stroke-width:2.4 }
+  40%,100%{ stroke:var(--mtf-ink); fill:var(--mtf-ink); stroke-width:1.4 }
 }
 @keyframes mtf-wire-out{
-  0%,40%  { stroke:#1B1A17; fill:#1B1A17; stroke-width:1.4 }
-  44%,50% { stroke:#4A7A46; fill:#4A7A46; stroke-width:2.4 }
-  57%,100%{ stroke:#1B1A17; fill:#1B1A17; stroke-width:1.4 }
+  0%,40%  { stroke:var(--mtf-ink); fill:var(--mtf-ink); stroke-width:1.4 }
+  44%,50% { stroke:var(--mtf-out); fill:var(--mtf-out); stroke-width:2.4 }
+  57%,100%{ stroke:var(--mtf-ink); fill:var(--mtf-ink); stroke-width:1.4 }
 }
 .mtf-box{ animation:mtf-glow 7s var(--ease) 2.1s infinite; }
 @keyframes mtf-glow{
-  0%,31%  { stroke:#1B1A17; stroke-width:1.6 }
-  37%     { stroke:#C08422; stroke-width:2.6 }
-  45%     { stroke:#C08422; stroke-width:2.2 }
-  54%,100%{ stroke:#1B1A17; stroke-width:1.6 }
+  0%,31%  { stroke:var(--mtf-ink); stroke-width:1.6 }
+  37%     { stroke:var(--mtf-h);   stroke-width:2.6 }
+  45%     { stroke:var(--mtf-h);   stroke-width:2.2 }
+  54%,100%{ stroke:var(--mtf-ink); stroke-width:1.6 }
 }
 .mtf-stem-dot{ animation:mtf-pop 7s var(--ease) calc(2.1s + var(--i) * .1s) infinite; }
 @keyframes mtf-pop{ 0%,50%{ r:4 } 56%{ r:6.6 } 66%,100%{ r:4 } }

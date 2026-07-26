@@ -14,7 +14,7 @@ const OK = new Set(('html head body div span p a b i em strong sup sub br hr ul 
   + 'annotation mpadded mover munder munderover msubsup menclose mphantom moperator').split(/\s+/));
 
 (async () => {
-  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'EE311_Signals_and_Systems.html');
+  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
   const target = process.argv[2] ? 'file://' + path.resolve(process.argv[2]) : file;
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

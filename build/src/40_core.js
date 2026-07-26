@@ -1,11 +1,11 @@
 /* ==========================================================================
-   EE311 · Application core — state, storage, routing, navigation, overlays.
+   Application core — state, storage, routing, navigation, overlays.
    Presentation logic only. Course content lives in the CONTENT modules.
    ========================================================================== */
 const APP = (() => {
 
   /* ---------- privacy-preserving local store (device only, never network) --- */
-  const STORE_KEY = 'ee311.v1.progress';
+  const STORE_KEY = 'sigsys.v1.progress';
   const mem = {};
   const store = {
     ok:(()=>{ try{ const k='__t'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; }

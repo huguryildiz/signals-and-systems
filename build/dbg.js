@@ -1,7 +1,7 @@
 const {chromium}=require('/home/claude/.npm-global/lib/node_modules/playwright');
 const path=require('path');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1600,height:900}});
- await p.goto('file://'+path.resolve(__dirname,'..','dist','EE311_Signals_and_Systems.html'),{waitUntil:'load'});
+ await p.goto('file://'+path.resolve(__dirname,'..','dist','Signals_and_Systems.html'),{waitUntil:'load'});
  await p.waitForTimeout(400);
  const out=await p.evaluate(()=>{
    const r={};
