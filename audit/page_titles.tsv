@@ -1,0 +1,88 @@
+1	Cover
+2	CH#1 Signals; Signal Energy and Power [Week1–Lec1]
+3	Energy/power classification; time shift; time reversal
+4	Time scaling; combination of operations
+5	Periodicity; even & odd [Week1–Lec2]
+6	Even/odd decomposition; DT impulse and step
+7	DT sifting; CT impulse and step; CT complex exponentials [Week2–Lec1]
+8	Periodicity of CT complex exponentials; general complex exponentials
+9	Damped/growing sinusoids; DT complex exponentials
+10	DT exponential envelopes; DT periodicity condition
+11	Systems; memorylessness; invertibility
+12	Invertibility examples; causality; stability [Week2–Lec2]
+13	Stability counterexample; time invariance
+14	Linearity; CH#2 LTI systems; impulse response [Week3–Lec1]
+15	Representation property; convolution sum; first DT convolution example
+16	Graphical superposition result; MATLAB homework; DT geometric-series example
+17	Geometric series result; CT convolution setup [Week3–Lec2]
+18	Convolution integral; CT convolution example 1
+19	Summary/plots of example 1; CT convolution example 2 [Week4–Lec1]
+20	Example 2 remaining cases; LTI properties (1)–(3)
+21	LTI properties (4)–(7) [Week4–Lec2]
+22	CH#3 — FOURIER SERIES REPRESENTATION OF PERIODIC SIGNALS / "Eigenfunctions of an LTI System" / "Continuous-Time Case"  [red box: Week5—Lec1]
+23	(continuation of Eigenfunctions) / "Discrete-Time Case" / "Summary"  [no week tag]
+24	"Why is eigenfunction important?" + Example (time-delay LTI system)  [no week tag]
+25	(Example part (b)) / FOURIER SERIES REPRESENTATION / "Existence of Fourier Series" (Dirichlet Conditions)  [no week tag]
+26	Example ("PATHOLOGICAL SIGNALS") / FS synthesis equation / Example (x(t)=1+½cos2πt+sin3πt) / Homework (LCM of fractions)  [red box next to the second example: Week5—Lec2]
+27	(continuation of the x(t)=1+½cos2πt+sin3πt example) + Homework (x(t)=3+5cos(10π/3 t+π/4)+4sin(5π/4 t−π/5))  [no week tag]
+28	CT FOURIER SERIES COEFFICIENTS  [red box: Week6—Lec1]
+29	"DC Term" + Example ("PERIODIC RECTANGULAR WAVE")  [no week tag]
+30	"How many Fourier Series coefficients are sufficient?" (MSE, Gibbs) + Homework ("SAW TOOTH WAVE")  [no week tag]
+31	(sawtooth solution continued) + Example ("PERIODIC IMPULSE TRAIN") + DT FOURIER SERIES COEFFICIENTS  [red box: Week6—Lec2]
+32	DT FOURIER SERIES: Theorem + periodicity proof + Example (x[n] = sin(5π/6 n) + cos(3π/4 n + π/5))  [no week tag]
+33	Example ("DT periodic square wave")  [no week tag]
+34	(DT square wave, FS representation and MSE) + Homework (DT sawtooth, N = 11)  [no week tag]
+35	(DT sawtooth reconstruction figure) + PROPERTIES OF FOURIER SERIES COEFFICIENTS: (1) Linearity, (2) Time-Shift  [red box: Week7—Lec1]
+36	PROPERTIES: (3) Time-Reversal, (4) Conjugation, (5) Multiplication  [no week tag]
+37	(6) Parseval's Relation / "Summary of the Properties" (Tables 1 and 2) / FOURIER SERIES AND LTI SYSTEMS  [no week tag]
+38	(FS and LTI systems, continued) + Example ("CT LOW-PASS FILTERING")  [no week tag]
+39	(continuation of CT LOW-PASS FILTERING example, CH#3 Fourier Series / LTI filtering); Homework: CT HIGH-PASS FILTERING
+40	(Sol. of CT HIGH-PASS FILTERING homework) + Example: DT HIGH-PASS FILTERING [Week7—Lec2]
+41	(DT HIGH-PASS FILTERING, cont.) + Homework: DT LOW-PASS FILTERING and its solution
+42	CH#4 — CONTINUOUS-TIME FOURIER TRANSFORM [Week8—Lec1]
+43	Derivation of the Fourier Transform (STEP 1 / STEP 2 / STEP 3)
+44	Graphical conversion of Σ to ∫; Analysis/Synthesis equations; Example: FT of a shifted impulse
+45	Example: inverse FT of `2πδ(ω-ω_0)`; Example: FT of `e^{-at}u(t)`; Homework: FT of `e^{-a/t/}`
+46	(Homework solution cont.: FT of `e^{-a/t/}`) + Example: FT of the rectangular pulse (sinc)
+47	sinc(·) definitions; FT pair for the rectangular pulse; Example: inverse FT of an ideal LPF spectrum [Week8—Lec2]
+48	FT pair for the sinc/ideal LPF; Inverse Relationship Between Time and Frequency; Time-Bandwidth Product
+49	THE FOURIER TRANSFORM FOR PERIODIC SIGNALS; Example: FT of the periodic square wave
+50	Example: FT of a sinusoid sum; cos/sin FT pairs; Example: FT of the impulse train [Week9—Lec1]
+51	PROPERTIES OF THE CONTINUOUS-TIME FOURIER TRANSFORM: (1) Linearity, (2) Time-Shifting; Example
+52	Properties (3) Frequency-Shift, (4) Conjugation; Example: frequency-shifted sinc; real/even symmetry
+53	real-and-odd symmetry; (5) Differentiation Property; (6) Time Scaling; Example
+54	Property (7) Duality; Example (rect ↔ sinc dual); Homework: dual of the sinc [Week9—Lec2]
+55	Example: δ(t)/constant dual pair; (8) Parseval's Relation; Example: energy via Parseval
+56	[Homework solution: Parseval energy] + "(9) The Convolution Property" + Example: Revisiting the time-shift property
+57	Example: LTI system with two one-sided exponentials [Week10—Lec1]
+58	Example: ideal-LPF cascade of sincs + Homework (figure-only) + "(10) Multiplication (Modulation) Property"
+59	Example: AMPLITUDE MODULATION / DOUBLE SIDEBAND SUPPRESSED CARRIER (DSB-SC) + Remark + Alternative Way
+60	Example: sinc × cosine modulation + Homework (solved): 2·sinc·cos modulated again
+61	Homework ×2: multiplication of two sincs (equal and unequal bandwidths) + "CONVOLUTION OF TWO RECTANGULAR PULSES" box
+62	"Summary of the Properties:" (printed Table 3 & Table 4) + "SYSTEM ANALYSIS USING FOURIER TRANSFORM" [Week10—Lec2]
+63	Example ×2: differential equation → H(jw), h(t); and repeated-pole partial fractions
+64	"CH#5 — DISCRETE-TIME FOURIER TRANSFORM" / "Derivation of the Discrete-Time Fourier Transform (DTFT):" [Week11—Lec1]
+65	DTFT / inverse-DTFT pair; "Periodicity of DTFT:"; Example: DTFT of a shifted unit impulse
+66	Example: DTFT of `a^n u[n]` + Homework: DTFT of `a^{/n/}`
+67	[Homework `a^{/n/}` continued] + Example: DTFT of a rectangular DT pulse (Dirichlet kernel)
+68	Example: inverse DTFT of an ideal DT low-pass spectrum + "DTFT FOR PERIODIC SIGNALS"
+69	[DTFT for periodic signals, continued] + Example: DTFT of a periodic DT square wave
+70	Example: DTFT of the DT impulse train + Example: DTFT of `2cos((5π/3)n) + cos((7π/4)n)` [Week11—Lec2]
+71	[Example continued: combined spectrum] + "PROPERTIES OF THE DTFT" [Week12—Lec1]
+72	DTFT Properties, items (3) Time-Shift, (4) Frequency-Shift, (5) Conjugation, (6) Differentiation, (7) Time-Reversal, (8) Time Expansion; unlabeled `Example` block at bottom — no red week/lecture box on this page
+73	DTFT Properties, items (9) Differentiation in Frequency, (10) Parseval's Relation, (11) Convolution Property; `Example` (convolution of two one-sided exponentials) — no red week/lecture box
+74	`Example` (ideal-lowpass sinc convolution via DTFT) and `Homework` (sum of two sincs through an ideal lowpass) — no red week/lecture box
+75	DTFT Properties, item (12) Multiplication Property; `Example` (DTFT of the product of two sinc sequences) — no red week/lecture box
+76	`Homework` (DTFT of products, two cases) and "Summary of the Properties" (printed Table 5 and Table 6) — no red week/lecture box
+77	"DUALITY" (duality in the DFS; duality between DTFT and CTFS); printed TABLE 5.3; new section "SYSTEM ANALYSIS USING DTFT" — red box: **Week12—Lec2**
+78	Frequency response from a difference equation; `Example` (causal 2nd-order difference equation ⇒ h[n]) — no red week/lecture box
+79	`Example` (output of the p.78 system for `x[n] = (1/4)^n u[n]`; repeated-pole partial fractions) — no red week/lecture box
+80	**CH#7 — SAMPLING THEOREM**: Impulse-Train Sampling; Frequency Domain Analysis of A/D Conversion — red box: **Week13—Lec1**
+81	Derivation of `X_p(jw)`; oversampling / Nyquist-rate / undersampling spectra; ideal-lowpass reconstruction — no red week/lecture box
+82	"Sampling Theorem" statement; `Example` (MATLAB T1/T2/T3 sampling illustration); `Example` 7.3 (Nyquist rates, part (a)); `Homework` (guard band) — no red week/lecture box
+83	Example 7.3 parts (b) and (c); new section "Reconstruction of a Signal From Its Samples: Zero-Order Hold (ZOH)" — no red week/lecture box
+84	`Example` (ZERO-ORDER HOLD, MATLAB); new section "First-Order Hold (FOH)" — no red week/lecture box
+85	`Example` (FIRST-ORDER HOLD, MATLAB); "Perfect Reconstruction" / band-limited interpolation — red box: **Week13—Lec2**
+86	`Example` (BAND-LIMITED INTERPOLATION, MATLAB); "Aliasing:" with three sampling-rate cases — red box: **Week14—Lec1**
+87	`Example` (aliasing of `cos(2πt)` at three rates) and `Homework` (aliasing of `cos(πt) + cos(3πt)`) — no red week/lecture box
+88	"Anti-Aliasing Filter:", "Temporal Aliasing:", "Spatial Aliasing:" — red box: **Week14—Lec2: NO LECTURE**

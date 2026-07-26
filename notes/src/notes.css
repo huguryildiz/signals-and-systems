@@ -1,0 +1,114 @@
+/* EE311 lecture notes — A4 print document */
+:root{
+  --ink:#15140F; --body:#26241E; --muted:#5F5A50; --rule:#CFC6B2; --rule2:#E4DCCA;
+  --accent:#A9502F; --slate:#3F5A73;
+  --fig-halo:#FFFFFF;   /* label halo inside figures */
+  --in:#14707F; --h:#A9741C; --out:#3F6C3B; --mid:#5E4F84; --err:#983527;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","Hoefler Text",Georgia,serif;
+  --sans:"Inter","SF Pro Text",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+@page{ size:A4 portrait; margin:19mm 17mm 20mm 17mm; }
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:#fff; color:var(--body);
+  font-family:var(--sans); font-size:10.6pt; line-height:1.52; }
+.page{ break-after:page; }
+.nobreak{ break-inside:avoid; }
+
+h1.doc{ font-family:var(--serif); font-weight:400; font-size:31pt; line-height:1.1;
+  margin:0 0 6pt; color:var(--ink); letter-spacing:-.01em; }
+h1{ font-family:var(--serif); font-weight:400; font-size:20pt; line-height:1.18;
+  margin:0 0 3pt; color:var(--ink); break-after:avoid; }
+h1 .num{ font-family:var(--mono); font-size:11pt; color:var(--accent);
+  letter-spacing:.1em; display:block; margin-bottom:5pt; }
+h2{ font-family:var(--serif); font-weight:400; font-size:13.4pt; line-height:1.25;
+  margin:15pt 0 4pt; color:var(--ink); break-after:avoid; }
+h2 .num{ font-family:var(--mono); font-size:9pt; color:var(--slate); margin-right:8pt; }
+h3{ font-family:var(--sans); font-weight:650; font-size:10.6pt; margin:11pt 0 3pt;
+  color:var(--ink); break-after:avoid; }
+p{ margin:0 0 6.5pt; }
+p.lead{ font-family:var(--serif); font-size:12pt; line-height:1.45; color:var(--muted);
+  font-style:italic; margin:0 0 12pt; }
+strong{ font-weight:650; color:var(--ink); }
+ul,ol{ margin:0 0 7pt; padding-left:17pt; }
+li{ margin-bottom:2.5pt; }
+code{ font-family:var(--mono); font-size:9.4pt; }
+
+hr{ border:0; border-top:1px solid var(--rule2); margin:13pt 0; }
+hr.thick{ border-top:1.6pt solid var(--accent); width:46pt; margin:0 0 11pt; }
+
+/* equations */
+.eq{ margin:9pt 0; text-align:center; break-inside:avoid; }
+.eq .katex{ font-size:1.06em; }
+.eq.big .katex{ font-size:1.2em; }
+.eqbox{ border-left:2.4pt solid var(--accent); background:#FBF8F2;
+  padding:8pt 12pt; margin:10pt 0; break-inside:avoid; }
+.eqbox .eq{ margin:2pt 0; }
+.eqbox .cap{ font-family:var(--mono); font-size:7.6pt; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:4pt; }
+.after{ font-size:9.6pt; color:var(--muted); margin-top:5pt; }
+
+/* callouts */
+.box{ border:0.7pt solid var(--rule); border-left:2.4pt solid var(--slate);
+  padding:8pt 11pt; margin:10pt 0; break-inside:avoid; background:#FCFBF8; }
+.box.warn{ border-left-color:var(--h); }
+.box.err{ border-left-color:var(--err); background:#FDF6F4; }
+.box.ok{ border-left-color:var(--out); }
+.box .t{ font-family:var(--mono); font-size:7.6pt; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:4pt; display:block; }
+.box.warn .t{ color:#8A5E12; } .box.err .t{ color:var(--err); } .box.ok .t{ color:var(--out); }
+.box p:last-child{ margin-bottom:0; }
+
+/* worked examples */
+.ex{ border-top:1.4pt solid var(--ink); border-bottom:0.7pt solid var(--rule);
+  padding:7pt 0 8pt; margin:12pt 0; break-inside:avoid; }
+.ex .h{ font-family:var(--mono); font-size:8pt; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--accent); margin-bottom:6pt; }
+.ex dl{ margin:0; display:grid; grid-template-columns:52pt 1fr; gap:4pt 11pt; }
+.ex dt{ font-family:var(--mono); font-size:7.8pt; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--slate); padding-top:1.5pt; }
+.ex dd{ margin:0; }
+.ex dd p:last-child{ margin-bottom:0; }
+
+/* figures */
+figure{ margin:11pt 0; break-inside:avoid; }
+figure svg{ display:block; width:100%; height:auto; }
+/* an axis name is typeset mathematics inside the figure; the small svg pieces a
+   formula uses for roots and stretched brackets keep their own intrinsic size */
+figure .katex svg{ display:inline; width:auto; height:auto; }
+figcaption{ font-size:9pt; color:var(--muted); line-height:1.4; margin-top:4pt;
+  padding-left:1pt; border-left:0; }
+figcaption b{ color:var(--body); font-weight:650; }
+.figrow{ display:grid; gap:11pt; }
+.figrow.two{ grid-template-columns:1fr 1fr; }
+.figrow.three{ grid-template-columns:1fr 1fr 1fr; }
+
+/* tables */
+table{ width:100%; border-collapse:collapse; margin:9pt 0; font-size:9.6pt;
+  break-inside:avoid; }
+th{ text-align:left; font-family:var(--mono); font-size:7.6pt; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--slate); font-weight:400;
+  border-bottom:1pt solid var(--rule); padding:0 7pt 4pt 0; }
+td{ border-bottom:0.6pt solid var(--rule2); padding:4.5pt 7pt 4.5pt 0; vertical-align:top; }
+td:last-child,th:last-child{ padding-right:0; }
+
+/* contents */
+.toc{ margin-top:14pt; }
+.toc .c{ display:grid; grid-template-columns:26pt 1fr; gap:4pt 10pt;
+  border-top:0.7pt solid var(--rule2); padding:5pt 0; }
+.toc .c .n{ font-family:var(--mono); font-size:9pt; color:var(--accent); }
+.toc .c .t{ font-family:var(--serif); font-size:12pt; color:var(--ink); }
+.toc .c .s{ grid-column:2; font-size:9.4pt; color:var(--muted); margin-top:1pt; }
+
+/* title page */
+.title{ padding-top:52pt; }
+.title .kicker{ font-family:var(--mono); font-size:8.4pt; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:16pt; }
+.title .meta{ margin-top:34pt; border-top:0.7pt solid var(--rule); padding-top:10pt;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12pt; font-size:9.4pt; color:var(--muted); }
+.title .meta b{ display:block; color:var(--body); font-weight:650; margin-bottom:2pt; }
+
+/* exercises */
+.q{ break-inside:avoid; margin:0 0 9pt; }
+.q .n{ font-family:var(--mono); font-size:8.4pt; color:var(--accent); }
+.ans{ font-size:9.4pt; color:var(--muted); }

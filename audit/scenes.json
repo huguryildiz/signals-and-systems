@@ -1,0 +1,946 @@
+{
+ "scenes": [
+  {
+   "i": 1,
+   "id": "title",
+   "module": "M0",
+   "nav": "Title",
+   "title": "EE 311 — Signals and Systems",
+   "src": "p. 1",
+   "steps": 0,
+   "obj": ""
+  },
+  {
+   "i": 2,
+   "id": "m0-signal",
+   "module": "M0",
+   "nav": "What a signal represents",
+   "title": "What a signal represents",
+   "src": "p. 2",
+   "steps": 2,
+   "obj": "Establish the physical meaning of a signal before any formalism."
+  },
+  {
+   "i": 3,
+   "id": "m0-system",
+   "module": "M0",
+   "nav": "What a system does",
+   "title": "What a system does",
+   "src": "p. 11",
+   "steps": 2,
+   "obj": "Introduce the input–output abstraction that Module 2 formalises."
+  },
+  {
+   "i": 4,
+   "id": "m0-ctdt",
+   "module": "M0",
+   "nav": "Continuous and discrete time",
+   "title": "Two viewpoints, one theory",
+   "src": "p. 2",
+   "steps": 1,
+   "obj": "Fix the CT/DT notational split that persists through the whole course."
+  },
+  {
+   "i": 5,
+   "id": "m0-map",
+   "module": "M0",
+   "nav": "Course concept map",
+   "title": "How the course fits together",
+   "src": "pp. 2–88",
+   "steps": 1,
+   "obj": "Give a single mental picture of the dependency structure."
+  },
+  {
+   "i": 6,
+   "id": "m0-howto",
+   "module": "M0",
+   "nav": "Using this artifact",
+   "title": "How to use this artifact",
+   "src": "—",
+   "steps": 0,
+   "obj": "Explain modes, controls and the source-citation policy."
+  },
+  {
+   "i": 7,
+   "id": "m1-open",
+   "module": "M1",
+   "nav": "Module 1 opening",
+   "title": "Signal Foundations",
+   "src": "pp. 2–10",
+   "steps": 0,
+   "obj": ""
+  },
+  {
+   "i": 8,
+   "id": "m1-def",
+   "module": "M1",
+   "nav": "Definitions and notation",
+   "title": "Definitions and notation",
+   "src": "p. 2",
+   "steps": 2,
+   "obj": "Fix the CT/DT notation and the meaning of the independent variable."
+  },
+  {
+   "i": 9,
+   "id": "m1-power",
+   "module": "M1",
+   "nav": "Instantaneous power",
+   "title": "From circuit power to signal power",
+   "src": "p. 2",
+   "steps": 3,
+   "obj": "Derive the normalised energy/power definitions from the physical ones."
+  },
+  {
+   "i": 10,
+   "id": "m1-energy-inf",
+   "module": "M1",
+   "nav": "Total energy",
+   "title": "Total energy over an infinite interval",
+   "src": "p. 2",
+   "steps": 2,
+   "obj": "State E∞ in both domains and flag non-convergence."
+  },
+  {
+   "i": 11,
+   "id": "m1-avgpower",
+   "module": "M1",
+   "nav": "Average power",
+   "title": "Average power",
+   "src": "p. 2",
+   "steps": 2,
+   "obj": "State P over a window and P∞ in both domains, with the 2N+1 count."
+  },
+  {
+   "i": 12,
+   "id": "m1-classify",
+   "module": "M1",
+   "nav": "Energy, power, or neither",
+   "title": "Energy, power, or neither",
+   "src": "p. 3",
+   "steps": 3,
+   "obj": "State the two classifications and the third case that is not in the source list."
+  },
+  {
+   "i": 13,
+   "id": "m1-ex-energy",
+   "module": "M1",
+   "nav": "Worked example · classification",
+   "title": "Worked example — classify two signals",
+   "src": "p. 3",
+   "steps": 4,
+   "obj": "Reproduce both source examples with full method and sanity checks."
+  },
+  {
+   "i": 14,
+   "id": "m1-lab-b",
+   "module": "M1",
+   "nav": "Laboratory B · Energy and power",
+   "title": "Laboratory B — Energy and Power Classifier",
+   "src": "pp. 2–3, 7, 16–18",
+   "steps": 0,
+   "obj": "Classify source-grounded signals before seeing the calculation."
+  },
+  {
+   "i": 15,
+   "id": "m1-shift",
+   "module": "M1",
+   "nav": "Time shifting",
+   "title": "Time shifting",
+   "src": "p. 3",
+   "steps": 2,
+   "obj": "Fix the delay/advance sign convention."
+  },
+  {
+   "i": 16,
+   "id": "m1-reverse-scale",
+   "module": "M1",
+   "nav": "Reversal and scaling",
+   "title": "Reversal and scaling",
+   "src": "pp. 3–4",
+   "steps": 3,
+   "obj": "State reversal and scaling and their effect on the support."
+  },
+  {
+   "i": 17,
+   "id": "m1-combined",
+   "module": "M1",
+   "nav": "Combined transformations",
+   "title": "Combining operations: shift, then scale",
+   "src": "p. 4",
+   "steps": 4,
+   "obj": "Establish the correct two-step order for x(at−b)."
+  },
+  {
+   "i": 18,
+   "id": "m1-lab-a",
+   "module": "M1",
+   "nav": "Laboratory A · Transformations",
+   "title": "Laboratory A — Signal Transformation Laboratory",
+   "src": "pp. 3–4",
+   "steps": 0,
+   "obj": "Explore x(at−b) with live support and critical-point tracking."
+  },
+  {
+   "i": 19,
+   "id": "m1-periodic",
+   "module": "M1",
+   "nav": "Periodicity",
+   "title": "Periodicity",
+   "src": "p. 5",
+   "steps": 3,
+   "obj": "Define CT and DT periodicity and the fundamental period."
+  },
+  {
+   "i": 20,
+   "id": "m1-evenodd",
+   "module": "M1",
+   "nav": "Even and odd",
+   "title": "Even and odd parts",
+   "src": "pp. 5–6",
+   "steps": 2,
+   "obj": "Define even/odd and the unique decomposition."
+  },
+  {
+   "i": 21,
+   "id": "m1-dt-impulse",
+   "module": "M1",
+   "nav": "DT impulse and step",
+   "title": "The discrete-time impulse and step",
+   "src": "p. 6",
+   "steps": 3,
+   "obj": "Define δ[n], u[n], the first difference and the running sum."
+  },
+  {
+   "i": 22,
+   "id": "m1-dt-sift",
+   "module": "M1",
+   "nav": "Sampling and sifting (DT)",
+   "title": "Sampling and sifting properties",
+   "src": "pp. 6–7",
+   "steps": 3,
+   "obj": "Distinguish the two properties and verify both on the source example."
+  },
+  {
+   "i": 23,
+   "id": "m1-ct-impulse",
+   "module": "M1",
+   "nav": "CT impulse and step",
+   "title": "The continuous-time impulse",
+   "src": "p. 7",
+   "steps": 4,
+   "obj": "Present δ(t) rigorously as a distribution while keeping the source picture."
+  },
+  {
+   "i": 24,
+   "id": "m1-ct-cexp",
+   "module": "M1",
+   "nav": "CT complex exponentials",
+   "title": "Continuous-time complex exponentials",
+   "src": "pp. 7–9",
+   "steps": 4,
+   "obj": "Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity."
+  },
+  {
+   "i": 25,
+   "id": "m1-dt-cexp",
+   "module": "M1",
+   "nav": "DT complex exponentials",
+   "title": "Discrete-time complex exponentials",
+   "src": "pp. 9–10",
+   "steps": 2,
+   "obj": "Introduce x[n]=Cα^n and the three envelope cases."
+  },
+  {
+   "i": 26,
+   "id": "m1-dt-period",
+   "module": "M1",
+   "nav": "DT periodicity condition",
+   "title": "When is a discrete-time exponential periodic?",
+   "src": "p. 10",
+   "steps": 4,
+   "obj": "Derive N = 2πk/ω₀ and the rationality condition; work the source example."
+  },
+  {
+   "i": 27,
+   "id": "m1-lab-c",
+   "module": "M1",
+   "nav": "Laboratory C · Periodicity",
+   "title": "Laboratory C — Periodicity Explorer",
+   "src": "pp. 5, 8, 10",
+   "steps": 0,
+   "obj": "Compare CT and DT periodicity with an exact rationality test."
+  },
+  {
+   "i": 28,
+   "id": "m1-synth",
+   "module": "M1",
+   "nav": "Module 1 synthesis",
+   "title": "Module 1 — what to carry forward",
+   "src": "pp. 2–10",
+   "steps": 1,
+   "obj": "Consolidate the module and connect to Module 2."
+  },
+  {
+   "i": 29,
+   "id": "m1-qbank",
+   "module": "M1",
+   "nav": "Module 1 question bank",
+   "title": "Module 1 — question bank",
+   "src": "pp. 2–10",
+   "steps": 0,
+   "obj": "Twelve editorially developed questions covering Module 1 outcomes."
+  },
+  {
+   "i": 30,
+   "id": "m2-open",
+   "module": "M2",
+   "nav": "Module 2 opening",
+   "title": "Systems and Their Properties",
+   "src": "pp. 11–14",
+   "steps": 0,
+   "obj": ""
+  },
+  {
+   "i": 31,
+   "id": "m2-abstraction",
+   "module": "M2",
+   "nav": "Input–output abstraction",
+   "title": "The input–output abstraction",
+   "src": "p. 11",
+   "steps": 2,
+   "obj": "Define a system as a deterministic map between signals."
+  },
+  {
+   "i": 32,
+   "id": "m2-memory",
+   "module": "M2",
+   "nav": "Memory",
+   "title": "Memoryless systems and systems with memory",
+   "src": "p. 11",
+   "steps": 3,
+   "obj": "Define memorylessness and test it on the source examples."
+  },
+  {
+   "i": 33,
+   "id": "m2-invertible",
+   "module": "M2",
+   "nav": "Invertibility",
+   "title": "Invertibility",
+   "src": "pp. 11–12",
+   "steps": 3,
+   "obj": "Define invertibility and demonstrate both proof strategies."
+  },
+  {
+   "i": 34,
+   "id": "m2-causal",
+   "module": "M2",
+   "nav": "Causality",
+   "title": "Causality",
+   "src": "p. 12",
+   "steps": 3,
+   "obj": "Define causality and work all five source examples."
+  },
+  {
+   "i": 35,
+   "id": "m2-stable",
+   "module": "M2",
+   "nav": "BIBO stability",
+   "title": "BIBO stability",
+   "src": "pp. 12–13",
+   "steps": 4,
+   "obj": "Define boundedness and BIBO stability; prove one case, disprove another."
+  },
+  {
+   "i": 36,
+   "id": "m2-ti",
+   "module": "M2",
+   "nav": "Time invariance",
+   "title": "Time invariance",
+   "src": "p. 13",
+   "steps": 4,
+   "obj": "State the test as a comparison of two computed signals and work both examples."
+  },
+  {
+   "i": 37,
+   "id": "m2-linear",
+   "module": "M2",
+   "nav": "Linearity",
+   "title": "Linearity",
+   "src": "p. 14",
+   "steps": 4,
+   "obj": "State superposition and work both source examples in full."
+  },
+  {
+   "i": 38,
+   "id": "m2-workflow",
+   "module": "M2",
+   "nav": "Classification workflow",
+   "title": "A workflow you can defend",
+   "src": "pp. 11–14",
+   "steps": 2,
+   "obj": "Give a repeatable order of attack for classifying an unfamiliar system."
+  },
+  {
+   "i": 39,
+   "id": "m2-lab-d",
+   "module": "M2",
+   "nav": "Laboratory D · Property checker",
+   "title": "Laboratory D — System Property Checker",
+   "src": "pp. 11–14, 21",
+   "steps": 0,
+   "obj": "Apply the six formal tests to thirteen source systems."
+  },
+  {
+   "i": 40,
+   "id": "m2-synth",
+   "module": "M2",
+   "nav": "Module 2 synthesis",
+   "title": "Module 2 — what to carry forward",
+   "src": "pp. 11–14",
+   "steps": 2,
+   "obj": "Consolidate and motivate the LTI restriction."
+  },
+  {
+   "i": 41,
+   "id": "m2-qbank",
+   "module": "M2",
+   "nav": "Module 2 question bank",
+   "title": "Module 2 — question bank",
+   "src": "pp. 11–14",
+   "steps": 0,
+   "obj": "Twelve editorially developed questions covering Module 2 outcomes."
+  },
+  {
+   "i": 42,
+   "id": "m3-open",
+   "module": "M3",
+   "nav": "Module 3 opening",
+   "title": "Linear Time-Invariant Systems",
+   "src": "pp. 14–21",
+   "steps": 0,
+   "obj": ""
+  },
+  {
+   "i": 43,
+   "id": "m3-impulse",
+   "module": "M3",
+   "nav": "Impulse response",
+   "title": "The impulse response",
+   "src": "p. 14",
+   "steps": 2,
+   "obj": "Define h and explain why one experiment can characterise a whole system."
+  },
+  {
+   "i": 44,
+   "id": "m3-representation",
+   "module": "M3",
+   "nav": "Representation property",
+   "title": "Every signal is a sum of impulses",
+   "src": "pp. 14–15",
+   "steps": 3,
+   "obj": "Derive the representation property from the sampling property."
+  },
+  {
+   "i": 45,
+   "id": "m3-convsum",
+   "module": "M3",
+   "nav": "The convolution sum",
+   "title": "Deriving the convolution sum",
+   "src": "p. 15",
+   "steps": 4,
+   "obj": "Give the three-line LTI derivation and name where each property is used."
+  },
+  {
+   "i": 46,
+   "id": "m3-steps",
+   "module": "M3",
+   "nav": "Flip, shift, multiply, add",
+   "title": "The four mechanical steps",
+   "src": "p. 15",
+   "steps": 2,
+   "obj": "Name the procedure and explain the role of the flip."
+  },
+  {
+   "i": 47,
+   "id": "m3-ex-dt1",
+   "module": "M3",
+   "nav": "Worked example · finite sequences",
+   "title": "Worked example — two finite sequences",
+   "src": "pp. 15–16",
+   "steps": 3,
+   "obj": "Reproduce the source example with the superposition method and verify."
+  },
+  {
+   "i": 48,
+   "id": "m3-ex-dt2",
+   "module": "M3",
+   "nav": "Worked example · geometric",
+   "title": "Worked example — an infinite-length case",
+   "src": "pp. 16–17",
+   "steps": 4,
+   "obj": "Work the geometric example, including the case split and the series condition."
+  },
+  {
+   "i": 49,
+   "id": "m3-convint",
+   "module": "M3",
+   "nav": "The convolution integral",
+   "title": "The convolution integral",
+   "src": "pp. 17–18",
+   "steps": 2,
+   "obj": "Transfer the derivation to continuous time."
+  },
+  {
+   "i": 50,
+   "id": "m3-ex-ct1",
+   "module": "M3",
+   "nav": "Worked example · CT case split",
+   "title": "Worked example — a two-case convolution",
+   "src": "pp. 18–19",
+   "steps": 3,
+   "obj": "Work the exponential/step example with explicit overlap reasoning."
+  },
+  {
+   "i": 51,
+   "id": "m3-ex-ct2",
+   "module": "M3",
+   "nav": "Worked example · five cases",
+   "title": "Worked example — a five-case convolution",
+   "src": "pp. 19–20",
+   "steps": 4,
+   "obj": "Work the rect ∗ ramp example, listing every case boundary and verifying continuity."
+  },
+  {
+   "i": 52,
+   "id": "m3-lab-e",
+   "module": "M3",
+   "nav": "Laboratory E · Convolution",
+   "title": "Laboratory E — Graphical Convolution Explorer",
+   "src": "pp. 15–20",
+   "steps": 0,
+   "obj": "See flip, shift, multiply and accumulate for four source cases."
+  },
+  {
+   "i": 53,
+   "id": "m3-props",
+   "module": "M3",
+   "nav": "Convolution properties",
+   "title": "Properties of convolution",
+   "src": "p. 20",
+   "steps": 3,
+   "obj": "State commutativity, distributivity and associativity with their interconnection meanings."
+  },
+  {
+   "i": 54,
+   "id": "m3-lti-props",
+   "module": "M3",
+   "nav": "LTI property criteria",
+   "title": "The six properties, re-expressed in $h$",
+   "src": "p. 21",
+   "steps": 4,
+   "obj": "Give the impulse-response criterion for each system property."
+  },
+  {
+   "i": 55,
+   "id": "m3-synth",
+   "module": "M3",
+   "nav": "Module 3 synthesis",
+   "title": "Module 3 — what to carry forward",
+   "src": "pp. 14–21",
+   "steps": 2,
+   "obj": "Consolidate and open the door to the frequency domain."
+  },
+  {
+   "i": 56,
+   "id": "m3-qbank",
+   "module": "M3",
+   "nav": "Module 3 question bank",
+   "title": "Module 3 — question bank",
+   "src": "pp. 14–21",
+   "steps": 0,
+   "obj": "Twelve editorially developed questions covering Module 3 outcomes."
+  },
+  {
+   "i": 57,
+   "id": "end-synth",
+   "module": "M4+",
+   "nav": "Closing synthesis",
+   "title": "Where Modules 0–3 leave you",
+   "src": "pp. 2–21",
+   "steps": 2,
+   "obj": "Unify the three modules and state the bridge to the frequency domain."
+  },
+  {
+   "i": 58,
+   "id": "end-provenance",
+   "module": "M4+",
+   "nav": "Version and provenance",
+   "title": "Version, provenance and known issues",
+   "src": "—",
+   "steps": 0,
+   "obj": "Declare the version manifest, conventions and unresolved source ambiguities."
+  }
+ ],
+ "q": [
+  {
+   "id": "Q1-01",
+   "module": "M1",
+   "kind": "concept",
+   "src": "pp. 2–3",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-02",
+   "module": "M1",
+   "kind": "concept",
+   "src": "p. 10",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-03",
+   "module": "M1",
+   "kind": "concept",
+   "src": "pp. 6–7",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-04",
+   "module": "M1",
+   "kind": "calc",
+   "src": "pp. 2–3",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-05",
+   "module": "M1",
+   "kind": "calc",
+   "src": "pp. 2–3, 8",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-06",
+   "module": "M1",
+   "kind": "calc",
+   "src": "pp. 5, 10",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-07",
+   "module": "M1",
+   "kind": "misconception",
+   "src": "pp. 2–3",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-08",
+   "module": "M1",
+   "kind": "misconception",
+   "src": "p. 4",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-09",
+   "module": "M1",
+   "kind": "exam",
+   "src": "pp. 2–4",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-10",
+   "module": "M1",
+   "kind": "exam",
+   "src": "pp. 5, 8",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-11",
+   "module": "M1",
+   "kind": "graph",
+   "src": "pp. 3–4",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q1-12",
+   "module": "M1",
+   "kind": "synthesis",
+   "src": "p. 2",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-01",
+   "module": "M2",
+   "kind": "concept",
+   "src": "p. 11",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-02",
+   "module": "M2",
+   "kind": "concept",
+   "src": "pp. 11–12",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-03",
+   "module": "M2",
+   "kind": "concept",
+   "src": "p. 12",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-04",
+   "module": "M2",
+   "kind": "calc",
+   "src": "pp. 4, 13",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-05",
+   "module": "M2",
+   "kind": "calc",
+   "src": "p. 14",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-06",
+   "module": "M2",
+   "kind": "calc",
+   "src": "p. 12",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-07",
+   "module": "M2",
+   "kind": "misconception",
+   "src": "pp. 11, 14",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-08",
+   "module": "M2",
+   "kind": "misconception",
+   "src": "p. 13",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-09",
+   "module": "M2",
+   "kind": "exam",
+   "src": "pp. 11–14",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-10",
+   "module": "M2",
+   "kind": "exam",
+   "src": "pp. 11–14",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-11",
+   "module": "M2",
+   "kind": "graph",
+   "src": "pp. 11–12",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q2-12",
+   "module": "M2",
+   "kind": "synthesis",
+   "src": "pp. 12–13",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-01",
+   "module": "M3",
+   "kind": "concept",
+   "src": "pp. 14–15",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-02",
+   "module": "M3",
+   "kind": "concept",
+   "src": "p. 21",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-03",
+   "module": "M3",
+   "kind": "concept",
+   "src": "p. 20",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-04",
+   "module": "M3",
+   "kind": "calc",
+   "src": "pp. 15–16",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-05",
+   "module": "M3",
+   "kind": "calc",
+   "src": "pp. 15–16",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-06",
+   "module": "M3",
+   "kind": "calc",
+   "src": "pp. 18–19",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-07",
+   "module": "M3",
+   "kind": "misconception",
+   "src": "pp. 15–16",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-08",
+   "module": "M3",
+   "kind": "misconception",
+   "src": "p. 21",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-09",
+   "module": "M3",
+   "kind": "exam",
+   "src": "pp. 18–20",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-10",
+   "module": "M3",
+   "kind": "exam",
+   "src": "pp. 16–17",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-11",
+   "module": "M3",
+   "kind": "graph",
+   "src": "pp. 19–20",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  },
+  {
+   "id": "Q3-12",
+   "module": "M3",
+   "kind": "synthesis",
+   "src": "pp. 20–21",
+   "opts": 4,
+   "hints": 2,
+   "hasSol": true,
+   "hasErr": true
+  }
+ ]
+}
