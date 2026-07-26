@@ -37,10 +37,10 @@ const SC = [
       {t:'note', kind:'warn', head:'Two systems are equal when they act identically', html:'An RC circuit, a numerical filter and a pencil-and-paper integrator can be the <em>same</em> system. How a system is built does not affect any property in this module. That is what makes the theory portable.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:300,items:[
-      {t:'arrow',x1:70,y1:100,x2:250,y2:100},{t:'box',x:250,y:60,w:200,h:80,label:'S'},
+      {t:'arrow',x1:70,y1:100,x2:250,y2:100},{t:'box',x:250,y:60,w:200,h:80,label:'S',tex:true},
       {t:'arrow',x1:450,y1:100,x2:640,y2:100},
       {t:'text',x:150,y:86,label:'x(t)',tex:true,fs:18},{t:'text',x:545,y:86,label:'y(t)',tex:true,fs:18},
-      {t:'arrow',x1:70,y1:225,x2:250,y2:225},{t:'box',x:250,y:185,w:200,h:80,label:'S'},
+      {t:'arrow',x1:70,y1:225,x2:250,y2:225},{t:'box',x:250,y:185,w:200,h:80,label:'S',tex:true},
       {t:'arrow',x1:450,y1:225,x2:640,y2:225},
       {t:'text',x:150,y:211,label:'x[n]',tex:true,fs:18},{t:'text',x:545,y:211,label:'y[n]',tex:true,fs:18}
     ]}), caption:'The same operator viewpoint in continuous time and in discrete time.'}
@@ -299,12 +299,12 @@ const SC = [
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:330,items:[
       {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:'#4A657F'},
-      {t:'arrow',x1:100,y1:90,x2:280,y2:90},{t:'box',x:280,y:58,w:150,h:64,label:'S'},
+      {t:'arrow',x1:100,y1:90,x2:280,y2:90},{t:'box',x:280,y:58,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:430,y1:90,x2:610,y2:90},
       {t:'text',x:190,y:78,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
       {t:'text',x:520,y:78,label:'y_3',tex:true,fs:15},
       {t:'text',x:100,y:186,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:'#4A657F'},
-      {t:'arrow',x1:100,y1:240,x2:280,y2:240},{t:'box',x:280,y:208,w:150,h:64,label:'S'},
+      {t:'arrow',x1:100,y1:240,x2:280,y2:240},{t:'box',x:280,y:208,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:430,y1:240,x2:610,y2:240},
       {t:'text',x:190,y:228,label:'x_1,\\;x_2',tex:true,fs:15},
       {t:'text',x:520,y:228,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},

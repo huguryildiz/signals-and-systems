@@ -176,7 +176,7 @@ window.C23 = [
 {t:'p', text:'For a general system this is one measurement among infinitely many. Knowing the response to $\\delta[n]$ says nothing about the response to anything else.'},
 {t:'p', text:'For a linear time-invariant system it is everything. Time invariance turns one impulse response into a response for every shift. Linearity turns those into a response for every weighted sum. And Chapter 1 showed that every signal <b>is</b> a weighted sum of shifted impulses. Those three facts close the loop.'},
 {t:'fig', svg:()=>P.blocks({w:700,h:110,items:[
-  {t:'arrow',x1:80,y1:56,x2:260,y2:56},{t:'box',x:260,y:32,w:150,h:48,label:'S',fs:16},
+  {t:'arrow',x1:80,y1:56,x2:260,y2:56},{t:'box',x:260,y:32,w:150,h:48,label:'S',tex:true,fs:16},
   {t:'arrow',x1:410,y1:56,x2:600,y2:56},
   {t:'text',x:170,y:44,label:'\\delta[n]',tex:true,fs:15,color:'#14707F'},
   {t:'text',x:505,y:44,label:'h[n]',tex:true,fs:15,color:'#A9741C'}

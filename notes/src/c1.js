@@ -136,7 +136,7 @@ window.C1 = [
    a.curve(t=>r(2*t),{color:C.mid}); a.note(1,1.1,'x(2t)',{anchor:'middle',color:C.mid,fs:11,tex:true}); return a.svg();},
   cap:'Compressed: support $[0.5,1.5]$.'},
  {svg:()=>{const r=t=>(t>=1&&t<=3)?1:0;const a=ax({xr:[-1,7],yr:[-0.2,1.3],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
-   a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.1,'x(0.5t)',{anchor:'middle',color:C.h,fs:11,italic:true}); return a.svg();},
+   a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.1,'x(0.5t)',{anchor:'middle',color:C.h,fs:11,tex:true}); return a.svg();},
   cap:'Stretched: support $[2,6]$.'}
 ]},
 {t:'box', kind:'warn', html:'<span class="t">Discrete time is not symmetric</span>$x[2n]$ throws away the odd-indexed samples. It is real decimation and it destroys information. And $x[n/2]$ is not defined at odd $n$ without an extra rule for filling the gaps. Continuous-time scaling can be undone; discrete-time decimation cannot.'},

@@ -43,7 +43,7 @@ const SC = [
       {t:'note', kind:'warn', head:'A practical caveat worth stating', html:'Real impulses do not exist. In practice $h$ is measured with a short pulse, or with a step whose response is then differentiated, or with a broadband sequence. All three are justified by the same linearity that makes $h$ meaningful in the first place.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:220,items:[
-      {t:'arrow',x1:90,y1:110,x2:300,y2:110},{t:'box',x:300,y:70,w:190,h:80,label:'S'},
+      {t:'arrow',x1:90,y1:110,x2:300,y2:110},{t:'box',x:300,y:70,w:190,h:80,label:'S',tex:true},
       {t:'arrow',x1:490,y1:110,x2:700,y2:110},
       {t:'text',x:195,y:92,label:'x[n]=\\delta[n]',tex:true,fs:17,color:'#14707F'},
       {t:'text',x:195,y:132,label:'unit impulse',fs:12},
@@ -122,21 +122,21 @@ const SC = [
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:400,items:[
       {t:'text',x:60,y:36,label:'\\delta[n]',anchor:'start',tex:true,fs:16,color:'#14707F'},
-      {t:'arrow',x1:130,y1:30,x2:300,y2:30},{t:'box',x:300,y:8,w:110,h:44,label:'S'},
+      {t:'arrow',x1:130,y1:30,x2:300,y2:30},{t:'box',x:300,y:8,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:30,x2:560,y2:30},
       {t:'text',x:620,y:36,label:'h[n]',anchor:'start',tex:true,fs:16,color:'#C08422'},
       {t:'text',x:60,y:126,label:'\\delta[n-k]',anchor:'start',tex:true,fs:16,color:'#14707F'},
-      {t:'arrow',x1:160,y1:120,x2:300,y2:120},{t:'box',x:300,y:98,w:110,h:44,label:'S'},
+      {t:'arrow',x1:160,y1:120,x2:300,y2:120},{t:'box',x:300,y:98,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:120,x2:560,y2:120},
       {t:'text',x:620,y:126,label:'h[n-k]',anchor:'start',tex:true,fs:16,color:'#C08422'},
       {t:'text',x:355,y:88,label:'time invariance',fs:12,color:'#4A657F'},
       {t:'text',x:60,y:226,label:'x[k]\\cdot\\delta[n-k]',anchor:'start',tex:true,fs:16,color:'#14707F'},
-      {t:'arrow',x1:200,y1:220,x2:300,y2:220},{t:'box',x:300,y:198,w:110,h:44,label:'S'},
+      {t:'arrow',x1:200,y1:220,x2:300,y2:220},{t:'box',x:300,y:198,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:220,x2:560,y2:220},
       {t:'text',x:620,y:226,label:'x[k]\\cdot h[n-k]',anchor:'start',tex:true,fs:16,color:'#C08422'},
       {t:'text',x:355,y:188,label:'homogeneity',fs:12,color:'#4A657F'},
       {t:'text',x:60,y:336,label:'\\sum_k x[k]\\delta[n-k]',anchor:'start',tex:true,fs:16,color:'#14707F'},
-      {t:'arrow',x1:220,y1:330,x2:300,y2:330},{t:'box',x:300,y:308,w:110,h:44,label:'S'},
+      {t:'arrow',x1:220,y1:330,x2:300,y2:330},{t:'box',x:300,y:308,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:330,x2:560,y2:330},
       {t:'text',x:620,y:336,label:'\\sum_k x[k]h[n-k]',anchor:'start',tex:true,fs:16,color:'#4A7A46'},
       {t:'text',x:355,y:298,label:'additivity',fs:12,color:'#4A657F'},
@@ -345,7 +345,7 @@ const SC = [
         a.curve(τ=>τ<=t-3?1:0,{color:C.h});
         a.vline(t-3,{color:C.coral});
         a.note(t-3-0.18,1.14,'\\tau=t-3',{anchor:'end',color:C.coral,fs:13,tex:true});
-        a.note(7.6,1.05,'Case I:  t < 3',{anchor:'end',color:C.muted,fs:14});
+        a.note(7.6,1.05,'\\text{Case I}:\\;t<3',{anchor:'end',color:C.muted,fs:14,tex:true});
         return a.svg(); }}]},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:46,r:20,t:14,b:28},xtarget:8,ytarget:2});
@@ -354,7 +354,7 @@ const SC = [
         a.curve(τ=>τ<=0?Math.exp(2*τ):0,{color:C.in});
         a.curve(τ=>τ<=t-3?1:0,{color:C.h});
         a.vline(t-3,{color:C.coral});
-        a.note(7.6,1.05,'Case II:  t > 3',{anchor:'end',color:C.muted,fs:14});
+        a.note(7.6,1.05,'\\text{Case II}:\\;t>3',{anchor:'end',color:C.muted,fs:14,tex:true});
         return a.svg(); }},
       {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:172,xr:[-1,7],yr:[-0.05,0.6],xlabel:'t',pad:{l:50,r:20,t:14,b:28},xtarget:8,ytarget:3});
         a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out});
@@ -457,7 +457,7 @@ const SC = [
       {t:'line',d:'M350 60 v45 M350 150 v-45'},
       {t:'sum',x:365,y:105},
       {t:'arrow',x1:379,y1:105,x2:470,y2:105},
-      {t:'text',x:520,y:112,label:'≡',fs:26},
+      {t:'text',x:520,y:112,label:'\\equiv',tex:true,fs:26},
       {t:'arrow',x1:560,y1:105,x2:640,y2:105},
       {t:'box',x:640,y:83,w:150,h:44,label:'h_1+h_2',tex:true},
       {t:'arrow',x1:790,y1:105,x2:840,y2:105}
@@ -467,7 +467,7 @@ const SC = [
         {t:'arrow',x1:40,y1:75,x2:130,y2:75},{t:'box',x:130,y:53,w:110,h:44,label:'h_1',tex:true},
         {t:'arrow',x1:240,y1:75,x2:320,y2:75},{t:'box',x:320,y:53,w:110,h:44,label:'h_2',tex:true},
         {t:'arrow',x1:430,y1:75,x2:500,y2:75},
-        {t:'text',x:545,y:82,label:'≡',fs:26},
+        {t:'text',x:545,y:82,label:'\\equiv',tex:true,fs:26},
         {t:'arrow',x1:585,y1:75,x2:655,y2:75},
         {t:'box',x:655,y:53,w:150,h:44,label:'h_1*h_2',tex:true},
         {t:'arrow',x1:805,y1:75,x2:850,y2:75}
