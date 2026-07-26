@@ -1,14 +1,15 @@
 # EE 311 — Signals and Systems
 
-Folders are organised by **who the files are for**. Nothing here is deleted; older material sits in `archive`.
+Folders are organised by **who the files are for**. Superseded material is deleted rather than kept
+alongside the current files; git history is where it survives.
 
 | Folder | For whom | Contents |
 |---|---|---|
-| `source/` | you only | Course source material and the production brief. Not distributed. |
+| `source/` | you only | Course source material. Not distributed. |
 | `dist/` | students | Everything that may be handed out, and nothing else. |
-| `instructor/` | you only | Internal records: audit, verification, coverage, editorial rules, continuation brief. **Never distribute these.** |
+| `instructor/` | you only | Internal records: the continuation brief and the coverage matrix. **Never distribute these.** |
 | `release/` | you only | The full source package needed to rebuild every output, plus the notes source. |
-| `archive/` | nobody | Superseded material kept only so nothing is lost. Safe to delete. |
+| `.claude/` | you only | Working material — prompts, audit reports, plans, notes. Untracked; this machine only. |
 
 Two files in `source/` are deliberately untracked (see `.gitignore`): `Book.pdf`, which is
 third-party material and must not be redistributed, and `EE311 - Lecture Notes.pdf`, the 41 MB
@@ -29,8 +30,9 @@ source pages. Those appear only in the artifact's instructor edition, which is r
 
 ## What not to hand out
 
-`instructor/` contains the audit trail, the issue ledger and the coverage matrix. They exist so that any
-claim in the student material can be traced and checked later. They are working records, not teaching material.
+`instructor/` holds the continuation brief and the coverage matrix; `.claude/reports/` holds the audit
+trail and the issue ledger. They exist so that any claim in the student material can be traced and
+checked later. They are working records, not teaching material.
 
 ## Rebuilding
 

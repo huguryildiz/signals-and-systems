@@ -2,7 +2,7 @@
 
 **Status: authoritative.** Read this before touching anything in `~/Desktop/EE311/`.
 This file supersedes `PHASE2_HANDOFF.md` §1 (file table) and §2 (rebuild commands) — the folder was
-reorganised and one of the archives is stale. Everything else in the handoff still stands.
+reorganised and the archive the handoff points at no longer exists. Everything else in it still stands.
 The editorial rules R1–R8 live here, in §5.1; there is no separate rules file.
 Set 2026-07-25. Artifact version at this point: **v0.9**.
 
@@ -43,11 +43,11 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 | `instructor/coverage_matrix.md` | 88-page source-coverage matrix |
 | `release/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
 | `release/EE311_Lecture_Notes.html` | notes pipeline output |
-| `archive/` | superseded material, do not build from it |
-| `.claude/` | local working area — prompts, plans, session notes; **not in git** |
+| `.claude/` | local working area — prompts, reports, plans, notes; **not in git** |
 
-Keep this structure. New instructor-only records go in `instructor/`, new build archives in
-`release/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
+Keep this structure. New instructor-only records go in `instructor/`, new build archives in `release/`.
+There is no `archive/` folder any more: superseded material is deleted, and git history is the only
+place it survives. Do not leave scratch files in the root.
 
 `.claude/` holds the working material that is not student-facing: `prompts/` (the original production
 prompt `EE311_INTERACTIVE_ARTIFACT_PROMPT.md` and the paste-in project instructions), `reports/`
@@ -66,12 +66,14 @@ access.
 
 ## 3. Rebuilding the working tree
 
-Rebuild from **`release/EE311_Deliverables.zip`**.
+Rebuild from **`release/EE311_Deliverables.zip`**. It is the only rebuild archive; nothing else in the
+repository is a valid build input.
 
-`archive/EE311_Phase1_sources.zip` is **stale and incomplete**. It predates the R1–R8 editorial sweep
-(the scene, laboratory and question-bank sources in it differ from the current ones) and it is missing
-`tools/rule_check.py`, the whole `notes/` pipeline, `audit/scenes.json` and `audit/page_titles.tsv`.
-Building from it silently reintroduces 82 cleared rule violations and drops the notes pipeline.
+The Phase 1 source zip that used to sit beside it was **stale and incomplete** — it predated the R1–R8
+editorial sweep and was missing `tools/rule_check.py`, the whole `notes/` pipeline, `audit/scenes.json`
+and `audit/page_titles.tsv`, so building from it silently reintroduced 82 cleared rule violations. It
+is gone. If an older build ever has to be recovered, take it from git history, and treat anything found
+there as stale until it is checked against the gates in §4.
 
 ```bash
 REPO=$(git rev-parse --show-toplevel)      # run this line from inside the repository
@@ -277,8 +279,8 @@ scale factors genuinely need a second source.
 - Do the heavy work in the container (`/tmp/ee311`), not on the user's disk. Deliver finished files with
   `SendUserFile`, then write them back to the right project folder with `device_commit_files`.
 - Re-zip `release/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
-  never drifts from the delivered artifact. Move the previous archive to `archive/` rather than
-  overwriting it blind.
+  never drifts from the delivered artifact. Commit the previous zip before overwriting it — history is
+  the only copy that is kept.
 - When a task spans several hours or gets interrupted, update `PHASE2_HANDOFF.md` before ending — it is
   the only thing that survives the container.
 - **Language:** conversation with the user in Turkish; everything visible in a deliverable, and every
