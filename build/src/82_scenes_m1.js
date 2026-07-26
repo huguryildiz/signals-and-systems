@@ -310,7 +310,7 @@ const SC = [
     {t:'fig', frame:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
       const a=P.Axes({w:900,h:210,xr:[-1,7],yr:[-0.2,1.35],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.16,'x(0.5t) — expansion',{anchor:'middle',color:C.h,fs:15,italic:true});
+      a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.16,'x(0.5t)\\;\\text{— expansion}',{anchor:'middle',color:C.h,fs:15,tex:true});
       a.span(2,6,-0.12,'width doubled',{color:C.h});
       return a.svg(); },
       caption:'Scaling moves the support. Compression by 2 maps $[1,3]\\to[0.5,1.5]$, and expansion by 2 maps $[1,3]\\to[2,6]$.'}
@@ -442,8 +442,8 @@ const SC = [
         a.curve(x,{color:C.h,dash:'4 4'});
         a.curve(t=>0.5*(x(t)+x(-t)),{color:C.in});
         a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid});
-        a.note(-1.42,2.6,'x',{color:C.h,fs:14,italic:true});
-        a.note(1.42,2.5,'Ev{x} = cosh t',{anchor:'end',color:C.in,fs:14});
+        a.note(-1.42,2.6,'x',{color:C.h,fs:14,tex:true});
+        a.note(1.42,2.5,'\\operatorname{Ev}\\{x\\}=\\cosh t',{anchor:'end',color:C.in,fs:14,tex:true});
         a.note(-0.25,-1.5,'\\operatorname{Od}\\{x\\}=-\\sinh t',{anchor:'end',color:C.mid,fs:14,tex:true});
         return a.svg(); },
         caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'}]}
@@ -547,7 +547,7 @@ const SC = [
       [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
         const col=[ '#9BC4CB','#4E9AA6',C.in][i];
         a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
-      a.note(1.1,4.1,'width ε, height 1/ε',{anchor:'end',color:C.muted,fs:13});
+      a.note(1.1,4.1,'\\text{width }\\varepsilon,\\;\\text{height }1/\\varepsilon',{anchor:'end',color:C.muted,fs:13,tex:true});
       return a.svg(); },
       caption:'The limiting construction. Each rectangle has unit area. Nothing converges pointwise. The family converges only when it is integrated against a continuous test function.'},
     {t:'reveal', at:4, items:[
