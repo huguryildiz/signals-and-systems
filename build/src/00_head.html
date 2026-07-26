@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EE 311 — Signals and Systems</title>
+<meta name="description" content="EE311 Signals and Systems: an interactive learning artifact covering signals, system properties and linear time-invariant systems, with five laboratories and three question banks.">
+<meta name="color-scheme" content="light">
+<style>/*__KATEX_CSS__*/</style>
+<style>/*__APP_CSS__*/</style>
+</head>
+<body data-mode="study" data-edition="student" data-motion="full" data-sidebar="on">
+<div id="viewport">
+
+  <header id="appheader">
+    <button id="sbtoggle" data-act="sidebar" title="Contents (S)" aria-label="Toggle contents">☰</button>
+    <span class="brand">EE 311 · Signals and Systems</span>
+    <span class="spacer"></span>
+    <button data-act="search" title="Search (/)">Search</button>
+    <button data-act="gloss" title="Notation (G)">Notation</button>
+    <span class="sep"></span>
+    <button id="btn-display" data-act="display" title="Normal / projector (P)">Normal</button>
+    <button id="btn-theme" data-act="theme" title="Light / dark (D)">Light</button>
+    <span class="sep"></span>
+    <button id="btn-mode" data-act="mode" title="Lecture / self-study (L)">Self-study</button>
+    <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>
+    <button id="btn-motion" data-act="motion" title="Reduced motion (R)">Motion: full</button>
+    <button data-act="help" title="Help (?)">?</button>
+  </header>
+
+  <aside id="sidebar" aria-label="Contents">
+    <nav id="sidenav"></nav>
+    <div class="sfoot">
+      <button class="btn ghost" data-act="reset" title="Clear progress stored on this device">Reset progress</button>
+    </div>
+  </aside>
+
+  <div id="stagewrap">
+    <div id="stage">
+      <main id="scene-host" class="scene is-active" role="main" aria-live="polite"></main>
+    </div>
+  </div>
+
+  <footer id="chrome" aria-label="Presentation controls">
+    <div id="progress" style="width:0"></div>
+    <span class="crumb" id="crumb"></span>
+    <span class="srcref" id="srcref"></span>
+    <span class="spacer"></span>
+    <button data-act="prev" title="Previous (←)">Prev</button>
+    <button data-act="next" title="Next (→)">Next</button>
+    <span id="counter"></span>
+  </footer>
+
+  <!-- overlays sit above the whole window, not inside the scaled stage -->
+  <div class="overlay" id="ov-search" role="dialog" aria-label="Search">
+    <div class="sheet" style="position:relative;max-width:900px">
+      <button class="btn ghost close" data-act="close">Close ✕</button>
+      <p class="eyebrow"><span class="tick"></span>Search</p>
+      <input id="searchbox" placeholder="Concept, symbol, property, question id…" autocomplete="off">
+      <div class="sresults" id="sresults"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-gloss" role="dialog" aria-label="Notation">
+    <div class="sheet" style="position:relative">
+      <button class="btn ghost close" data-act="close">Close ✕</button>
+      <p class="eyebrow"><span class="tick"></span>Notation and formulas</p>
+      <h2>Every symbol, defined once</h2>
+      <div class="gloss" id="glosshost"></div>
+      <hr class="rule">
+      <p class="eyebrow"><span class="tick"></span>Conventions</p>
+      <div class="gloss" id="convhost"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-help" role="dialog" aria-label="Help">
+    <div class="sheet" style="position:relative;max-width:760px">
+      <button class="btn ghost close" data-act="close">Close ✕</button>
+      <p class="eyebrow"><span class="tick"></span>Keyboard</p>
+      <h2>Controls</h2>
+      <div class="gloss" style="grid-template-columns:1fr" id="helphost"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-map" role="dialog" aria-label="Contents">
+    <div class="sheet" style="position:relative">
+      <button class="btn ghost close" data-act="close">Close ✕</button>
+      <p class="eyebrow"><span class="tick"></span>Contents</p>
+      <h2>Every scene, in order</h2>
+      <div class="mapgrid" id="mapgrid"></div>
+    </div>
+  </div>
+</div>

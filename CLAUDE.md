@@ -39,15 +39,27 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 | `source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only, not in git** |
 | `dist/EE311_Signals_and_Systems.html` | the interactive artifact (v0.9), student-facing |
 | `dist/EE311_Lecture_Notes.pdf` | lecture notes, A4 portrait |
+| `build/` | the artifact pipeline: `build.js`, `src/*`, `qa.js`, `labtest.js`, `textclash.js` |
+| `notes/` | the lecture-notes pipeline: `build.js`, `src/*`, `topdf.js` |
+| `verify/` | numerical and structural check suites |
+| `tools/rule_check.py` | the R1–R8 banned-phrase scanner |
+| `audit/` | page-mapping inventories, `scenes.json`, `page_titles.tsv` — instructor-grade only |
 | `instructor/PHASE2_HANDOFF.md` | work order and architecture |
 | `instructor/coverage_matrix.md` | 88-page source-coverage matrix |
-| `release/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
-| `release/EE311_Lecture_Notes.html` | notes pipeline output |
 | `.claude/` | local working area — prompts, reports, plans, notes; **not in git** |
 
-Keep this structure. New instructor-only records go in `instructor/`, new build archives in `release/`.
-There is no `archive/` folder any more: superseded material is deleted, and git history is the only
-place it survives. Do not leave scratch files in the root.
+Everything in `dist/` is **generated**. The two tracked deliverables there are built from `build/` and
+`notes/`; never hand-edit them. `dist/EE311_Lecture_Notes.html` is the intermediate `notes/topdf.js`
+turns into the PDF, so it is gitignored, as are `shots/` and `textclash.json`.
+
+Keep this structure. New instructor-only records go in `instructor/`. There is no `archive/` folder and
+no `release/` folder any more: superseded material is deleted, and git history is the only place it
+survives. Do not leave scratch files in the root.
+
+The rebuild archive `release/EE311_Deliverables.zip` is **gone**. It held the whole pipeline as a binary
+blob, so git could not diff it, every rebuild wrote a fresh 2.7 MB object into history, and its copies of
+`README.md` and `PHASE2_HANDOFF.md` had already drifted behind the tracked ones. The pipeline is now
+tracked as ordinary files. Do not reintroduce a zip.
 
 `.claude/` holds the working material that is not student-facing: `prompts/` (the original production
 prompt `EE311_INTERACTIVE_ARTIFACT_PROMPT.md` and the paste-in project instructions), `reports/`
@@ -64,36 +76,32 @@ access.
 
 ---
 
-## 3. Rebuilding the working tree
+## 3. Rebuilding
 
-Rebuild from **`release/EE311_Deliverables.zip`**. It is the only rebuild archive; nothing else in the
-repository is a valid build input.
-
-The Phase 1 source zip that used to sit beside it was **stale and incomplete** — it predated the R1–R8
-editorial sweep and was missing `tools/rule_check.py`, the whole `notes/` pipeline, `audit/scenes.json`
-and `audit/page_titles.tsv`, so building from it silently reintroduced 82 cleared rule violations. It
-is gone. If an older build ever has to be recovered, take it from git history, and treat anything found
-there as stale until it is checked against the gates in §4.
+The pipeline lives in the repository. Build in place, from the repository root:
 
 ```bash
-REPO=$(git rev-parse --show-toplevel)      # run this line from inside the repository
-mkdir -p /tmp/ee311 && cd /tmp/ee311
-unzip -q "$REPO/release/EE311_Deliverables.zip" -d .
-
-# source pages for the visual audit — 160 dpi is legible, do not go lower
-mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 \
-  "$REPO/source/EE311 - Lecture Notes.pdf" pages/p
-
 cd build && node build.js        # → ../dist/EE311_Signals_and_Systems.html
 cd ../notes && node build.js     # → ../dist/EE311_Lecture_Notes.html
+cd ../notes && node topdf.js     # → ../dist/EE311_Lecture_Notes.pdf
 ```
 
-The `build/`, `notes/`, `verify/` and `tools/` directories referred to below live inside the
-extracted tree at `/tmp/ee311`, not in the repository. In a Cowork session the two files above must be
-staged first; point `REPO` at the staging folder instead of using `git rev-parse`.
+Both `build.js` files resolve their output as `__dirname/../dist`, and `notes/build.js` reads
+`../build/src`, so `build/` and `notes/` must stay siblings at the repository root. Do not move them
+under a wrapper directory without rewriting those paths.
+
+For the visual audit, render the source pages — 160 dpi is legible, do not go lower:
+
+```bash
+mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 \
+  "source/EE311 - Lecture Notes.pdf" pages/p
+```
 
 KaTeX is vendored and font-inlined in `build/src/20_katex.css` + `30_katex.js`. **No `npm install`, no
 network fetch, ever** — the artifact must stay a single offline-capable file.
+
+If an older build ever has to be recovered, take it from git history and treat anything found there as
+stale until it is checked against the gates in §4.
 
 ---
 
@@ -104,18 +112,35 @@ Nothing is "done" until all four pass. Report the actual numbers, never a summar
 ```bash
 cd build && node qa.js                        # layout sweep      → 0 errors, 0 overflow
 cd build && node labtest.js                   # interaction sweep → "ERRORS: none"
-cd verify && python3 verify_m1_m3.py          # → "50 passed, 0 failed" (extend for M4–M7)
-python3 tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
+cd verify && ../.venv/bin/python verify_m1_m3.py   # → "50 passed, 0 failed" (extend for M4–M7)
+.venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
         "build/src/95_qbank.js" "build/src/70_labs.js" "notes/src/*.js"
                                               # → "TOTAL VIOLATIONS: 0"
 cd build && node textclash.js                 # figure labels     → "TOTAL COLLISIONS: 0"
 ```
 
+`.venv/` is a local arm64 virtualenv holding numpy and sympy; it is gitignored, so a fresh clone rebuilds
+it with `/opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy`. Never run these
+under the x86_64 anaconda `python3`.
+
+`qa.js`, `labtest.js`, `textclash.js` and `notes/topdf.js` each `require` Playwright by the absolute path
+`/home/claude/.npm-global/lib/node_modules/playwright`. That path exists only in the container, so on a
+local machine these four scripts do not run at all — the two `build.js` files, `verify/` and
+`tools/rule_check.py` are the part that works everywhere. Do not silently rewrite the require line; if the
+gates need to run locally, install Playwright and change the path as its own deliberate commit.
+
 `textclash.js` walks every scene at every step, takes the glyph box of every label in every figure and
 tests it against the drawn geometry of that figure. A word, an equation or a caption crossed by a
-signal, a label sitting on another label, and a label drawn without a halo all fail. Tick numbers
-crossed by a curve are accepted, because the halo interrupts the curve around the digits; the run
-reports how many of those it accepted.
+signal, a label sitting on another label, a label reaching past the edge of the figure, and a label
+drawn without a halo all fail. Tick numbers crossed by a curve are accepted, because the halo
+interrupts the curve around the digits; the run reports how many of those it accepted. Axis names are
+typeset mathematics, so their box comes from the laid-out formula rather than from `getBBox`.
+
+One collision is open and predates the current label work: in `m1-avgpower` the average-power curve
+leaves the top of the data area and reaches the name of the dependent variable. The name is drawn last,
+so it stays readable, but `curve()` still draws a full range beyond the data area and nothing clips it.
+Closing this means clipping curves to the data area, which changes every figure whose curve leaves the
+frame — a design decision, not a fix to make in passing.
 
 New modules extend the suites; they do not replace them. Every new numerical result in the content gets
 a check in `verify/`, in the same PASS/FAIL-per-line format. Before shipping any PDF, render every page
@@ -246,6 +271,14 @@ navy `#16232F` module-opening and synthesis scenes only.
   variable above it, widening the bottom or top margin by itself when the given `pad` is too small.
   Every label in a figure is drawn with a halo in `--fig-halo`, the page colour of the current palette.
   Do not restore labels to the inside of the data area.
+- `xlabel` and `ylabel` are **TeX source**, typeset with KaTeX so an axis name reads like the equations
+  in the running text. Words inside a name go in `\text{...}`, Greek letters are written `\tau`, `\omega`
+  and so on, and `\operatorname{Re}` is the house spelling. A name that fails to parse falls back to its
+  source text and reports a console error, which turns `qa.js` red. The name is laid out in a
+  `foreignObject` and drawn after the data, so a signal leaving the data area is interrupted by the name
+  rather than drawn across it. The strip reserved for a name is one line of mathematics tall, `NAMEBOX`
+  in `60_plot.js`; the name of the independent variable sits `XNAME_DROP` below its axis so it clears the
+  tick row even at the right-hand edge, where the two share a column. Do not shrink either.
 - Single file, no network requests, no analytics. Progress stored on the local device only.
 
 ### 5.5 Sources
@@ -276,12 +309,10 @@ scale factors genuinely need a second source.
 
 ## 7. How to work in a session
 
-- Do the heavy work in the container (`/tmp/ee311`), not on the user's disk. Deliver finished files with
-  `SendUserFile`, then write them back to the right project folder with `device_commit_files`.
-- Re-zip `release/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
-  never drifts from the delivered artifact. Commit the previous zip before overwriting it — history is
-  the only copy that is kept.
-- When a task spans several hours or gets interrupted, update `PHASE2_HANDOFF.md` before ending — it is
-  the only thing that survives the container.
+- Edit the pipeline in place, in the repository. There is no staging tree and no archive to re-pack: a
+  change to `build/src/*` plus a rebuild plus a commit is the whole loop.
+- Commit the rebuilt `dist/` files in the same commit as the sources that produced them, so the tracked
+  deliverables never lag behind the tracked pipeline.
+- When a task spans several hours or gets interrupted, update `PHASE2_HANDOFF.md` before ending.
 - **Language:** conversation with the user in Turkish; everything visible in a deliverable, and every
   internal record in this folder, in academic English.
