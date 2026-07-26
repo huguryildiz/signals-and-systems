@@ -25,7 +25,10 @@ const CONTENT = {
     { id:'M1', title:'Signal Foundations' },
     { id:'M2', title:'Systems and Their Properties' },
     { id:'M3', title:'Linear Time-Invariant Systems' },
-    { id:'M4+', title:'Fourier Series · CTFT · DTFT · Sampling' }
+    { id:'M4', title:'Fourier Series' },
+    { id:'M5', title:'Continuous-Time Fourier Transform' },
+    { id:'M6', title:'Discrete-Time Fourier Transform' },
+    { id:'M7', title:'Sampling and Aliasing' }
   ],
 
   /* ---- notation glossary; every symbol defined once, linked from prose ---- */
