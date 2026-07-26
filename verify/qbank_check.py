@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Question-bank numerical verification (Modules 1-3).
+"""Question-bank numerical verification (Modules 1-4).
 
 Every question whose answer contains a number, a support, a period or a
-closed form is re-derived here independently of the text written into
-95_qbank.js.  One PASS/FAIL line is printed per checked question.
+closed form is re-derived here independently of the text written into the
+bank files.  One PASS/FAIL line is printed per checked question.
+
+The numbers a question quotes are written into the checks as literals, so a
+check binds to the text: change either one and the line goes red.  Module 4
+carries the further test that each distractor is wrong for the reason its
+wrong{} entry gives, since verify/verify_m4.py already covers the mathematics
+of the module itself.
 """
 import numpy as np
 import sympy as sp
@@ -286,6 +292,256 @@ gsgn = np.zeros(L)
 for m in range(L//3):
     gsgn[3*m] = (0.5)**m
 check('Q3-12c', 'sign-error inverse does not give delta', np.max(np.abs(np.convolve(h12, gsgn)[:L] - ideal)) > 0.5)
+
+# ---------------------------------------------------------------- MODULE 4
+# verify_m4.py already re-derives the mathematics of the module. What is checked
+# here is the question: that the keyed option is the correct one, and that each
+# distractor is wrong for the reason its wrong{} entry gives.
+trapz = getattr(np, 'trapezoid', None) or np.trapz
+
+
+def ck(f, T0, kk, M=400001):
+    """a_k of a continuous-time periodic signal, by numerical integration."""
+    tg = np.linspace(-T0/2, T0/2, M)
+    return trapz(f(tg)*np.exp(-2j*np.pi*kk*tg/T0), tg)/T0
+
+
+def dfs(x, Np):
+    """a_k, k = 0 .. N-1, of one period of a discrete-time periodic sequence."""
+    nn_ = np.arange(Np)
+    return np.array([np.sum(x*np.exp(-2j*np.pi*kv*nn_/Np))/Np for kv in range(Np)])
+
+
+# Q4-01  eigenfunction property, checked on the delay h(t) = delta(t-3)
+s0 = 2j
+Hdel = np.exp(-3*s0)                                  # H(s) = e^{-3s}
+tg = np.linspace(-4, 4, 40001)
+check('Q4-01', 'h(t)=delta(t-3): H(j2)e^{j2t} equals the delayed input e^{j2(t-3)}',
+      np.allclose(Hdel*np.exp(s0*tg), np.exp(s0*(tg - 3))), f'H(j2)={Hdel:.4f}')
+hq = np.array([0.4, 0.25, 0.2, 0.15])                 # a concrete DT impulse response
+zq = 0.9*np.exp(0.3j)
+nq = np.arange(0, 25)
+yq = np.array([np.sum(hq*zq**(m - np.arange(4))) for m in nq])
+Hz = np.sum(hq*zq**(-np.arange(4)))
+check('Q4-01b', 'discrete time: z^n gives H(z)z^n, a sequence and not a function of t',
+      np.allclose(yq, Hz*zq**nq), f'H(z)={Hz:.4f}')
+
+# Q4-02  x(t) = 1 + (1/2)cos(2 pi t) + sin(3 pi t), T0 = 2 s
+x2 = lambda a: 1 + 0.5*np.cos(2*np.pi*a) + np.sin(3*np.pi*a)
+a0_2 = ck(x2, 2, 0)
+check('Q4-02', 'a_0 = 1: the average is the constant term, not zero',
+      abs(a0_2 - 1) < 1e-9 and abs(a0_2.imag) < 1e-9, f'a_0={a0_2.real:.9f}')
+check('Q4-02b', 'the two sinusoids do average to zero over T0 = 2 s (the distractor 0 drops the constant)',
+      abs(ck(lambda a: 0.5*np.cos(2*np.pi*a), 2, 0)) < 1e-9
+      and abs(ck(lambda a: np.sin(3*np.pi*a), 2, 0)) < 1e-9)
+check('Q4-02c', 'the consistency check in the solution: |a_2| = 1/4 and |a_3| = 1/2, so 1/2 is not a_0',
+      abs(abs(ck(x2, 2, 2)) - 0.25) < 1e-6 and abs(abs(ck(x2, 2, 3)) - 0.5) < 1e-6,
+      f'|a_2|={abs(ck(x2,2,2)):.6f}, |a_3|={abs(ck(x2,2,3)):.6f}')
+
+# Q4-03  the finite geometric sum needs r != 1, nothing more
+rv = np.exp(-1j*2*np.pi*3/16)                          # |r| = 1, r != 1
+m_, p_ = -3, 3
+direct = sum(rv**q for q in range(m_, p_+1))
+closed = (rv**m_ - rv**(p_+1))/(1 - rv)
+check('Q4-03', 'the closed form matches the finite sum where r != 1, with |r| = 1 throughout',
+      abs(direct - closed) < 1e-12 and abs(abs(rv) - 1) < 1e-12, f'|r|={abs(rv):.12f}')
+check('Q4-03b', 'at r = 1 the sum is still defined and equals p-m+1 = 7, while 1-r vanishes',
+      sum(1**q for q in range(m_, p_+1)) == p_ - m_ + 1 and abs(1 - 1) == 0)
+# the two branches of the discrete-time square wave, N = 16, N1 = 3
+Nq, N1q = 16, 3
+xsq = np.array([1.0 if (min(v, Nq-v) <= N1q) else 0.0 for v in range(Nq)])
+adfs = dfs(xsq, Nq)
+brancha = [(2*N1q+1)/Nq if kv % Nq == 0
+           else np.sin(2*np.pi*kv*(N1q+0.5)/Nq)/(Nq*np.sin(np.pi*kv/Nq)) for kv in range(Nq)]
+check('Q4-03c', 'both branches reproduce the coefficients: (2N1+1)/N at k = 0 mod N, the ratio elsewhere',
+      np.allclose(adfs.real, brancha, atol=1e-12) and np.max(np.abs(adfs.imag)) < 1e-12,
+      f'a_0={adfs[0].real:.6f} = {(2*N1q+1)/Nq}')
+
+# Q4-04  fundamental period of a sum: LCM(numerators)/GCD(denominators)
+T1r, T2r = sp.Rational(2, 9), sp.Rational(8, 21)
+T0r = sp.Rational(sp.lcm(2, 8), sp.gcd(9, 21))
+check('Q4-04', 'T0 = LCM(2,8)/GCD(9,21) = 8/3 s, and both quotients are whole',
+      T0r == sp.Rational(8, 3) and (T0r/T1r).is_Integer and (T0r/T2r).is_Integer
+      and sp.gcd(int(T0r/T1r), int(T0r/T2r)) == 1,
+      f'T0={T0r}, T0/T1={T0r/T1r}, T0/T2={T0r/T2r}')
+check('Q4-04b', 'the 8/63 distractor is not a common period: (8/63)/(2/9) = 4/7',
+      sp.Rational(8, 63)/T1r == sp.Rational(4, 7) and not (sp.Rational(8, 63)/T1r).is_Integer)
+check('Q4-04c', 'the 16/63 distractor divides by neither period',
+      not (sp.Rational(16, 63)/T1r).is_Integer and not (sp.Rational(16, 63)/T2r).is_Integer)
+check('Q4-04d', 'the ratio of the periods is 7/12, rational, so the sum is periodic',
+      T1r/T2r == sp.Rational(7, 12))
+check('Q4-04e', 'w0 = 2 pi/(8/3) = 3 pi/4 rad/s', sp.simplify(2*sp.pi/T0r - 3*sp.pi/4) == 0)
+
+# Q4-05  a_3 of the same signal: 1/(2j), magnitude 1/2, phase -pi/2
+a3 = ck(x2, 2, 3)
+am3 = ck(x2, 2, -3)
+check('Q4-05', 'a_3 = 1/(2j) = -j/2: |a_3| = 1/2 and angle a_3 = -pi/2',
+      abs(a3 - (-0.5j)) < 1e-6 and abs(abs(a3) - 0.5) < 1e-6
+      and abs(np.angle(a3) + np.pi/2) < 1e-6, f'a_3={a3:.6f}, angle={np.angle(a3):.6f}')
+check('Q4-05b', '+pi/2 is the phase of a_{-3} = -1/(2j), and a_{-3} = conj(a_3) as a real signal requires',
+      abs(np.angle(am3) - np.pi/2) < 1e-6 and abs(am3 - np.conj(a3)) < 1e-6,
+      f'angle a_-3={np.angle(am3):.6f}')
+check('Q4-05c', 'a real cosine of amplitude 1 at k=3 would give a_3 = 1/2, which the sine does not',
+      abs(ck(lambda a: np.cos(3*np.pi*a), 2, 3) - 0.5) < 1e-6 and abs(a3.real) < 1e-6)
+
+# Q4-06  rectangular wave, T0 = 8 T1, T1 = 1
+T0q, T1q = 8.0, 1.0
+xr6 = lambda a: (np.abs(a) < T1q).astype(float)
+a0_6, a2_6 = ck(xr6, T0q, 0), ck(xr6, T0q, 2)
+check('Q4-06', 'a_0 = 2T1/T0 = 1/4 and a_2 = sin(pi/2)/(2 pi) = 1/(2 pi) = 0.159',
+      abs(a0_6.real - 0.25) < 1e-4 and abs(a2_6.real - 1/(2*np.pi)) < 1e-4
+      and abs(1/(2*np.pi) - 0.159) < 5e-4, f'a_0={a0_6.real:.6f}, a_2={a2_6.real:.6f}')
+check('Q4-06b', 'the 1/8 distractor is T1/T0, and its halved argument gives sin(pi/4)/(2 pi) = 0.113',
+      abs(T1q/T0q - 0.125) < 1e-12 and abs(np.sin(np.pi/4)/(2*np.pi) - 0.113) < 5e-4)
+check('Q4-06c', 'a_0 = 1/2 belongs to T0 = 4T1, and the zeros fall at k multiple of 4, so a_2 is not zero',
+      abs(ck(lambda a: (np.abs(a) < 1.0).astype(float), 4.0, 0).real - 0.5) < 1e-4
+      and abs(ck(xr6, T0q, 4)) < 1e-4 and abs(a2_6) > 0.1)
+check('Q4-06d', 'dropping the k from the denominator gives sin(pi/2)/pi = 0.318',
+      abs(1/np.pi - 0.318) < 5e-4)
+
+# Q4-07  the coefficients are samples of the envelope, they are not the envelope
+E = lambda wv: 2*np.sin(wv*T1q)/wv
+w0q = 2*np.pi/T0q
+check('Q4-07', 'a_k = E(k w0)/T0 with E(w) = 2 sin(w T1)/w reproduces sin(2 pi k T1/T0)/(pi k)',
+      all(abs(E(kv*w0q)/T0q - np.sin(2*np.pi*kv*T1q/T0q)/(np.pi*kv)) < 1e-12 for kv in range(1, 9)))
+check('Q4-07b', 'the envelope does not depend on T0; only the sample spacing w0 = 2 pi/T0 changes',
+      abs(E(1.3) - E(1.3)) == 0 and abs(2*np.pi/16.0 - w0q/2) < 1e-12)
+check('Q4-07c', 'there is no coefficient between two harmonics: k = 1.5 is not an index',
+      float(1.5).is_integer() is False)
+
+# Q4-08  multiplication in time is periodic convolution in frequency
+Nm = 6
+rng = np.random.default_rng(4)
+xm = rng.standard_normal(Nm) + 1j*rng.standard_normal(Nm)
+ym = rng.standard_normal(Nm) + 1j*rng.standard_normal(Nm)
+am, bm = dfs(xm, Nm), dfs(ym, Nm)
+cm = dfs(xm*ym, Nm)
+pconv = np.array([sum(am[l % Nm]*bm[(kv - l) % Nm] for l in range(Nm)) for kv in range(Nm)])
+pcorr = np.array([sum(am[l % Nm]*bm[(l - kv) % Nm] for l in range(Nm)) for kv in range(Nm)])
+check('Q4-08', 'the coefficients of x[n]y[n] are the periodic convolution over one period of l',
+      np.allclose(cm, pconv, atol=1e-12), f'max err={np.max(np.abs(cm-pconv)):.2e}')
+check('Q4-08b', 'the termwise product a_k b_k is a different sequence', not np.allclose(cm, am*bm, atol=1e-8))
+check('Q4-08c', 'the reversed second index gives a correlation, also different',
+      not np.allclose(cm, pcorr, atol=1e-8))
+check('Q4-08d', 'the summand is periodic in l with period N, so a sum over all integers cannot settle',
+      abs(am[0] - am[0 % Nm]) < 1e-12
+      and abs(sum(am[l % Nm]*bm[(0 - l) % Nm] for l in range(Nm, 2*Nm)) - pconv[0]) < 1e-12)
+
+# Q4-09  the conjugate-pair step, on the numbers the question quotes
+aCT = {0: 1+0j, 1: 0.5+0j, 2: 1/(2j), 3: 0.5*np.exp(1j*np.pi/3)}
+Hlp = lambda wv: 1/(1 + 1j*wv)                     # cutoff 1 rad/s, the lab-G case
+b1 = aCT[1]*Hlp(np.pi)
+check('Q4-09', 'b_1 = 0.1517 e^{-j1.263} follows from a_1 = 1/2 and H(j pi) = 1/(1+j pi)',
+      abs(abs(b1) - 0.1517) < 5e-5 and abs(np.angle(b1) + 1.263) < 5e-4,
+      f'|b_1|={abs(b1):.5f}, angle={np.angle(b1):.5f}')
+check('Q4-09b', 'the pair k = +-1 contributes 2|b_1| cos(w0 t + angle b_1) = 0.303 cos(pi t - 1.263)',
+      abs(2*abs(b1) - 0.303) < 5e-4, f'2|b_1|={2*abs(b1):.5f}')
+tg9 = np.linspace(-4, 4, 800001)
+pairv = b1*np.exp(1j*np.pi*tg9) + np.conj(b1)*np.exp(-1j*np.pi*tg9)
+check('Q4-09c', 'the exponential pair and the cosine form are the same real signal',
+      np.max(np.abs(pairv.imag)) < 1e-9
+      and np.allclose(pairv.real, 2*abs(b1)*np.cos(np.pi*tg9 + np.angle(b1)), atol=1e-9))
+check('Q4-09d', 'the missing factor of two halves the amplitude; the +1.263 version takes the phase from b_{-1}',
+      abs(abs(b1) - 0.152) < 5e-4 and abs(np.angle(np.conj(b1)) - 1.263) < 5e-4)
+check('Q4-09e', '0.303 cos + 0.303 sin is amplitude 0.303 sqrt(2) at phase -pi/4, matching neither',
+      abs(np.hypot(0.303, 0.303) - 0.303*np.sqrt(2)) < 1e-12
+      and abs(np.arctan2(-0.303, 0.303) + np.pi/4) < 1e-12)
+yfull = (aCT[0]*Hlp(0)).real + sum(2*abs(aCT[kv]*Hlp(kv*np.pi))
+                                  * np.cos(kv*np.pi*tg9 + np.angle(aCT[kv]*Hlp(kv*np.pi))) for kv in (1, 2, 3))
+yhalf = (aCT[0]*Hlp(0)).real + sum(abs(aCT[kv]*Hlp(kv*np.pi))
+                                   * np.cos(kv*np.pi*tg9 + np.angle(aCT[kv]*Hlp(kv*np.pi))) for kv in (1, 2, 3))
+check('Q4-09f', 'the assembled output swings about 0.62 to 1.42, the halved version only 0.81 to 1.21',
+      abs(yfull.min() - 0.62) < 0.02 and abs(yfull.max() - 1.42) < 0.02
+      and abs(yhalf.min() - 0.81) < 0.02 and abs(yhalf.max() - 1.21) < 0.02,
+      f'full [{yfull.min():.3f},{yfull.max():.3f}], halved [{yhalf.min():.3f},{yhalf.max():.3f}]')
+
+# Q4-10  the same input through the high-pass H(jw) = jw/(1+jw)
+Hhp = lambda wv: (1j*wv)/(1 + 1j*wv)
+bk = {kv: aCT[kv]*Hhp(kv*np.pi) for kv in (1, 2, 3)}
+check('Q4-10', 'b_1, b_2, b_3 are 0.4764 e^{+j0.308}, 0.4938 e^{-j1.413}, 0.4972 e^{+j1.153}',
+      abs(abs(bk[1]) - 0.4764) < 5e-5 and abs(np.angle(bk[1]) - 0.308) < 5e-4
+      and abs(abs(bk[2]) - 0.4938) < 5e-5 and abs(np.angle(bk[2]) + 1.413) < 5e-4
+      and abs(abs(bk[3]) - 0.4972) < 5e-5 and abs(np.angle(bk[3]) - 1.153) < 5e-4,
+      ', '.join(f'{abs(bk[kv]):.4f}@{np.angle(bk[kv]):+.4f}' for kv in (1, 2, 3)))
+check('Q4-10b', 'the keyed amplitudes are 2|b_k| = 0.953, 0.988, 0.994',
+      all(abs(2*abs(bk[kv]) - v) < 5e-4 for kv, v in zip((1, 2, 3), (0.953, 0.988, 0.994))))
+check('Q4-10c', 'they equal |H(jk pi)| = k pi/sqrt(1+k^2 pi^2), so near-unity gain gives near-unity harmonics',
+      all(abs(2*abs(bk[kv]) - kv*np.pi/np.sqrt(1 + (kv*np.pi)**2)) < 1e-9 for kv in (1, 2, 3)))
+check('Q4-10d', 'H(j0) = 0, so b_0 = 0 and the output has no constant term',
+      abs(Hhp(0.0)) == 0 and abs(aCT[0]*Hhp(0.0)) == 0)
+check('Q4-10e', 'the 0.48/0.49/0.50 distractor is the halved amplitude set |b_k|',
+      all(abs(round(abs(bk[kv]), 2) - v) < 1e-9 for kv, v in zip((1, 2, 3), (0.48, 0.49, 0.50))))
+check('Q4-10f', 'the sign-flipped distractor takes every phase from the negative index: -0.308, +1.413, -1.153',
+      all(abs(np.angle(np.conj(bk[kv])) + np.angle(bk[kv])) < 1e-12 for kv in (1, 2, 3))
+      and abs(np.angle(np.conj(bk[1])) + 0.308) < 5e-4 and abs(np.angle(np.conj(bk[3])) + 1.153) < 5e-4)
+
+# Q4-11  x[n] = n on -5 <= n <= 5, repeated with N = 11: real and odd
+N11 = 11
+x11 = np.array([v if v <= 5 else v - N11 for v in range(N11)], dtype=float)   # n = 0..5, -5..-1
+a11 = dfs(x11, N11)
+closed11 = np.array([-2j/N11*sum(m_*np.sin(2*np.pi*kv*m_/N11) for m_ in range(1, 6)) for kv in range(N11)])
+check('Q4-11', 'the coefficients are purely imaginary at every k, and match the closed form of the solution',
+      np.max(np.abs(a11.real)) < 1e-12 and np.allclose(a11, closed11, atol=1e-12),
+      f'max |Re a_k|={np.max(np.abs(a11.real)):.2e}')
+check('Q4-11b', '|a_{+-1}| = 1.7747 is the largest of the eleven',
+      abs(abs(a11[1]) - 1.7747) < 5e-5 and abs(abs(a11[N11-1]) - 1.7747) < 5e-5
+      and abs(a11[1]) >= max(abs(a11)) - 1e-12, f'|a_1|={abs(a11[1]):.5f}')
+check('Q4-11c', 'a real signal gives a_{-k} = conj(a_k); an odd one gives a_{-k} = -a_k; both hold here',
+      all(abs(a11[(-kv) % N11] - np.conj(a11[kv])) < 1e-12 for kv in range(N11))
+      and all(abs(a11[(-kv) % N11] + a11[kv]) < 1e-12 for kv in range(N11)))
+check('Q4-11d', 'a real even sequence would give real coefficients, so phases of 0 or pi and not +-pi/2',
+      np.max(np.abs(dfs(np.array([abs(v) if v <= 5 else abs(v - N11) for v in range(N11)],
+                                 dtype=float), N11).imag)) < 1e-12)
+check('Q4-11e', 'discrete-time coefficients do repeat: a_{k+N} = a_k',
+      np.allclose(dfs(x11, N11), np.array([np.sum(x11*np.exp(-2j*np.pi*(kv + N11)*np.arange(N11)/N11))/N11
+                                           for kv in range(N11)]), atol=1e-12))
+
+# Q4-12  1/k against 1/k^2 decay, and where a Gibbs overshoot can occur
+Ksq = np.arange(1, 4001)
+asq = np.sin(np.pi*Ksq/2)/(np.pi*Ksq)                       # square wave, T0 = 4 T1
+atr = (1 - (-1.0)**Ksq)/(Ksq**2*np.pi**2)                   # triangular wave, T0 = 2
+xtri = lambda a: 1 - np.abs(a - 2*np.round(a/2))
+check('Q4-12', 'the quoted coefficient forms are the ones the two waveforms have',
+      abs(ck(lambda a: (np.abs(a - 4*np.round(a/4)) < 1).astype(float), 4.0, 3).real
+          - np.sin(3*np.pi/2)/(3*np.pi)) < 1e-4
+      and abs(ck(xtri, 2.0, 3).real - (1 - (-1)**3)/(9*np.pi**2)) < 1e-6)
+
+
+def mse_tail(coef, a0v, power, Nn):
+    return power - a0v**2 - 2*np.sum(coef[:Nn]**2)
+
+
+msq = [mse_tail(asq, 0.5, 0.5, Nn) for Nn in (3, 9, 27, 81)]
+check('Q4-12b', 'square wave with T0 = 4T1: MSE = 0.025, 0.010, 0.004, 0.001 at N = 3, 9, 27, 81',
+      all(abs(v - w) < 5e-4 for v, w in zip(msq, (0.025, 0.010, 0.004, 0.001))),
+      ', '.join(f'{v:.4f}' for v in msq))
+mtr = [mse_tail(atr, 0.5, 1/3, Nn) for Nn in (10, 20, 40, 80)]
+msq2 = [mse_tail(asq, 0.5, 0.5, Nn) for Nn in (10, 20, 40, 80)]
+check('Q4-12c', 'doubling N divides the triangular error by about eight and the square-wave error by about two',
+      all(abs(mtr[i]/mtr[i+1] - 8) < 0.3 for i in range(3))
+      and all(abs(msq2[i]/msq2[i+1] - 2) < 0.05 for i in range(3)),
+      'tri ' + ', '.join(f'{mtr[i]/mtr[i+1]:.2f}' for i in range(3))
+      + ' | sq ' + ', '.join(f'{msq2[i]/msq2[i+1]:.2f}' for i in range(3)))
+check('Q4-12d', '|a_k| decays like 1/k for the square wave and like 1/k^2 for the triangular wave',
+      abs(abs(asq[100])/abs(asq[200]) - 2) < 0.05 and abs(atr[100]/atr[200] - 4) < 0.05)
+
+
+def partial_sq(tv, Nn):
+    """partial sum of the T0 = 4T1 square wave, a_0 = 1/2 plus the harmonics"""
+    out = np.full_like(tv, 0.5)
+    for kv in range(1, Nn+1):
+        out = out + 2*(np.sin(np.pi*kv/2)/(np.pi*kv))*np.cos(kv*np.pi*tv/2)
+    return out
+
+
+tgb = np.linspace(-2, 2, 200001)
+ovs = [partial_sq(tgb, Nn).max() - 1.0 for Nn in (41, 161, 641)]
+check('Q4-12e', 'the square-wave overshoot settles at about 8.95 % of the jump and does not shrink with N',
+      all(abs(v - 0.0895) < 2e-3 for v in ovs) and abs(ovs[-1] - ovs[0]) < 1e-3,
+      ', '.join(f'{100*v:.2f}%' for v in ovs))
+check('Q4-12f', 'the triangular wave is continuous, so its largest error goes to zero instead',
+      max(abs(sum(2*atr[kv-1]*np.cos(kv*np.pi*tgb) for kv in range(1, 61)) + 0.5 - xtri(tgb)))
+      < max(abs(sum(2*atr[kv-1]*np.cos(kv*np.pi*tgb) for kv in range(1, 11)) + 0.5 - xtri(tgb)))/5)
 
 print('\n' + '-'*66)
 bad = [q for q, o in results if not o]
