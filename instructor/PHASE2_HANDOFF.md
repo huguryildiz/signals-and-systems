@@ -231,7 +231,7 @@ image and inspect it before shipping.
 
 > EE311 artifact Faz 2. Masaüstümdeki `EE311/` klasöründe `CLAUDE.md` ve `PHASE2_HANDOFF.md` var — önce
 > onları oku, sonra `instructor/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Çalışma ağacını
-> `build/EE311_Deliverables.zip` içinden kur ve Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
+> `release/EE311_Deliverables.zip` içinden kur ve Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
 > Q4 bankası, verify uzantısı. Kaynak s. 22–41 denetlendi; yeniden denetleme.
 
 ---

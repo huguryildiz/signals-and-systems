@@ -17,7 +17,7 @@ Q4–Q7, five PDFs) not started.
 
 Rules that hold in every session:
 
-- Rebuild only from `build/EE311_Deliverables.zip`. The zip in `archive/` is stale and
+- Rebuild only from `release/EE311_Deliverables.zip`. The zip in `archive/` is stale and
   incomplete — it predates the editorial sweep and is missing the notes pipeline and `rule_check.py`.
 - Student-facing text is written directly as teaching material. Never "in the PDF", "the source notes",
   "redrawn from", "verified against", or any mention of audits, ledgers, versions or phases. Provenance
@@ -36,6 +36,6 @@ Rules that hold in every session:
 - Source pages 22–88: the existing inventories are mapping-grade only. Read the pages directly at 160 dpi
   before authoring from them. Never correct the source silently; record confirmed issues from **A-09** on.
 - Do the work in the container, deliver with `SendUserFile`, then write back into the project folders
-  (`source` / `dist` / `instructor` / `build`, superseded material to `archive`).
+  (`source` / `dist` / `instructor` / `release`, superseded material to `archive`).
 
 Conversation with me is in Turkish. Everything visible in a deliverable is in academic English.

@@ -7,7 +7,7 @@ Folders are organised by **who the files are for**. Nothing here is deleted; old
 | `source/` | you only | Course source material and the production brief. Not distributed. |
 | `dist/` | students | Everything that may be handed out, and nothing else. |
 | `instructor/` | you only | Internal records: audit, verification, coverage, editorial rules, continuation brief. **Never distribute these.** |
-| `build/` | you only | The full source package needed to rebuild every output, plus the notes source. |
+| `release/` | you only | The full source package needed to rebuild every output, plus the notes source. |
 | `archive/` | nobody | Superseded material kept only so nothing is lost. Safe to delete. |
 
 ## What to hand out
@@ -29,7 +29,7 @@ claim in the student material can be traced and checked later. They are working 
 
 ## Rebuilding
 
-`build/EE311_Deliverables.zip` contains every source file, the build scripts and the test harnesses.
+`release/EE311_Deliverables.zip` contains every source file, the build scripts and the test harnesses.
 Unzip it anywhere and run:
 
 ```bash
