@@ -457,5 +457,19 @@ const LABS = (() => {
     }};
   })();
 
-  return { A, B, C, D, E };
+  /* A module laboratory lives in its own file, build/src/7N_labs_mM.js, and
+     registers itself against this object rather than being written in here, so
+     that two modules never edit the same file. The kit below is what such a
+     file needs; it takes no copy of its own.
+
+       Object.assign(LABS, (function(){
+         const T = LABS.KIT.T, M = LABS.KIT.M, fmt = LABS.KIT.F,
+               el = LABS.KIT.el, gcd = LABS.KIT.gcd;
+         return { F: { mount(root){ } }, G: { mount(root){ } } };
+       })());
+
+     Note the alias. The number formatter is F in this file, and F is also the
+     id of a laboratory. In a new file it is fmt, so that the laboratory keeps
+     the letter. */
+  return { A, B, C, D, E, KIT:{ T, M, F, el, gcd } };
 })();

@@ -3,7 +3,7 @@ const SRC = path.join(__dirname,'src');
 const read = f => fs.readFileSync(path.join(SRC,f),'utf8');
 
 const jsFiles = ['30_katex.js','60_plot.js','80_content_core.js','40_core.js','70_labs.js','90_app.js']
-  .concat(fs.readdirSync(SRC).filter(f=>/^8[1-9]_|^9[1-9]_/.test(f) && f.endsWith('.js')).sort());
+  .concat(fs.readdirSync(SRC).filter(f=>/^[78][1-9]_|^9[1-9]_/.test(f) && f.endsWith('.js')).sort());
 
 let head = read('00_head.html')
   .replace('/*__KATEX_CSS__*/', () => read('20_katex.css'))
