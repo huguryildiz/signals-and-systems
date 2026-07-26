@@ -34,8 +34,8 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 
 | Path | What it is |
 |---|---|
-| `source/EE311 - Lecture Notes.pdf` | primary source, 88 pp., handwritten scans |
-| `source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only** |
+| `source/EE311 - Lecture Notes.pdf` | primary source, 88 pp., handwritten scans — **not in git** |
+| `source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only, not in git** |
 | `source/EE311_INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
 | `dist/EE311_Signals_and_Systems.html` | the interactive artifact (v0.9), student-facing |
 | `dist/EE311_Lecture_Notes.pdf` | lecture notes, A4 portrait |
@@ -50,6 +50,12 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 Keep this structure. New instructor-only records go in `instructor/`, new build archives in
 `release/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
 
+Both PDFs in `source/` are listed in `.gitignore`: `Book.pdf` because third-party material must never
+be redistributed, and the 41 MB handwritten scan because it is too large for git history. They are
+present in a working copy that was set up by hand, but **a fresh clone will not contain them**. Copy
+them in before rebuilding or reading source pages; nothing else in the repository depends on network
+access.
+
 ---
 
 ## 3. Rebuilding the working tree
@@ -62,17 +68,21 @@ Rebuild from **`release/EE311_Deliverables.zip`**.
 Building from it silently reintroduces 82 cleared rule violations and drops the notes pipeline.
 
 ```bash
-# stage release/EE311_Deliverables.zip and source/EE311 - Lecture Notes.pdf first
+REPO=$(git rev-parse --show-toplevel)      # run this line from inside the repository
 mkdir -p /tmp/ee311 && cd /tmp/ee311
-unzip -q /mnt/user-data/uploads/EE311/release/EE311_Deliverables.zip -d .
+unzip -q "$REPO/release/EE311_Deliverables.zip" -d .
 
 # source pages for the visual audit — 160 dpi is legible, do not go lower
 mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 \
-  "/mnt/user-data/uploads/EE311/source/EE311 - Lecture Notes.pdf" pages/p
+  "$REPO/source/EE311 - Lecture Notes.pdf" pages/p
 
 cd build && node build.js        # → ../dist/EE311_Signals_and_Systems.html
 cd ../notes && node build.js     # → ../dist/EE311_Lecture_Notes.html
 ```
+
+The `build/`, `notes/`, `verify/` and `tools/` directories referred to below live inside the
+extracted tree at `/tmp/ee311`, not in the repository. In a Cowork session the two files above must be
+staged first; point `REPO` at the staging folder instead of using `git rev-parse`.
 
 KaTeX is vendored and font-inlined in `build/src/20_katex.css` + `30_katex.js`. **No `npm install`, no
 network fetch, ever** — the artifact must stay a single offline-capable file.
