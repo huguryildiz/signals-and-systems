@@ -10,6 +10,11 @@ Folders are organised by **who the files are for**. Nothing here is deleted; old
 | `release/` | you only | The full source package needed to rebuild every output, plus the notes source. |
 | `archive/` | nobody | Superseded material kept only so nothing is lost. Safe to delete. |
 
+Two files in `source/` are deliberately untracked (see `.gitignore`): `Book.pdf`, which is
+third-party material and must not be redistributed, and `EE311 - Lecture Notes.pdf`, the 41 MB
+handwritten scan. A fresh clone will not contain them — copy them in from an existing working copy
+before rebuilding or auditing source pages.
+
 ## What to hand out
 
 Give students the two files in `dist/`:
