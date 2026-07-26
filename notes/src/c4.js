@@ -192,7 +192,7 @@ window.C4 = [
  ['Find','Every coefficient.'],
  ['Method','The sequence is odd, so pair the term at $n$ with the term at $-n$ before expanding: $ne^{-jk\\omega_0n}+(-n)e^{+jk\\omega_0n}=-2jn\\sin(k\\omega_0n)$.'],
  ['Solution','$a_0=\\frac{1}{11}\\sum_{n=-5}^{5}n=0$, and $$a_k=-\\frac{2j}{11}\\sum_{m=1}^{5}m\\,\\sin\\!\\left(\\frac{2\\pi km}{11}\\right).$$'],
- ['Check','Every coefficient is purely imaginary, as a real odd sequence requires. The largest is $|a_{\\pm1}|=1.7746$, and $a_k=a_{k+11}$, so the eleven coefficients from $k=-5$ to $k=5$ are the whole answer.']
+ ['Check','Every coefficient is purely imaginary, as a real odd sequence requires. The largest is $|a_{\\pm1}|=1.7747$, and $a_k=a_{k+11}$, so the eleven coefficients from $k=-5$ to $k=5$ are the whole answer.']
 ]},
 
 {t:'h2', num:'4.7', text:'Properties'},

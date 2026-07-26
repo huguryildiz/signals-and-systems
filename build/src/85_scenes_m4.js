@@ -840,7 +840,7 @@ const SC = [
 
 { id:'m4-dt-saw', module:'M4', nav:'DT sawtooth', title:'Worked example — a discrete sawtooth', src:'pp. 34–35',
   objective:'Compute the coefficients of an odd period-11 sequence by pairing terms.',
-  keywords:'discrete sawtooth N=11 odd sequence purely imaginary pairing sine sum peak 1.7746', steps:4, blocks:[
+  keywords:'discrete sawtooth N=11 odd sequence purely imaginary pairing sine sum peak 1.7747', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 34–35'},
   {t:'title', text:'Pairing $n$ with $-n$'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -859,7 +859,7 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Structure','Every coefficient is purely imaginary, because the sequence is real and odd. So every phase is $+\\pi/2$ or $-\\pi/2$, and only the sign has to be tracked.'],
-        ['Largest','$|a_{\\pm1}|=1.7746$, and by periodicity the same value returns at $k=\\pm10,\\pm12,\\pm21,\\dots$'],
+        ['Largest','$|a_{\\pm1}|=1.7747$, and by periodicity the same value returns at $k=\\pm10,\\pm12,\\pm21,\\dots$'],
         ['Periodicity','$a_k=a_{k+11}$, so the eleven coefficients from $k=-5$ to $k=5$ are the whole answer.']
       ]}]},
     {t:'reveal', at:4, items:[
@@ -877,7 +877,7 @@ const SC = [
           const S=k=>{ let s=0; for(let m=1;m<=5;m++) s+=(2*m/11)*Math.sin(2*Math.PI*k*m/11); return s; };
           const a=P.Axes({w:410,h:215,xr:[-17,17],yr:[-0.15,2.1],xlabel:'k',ylabel:'|a_k|',pad:{l:56,r:18,t:24,b:32},xtarget:5,ytarget:3});
           a.stem(D(k=>Math.abs(S(k)),-17,17),{color:C.in,r:2.4,showZero:true}); return a.svg(); },
-          caption:'Peak $1.7746$.'}],
+          caption:'Peak $1.7747$.'}],
         [{t:'fig', frame:true, svg:()=>{
           const S=k=>{ let s=0; for(let m=1;m<=5;m++) s+=(2*m/11)*Math.sin(2*Math.PI*k*m/11); return s; };
           const a=P.Axes({w:410,h:215,xr:[-17,17],yr:[-2.0,2.0],xlabel:'k',ylabel:'\\angle a_k\\;[\\text{rad}]',pad:{l:58,r:18,t:24,b:32},xtarget:5,
