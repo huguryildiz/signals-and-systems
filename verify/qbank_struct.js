@@ -1,14 +1,45 @@
+/* Structural check of the question banks.
+
+   The bank is not one file: a module appends its own questions from
+   9[1-9]_qbank*.js, exactly as build.js concatenates them. Naming the files, or
+   the modules, by hand is how a bank lands unchecked — the run stays green
+   because it never looked. Both are discovered here instead. */
 const fs=require('fs');
 const path=require('path');
-const CONTENT={QBANK:[]};
-eval(fs.readFileSync(path.resolve(__dirname,'..','build','src','95_qbank.js'),'utf8'));
+const SRC=path.resolve(__dirname,'..','build','src');
+/* 80_content_core.js declares `const CONTENT`, which a direct eval would keep to
+   itself, so the file is run as a function body and its object taken back. */
+const CONTENT=new Function(fs.readFileSync(path.join(SRC,'80_content_core.js'),'utf8')+';return CONTENT;')();
+const files=fs.readdirSync(SRC).filter(f=>/^9[1-9]_qbank.*\.js$/.test(f)).sort();
+for(const f of files) eval(fs.readFileSync(path.join(SRC,f),'utf8'));
 const Q=CONTENT.QBANK;
 const order=['concept','concept','concept','calc','calc','calc','misconception','misconception','exam','exam','graph','synthesis'];
 let bad=0; const say=(ok,m)=>{ if(!ok){bad++;console.log('  FAIL '+m);} };
+console.log('bank files:',files.join(' '));
 console.log('total questions:',Q.length);
-for(const mod of ['M1','M2','M3']){
+say(files.length>0,'no 9x_qbank*.js file found in build/src');
+say(Q.length>0,'the bank files loaded no questions');
+
+/* the modules the questions themselves declare, in order of first appearance */
+const known=CONTENT.MODULES.map(m=>m.id);
+const mods=[]; for(const q of Q) if(!mods.includes(q.module)) mods.push(q.module);
+say(JSON.stringify(mods)===JSON.stringify(known.filter(m=>mods.includes(m))),
+    'module order '+mods.join(',')+' does not follow CONTENT.MODULES');
+/* Reading the module list off the questions cannot see a bank that is not there
+   at all: delete a file and the module simply stops being mentioned. The scene
+   list is the second opinion — a module that shows a question-bank scene has to
+   have questions behind it. */
+const scanned=fs.readdirSync(SRC).filter(f=>/^8[1-9]_scenes.*\.js$/.test(f));
+const banked=new Set();
+for(const f of scanned)
+  for(const m of fs.readFileSync(path.join(SRC,f),'utf8').matchAll(/id:'m(\d)-qbank'/g)) banked.add('M'+m[1]);
+console.log('modules showing a question-bank scene:',[...banked].sort().join(' ')||'none');
+for(const m of [...banked].sort())
+  say(mods.includes(m), m+' has a question-bank scene but no questions in any 9x_qbank file');
+for(const mod of mods){
   const b=Q.filter(q=>q.module===mod);
   console.log(mod+': '+b.length+' questions | kinds: '+b.map(q=>q.kind).join(','));
+  say(known.includes(mod), mod+' is not a module id in CONTENT.MODULES');
   say(b.length===12, mod+' count');
   b.forEach((q,i)=>{
     say(q.kind===order[i], q.id+' kind order (expected '+order[i]+', got '+q.kind+')');
