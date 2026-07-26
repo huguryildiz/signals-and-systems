@@ -149,7 +149,8 @@ They flag candidate issues that must be confirmed or dismissed by direct reading
 | A31-01 | 31 | impulse-train integral with both limits written `−T/2` |
 | A26/27/38 | 26–38 | LCM-of-denominators rule stated where GCD may be intended |
 
-Record every confirmed issue in the same ledger format as A-01…A-08 (see `EE311_Phase1_Report.md` §2) and
+Record every confirmed issue in the same ledger format as A-01…A-08
+(see `.claude/reports/EE311_Phase1_Report.md` §2) and
 continue the numbering from **A-09**. Never correct silently.
 
 ### Step 2 — author Modules 4–7
@@ -207,7 +208,7 @@ image and inspect it before shipping.
 
 1. ~~Scene `m3-ex-ct2` renders at 0.82 fit-scale.~~ **Closed 2026-07-25.** Split into `m3-ex-ct2`
    (case boundaries, 3 steps) and `m3-ex-ct2b` (result and checks, 2 steps). The 0.82 scale turned out to
-   be a symptom, not a density problem — see item 6 below and `EE311_Phase2_Audit_p22_p41.md` §7.
+   be a symptom, not a density problem — see item 6 below and `.claude/reports/EE311_Phase2_Audit_p22_p41.md` §7.
 2. ~~Laboratory E panel 1 stem overlap.~~ **Closed 2026-07-25.** `PLOT.stem` gained an optional `dx`
    (pixel nudge, default 0, no effect anywhere else); Laboratory E draws the cyan input at `dx:-3.6` and
    the amber flipped `h` at `dx:+3.6`, so the pair straddles the index it belongs to.
@@ -215,7 +216,7 @@ image and inspect it before shipping.
    (transform conventions, convergence conditions, scale factors) — open the ledger there.
 4. Version identifier must move to **v1.0** only when Modules 4–7 and all five PDFs are complete and
    consistent; bump the manifest in `80_content_core.js` `CONTENT.META` and in `91_scenes_end.js`.
-5. **Source pp. 22–41 are audited** (`instructor/EE311_Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
+5. **Source pp. 22–41 are audited** (`.claude/reports/EE311_Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
    Module 4 may now be authored from them. Pages 42–88 are **not** audited; the same page-by-page reading
    is required before Modules 5–7.
 6. **A fifth verification gate now exists.** `build/domcheck.js` renders every scene at every reveal state
@@ -230,7 +231,7 @@ image and inspect it before shipping.
 ## 8. Suggested opening message for the new session
 
 > EE311 artifact Faz 2. Masaüstümdeki `EE311/` klasöründe `CLAUDE.md` ve `PHASE2_HANDOFF.md` var — önce
-> onları oku, sonra `instructor/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Çalışma ağacını
+> onları oku, sonra `.claude/reports/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Çalışma ağacını
 > `release/EE311_Deliverables.zip` içinden kur ve Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
 > Q4 bankası, verify uzantısı. Kaynak s. 22–41 denetlendi; yeniden denetleme.
 
@@ -238,8 +239,8 @@ image and inspect it before shipping.
 
 ## 9. Editorial rule added after Phase 1 (binding)
 
-`EE311_STYLE_RULES.md` is now a **rule**, not a preference. Student-facing text is written directly as
-teaching material. Banned everywhere a student can read: "in the PDF", "in this file", "in the source
+The editorial rules R1–R8, now carried in `CLAUDE.md` §5.1, are a **rule**, not a preference.
+Student-facing text is written directly as teaching material. Banned everywhere a student can read: "in the PDF", "in this file", "in the source
 notes", "in the uploaded document", "the document shows", "redrawn from", "verified against",
 "editorially developed", and any mention of conversion, research, auditing, ledgers, versions or phases.
 Source pages and provenance live only in hidden records and instructor-only areas. Language is simple,
