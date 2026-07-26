@@ -38,3 +38,6 @@ _to_delete/
 
 # FUSE mount leftovers
 .fuse_hidden*
+
+# Project operating instructions: local working document, not tracked.
+CLAUDE.md
