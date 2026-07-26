@@ -78,6 +78,81 @@ const path = require('path');
     }
   }
 
+  // ---- every laboratory in the build, found rather than listed
+  /* The assertions above name five scenes. A laboratory authored after they
+     were written is invisible to them, and the run stays green without having
+     opened it. This sweep takes the laboratories from the scene list itself:
+     every scene holding a `lab` block is opened, and whatever controls it
+     presents are driven. It is the floor the named assertions sit on. */
+  const CTRL = ['case', 'stage', 'nav', 'opt', 'wave', 'fac', 'cls', 'reveal', 'prop', 'seg'];
+
+  async function sliderSweep(sel) {
+    /* Each control is re-read before it is used: a laboratory redraws itself on
+       every change, so a handle taken before the click is already detached. */
+    const sl = await p.$$eval(sel + ' input[type=range]',
+      els => els.map(e => ({ v: e.dataset.v, min: +e.min, max: +e.max })));
+    for (const s of sl) {
+      for (const val of [s.min, (s.min + s.max) / 2, s.max]) {
+        const ok = await p.$eval(`${sel} [data-v="${s.v}"]`,
+          (el, x) => { el.value = x; el.dispatchEvent(new Event('input', { bubbles: true })); return true; }, val)
+          .catch(() => false);
+        if (!ok) { errs.push(`LABSWEEP slider ${s.v} of ${sel} vanished mid-sweep`); break; }
+        await p.waitForTimeout(35);
+      }
+    }
+    return sl.length;
+  }
+
+  const found = await p.evaluate(() => APP.scenes()
+    .map(s => ({ scene: s.id, labs: (s.blocks || []).filter(b => b.t === 'lab').map(b => b.id) }))
+    .filter(o => o.labs.length)
+    .map(o => ({ scene: o.scene, lab: o.labs[0] })));
+  if (!found.length) errs.push('LABSWEEP no scene carries a lab block');
+
+  for (const L of found) {
+    const sel = `[data-lab="${L.lab}"]`;
+    /* A laboratory that throws while mounting takes the render down with it.
+       That is recorded and the sweep moves on, so one broken laboratory does
+       not hide the state of the others. */
+    const opened = await scene(L.scene).then(() => true)
+      .catch(e => { errs.push(`LABSWEEP ${L.lab}: mount threw — ${String(e.message).split('\n')[0]}`); return false; });
+    if (!opened) continue;
+    const present = await p.$$eval(sel, e => e.length);
+    if (!present) { errs.push(`LABSWEEP ${L.lab}: no [data-lab] element in ${L.scene}`); continue; }
+    const missing = await p.$eval(sel, e => e.innerText.includes('Laboratory not available'));
+    if (missing) { errs.push(`LABSWEEP ${L.lab}: not registered in LABS, scene ${L.scene}`); continue; }
+
+    let nSlider = await sliderSweep(sel);
+    const handles = await p.evaluate(([s, attrs]) => {
+      const root = document.querySelector(s); const list = [];
+      for (const a of attrs) root.querySelectorAll(`[data-${a}]`).forEach(el => {
+        let q = `${s} [data-${a}="${el.dataset[a]}"]`;
+        if (a === 'seg' && el.dataset.val != null) q += `[data-val="${el.dataset.val}"]`;
+        if (!list.includes(q)) list.push(q);
+      });
+      return list;
+    }, [sel, CTRL]);
+
+    let clicked = 0, gone = 0;
+    for (const q of handles) {
+      const h = await p.$(q);
+      if (!h) { gone++; continue; }                       // removed by an earlier click
+      const hit = await h.click({ timeout: 1500 }).then(() => true).catch(() => false);
+      if (!hit) { gone++; continue; }
+      clicked++;
+      await p.waitForTimeout(45);
+      nSlider = Math.max(nSlider, await sliderSweep(sel));  // ranges change with the case
+    }
+
+    const svg = await p.$$eval(sel + ' svg', e => e.length);
+    const chars = await p.$eval(sel, e => e.innerText.replace(/\s+/g, ' ').length);
+    if (!svg) errs.push(`LABSWEEP ${L.lab}: draws no figure`);
+    if (chars < 80) errs.push(`LABSWEEP ${L.lab}: mounted almost empty (${chars} chars)`);
+    out.push(`LAB ${L.lab} (${L.scene}) sliders=${nSlider} controls=${clicked}/${handles.length}`
+      + (gone ? ` detached=${gone}` : '') + ` svg=${svg} chars=${chars}`);
+  }
+  out.push('LABORATORIES SWEPT: ' + found.map(o => o.lab).join(' '));
+
   // ---- quiz engine
   await scene('m1-qbank');
   await p.click('.opt[data-q="Q1-01"][data-k="0"]'); await p.waitForTimeout(120);
