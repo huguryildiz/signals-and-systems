@@ -26,6 +26,8 @@ dist/Lecture_Notes.html
 # build/qa.js screenshot dump and build/textclash.js report.
 shots/
 textclash.json
+# pdftoppm renders of the source pages, made for the visual audit.
+pages/
 
 # --- Scratch ---
 _to_delete/
