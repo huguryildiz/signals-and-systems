@@ -3,7 +3,7 @@ const S=p=>fs.readFileSync(path.join(__dirname,p),'utf8');
 const B=path.join(__dirname,'..','build','src');
 const g=s=>s.replace(/<\/script>/gi,'<\\/script>');
 const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>EE 311 — Signals, Systems and Linear Time-Invariant Systems</title>
+<title>Signals, Systems and Linear Time-Invariant Systems</title>
 <style>${fs.readFileSync(path.join(B,'20_katex.css'),'utf8')}</style>
 <style>${S('src/notes.css')}</style></head><body><div id="doc"></div>
 <script>${g(fs.readFileSync(path.join(B,'30_katex.js'),'utf8'))}</script>
@@ -14,5 +14,5 @@ const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <script>renderNotes(C1.concat(C23), document.getElementById('doc')); document.title=document.title;</script>
 </body></html>`;
 fs.mkdirSync(path.join(__dirname,'..','dist'),{recursive:true});
-fs.writeFileSync(path.join(__dirname,'..','dist','EE311_Lecture_Notes.html'), html);
+fs.writeFileSync(path.join(__dirname,'..','dist','Lecture_Notes.html'), html);
 console.log('notes html', (html.length/1048576).toFixed(2)+' MB');

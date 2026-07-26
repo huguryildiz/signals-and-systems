@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EE311 · Closing synthesis and conventions
+   Closing synthesis and conventions
    ========================================================================== */
 (function(){
 const P = PLOT, C = P.COL;
@@ -36,11 +36,11 @@ const SC = [
   ], right:[
     {t:'sub', text:'Choosing a domain'},
     {t:'body', html:`<p>Work in the <b>time domain</b> when the input is short and piecewise, when you need the output at a particular instant, or when the system is not LTI and convolution is unavailable anyway.</p>
-      <p>Work in the <b>frequency domain</b> — Modules 4 onwards — when the input is periodic or long, when the question is about which components survive, or when a convolution would require more than about three cases.</p>`},
+      <p>Work in the <b>frequency domain</b>, from Module 4 onwards, when the input is periodic or long, when the question is which components survive, or when a convolution would need more than about three cases.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Misconceptions this artifact was built to prevent', html:'Confusing energy with power · applying shift and scale in the wrong order · assuming every discrete-time sinusoid is periodic · classifying a system without a formal test · forgetting the flip in convolution.'}]},
+      {t:'note', kind:'warn', head:'Misconceptions to guard against', html:'Confusing energy with power · applying shift and scale in the wrong order · assuming every discrete-time sinusoid is periodic · classifying a system without a formal test · forgetting the flip in convolution.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Still ahead', html:'Fourier series and the eigenfunction property (Module 4) · the continuous-time Fourier transform (Module 5) · the discrete-time Fourier transform and its $2\\pi$-periodicity (Module 6) · sampling, spectral replication and aliasing (Module 7). All four are source-mapped against 22–88 and are produced in the next phase.'}]}
+      {t:'note', kind:'ok', head:'Still ahead', html:'Fourier series and the eigenfunction property (Module 4) · the continuous-time Fourier transform (Module 5) · the discrete-time Fourier transform and its $2\\pi$-periodicity (Module 6) · sampling, spectral replication and aliasing (Module 7).'}]}
   ]}
 ]},
 

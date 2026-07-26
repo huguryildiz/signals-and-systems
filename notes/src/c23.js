@@ -1,4 +1,4 @@
-/* EE311 course notes — Chapters 2 and 3, and Appendix A */
+/* Course notes — Chapters 2 and 3, and Appendix A */
 (function(){
 const P=PLOT, C=P.COL;
 const D=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
@@ -17,10 +17,10 @@ window.C23 = [
 {t:'fig', svg:()=>P.blocks({w:700,h:190,items:[
   {t:'arrow',x1:60,y1:60,x2:230,y2:60},{t:'box',x:230,y:34,w:170,h:52,label:'continuous-time system',fs:13},
   {t:'arrow',x1:400,y1:60,x2:570,y2:60},
-  {t:'text',x:140,y:48,label:'x(t)',italic:true,fs:15},{t:'text',x:490,y:48,label:'y(t)',italic:true,fs:15},
+  {t:'text',x:140,y:48,label:'x(t)',tex:true,fs:15},{t:'text',x:490,y:48,label:'y(t)',tex:true,fs:15},
   {t:'arrow',x1:60,y1:140,x2:230,y2:140},{t:'box',x:230,y:114,w:170,h:52,label:'discrete-time system',fs:13},
   {t:'arrow',x1:400,y1:140,x2:570,y2:140},
-  {t:'text',x:140,y:128,label:'x[n]',italic:true,fs:15},{t:'text',x:490,y:128,label:'y[n]',italic:true,fs:15}
+  {t:'text',x:140,y:128,label:'x[n]',tex:true,fs:15},{t:'text',x:490,y:128,label:'y[n]',tex:true,fs:15}
 ]}), cap:'The same picture in both domains. An amplifier, a numerical filter and a pencil-and-paper integrator can all be the same system.'},
 
 {t:'h2', num:'2.2', text:'Memory'},
@@ -178,8 +178,8 @@ window.C23 = [
 {t:'fig', svg:()=>P.blocks({w:700,h:110,items:[
   {t:'arrow',x1:80,y1:56,x2:260,y2:56},{t:'box',x:260,y:32,w:150,h:48,label:'S',fs:16},
   {t:'arrow',x1:410,y1:56,x2:600,y2:56},
-  {t:'text',x:170,y:44,label:'δ[n]',italic:true,fs:15,color:'#14707F'},
-  {t:'text',x:505,y:44,label:'h[n]',italic:true,fs:15,color:'#A9741C'}
+  {t:'text',x:170,y:44,label:'\\delta[n]',tex:true,fs:15,color:'#14707F'},
+  {t:'text',x:505,y:44,label:'h[n]',tex:true,fs:15,color:'#A9741C'}
 ]}), cap:'One experiment defines the whole system, provided the system is linear and time invariant.'},
 
 {t:'h2', num:'3.2', text:'Deriving the convolution sum'},

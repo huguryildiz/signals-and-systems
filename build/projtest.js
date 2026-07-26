@@ -3,7 +3,7 @@ const path=require('path');
 (async()=>{
  const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1920,height:1080}});
  const errs=[]; p.on('pageerror',e=>errs.push(e.message));
- await p.goto('file://'+path.resolve(__dirname,'..','dist','EE311_Signals_and_Systems.html'),{waitUntil:'load'});
+ await p.goto('file://'+path.resolve(__dirname,'..','dist','Signals_and_Systems.html'),{waitUntil:'load'});
  await p.waitForTimeout(500);
  const res={};
  for(const mode of ['normal','projector']){

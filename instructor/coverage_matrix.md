@@ -1,6 +1,6 @@
-# EE311 — Source-coverage matrix (all 88 pages)
+# Source-coverage matrix (all 88 pages)
 
-Source: `EE311 - Lecture Notes.pdf`. Artifact version v0.9 (Phase 1).
+Source: `Lecture Notes.pdf`. Artifact version v0.9 (Phase 1).
 
 `Destination scene` lists the artifact scene ids that carry the page content. Pages 22-88 are fully inventoried and mapped to a pedagogical module; their scenes are authored in Phase 2. **No page is unmapped.**
 

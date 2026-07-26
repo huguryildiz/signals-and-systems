@@ -1,6 +1,6 @@
-# EE311 Source Inventory — Part 3 (PDF pp. 39–55)
+# Source Inventory — Part 3 (PDF pp. 39–55)
 
-Source: `EE311 - Lecture Notes.pdf`, 88 pages, handwritten + MATLAB figures. Rendered at 160 dpi.
+Source: `Lecture Notes.pdf`, 88 pages, handwritten + MATLAB figures. Rendered at 160 dpi.
 Convention: the handwritten imaginary unit `J` is recorded as `j` throughout.
 Ambiguity IDs are numbered `A<page>-<nn>`.
 

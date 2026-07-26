@@ -5,7 +5,7 @@ const fs = require('fs'), path = require('path');
 
 (async () => {
   const only = process.argv[2] ? process.argv[2].split(',') : null;
-  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'EE311_Signals_and_Systems.html');
+  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
   const outDir = path.resolve(__dirname, '..', 'shots');
   fs.mkdirSync(outDir, { recursive: true });
   const browser = await chromium.launch();
@@ -30,18 +30,31 @@ const fs = require('fs'), path = require('path');
         const host = document.getElementById('scene-host');
         const inner = host.firstElementChild;
         const sc = host.querySelector('.qb-scroll');
-        const ir = inner.getBoundingClientRect();
-        const vy = Math.round(ir.height - host.clientHeight);
-        const vx = Math.round(ir.width - host.clientWidth);
+        /* the scene box carries the page margin as padding, so the room the
+           inner column actually has is the content box, not clientHeight */
+        const cs = getComputedStyle(host);
+        const availH = host.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        const availW = host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const k = host.dataset.fit ? +host.dataset.fit : 1;
+        const vy = Math.round(inner.scrollHeight * k - availH);
+        const vx = Math.round(inner.scrollWidth * k - availW);
         return { overflow: (!sc && (vy > 2 || vx > 2)), vy: sc?0:vy, vx: sc?0:vx,
-                 fit: host.dataset.fit ? +host.dataset.fit : 1 };
+                 fit: k, capped: host.dataset.capped ? +host.dataset.capped : 0 };
       });
       report.push({ id: s.id, step: st, ...metrics });
       if (!only) await page.screenshot({ path: path.join(outDir, `${s.id}__s${st}.png`) });
       else await page.screenshot({ path: path.join(outDir, `${s.id}__s${st}.png`) });
     }
   }
+  /* A scene held together by a scale factor below 0.90, or one the figure cap had
+     to rescue, is carrying more than one page holds. Neither is a layout error —
+     nothing is clipped — so neither turns the sweep red; both are named, because a
+     scene that needs them is a scene to split. */
+  const dense = report.filter(r => r.fit < 0.90 || r.capped)
+                      .map(r => [r.id, r.step, r.fit,
+                                 r.capped ? `figures cut ${Math.round(r.capped*100)}%` : 'scaled']);
   console.log(JSON.stringify({ sceneCount: scenes.length, errors: errors.slice(0, 25),
-    overflow: report.filter(r => r.overflow), scaled: report.filter(r=>r.fit<0.999).map(r=>[r.id,r.step,r.fit]) }, null, 1));
+    overflow: report.filter(r => r.overflow), dense,
+    scaled: report.filter(r=>r.fit<0.999).map(r=>[r.id,r.step,r.fit]) }, null, 1));
   await browser.close();
 })();
