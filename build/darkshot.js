@@ -1,0 +1,12 @@
+const {chromium}=require('/home/claude/.npm-global/lib/node_modules/playwright');
+const path=require('path');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1600,height:1000}});
+ await p.goto('file://'+path.resolve(__dirname,'..','dist','EE311_Signals_and_Systems.html'),{waitUntil:'load'});
+ await p.waitForTimeout(400);
+ await p.evaluate(()=>{APP.goId('m2-open',0);});
+ await p.waitForTimeout(300);
+ const c=await p.evaluate(()=>{const h=document.querySelector('#scene-host h2.title')||document.querySelector('#scene-host h1.display');
+   return {tag:h.tagName, color:getComputedStyle(h).color, bg:getComputedStyle(document.getElementById('scene-host')).backgroundColor};});
+ console.log(JSON.stringify(c));
+ await p.screenshot({path:path.resolve(__dirname,'..','shots','m2open_fixed.png')});
+ await b.close();})();
