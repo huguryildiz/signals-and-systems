@@ -18,11 +18,11 @@ node_modules/
 # Book.pdf is a cross-check reference only: never reproduced or redistributed.
 source/Book.pdf
 # 41 MB handwritten scan; too large for git history. Keep a local copy.
-source/EE311 - Lecture Notes.pdf
+source/Lecture Notes.pdf
 
 # --- Pipeline output that is not a deliverable ---
 # notes/build.js writes this so notes/topdf.js can turn it into the tracked PDF.
-dist/EE311_Lecture_Notes.html
+dist/Lecture_Notes.html
 # build/qa.js screenshot dump and build/textclash.js report.
 shots/
 textclash.json

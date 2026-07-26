@@ -3,7 +3,7 @@
 const { chromium } = require('/home/claude/.npm-global/lib/node_modules/playwright');
 const path = require('path');
 (async () => {
-  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'EE311_Signals_and_Systems.html');
+  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
   const errs = [];

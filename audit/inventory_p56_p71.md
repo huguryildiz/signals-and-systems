@@ -1,6 +1,6 @@
-# EE311 Source Inventory — pp. 56–71
+# Source Inventory — pp. 56–71
 
-Source: `EE311 - Lecture Notes.pdf` rendered at 160 dpi, `/tmp/ee311/pages/p-NN.png`.
+Source: `Lecture Notes.pdf` rendered at 160 dpi, `/tmp/signals-and-systems/pages/p-NN.png`.
 Handwritten imaginary unit `J` is recorded as `j` throughout. Equations transcribed as written, not corrected.
 Ambiguity IDs are page-scoped: `A<page>-<nn>`.
 

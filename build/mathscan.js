@@ -1,7 +1,7 @@
 const { chromium } = require('/home/claude/.npm-global/lib/node_modules/playwright');
 const path = require('path');
 (async () => {
-  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'EE311_Signals_and_Systems.html');
+  const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
   const b = await chromium.launch();
   const page = await b.newPage({ viewport:{width:1920,height:1080} });
   await page.goto(file,{waitUntil:'load'}); await page.waitForTimeout(400);
@@ -14,7 +14,9 @@ const path = require('path');
     const txt=host.innerText||'';
     const m=txt.match(/\$[^$\n]{1,80}\$|\\[a-zA-Z]{2,}|&lt;/g);
     if(m) out.raw.push(...[...new Set(m)].slice(0,8).map(x=>'RAW: '+x));
-    const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN']);
+    const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN',
+      /* the title motif blurs its glow with an SVG filter */
+      'FILTER','FEGAUSSIANBLUR']);
     host.querySelectorAll('*').forEach(e=>{ const t=e.tagName.toUpperCase();
       if(!known.has(t)) out.bogus.push(t); });
     out.bogus=[...new Set(out.bogus)];
@@ -25,18 +27,29 @@ const path = require('path');
     await page.evaluate(([id,st])=>APP.goId(id,st),[s.id,s.steps]);
     await page.waitForTimeout(160);
     let r = await probe();
-    // click every option / expandable in labs to expose hidden content
-    const clicks = await page.$$('#scene-host [data-cls], #scene-host [data-prop], #scene-host [data-reveal]');
-    for(const c of clicks){ try{ await c.click({timeout:800}); }catch(e){} }
-    await page.waitForTimeout(200);
-    const r2 = await probe();
-    const err=Math.max(r.err,r2.err);
-    const raw=[...new Set([...r.raw,...r2.raw])];
-    const bogus=[...new Set([...r.bogus,...r2.bogus])];
-    if(err||raw.length||bogus.length){ bad++;
+    /* Click every option and expandable in a laboratory to expose the content it
+       hides. A laboratory redraws itself on each click, which detaches every
+       handle collected before the first one, so the handles are re-queried per
+       click and the page is probed after each — a panel that the next click
+       closes again is still measured while it is open. Collecting the handles
+       once and probing only at the end misses a whole panel of damage. */
+    let err=r.err; const raw=[...r.raw], bogus=[...r.bogus];
+    for(const sel of ['[data-cls]','[data-prop]','[data-reveal]']){
+      const n = await page.$$eval('#scene-host '+sel, els=>els.length).catch(()=>0);
+      for(let i=0;i<n;i++){
+        const h = (await page.$$('#scene-host '+sel))[i];
+        if(!h) continue;
+        try{ await h.click({timeout:800}); }catch(e){ continue; }
+        await page.waitForTimeout(80);
+        const p2 = await probe();
+        err = Math.max(err, p2.err); raw.push(...p2.raw); bogus.push(...p2.bogus);
+      }
+    }
+    const rawU=[...new Set(raw)], bogusU=[...new Set(bogus)];
+    if(err||rawU.length||bogusU.length){ bad++;
       console.log(`\n### ${s.id}  katex-errors=${err}`);
-      raw.forEach(x=>console.log('   '+x));
-      if(bogus.length) console.log('   BOGUS TAGS: '+bogus.join(', '));
+      rawU.forEach(x=>console.log('   '+x));
+      if(bogusU.length) console.log('   BOGUS TAGS: '+bogusU.join(', '));
     }
   }
   console.log(`\nSCENES WITH MATH DAMAGE: ${bad} / ${scenes.length}`);

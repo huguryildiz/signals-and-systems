@@ -1,4 +1,4 @@
-/* EE311 course notes — front matter and Chapter 1 */
+/* Course notes — front matter and Chapter 1 */
 (function(){
 const P=PLOT, C=P.COL;
 const D=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
@@ -7,7 +7,7 @@ const ax=o=>P.Axes(Object.assign({w:700,h:200,pad:{l:44,r:20,t:16,b:30},xtarget:
 window.C1 = [
 
 /* ---------------- title ---------------- */
-{t:'title', kicker:'EE 311 · Signals and Systems', text:'Signals, Systems and<br>Linear Time-Invariant Systems',
+{t:'title', kicker:'Signals and Systems', text:'Signals, Systems and<br>Linear Time-Invariant Systems',
  sub:'Lecture notes for the first part of the course: what a signal is, how systems are classified, and why linear time-invariant systems are described by a single function.',
  meta:[['Covers','Chapters 1 to 3'],['Level','Undergraduate, second year'],
        ['Assumed background','Calculus, complex numbers, basic circuits']]},
@@ -114,9 +114,9 @@ window.C1 = [
 {t:'fig', svg:()=>{const tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
   const a=ax({xr:[-5,5],yr:[-0.35,1.55],xlabel:'t',w:700,h:190,xtarget:11,ytarget:2});
   a.curve(t=>tri(t+3),{color:C.out}); a.curve(tri,{color:C.ink}); a.curve(t=>tri(t-3),{color:C.in});
-  a.note(-3,1.1,'x(t+3)',{anchor:'middle',color:C.out,fs:13,italic:true});
-  a.note(0,1.1,'x(t)',{anchor:'middle',color:C.ink,fs:13,italic:true});
-  a.note(3,1.1,'x(t−3)',{anchor:'middle',color:C.in,fs:13,italic:true});
+  a.note(-3,1.1,'x(t+3)',{anchor:'middle',color:C.out,fs:13,tex:true});
+  a.note(0,1.1,'x(t)',{anchor:'middle',color:C.ink,fs:13,tex:true});
+  a.note(3,1.1,'x(t-3)',{anchor:'middle',color:C.in,fs:13,tex:true});
   a.span(-3,0,1.42,'advance by 3 s',{color:C.out}); a.span(0,3,1.42,'delay by 3 s',{color:C.in});
   return a.svg();},
  cap:'Shifting moves the signal along the time axis. The shape is untouched.'},
@@ -131,9 +131,9 @@ window.C1 = [
 {t:'p', text:'Scaling changes the support in a predictable way. If $x$ is non-zero only on $[\\alpha,\\beta]$, then $x(at)$ is non-zero only on $[\\alpha/a,\\beta/a]$. The width is divided by $a$.'},
 {t:'figrow', n:3, items:[
  {svg:()=>{const r=t=>(t>=1&&t<=3)?1:0;const a=ax({xr:[-1,7],yr:[-0.2,1.3],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
-   a.curve(r,{color:C.ink}); a.note(2,1.1,'x(t)',{anchor:'middle',color:C.ink,fs:11,italic:true}); return a.svg();}},
+   a.curve(r,{color:C.ink}); a.note(2,1.1,'x(t)',{anchor:'middle',color:C.ink,fs:11,tex:true}); return a.svg();}},
  {svg:()=>{const r=t=>(t>=1&&t<=3)?1:0;const a=ax({xr:[-1,7],yr:[-0.2,1.3],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
-   a.curve(t=>r(2*t),{color:C.mid}); a.note(1,1.1,'x(2t)',{anchor:'middle',color:C.mid,fs:11,italic:true}); return a.svg();},
+   a.curve(t=>r(2*t),{color:C.mid}); a.note(1,1.1,'x(2t)',{anchor:'middle',color:C.mid,fs:11,tex:true}); return a.svg();},
   cap:'Compressed: support $[0.5,1.5]$.'},
  {svg:()=>{const r=t=>(t>=1&&t<=3)?1:0;const a=ax({xr:[-1,7],yr:[-0.2,1.3],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
    a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.1,'x(0.5t)',{anchor:'middle',color:C.h,fs:11,italic:true}); return a.svg();},
@@ -181,11 +181,11 @@ window.C1 = [
 {t:'figrow', items:[
  {svg:()=>{const saw=t=>{const u=((t%4)+4)%4;return u/2-1;};
    const a=ax({xr:[0,20],yr:[-1.3,1.45],xlabel:'t',ylabel:'x(t)',w:340,h:150,pad:{l:40,r:16,t:14,b:28},xtarget:5,ytarget:2});
-   a.curve(saw,{color:C.in,n:2000}); a.span(8,12,1.14,'T₀ = 4',{color:C.err}); return a.svg();},
+   a.curve(saw,{color:C.in,n:2000}); a.span(8,12,1.14,'T_0=4',{color:C.err,tex:true}); return a.svg();},
   cap:'Periods are $4,8,12,\\dots$ The fundamental period is $T_0=4$.'},
  {svg:()=>{const f=n=>{const u=((n%8)+8)%8;return [1,3,5,3,1,0,-1,0][u];};
    const a=ax({xr:[-16,16],yr:[-1.8,6],xlabel:'n',ylabel:'y[n]',w:340,h:150,pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:3});
-   a.stem(D(f,-16,16),{color:C.mid,r:2.6,width:1.4}); a.span(0,8,5.3,'N₀ = 8',{color:C.err}); return a.svg();},
+   a.stem(D(f,-16,16),{color:C.mid,r:2.6,width:1.4}); a.span(0,8,5.3,'N_0=8',{color:C.err,tex:true}); return a.svg();},
   cap:'Periods are $8,16,24,\\dots$ The fundamental period is $N_0=8$.'}
 ]},
 
@@ -216,9 +216,9 @@ window.C1 = [
  tex:['\\delta[n]=u[n]-u[n-1]', 'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]=\\delta[n]+\\delta[n-1]+\\delta[n-2]+\\cdots']},
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-3,5],yr:[-0.2,1.3],xlabel:'n',w:340,h:130,pad:{l:36,r:14,t:12,b:26},xtarget:5,ytarget:2});
-   a.stem(D(n=>n===0?1:0,-3,5),{color:C.in}); a.note(4.6,1.1,'δ[n]',{anchor:'end',color:C.in,fs:12,italic:true}); return a.svg();}},
+   a.stem(D(n=>n===0?1:0,-3,5),{color:C.in}); a.note(4.6,1.1,'\\delta[n]',{anchor:'end',color:C.in,fs:12,tex:true}); return a.svg();}},
  {svg:()=>{const a=ax({xr:[-3,5],yr:[-0.2,1.3],xlabel:'n',w:340,h:130,pad:{l:36,r:14,t:12,b:26},xtarget:5,ytarget:2});
-   a.stem(D(n=>n>=0?1:0,-3,5),{color:C.h}); a.note(4.6,1.1,'u[n]',{anchor:'end',color:C.h,fs:12,italic:true}); return a.svg();}}
+   a.stem(D(n=>n>=0?1:0,-3,5),{color:C.h}); a.note(4.6,1.1,'u[n]',{anchor:'end',color:C.h,fs:12,tex:true}); return a.svg();}}
 ]},
 
 {t:'h3', text:'Sampling and sifting'},
@@ -250,12 +250,12 @@ window.C1 = [
 {t:'eqbox', cap:'Sampling property, continuous time', tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)'},
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-2,3],yr:[-0.15,1.4],xlabel:'t',w:340,h:140,pad:{l:36,r:14,t:16,b:26},xtarget:4,ytarget:2});
-   a.impulse(0,1,{color:C.in,labelText:'1'}); a.note(1.9,1.15,'δ(t)',{anchor:'end',color:C.in,fs:13,italic:true}); return a.svg();},
+   a.impulse(0,1,{color:C.in,labelText:'1'}); a.note(1.9,1.15,'\\delta(t)',{anchor:'end',color:C.in,fs:13,tex:true}); return a.svg();},
   cap:'The arrow height shows the <b>area</b>, never a value of a function.'},
  {svg:()=>{const a=ax({xr:[-1,6],yr:[-1.05,1.5],xlabel:'t',w:340,h:140,pad:{l:36,r:14,t:16,b:26},xtarget:4,ytarget:2});
    const x=t=>0.75*Math.cos(1.2*t-0.5); a.curve(x,{color:C.muted,width:1.4});
    a.impulse(3,x(3),{color:C.err,labelText:'x(t₀)'}); a.point(3,x(3),{color:C.err});
-   a.note(5.7,1.3,'x(t)',{anchor:'end',color:C.muted,fs:12,italic:true}); return a.svg();},
+   a.note(5.7,1.3,'x(t)',{anchor:'end',color:C.muted,fs:12,tex:true}); return a.svg();},
   cap:'Sifting: the impulse at $t_0$ is scaled by the value of $x$ there, and integrating returns that number.'}
 ]},
 
@@ -309,7 +309,7 @@ window.C1 = [
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-20,20],yr:[-1.3,1.45],xlabel:'n',w:340,h:140,pad:{l:36,r:14,t:14,b:26},xtarget:4,ytarget:2});
    a.stem(D(n=>Math.cos(3*Math.PI*n/5),-20,20),{color:C.in,r:2.4,width:1.2});
-   a.span(0,10,1.2,'N₀ = 10',{color:C.err}); return a.svg();},
+   a.span(0,10,1.2,'N_0=10',{color:C.err,tex:true}); return a.svg();},
   cap:'$\\operatorname{Re}\\{e^{j3\\pi n/5}\\}$ repeats every 10 samples.'},
  {svg:()=>{const a=ax({xr:[-20,20],yr:[-1.3,1.45],xlabel:'n',w:340,h:140,pad:{l:36,r:14,t:14,b:26},xtarget:4,ytarget:2});
    a.stem(D(n=>Math.cos(n),-20,20),{color:C.err,r:2.4,width:1.2}); return a.svg();},

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EE311 · Renderer — turns declarative content blocks into the learning canvas.
+   Renderer — turns declarative content blocks into the learning canvas.
    Content (what is taught) lives in CONTENT.*; this file owns only how it looks
    and behaves.
    ========================================================================== */
@@ -9,9 +9,16 @@ const RENDER = (() => {
   /* ---------- math ---------- */
   const texOpts = { throwOnError:false, strict:false, output:'html',
     macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{d}' } };
+  /* Mathematics that does not parse is reported to the console before it falls
+     back, so that a broken formula fails qa.js instead of sitting in the page. */
   function tex(s, display){
-    try{ return katex.renderToString(s, Object.assign({displayMode:!!display}, texOpts)); }
-    catch(e){ return '<code>'+s+'</code>'; }
+    const o = Object.assign({displayMode:!!display}, texOpts);
+    try{ return katex.renderToString(s, Object.assign({}, o, {throwOnError:true})); }
+    catch(e){
+      console.error('APP: mathematics is not valid TeX: ' + s + ' — ' + e.message);
+      try{ return katex.renderToString(s, o); }
+      catch(e2){ return '<code>'+s+'</code>'; }
+    }
   }
   /* inline $...$ inside prose */
   function md(t){
@@ -54,6 +61,8 @@ const RENDER = (() => {
         <div class="col ${b.vcenter?'center':''}">${blocks(b.left)}</div>
         <div class="col ${b.vcenter?'center':''}">${blocks(b.right)}</div></div>`,
     stack:   b => `<div class="stack" style="${b.style||''}">${blocks(b.items)}</div>`,
+    card:    b => `<div class="card">${b.head?`<h3 class="card-h">${md(b.head)}</h3>`:''}
+        ${blocks(b.items)}</div>`,
     instr:   b => `<div class="instr"><div class="instr-panel">
         <span class="note-h">${b.head||'Instructor note'}</span>${symLinks(md(b.html))}</div></div>`,
     lab:     b => `<div class="lab" data-lab="${b.id}"></div>`,
@@ -65,7 +74,10 @@ const RENDER = (() => {
           ${done===qs.length&&qs.length?'<span style="color:var(--sig-out)"> — bank complete.</span>':''}</div>
         <div class="qb-scroll">${qs.map((q,i)=>
           `<div class="qb-item">${quizHTML(q,false)}</div>`).join('')}</div>`; },
-    raw:     b => b.html
+    /* a raw block may carry a function instead of a string, exactly as fig does,
+       so a figure built in JavaScript is generated per render and picks up the
+       palette of the theme in force */
+    raw:     b => typeof b.html === 'function' ? b.html() : b.html
   };
 
   function blocks(list){
@@ -173,15 +185,66 @@ const RENDER = (() => {
     const host = document.getElementById('scene-host');
     const inner = host && host.firstElementChild;
     if(!inner) return;
+    const figs = Array.from(inner.querySelectorAll('figure.fig > svg'));
+    figs.forEach(s => s.style.maxHeight = '');
+    delete host.dataset.capped;
     if(host.querySelector('.qb-scroll')){   /* question banks scroll, never scale */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
       delete host.dataset.fit; return; }
     inner.style.transform = ''; inner.style.width = ''; inner.style.height = '100%';
-    const avail = host.clientHeight;
+    /* The scene box carries the page margin as padding, so clientHeight is the
+       padded box while the inner column lives in the content box. Measuring
+       against the padded box hides a scene that has run into the bottom margin:
+       it is not scaled, and the figure at the foot of the column is drawn into
+       the strip the page reserves for the footer. */
+    const cs = getComputedStyle(host);
+    const avail = host.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    /* The scaled column is laid out 1/k wider, so a figure that fills its column
+       grows by the same factor and gives the scale factor nothing back. What one
+       pass of avail/need predicts is therefore optimistic, and the height has to
+       be measured again in the widened column. Four passes settle it; each pass
+       can only make the factor smaller, and the floor stops it. */
+    const FLOOR = S.display==='projector' ? 0.70 : 0.82;
+    const TARGET = avail - 3;               /* a hair under, so rounding cannot clip */
+    let k = 1;
     inner.style.height = 'auto';
-    const need = inner.scrollHeight;
-    if(need > avail + 1){
-      const k = Math.max(S.display==='projector' ? 0.70 : 0.82, avail / need);
+    for(let pass=0; pass<8; pass++){
+      const need = inner.scrollHeight;      /* in the column as it stands now */
+      if(need * k <= TARGET) break;
+      const next = Math.max(FLOOR, TARGET / need);
+      const settled = next >= k - 1e-3;
+      k = next;
+      inner.style.width = (100 / k) + '%';
+      if(settled) break;                    /* converged, or resting on the floor */
+    }
+    /* On the floor a scene can still be too tall, because the part of the column
+       that a figure fills scales with the column and gives the factor nothing
+       back. What is left is taken from the figures: each one is capped so the
+       whole set gives up the surplus in proportion to its height. The drawing
+       keeps its aspect ratio inside the cap, so a figure shrinks rather than
+       being cut off at the foot of the page.
+       This is a rescue, not a licence. A scene that leans on it is carrying more
+       than one page holds and belongs split, so it marks itself: `data-capped`
+       is what the layout sweep reads to name the scene. Taking a couple of pixels
+       off a rounding edge is not leaning on it, so the mark needs the figures to
+       have given up a real part of their height. */
+    if(figs.length && inner.scrollHeight * k > TARGET){
+      const room = TARGET / k;
+      /* the stage is itself scaled into the viewport, so a measured rectangle is
+         turned back into layout pixels before it is compared with scrollHeight */
+      const px = (inner.getBoundingClientRect().height / (inner.scrollHeight || 1)) || 1;
+      let kept = 1;
+      for(let pass=0; pass<5 && inner.scrollHeight > room; pass++){
+        const hs = figs.map(s => s.getBoundingClientRect().height / px);
+        const tot = hs.reduce((a,b)=>a+b, 0);
+        if(tot < 40) break;
+        const keep = Math.max(0.45, 1 - (inner.scrollHeight - room) / tot);
+        figs.forEach((s,i) => s.style.maxHeight = (hs[i] * keep).toFixed(1) + 'px');
+        kept *= keep;
+      }
+      if(kept < 0.97) host.dataset.capped = (1 - kept).toFixed(3);
+    }
+    if(k < 1){
       inner.style.height = (100 / k) + '%';
       inner.style.width  = (100 / k) + '%';
       inner.style.transform = 'scale(' + k + ')';

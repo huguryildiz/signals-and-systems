@@ -1,4 +1,4 @@
-# EE 311 artifact — Phase 2 handoff brief
+# Signals and Systems artifact — Phase 2 handoff brief
 
 **Read this first in the new session.** It contains everything needed to continue without re-deriving anything.
 Written 2026-07-25 at the end of the Phase 1 session. Artifact version at handoff: **v0.9**.
@@ -7,7 +7,7 @@ Written 2026-07-25 at the end of the Phase 1 session. Artifact version at handof
 
 ## 0. One-paragraph state
 
-An interactive EE311 learning artifact exists and works: 58 scenes covering Modules 0–3, five interactive
+An interactive learning artifact exists and works: 58 scenes covering Modules 0–3, five interactive
 laboratories, three 12-question banks with full solutions, all built from a page-by-page visual audit of
 PDF pp. 1–21. Everything is verified (50/50 computational checks, zero clipping, zero runtime errors).
 **Phase 2 is: visually audit PDF pp. 22–88 page by page, then author Modules 4–7 into the same artifact,
@@ -18,17 +18,17 @@ needs to be re-decided.
 
 ## 1. Files on the user's machine
 
-All under `~/Desktop/EE311/`:
+All under `~/Desktop/signals-and-systems/`:
 
 | File | What it is |
 |---|---|
-| `EE311 - Lecture Notes.pdf` | the primary source, 88 pp., handwritten scans |
+| `Lecture Notes.pdf` | the primary source, 88 pp., handwritten scans |
 | `Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only; never reproduce, quote or redistribute** |
-| `EE311_INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
-| `EE311_Signals_and_Systems.html` | the built artifact (v0.9) |
-| `EE311_Phase1_Report.md` | scope statement, ambiguity ledger, verification and QA results, version manifest |
+| `INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
+| `Signals_and_Systems.html` | the built artifact (v0.9) |
+| `Phase1_Report.md` | scope statement, ambiguity ledger, verification and QA results, version manifest |
 | `coverage_matrix.md` | the 88-page source-coverage matrix |
-| `EE311_Phase1_sources.zip` | **everything needed to rebuild** — see §2 |
+| `Phase1_sources.zip` | **everything needed to rebuild** — see §2 |
 | `PHASE2_HANDOFF.md` | this file |
 
 The cloud container from the Phase 1 session is gone. Rebuild the working tree from the zip.
@@ -39,11 +39,11 @@ The cloud container from the Phase 1 session is gone. Rebuild the working tree f
 
 ```bash
 # stage the zip and the source PDF from the user's Desktop, then:
-mkdir -p /tmp/ee311 && cd /tmp/ee311
-unzip -q /mnt/user-data/uploads/EE311/EE311_Phase1_sources.zip -d .
+mkdir -p /tmp/signals-and-systems && cd /tmp/signals-and-systems
+unzip -q /mnt/user-data/uploads/signals-and-systems/Phase1_sources.zip -d .
 # re-render the source pages for the visual audit (160 dpi is legible; do not go lower)
-mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 "/mnt/user-data/uploads/EE311/EE311 - Lecture Notes.pdf" pages/p
-cd build && node build.js          # writes ../dist/EE311_Signals_and_Systems.html
+mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 "/mnt/user-data/uploads/signals-and-systems/Lecture Notes.pdf" pages/p
+cd build && node build.js          # writes ../dist/Signals_and_Systems.html
 node qa.js                          # layout sweep: expects 0 errors, 0 overflow
 node labtest.js                     # interaction sweep: expects "ERRORS: none"
 node domcheck.js                    # markup sweep: expects "MALFORMED SCENES: 0"
@@ -150,7 +150,7 @@ They flag candidate issues that must be confirmed or dismissed by direct reading
 | A26/27/38 | 26–38 | LCM-of-denominators rule stated where GCD may be intended |
 
 Record every confirmed issue in the same ledger format as A-01…A-08
-(see `.claude/reports/EE311_Phase1_Report.md` §2) and
+(see `.claude/reports/Phase1_Report.md` §2) and
 continue the numbering from **A-09**. Never correct silently.
 
 ### Step 2 — author Modules 4–7
@@ -208,7 +208,7 @@ image and inspect it before shipping.
 
 1. ~~Scene `m3-ex-ct2` renders at 0.82 fit-scale.~~ **Closed 2026-07-25.** Split into `m3-ex-ct2`
    (case boundaries, 3 steps) and `m3-ex-ct2b` (result and checks, 2 steps). The 0.82 scale turned out to
-   be a symptom, not a density problem — see item 6 below and `.claude/reports/EE311_Phase2_Audit_p22_p41.md` §7.
+   be a symptom, not a density problem — see item 6 below and `.claude/reports/Phase2_Audit_p22_p41.md` §7.
 2. ~~Laboratory E panel 1 stem overlap.~~ **Closed 2026-07-25.** `PLOT.stem` gained an optional `dx`
    (pixel nudge, default 0, no effect anywhere else); Laboratory E draws the cyan input at `dx:-3.6` and
    the amber flipped `h` at `dx:+3.6`, so the pair straddles the index it belongs to.
@@ -216,7 +216,7 @@ image and inspect it before shipping.
    (transform conventions, convergence conditions, scale factors) — open the ledger there.
 4. Version identifier must move to **v1.0** only when Modules 4–7 and all five PDFs are complete and
    consistent; bump the manifest in `80_content_core.js` `CONTENT.META` and in `91_scenes_end.js`.
-5. **Source pp. 22–41 are audited** (`.claude/reports/EE311_Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
+5. **Source pp. 22–41 are audited** (`.claude/reports/Phase2_Audit_p22_p41.md`, ledger A-09 … A-21).
    Module 4 may now be authored from them. Pages 42–88 are **not** audited; the same page-by-page reading
    is required before Modules 5–7.
 6. **A fifth verification gate now exists.** `build/domcheck.js` renders every scene at every reveal state
@@ -230,8 +230,8 @@ image and inspect it before shipping.
 
 ## 8. Suggested opening message for the new session
 
-> EE311 artifact Faz 2. Masaüstümdeki `EE311/` klasöründe `CLAUDE.md` ve `PHASE2_HANDOFF.md` var — önce
-> onları oku, sonra `.claude/reports/EE311_Phase2_Audit_p22_p41.md` denetim kaydını oku. Pipeline repoda:
+> Signals and Systems artifact Faz 2. Masaüstümdeki `signals-and-systems/` klasöründe `CLAUDE.md` ve `PHASE2_HANDOFF.md` var — önce
+> onları oku, sonra `.claude/reports/Phase2_Audit_p22_p41.md` denetim kaydını oku. Pipeline repoda:
 > `build/` ve `notes/` içinde doğrudan çalış. Modül 4'ü (s. 22–41) yaz: sahneler, Lab F ve G,
 > Q4 bankası, verify uzantısı. Kaynak s. 22–41 denetlendi; yeniden denetleme.
 
@@ -261,8 +261,8 @@ now render only in the instructor edition. Modules 4-7 must be authored complian
 
 ```
 notes/
-  build.js        assembles dist/EE311_Lecture_Notes.html (reuses the artifact's KaTeX and PLOT modules)
-  topdf.js        prints it to dist/EE311_Lecture_Notes.pdf via headless Chromium, A4 portrait
+  build.js        assembles dist/Lecture_Notes.html (reuses the artifact's KaTeX and PLOT modules)
+  topdf.js        prints it to dist/Lecture_Notes.pdf via headless Chromium, A4 portrait
   src/notes.css   print stylesheet
   src/render.js   block renderer for the document
   src/c1.js       front matter and Chapter 1

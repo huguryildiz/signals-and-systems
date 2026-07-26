@@ -4,7 +4,7 @@ const sizes=[[1920,1080],[1512,982],[1280,800],[2560,1440],[1100,1400],[1024,768
 (async()=>{ const b=await chromium.launch(); const out=[];
  for(const [w,h] of sizes){
    const p=await b.newPage({viewport:{width:w,height:h}});
-   await p.goto('file://'+path.resolve(__dirname,'..','dist','EE311_Signals_and_Systems.html'),{waitUntil:'load'});
+   await p.goto('file://'+path.resolve(__dirname,'..','dist','Signals_and_Systems.html'),{waitUntil:'load'});
    await p.waitForTimeout(500);
    await p.evaluate(()=>APP.goId('m1-classify',3)); await p.waitForTimeout(300);
    const m=await p.evaluate(()=>{

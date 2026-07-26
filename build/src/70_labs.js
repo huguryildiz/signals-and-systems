@@ -1,11 +1,21 @@
 /* ==========================================================================
-   EE311 · Interactive laboratories.
+   Interactive laboratories.
    Every control changes the mathematics, not the decoration. All displayed
    values are computed from the definitions at interaction time.
    ========================================================================== */
 const LABS = (() => {
-  const T = (s,d)=>{ try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:false,strict:false}); }
-                     catch(e){ return s; } };
+  /* A label that fails to parse still renders, in KaTeX's own red, but it also
+     reaches the console so that qa.js turns red with it. Silent failure here is
+     how a broken label survives a full pass of the gates. */
+  const T = (s,d)=>{ try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:true,strict:false}); }
+                     catch(e){ console.error('LAB: label is not valid TeX: ' + s + ' — ' + e.message);
+                               try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:false,strict:false}); }
+                               catch(e2){ return s; } } };
+  /* Typeset the $...$ spans of a fragment before it reaches the DOM. Reading a
+     fragment back out of innerHTML to typeset it in place cannot work: the
+     serialiser escapes < and > inside the mathematics, KaTeX is then handed
+     &lt; and fails, and a bare < in a formula is read as a tag on the way in. */
+  const M = h => String(h).replace(/\$([^$]+)\$/g,(m,a)=>T(a,false));
   const F = (v,d=3)=>{ if(!isFinite(v)) return '∞';
                        if(v!==0 && Math.abs(v)<0.5*Math.pow(10,-d)) return v.toExponential(2);
                        const r=Math.round(v*10**d)/10**d;
@@ -91,8 +101,8 @@ const LABS = (() => {
             </div>
             <dl class="readout ro"></dl>
             <div class="note warn"><span class="note-h">Order matters</span>
-              Scaling first and shifting afterwards gives $x(at-ab)$, not $x(at-b)$. The middle panel is the
-              intermediate $v=x(t-b)$ required by the shift-then-scale method.</div>
+              Scaling first and shifting afterwards gives x(at − ab), not x(at − b). The middle panel shows the
+              intermediate signal v(t) = x(t − b) that the shift-then-scale method needs.</div>
           </div></div>`;
       root.addEventListener('input', e=>{ const k=e.target.dataset.v; if(!k) return;
         st[k]=parseFloat(e.target.value); draw(root); });
@@ -112,16 +122,16 @@ const LABS = (() => {
     const items = [
       { id:'b1', tex:'x(t)=\\begin{cases}1,&0\\le t\\le 1\\\\0,&\\text{o.w.}\\end{cases}', kind:'energy',
         E:'E_\\infty=\\int_0^1 1^2\\,dt = 1<\\infty', P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^1 1\\,dt=\\lim_{T\\to\\infty}\\frac{1}{2T}=0',
-        why:'Finite energy and zero average power — the defining pair for an energy signal.', src:'p. 3', dt:false,
+        why:'Finite energy and zero average power. That pair defines an energy signal.', src:'p. 3', dt:false,
         f:t=>(t>=0&&t<=1)?1:0, yr:[-0.3,1.4], xr:[-2,3] },
       { id:'b2', tex:'x[n]=4,\\quad \\forall n\\in\\mathbb{Z}', kind:'power',
         E:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^2\\to\\infty', P:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}(2N+1)\\,|4|^2=16<\\infty',
-        why:'Infinite energy but finite, non-zero average power — a power signal.', src:'p. 3', dt:true,
+        why:'Infinite energy, but finite and non-zero average power. That is a power signal.', src:'p. 3', dt:true,
         f:n=>4, yr:[-0.6,5.2], xr:[-6,6] },
       { id:'b3', tex:'x[n]=\\left(\\tfrac12\\right)^{n}u[n]', kind:'energy',
         E:'E_\\infty=\\sum_{n=0}^{\\infty}\\left(\\tfrac14\\right)^{n}=\\frac{1}{1-\\tfrac14}=\\tfrac43<\\infty',
         P:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=0}^{N}\\left(\\tfrac14\\right)^{n}=0',
-        why:'A convergent geometric sum gives finite energy; dividing a bounded sum by $2N+1$ drives the power to zero.',
+        why:'A convergent geometric sum gives finite energy. Dividing a bounded sum by $2N+1$ drives the power to zero.',
         src:'pp. 16–17', dt:true, f:n=>n>=0?Math.pow(0.5,n):0, yr:[-0.2,1.2], xr:[-3,10] },
       { id:'b4', tex:'x(t)=e^{2t}u(-t)', kind:'energy',
         E:'E_\\infty=\\int_{-\\infty}^{0}e^{4t}\\,dt=\\tfrac14<\\infty',
@@ -131,7 +141,7 @@ const LABS = (() => {
       { id:'b5', tex:'x(t)=u(t)', kind:'power',
         E:'E_\\infty=\\int_0^{\\infty}1\\,dt\\to\\infty',
         P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^{T}1\\,dt=\\lim_{T\\to\\infty}\\frac{T}{2T}=\\tfrac12',
-        why:'Half the averaging window carries unit amplitude, so the limit is $1/2$ — finite and non-zero.',
+        why:'Half the averaging window carries unit amplitude, so the limit is $1/2$. That is finite and non-zero.',
         src:'p. 7', dt:false, f:t=>t>=0?1:0, yr:[-0.3,1.4], xr:[-3,4] },
       { id:'b6', tex:'x(t)=t\\,u(t)', kind:'neither',
         E:'E_\\infty=\\int_0^{\\infty}t^2\\,dt\\to\\infty',
@@ -155,29 +165,29 @@ const LABS = (() => {
         `<div class="fb ${picked===it.kind?'good':'bad'}">${picked===it.kind?'Correct — ':'Not correct. '}
           this is ${it.kind==='neither'?'<b>neither</b> an energy nor a power signal'
           :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>` : '';
-      root.querySelector('.work').innerHTML = revealed ? `
+      root.querySelector('.work').innerHTML = revealed ? M(`
         <div class="eq sm">${T(it.E,true)}</div>
         <div class="eq sm">${T(it.P,true)}</div>
         <div class="note ok"><span class="note-h">Conclusion</span>${
           it.kind==='energy'?'$E_\\infty<\\infty$ and $P_\\infty=0$ ⇒ energy-type signal.'
           :it.kind==='power'?'$E_\\infty\\to\\infty$ and $0<P_\\infty<\\infty$ ⇒ power-type signal.'
-          :'$E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$ ⇒ neither.'}</div>`.replace(/\$([^$]+)\$/g,(m,a)=>T(a,false)) : '';
+          :'$E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$ ⇒ neither.'}</div>`) : '';
       root.querySelector('[data-reveal]').textContent = revealed?'Hide the calculation':'Reveal the calculation';
       root.querySelector('.counter').textContent = (cur+1)+' / '+items.length;
     }
     return { mount(root){
-      root.innerHTML = `
+      root.innerHTML = M(`
         <div class="cols c-6-6" style="gap:44px">
           <div class="col stack">
             <div class="sig eq key"></div>
             <div class="plots"></div>
-            <div class="small srcref"></div>
+            <div class="small srcref instr-inline" data-instr></div>
           </div>
           <div class="col stack">
             <p class="eyebrow"><span class="tick"></span>Classify before you compute</p>
             <div class="opts">
-              <button class="opt" data-cls="energy"><span class="k">A</span><span>Energy signal — $E_\\infty<\\infty$, $P_\\infty=0$</span></button>
-              <button class="opt" data-cls="power"><span class="k">B</span><span>Power signal — $E_\\infty\\to\\infty$, $0<P_\\infty<\\infty$</span></button>
+              <button class="opt" data-cls="energy"><span class="k">A</span><span>Energy signal — $E_\\infty\\lt\\infty$, $P_\\infty=0$</span></button>
+              <button class="opt" data-cls="power"><span class="k">B</span><span>Power signal — $E_\\infty\\to\\infty$, $0\\lt P_\\infty\\lt\\infty$</span></button>
               <button class="opt" data-cls="neither"><span class="k">C</span><span>Neither</span></button>
             </div>
             <div class="verdict"></div>
@@ -188,9 +198,7 @@ const LABS = (() => {
               <button class="btn primary" data-nav="1">Next signal</button>
               <span class="small counter"></span>
             </div>
-          </div></div>`;
-      root.querySelectorAll('.opt .k + span').forEach(s=>{ s.innerHTML = s.innerHTML
-        .replace(/\$([^$]+)\$/g,(m,a)=>T(a,false)); });
+          </div></div>`);
       root.addEventListener('click', e=>{
         const c=e.target.closest('[data-cls]'); if(c && !picked){ picked=c.dataset.cls; draw(root); return; }
         if(e.target.closest('[data-reveal]')){ revealed=!revealed; draw(root); return; }
@@ -231,15 +239,15 @@ const LABS = (() => {
       root.querySelector('.lab-eq').innerHTML =
         T(st.dt? `x[n]=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}n+\\tfrac{${st.th}\\pi}{4}\\right)`
                : `x(t)=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}t+\\tfrac{${st.th}\\pi}{4}\\right)`, true);
-      root.querySelector('.derive').innerHTML = st.dt ? `
+      root.querySelector('.derive').innerHTML = M(st.dt ? `
         <div class="eq sm">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
         <div class="note ${'ok'}"><span class="note-h">Rationality test</span>
-          ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)} — always rational here, so a
+          ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}, which is always rational here, so a
           discrete-time <em>cosine of this form</em> is periodic. The smallest integer $N$ occurs at
           ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
         : `<div class="eq sm">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
            <div class="note ok"><span class="note-h">Continuous time is unconditional</span>
-             Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic; no rationality condition applies.</div>`;
+             Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. No rationality condition applies.</div>`);
       root.querySelector('.ro').innerHTML = st.dt ? `
         <div><dt>ω₀ (rad/sample)</dt><dd>${F(w0,4)}</dd></div>
         <div><dt>ω₀ / 2π</dt><dd>${(()=>{const g2=gcd(st.p,2*st.q);return (st.p/g2)+' / '+((2*st.q)/g2);})()}</dd></div>
@@ -251,13 +259,12 @@ const LABS = (() => {
            <div><dt>Phase θ</dt><dd>${st.th}π/4</dd></div>`;
       root.querySelectorAll('[data-out]').forEach(o=>{ o.textContent = String(st[o.dataset.out]); });
       root.querySelectorAll('[data-seg=dom]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.val==='dt')===st.dt)));
-      root.querySelector('.aper').innerHTML = st.dt ? `<div class="note warn">
+      root.querySelector('.aper').innerHTML = st.dt ? M(`<div class="note warn">
         <span class="note-h">Counterexample worth seeing</span>
-        With an <em>irrational</em> normalised frequency — for instance $\\omega_0=1$ rad/sample, so
-        $\\omega_0/2\\pi=1/(2\\pi)\\notin\\mathbb{Q}$ — no integer $N$ satisfies $\\omega_0N=2\\pi k$, and the sequence
-        never repeats. The rational control above cannot reach that case, which is precisely the point:
-        periodicity in discrete time is a property of the <em>number</em> $\\omega_0/2\\pi$, not of the waveform's shape.</div>`:'';
-      root.querySelectorAll('.note, .verdict').forEach(n=>{ n.innerHTML = n.innerHTML.replace(/\$([^$]+)\$/g,(m,a)=>T(a,false)); });
+        Take an <em>irrational</em> normalised frequency, for instance $\\omega_0=1$ rad/sample, so that
+        $\\omega_0/2\\pi=1/(2\\pi)\\notin\\mathbb{Q}$. Then no integer $N$ satisfies $\\omega_0N=2\\pi k$, and the sequence
+        never repeats. The rational control above cannot reach that case, and that is the point.
+        Periodicity in discrete time is a property of the <em>number</em> $\\omega_0/2\\pi$, not of the shape of the waveform.</div>`):'';
     }
     return { mount(root){
       root.innerHTML=`
@@ -299,7 +306,7 @@ const LABS = (() => {
       const s = CONTENT.SYSTEMS[cur];
       root.querySelector('.sys').innerHTML = T(s.tex,true);
       root.querySelector('.srcref').textContent = 'ref '+s.src+'';
-      root.querySelector('.plist').innerHTML = CONTENT.PROPS.map(p=>{
+      root.querySelector('.plist').innerHTML = M(CONTENT.PROPS.map(p=>{
         const r = s.p[p.k];
         const isOpen = open[p.k];
         return `<div class="note ${r.v?'ok':'err'}" style="cursor:pointer" data-prop="${p.k}">
@@ -309,10 +316,8 @@ const LABS = (() => {
              <div style="font-size:18px;line-height:1.55">${r.arg}</div></div>`
            : `<div class="small">Click to see the criterion and the ${r.v?'argument':'counterexample'}.</div>`}
         </div>`;
-      }).join('');
+      }).join(''));
       root.querySelector('.counter').textContent=(cur+1)+' / '+CONTENT.SYSTEMS.length;
-      root.querySelectorAll('.plist .note, .plist .small').forEach(n=>{
-        n.innerHTML=n.innerHTML.replace(/\$([^$]+)\$/g,(m,a)=>T(a,false)); });
     }
     return { mount(root){
       root.innerHTML=`
@@ -320,14 +325,14 @@ const LABS = (() => {
           <div class="col stack">
             <p class="eyebrow"><span class="tick"></span>System under test</p>
             <div class="sys eq key"></div>
-            <div class="small srcref"></div>
+            <div class="small srcref instr-inline" data-instr></div>
             <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
               <button class="btn" data-nav="-1">Previous</button>
               <button class="btn primary" data-nav="1">Next system</button>
               <span class="small counter"></span></div>
             <div class="note warn" style="margin-top:10px"><span class="note-h">Workflow</span>
-              Never classify by inspection. Apply the formal test: assume, substitute, compare — or produce a single
-              counterexample. One counterexample settles a property; no number of examples proves it.</div>
+              Never classify by inspection. Apply the formal test: assume, substitute, compare. Or produce a single
+              counterexample. One counterexample settles a property. No number of examples proves it.</div>
           </div>
           <div class="col"><div class="plist stack" style="gap:12px"></div></div>
         </div>`;
@@ -419,7 +424,7 @@ const LABS = (() => {
       root.querySelectorAll('[data-stage]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.stage===stage)));
     }
     return { mount(root){
-      root.innerHTML=`
+      root.innerHTML=M(`
         <div class="cols c-7-5" style="gap:40px">
           <div class="col"><div class="plots" style="display:flex;flex-direction:column;gap:4px"></div></div>
           <div class="col stack">
@@ -437,13 +442,11 @@ const LABS = (() => {
             <dl class="readout ro"></dl>
             <div><p class="eyebrow" style="margin-bottom:8px"><span class="tick"></span>Closed form</p>
               <div class="exact eq sm"></div></div>
-            <div class="small srcref"></div>
+            <div class="small srcref instr-inline" data-instr></div>
             <div class="note warn"><span class="note-h">Do not skip the flip</span>
-              The amber trace is $h$ <em>reversed and then shifted</em>. Sliding an unflipped $h$ is the single most
-              common convolution error; it silently computes a correlation instead.</div>
-          </div></div>`;
-      root.querySelector('.note.warn').innerHTML = root.querySelector('.note.warn').innerHTML
-        .replace(/\$([^$]+)\$/g,(m,a)=>T(a,false));
+              The amber trace is $h$ <em>reversed and then shifted</em>. Sliding an unflipped $h$ is the most
+              common convolution error. It silently computes a correlation instead.</div>
+          </div></div>`);
       root.addEventListener('input',e=>{ if(e.target.dataset.v==='pos'){ pos=parseFloat(e.target.value); draw(root);} });
       root.addEventListener('click',e=>{
         const c=e.target.closest('[data-case]');

@@ -1,6 +1,6 @@
-# EE311 Signals and Systems — Page-level content audit, pages 22–38
+# Signals and Systems — Page-level content audit, pages 22–38
 
-Source: `/tmp/ee311/pages/p-22.png` … `/tmp/ee311/pages/p-38.png` (160 dpi scans of handwritten notes).
+Source: `/tmp/signals-and-systems/pages/p-22.png` … `/tmp/signals-and-systems/pages/p-38.png` (160 dpi scans of handwritten notes).
 Convention: the handwritten imaginary unit `J` is recorded as `j`. Equations are transcribed as written, not corrected.
 
 ---

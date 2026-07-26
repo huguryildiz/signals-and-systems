@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EE311 question-bank numerical verification (Modules 1-3).
+"""Question-bank numerical verification (Modules 1-3).
 
 Every question whose answer contains a number, a support, a period or a
 closed form is re-derived here independently of the text written into

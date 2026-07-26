@@ -1,25 +1,33 @@
 /* ==========================================================================
-   EE311 · Scientific plotting primitives (pure SVG, no dependencies)
+   Scientific plotting primitives (pure SVG, no dependencies)
    Every figure is generated from its mathematical definition, is resolution
    independent, keeps selectable text labels, and follows the signal colour
    semantics of the visual system.
    ========================================================================== */
 const PLOT = (() => {
   const NS = 'http://www.w3.org/2000/svg';
+  /* plate  — the raised surface a block, a node or a label ring is drawn on
+     canvas — the page behind the figure
+     rule   — the hairline of a guide that is neither data nor axis
+     They follow the palette, so a figure drawn on the dark page is a dark
+     figure, not a light figure pasted onto it. */
   const LIGHT = {
     axis:'#8C8579', grid:'#E2DACA', ink:'#1B1A17', muted:'#6E6960',
     in:'#14707F', h:'#C08422', out:'#4A7A46', mid:'#6A5A92', err:'#A63B2A',
-    coral:'#BE5539', slate:'#4A657F'
+    coral:'#BE5539', slate:'#4A657F',
+    plate:'#FCF9F3', canvas:'#F7F2E8', rule:'#D9D0BE', ruleStrong:'#BFB39B'
   };
   const DARK = {
     axis:'#8E8button', grid:'#2C2820', ink:'#F4EDDF', muted:'#A79D8B',
     in:'#4FBECE', h:'#E5B255', out:'#82C27B', mid:'#AC99DC', err:'#E8785F',
-    coral:'#E08A6B', slate:'#8FA9C2'
+    coral:'#E08A6B', slate:'#8FA9C2',
+    plate:'#1E1B15', canvas:'#16140F', rule:'#332E26', ruleStrong:'#4B4338'
   };
   DARK.axis = '#8E8578';
   const COL = Object.assign({}, LIGHT);
   let LBLS = 1;   /* label scale  */
   let STRW = 1;   /* stroke scale */
+  let CLIPN = 0;  /* serial number for the data-area clip of each figure */
   function setTheme(o){
     o = o || {};
     Object.assign(COL, o.dark ? DARK : LIGHT);
@@ -28,30 +36,54 @@ const PLOT = (() => {
   }
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  /* ---------- axis names are typeset mathematics ----------
-     xlabel and ylabel are TeX source, so an axis name reads with the same
-     typography as the equations in the running text: variables italic, digits
-     and brackets upright, Greek letters as \tau, \omega and so on. Words inside
-     a name go in \text{...}. The name is laid out in a foreignObject anchored on
-     the position the plain label used, so the geometry of the frame is unchanged.
+  /* ---------- mathematics inside a figure is typeset ----------
+     Axis names and every signal name, formula or symbol drawn inside a figure
+     are TeX source, so they read with the same typography as the equations in
+     the running text: variables italic, digits and brackets upright, Greek
+     letters as \tau, \omega and so on. Words inside a name go in \text{...}.
+     The label is laid out in a foreignObject anchored on the position the plain
+     label used, so the geometry of the frame is unchanged.
        'n'                          → n
        't\\;(\\text{independent variable})'
        '\\operatorname{Re}\\{x[n]\\}'
      A label that fails to parse falls back to its source text and reports an
-     error, so a broken name turns the layout sweep red instead of shipping. */
+     error, so a broken name turns the layout sweep red instead of shipping.
+     opts: {xLeft | xMid | xRight, baseline, size, color, role}
+     `role` names what the label is for the collision sweep. An axis name carries
+     role 'axisname', and `textclash.js` holds those to a stricter standard than
+     the rest: an axis name touching the axis line, its arrowhead or a tick mark
+     is a collision, where a short label anywhere else is allowed to sit on the
+     geometry behind its halo. */
   const TEXOPT = { throwOnError:true, strict:false, output:'html' };
   function texName(src, opts){
-    const { xRight, xLeft, baseline, size } = opts;
-    const fs = size*LBLS, BW = 460, BH = 34*LBLS;
+    const { xRight, xLeft, xMid, baseline, size } = opts;
+    const ink = opts.color || COL.ink;
+    const role = opts.role ? ` data-role="${opts.role}"` : '';
+    /* The box a formula is laid out in is wide enough for any label used here and
+       is then cut back to the width of the figure, because a box reaching past
+       the edge of the figure is part of the drawn page: the scene grows, and
+       fitScene() answers by scaling the whole scene down. `figW` is the width of
+       the figure the label belongs to; without it the box keeps its full width. */
+    const figW = opts.figW;
+    const BWMAX = 460, BH = 34*LBLS;
+    const fs = size*LBLS;
+    let x, BW, just;
+    if(xRight!=null){ x = Math.max(0, xRight-BWMAX); BW = xRight-x; just='flex-end'; }
+    else if(xMid!=null){
+      const half = figW!=null ? Math.max(20, Math.min(BWMAX/2, xMid, figW-xMid)) : BWMAX/2;
+      x = xMid-half; BW = 2*half; just='center';
+    } else {
+      x = xLeft; BW = figW!=null ? Math.max(40, Math.min(BWMAX, figW-xLeft)) : BWMAX; just='flex-start';
+    }
     let html;
     try { html = katex.renderToString(String(src), TEXOPT); }
     catch(e){
-      console.error('PLOT: axis name is not valid TeX: ' + src + ' — ' + e.message);
-      const x = xRight!=null ? xRight : xLeft;
-      return `<text x="${x.toFixed(2)}" y="${baseline.toFixed(2)}" ${halo()} font-size="${fs}"
-        font-style="italic" fill="${COL.ink}" text-anchor="${xRight!=null?'end':'start'}">${esc(src)}</text>`;
+      console.error('PLOT: figure label is not valid TeX: ' + src + ' — ' + e.message);
+      const x = xRight!=null ? xRight : xMid!=null ? xMid : xLeft;
+      return `<text x="${x.toFixed(2)}" y="${baseline.toFixed(2)}" ${halo()}${role} font-size="${fs}"
+        font-style="italic" fill="${ink}"
+        text-anchor="${xRight!=null?'end':xMid!=null?'middle':'start'}">${esc(src)}</text>`;
     }
-    const x = xRight!=null ? xRight - BW : xLeft;
     /* the halo of an svg label is a stroke under the glyphs; the same effect for
        laid-out text is an opaque copy offset in eight directions, which every
        engine draws behind the glyphs and never over them */
@@ -60,9 +92,9 @@ const PLOT = (() => {
     const ring = [[r,0],[-r,0],[0,r],[0,-r],[d,d],[d,-d],[-d,d],[-d,-d]]
       .map(([a,b]) => `${a}px ${b}px 0 ${c}`).join(',') + `,0 0 ${r}px ${c}`;
     return `<foreignObject x="${x.toFixed(2)}" y="${(baseline-BH).toFixed(2)}" width="${BW}" height="${BH}"
-      overflow="visible" data-axisname="1" style="overflow:visible;pointer-events:none">
+      overflow="visible" data-texlabel="1"${role} style="overflow:visible;pointer-events:none">
       <div xmlns="http://www.w3.org/1999/xhtml" style="height:${BH}px;display:flex;align-items:flex-end;
-        justify-content:${xRight!=null?'flex-end':'flex-start'};font-size:${fs}px;color:${COL.ink};
+        justify-content:${just};font-size:${fs}px;color:${ink};
         text-shadow:${ring}">${html}</div></foreignObject>`;
   }
   /* Every label in a figure is drawn over a halo in the surrounding page colour.
@@ -108,6 +140,12 @@ const PLOT = (() => {
       xticksOverride:null, yticksOverride:null, arrows:true
     }, opt);
     const [xa,xb]=o.xr, [ya,yb]=o.yr;
+    /* A scene that carries its own page colour — a navy module opening — needs
+       the axis, the tick numbers and the axis names in that page's ink, not in
+       the ink of the surrounding theme, or the frame of the figure disappears
+       into the background. `chrome` overrides those colours for one figure and
+       changes nothing when it is left out. */
+    const CH = Object.assign({ axis:COL.axis, tick:COL.muted, name:COL.ink, grid:COL.grid }, o.chrome||{});
     /* Axis names sit outside the data area, so no curve can cross them. The
        margins below reserve the strip each name needs; the data area shrinks
        inside the same figure box, so nothing in the page layout moves. */
@@ -144,6 +182,14 @@ const PLOT = (() => {
     const x0=P.l, x1=W-P.r, y0=H-P.b, y1=P.t;
     const sx = v => x0 + (v-xa)/(xb-xa)*(x1-x0);
     const sy = v => y0 - (v-ya)/(yb-ya)*(y0-y1);
+    /* A trace stays inside the data area. Without this a signal that runs far
+       past the chosen range — 1/2T as T goes to zero, for instance — is drawn
+       across the axis names and out of the top of the figure. The area is widened
+       by CLIP_PAD so that a trace touching the edge of the range keeps the whole
+       width of its stroke; only a genuine excursion is cut. */
+    const CLIP_PAD = 4*STRW;
+    const clipId = 'pclip'+(++CLIPN);
+    const clip = ` clip-path="url(#${clipId})"`;
     const parts=[];
     const api={
       o, sx, sy, W, H, x0, x1, y0, y1,
@@ -163,7 +209,7 @@ const PLOT = (() => {
         seg.forEach(s=>{
           if(s.length<2) return;
           const d='M'+s.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join('L');
-          parts.push(`<path d="${d}" fill="none" stroke="${col}" stroke-width="${wdt}"
+          parts.push(`<path d="${d}"${clip} fill="none" stroke="${col}" stroke-width="${wdt}"
             stroke-linejoin="round" stroke-linecap="round"${opts.dash?` stroke-dasharray="${opts.dash}"`:''}
             ${opts.opacity?` opacity="${opts.opacity}"`:''}/>`);
         });
@@ -174,7 +220,7 @@ const PLOT = (() => {
         if(pts.length<2) return api;
         const col=opts.color||COL.in, wdt=(opts.width||2.2)*STRW;
         const d='M'+pts.map(p=>sx(p[0]).toFixed(2)+','+sy(p[1]).toFixed(2)).join('L');
-        parts.push(`<path d="${d}" fill="none" stroke="${col}" stroke-width="${wdt}"
+        parts.push(`<path d="${d}"${clip} fill="none" stroke="${col}" stroke-width="${wdt}"
           stroke-linejoin="round" stroke-linecap="round"${opts.dash?` stroke-dasharray="${opts.dash}"`:''}/>`);
         return api;
       },
@@ -245,9 +291,20 @@ const PLOT = (() => {
           fill="${opts.color||COL.coral}" stroke="${opts.ring||'#FCF9F3'}" stroke-width="${opts.ringw||1.4}"/>`);
         return api;
       },
-      /* ---- text annotation in data coordinates ---- */
+      /* ---- text annotation in data coordinates ----
+         An annotation that is mathematics is marked tex:true and typeset by
+         texName, so it reads like the equations in the running text. It is
+         pushed into `parts`, which is drawn after the axes and outside the
+         clip, so an annotation is never cut by the edge of the data area. */
       note(t,v,txt,opts={}){
-        parts.push(`<text x="${(sx(t)+(opts.dx||0)).toFixed(2)}" y="${(sy(v)+(opts.dy||0)).toFixed(2)}"
+        const nx = sx(t)+(opts.dx||0), ny = sy(v)+(opts.dy||0);
+        if(opts.tex){
+          const at = opts.anchor==='end' ? {xRight:nx} : opts.anchor==='middle' ? {xMid:nx} : {xLeft:nx};
+          parts.push(texName(txt, Object.assign({ baseline:ny+3, size:opts.fs||14, figW:W,
+            color:opts.color||COL.muted }, at)));
+          return api;
+        }
+        parts.push(`<text x="${nx.toFixed(2)}" y="${ny.toFixed(2)}"
           ${halo(opts.haloW||3.4)} font-size="${(opts.fs||14)*LBLS}" fill="${opts.color||COL.muted}"
           text-anchor="${opts.anchor||'start'}" font-style="${opts.italic?'italic':'normal'}"
           font-weight="${opts.weight||400}">${esc(txt)}</text>`);
@@ -258,49 +315,55 @@ const PLOT = (() => {
         const col=opts.color||COL.coral, Y=sy(v);
         parts.push(`<path d="M${sx(tA).toFixed(2)},${(Y-5).toFixed(2)} v5 H${sx(tB).toFixed(2)} v-5"
           fill="none" stroke="${col}" stroke-width="${1.4*STRW}"/>`);
-        if(txt) parts.push(`<text x="${((sx(tA)+sx(tB))/2).toFixed(2)}" y="${(Y-10).toFixed(2)}" ${halo()}
-          font-size="${(opts.fs||13)*LBLS}" fill="${col}" text-anchor="middle">${esc(txt)}</text>`);
+        if(txt){
+          if(opts.tex) parts.push(texName(txt,{ xMid:(sx(tA)+sx(tB))/2, baseline:Y-7, figW:W,
+            size:opts.fs||13, color:col }));
+          else parts.push(`<text x="${((sx(tA)+sx(tB))/2).toFixed(2)}" y="${(Y-10).toFixed(2)}" ${halo()}
+            font-size="${(opts.fs||13)*LBLS}" fill="${col}" text-anchor="middle">${esc(txt)}</text>`);
+        }
         return api;
       },
       svg(){
         const g=[];
+        g.push(`<clipPath id="${clipId}"><rect x="${(x0-CLIP_PAD).toFixed(2)}" y="${(y1-CLIP_PAD).toFixed(2)}"
+          width="${(x1-x0+2*CLIP_PAD).toFixed(2)}" height="${(y0-y1+2*CLIP_PAD).toFixed(2)}"/></clipPath>`);
         /* grid */
         const xt = o.xticksOverride || ticks(xa,xb,o.xtarget,o.xstep);
         const yt = o.yticksOverride || ticks(ya,yb,o.ytarget,o.ystep);
         if(o.grid){
-          xt.forEach(v=>g.push(`<line x1="${sx(v).toFixed(2)}" y1="${y1}" x2="${sx(v).toFixed(2)}" y2="${y0}" stroke="${COL.grid}" stroke-width="1"/>`));
-          yt.forEach(v=>g.push(`<line x1="${x0}" y1="${sy(v).toFixed(2)}" x2="${x1}" y2="${sy(v).toFixed(2)}" stroke="${COL.grid}" stroke-width="1"/>`));
+          xt.forEach(v=>g.push(`<line x1="${sx(v).toFixed(2)}" y1="${y1}" x2="${sx(v).toFixed(2)}" y2="${y0}" stroke="${CH.grid}" stroke-width="1"/>`));
+          yt.forEach(v=>g.push(`<line x1="${x0}" y1="${sy(v).toFixed(2)}" x2="${x1}" y2="${sy(v).toFixed(2)}" stroke="${CH.grid}" stroke-width="1"/>`));
         }
         /* zero axes */
         const yz = (ya<=0&&yb>=0)? sy(0) : null;
         const xz = (xa<=0&&xb>=0)? sx(0) : null;
         if(o.zeroAxes){
-          if(yz!=null) g.push(`<line x1="${x0}" y1="${yz.toFixed(2)}" x2="${x1+(o.arrows?10:0)}" y2="${yz.toFixed(2)}" stroke="${COL.axis}" stroke-width="${1.5*STRW}"/>`);
-          if(xz!=null) g.push(`<line x1="${xz.toFixed(2)}" y1="${y0}" x2="${xz.toFixed(2)}" y2="${y1-(o.arrows?8:0)}" stroke="${COL.axis}" stroke-width="${1.5*STRW}"/>`);
-          if(o.arrows && yz!=null) g.push(`<path d="M${x1+10},${yz.toFixed(2)} l-8,-4 v8 Z" fill="${COL.axis}"/>`);
-          if(o.arrows && xz!=null) g.push(`<path d="M${xz.toFixed(2)},${y1-8} l-4,8 h8 Z" fill="${COL.axis}"/>`);
+          if(yz!=null) g.push(`<line x1="${x0}" y1="${yz.toFixed(2)}" x2="${x1+(o.arrows?10:0)}" y2="${yz.toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.5*STRW}"/>`);
+          if(xz!=null) g.push(`<line x1="${xz.toFixed(2)}" y1="${y0}" x2="${xz.toFixed(2)}" y2="${y1-(o.arrows?8:0)}" stroke="${CH.axis}" stroke-width="${1.5*STRW}"/>`);
+          if(o.arrows && yz!=null) g.push(`<path d="M${x1+10},${yz.toFixed(2)} l-8,-4 v8 Z" fill="${CH.axis}"/>`);
+          if(o.arrows && xz!=null) g.push(`<path d="M${xz.toFixed(2)},${y1-8} l-4,8 h8 Z" fill="${CH.axis}"/>`);
         }
         /* frame when zero axes are outside the view */
         if(yz==null||xz==null)
-          g.push(`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="none" stroke="${COL.axis}" stroke-width="1"/>`);
+          g.push(`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="none" stroke="${CH.axis}" stroke-width="1"/>`);
         /* tick labels */
         const yBase = yz!=null? yz : y0;
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
-          g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${COL.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${COL.muted}" text-anchor="middle">${esc(L)}</text>`); });
+          g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
+          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         const xBase = xz!=null? xz : x0;
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
-          g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${COL.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${COL.muted}" text-anchor="end">${esc(L)}</text>`); });
+          g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
+          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal
            that leaves the data area is interrupted by the name rather than
            drawn across it. */
         const names=[];
-        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+8, baseline:xnameY(P.b), size:15 }));
-        if(o.ylabel) names.push(texName(o.ylabel, { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:15 }));
+        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+8, baseline:xnameY(P.b), size:15, color:CH.name, role:'axisname', figW:W }));
+        if(o.ylabel) names.push(texName(o.ylabel, { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:15, color:CH.name, role:'axisname', figW:W }));
         return `<svg viewBox="0 0 ${W} ${H}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,'Segoe UI',sans-serif">`
           + g.join('') + parts.join('') + names.join('') + `</svg>`;
       }
@@ -310,26 +373,38 @@ const PLOT = (() => {
 
   /* ======================================================================
      Block-diagram helper (system abstraction, cascades, parallels)
+     A label that is mathematics — a signal name, an operator, a formula —
+     is written as TeX and marked tex:true, so it is typeset by texName above
+     instead of being drawn as an italic string. Plain words stay plain.
      ====================================================================== */
   function blocks(spec){
     const {w=640,h=140,items=[]} = spec;
     const g=[];
+    const anchorX = (it, xMid) => it.anchor==='start' ? {xLeft:it.x}
+                                : it.anchor==='end'   ? {xRight:it.x}
+                                : {xMid: xMid!=null ? xMid : it.x};
     items.forEach(it=>{
       if(it.t==='box'){
-        g.push(`<rect x="${it.x}" y="${it.y}" width="${it.w}" height="${it.h}" fill="#FCF9F3"
+        g.push(`<rect x="${it.x}" y="${it.y}" width="${it.w}" height="${it.h}" fill="none"
           stroke="${it.color||COL.ink}" stroke-width="${1.6*STRW}" rx="2"/>`);
         (it.label||'').split('\n').forEach((L,i,arr)=>{
-          g.push(`<text x="${it.x+it.w/2}" y="${it.y+it.h/2+5+(i-(arr.length-1)/2)*18}" ${halo()}
+          const y = it.y+it.h/2+5+(i-(arr.length-1)/2)*18;
+          if(it.tex){ g.push(texName(L,{xMid:it.x+it.w/2, baseline:y+3, size:it.fs||16, color:COL.ink, figW:w})); return; }
+          g.push(`<text x="${it.x+it.w/2}" y="${y}" ${halo()}
             font-size="${(it.fs||16)*LBLS}" fill="${COL.ink}" text-anchor="middle">${esc(L)}</text>`); });
       } else if(it.t==='arrow'){
         g.push(`<line x1="${it.x1}" y1="${it.y1}" x2="${it.x2-8}" y2="${it.y2}" stroke="${it.color||COL.ink}" stroke-width="${1.5*STRW}"/>`);
         g.push(`<path d="M${it.x2},${it.y2} l-9,-4.5 v9 Z" fill="${it.color||COL.ink}"/>`);
-        if(it.label) g.push(`<text x="${(it.x1+it.x2)/2}" y="${it.y1-10}" ${halo()} font-size="${15*LBLS}" fill="${it.color||COL.muted}" text-anchor="middle" font-style="italic">${esc(it.label)}</text>`);
+        if(it.label){
+          if(it.tex) g.push(texName(it.label,{xMid:(it.x1+it.x2)/2, baseline:it.y1-7, size:15, color:it.color||COL.muted, figW:w}));
+          else g.push(`<text x="${(it.x1+it.x2)/2}" y="${it.y1-10}" ${halo()} font-size="${15*LBLS}" fill="${it.color||COL.muted}" text-anchor="middle" font-style="italic">${esc(it.label)}</text>`);
+        }
       } else if(it.t==='text'){
+        if(it.tex){ g.push(texName(it.label,Object.assign({baseline:it.y+3, size:it.fs||14, color:it.color||COL.muted, figW:w}, anchorX(it)))); return; }
         g.push(`<text x="${it.x}" y="${it.y}" ${halo()} font-size="${(it.fs||14)*LBLS}" fill="${it.color||COL.muted}"
           text-anchor="${it.anchor||'middle'}" font-style="${it.italic?'italic':'normal'}">${esc(it.label)}</text>`);
       } else if(it.t==='sum'){
-        g.push(`<circle cx="${it.x}" cy="${it.y}" r="14" fill="#FCF9F3" stroke="${COL.ink}" stroke-width="1.6"/>`);
+        g.push(`<circle cx="${it.x}" cy="${it.y}" r="14" fill="none" stroke="${COL.ink}" stroke-width="1.6"/>`);
         g.push(`<text x="${it.x}" y="${it.y+6}" ${halo()} font-size="${18*LBLS}" fill="${COL.ink}" text-anchor="middle">+</text>`);
       } else if(it.t==='line'){
         g.push(`<path d="${it.d}" fill="none" stroke="${it.color||COL.ink}" stroke-width="${1.5*STRW}"/>`);
@@ -338,5 +413,5 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  return { Axes, blocks, COL, ticks, fmt, niceStep, setTheme };
+  return { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme };
 })();
