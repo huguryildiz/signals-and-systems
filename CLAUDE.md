@@ -123,9 +123,15 @@ cd build && node textclash.js                 # figure labels     → "TOTAL COL
 it with `/opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy`. Never run these
 under the x86_64 anaconda `python3`.
 
-`qa.js`, `labtest.js`, `textclash.js` and `notes/topdf.js` each `require` Playwright by the absolute path
+Two further sweeps, both described in `PHASE2_HANDOFF.md`, sit beside these: `build/domcheck.js` reports
+any element whose tag name is not valid HTML, which catches a stray `<` in authored text swallowing the
+markup after it, and `build/mathscan.js` reports unrendered mathematics and bogus tags. They had been lost
+when the old zip was last repacked and are restored from git history; they are not part of the four gates.
+
+`qa.js`, `labtest.js`, `textclash.js`, `domcheck.js`, `mathscan.js` and `notes/topdf.js` each `require`
+Playwright by the absolute path
 `/home/claude/.npm-global/lib/node_modules/playwright`. That path exists only in the container, so on a
-local machine these four scripts do not run at all — the two `build.js` files, `verify/` and
+local machine these six scripts do not run at all — the two `build.js` files, `verify/` and
 `tools/rule_check.py` are the part that works everywhere. Do not silently rewrite the require line; if the
 gates need to run locally, install Playwright and change the path as its own deliberate commit.
 
