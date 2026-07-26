@@ -215,16 +215,17 @@ pages. Nothing else in the repository needs network access.
 
 ## Verification Gates
 
-Five gates. Nothing is done until all five pass, and the number a run printed is the number that gets
+Six gates. Nothing is done until all six pass, and the number a run printed is the number that gets
 reported.
 
-| Gate                    | Command                                          | Must print              |
-| ----------------------- | ------------------------------------------------ | ----------------------- |
-| Layout                  | `cd build && node qa.js`                         | 0 errors, 0 overflow    |
-| Interaction             | `cd build && node labtest.js`                    | `ERRORS: none`          |
-| Labels                  | `cd build && node textclash.js`                  | `TOTAL COLLISIONS: 0`   |
-| Numbers                 | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`   |
-| Wording                 | `tools/rule_check.py` (below)                    | `TOTAL VIOLATIONS: 0`   |
+| Gate                    | Command                                          | Must print                       |
+| ----------------------- | ------------------------------------------------ | -------------------------------- |
+| Layout                  | `cd build && node pw.js qa.js`                   | 0 errors, 0 overflow             |
+| Interaction             | `cd build && node pw.js labtest.js`              | `ERRORS: none`                   |
+| Labels                  | `cd build && node pw.js textclash.js`            | `TOTAL COLLISIONS: 0`            |
+| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 58`|
+| Numbers                 | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`          |
+| Wording                 | `tools/rule_check.py` (below)                    | `TOTAL VIOLATIONS: 0`            |
 
 ```bash
 .venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
@@ -234,12 +235,17 @@ reported.
 `qa.js` renders every scene at its last step and measures it against the stage. `labtest.js` drives
 every laboratory control, quiz path and mode toggle. `textclash.js` walks every scene at every step and
 tests the glyph box of every figure label against the drawn geometry of that figure. `verify_m1_m3.py`
-recomputes every numerical result, one PASS/FAIL line each. `rule_check.py` scans every student-facing
-string for phrases that would reveal how the material was made.
+recomputes every numerical result, one PASS/FAIL line each. `mathscan.js` reports a formula KaTeX could
+not parse, mathematics left as literal `$…$`, and any element whose tag name is not valid HTML or SVG.
+`rule_check.py` scans every student-facing string for phrases that would reveal how the material was
+made, and for mathematics inside a figure written as anything other than LaTeX. Its banned list is
+matched case-insensitively and covers page references; the `src:` field and every comment are exempt,
+because those are the traceability record rather than something a student reads.
 
 The five Playwright harnesses — `qa.js`, `labtest.js`, `textclash.js`, `domcheck.js`, `mathscan.js` —
 and `notes/topdf.js` require Playwright at a fixed absolute path. Elsewhere they run unmodified behind
-a short module-resolution redirect; the `require` line itself is not rewritten in place.
+`build/pw.js`, a short module-resolution redirect: `node pw.js qa.js`, `node pw.js ../notes/topdf.js`.
+The `require` line itself is not rewritten in place. Set `PW_PATH` if Playwright lives somewhere else.
 
 ---
 
@@ -313,6 +319,13 @@ artifact.
 4–7, laboratories F–J, question banks Q4–Q7, an extended `verify/`, and the five PDF editions. Version
 v1.0 is reached only when all of it is complete and consistent. `instructor/PHASE2_HANDOFF.md` describes
 exactly how to continue.
+
+The scaffolding for that work is in place. Modules 4–7 are registered in the scene list, the module
+list and the notes build, so each can be authored in its own file without two of them meeting in a
+third. `build.js` picks up `7[1-9]_` as well, so a module gets its own laboratory file, and `70_labs.js`
+exports the helper kit those files need. The six gates all run on the four modules already written:
+58 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes with damaged mathematics, 50 numerical
+checks passed, 0 wording violations.
 
 ---
 
