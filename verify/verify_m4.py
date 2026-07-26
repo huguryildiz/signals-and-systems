@@ -241,8 +241,8 @@ xs11 = lambda m: float(m - 11 * round(m / 11))
 chk("M4 DT sawtooth N = 11: pairing formula matches the analysis sum",
     all(abs(a_dt_brute(xs11, 11, kk) - a_dt_saw(kk)) < 1e-12 for kk in range(-11, 12)))
 chk("M4 DT sawtooth a_0 = 0", abs(a_dt_saw(0)) < 1e-12)
-chk("M4 DT sawtooth peak |a_1| = 1.7746",
-    abs(abs(a_dt_saw(1)) - 1.7746) < 5e-4, f"{abs(a_dt_saw(1)):.4f}")
+chk("M4 DT sawtooth peak |a_1| = 1.7747",
+    abs(abs(a_dt_saw(1)) - 1.7747) < 5e-5, f"{abs(a_dt_saw(1)):.4f}")
 chk("M4 DT sawtooth coefficients are purely imaginary",
     all(abs(a_dt_saw(kk).real) < 1e-12 for kk in range(-11, 12)))
 chk("M4 DT sawtooth coefficients repeat with 11",
