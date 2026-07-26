@@ -2,23 +2,64 @@
 """R8: fail on any banned provenance phrase, and on any figure label that is
 mathematics written as something other than LaTeX (R7)."""
 import re, sys, glob, os
+# The list is matched case-insensitively, so a phrase opening a sentence is
+# caught as readily as one inside it. Write each pattern in lower case.
 BANNED = [
- r'\bPDF\b', r'\bpdf\b', r'in this file', r'this document', r'the document shows',
+ r'\bpdf\b', r'in this file', r'this document', r'the document shows',
  r'source notes', r'the source\b', r'original notes', r'the lecture notes (state|say|show)',
- r'uploaded document', r'provided material', r'\bRedrawn\b', r'\bredrawn\b',
- r'reconstructed from', r'based on the original', r'verified against', r'cross-check',
- r'the audit', r'editorial enhancement', r'\(source\)', r'\(Source\)', r'\bprovenance\b', r'editorially developed', r'ambiguity',
- r'\bledger\b', r'Phase 1', r'Phase 2', r'\bv0\.9\b',
+ r'uploaded document', r'provided material', r'\bredrawn\b',
+ r'reconstructed from', r'based on the original', r'verified against',
+ # "Check:" and "Cross-check:" are legitimate steps of a worked example (R7).
+ # Only the provenance sense is banned, which is the one that names a source.
+ r'cross-check\w*\s+(?:against|with)\b',
+ r'the audit', r'editorial enhancement', r'\(source\)', r'\bprovenance\b', r'editorially developed', r'ambiguity',
+ r'\bledger\b', r'phase 1\b', r'phase 2\b', r'\bv0\.9\b',
+ # A page reference is provenance wherever a student can read it: "p. 15",
+ # "pp. 6-7", "page 15", "pages 6 and 7".
+ r'\bpp?\.\s*\d', r'\bpages?\s+\d',
 ]
 # strings that are legitimately instructor-only or internal are marked with these markers
 EXEMPT_MARKERS = ['data-instr', "t:'instr'", 'instr-panel', 'INSTRUCTOR-ONLY']
+
+SRC_FIELD = re.compile(r"""\bsrc\s*:\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")""")
+
+def strip_exempt(line, in_block):
+    """Blank out what R3 puts outside the student view, so the sweep reads only
+       what a student can read. Two things are exempt, by what they are rather
+       than by where they sit: the src: field of a scene, a question or a
+       laboratory item, which is the traceability record itself, and any
+       comment, which never reaches the artifact. A block comment is tracked
+       across lines, because its interior carries no marker of its own."""
+    out, i, n = [], 0, len(line)
+    while i < n:
+        if in_block:
+            j = line.find('*/', i)
+            if j < 0: return ''.join(out), True
+            i, in_block = j + 2, False
+            continue
+        b = line.find('/*', i)
+        # a // that follows a colon is a URL scheme, not a comment
+        s = i
+        while True:
+            s = line.find('//', s)
+            if s > 0 and line[s-1] == ':': s += 2; continue
+            break
+        if b >= 0 and (s < 0 or b < s):
+            out.append(line[i:b]); i, in_block = b + 2, True
+            continue
+        if s >= 0:
+            out.append(line[i:s]); return ''.join(out), False
+        out.append(line[i:]); break
+    return ''.join(out), in_block
+
 def scan(path):
-    hits=[]
-    for i, line in enumerate(open(path, encoding='utf-8'), 1):
+    hits, in_block = [], False
+    for i, raw in enumerate(open(path, encoding='utf-8'), 1):
+        line, in_block = strip_exempt(SRC_FIELD.sub('src:', raw), in_block)
         if any(m in line for m in EXEMPT_MARKERS): continue
         for b in BANNED:
-            if re.search(b, line):
-                hits.append((i, b, line.strip()[:110]))
+            if re.search(b, line, re.I):
+                hits.append((i, b, raw.strip()[:110]))
                 break
     return hits
 
