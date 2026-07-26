@@ -24,5 +24,8 @@ source/EE311 - Lecture Notes.pdf
 _to_delete/
 *.tmp
 
+# Local working area: prompts, plans, session notes. Never tracked.
+.claude/
+
 # FUSE mount leftovers
 .fuse_hidden*

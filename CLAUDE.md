@@ -3,16 +3,17 @@
 **Status: authoritative.** Read this before touching anything in `~/Desktop/EE311/`.
 This file supersedes `PHASE2_HANDOFF.md` §1 (file table) and §2 (rebuild commands) — the folder was
 reorganised and one of the archives is stale. Everything else in the handoff still stands.
+The editorial rules R1–R8 live here, in §5.1; there is no separate rules file.
 Set 2026-07-25. Artifact version at this point: **v0.9**.
 
 ---
 
 ## 0. Read order at session start
 
-1. this file
+1. this file — including §5.1, the editorial rules R1–R8, binding on every deliverable
 2. `instructor/PHASE2_HANDOFF.md` — work order, build architecture, scene / block / question schemas
-3. `instructor/EE311_STYLE_RULES.md` — R1–R8, binding on every deliverable
-4. `instructor/EE311_Phase1_Report.md` — only when you need ledger A-01…A-08, QA history or the manifest
+3. `.claude/reports/EE311_Phase1_Report.md` — only when you need ledger A-01…A-08, QA history or the
+   manifest; `.claude/reports/EE311_Phase2_Audit_p22_p41.md` continues that ledger from A-09
 
 The design system, build pipeline and content schema are **locked**. Do not re-derive or redesign them.
 If something looks wrong, say so and stop — do not silently change it.
@@ -36,19 +37,24 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 |---|---|
 | `source/EE311 - Lecture Notes.pdf` | primary source, 88 pp., handwritten scans — **not in git** |
 | `source/Book.pdf` | Oppenheim/Willsky/Nawab — **secondary reference only, not in git** |
-| `source/EE311_INTERACTIVE_ARTIFACT_PROMPT.md` | the original production prompt |
 | `dist/EE311_Signals_and_Systems.html` | the interactive artifact (v0.9), student-facing |
 | `dist/EE311_Lecture_Notes.pdf` | lecture notes, A4 portrait |
 | `instructor/PHASE2_HANDOFF.md` | work order and architecture |
-| `instructor/EE311_STYLE_RULES.md` | editorial rules R1–R8 |
-| `instructor/EE311_Phase1_Report.md` | scope, ambiguity ledger, verification, QA, manifest |
 | `instructor/coverage_matrix.md` | 88-page source-coverage matrix |
 | `release/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
 | `release/EE311_Lecture_Notes.html` | notes pipeline output |
 | `archive/` | superseded material, do not build from it |
+| `.claude/` | local working area — prompts, plans, session notes; **not in git** |
 
 Keep this structure. New instructor-only records go in `instructor/`, new build archives in
 `release/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
+
+`.claude/` holds the working material that is not student-facing: `prompts/` (the original production
+prompt `EE311_INTERACTIVE_ARTIFACT_PROMPT.md` and the paste-in project instructions), `reports/`
+(`EE311_Phase1_Report.md`, `EE311_Phase2_Audit_p22_p41.md`), `plans/`, `notes/`. The whole folder is
+gitignored, so it lives in the working copy only — a fresh clone will not contain it, exactly like the
+two PDFs in `source/`. The ambiguity ledger therefore survives on this machine only; keep a copy
+wherever the working copy is backed up.
 
 Both PDFs in `source/` are listed in `.gitignore`: `Book.pdf` because third-party material must never
 be redistributed, and the 41 MB handwritten scan because it is too large for git history. They are
@@ -117,22 +123,98 @@ to an image and inspect it.
 
 ## 5. Non-negotiables
 
-### 5.1 Editorial (full text: `EE311_STYLE_RULES.md`)
+### 5.1 Editorial rules R1–R8
 
-- Student-facing text is written **directly as teaching material**. The reader must never be able to tell
-  that a conversion, audit or verification took place.
-- Banned in anything a student can read: "in the PDF", "p. 12", "in this file", "the document shows",
-  "the source notes", "redrawn from", "verified against", "editorial enhancement", "editorially
-  developed", and any mention of research, auditing, ledgers, versions or phases. If a sentence needs one
-  of these to make sense, the sentence is wrong — rewrite it so the mathematics carries the meaning.
-- Provenance lives **only** in hidden records and instructor-only areas.
-- Register: simple, short, plain academic English. One idea per sentence. Plain word over the ornate one.
-  No hype. Plain wording never costs correctness: symbols defined on first use, CT and DT kept visibly
-  separate, exact signs / limits / scale factors, stated convergence conditions, necessary vs. sufficient
-  distinguished, rad/s distinguished from Hz.
-- Worked examples: Given, Find, Method, Solution, Check. Every figure axis labelled; CT = curves,
-  DT = stems, impulses = arrows whose height is the weight; negative frequencies shown when they exist.
-  A caption says what the figure means, never where it came from.
+Status: **RULE**. Binding on the interactive artifact, all lecture notes, all PDFs, all question banks,
+and anything produced in later phases. Set 2026-07-25.
+
+#### R1 — Write as lecture notes, not as a report about lecture notes
+
+Every student-facing text is written **directly**, as self-contained teaching material. The reader must
+never be able to tell that any conversion, audit, redrawing or verification took place.
+
+#### R2 — Banned in student-facing content
+
+Never write, in any form:
+
+- "in the PDF", "on page X of the PDF", "PDF p. 12"
+- "in this file", "in this document", "the document shows", "as shown in the attached"
+- "in the source notes", "the source says", "the original notes", "the lecture notes state"
+- "in the uploaded document", "the provided material"
+- "redrawn from", "reconstructed from", "based on the original figure"
+- "verified against", "cross-checked", "the audit found", "editorial enhancement"
+- any mention of research, transformation, ambiguity ledgers, versions, phases or production process
+
+If a sentence needs one of these to make sense, the sentence is wrong. Rewrite it so the mathematics
+carries the meaning by itself.
+
+**Correct:** "A discrete-time signal is written x[n], where n is an integer."
+**Wrong:** "The source defines a discrete-time signal on p. 2 as x[n]."
+
+**Correct:** "For 0 < t < 1 the shaded area gives y(t) = t²/2."
+**Wrong:** "Redrawn from the original figure, the shaded area gives y(t) = t²/2."
+
+#### R3 — Where provenance lives instead
+
+Source pages, traceability, ambiguity records and version data are kept in **hidden records** and in
+**instructor-only areas**:
+
+- instructor edition of the artifact,
+- instructor solutions document,
+- separate internal records not distributed to students.
+
+They are never rendered in the student view and never printed in student documents.
+
+#### R4 — Language and register
+
+Simple, short, plain academic English.
+
+- Short sentences. One idea per sentence.
+- Prefer the plain word: "use" not "utilise", "so" not "consequently", "shows" not "demonstrates".
+- No hype, no praise of the material, no rhetorical questions used as decoration.
+- Address the reader directly where it helps: "First find the support of each signal."
+- Do not use em-dash chains, nested parentheses, or three-clause sentences where two sentences work.
+
+#### R5 — Simple language must not cost correctness
+
+Plain wording is required; mathematical looseness is not permitted.
+
+- Every symbol is defined on first use.
+- Continuous-time and discrete-time cases are kept visibly separate.
+- Signs, coefficients, integration and summation limits, and scale factors are exact.
+- Assumptions and convergence conditions are stated wherever a result depends on them.
+- Necessary and sufficient conditions are distinguished.
+- Functions and distributions are distinguished. Impulse locations and weights are exact.
+- Angular frequency (rad/s or rad/sample) is distinguished from frequency in hertz.
+- The sinc convention is stated wherever sinc is used.
+
+#### R6 — Fixed conventions
+
+- Energy and power are normalised, R = 1 Ω. Say so once, where energy is introduced.
+- The imaginary unit is j.
+- X(jω) = ∫ x(t) e^(−jωt) dt and x(t) = (1/2π) ∫ X(jω) e^(jωt) dω.
+- X(e^(jω)) = Σ x[n] e^(−jωn) and x[n] = (1/2π) ∫ over any 2π interval of X(e^(jω)) e^(jωn) dω.
+- sinc is unnormalised: sinc(θ) = sin θ / θ.
+
+#### R7 — Examples and figures
+
+- Worked examples use: Given, Find, Method, Solution, Check.
+- Every figure axis is labelled. Continuous-time signals are curves. Discrete-time signals are stems.
+  Impulses are arrows whose height is the weight. Negative frequencies are shown when they exist.
+- A figure caption explains what the figure means. It never explains where the figure came from.
+- Nothing written inside a figure may be crossed by anything drawn in it. The name of a variable is
+  placed outside the data area — the independent variable under the lower edge, the dependent variable
+  above the upper edge. Annotations are placed in free space, not over a signal. Tick numbers stay on
+  the axis and carry a halo in the page colour, so a curve or stem that passes behind them is
+  interrupted rather than run through the digits.
+- No label may sit on another label, at any step of a scene.
+
+#### R8 — Automated check
+
+`tools/rule_check.py` scans every student-facing string for banned phrases and fails the build on a hit.
+`build/textclash.js` renders every figure in every scene at every step and measures, glyph box against
+drawn geometry, whether any label is crossed by a signal or by another label. Both run before any
+delivery; both must report zero.
 
 ### 5.2 Mathematical conventions
 
@@ -182,7 +264,8 @@ scale factors genuinely need a second source.
   relevant pages are read directly at 160 dpi. The 13 flagged candidates (analysis/synthesis label swaps,
   sign errors, a 1000× sampling-period slip) are listed in `PHASE2_HANDOFF.md` §5 Step 1.
 - **Never correct the source silently.** Every confirmed issue is recorded in the ledger format of
-  `EE311_Phase1_Report.md` §2 and stated in the artifact at the point where it occurs. Numbering
+  `.claude/reports/EE311_Phase1_Report.md` §2 and stated in the artifact at the point where it occurs.
+  Numbering
   continues from **A-09**.
 - **Version bump.** v1.0 only when Modules 4–7 and all five PDFs are complete and consistent; bump
   `CONTENT.META` in `80_content_core.js` and `91_scenes_end.js` together.
