@@ -101,7 +101,7 @@ statement of what is correct on it.
 
 ## 6. Verification state at the end of this session
 
-Run against the working tree rebuilt from `build/EE311_Deliverables.zip`, after the two carried
+Run against the working tree rebuilt from `release/EE311_Deliverables.zip`, after the two carried
 Phase 1 open items were closed:
 
 ```

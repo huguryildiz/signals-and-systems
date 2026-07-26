@@ -43,18 +43,18 @@ generate the five PDF editions. Full work order: `PHASE2_HANDOFF.md` §5.
 | `instructor/EE311_STYLE_RULES.md` | editorial rules R1–R8 |
 | `instructor/EE311_Phase1_Report.md` | scope, ambiguity ledger, verification, QA, manifest |
 | `instructor/coverage_matrix.md` | 88-page source-coverage matrix |
-| `build/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
-| `build/EE311_Lecture_Notes.html` | notes pipeline output |
+| `release/EE311_Deliverables.zip` | **the rebuild archive — use this one** |
+| `release/EE311_Lecture_Notes.html` | notes pipeline output |
 | `archive/` | superseded material, do not build from it |
 
 Keep this structure. New instructor-only records go in `instructor/`, new build archives in
-`build/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
+`release/`, anything superseded moves to `archive/`. Do not leave scratch files in the root.
 
 ---
 
 ## 3. Rebuilding the working tree
 
-Rebuild from **`build/EE311_Deliverables.zip`**.
+Rebuild from **`release/EE311_Deliverables.zip`**.
 
 `archive/EE311_Phase1_sources.zip` is **stale and incomplete**. It predates the R1–R8 editorial sweep
 (the scene, laboratory and question-bank sources in it differ from the current ones) and it is missing
@@ -62,9 +62,9 @@ Rebuild from **`build/EE311_Deliverables.zip`**.
 Building from it silently reintroduces 82 cleared rule violations and drops the notes pipeline.
 
 ```bash
-# stage build/EE311_Deliverables.zip and source/EE311 - Lecture Notes.pdf first
+# stage release/EE311_Deliverables.zip and source/EE311 - Lecture Notes.pdf first
 mkdir -p /tmp/ee311 && cd /tmp/ee311
-unzip -q /mnt/user-data/uploads/EE311/build/EE311_Deliverables.zip -d .
+unzip -q /mnt/user-data/uploads/EE311/release/EE311_Deliverables.zip -d .
 
 # source pages for the visual audit — 160 dpi is legible, do not go lower
 mkdir -p pages && pdftoppm -r 160 -png -f 1 -l 88 \
@@ -183,7 +183,7 @@ scale factors genuinely need a second source.
 
 - Do the heavy work in the container (`/tmp/ee311`), not on the user's disk. Deliver finished files with
   `SendUserFile`, then write them back to the right project folder with `device_commit_files`.
-- Re-zip `build/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
+- Re-zip `release/EE311_Deliverables.zip` whenever build sources change, so the rebuild archive
   never drifts from the delivered artifact. Move the previous archive to `archive/` rather than
   overwriting it blind.
 - When a task spans several hours or gets interrupted, update `PHASE2_HANDOFF.md` before ending — it is
