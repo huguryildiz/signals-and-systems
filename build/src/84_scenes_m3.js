@@ -177,7 +177,7 @@ const SC = [
 
 { id:'m3-ex-dt1', module:'M3', nav:'Worked example · finite sequences', title:'Worked example — two finite sequences', src:'pp. 15–16',
   objective:'Reproduce the definition example with the superposition method and verify.',
-  keywords:'example convolution finite sequences superposition shifted impulse responses', steps:3, blocks:[
+  keywords:'example convolution finite sequences superposition shifted impulse responses', steps:1, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 15–16'},
   {t:'title', text:'Convolution as superposition'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -188,16 +188,7 @@ const SC = [
     ]},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'y[n]=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]=h[n]+2h[n-1]+h[n-2]+2h[n-3]'},
-      {t:'small', html:'Four copies of $h$, each delayed by one further sample and weighted by the corresponding sample of $x$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'y[n]=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]',
-        label:'Solution', note:'That is $y=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$.'},
-      {t:'wex', rows:[
-        ['Checks','<b>Support:</b> $[0,3]+[0,1]=[0,4]$, length $4+2-1=5$ ✓ &nbsp;·&nbsp; <b>Sum:</b> $\\sum y=12$ and $(\\sum x)(\\sum h)=6\\cdot2=12$ ✓'],
-        ['Interpretation','$h=\\{1,1\\}$ is a two-point moving sum: each output is the total of an adjacent input pair.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Exercise', html:'Verify the same result with the equivalent form $y[n]=\\sum_k h[k]x[n-k]$, that is, flip $x$ instead of $h$. Commutativity guarantees the same answer, and the check is worth doing once by hand.'}]}
+      {t:'small', html:'Four copies of $h$, each delayed by one further sample and weighted by the corresponding sample of $x$. The four panels beside this are those copies, drawn one per term. Nothing has been added yet.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'6px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-1,6],yr:[-0.3,2.4],xlabel:'n',pad:{l:46,r:22,t:14,b:28},xtarget:7,ytarget:2});
@@ -215,12 +206,39 @@ const SC = [
           a.stem(disc(n=>(n>=2&&n<=3)?1:0,-1,6),{color:C.mid,r:3}); a.note(5.6,2.0,'h[n-2]',{anchor:'end',color:C.mid,fs:12,tex:true}); return a.svg(); }}],
         [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:150,xr:[-1,6],yr:[-0.3,2.4],xlabel:'n',pad:{l:40,r:16,t:12,b:26},xtarget:4,ytarget:2});
           a.stem(disc(n=>(n>=3&&n<=4)?2:0,-1,6),{color:C.mid,r:3}); a.note(5.6,2.0,'2h[n-3]',{anchor:'end',color:C.mid,fs:12,tex:true}); return a.svg(); }}]
+      ]}]}
+  ]}
+]},
+
+{ id:'m3-ex-dt1-b', module:'M3', nav:'Worked example · adding the copies', title:'Worked example — adding the four copies', src:'pp. 15–16',
+  objective:'Add the shifted impulse responses and check the result two ways.',
+  keywords:'convolution superposition sum support length moving sum commutativity', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 15–16'},
+  {t:'title', text:'Adding the copies, and checking the answer'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'wex', rows:[
+      ['Where this stands','$x[n]=\\{1,2,1,2\\}$ on $n=0,\\dots,3$ convolved with $h[n]=\\{1,1\\}$ has been written as $h[n]+2h[n-1]+h[n-2]+2h[n-3]$. Adding those four copies sample by sample is the only step left.']
+    ]},
+    {t:'eq', key:true, tex:'y[n]=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]',
+      label:'Solution', note:'That is $y=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$.'},
+    {t:'reveal', at:1, items:[
+      {t:'wex', rows:[
+        ['Check 1','<b>Support.</b> $[0,3]+[0,1]=[0,4]$, a length of $4+2-1=5$ samples ✓'],
+        ['Check 2','<b>Sum.</b> $\\sum y=12$, and $(\\sum x)(\\sum h)=6\\cdot2=12$ ✓'],
+        ['Interpretation','$h=\\{1,1\\}$ is a two-point moving sum: each output is the total of an adjacent input pair. Reading the input that way gives $1$, $1+2$, $2+1$, $1+2$, $2$, which is the answer again.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:210,xr:[-1,6],yr:[-0.4,3.8],xlabel:'n',pad:{l:46,r:22,t:16,b:30},xtarget:7,ytarget:3});
-        a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]:0,-1,6),{color:C.out});
-        a.note(5.6,3.4,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true}); return a.svg(); },
-        caption:'The four shifted copies add, sample by sample, to $y=\\{1,3,3,3,2\\}$.'}]}
+      {t:'note', kind:'def', head:'Exercise', html:'Verify the same result with the equivalent form $y[n]=\\sum_k h[k]x[n-k]$, that is, flip $x$ instead of $h$. Commutativity guarantees the same answer, and the check is worth doing once by hand.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:240,xr:[-1,6],yr:[-0.4,3.8],xlabel:'n',ylabel:'y[n]',pad:{l:54,r:22,t:28,b:32},xtarget:7,ytarget:3});
+      a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]:0,-1,6),{color:C.out});
+      return a.svg(); },
+      caption:'The four shifted copies add, sample by sample, to $y=\\{1,3,3,3,2\\}$.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:200,xr:[-1,6],yr:[-0.3,2.4],xlabel:'n',ylabel:'x[n]',pad:{l:54,r:22,t:26,b:30},xtarget:7,ytarget:2});
+        a.stem(disc(n=>(n>=0&&n<=3)?[1,2,1,2][n]:0,-1,6),{color:C.in});
+        return a.svg(); },
+        caption:'The input again, for the moving-sum reading: adjacent pairs of these samples are the output samples.'}]}
   ]}
 ]},
 
@@ -308,8 +326,8 @@ const SC = [
 ]},
 
 { id:'m3-ex-ct1', module:'M3', nav:'Worked example · CT case split', title:'Worked example — a two-case convolution', src:'pp. 18–19',
-  objective:'Work the exponential/step example with explicit overlap reasoning.',
-  keywords:'continuous convolution example e^{2t}u(-t) u(t-3) cases limits', steps:3, blocks:[
+  objective:'Set up the exponential/step example and read the limits of both cases off the overlap.',
+  keywords:'continuous convolution example e^{2t}u(-t) u(t-3) cases limits', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 18–19'},
   {t:'title', text:'Reading the limits off the overlap'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -321,24 +339,16 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Case I · before 3 seconds', html:'Here $t<3$, so $t-3<0$ and the binding limit is $t-3$:<br>$y(t)=\\displaystyle\\int_{-\\infty}^{t-3}e^{2\\tau}\\,\\d\\tau=\\left[\\tfrac12 e^{2\\tau}\\right]_{-\\infty}^{t-3}=\\tfrac12 e^{2(t-3)}$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Case II · after 3 seconds', html:'Here $t>3$, so the binding limit is 0 and the whole of $x$ is covered:<br>$y(t)=\\displaystyle\\int_{-\\infty}^{0}e^{2\\tau}\\,\\d\\tau=\\tfrac12$.'},
-      {t:'eq', key:true, tex:'y(t)=\\begin{cases}0.5\\,e^{2(t-3)},& t<3\\\\[2pt] 0.5,& t>3\\end{cases}', label:'Solution'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Sanity check 1','<b>Continuity.</b> Both branches give $0.5$ at $t=3$. A convolution of bounded, integrable signals cannot jump. ✓'],
-        ['Sanity check 2','<b>Final value.</b> $y(\\infty)=\\int_{-\\infty}^{\\infty}x(\\tau)\\d\\tau\\cdot 1=\\tfrac12$, the total area of $x$. ✓'],
-        ['Interpretation','$h$ is a step switched on at $t=3$. The output is the running area of $x$ collected up to three seconds ago. The system is a delayed integrator.'],
-        ['Where the flip shows','$h(t-\\tau)$ is non-zero for $\\tau\\le t-3$, i.e. it extends to the <em>left</em>. Forgetting the reversal would put the limits on the wrong side and produce a growing exponential instead of a saturating one.']
-      ]}]}
+      {t:'note', kind:'def', head:'Case II · after 3 seconds', html:'Here $t>3$, so the binding limit is 0 and the whole of $x$ is covered:<br>$y(t)=\\displaystyle\\int_{-\\infty}^{0}e^{2\\tau}\\,\\d\\tau=\\tfrac12$.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'6px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-6,8],yr:[-0.1,1.2],xlabel:'t',pad:{l:48,r:22,t:14,b:28},xtarget:8,ytarget:2});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:150,xr:[-6,8],yr:[-0.1,1.2],xlabel:'t',pad:{l:48,r:22,t:14,b:28},xtarget:8,ytarget:2});
         a.curve(t=>t<=0?Math.exp(2*t):0,{color:C.in}); a.note(7.6,1.05,'x(t)',{anchor:'end',color:C.in,fs:14,tex:true}); return a.svg(); }}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-6,8],yr:[-0.1,1.2],xlabel:'t',pad:{l:48,r:22,t:14,b:28},xtarget:8,ytarget:2});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:150,xr:[-6,8],yr:[-0.1,1.2],xlabel:'t',pad:{l:48,r:22,t:14,b:28},xtarget:8,ytarget:2});
         a.curve(t=>t>=3?1:0,{color:C.h}); a.note(2.7,0.55,'h(t)=u(t-3)',{anchor:'end',color:C.h,fs:14,tex:true}); return a.svg(); }}]
     ]},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:46,r:20,t:14,b:28},xtarget:8,ytarget:2});
+      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:166,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:46,r:20,t:14,b:28},xtarget:8,ytarget:2});
         const t=1.2;
         a.area(τ=>τ<=Math.min(0,t-3)?Math.exp(2*τ):0,-6,Math.min(0,t-3),{color:'rgba(20,112,127,.2)'});
         a.curve(τ=>τ<=0?Math.exp(2*τ):0,{color:C.in});
@@ -346,21 +356,53 @@ const SC = [
         a.vline(t-3,{color:C.coral});
         a.note(t-3-0.18,1.14,'\\tau=t-3',{anchor:'end',color:C.coral,fs:13,tex:true});
         a.note(7.6,1.05,'\\text{Case I}:\\;t<3',{anchor:'end',color:C.muted,fs:14,tex:true});
-        return a.svg(); }}]},
+        return a.svg(); },
+        caption:'Case I. The shaded area ends at $\\tau=t-3$, left of the origin.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:46,r:20,t:14,b:28},xtarget:8,ytarget:2});
+      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:166,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:46,r:20,t:14,b:28},xtarget:8,ytarget:2});
         const t=5.5;
         a.area(τ=>τ<=0?Math.exp(2*τ):0,-6,0,{color:'rgba(74,122,70,.2)'});
         a.curve(τ=>τ<=0?Math.exp(2*τ):0,{color:C.in});
         a.curve(τ=>τ<=t-3?1:0,{color:C.h});
         a.vline(t-3,{color:C.coral});
         a.note(7.6,1.05,'\\text{Case II}:\\;t>3',{anchor:'end',color:C.muted,fs:14,tex:true});
-        return a.svg(); }},
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:172,xr:[-1,7],yr:[-0.05,0.6],xlabel:'t',pad:{l:50,r:20,t:14,b:28},xtarget:8,ytarget:3});
-        a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out});
-        a.point(3,0.5,{color:C.coral});
-        a.note(6.6,0.55,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true}); return a.svg(); },
-        caption:'The two branches meet at $t=3$, where both give $0.5$.'}]}
+        return a.svg(); },
+        caption:'Case II. The step has passed the whole of $x$, so the area stops growing.'}]}
+  ]}
+]},
+
+{ id:'m3-ex-ct1-b', module:'M3', nav:'Worked example · the two branches', title:'Worked example — assembling the two branches', src:'pp. 18–19',
+  objective:'Assemble the two cases into one answer and check it three ways.',
+  keywords:'continuous convolution example solution continuity final value delayed integrator', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 18–19'},
+  {t:'title', text:'One answer, three checks'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'wex', rows:[
+      ['Where this stands','The two cases of $x(t)=e^{2t}u(-t)$ convolved with $h(t)=u(t-3)$ have been integrated separately. The binding limit was $t-3$ below three seconds and $0$ above it.'],
+      ['Where the flip shows','$h(t-\\tau)$ is non-zero for $\\tau\\le t-3$, so it extends to the <em>left</em>. Forgetting the reversal would put the limits on the wrong side and produce a growing exponential instead of a saturating one.']
+    ]},
+    {t:'eq', key:true, tex:'y(t)=\\begin{cases}0.5\\,e^{2(t-3)},& t<3\\\\[2pt] 0.5,& t>3\\end{cases}', label:'Solution'},
+    {t:'reveal', at:1, items:[
+      {t:'wex', rows:[
+        ['Check 1','<b>Continuity.</b> Both branches give $0.5$ at $t=3$. A convolution of bounded, integrable signals cannot jump. ✓'],
+        ['Check 2','<b>Final value.</b> $y(\\infty)=\\int_{-\\infty}^{\\infty}x(\\tau)\\d\\tau\\cdot 1=\\tfrac12$, the total area of $x$. ✓'],
+        ['Check 3','<b>Growth direction.</b> Below three seconds the answer rises like $e^{2t}$ and above it stays flat. A branch that kept growing after $t=3$ would mean the step was still collecting new area, which it is not. ✓']
+      ]}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'What the system does', html:'$h$ is a step switched on at $t=3$. The output is the running area of $x$ collected up to three seconds ago, so the system is a delayed integrator. Read that way, both branches are obvious before any integration: the area is still growing while the step edge sits to the left of the origin, and it is complete once the edge has passed it.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:230,xr:[-1,7],yr:[-0.05,0.6],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:22,t:26,b:32},xtarget:8,ytarget:3});
+      a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out});
+      a.point(3,0.5,{color:C.coral});
+      return a.svg(); },
+      caption:'The two branches meet at $t=3$, where both give $0.5$. The marked point is the join, not a jump.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:210,xr:[-6,8],yr:[-0.1,1.25],xlabel:'\\tau',pad:{l:50,r:22,t:20,b:30},xtarget:8,ytarget:2});
+        a.area(τ=>τ<=0?Math.exp(2*τ):0,-6,0,{color:'rgba(74,122,70,.2)'});
+        a.curve(τ=>τ<=0?Math.exp(2*τ):0,{color:C.in});
+        a.note(7.6,1.05,'\\text{total area}=\\tfrac12',{anchor:'end',color:C.muted,fs:14,tex:true});
+        return a.svg(); },
+        caption:'The whole area under $x$ is $\\tfrac12$, which is the value the output settles at.'}]}
   ]}
 ]},
 

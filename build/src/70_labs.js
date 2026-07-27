@@ -162,9 +162,9 @@ const LABS = (() => {
         b.className='opt'+(picked? (b.dataset.cls===it.kind?' correct':(b.dataset.cls===picked?' wrong':'')) +' locked':'');
         b.disabled = !!picked; });
       root.querySelector('.verdict').innerHTML = picked ?
-        `<div class="fb ${picked===it.kind?'good':'bad'}">${picked===it.kind?'Correct — ':'Not correct. '}
+        M(`<div class="fb ${picked===it.kind?'good':'bad'}">${picked===it.kind?'Correct — ':'Not correct. '}
           this is ${it.kind==='neither'?'<b>neither</b> an energy nor a power signal'
-          :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>` : '';
+          :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>`) : '';
       root.querySelector('.work').innerHTML = revealed ? M(`
         <div class="eq sm">${T(it.E,true)}</div>
         <div class="eq sm">${T(it.P,true)}</div>

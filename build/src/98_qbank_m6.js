@@ -73,7 +73,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   stem:'$X(e^{j\\omega})=1$ for $|\\omega|\\le W$ and $0$ for $W<|\\omega|\\le\\pi$, repeated with period $2\\pi$, and $W=\\pi/4$. What are $x[0]$ and $x[1]$?',
   opts:['$x[0]=W/\\pi=0.25$ and $x[1]=\\sin(W)/\\pi=0.225079$, from $x[n]=\\sin(Wn)/(\\pi n)$.',
         '$x[0]=W/\\pi=0.25$ and $x[1]=0.707107$, from $x[n]=(W/n)\\,\\mathrm{sinc}(Wn/\\pi)$.',
-        '$x[0]=1$ and $x[1]=\\sin(W)/(\\pi W)=0.286479$, because the band has height 1.',
+        '$x[0]=1$ and $x[1]=\\sin(W)/(\\pi W)=0.286580$, because the band has height 1.',
         '$x[0]$ is undefined, because $\\sin(Wn)/(\\pi n)$ divides by zero at $n=0$.'],
   a:0,
   why:'Integrating over the period $-\\pi\\le\\omega\\le\\pi$, where the spectrum is 1 on a single band, gives $x[n]=\\frac{1}{2\\pi}\\int_{-W}^{W}e^{j\\omega n}d\\omega=\\sin(Wn)/(\\pi n)$. At $n=0$ the integrand is 1 and the integral is $2W$, so $x[0]=W/\\pi$.',

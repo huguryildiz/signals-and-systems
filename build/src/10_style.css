@@ -358,6 +358,16 @@ h3.sub{
 /* inline math sizing */
 .katex{ font-size:1.06em; }
 
+/* Typeset mathematics inherits nothing from the label frame it sits in. Every
+   label class — eyebrow, eq-label, note-h, wex-k — is uppercase mono with wide
+   tracking, and both properties rewrite the formula: text-transform turns
+   a_k into A_K, and letter-spacing pulls the glyphs of an expression apart. */
+.katex{ text-transform:none; letter-spacing:normal; }
+/* A label column is narrow, and a formula in it breaks at its relation sign
+   otherwise: `T_0 =` on one line and `1` on the next. A label is short by
+   definition, so it wraps around its mathematics instead of inside it. */
+.eyebrow .katex, .eq-label .katex, .note-h .katex, .wex-k .katex{ white-space:nowrap; }
+
 /* symbol chips linking to the glossary */
 .sym{
   border-bottom:1px dotted var(--slate); cursor:help; color:inherit;

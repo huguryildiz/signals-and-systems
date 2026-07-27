@@ -225,7 +225,7 @@ const SC = [
 
 { id:'m2-ti', module:'M2', nav:'Time invariance', title:'Time invariance', src:'p. 13',
   objective:'State the test as a comparison of two computed signals and work both examples.',
-  keywords:'time invariance shift test counterexample n x[n] sin', steps:4, blocks:[
+  keywords:'time invariance shift test two paths sin worked example', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Time invariant'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -239,35 +239,62 @@ const SC = [
         ['Compare','Identical for every $t_0$ ⇒ time invariant.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['(b)','$y[n]=n\\,x[n]$ — <b>not time invariant</b>.'],
-        ['Counterexample','$x_1[n]=\\delta[n]\\;\\Rightarrow\\; y_1[n]=n\\,\\delta[n]=0$ for every $n$ (at $n=0$ the factor is 0; elsewhere $\\delta$ is 0).'],
-        ['Shift by 1','$x_2[n]=x_1[n-1]=\\delta[n-1]\\;\\Rightarrow\\; y_2[n]=n\\,\\delta[n-1]=\\delta[n-1]$, i.e. the value 1 at $n=1$.'],
-        ['Compare','$y_1[n-1]=0$ but $y_2[n]=\\delta[n-1]\\neq0$. One counterexample settles it.']
-      ]}]},
-    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'One shift is not a proof', html:'The comparison has to hold for <em>every</em> $t_0$. A rule such as $y[n]=(-1)^{n}x[n]$ passes a shift of two and fails a shift of one, so a single test that agrees proves nothing. A single test that disagrees, on the other hand, settles the question at once.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:300,items:[
+      {t:'arrow',x1:60,y1:80,x2:200,y2:80},{t:'box',x:200,y:48,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
+      {t:'arrow',x1:350,y1:80,x2:470,y2:80},{t:'box',x:470,y:48,w:150,h:64,label:'S',tex:true},
+      {t:'arrow',x1:620,y1:80,x2:770,y2:80},
+      {t:'text',x:130,y:66,label:'x(t)',tex:true,fs:17},{t:'text',x:695,y:66,label:'y_2(t)',tex:true,fs:17},
+      {t:'text',x:60,y:150,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:'#4A657F'},
+      {t:'arrow',x1:60,y1:230,x2:200,y2:230},{t:'box',x:200,y:198,w:150,h:64,label:'S',tex:true},
+      {t:'arrow',x1:350,y1:230,x2:470,y2:230},{t:'box',x:470,y:198,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
+      {t:'arrow',x1:620,y1:230,x2:770,y2:230},
+      {t:'text',x:130,y:216,label:'x(t)',tex:true,fs:17},{t:'text',x:690,y:216,label:'y_1(t-t_0)',tex:true,fs:17},
+      {t:'text',x:60,y:288,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:'#4A657F'}
+    ]}), caption:'The test as two chains. A time-invariant system is one whose two chains produce the same signal, for every input and every shift.'}
+  ]}
+]},
+
+{ id:'m2-ti-b', module:'M2', nav:'Time invariance · the counterexample', title:'Where time invariance fails', src:'p. 13',
+  objective:'Work the n·x[n] counterexample and name the pattern behind every failure.',
+  keywords:'time invariance counterexample n x[n] explicit time variable independent of linearity', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
+  {t:'title', text:'One counterexample is enough'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'wex', rows:[
+      ['(b)','$y[n]=n\\,x[n]$ — <b>not time invariant</b>.'],
+      ['Counterexample','$x_1[n]=\\delta[n]\\;\\Rightarrow\\; y_1[n]=n\\,\\delta[n]=0$ for every $n$ (at $n=0$ the factor is 0; elsewhere $\\delta$ is 0).'],
+      ['Shift by 1','$x_2[n]=x_1[n-1]=\\delta[n-1]\\;\\Rightarrow\\; y_2[n]=n\\,\\delta[n-1]=\\delta[n-1]$, i.e. the value 1 at $n=1$.'],
+      ['Compare','$y_1[n-1]=0$ but $y_2[n]=\\delta[n-1]\\neq0$. One counterexample settles it.']
+    ]},
+    {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'The pattern behind every failure', html:'A system fails time invariance exactly when its rule contains the time variable <em>explicitly</em>: a coefficient $n$, a gain $\\cos(t)$, or a scaled argument $x(3t)$. If $t$ or $n$ appears anywhere except inside the input, test time invariance first.'}]},
-    {t:'reveal', at:4, items:[
+    {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Not the same as linearity', html:'$y[n]=n\\,x[n]$ is linear and <em>not</em> time invariant. $y(t)=x^{2}(t)$ is time invariant and <em>not</em> linear. The two properties are independent, and Module 3 needs both.'}]}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
-      a.stem(disc(n=>n===0?1:0,-3,4),{color:C.in});
-      a.note(3.6,1.2,'x_1[n]=\\delta[n]',{anchor:'end',color:C.in,fs:14,tex:true}); return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
-      a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true});
-      a.note(3.6,1.2,'y_1[n]=n\\cdot\\delta[n]=0',{anchor:'end',color:C.out,fs:14,tex:true}); return a.svg(); }},
-    {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
-        a.stem(disc(n=>n===1?1:0,-3,4),{color:C.h});
-        a.note(3.6,1.2,'x_2[n]=\\delta[n-1]',{anchor:'end',color:C.h,fs:14,tex:true}); return a.svg(); }},
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-3,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:32},xtarget:8,ytarget:2});
-        a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err});
-        a.note(3.6,1.2,'y_2[n]=\\delta[n-1]\\neq y_1[n-1]=0',{anchor:'end',color:C.err,fs:14,tex:true}); return a.svg(); },
-        caption:'The counterexample, drawn.'}]}
+    {t:'grid', cols:2, gap:'10px', items:[
+      [{t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+        a.stem(disc(n=>n===0?1:0,-3,4),{color:C.in,r:3});
+        a.note(3.6,1.28,'x_1[n]=\\delta[n]',{anchor:'end',color:C.in,fs:12,tex:true}); return a.svg(); }}],
+      [{t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+        a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
+        a.note(3.6,1.28,'y_1[n]=n\\,\\delta[n]=0',{anchor:'end',color:C.out,fs:12,tex:true}); return a.svg(); }}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'10px', items:[
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+          a.stem(disc(n=>n===1?1:0,-3,4),{color:C.h,r:3});
+          a.note(3.6,1.28,'x_2[n]=\\delta[n-1]',{anchor:'end',color:C.h,fs:12,tex:true}); return a.svg(); }}],
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+          a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
+          a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:12,tex:true}); return a.svg(); }}]
+      ]},
+      {t:'small', html:'Top row: the impulse and the zero output it produces. Bottom row: the shifted impulse and the output it produces. Path 2 would give $y_1[n-1]=0$; path 1 gives $\\delta[n-1]$. The two disagree, so the system is not time invariant.'}]}
   ]}
 ]},
 
