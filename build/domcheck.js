@@ -9,6 +9,10 @@ const path = require('path');
 const OK = new Set(('html head body div span p a b i em strong sup sub br hr ul ol li dl dt dd '
   + 'h1 h2 h3 h4 h5 h6 figure figcaption img svg g path line circle rect text tspan polyline polygon '
   + 'defs clippath marker button input label select option table thead tbody tr td th kbd code pre '
+  /* foreignobject holds every typeset figure label: texName() lays a KaTeX formula out in one so it
+     reads in the same type as the running mathematics. Its absence here made this sweep report every
+     scene carrying a typeset label as malformed — 151 of them, all correct. */
+  + 'foreignobject ellipse use symbol title desc filter fegaussianblur lineargradient stop '
   + 'section header footer nav main article aside form fieldset legend small mark abbr time '
   + 'math semantics mrow mi mn mo msup msub mfrac msqrt mtable mtr mtd mspace mstyle mtext '
   + 'annotation mpadded mover munder munderover msubsup menclose mphantom moperator').split(/\s+/));
