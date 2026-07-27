@@ -318,11 +318,12 @@ binary into history on every rebuild, which is the reason the old release zip wa
 
 ## 7. Open items at v1.0
 
-1. **`mathscan.js` reaches only the first item of a laboratory.** It does not drive `[data-nav]`,
-   `[data-case]` or `[data-wave]`, so mathematics authored into the second and later signals, systems or
-   presets of a laboratory is invisible to it. Every laboratory was therefore walked by hand, and each
-   wave recorded what it walked. A per-laboratory automatic walk still does not exist; until it does,
-   this stays a hand check.
+1. **`build/labwalk.js` carries a hand-written map of the laboratories.** It closes the hole
+   `mathscan.js` has (see §5.6), but it does so from a `PLAN` table that names each laboratory's item
+   selectors and slider keys explicitly. A laboratory that gains a control the table does not list will
+   be walked without it, silently. The table has to be extended whenever a laboratory grows, and there
+   is nothing that checks it against the built artifact. Making it derive the control set from the DOM
+   instead would remove that failure mode.
 
 2. **Frequency tick labels are written in multiples of π** — `0`, `π/2`, `-2π` — as plain text rather
    than as typeset mathematics. R7 exempts "the bare numbers the frame itself prints", and a tick
