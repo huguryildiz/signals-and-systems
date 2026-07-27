@@ -225,7 +225,7 @@ textclash.js       FIGURES CHECKED: 666 flagged, of which 663 are haloed tick
                    labels (accepted) · TOTAL COLLISIONS: 0
 mathscan.js        SCENES WITH MATH DAMAGE: 0 / 220
 notes/mathscan.js  PAGES: 9 · LITERAL MATH IN NOTES: 0 · KATEX ERRORS: 0
-labwalk.js         STATES WALKED: 914 · PROBLEMS: none · CONSOLE/PAGE ERRORS: none
+labwalk.js         STATES WALKED: 1038 · PROBLEMS: none · CONSOLE/PAGE ERRORS: none
 
 verify_m1_m3.py     50 passed, 0 failed
 verify_m4.py       115 passed, 0 failed
@@ -245,7 +245,7 @@ times, for the artifact and for the lecture notes.
 `build/labwalk.js` closes the hole `mathscan.js` has always had. `mathscan.js` sees only whatever a
 laboratory shows first, because it does not drive `[data-nav]`, `[data-case]`, `[data-wave]`,
 `[data-fac]` or a segmented control. `labwalk.js` opens every item of every laboratory, in both themes,
-moves every slider to the bottom, middle and top of its range, and reads each state back out — 914
+moves every slider to the bottom, middle and top of its range, and reads each state back out — 1038
 states. It fails a state on a KaTeX error node, on mathematics left as a literal `$...$` outside a
 `.katex` subtree, on a raw TeX macro in the running text, on a readout gone to `NaN`, `Infinity` or
 `undefined`, on a panel that drew no figure where one belongs, and on any console or page error logged
@@ -318,12 +318,12 @@ binary into history on every rebuild, which is the reason the old release zip wa
 
 ## 7. Open items at v1.0
 
-1. **`build/labwalk.js` carries a hand-written map of the laboratories.** It closes the hole
-   `mathscan.js` has (see §5.6), but it does so from a `PLAN` table that names each laboratory's item
-   selectors and slider keys explicitly. A laboratory that gains a control the table does not list will
-   be walked without it, silently. The table has to be extended whenever a laboratory grows, and there
-   is nothing that checks it against the built artifact. Making it derive the control set from the DOM
-   instead would remove that failure mode.
+1. **`build/labwalk.js` knows one thing by name: which attributes select an item.** Everything else —
+   the list of laboratories, each one's item selectors, its segmented controls, its sliders, whether it
+   draws a figure at all — is discovered from the scene list and the rendered DOM, and printed one line
+   per laboratory so that a laboratory which grows a control changes the output visibly. What is left
+   is `ATTRS`: a control built on an attribute that list does not name would still be invisible. That
+   is a much smaller surface than the hand-written table it replaced, but it is not nothing.
 
 2. **Frequency tick labels are written in multiples of π** — `0`, `π/2`, `-2π` — as plain text rather
    than as typeset mathematics. R7 exempts "the bare numbers the frame itself prints", and a tick
@@ -336,9 +336,11 @@ binary into history on every rebuild, which is the reason the old release zip wa
    value in those modules is instead checked numerically in `verify_m5.py` and `verify_m6.py`, which is
    a different kind of assurance and not a substitute for a second reading.
 
-4. **`build/domcheck.js` is not a gate and should not be run as one.** Its whitelist is missing
-   `foreignobject`, which every typeset figure label uses, so it reports every scene that contains one
-   as malformed. `build/mathscan.js` covers the same ground with the correct whitelist.
+4. **`build/domcheck.js` is redundant rather than broken now.** Its whitelist was missing
+   `foreignobject`, which every typeset figure label uses, so it reported all 151 scenes carrying one
+   as malformed; corrected, it reports `MALFORMED SCENES: 0` over 220. `build/mathscan.js` still covers
+   the same ground and two further failure modes besides, so `domcheck.js` stays a second opinion and
+   is not promoted to a gate.
 
 5. **`.claude/` and `CLAUDE.md` are gitignored.** The entire operating record — the ambiguity ledger,
    the audit reports, the wave plans and the project instructions — exists on this machine only. Back

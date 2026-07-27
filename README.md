@@ -333,7 +333,7 @@ the artifact's own voice, with no reference to a page or a source.
 `instructor/PHASE2_REPORT.md` records what was built, what the gates printed, and what remains open.
 
 What the gates printed on the final run: 220 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
-with damaged mathematics, 0 literal mathematics in the notes, 914 laboratory states walked with no
+with damaged mathematics, 0 literal mathematics in the notes, 1038 laboratory states walked with no
 problem in either theme, 981 numerical checks passed, and 0 wording violations. Both builds are
 byte-reproducible: building twice from unchanged sources gives the same file both times.
 
