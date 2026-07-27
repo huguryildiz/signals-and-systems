@@ -9,8 +9,8 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v0.9 · Phase 1 (Modules 0–3)',
-    date:'2026-07-25',
+    version:'v1.0 · Modules 0–7, laboratories A–J, question banks Q1–Q7',
+    date:'2026-07-27',
     language:'Academic English',
     conventions:{
       ctft:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt',

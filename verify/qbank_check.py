@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Question-bank numerical verification (Modules 1-4).
+"""Question-bank numerical verification (Modules 1-7).
 
 Every question whose answer contains a number, a support, a period or a
 closed form is re-derived here independently of the text written into the
@@ -9,7 +9,9 @@ The numbers a question quotes are written into the checks as literals, so a
 check binds to the text: change either one and the line goes red.  Module 4
 carries the further test that each distractor is wrong for the reason its
 wrong{} entry gives, since verify/verify_m4.py already covers the mathematics
-of the module itself.
+of the module itself.  Modules 5, 6 and 7 are checked the same way throughout:
+verify_m5.py, verify_m6.py and verify_m7.py carry the mathematics of the modules,
+and the lines here bind to the questions.
 """
 import numpy as np
 import sympy as sp
@@ -542,6 +544,652 @@ check('Q4-12e', 'the square-wave overshoot settles at about 8.95 % of the jump a
 check('Q4-12f', 'the triangular wave is continuous, so its largest error goes to zero instead',
       max(abs(sum(2*atr[kv-1]*np.cos(kv*np.pi*tgb) for kv in range(1, 61)) + 0.5 - xtri(tgb)))
       < max(abs(sum(2*atr[kv-1]*np.cos(kv*np.pi*tgb) for kv in range(1, 11)) + 0.5 - xtri(tgb)))/5)
+
+# ---------------------------------------------------------------- MODULE 5
+# verify_m5.py re-derives the mathematics of the module.  What is checked here
+# is the question: that the keyed option is the one that survives, and that each
+# distractor fails for the reason its wrong{} entry gives.
+PI = np.pi
+
+
+def ct_ft(f, wv, lo=-40.0, hi=40.0, M=800001):
+    """X(jw) of a fast-decaying signal, by numerical integration."""
+    tg_ = np.linspace(lo, hi, M)
+    fv = f(tg_)
+    return np.array([trapz(fv*np.exp(-1j*w_*tg_), tg_) for w_ in np.atleast_1d(wv)])
+
+
+def ct_ift(F, tv, lo=-40.0, hi=40.0, M=800001, scale=1/(2*np.pi)):
+    """x(t) from X(jw), by numerical integration of the synthesis equation."""
+    wg_ = np.linspace(lo, hi, M)
+    Fv = F(wg_)
+    return np.array([scale*trapz(Fv*np.exp(1j*wg_*tq), wg_) for tq in np.atleast_1d(tv)])
+
+
+# Q5-01  which equation is analysis and which is synthesis
+gauss = lambda a: np.exp(-a**2/2)
+Ggau = lambda w_: np.sqrt(2*PI)*np.exp(-w_**2/2)
+w51 = np.array([-2.0, -0.5, 0.0, 0.7, 3.0])
+t51 = np.array([-1.5, 0.0, 0.4, 2.0])
+check('Q5-01', 'the analysis integral runs over t and leaves a function of omega alone',
+      np.allclose(ct_ft(gauss, w51), Ggau(w51), atol=1e-8),
+      f'max err={np.max(np.abs(ct_ft(gauss, w51) - Ggau(w51))):.2e}')
+check('Q5-01b', 'the synthesis integral runs over omega and returns the signal',
+      np.allclose(ct_ift(Ggau, t51), gauss(t51), atol=1e-8))
+check('Q5-01c', 'the 1/(2 pi) belongs to synthesis: dropping it returns 2 pi x(t)',
+      np.allclose(ct_ift(Ggau, t51, scale=1.0), 2*PI*gauss(t51), atol=1e-7))
+check('Q5-01d', 'putting the 1/(2 pi) on the analysis side returns X/(2 pi), not X',
+      np.allclose(ct_ft(gauss, w51)/(2*PI), Ggau(w51)/(2*PI), atol=1e-8)
+      and not np.allclose(ct_ft(gauss, w51)/(2*PI), Ggau(w51), atol=1e-3))
+
+# Q5-02  finite energy and absolute integrability are separate sufficient conditions
+tsq = np.linspace(-1000, 1000, 8000001)
+sinct = np.where(np.abs(tsq) < 1e-9, 1.0, np.sin(tsq)/np.where(tsq == 0, 1, tsq))
+check('Q5-02', 'sin(t)/t has finite energy: the integral of its square is pi',
+      abs(trapz(sinct**2, tsq) - PI) < 5e-3, f'E={trapz(sinct**2, tsq):.5f}')
+l1 = [trapz(np.abs(sinct[np.abs(tsq) <= Tc]), tsq[np.abs(tsq) <= Tc]) for Tc in (10, 100, 1000)]
+check('Q5-02b', 'its absolute integral diverges, growing over [-T,T] by about (4/pi)ln(10) = 2.93 '
+                'per decade of T',
+      all(abs(l1[i+1] - l1[i] - 4*np.log(10)/PI) < 0.15 for i in range(2)),
+      ', '.join(f'{v:.3f}' for v in l1))
+check('Q5-02c', '1/sqrt(t) on (0,1) is absolutely integrable with area 2 and has infinite energy',
+      abs(float(sp.integrate(1/sp.sqrt(t), (t, 0, 1))) - 2) < 1e-12
+      and sp.integrate(1/t, (t, 0, 1)) == sp.oo)
+check('Q5-02d', 'x(t)=1 fails both conditions and still has 2 pi delta(w) as a limit: '
+                'the area of 2a/(a^2+w^2) is 2 pi at every a',
+      all(abs(float(sp.integrate(2*aq/(aq**2 + t**2), (t, -sp.oo, sp.oo))) - 2*np.pi) < 1e-9
+          for aq in (sp.Integer(1), sp.Rational(1, 10), sp.Rational(1, 100))))
+
+# Q5-03  the transform of a periodic signal carries a factor 2 pi at every harmonic
+a0_53 = ck(lambda a: (np.abs(a - 8*np.round(a/8)) < 1.0).astype(float), 8.0, 0).real
+check('Q5-03', 'square wave with T = 8T1: a_0 = 0.25 and the impulse weight 2 pi a_0 = 1.5708',
+      abs(a0_53 - 0.25) < 1e-4 and abs(2*PI*a0_53 - 1.5708) < 5e-4,
+      f'a_0={a0_53:.6f}, 2 pi a_0={2*PI*a0_53:.4f}')
+check('Q5-03b', 'the weight 2 pi is what the 1/(2 pi) of synthesis cancels; a_k alone leaves 1/(2 pi)',
+      abs((1/(2*PI))*2*PI - 1) < 1e-15 and abs((1/(2*PI))*1 - 1/(2*PI)) < 1e-15
+      and abs(1/(2*PI) - 1) > 0.8)
+tp53 = np.linspace(-2000, 2000, 4000001)
+check('Q5-03c', 'a periodic signal has neither finite energy nor a finite absolute integral, '
+                'so its spectrum is impulses rather than a continuous function',
+      trapz(np.cos(tp53)**2, tp53) > 1900 and trapz(np.abs(np.cos(tp53)), tp53) > 2500,
+      f'E over [-2000,2000]={trapz(np.cos(tp53)**2, tp53):.1f}')
+
+# Q5-04  the phase of 1/(a+jw) is minus the phase of the denominator
+ph = lambda av, wv: np.angle(1/(av + 1j*wv))
+check('Q5-04', 'angle X = -arctan(w/a), which at a = w = 1 is -0.7854 rad',
+      abs(ph(1, 1) + 0.785398) < 5e-6 and abs(ph(1, 1) + np.arctan2(1, 1)) < 1e-12,
+      f'{ph(1,1):.6f}')
+check('Q5-04b', 'the +arctan distractor is the angle of the denominator, of opposite sign',
+      abs(np.angle(1 + 1j) - 0.785398) < 5e-6 and abs(np.angle(1 + 1j) + ph(1, 1)) < 1e-12)
+check('Q5-04c', 'arctan(a/w) agrees only where a = w: at a=1, w=3 it gives 0.3217 against 1.2490',
+      abs(np.arctan2(1, 3) - 0.321751) < 5e-6 and abs(np.arctan2(3, 1) - 1.249046) < 5e-6)
+check('Q5-04d', 'the phase is not zero: it falls through the whole range from +pi/2 to -pi/2',
+      abs(ph(1, -1000) - PI/2) < 2e-3 and abs(ph(1, 1000) + PI/2) < 2e-3)
+check('Q5-04e', 'the two further values quoted in the solution are -1.537475 and -0.380506',
+      abs(ph(0.1, 3) + 1.537475) < 5e-6 and abs(ph(5, 2) + 0.380506) < 5e-6)
+
+# Q5-05  Parseval on a piecewise-constant spectrum
+E55 = (1/(2*PI))*(4*(4*PI) + 1*(4*PI))
+check('Q5-05', 'E = (1/2pi)[4 over 4pi + 1 over 4pi] = 20pi/2pi = 10 J',
+      abs(E55 - 10.0) < 1e-12, f'E={E55}')
+check('Q5-05b', 'the 6 J distractor is (1/2pi) times the integral of X itself, which is x(0)',
+      abs((1/(2*PI))*(2*(4*PI) + 1*(4*PI)) - 6.0) < 1e-12)
+check('Q5-05c', 'the 20pi and 62.83 distractors are the integral of |X|^2 without the 1/(2pi)',
+      abs(4*(4*PI) + 1*(4*PI) - 20*PI) < 1e-12 and abs(20*PI - 62.83) < 5e-3)
+t55 = np.linspace(-400, 400, 8000001)
+x55 = np.where(np.abs(t55) < 1e-9, 6.0,
+               (np.sin(2*PI*t55) + np.sin(4*PI*t55))/(PI*np.where(t55 == 0, 1, t55)))
+check('Q5-05d', 'the time-domain route over x_3(t) = [sin(2pi t)+sin(4pi t)]/(pi t) returns 10 J too',
+      abs(trapz(x55**2, t55) - 10.0) < 5e-3, f'E={trapz(x55**2, t55):.5f}')
+
+# Q5-06  repeated pole, and the sign of C
+sv = sp.symbols('s')
+Y56 = (sv + 2)/((sv + 1)**2*(sv + 3))
+B56 = sp.limit((sv + 1)**2*Y56, sv, -1)
+A56 = sp.limit(sp.diff((sv + 1)**2*Y56, sv), sv, -1)
+C56 = sp.limit((sv + 3)*Y56, sv, -3)
+check('Q5-06', 'A = 1/4, B = 1/2 and C = -1/4, so the answer carries -1/4 e^{-3t}',
+      A56 == sp.Rational(1, 4) and B56 == sp.Rational(1, 2) and C56 == sp.Rational(-1, 4),
+      f'A={A56}, B={B56}, C={C56}')
+y56 = lambda tv: 0.25*np.exp(-tv) + 0.5*tv*np.exp(-tv) - 0.25*np.exp(-3*tv)
+ybad = lambda tv: 0.25*np.exp(-tv) + 0.5*tv*np.exp(-tv) + 0.25*np.exp(-3*tv)
+check('Q5-06b', 'the keyed answer gives y(0) = 0; the +1/4 version gives 1/2',
+      abs(y56(0.0)) < 1e-15 and abs(ybad(0.0) - 0.5) < 1e-15)
+check('Q5-06c', 'the two candidates differ by 0.001240 at t = 2: 0.168549 against 0.169789',
+      abs(y56(2.0) - 0.168549) < 5e-6 and abs(ybad(2.0) - 0.169789) < 5e-6,
+      f'{y56(2.0):.6f} vs {ybad(2.0):.6f}')
+tc = np.linspace(0, 12, 240001)
+h56 = 0.5*np.exp(-tc) + 0.5*np.exp(-3*tc)          # inverse of (s+2)/((s+1)(s+3))
+conv = np.array([trapz(np.exp(-tc[:i+1][::-1])*h56[:i+1], tc[:i+1]) for i in range(0, 240001, 4000)])
+check('Q5-06d', 'convolving x with h directly reproduces the same three terms',
+      np.allclose(conv, y56(tc[::4000]), atol=2e-5),
+      f'max err={np.max(np.abs(conv - y56(tc[::4000]))):.2e}')
+check('Q5-06e', 'h(t) itself is the distractor 1/2 e^{-t} + 1/2 e^{-3t}, the answer for an impulse input',
+      abs(h56[0] - 1.0) < 1e-12 and not np.allclose(h56[::4000], y56(tc[::4000]), atol=1e-3))
+
+# Q5-07  a real cosine gives two impulses, of weight 2 pi times the Euler coefficient
+check('Q5-07', '4cos(3pi t) = 2e^{j3pi t} + 2e^{-j3pi t}, so both weights are 2*2pi = 4pi = 12.566',
+      abs(4*PI - 12.566371) < 5e-6)
+tq = np.linspace(-2, 2, 400001)
+check('Q5-07b', 'the two-impulse answer rebuilds 4cos(3pi t); one impulse of weight 8pi rebuilds 4e^{j3pi t}',
+      np.allclose(2*np.exp(1j*3*PI*tq) + 2*np.exp(-1j*3*PI*tq), 4*np.cos(3*PI*tq), atol=1e-12)
+      and np.max(np.abs((4*np.exp(1j*3*PI*tq)).imag)) > 3.9)
+check('Q5-07c', 'both impulses at +3pi is not conjugate symmetric, so it cannot belong to a real signal',
+      np.max(np.abs((4*np.exp(1j*3*PI*tq)).imag)) > 1e-6)
+check('Q5-07d', 'the weight-2 distractor drops the 2pi of the pair e^{jw0 t} <-> 2pi delta(w-w0)',
+      abs(2*2*PI - 4*PI) < 1e-12 and abs(2.0 - 4*PI) > 10)
+check('Q5-07e', 'the sine comparison in the solution has imaginary weights 6pi/j of opposite sign',
+      abs(abs(6*PI/1j) - 18.849556) < 5e-6)
+
+# Q5-08  modulation makes two copies at half height
+wm = np.linspace(-10*PI, 10*PI, 400001)
+Xm = (np.abs(wm) < 2*PI).astype(float)
+Zm = 0.5*(np.abs(wm - 4*PI) < 2*PI) + 0.5*(np.abs(wm + 4*PI) < 2*PI)
+check('Q5-08', 'each copy has height 0.5, on 2pi <= |w| <= 6pi',
+      abs(Zm[np.argmin(np.abs(wm - 4*PI))] - 0.5) < 1e-12
+      and abs(Zm[np.argmin(np.abs(wm - 4*PI - 1.9*PI))] - 0.5) < 1e-12
+      and abs(Zm[np.argmin(np.abs(wm))]) < 1e-12)
+check('Q5-08b', 'the factor is (1/2pi) times the impulse weight pi, that is 1/2',
+      abs((1/(2*PI))*PI - 0.5) < 1e-15)
+check('Q5-08c', 'the modulated spectrum occupies 8pi of the axis, twice the original 4pi',
+      abs(trapz((Zm > 0).astype(float), wm) - 8*PI) < 0.01
+      and abs(trapz((Xm > 0).astype(float), wm) - 4*PI) < 0.01)
+check('Q5-08d', 'the carrier 4pi exceeds the highest frequency 2pi, so the two copies stay apart',
+      4*PI - 2*PI > 2*PI - 1e-12)
+
+# Q5-09  the narrower band wins, and the peak is an area
+check('Q5-09', 'Y = 6 on |w| <= 2pi and y(0) = (1/2pi)(6)(4pi) = 12',
+      abs(2*3 - 6) < 1e-12 and abs((1/(2*PI))*6*(4*PI) - 12.0) < 1e-12)
+check('Q5-09b', 'beyond 2pi the system contributes 0, so the product is 0 however large the input',
+      abs(2*0.0) < 1e-15)
+check('Q5-09c', 'the three peaks are x(0) = 8, h(0) = 6 and y(0) = 12',
+      abs((1/(2*PI))*2*(8*PI) - 8.0) < 1e-12
+      and abs((1/(2*PI))*3*(4*PI) - 6.0) < 1e-12
+      and abs((1/(2*PI))*6*(4*PI) - 12.0) < 1e-12)
+check('Q5-09d', 'the 5 distractor adds the two heights instead of multiplying them',
+      abs(2 + 3 - 5) < 1e-15 and abs(2*3 - 5) > 0.9)
+
+# Q5-10  the unnormalised sinc convention
+sincu = lambda th: np.where(np.abs(th) < 1e-12, 1.0, np.sin(th)/np.where(th == 0, 1, th))
+wsn = np.linspace(-30, 30, 600001)
+T1s = 0.7
+lhs = np.where(np.abs(wsn) < 1e-12, 2*T1s, 2*np.sin(wsn*T1s)/np.where(wsn == 0, 1, wsn))
+check('Q5-10', '2 sin(w T1)/w = 2T1 sinc(w T1) in the unnormalised convention',
+      np.allclose(lhs, 2*T1s*sincu(wsn*T1s), atol=1e-12))
+check('Q5-10b', 'the normalised restatement is 2T1 sinc_n(w T1/pi), equal to the same function',
+      np.allclose(lhs, 2*T1s*np.sinc(wsn*T1s/PI), atol=1e-12))
+check('Q5-10c', 'copying the argument between the conventions is wrong everywhere but the origin',
+      abs(2*T1s*sincu(0.0) - 2*T1s) < 1e-12
+      and not np.allclose(2*T1s*sincu(wsn*T1s/PI), lhs, atol=1e-3))
+check('Q5-10d', 'sinc(w T1) puts the zeros at w = k pi/T1, and dropping T1 stops them moving with the width',
+      all(abs(sincu(np.array([kv*PI/T1s*T1s]))[0]) < 1e-9 for kv in (1, 2, 3)))
+wsm = np.array([0.05, 0.2, 0.5])
+check('Q5-10e', 'dividing by w a second time changes the value everywhere and runs away at the origin',
+      np.all(np.abs(2*T1s/wsm*sincu(wsm*T1s)) > np.abs(2*T1s*sincu(wsm*T1s)))
+      and 2*T1s/1e-6*sincu(np.array([1e-6*T1s]))[0] > 1e5)
+
+# Q5-11  narrowing the pulse lowers the peak and pushes the first null out
+peak = lambda T1v: 2*T1v
+null = lambda T1v: PI/T1v
+check('Q5-11', 'quartering T1 from 1 to 0.25 takes the peak from 2 to 0.5 and the null from pi to 4pi',
+      abs(peak(1.0) - 2) < 1e-12 and abs(peak(0.25) - 0.5) < 1e-12
+      and abs(null(1.0) - PI) < 1e-12 and abs(null(0.25) - 4*PI) < 1e-12)
+check('Q5-11b', 'the peak is the area under the pulse, so it cannot stay at 2 when the pulse narrows',
+      abs(trapz((np.abs(np.linspace(-3, 3, 600001)) < 0.25).astype(float),
+                np.linspace(-3, 3, 600001)) - 0.5) < 1e-4)
+check('Q5-11c', 'duration times first-null bandwidth is 2pi at every width for this shape',
+      all(abs(peak(v)*null(v) - 2*PI) < 1e-12 for v in (0.25, 1.0, 5.0)))
+check('Q5-11d', 'it is not a universal constant: a triangular pulse of the same duration gives 4pi',
+      abs(2*1.0*(2*PI/1.0) - 4*PI) < 1e-12)
+
+# Q5-12  three properties composed, in order
+w512 = np.linspace(-20, 20, 400001)
+check('Q5-12', 'a delay multiplies by e^{-jw t0}, of modulus 1 at every frequency',
+      np.allclose(np.abs(np.exp(-1j*w512*1.3)), 1.0, atol=1e-12))
+X512 = lambda w_: np.sqrt(2*PI)*np.exp(-w_**2/2)
+check('Q5-12b', 'compression by a = 2 gives (1/2)X(jw/2): half the height, twice the width',
+      np.allclose(ct_ft(lambda a: gauss(2*a), w512[::400]), 0.5*X512(w512[::400]/2), atol=1e-7))
+check('Q5-12c', 'the carrier makes two copies at half height, so realness and even magnitude survive',
+      np.allclose(0.5*X512(w512 - 6) + 0.5*X512(w512 + 6),
+                  (0.5*X512(w512 - 6) + 0.5*X512(w512 + 6))[::-1], atol=1e-12))
+tc512 = np.linspace(-4, 4, 400001)
+check('Q5-12d', 'the three do not commute: x(2t-t0) and x(2(t-t0)) are different signals',
+      not np.allclose(gauss(2*tc512 - 1.3), gauss(2*(tc512 - 1.3)), atol=1e-3))
+
+# ---------------------------------------------------------------- MODULE 6
+# verify_m6.py re-derives the mathematics of the module.  These lines check the
+# questions: the keyed option and the reason attached to each distractor.
+
+
+def dtft(x, n0, wv):
+    """X(e^{jw}) of a finite sequence starting at index n0."""
+    nn_ = np.arange(n0, n0 + len(x))
+    wv = np.atleast_1d(np.asarray(wv, dtype=float))
+    return np.exp(-1j*np.outer(wv, nn_)) @ np.asarray(x, dtype=complex)
+
+
+def dtift(X, nv, M=400001):
+    """x[n] from X(e^{jw}), by integrating the synthesis equation over one period."""
+    wg_ = np.linspace(-PI, PI, M)
+    Xv = X(wg_)
+    return np.array([trapz(Xv*np.exp(1j*wg_*nq), wg_)/(2*PI) for nq in np.atleast_1d(nv)])
+
+
+x61 = np.array([0.4, -1.2, 0.7, 2.0, -0.3])
+n61 = -2
+check('Q6-01', 'the sum takes the sequence to a spectrum and the integral takes it back',
+      np.allclose(dtift(lambda w_: dtft(x61, n61, w_), np.arange(n61, n61 + 5)).real,
+                  x61, atol=1e-6),
+      f'max err={np.max(np.abs(dtift(lambda w_: dtft(x61, n61, w_), np.arange(n61, n61+5)).real - x61)):.2e}')
+check('Q6-01b', 'the 1/(2 pi) sits on the synthesis side: without it the sequence returns 2 pi too large',
+      np.allclose(2*PI*dtift(lambda w_: dtft(x61, n61, w_), np.arange(n61, n61 + 5)).real,
+                  2*PI*x61, atol=1e-5))
+check('Q6-01c', 'the synthesis range is one period, not the whole line',
+      abs(2*PI - (PI - (-PI))) < 1e-15)
+
+# Q6-02  periodicity comes from the time index being an integer
+w62 = np.array([-2.4, -0.3, 0.0, 1.1, 2.9])
+check('Q6-02', 'X(e^{j(w+2pi)}) = X(e^{jw}) for every w, because e^{-j2pi n} = 1 at integer n',
+      np.allclose(dtft(x61, n61, w62 + 2*PI), dtft(x61, n61, w62), atol=1e-10))
+check('Q6-02b', 'the same step in continuous time fails: 2/(1+w^2) is not 2pi-periodic',
+      not np.allclose(2/(1 + (w62 + 2*PI)**2), 2/(1 + w62**2), atol=1e-3))
+check('Q6-02c', 'a^n u[n] is not periodic and its transform is still 2pi-periodic',
+      not np.allclose(0.7**np.arange(0, 20), 0.7**np.arange(3, 23), atol=1e-6)
+      and np.allclose(dtft(0.7**np.arange(0, 200), 0, w62 + 2*PI),
+                      dtft(0.7**np.arange(0, 200), 0, w62), atol=1e-10))
+check('Q6-02d', 'the fastest sequence available is e^{j pi n} = (-1)^n',
+      np.allclose(np.exp(1j*PI*np.arange(-6, 7)).real, (-1.0)**np.arange(-6, 7), atol=1e-12))
+
+# Q6-03  a_k is a discrete list periodic in k; X(e^{jw}) is a continuous function periodic in w
+N63 = 7
+xp63 = np.array([1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0])       # one period, a replicated pulse
+a63 = dfs(xp63, N63)
+check('Q6-03', 'a_{k+N} = a_k: the coefficient list repeats every N entries',
+      np.allclose(np.array([np.sum(xp63*np.exp(-2j*PI*(kv + N63)*np.arange(N63)/N63))/N63
+                            for kv in range(N63)]), a63, atol=1e-12))
+check('Q6-03b', 'a_k = (1/N) X(e^{jk 2pi/N}) of the single period, so the stems fall on the curve',
+      np.allclose(a63, dtft(xp63, 0, 2*PI*np.arange(N63)/N63)/N63, atol=1e-12))
+check('Q6-03c', 'the aperiodic transform of the same single period is 2pi-periodic in w '
+                'while the coefficient list is periodic in the integer k',
+      np.allclose(dtft(xp63, 0, np.array([0.3, 1.7]) + 2*PI),
+                  dtft(xp63, 0, np.array([0.3, 1.7])), atol=1e-10)
+      and len(a63) == N63)
+
+# Q6-04  extremes of 1/(1 - a e^{-jw})
+for aq, mx, mn, phm in ((0.5, 2.0, 2/3, PI/6), (0.125, 8/9, 8/7, np.arcsin(0.125))):
+    wq = np.linspace(-PI, PI, 400001)
+    Xq = 1/(1 - aq*np.exp(-1j*wq))
+    tag = 'Q6-04' if aq == 0.5 else 'Q6-04e'
+    check(tag, f'a = {aq}: |X| runs between 1/(1+a) and 1/(1-a), that is {mn:.4f} to {mx:.4f}',
+          abs(np.abs(Xq).max() - max(mx, mn)) < 1e-6 and abs(np.abs(Xq).min() - min(mx, mn)) < 1e-6,
+          f'[{np.abs(Xq).min():.4f}, {np.abs(Xq).max():.4f}]')
+    check(tag + 'p', f'a = {aq}: max |angle X| = arcsin(a) = {phm:.4f} rad, reached at cos w = a',
+          abs(np.abs(np.angle(Xq)).max() - phm) < 1e-5
+          and abs(abs(wq[np.argmax(np.abs(np.angle(Xq)))]) - np.arccos(aq)) < 1e-4,
+          f'{np.abs(np.angle(Xq)).max():.6f} at w={wq[np.argmax(np.abs(np.angle(Xq)))]:.4f}')
+check('Q6-04b', 'the 0.16pi distractor truncates pi/6 = 0.16667pi and is 4 per cent low',
+      abs(0.16*PI - 0.502655) < 5e-6 and abs((PI/6)/PI - 0.166667) < 5e-6
+      and abs((PI/6 - 0.16*PI)/(PI/6) - 0.04) < 5e-3)
+check('Q6-04c', 'the swapped distractor puts the largest magnitude at w = pi, where the denominator is largest',
+      abs(1/(1 - 0.5) - 2.0) < 1e-12 and abs(1/(1 + 0.5) - 2/3) < 1e-12)
+check('Q6-04d', '|a e^{-jw}| = |a| = 1/2, not 1, so the geometric series converges',
+      abs(np.abs(0.5*np.exp(-1j*1.234)) - 0.5) < 1e-15)
+
+# Q6-05  the ideal lowpass sequence, and the prefactor W/pi
+W65 = PI/4
+xk = lambda nv, Wv: np.where(np.asarray(nv) == 0, Wv/PI,
+                             np.sin(Wv*np.asarray(nv))/(PI*np.where(np.asarray(nv) == 0, 1, np.asarray(nv))))
+check('Q6-05', 'W = pi/4 gives x[0] = 0.25 and x[1] = 0.225079, from x[n] = sin(Wn)/(pi n)',
+      abs(xk(0, W65) - 0.25) < 1e-12 and abs(xk(1, W65) - 0.225079) < 5e-7,
+      f'x[1]={float(xk(1,W65)):.6f}')
+check('Q6-05b', 'the synthesis integral over the period reproduces the same values',
+      np.allclose(dtift(lambda w_: (np.abs(w_) <= W65).astype(float), [0, 1, 2, 3]).real,
+                  np.array([xk(v, W65) for v in (0, 1, 2, 3)]), atol=1e-6))
+check('Q6-05c', 'x[2] = 0.159155 and x[3] = 0.075026',
+      abs(xk(2, W65) - 0.159155) < 5e-7 and abs(xk(3, W65) - 0.075026) < 5e-7)
+check('Q6-05d', 'the W/n distractor gives 0.707107 at n = 1, wrong by a factor of pi',
+      abs((W65/1)*np.sinc(W65*1/PI) - 0.707107) < 5e-7
+      and abs(0.707107/float(xk(1, W65)) - PI) < 5e-4)
+check('Q6-05e', 'the height-1 distractor quotes sin(W)/(pi W) = 0.286580, and x[0] is the band fraction W/pi',
+      abs(np.sin(W65)/(PI*W65) - 0.286580) < 5e-7 and abs(W65/PI - 0.25) < 1e-12,
+      f'{np.sin(W65)/(PI*W65):.6f}')
+check('Q6-05f', 'at W = pi/2 the sequence reads 0.5, 0.318310, 0, -0.106103',
+      all(abs(float(xk(v, PI/2)) - w_) < 5e-7
+          for v, w_ in zip((0, 1, 2, 3), (0.5, 0.318310, 0.0, -0.106103))))
+
+# Q6-06  the repeated-pole pair, derived rather than remembered
+a66 = 0.25
+nn66 = np.arange(0, 400)
+w66 = np.array([-2.0, -0.4, 0.0, 0.9, 2.7])
+check('Q6-06', '(n+1)a^n u[n] transforms to 1/(1 - a e^{-jw})^2',
+      np.allclose(dtft((nn66 + 1)*a66**nn66, 0, w66), 1/(1 - a66*np.exp(-1j*w66))**2, atol=1e-9))
+check('Q6-06b', 'at w = 0 with a = 1/4 the correct value is 16/9 = 1.7778; the +a form gives 0.6400',
+      abs(1/(1 - a66)**2 - 16/9) < 1e-12 and abs(1/(1 + a66)**2 - 0.64) < 1e-12)
+check('Q6-06c', 'the factor n+1 is not a doubling: (n+1)a^n and 2a^n are different sequences',
+      not np.allclose((nn66[:20] + 1)*a66**nn66[:20], 2*a66**nn66[:20], atol=1e-6)
+      and not np.allclose(dtft((nn66 + 1)*a66**nn66, 0, w66),
+                          2/(1 - a66*np.exp(-1j*w66)), atol=1e-3))
+y66 = lambda nv: -4*a66**nv - 2*(nv + 1)*a66**nv + 8*0.5**nv
+check('Q6-06d', 'the expansion gives A = -4, B = -2, C = 8 and y[0..3] = 2, 2, 1.375, 0.8125',
+      all(abs(y66(v) - w_) < 1e-12 for v, w_ in zip(range(4), (2.0, 2.0, 1.375, 0.8125))),
+      ', '.join(f'{y66(v):.4f}' for v in range(4)))
+h66 = np.zeros(40)
+for m in range(40):
+    h66[m] = 2*(m == 0) + 0.75*(h66[m-1] if m >= 1 else 0) - 0.125*(h66[m-2] if m >= 2 else 0)
+y66r = np.convolve(h66, a66**np.arange(40))[:40]
+check('Q6-06e', 'the recursion driven by (1/4)^n u[n] reproduces the same output',
+      np.allclose(y66r[:12], [y66(v) for v in range(12)], atol=1e-9))
+check('Q6-06f', 'the distinct-pole route needs a != b, which fails here because the input pole is 1/4',
+      abs(a66 - 0.25) < 1e-15)
+
+# Q6-07  real is not the same as non-negative
+for N1, pk67, mn67 in ((2, 5.0, -1.2500), (4, 9.0, -2.0391)):
+    wq = np.linspace(-PI, PI, 2000001)
+    Dk = np.where(np.abs(wq) < 1e-9, 2*N1 + 1,
+                  np.sin(wq*(N1 + 0.5))/np.sin(np.where(np.abs(wq) < 1e-9, 1, wq)/2))
+    check('Q6-07' if N1 == 2 else 'Q6-07b',
+          f'the Dirichlet kernel with N1 = {N1} peaks at {pk67:.0f} and dips to {mn67}',
+          abs(Dk.max() - pk67) < 1e-6 and abs(Dk.min() - mn67) < 5e-5,
+          f'[{Dk.min():.4f}, {Dk.max():.4f}]')
+check('Q6-07c', 'where the kernel is negative the magnitude is -X and the phase is pi, not 0',
+      abs(abs(-1.25) - 1.25) < 1e-15 and abs(np.angle(-1.25) - PI) < 1e-15)
+a67 = 0.6
+wq = np.linspace(-PI, PI, 400001)
+X67 = (1 - a67**2)/(1 - 2*a67*np.cos(wq) + a67**2)
+check('Q6-07d', 'a^{|n|} is real AND strictly positive, so there |X| = X and the phase really is 0',
+      X67.min() > 0 and np.allclose(np.abs(X67), X67, atol=1e-15))
+check('Q6-07e', 'the pulse is symmetric about n = 0, so its transform really is real',
+      np.max(np.abs(dtft(np.ones(5), -2, wq[::4000]).imag)) < 1e-9)
+
+# Q6-08  the multiplication property is a periodic convolution
+wrap = lambda a: (np.asarray(a) + PI) % (2*PI) - PI
+X68 = lambda a: (np.abs(wrap(a)) <= 3*PI/4).astype(float)
+Y68 = lambda a: (np.abs(wrap(a)) <= PI/2).astype(float)
+th68 = np.linspace(-PI, PI, 2000001)
+Zpi = trapz(X68(th68)*Y68(PI - th68), th68)/(2*PI)
+th_o = np.linspace(-20, 20, 4000001)
+Zord = trapz(((np.abs(th_o) <= 3*PI/4)*(np.abs(PI - th_o) <= PI/2)).astype(float),
+             th_o)/(2*PI)
+check('Q6-08', 'the periodic convolution gives Z(e^{j pi}) = 1/4, the ordinary one only 1/8',
+      abs(Zpi - 0.25) < 1e-4 and abs(Zord - 0.125) < 1e-4, f'{Zpi:.5f} vs {Zord:.5f}')
+check('Q6-08b', 'the ordinary convolution is 5pi/2 wide, which exceeds the period 2pi',
+      abs(2*(3*PI/4 + PI/2) - 2.5*PI) < 1e-12 and 2.5*PI > 2*PI)
+wgrid = np.linspace(-PI, PI, 401)
+Zv = np.array([trapz(X68(th68)*Y68(w_ - th68), th68)/(2*PI) for w_ in wgrid])
+check('Q6-08c', 'its average over one period is z[0] = x[0]y[0] = 0.375',
+      abs(trapz(Zv, wgrid)/(2*PI) - 0.375) < 1e-3, f'{trapz(Zv, wgrid)/(2*PI):.5f}')
+check('Q6-08d', 'the trapezoid height is 1/2, so the 1/(2pi) is already in the reported number',
+      abs(Zv.max() - 0.5) < 1e-3, f'peak={Zv.max():.5f}')
+X68b = lambda a: (np.abs(wrap(a)) <= PI/2).astype(float)
+Zeq = np.array([trapz(X68b(th68)*X68b(w_ - th68), th68)/(2*PI) for w_ in wgrid])
+check('Q6-08e', 'two equal bands of half-width pi/2 give a triangle that just fills the period, so nothing folds',
+      abs(Zeq.max() - 0.5) < 1e-3 and abs(Zeq[0]) < 1e-3 and abs(Zeq[-1]) < 1e-3)
+
+# Q6-09  discrete-time frequencies are reduced into the period first
+nn69 = np.arange(-40, 41)
+check('Q6-09', 'cos(5pi n/3) = cos(pi n/3) and cos(7pi n/4) = cos(pi n/4) at every integer n',
+      np.allclose(np.cos(5*PI*nn69/3), np.cos(PI*nn69/3), atol=1e-12)
+      and np.allclose(np.cos(7*PI*nn69/4), np.cos(PI*nn69/4), atol=1e-12))
+check('Q6-09b', 'the weights are 2pi at +-pi/3 and pi at +-pi/4, the amplitude 2 doubling the first',
+      abs(2*PI - 6.283185) < 5e-6 and abs(PI - 3.141593) < 5e-6)
+check('Q6-09c', 'neither 5pi/3 nor 7pi/4 lies inside -pi < w <= pi',
+      5*PI/3 > PI and 7*PI/4 > PI)
+check('Q6-09d', 'dropping the negative-frequency impulses rebuilds a complex sequence',
+      np.max(np.abs(np.exp(1j*PI*nn69/3).imag)) > 0.8)
+per69 = []
+for w0 in (PI/3, PI/4):
+    m = 1
+    while not float(2*PI/w0*m).is_integer():
+        m += 1
+    per69.append(int(round(2*PI/w0*m)))
+check('Q6-09e', 'the two periods are 6 and 8, so the sum repeats after LCM(6,8) = 24',
+      per69 == [6, 8] and np.lcm(per69[0], per69[1]) == 24, f'{per69}')
+
+# Q6-10  the impulse response of the second-order difference equation
+h610 = lambda nv: 4*0.5**np.asarray(nv) - 2*0.25**np.asarray(nv)
+check('Q6-10', 'h[n] = 4(1/2)^n - 2(1/4)^n gives h[0] = 2, h[1] = 1.5, h[2] = 0.875',
+      all(abs(h610(v) - w_) < 1e-12 for v, w_ in zip((0, 1, 2), (2.0, 1.5, 0.875))))
+check('Q6-10b', 'the recursion is satisfied for n >= 1',
+      abs(h610(1) - 0.75*h610(0)) < 1e-12
+      and abs(h610(2) - 0.75*h610(1) + 0.125*h610(0)) < 1e-12
+      and abs(h610(7) - 0.75*h610(6) + 0.125*h610(5)) < 1e-12)
+check('Q6-10c', 'the +2 distractor gives h[0] = 6, while the equation itself forces h[0] = 2',
+      abs(4 + 2 - 6) < 1e-15 and abs(4 - 2 - 2) < 1e-15)
+check('Q6-10d', 'the bases are the roots 1/2 and 1/4: their sum is 3/4 and their product is 1/8',
+      abs(0.5 + 0.25 - 0.75) < 1e-15 and abs(0.5*0.25 - 0.125) < 1e-15)
+check('Q6-10e', 'both poles have modulus below 1, so the system is stable',
+      abs(0.5) < 1 and abs(0.25) < 1)
+
+# Q6-11  a discrete-time magnitude spectrum must repeat every 2pi
+wsk = np.linspace(-3*PI, 3*PI, 600001)
+mag = np.abs(dtft(x61, n61, wsk))
+check('Q6-11', 'a real discrete-time magnitude repeats: the three periods drawn are the same curve',
+      np.allclose(np.abs(dtft(x61, n61, wsk[wsk <= -PI] + 2*PI)),
+                  np.abs(dtft(x61, n61, wsk[wsk <= -PI])), atol=1e-10))
+hump = lambda w_: np.where(np.abs(w_) <= PI, 1 - np.abs(w_)/PI, 0.0)
+check('Q6-11b', 'a single hump zero outside |w| <= pi is not periodic: it reads 0 at 2pi and 1 at 0',
+      abs(hump(np.array([2*PI]))[0] - hump(np.array([0.0]))[0]) > 0.5)
+decay = lambda w_: 1/(1 + w_**2)
+check('Q6-11c', 'a steadily decaying curve fails the same test, while a real transform reads '
+                'the same value at w and at w + 100 periods',
+      abs(decay(np.array([100*PI]))[0] - decay(np.array([0.0]))[0]) > 0.5
+      and np.allclose(np.abs(dtft(x61, n61, np.array([0.7]))),
+                      np.abs(dtft(x61, n61, np.array([0.7 + 100*2*PI]))), atol=1e-6))
+check('Q6-11d', 'a magnitude is never negative',
+      mag.min() >= 0.0)
+
+# Q6-12  what transfers between the two transforms and what does not
+xa = np.array([1.0, -0.5, 0.25])
+xb = np.array([2.0, 1.0])
+w612 = np.array([-2.2, -0.6, 0.0, 1.4, 3.0])
+check('Q6-12', 'convolution in time is multiplication of the transforms in discrete time too',
+      np.allclose(dtft(np.convolve(xa, xb), 0, w612),
+                  dtft(xa, 0, w612)*dtft(xb, 0, w612), atol=1e-12))
+xa5 = np.array([1.0, -0.5, 0.25, 0.0, 0.0]); xb5 = np.array([2.0, 1.0, 0.0, 0.0, 0.0])
+check('Q6-12b', 'multiplication in time is a periodic convolution of the two spectra, with a 1/(2pi)',
+      np.allclose(dtft(xa5*xb5, 0, w612),
+                  np.array([trapz(dtft(xa5, 0, th68)*dtft(xb5, 0, w_ - th68), th68)/(2*PI)
+                            for w_ in w612]), atol=1e-4))
+check('Q6-12c', 'the discrete-time synthesis integral runs over one period, not the whole line',
+      abs((PI - (-PI)) - 2*PI) < 1e-15)
+check('Q6-12d', 'a^n u[n] transforms to 1/(1 - a e^{-jw}), which is not 1/(a + jw) with t renamed',
+      np.allclose(dtft(0.5**np.arange(0, 200), 0, w612), 1/(1 - 0.5*np.exp(-1j*w612)), atol=1e-9)
+      and not np.allclose(1/(1 - 0.5*np.exp(-1j*w612)), 1/(0.5 + 1j*w612), atol=1e-2))
+check('Q6-12e', 'the first difference carries a factor 1 - e^{-jw}, not jw',
+      np.allclose(dtft(np.concatenate([xa, [0]]) - np.concatenate([[0], xa]), 0, w612),
+                  (1 - np.exp(-1j*w612))*dtft(xa, 0, w612), atol=1e-12))
+
+# ---------------------------------------------------------------- MODULE 7
+# verify_m7.py re-derives the mathematics of the module.  These lines check the
+# keyed option of each question and the reason given for each distractor.
+
+# Q7-01  the replication formula and its scale factor
+T71 = 0.4
+ws71 = 2*PI/T71
+w71 = np.linspace(-3*ws71, 3*ws71, 600001)
+tri = lambda a, wm: np.where(np.abs(a) <= wm, 1 - np.abs(a)/wm, 0.0)
+Xp71 = sum(tri(w71 - k*ws71, 2*PI) for k in range(-4, 5))/T71
+check('Q7-01', 'X_p is the sum of copies at every multiple of w_s, each scaled by 1/T',
+      abs(Xp71[np.argmin(np.abs(w71))] - 1/T71) < 1e-6
+      and abs(Xp71[np.argmin(np.abs(w71 - ws71))] - 1/T71) < 1e-6, f'1/T={1/T71}')
+check('Q7-01b', 'dropping the 1/T leaves every copy at height 1 instead of 1/T = 2.5, '
+                'and the error follows the rate',
+      abs(1/T71 - 2.5) < 1e-12 and abs(1/0.1 - 10.0) < 1e-12 and abs(1.0 - 1/T71) > 1.4)
+check('Q7-01c', 'the two factors of 2pi cancel: (1/2pi) of the property against 2pi/T of the train',
+      abs((1/(2*PI))*(2*PI/T71) - 1/T71) < 1e-15)
+check('Q7-01d', 'nothing in the formula depends on the rate, so the copies appear at every T',
+      all(abs(sum(tri(0.0 - k*(2*PI/Tv), 2*PI) for k in range(-4, 5))/Tv - 1/Tv) < 1e-9
+          for Tv in (0.1, 0.4, 1.0)))
+
+# Q7-02  a filter cannot undo an addition
+check('Q7-02', 'a component at 0.7 w_s lands at 0.7w_s - w_s = -0.3w_s, inside the band the filter keeps',
+      abs(0.7*ws71 - ws71) < ws71/2 and 0.7*ws71 > ws71/2)
+check('Q7-02b', 'a filter scales one value per frequency, and one value does not name the two summed '
+                'into it: 3 + 5 and 2 + 6 are the same number',
+      abs((3 + 5) - (2 + 6)) < 1e-15 and abs(3 - 2) > 0.5)
+check('Q7-02c', 'upstream the intruder still sits above w_s/2 and can be cut; downstream it does not',
+      0.7*ws71 > ws71/2 and abs(0.7*ws71 - ws71) < ws71/2)
+
+# Q7-03  the zero-order hold is not the ideal reconstruction filter
+T73 = 0.4
+H0 = lambda w_: np.where(np.abs(w_) < 1e-9, T73,
+                         2*np.sin(np.where(np.abs(w_) < 1e-9, 1, w_)*T73/2)
+                         / np.where(np.abs(w_) < 1e-9, 1, w_))
+wc73 = PI/T73
+check('Q7-03', 'H_0(0) = T and the magnitude sags below T inside the band',
+      abs(H0(np.array([0.0]))[0] - T73) < 1e-9
+      and abs(H0(np.array([wc73]))[0]) < T73 - 1e-3,
+      f'H0(0)={T73}, |H0(wc)|={abs(H0(np.array([wc73]))[0]):.5f}')
+check('Q7-03b', 'the magnitude is not zero beyond the band, so parts of the copies survive',
+      abs(H0(np.array([1.5*wc73]))[0]) > 1e-3)
+check('Q7-03c', 'the phase -w T/2 is a delay of half a period, and it is not the only effect',
+      abs(-1.0*T73/2 - (-0.2)) < 1e-12)
+errs = []
+for Tv in (0.4, 0.1, 0.025):
+    wv = np.linspace(-PI/Tv, PI/Tv, 200001)
+    Hv = np.where(np.abs(wv) < 1e-9, Tv, 2*np.sin(np.where(np.abs(wv) < 1e-9, 1, wv)*Tv/2)
+                  / np.where(np.abs(wv) < 1e-9, 1, wv))
+    errs.append(np.max(np.abs(np.abs(Hv)/Tv - 1)))
+check('Q7-03d', 'raising the rate shrinks the in-band error but never removes it',
+      all(v > 0 for v in errs) and errs[0] > errs[-1] - 1e-12,
+      ', '.join(f'{v:.4f}' for v in errs))
+
+# Q7-04  an angular rate and a period are linked by w_s T = 2 pi
+ws74 = 8000*PI
+T74 = 2*PI/ws74
+check('Q7-04', 'T = 2pi/w_s = 2.5e-4 s = 0.25 ms, and w_s T = 2pi',
+      abs(T74 - 2.5e-4) < 1e-12 and abs(ws74*T74 - 2*PI) < 1e-9, f'T={T74:.8g}')
+check('Q7-04b', 'the 0.25 s distractor fails the unit test: 8000pi x 0.25 = 2000pi',
+      abs(ws74*0.25 - 2000*PI) < 1e-6)
+check('Q7-04c', '1.25e-4 s belongs to w_s = 16000pi, twice the rate asked about',
+      abs(2*PI/1.25e-4 - 16000*PI) < 1e-6 and abs(2.5e-4/1.25e-4 - 2) < 1e-12)
+check('Q7-04d', '3.98e-5 s is 1/w_s, the conversion made without the 2pi',
+      abs(1/ws74 - 3.9789e-5) < 1e-8 and abs(ws74*(1/ws74) - 1) < 1e-12)
+check('Q7-04e', 'the matching rate in hertz is f_s = 1/T = 4000 Hz and w_s = 2pi f_s',
+      abs(1/T74 - 4000) < 1e-6 and abs(2*PI*4000 - ws74) < 1e-6)
+
+# Q7-05  the peak of a copy is the peak of the spectrum divided by T
+A75, T75 = 8000*PI, 1.25e-4
+Xmax75 = A75/(2*PI)
+check('Q7-05', 'X_max = A/2pi = 4000 and X_max/T = 4000 x 8000 = 3.2e7',
+      abs(Xmax75 - 4000) < 1e-9 and abs(Xmax75/T75 - 3.2e7) < 1e-3,
+      f'X_max={Xmax75}, X_max/T={Xmax75/T75:.4g}')
+check('Q7-05b', 'the A/T distractor is 2pi times too large: 2.01e8',
+      abs(A75/T75 - 2.0106e8) < 1e5 and abs((A75/T75)/(Xmax75/T75) - 2*PI) < 1e-9)
+check('Q7-05c', 'the X_max T distractor multiplies where it should divide: 0.5',
+      abs(Xmax75*T75 - 0.5) < 1e-12)
+check('Q7-05d', 'the rate is w_s = 2pi/T = 16000pi, exactly twice w_M = 8000pi',
+      abs(2*PI/T75 - 16000*PI) < 1e-6 and abs(16000*PI/(8000*PI) - 2) < 1e-12)
+
+# Q7-06  cos(2 pi t) sampled at T = 2/3 s
+T76 = 2/3
+ws76 = 2*PI/T76
+lines76 = sorted({abs(k*ws76 + s*2*PI) for k in (-2, -1, 0, 1, 2) for s in (-1, 1)})
+kept76 = [v for v in lines76 if v < ws76/2 - 1e-9]
+check('Q7-06', 'w_s = 3pi is below the Nyquist rate 4pi, and the only line inside the cutoff is pi',
+      abs(ws76 - 3*PI) < 1e-9 and ws76 < 4*PI
+      and len(kept76) == 1 and abs(kept76[0] - PI) < 1e-9, f'kept={[round(v,4) for v in kept76]}')
+nn76 = np.arange(-30, 31)
+check('Q7-06b', 'the samples of cos(2pi t) and of cos(pi t) are identical at T = 2/3 s',
+      np.allclose(np.cos(2*PI*nn76*T76), np.cos(PI*nn76*T76), atol=1e-12))
+check('Q7-06c', 'the baseband line at 2pi lies outside the cutoff 1.5pi and is discarded',
+      2*PI > ws76/2)
+check('Q7-06d', '3pi is the rate itself and 4pi is the Nyquist rate; neither is a line inside the filter',
+      all(min(abs(v - L) for L in lines76) > 1e-9 or v > ws76/2 for v in (3*PI, 4*PI)))
+
+# Q7-07  replication is unconditional; aliasing is the overlap
+gap = lambda ws_, wM_: ws_ - 2*wM_
+check('Q7-07', 'the guard band w_s - 2w_M decides the outcome and changes sign with the rate',
+      gap(5*PI, 2*PI) > 0 and abs(gap(4*PI, 2*PI)) < 1e-12 and gap(3*PI, 2*PI) < 0)
+Xp_lo = sum(tri(w71 - k*(3*PI), 2*PI) for k in range(-6, 7))/(2*PI/(3*PI))
+check('Q7-07b', 'below the Nyquist rate the copies are still all there: the sum is non-zero '
+                'at every multiple of w_s, and larger than one copy inside the overlap',
+      abs(Xp_lo[np.argmin(np.abs(w71 - 3*PI))] - Xp_lo[np.argmin(np.abs(w71))]) < 1e-6
+      and Xp_lo[np.argmin(np.abs(w71 - 1.5*PI))] > tri(1.5*PI, 2*PI)/(2/3))
+check('Q7-07c', 'inside the overlap the sampler stores one number made from two',
+      abs((1.0 + 0.6) - 1.6) < 1e-15)
+check('Q7-07d', 'above the Nyquist rate the copies are further apart and taller: 1/T grows with the rate',
+      1/(2*PI/(5*PI)) > 1/(2*PI/(3*PI)))
+
+# Q7-08  the boundary case annihilates the band-edge sine
+T78 = 1/4000
+nn78 = np.arange(-200, 201)
+check('Q7-08', 'every sample of sin(4000 pi t) is zero at T = 1/4000 s',
+      np.max(np.abs(np.sin(4000*PI*nn78*T78))) < 1e-9)
+check('Q7-08b', 'at +4000pi the baseband and the k=1 copy contribute +4000pi/j and -4000pi/j',
+      abs((1/T78)*(PI/1j) + (1/T78)*(-PI/1j)) < 1e-9
+      and abs(abs((1/T78)*(PI/1j)) - 4000*PI) < 1e-6)
+check('Q7-08c', 'the admissible cutoff interval w_M < w_c < w_s - w_M is empty at the Nyquist rate',
+      not (4000*PI < 8000*PI - 4000*PI))
+check('Q7-08d', 'losing one of two equal contributions would halve the term; here the sum is zero',
+      abs(0.5 - 0.5) < 1e-15 and abs((PI/1j) + (-PI/1j)) < 1e-15)
+check('Q7-08e', 'the constant sits at 0 and its nearest copies at +-8000pi, far from the origin',
+      8000*PI > 0)
+check('Q7-08f', 'with a guard band of 1000pi the samples become sin(8 pi n/9), not identically zero',
+      np.max(np.abs(np.sin(4000*PI*nn78*(1/4500)))) > 0.9
+      and np.allclose(np.sin(4000*PI*nn78*(1/4500)), np.sin(8*PI*nn78/9), atol=1e-9))
+
+# Q7-09  rate and cutoff from a requested guard band
+wM79, wg79 = 4000*PI, 1000*PI
+ws79 = 2*wM79 + wg79
+T79 = 2*PI/ws79
+check('Q7-09', 'w_s = 9000pi, T = 1/4500 s = 222.2 us, and 4000pi < w_c < 5000pi',
+      abs(ws79 - 9000*PI) < 1e-6 and abs(T79 - 1/4500) < 1e-12
+      and abs(T79*1e6 - 222.2) < 0.05
+      and abs((ws79 - wM79) - 5000*PI) < 1e-6, f'T={T79:.8g} s')
+check('Q7-09b', 'the 1/4000 s distractor is the Nyquist rate itself, where the cutoff interval is empty',
+      abs(2*PI/(1/4000) - 8000*PI) < 1e-6 and not (wM79 < 8000*PI - wM79))
+check('Q7-09c', '1/9000 s corresponds to 18000pi rad/s, twice the intended rate',
+      abs(2*PI/(1/9000) - 18000*PI) < 1e-6)
+check('Q7-09d', 'a cutoff below 4000pi removes the band edge the guard band was added to protect',
+      3000*PI < wM79)
+check('Q7-09e', 'the checks close: w_s T = 2pi and w_s - 2w_M = 1000pi',
+      abs(ws79*T79 - 2*PI) < 1e-9 and abs(ws79 - 2*wM79 - 1000*PI) < 1e-6)
+
+# Q7-10  two components, one kept and one aliased
+T710 = 2/5
+ws710 = 2*PI/T710
+wc710 = ws710/2
+lines710 = sorted({abs(k*ws710 + s*w0) for k in (-2, -1, 0, 1, 2)
+                   for s in (-1, 1) for w0 in (PI, 3*PI)})
+kept710 = sorted(v for v in lines710 if v < wc710 - 1e-9)
+check('Q7-10', 'w_s = 5pi, w_c = 2.5pi, and the surviving lines are pi and 2pi',
+      abs(ws710 - 5*PI) < 1e-9 and abs(wc710 - 2.5*PI) < 1e-9
+      and len(kept710) == 2 and abs(kept710[0] - PI) < 1e-9 and abs(kept710[1] - 2*PI) < 1e-9,
+      f'kept={[round(v/PI,3) for v in kept710]} x pi')
+nn710 = np.arange(-30, 31)
+check('Q7-10b', 'the samples of cos(3pi t) and cos(2pi t) agree at T = 2/5 s',
+      np.allclose(np.cos(3*PI*nn710*T710), np.cos(2*PI*nn710*T710), atol=1e-12))
+check('Q7-10c', 'the rate 5pi is below the Nyquist rate 6pi of this signal',
+      ws710 < 6*PI)
+check('Q7-10d', 'the line at 3pi is outside the cutoff and the line at 4pi is too',
+      3*PI > wc710 and 4*PI > wc710)
+
+# Q7-11  reading a replica diagram
+ws711, wM711 = 5*PI, 2*PI
+check('Q7-11', 'the spacing of the centres is w_s = 5pi, so T = 0.4 s and the copy height is 1/T = 2.5',
+      abs(2*PI/ws711 - 0.4) < 1e-12 and abs(1/(2*PI/ws711) - 2.5) < 1e-12)
+check('Q7-11b', 'the gap runs from w_M = 2pi to w_s - w_M = 3pi, so it is w_s - 2w_M = pi wide',
+      abs((ws711 - wM711) - wM711 - PI) < 1e-9)
+check('Q7-11c', 'w_s - w_M = 3pi is where the gap ends, not its width',
+      abs(ws711 - wM711 - 3*PI) < 1e-9)
+check('Q7-11d', '2pi is where the baseband reaches zero, so it is w_M and not the rate',
+      abs(wM711 - 2*PI) < 1e-9 and abs(ws711 - wM711) > 1e-9)
+check('Q7-11e', 'the gap is positive, so any cutoff in 2pi < w_c < 3pi recovers the signal',
+      ws711 - 2*wM711 > 0)
+
+# Q7-12  finite duration and finite bandwidth cannot hold together
+w712 = np.linspace(0.5, 400, 800001)
+Xrect = 2*np.sin(w712*1.0)/w712
+check('Q7-12', 'the transform of a rectangular window keeps crossing zero without ever staying there',
+      np.max(np.abs(Xrect[w712 > 300])) > 1e-3)
+check('Q7-12b', 'so no finite w_M exists: the tail is still non-zero however far out it is read',
+      all(np.max(np.abs(Xrect[w712 > c])) > 1e-4 for c in (50, 150, 350)))
+check('Q7-12c', 'with the filter first, reconstruction returns X_1 exactly: T times 1/T is 1',
+      abs(0.4*(1/0.4) - 1.0) < 1e-15)
+check('Q7-12d', 'gain 1 leaves the result a factor T too small, and a cutoff at w_s reaches the '
+                'neighbouring copies, which begin at w_s - w_M = 3pi',
+      abs(1.0*(1/0.4) - 1.0) > 1.4 and 5*PI > 5*PI - 2*PI)
 
 print('\n' + '-'*66)
 bad = [q for q, o in results if not o]

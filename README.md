@@ -19,7 +19,7 @@
   <img src="https://img.shields.io/badge/KaTeX%20vendored-16232F?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
   <img src="https://img.shields.io/badge/Playwright-16232F?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
   <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-16232F?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
-  <img src="https://img.shields.io/badge/v0.9%20%C2%B7%20Modules%200--3-16232F?style=for-the-badge" alt="Version v0.9">
+  <img src="https://img.shields.io/badge/v1.0%20%C2%B7%20Modules%200--7-16232F?style=for-the-badge" alt="Version v1.0">
 </p>
 
 ---
@@ -27,12 +27,13 @@
 ## Overview
 
 **Signals and Systems** is a lecture artifact that turns a handwritten signals-and-systems course into a stepped,
-self-explaining document. It covers the first half of the course — what a signal is, energy and power,
-time transformations, periodicity, impulses and complex exponentials, system properties, and linear
-time-invariant systems through convolution — in 58 scenes that advance one idea at a time.
+self-explaining document. It covers the whole course — what a signal is, energy and power, time
+transformations, periodicity, impulses and complex exponentials, system properties, linear
+time-invariant systems through convolution, Fourier series, the continuous- and discrete-time Fourier
+transforms, and sampling and aliasing — in 220 scenes that advance one idea at a time.
 
 Everything runs from one HTML file. No install, no sign-in, no server, no network request at any point.
-Progress is stored on the reader's own device and nowhere else. Beside the artifact sits a 25-page A4
+Progress is stored on the reader's own device and nowhere else. Beside the artifact sits an A4
 lecture-notes PDF generated from the same content.
 
 The artifact is written as teaching material, not as a report about teaching material: nothing in the
@@ -59,7 +60,7 @@ artifact makes that change the interface.
 
 ## Modules
 
-Four modules and a closing pair, 58 scenes in all.
+Eight modules and a closing set of three, 220 scenes in all.
 
 | #   | Module                             | Scenes | What it covers                                                                                                                                                                     |
 | --- | ---------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -67,7 +68,11 @@ Four modules and a closing pair, 58 scenes in all.
 | 1   | **Signal Foundations**             | 23     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
 | 2   | **Systems and Their Properties**   | 12     | The input–output abstraction, memory, invertibility, causality, BIBO stability, time invariance, linearity, and a classification workflow that puts the six properties in order      |
 | 3   | **Linear Time-Invariant Systems**  | 15     | Impulse response, the representation property, the convolution sum and integral, flip–shift–multiply–add, four worked convolutions including a five-case continuous-time split, convolution properties, LTI property criteria |
-| 4+  | **Closing**                        | 2      | Synthesis of the first half, and the full table of conventions and symbols                                                                                                          |
+| 4   | **Fourier Series**                 | 37     | The eigenfunction property, the analysis and synthesis equations, existence, the rectangular and sawtooth waves, the envelope and its harmonic samples, series properties, and an LTI system driven by a periodic input |
+| 5   | **Continuous-Time Fourier Transform** | 50  | The limit from series to transform, existence, the standard pairs, the sinc convention, band limits and the inverse relation, every property with its proof, Parseval, convolution and multiplication, modulation, partial fractions and differential equations |
+| 6   | **Discrete-Time Fourier Transform**   | 42  | The same construction in discrete time, 2π-periodicity and where it comes from, the Dirichlet kernel, real spectra that change sign, periodic convolution, the property table, and frequency response from a difference equation |
+| 7   | **Sampling and Aliasing**          | 27     | Impulse-train sampling, spectral replication, the guard band, the sampling theorem and its strict inequality, reconstruction, zero- and first-order holds, aliasing as overlap, anti-aliasing filters, temporal and spatial aliasing |
+| —   | **Closing**                        | 3      | The through-line of the whole course, what each module added, and the full table of conventions and symbols |
 
 ### Laboratories
 
@@ -78,12 +83,17 @@ Four modules and a closing pair, 58 scenes in all.
 | **C** | 1         | Periodicity explorer for continuous- and discrete-time cases                        |
 | **D** | 2         | System property checker over a catalogue of systems and the six property criteria    |
 | **E** | 3         | Graphical convolution explorer — the sliding overlap, case by case                   |
+| **F** | 4         | Fourier-series reconstruction studio — partial sums, harmonic count and Gibbs overshoot |
+| **G** | 4         | LTI frequency-response demonstrator — a periodic input through a filter, harmonic by harmonic |
+| **H** | 5         | Time–frequency explorer — seven signals, their transforms, and a modulation state    |
+| **I** | 6         | DTFT periodicity explorer — seven sequences drawn over three periods of 2π           |
+| **J** | 7         | Sampling and aliasing studio — six presets from oversampling to first-order hold      |
 
 ### Question banks
 
-Q1–Q3, twelve questions per module, 36 in all: 9 concept, 9 calculation, 6 misconception, 6 exam-style,
-3 graph-reading and 3 synthesis. Each question carries its answer, its distractor rationales and its
-source pages as instructor-only metadata.
+Q1–Q7, twelve questions per module, 84 in all, in a fixed type mix: concept, calculation,
+misconception, exam-style, graph-reading and synthesis. Each question carries its answer, a reason for
+each distractor, a worked solution, and its source pages as instructor-only metadata.
 
 ---
 
@@ -92,12 +102,12 @@ source pages as instructor-only metadata.
 Each module is a link in one argument. The course map scene renders this chain; `M` opens it at any point.
 
 ```text
-signal → transformation → system → LTI system → convolution → output
-   │            │            │          │            │
-Module 1    Module 1     Module 2   Module 3     Module 3
-notation,   shift ·      memory ·   impulse      y = x * h
-energy,     reverse ·    causal ·   response     case by
-periodic    scale        stable     h(t), h[n]   case
+signal → transformation → system → LTI system → convolution → spectrum → sampling
+   │            │            │          │            │            │           │
+Module 1    Module 1     Module 2   Module 3     Module 3    Modules 4-6  Module 7
+notation,   shift ·      memory ·   impulse      y = x * h   Y = X · H    replication,
+energy,     reverse ·    causal ·   response     case by     series and   overlap,
+periodic    scale        stable     h(t), h[n]   case        transforms   recovery
 ```
 
 ---
@@ -177,7 +187,7 @@ notes/
 verify/                         verify_m1_m3.py · qbank_check.py · qbank_struct.js
 tools/rule_check.py             The editorial banned-phrase scanner
 audit/                          Page inventories, page_titles.tsv, scenes.json  (never distribute)
-instructor/                     PHASE2_HANDOFF.md, coverage_matrix.md           (never distribute)
+instructor/                     PHASE2_REPORT.md, coverage_matrix.md            (never distribute)
 dist/                           The two deliverables
 source/                         Course source material (git-ignored)
 ```
@@ -305,27 +315,27 @@ Fixed for the whole course, stated in the artifact where a reader first needs th
 The content is built from the course's own handwritten lecture notes, 88 pages. A standard text is used
 as a cross-check for transform conventions, convergence conditions and scale factors only; it is never
 reproduced, quoted or redistributed in any form. `instructor/coverage_matrix.md` maps scenes to source
-pages, and `instructor/PHASE2_HANDOFF.md` carries the work order for the second half.
+pages, and `instructor/PHASE2_REPORT.md` records how the artifact was built and what was found in the source.
 
 ---
 
 ## Current State
 
-**v0.9 — Phase 1 complete.** Modules 0–3 in 58 scenes, laboratories A–E, question banks Q1–Q3 with 36
-questions, 50 numerical checks, zero clipping, zero runtime errors, and the lecture-notes PDF beside the
-artifact.
+**v1.0 — complete.** Modules 0–7 in 220 scenes, laboratories A–J, question banks Q1–Q7 with 84
+questions, 981 numerical checks, zero clipping, zero runtime errors, zero label collisions, and four
+printed editions beside the artifact.
 
-**Next.** Fourier series, the continuous- and discrete-time Fourier transforms, and sampling: Modules
-4–7, laboratories F–J, question banks Q4–Q7, an extended `verify/`, and the five PDF editions. Version
-v1.0 is reached only when all of it is complete and consistent. `instructor/PHASE2_HANDOFF.md` describes
-exactly how to continue.
+All 88 source pages were read directly before anything was authored from them, and every page is mapped
+to the scenes and questions that carry it. Seventy-seven confirmed issues in the source material are
+recorded in the instructor ledger, and each is stated in the artifact at the point where it occurs — in
+the artifact's own voice, with no reference to a page or a source.
 
-The scaffolding for that work is in place. Modules 4–7 are registered in the scene list, the module
-list and the notes build, so each can be authored in its own file without two of them meeting in a
-third. `build.js` picks up `7[1-9]_` as well, so a module gets its own laboratory file, and `70_labs.js`
-exports the helper kit those files need. The six gates all run on the four modules already written:
-58 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes with damaged mathematics, 50 numerical
-checks passed, 0 wording violations.
+`instructor/PHASE2_REPORT.md` records what was built, what the gates printed, and what remains open.
+
+What the gates printed on the final run: 220 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
+with damaged mathematics, 0 literal mathematics in the notes, 914 laboratory states walked with no
+problem in either theme, 981 numerical checks passed, and 0 wording violations. Both builds are
+byte-reproducible: building twice from unchanged sources gives the same file both times.
 
 ---
 

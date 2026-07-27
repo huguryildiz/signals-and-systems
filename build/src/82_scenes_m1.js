@@ -170,19 +170,16 @@ const SC = [
 ]},
 
 { id:'m1-classify', module:'M1', nav:'Energy, power, or neither', title:'Energy, power, or neither', src:'p. 3',
-  objective:'State the two classifications and the third case that is not  list.',
-  keywords:'energy signal power signal neither classification finite infinite', steps:3, blocks:[
+  objective:'State the two classifications and the third case that neither of them covers.',
+  keywords:'energy signal power signal neither classification finite infinite', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Three outcomes, not two'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'ok', head:'Energy signals', html:'Finite energy $\\bigl(E_\\infty<\\infty\\bigr)$ <b>and</b> zero average power $\\bigl(P_\\infty=0\\bigr)$.'},
     {t:'note', kind:'warn', head:'Power signals', html:'Finite power $\\bigl(P_\\infty<\\infty\\bigr)$ <b>and</b> infinite energy $\\bigl(E_\\infty\\to\\infty\\bigr)$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Neither: the case the two lines above miss', html:'If a signal grows without bound, <em>both</em> quantities diverge. $x(t)=t\\,u(t)$ has $E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$. It is neither an energy signal nor a power signal.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'Look at the logic. The two conditions in each definition are <b>not independent</b>. Finite energy forces $P_\\infty=0$, because a finite numerator divided by $2T\\to\\infty$ goes to zero. The second condition follows from the first. It is not an extra test.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Engineering reading', html:'Energy-type signals are transients: pulses, decaying responses, anything that ends. Power-type signals are steady states: sinusoids, constants, noise that runs on without end. The class tells you which quantity is worth measuring.'}]}
+      {t:'note', kind:'err', head:'Neither: the case the two lines above miss', html:'If a signal grows without bound, <em>both</em> quantities diverge. $x(t)=t\\,u(t)$ has $E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$. It is neither an energy signal nor a power signal.'},
+      {t:'small', html:'So the question "energy or power?" has three answers, and the third one is not a failure of the calculation. Some signals belong to neither class.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:250,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
@@ -194,12 +191,37 @@ const SC = [
       const a=P.Axes({w:840,h:250,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
       a.stem(disc(()=>4,-6,6),{color:C.h});
       a.note(5.6,4.7,'power-type',{anchor:'end',color:C.h,fs:15,italic:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:840,h:250,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
-      a.curve(t=>t>=0?t:0,{color:C.err});
-      a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
       return a.svg(); }}
+  ]}
+]},
+
+{ id:'m1-classify-b', module:'M1', nav:'Why the second condition is free', title:'Why the second condition is free', src:'p. 3',
+  objective:'Show that finite energy forces zero average power, and give the engineering reading of the three classes.',
+  keywords:'energy forces zero power averaging window transient steady state neither ramp', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
+  {t:'title', text:'One condition, not two'},
+  {t:'cols', ratio:'c-5-7', left:[
+    {t:'body', html:'Look at the logic of the first definition. Its two conditions are <b>not independent</b>. Finite energy forces $P_\\infty=0$, because a finite numerator divided by $2T\\to\\infty$ goes to zero. The second condition follows from the first. It is not an extra test.'},
+    {t:'eq', size:'sm', tex:'E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0',
+      note:'The averaging window grows without bound while the numerator stops growing, so the ratio is squeezed to zero.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'The third class, drawn', html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power: the numerator now grows faster than the window. Neither class applies.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Engineering reading', html:'Energy-type signals are transients: pulses, decaying responses, anything that ends. Power-type signals are steady states: sinusoids, constants, noise that runs on without end. The class tells you which quantity is worth measuring.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:840,h:250,xr:[0,12],yr:[-0.05,0.6],xlabel:'T',ylabel:'E_\\infty/2T',pad:{l:64,r:24,t:24,b:36},xtarget:6,ytarget:3});
+      a.curve(t=>t<1?NaN:1/(2*t),{color:C.out,n:1400});
+      a.note(11.4,0.5,'E_\\infty=1\\;\\text{J}',{anchor:'end',color:C.out,fs:14,tex:true});
+      return a.svg(); },
+      caption:'A pulse of energy 1 J, averaged over a window of half-width $T$. The average falls towards zero as the window grows, which is why a finite-energy signal always has $P_\\infty=0$.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:840,h:250,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+        a.curve(t=>t>=0?t:0,{color:C.err});
+        a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
+        return a.svg(); },
+        caption:'$x(t)=t\\,u(t)$: both $E_\\infty$ and $P_\\infty$ diverge, so it is neither an energy signal nor a power signal.'}]}
   ]}
 ]},
 
@@ -565,36 +587,51 @@ const SC = [
 
 { id:'m1-ct-cexp', module:'M1', nav:'CT complex exponentials', title:'Continuous-time complex exponentials', src:'pp. 7–9',
   objective:'Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity.',
-  keywords:'complex exponential Euler amplitude phase angular frequency growth decay envelope', steps:4, blocks:[
+  keywords:'complex exponential Euler amplitude phase angular frequency growth decay', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'One family, three behaviours'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition'},
-    {t:'body', html:'The behaviour is decided entirely by where $a$ sits in the complex plane.'},
+    {t:'body', html:'The behaviour is decided entirely by where $a$ sits in the complex plane. Three positions matter: $a$ real, $a$ purely imaginary, and $a$ with both parts non-zero.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Case 1 · both parameters real', html:'Both $C$ and $a$ are real. Then $a<0$ gives decay, $a>0$ gives growth, and $a=0$ gives the constant $x(t)=C$. Larger $|a|$ means faster decay or growth.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Case 2 · a purely imaginary', html:'Here $a=j\\omega_0$. With $C=Ae^{j\\theta}$, Euler\'s relation $e^{jx}=\\cos x+j\\sin x$ gives<br>$x(t)=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)$,<br>where $\\omega_0$ is the angular frequency (rad/s), $\\theta$ the phase shift (rad) and $A$ the amplitude.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'eq', tex:'A e^{j(\\omega_0 t+\\theta)}=A e^{j(\\omega_0(t+T)+\\theta)}\\;\\Rightarrow\\;1=e^{j\\omega_0 T}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0T\\;\\Rightarrow\\; T=\\frac{2\\pi}{\\omega_0}k',
-        label:'Periodicity, derived', note:'$k\\in\\mathbb{Z}$. Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. <b>Every</b> continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
-      {t:'wex', rows:[
-        ['Example','$x(t)=e^{j0.5\\pi t}\\;\\Rightarrow\\; T_0=\\dfrac{2\\pi}{0.5\\pi}=4$ seconds.'],
-        ['Sanity check','$0.5\\pi\\cdot4=2\\pi$ — one full turn of the phasor. ✓']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'Case 3 · a fully complex', html:'With $a=r+j\\omega_0$, $x(t)=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta)$. This is a sinusoid inside the envelope $\\pm Ae^{rt}$. Here $r<0$ gives damping, $r>0$ growth and $r=0$ a sustained oscillation. This is the natural response of every second-order circuit.'}]}
+      {t:'note', kind:'def', head:'Case 2 · a purely imaginary', html:'Here $a=j\\omega_0$. With $C=Ae^{j\\theta}$, Euler\'s relation $e^{jx}=\\cos x+j\\sin x$ gives<br>$x(t)=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)$,<br>where $\\omega_0$ is the angular frequency (rad/s), $\\theta$ the phase shift (rad) and $A$ the amplitude.'},
+      {t:'small', html:'Nothing here decays: with $a$ purely imaginary the modulus $|x(t)|=A$ is the same at every $t$. The real part opposite oscillates between $\\pm A$ and stays there.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
       a.note(5.7,1.02,'e^{-0.5t},\\;e^{-t},\\;e^{-2t}',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); }, caption:'Real case, $a<0$: decay. Larger $|a|$ ⇒ faster.'},
-    {t:'reveal', at:3, items:[
+    {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
         a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
-        a.span(0,4,1.12,'T_0=4\\;\\text{s}',{color:C.coral,tex:true});
-        return a.svg(); }, caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'}]},
-    {t:'reveal', at:4, items:[
+        return a.svg(); }, caption:'$x(t)=e^{j0.5\\pi t}$: the real part, $\\cos(0.5\\pi t)$, of constant amplitude.'}]}
+  ]}
+]},
+
+{ id:'m1-ct-cexp-b', module:'M1', nav:'CT exponentials · period and envelope', title:'Period and envelope', src:'pp. 8–9',
+  objective:'Derive the fundamental period and read the general complex case as a sinusoid in an envelope.',
+  keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
+  {t:'title', text:'How long one turn takes, and what an envelope does'},
+  {t:'cols', ratio:'c-5-7', left:[
+    {t:'eq', tex:'A e^{j(\\omega_0 t+\\theta)}=A e^{j(\\omega_0(t+T)+\\theta)}\\;\\Rightarrow\\;1=e^{j\\omega_0 T}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0T\\;\\Rightarrow\\; T=\\frac{2\\pi}{\\omega_0}k',
+      label:'Periodicity, derived', note:'$k\\in\\mathbb{Z}$. Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. <b>Every</b> continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
+    {t:'reveal', at:1, items:[
+      {t:'wex', rows:[
+        ['Example','$x(t)=e^{j0.5\\pi t}\\;\\Rightarrow\\; T_0=\\dfrac{2\\pi}{0.5\\pi}=4$ seconds.'],
+        ['Sanity check','$0.5\\pi\\cdot4=2\\pi$ — one full turn of the phasor. ✓']
+      ]}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Case 3 · a fully complex', html:'With $a=r+j\\omega_0$, $x(t)=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta)$. This is a sinusoid inside the envelope $\\pm Ae^{rt}$. Here $r<0$ gives damping, $r>0$ growth and $r=0$ a sustained oscillation. This is the natural response of every second-order circuit.'},
+      {t:'small', html:'The two parts of $a$ do separate jobs and do not interact: $\\omega_0$ sets how fast the sinusoid turns, and $r$ sets the envelope it turns inside. The period stays $2\\pi/\\omega_0$ whatever $r$ is, but the signal is no longer periodic once $r\\neq0$, because the envelope never repeats.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
+      a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
+      a.span(0,4,1.12,'T_0=4\\;\\text{s}',{color:C.coral,tex:true});
+      return a.svg(); }, caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'},
+    {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:260,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
         a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
         a.curve(t=>-2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});

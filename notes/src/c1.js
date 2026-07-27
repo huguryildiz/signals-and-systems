@@ -7,20 +7,24 @@ const ax=o=>P.Axes(Object.assign({w:700,h:200,pad:{l:44,r:20,t:16,b:30},xtarget:
 window.C1 = [
 
 /* ---------------- title ---------------- */
-{t:'title', kicker:'Signals and Systems', text:'Signals, Systems and<br>Linear Time-Invariant Systems',
- sub:'Lecture notes for the first part of the course: what a signal is, how systems are classified, and why linear time-invariant systems are described by a single function.',
- meta:[['Covers','Chapters 1 to 3'],['Level','Undergraduate, second year'],
+{t:'title', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis',
+ sub:'Lecture notes for the whole course: what a signal is, how systems are classified, why linear time-invariant systems are described by a single function, how a signal is decomposed into exponentials, and what sampling does to the result.',
+ meta:[['Covers','Chapters 1 to 7, and Appendix A'],['Level','Undergraduate, second year'],
        ['Assumed background','Calculus, complex numbers, basic circuits']]},
 
 {t:'h3', text:'How to read these notes'},
-{t:'p', text:'Each chapter builds on the one before it. Within a chapter, every idea is introduced in the same order: a picture, a definition, an equation, a short derivation, a worked example, and a warning about the mistake that is easiest to make. Worked examples always use five headings: Given, Find, Method, Solution, Check. Do the Check step yourself before reading it.'},
+{t:'p', text:'Each chapter builds on the one before it, and the seven of them are one argument: a signal is a function, a system is a map on functions, an LTI system is described by one function, and the frequency domain is what turns the operation that uses it into a product. Within a chapter, every idea is introduced in the same order: a picture, a definition, an equation, a short derivation, a worked example, and a warning about the mistake that is easiest to make. Worked examples always use five headings: Given, Find, Method, Solution, Check. Do the Check step yourself before reading it.'},
 {t:'p', text:'Two conventions apply everywhere. First, energy and power are <b>normalised</b>: the resistance is taken as $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. Second, the imaginary unit is written $j$.'},
 
 {t:'toc', items:[
  ['1','Signals','Energy and power. Shifting, reversal and scaling. Periodicity. Impulses and steps. Complex exponentials.'],
  ['2','Systems and their properties','Memory, invertibility, causality, stability, time invariance, linearity.'],
  ['3','Linear time-invariant systems','Impulse response. Convolution sum and convolution integral. Properties of convolution.'],
- ['A','Summary of formulas','Everything from Chapters 1 to 3 on two pages.']
+ ['4','Fourier series','The eigenfunction property. Analysis and synthesis. Existence. Properties. A periodic input through an LTI system.'],
+ ['5','The continuous-time Fourier transform','From series to transform. The standard pairs. Every property with its proof. Parseval. Modulation. Differential equations.'],
+ ['6','The discrete-time Fourier transform','The same construction in discrete time. Why the spectrum repeats. Periodic convolution. Difference equations.'],
+ ['7','Sampling and aliasing','Impulse-train sampling. Replication and the guard band. The sampling theorem. Reconstruction, holds, and aliasing.'],
+ ['A','Summary of formulas','Everything from Chapters 1 to 7 on two pages.']
 ]},
 
 {t:'page'},
