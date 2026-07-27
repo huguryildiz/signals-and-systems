@@ -1,57 +1,34 @@
-/* Exhaustive laboratory walk — the check no gate performs.
+/* Exhaustive laboratory walk — the check no other gate performs.
 
    mathscan.js only ever sees whatever a laboratory shows first: it does not drive
    [data-nav], [data-case], [data-wave], [data-fac] or a segmented control, so damage
    in the second and later signals, systems, cases or presets of a laboratory is
    invisible to it. This script opens every such item of every laboratory, in both
-   themes, moves each slider to the bottom, middle and top of its range, and reads the
-   resulting state back out.
+   themes, moves each slider to the bottom, middle and top of its range, and reads
+   the resulting state back out.
 
    A state fails on any of: a KaTeX error node, mathematics left as literal $...$
    outside a .katex subtree, a TeX macro left in the running text, a readout that has
    gone to NaN / Infinity / undefined, a panel that drew no figure where one belongs,
    or a console or page error logged while the state was open.
 
+   **Nothing about the laboratories is written down here.** The list of laboratories
+   comes from the scene list, and each one's controls are read off its own rendered
+   DOM: the item selectors, the segmented controls, the item list and the sliders.
+   An earlier version carried a hand-written table of all four, which meant a
+   laboratory that gained a control the table did not name was walked without it and
+   nothing said so. Discovery removes that failure mode; the cost is that a control
+   using an attribute this file does not know about is still invisible, so ATTRS is
+   the one thing to extend when the design system gains a new kind of control.
+
    Run it through pw.js like the gates: cd build && node pw.js labwalk.js            */
 const { chromium } = require('/home/claude/.npm-global/lib/node_modules/playwright');
 const path = require('path');
 
-/* What each laboratory actually offers, read off the built artifact.
-   items:   groups of mutually exclusive selectors, walked as a product
-   sliders: data-v keys, each swept to min, middle and max
-   figures: false for the one laboratory that draws no figure (D is a property table) */
-const PLAN = {
-  A: { id:'m1-lab-a', figures:true,
-       items:[['[data-seg=proto][data-val=p4]','[data-seg=proto][data-val=tri]','[data-seg=proto][data-val=rect]'],
-              ['[data-seg=dom][data-val=ct]','[data-seg=dom][data-val=dt]'],
-              ['[data-seg=stage][data-val="0"]','[data-seg=stage][data-val="1"]','[data-seg=stage][data-val="2"]']],
-       sliders:['a','b'] },
-  B: { id:'m1-lab-b', figures:true, list:6, listClicks:['[data-cls=energy]','[data-reveal]'], sliders:[] },
-  C: { id:'m1-lab-c', figures:true,
-       items:[['[data-seg=dom][data-val=ct]','[data-seg=dom][data-val=dt]']], sliders:['p','q','th'] },
-  D: { id:'m2-lab-d', figures:false, list:8,
-       listClicks:['[data-prop=mem]','[data-prop=inv]','[data-prop=caus]','[data-prop=stab]','[data-prop=ti]','[data-prop=lin]'],
-       sliders:[] },
-  E: { id:'m3-lab-e', figures:true,
-       items:[['[data-case=dt1]','[data-case=dt2]','[data-case=ct1]','[data-case=ct2]'],
-              ['[data-stage="1"]','[data-stage="2"]','[data-stage="3"]']], sliders:['pos'] },
-  F: { id:'m4-lab-f', figures:true,
-       items:[['[data-wave=square]','[data-wave=saw]','[data-wave=tri]','[data-wave=imp]','[data-wave=dtsq]']],
-       sliders:['N'] },
-  G: { id:'m4-lab-g', figures:true,
-       items:[['[data-case=ct-lp]','[data-case=ct-hp]','[data-case=dt-hp]','[data-case=dt-lp]'],
-              ['[data-fac=on]','[data-fac=off]']], sliders:['par'] },
-  H: { id:'m5-lab-h', figures:true,
-       items:[['[data-case=rect]','[data-case=exp1]','[data-case=exp2]','[data-case=sinc]',
-               '[data-case=gauss]','[data-case=cosine]','[data-case=train]'],
-              ['[data-seg=mod][data-val=off]','[data-seg=mod][data-val=on]']], sliders:['par','wc'] },
-  I: { id:'m6-lab-i', figures:true, list:7,
-       items:[['[data-case=spec]','[data-case=shift]','[data-case=sys]'],
-              ['[data-seg=hl][data-val=on]','[data-seg=hl][data-val=off]']], sliders:['par','w0','r'] },
-  J: { id:'m7-lab-j', figures:true,
-       items:[['[data-case=over]','[data-case=crit]','[data-case=under]',
-               '[data-case=zoh]','[data-case=foh]','[data-case=ideal]']], sliders:['fM','fS'] }
-};
+/* Attributes that select one item out of a mutually exclusive set. Each distinct
+   attribute becomes one dimension of the walk; each of its values, one position. */
+const ATTRS = ['data-case', 'data-wave', 'data-fac', 'data-cls', 'data-prop', 'data-stage'];
+const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silent */
 
 (async () => {
   const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
@@ -64,7 +41,56 @@ const PLAN = {
   await p.waitForTimeout(400);
 
   const problems = [];
+  const notes = [];
   let states = 0;
+
+  /* ---- which scenes carry a laboratory, read off the scene list ---- */
+  const LABS = await p.evaluate(() => {
+    const S = [].concat(
+      window.SCENES_M0 || [], window.SCENES_M1 || [], window.SCENES_M2 || [],
+      window.SCENES_M3 || [], window.SCENES_M4 || [], window.SCENES_M5 || [],
+      window.SCENES_M6 || [], window.SCENES_M7 || [], window.SCENES_END || []
+    );
+    const found = [];
+    const walk = (blocks, sceneId) => (blocks || []).forEach(bl => {
+      if (!bl || typeof bl !== 'object') return;
+      if (bl.t === 'lab') found.push({ lab: bl.id, scene: sceneId });
+      ['left', 'right', 'items', 'blocks'].forEach(k => {
+        if (Array.isArray(bl[k])) bl[k].forEach(x => Array.isArray(x) ? walk(x, sceneId) : walk([x], sceneId));
+      });
+    });
+    S.forEach(s => walk(s.blocks, s.id));
+    return found;
+  });
+  if (!LABS.length) { console.log('NO LABORATORIES FOUND'); process.exit(1); }
+
+  /* ---- read one laboratory's controls off its own rendered DOM ---- */
+  async function discover() {
+    return p.evaluate(a => {
+      const lab = document.querySelector('.lab');
+      if (!lab) return null;
+      const groups = [];
+      a.forEach(attr => {
+        const vals = [...new Set([...lab.querySelectorAll('[' + attr + ']')]
+          .map(e => e.getAttribute(attr)))];
+        if (vals.length) groups.push(vals.map(v => `[${attr}="${v}"]`));
+      });
+      /* a segmented control is one dimension per seg name */
+      const segs = [...new Set([...lab.querySelectorAll('[data-seg]')].map(e => e.getAttribute('data-seg')))];
+      segs.forEach(sg => {
+        const vals = [...new Set([...lab.querySelectorAll(`[data-seg="${sg}"][data-val]`)]
+          .map(e => e.getAttribute('data-val')))];
+        if (vals.length) groups.push(vals.map(v => `[data-seg="${sg}"][data-val="${v}"]`));
+      });
+      return {
+        groups,
+        sliders: [...new Set([...lab.querySelectorAll('[data-v]')].map(e => e.getAttribute('data-v')))],
+        hasNav: !!lab.querySelector('[data-nav]'),
+        hasReveal: !!lab.querySelector('[data-reveal]'),
+        figures: lab.querySelectorAll('svg').length > 0
+      };
+    }, ATTRS);
+  }
 
   async function probe(tag, wantFigure) {
     states++;
@@ -108,10 +134,10 @@ const PLAN = {
   async function sweep(keys, tag, wantFigure) {
     if (!keys.length) { await probe(tag, wantFigure); return; }
     for (const k of keys) {
-      const rng = await p.$eval(`[data-v=${k}]`, e => ({ min: +e.min, max: +e.max })).catch(() => null);
+      const rng = await p.$eval(`[data-v="${k}"]`, e => ({ min: +e.min, max: +e.max })).catch(() => null);
       if (!rng) continue;
       for (const v of [rng.min, (rng.min + rng.max) / 2, rng.max]) {
-        await p.$eval(`[data-v=${k}]`, (e, val) => {
+        await p.$eval(`[data-v="${k}"]`, (e, val) => {
           e.value = val; e.dispatchEvent(new Event('input', { bubbles: true }));
         }, v).catch(() => {});
         await p.waitForTimeout(70);
@@ -119,37 +145,50 @@ const PLAN = {
       }
     }
   }
-  /* cartesian product of the item groups */
-  function combos(groups) {
-    return groups.reduce((acc, g) => acc.flatMap(a => g.map(x => a.concat([x]))), [[]]);
-  }
+  const combos = gs => gs.reduce((acc, g) => acc.flatMap(a => g.map(x => a.concat([x]))), [[]]);
 
   for (const theme of ['light', 'dark']) {
     if (theme === 'dark') { await p.click('#btn-theme'); await p.waitForTimeout(260); }
     const shown = await p.$eval('#btn-theme', e => e.textContent.trim().toLowerCase());
     if (shown !== theme) problems.push(`theme switch did not take: asked ${theme}, button reads ${shown}`);
 
-    for (const [name, plan] of Object.entries(PLAN)) {
-      await p.evaluate(i => APP.goId(i, 0), plan.id);
+    for (const { lab, scene } of LABS) {
+      await p.evaluate(i => APP.goId(i, 0), scene);
       await p.waitForTimeout(340);
-
-      for (const combo of combos(plan.items || [])) {
-        for (const sel of combo) await click(sel);
-        await sweep(plan.sliders, `${theme} ${name} ${combo.join(' ')}`.trim(), plan.figures);
+      const d = await discover();
+      if (!d) { problems.push(`${theme} ${lab}: laboratory did not mount in scene ${scene}`); continue; }
+      if (theme === 'light') {
+        notes.push(`LAB ${lab} (${scene}) groups=${d.groups.length}` +
+          ` items=${d.groups.map(g => g.length).join('x') || '-'}` +
+          ` sliders=${d.sliders.join(',') || '-'} nav=${d.hasNav ? 'yes' : 'no'}` +
+          ` figures=${d.figures ? 'yes' : 'no'}`);
       }
 
-      /* an item list traversed with [data-nav], plus whatever each item wants clicked */
-      if (plan.list) {
-        for (let k = 0; k < plan.list; k++) {
-          for (const sel of (plan.listClicks || [])) await click(sel);
-          await sweep(plan.sliders, `${theme} ${name} item${k + 1}`, plan.figures);
+      const cs = combos(d.groups);
+      if (cs.length > MAX_COMBOS) {
+        problems.push(`${theme} ${lab}: ${cs.length} control combinations exceeds the cap of ${MAX_COMBOS}` +
+          ` — raise MAX_COMBOS deliberately rather than walking a subset`);
+      }
+      for (const combo of cs.slice(0, MAX_COMBOS)) {
+        for (const sel of combo) await click(sel);
+        if (d.hasReveal) await click('[data-reveal]');
+        await sweep(d.sliders, `${theme} ${lab} ${combo.join(' ')}`.trim(), d.figures);
+      }
+
+      /* an item list traversed with [data-nav] */
+      if (d.hasNav) {
+        for (let k = 0; k < 12; k++) {
+          if (d.hasReveal) await click('[data-reveal]');
+          await sweep(d.sliders, `${theme} ${lab} item${k + 1}`, d.figures);
           if (!await click('[data-nav="1"]')) break;
         }
-        if (await click('[data-nav="-1"]')) await probe(`${theme} ${name} back one item`, plan.figures);
+        if (await click('[data-nav="-1"]')) await probe(`${theme} ${lab} back one item`, d.figures);
       }
     }
   }
 
+  notes.forEach(n => console.log(n));
+  console.log('LABORATORIES WALKED: ' + LABS.map(l => l.lab).join(' '));
   console.log('STATES WALKED: ' + states);
   console.log('PROBLEMS: ' + (problems.length ? '\n  ' + problems.join('\n  ') : 'none'));
   console.log('CONSOLE/PAGE ERRORS: ' + (errs.length ? '\n  ' + errs.slice(0, 20).join('\n  ') : 'none'));
