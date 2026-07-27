@@ -37,6 +37,13 @@ code{ font-family:var(--mono); font-size:9.4pt; }
 hr{ border:0; border-top:1px solid var(--rule2); margin:13pt 0; }
 hr.thick{ border-top:1.6pt solid var(--accent); width:46pt; margin:0 0 11pt; }
 
+/* Typeset mathematics inherits nothing from the label frame it sits in. The
+   label styles — a table head, a callout title, an example key, a caption — are
+   uppercase mono with wide tracking, and both properties rewrite the formula:
+   text-transform turns a_k into A_K, and letter-spacing pulls an expression
+   apart glyph by glyph. */
+.katex{ text-transform:none; letter-spacing:normal; }
+
 /* equations */
 .eq{ margin:9pt 0; text-align:center; break-inside:avoid; }
 .eq .katex{ font-size:1.06em; }

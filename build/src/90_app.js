@@ -35,7 +35,7 @@ const RENDER = (() => {
 
   /* ---------- block renderers ---------- */
   const B = {
-    eyebrow: b => `<p class="eyebrow"><span class="tick"></span>${b.text}
+    eyebrow: b => `<p class="eyebrow"><span class="tick"></span>${md(b.text)}
         ${b.src?`<span class="src instr-inline" data-instr>[ref ${b.src}]</span>`:''}</p>`,
     title:   b => `<h${b.level||2} class="${b.level===1?'display':'title'}">${md(b.text)}</h${b.level||2}>`,
     sub:     b => `<h3 class="sub">${md(b.text)}</h3>`,
@@ -44,14 +44,14 @@ const RENDER = (() => {
     small:   b => `<div class="small">${symLinks(md(b.html))}</div>`,
     rule:    b => `<hr class="rule ${b.short?'short':''}">`,
     eq:      b => `<div class="eq ${b.plain?'plain':''} ${b.key?'key':''} ${b.size||''}">
-        ${b.label?`<div class="eq-label">${b.label}</div>`:''}
+        ${b.label?`<div class="eq-label">${md(b.label)}</div>`:''}
         ${tex(b.tex,true)}
         ${b.note?`<div class="eq-note">${symLinks(md(b.note))}</div>`:''}</div>`,
-    note:    b => `<div class="note ${b.kind||'def'}">${b.head?`<span class="note-h">${b.head}</span>`:''}
+    note:    b => `<div class="note ${b.kind||'def'}">${b.head?`<span class="note-h">${md(b.head)}</span>`:''}
         ${symLinks(md(b.html))}</div>`,
     legend:  b => `<div class="legend">${b.items.map(([c,l])=>`<i class="lg-${c}">${md(l)}</i>`).join('')}</div>`,
     wex:     b => `<div class="wex">${b.rows.map(([k,v])=>
-        `<div class="wex-row"><div class="wex-k">${k}</div><div class="wex-v">${symLinks(md(v))}</div></div>`).join('')}</div>`,
+        `<div class="wex-row"><div class="wex-k">${md(k)}</div><div class="wex-v">${symLinks(md(v))}</div></div>`).join('')}</div>`,
     fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}">
         ${typeof b.svg==='function'?b.svg():b.svg}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
@@ -64,7 +64,7 @@ const RENDER = (() => {
     card:    b => `<div class="card">${b.head?`<h3 class="card-h">${md(b.head)}</h3>`:''}
         ${blocks(b.items)}</div>`,
     instr:   b => `<div class="instr"><div class="instr-panel">
-        <span class="note-h">${b.head||'Instructor note'}</span>${symLinks(md(b.html))}</div></div>`,
+        <span class="note-h">${md(b.head||'Instructor note')}</span>${symLinks(md(b.html))}</div></div>`,
     lab:     b => `<div class="lab" data-lab="${b.id}"></div>`,
     check:   b => quizHTML(b.q, true),
     quizset: b => `<div class="stack">${b.qs.map(q=>quizHTML(q,false)).join('')}</div>`,
