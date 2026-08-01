@@ -11,20 +11,25 @@ to keep in mind when one is edited. It does not repeat anything already fixed in
 
 ## 1. What a student meets
 
-Every module from 1 to 7 opens with two scenes.
+Every module from 1 to 7 **opens** with a map of its question types and **closes** with the questions
+themselves. The teaching scenes sit between them.
 
-**The taxonomy.** Five recurring question shapes, each with the method it wants, and a link to the
-scene where that method is taught. It is placed before the module, not after it, and the reader is
-told plainly that they are not expected to be able to answer anything yet. It is a map, read once,
-and returned to when a question will not start.
+**The taxonomy, at the front.** Five recurring question shapes, each with the method it wants, and a
+link to the scene where that method is taught. The reader is told plainly that they are not expected
+to be able to answer anything yet. It is a map, read once, and returned to when a question will not
+start.
 
-**The drill.** Twenty questions in examination form. One question fills the screen; the reader moves
-with **Previous** and **Next**, and the pager says `Question 7 of 20`. Each question has a statement,
-often a figure, and two to five lettered parts. Nothing is multiple choice and there are no hints:
-the question is worked on paper, and then `Show worked solution` opens a solution that ends by
-testing its own answer a second way.
+**The questions, at the end.** Twenty of them. One question fills the screen; the reader moves with
+**Previous** and **Next**, and the pager says `Question 7 of 20`. Each question has a statement, often
+a figure, and two to five lettered parts. Nothing is multiple choice and there are no hints: the
+question is worked on paper, and then `Show worked solution` opens a solution that ends by testing its
+own answer a second way.
 
-Module 0 has no drill. It is the course opening and carries no examinable method.
+**Nothing student-facing calls them an examination.** The sections read *question types* and *practice
+questions*; the word appears nowhere on the page. The papers are what they are modelled on, not what
+they are, and a student who reads *exam* on the screen will take them for the paper itself.
+
+Module 0 has none. It is the course opening and carries no method to practise.
 
 There is no separate question bank. Until 2026-08-01 each module carried a drill of twelve and a bank
 of twelve; both were open-ended, both rendered the same way, and the difference between them was
@@ -54,7 +59,7 @@ instructor edition only, and it is the only place in the artifact where a paper 
 The taxonomy is worth ten minutes at the start of a module. Read the five shapes aloud, and say which
 one the week's problem sheet will look like.
 
-The drill is not a problem sheet. It is what a student works alone, and its value is in the **Check**
+The set is not a problem sheet. It is what a student works alone, and its value is in the **Check**
 step: every solution ends by reaching the same answer a second way — a bound, a limiting case, a
 symmetry, a dimensional argument. Students who learn to write that step stop handing in answers they
 have not tested.

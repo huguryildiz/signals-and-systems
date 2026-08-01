@@ -174,7 +174,7 @@ build/
 │   ├── 84_scenes_m3.js         Module 3 — LTI systems and convolution (15 scenes)
 │   ├── 90_app.js               Scene renderer and block types
 │   ├── 91_scenes_end.js        Closing synthesis and symbol table
-│   ├── 92_drill_m1.js … 98_drill_m7.js   Exam drills D1–D7, twenty questions a module
+│   ├── 92_drill_m1.js … 98_drill_m7.js   Practice questions D1–D7, twenty a module
 │   └── 99_tail.html            Scene registration and boot
 ├── build.js                    Concatenates src/ → dist/Signals_and_Systems.html
 ├── qa.js labtest.js textclash.js   Three of the five gates
@@ -322,9 +322,10 @@ pages, and `instructor/PHASE2_REPORT.md` records how the artifact was built and 
 
 ## Current State
 
-**v1.3 — complete.** Modules 0–7 in 223 scenes, laboratories A–J, and an exam drill of twenty
-open-ended questions in front of every module from 1 to 7 — 140 questions, each with a worked solution
-that ends by testing its own answer a second way. 609 numerical checks, zero clipping, zero runtime
+**v1.3 — complete.** Modules 0–7 in 223 scenes, laboratories A–J, and twenty open-ended practice
+questions in every module from 1 to 7 — 140 questions, each with a worked solution that ends by testing
+its own answer a second way. A module opens with a map of the question types it will ask and closes
+with the questions themselves. 609 numerical checks, zero clipping, zero runtime
 errors, zero label collisions, and the lecture notes beside the artifact.
 
 All 88 source pages were read directly before anything was authored from them, and every page is mapped

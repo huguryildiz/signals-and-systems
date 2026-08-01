@@ -64,7 +64,7 @@
    "i": 7,
    "id": "m1-drill-map",
    "module": "M1",
-   "nav": "Module 1 exam drill · question types",
+   "nav": "Module 1 · question types",
    "title": "Module 1 — what a question looks like",
    "src": "pp. 2–10",
    "steps": 0,
@@ -72,16 +72,6 @@
   },
   {
    "i": 8,
-   "id": "m1-drill",
-   "module": "M1",
-   "nav": "Module 1 exam drill · questions",
-   "title": "Module 1 — exam drill",
-   "src": "pp. 2–10",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 9,
    "id": "m1-open",
    "module": "M1",
    "nav": "Module 1 opening",
@@ -91,7 +81,7 @@
    "obj": ""
   },
   {
-   "i": 10,
+   "i": 9,
    "id": "m1-def",
    "module": "M1",
    "nav": "Definitions and notation",
@@ -101,7 +91,7 @@
    "obj": "Fix the CT/DT notation and the meaning of the independent variable."
   },
   {
-   "i": 11,
+   "i": 10,
    "id": "m1-power",
    "module": "M1",
    "nav": "Instantaneous power",
@@ -111,7 +101,7 @@
    "obj": "Derive the normalised energy/power definitions from the physical ones."
   },
   {
-   "i": 12,
+   "i": 11,
    "id": "m1-energy-inf",
    "module": "M1",
    "nav": "Total energy",
@@ -121,7 +111,7 @@
    "obj": "State E∞ in both domains and flag non-convergence."
   },
   {
-   "i": 13,
+   "i": 12,
    "id": "m1-avgpower",
    "module": "M1",
    "nav": "Average power",
@@ -131,7 +121,7 @@
    "obj": "State P over a window and P∞ in both domains, with the 2N+1 count."
   },
   {
-   "i": 14,
+   "i": 13,
    "id": "m1-classify",
    "module": "M1",
    "nav": "Energy, power, or neither",
@@ -141,7 +131,7 @@
    "obj": "State the two classifications and the third case that neither of them covers."
   },
   {
-   "i": 15,
+   "i": 14,
    "id": "m1-classify-b",
    "module": "M1",
    "nav": "Why the second condition is free",
@@ -151,7 +141,7 @@
    "obj": "Show that finite energy forces zero average power, and give the engineering reading of the three classes."
   },
   {
-   "i": 16,
+   "i": 15,
    "id": "m1-ex-energy",
    "module": "M1",
    "nav": "Worked example · classification",
@@ -161,7 +151,7 @@
    "obj": "Reproduce both source examples with full method and sanity checks."
   },
   {
-   "i": 17,
+   "i": 16,
    "id": "m1-lab-b",
    "module": "M1",
    "nav": "Laboratory B · Energy and power",
@@ -171,7 +161,7 @@
    "obj": "Classify source-grounded signals before seeing the calculation."
   },
   {
-   "i": 18,
+   "i": 17,
    "id": "m1-shift",
    "module": "M1",
    "nav": "Time shifting",
@@ -181,7 +171,7 @@
    "obj": "Fix the delay/advance sign convention."
   },
   {
-   "i": 19,
+   "i": 18,
    "id": "m1-reverse-scale",
    "module": "M1",
    "nav": "Reversal and scaling",
@@ -191,7 +181,7 @@
    "obj": "State reversal and scaling and their effect on the support."
   },
   {
-   "i": 20,
+   "i": 19,
    "id": "m1-combined",
    "module": "M1",
    "nav": "Combined transformations",
@@ -201,7 +191,7 @@
    "obj": "Establish the correct two-step order for x(at−b)."
   },
   {
-   "i": 21,
+   "i": 20,
    "id": "m1-lab-a",
    "module": "M1",
    "nav": "Laboratory A · Transformations",
@@ -211,7 +201,7 @@
    "obj": "Explore x(at−b) with live support and critical-point tracking."
   },
   {
-   "i": 22,
+   "i": 21,
    "id": "m1-periodic",
    "module": "M1",
    "nav": "Periodicity",
@@ -221,7 +211,7 @@
    "obj": "Define CT and DT periodicity and the fundamental period."
   },
   {
-   "i": 23,
+   "i": 22,
    "id": "m1-evenodd",
    "module": "M1",
    "nav": "Even and odd",
@@ -231,7 +221,7 @@
    "obj": "Define even/odd and the unique decomposition."
   },
   {
-   "i": 24,
+   "i": 23,
    "id": "m1-dt-impulse",
    "module": "M1",
    "nav": "DT impulse and step",
@@ -241,7 +231,7 @@
    "obj": "Define δ[n], u[n], the first difference and the running sum."
   },
   {
-   "i": 25,
+   "i": 24,
    "id": "m1-dt-sift",
    "module": "M1",
    "nav": "Sampling and sifting (DT)",
@@ -251,7 +241,7 @@
    "obj": "Distinguish the two properties and verify both on the definition example."
   },
   {
-   "i": 26,
+   "i": 25,
    "id": "m1-ct-impulse",
    "module": "M1",
    "nav": "CT impulse and step",
@@ -261,7 +251,7 @@
    "obj": "Present δ(t) rigorously as a distribution while keeping the definition picture."
   },
   {
-   "i": 27,
+   "i": 26,
    "id": "m1-ct-cexp",
    "module": "M1",
    "nav": "CT complex exponentials",
@@ -271,7 +261,7 @@
    "obj": "Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity."
   },
   {
-   "i": 28,
+   "i": 27,
    "id": "m1-ct-cexp-b",
    "module": "M1",
    "nav": "CT exponentials · period and envelope",
@@ -281,7 +271,7 @@
    "obj": "Derive the fundamental period and read the general complex case as a sinusoid in an envelope."
   },
   {
-   "i": 29,
+   "i": 28,
    "id": "m1-dt-cexp",
    "module": "M1",
    "nav": "DT complex exponentials",
@@ -291,7 +281,7 @@
    "obj": "Introduce x[n]=Cα^n and the three envelope cases."
   },
   {
-   "i": 30,
+   "i": 29,
    "id": "m1-dt-period",
    "module": "M1",
    "nav": "DT periodicity condition",
@@ -301,7 +291,7 @@
    "obj": "Derive N = 2πk/ω₀ and the rationality condition; work the definition example."
   },
   {
-   "i": 31,
+   "i": 30,
    "id": "m1-lab-c",
    "module": "M1",
    "nav": "Laboratory C · Periodicity",
@@ -311,7 +301,7 @@
    "obj": "Compare CT and DT periodicity with an exact rationality test."
   },
   {
-   "i": 32,
+   "i": 31,
    "id": "m1-synth",
    "module": "M1",
    "nav": "Module 1 synthesis",
@@ -321,10 +311,20 @@
    "obj": "Consolidate the module and connect to Module 2."
   },
   {
+   "i": 32,
+   "id": "m1-drill",
+   "module": "M1",
+   "nav": "Module 1 · practice questions",
+   "title": "Module 1 — practice questions",
+   "src": "pp. 2–10",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 33,
    "id": "m2-drill-map",
    "module": "M2",
-   "nav": "Module 2 exam drill · question types",
+   "nav": "Module 2 · question types",
    "title": "Module 2 — what a question looks like",
    "src": "pp. 11–14",
    "steps": 0,
@@ -332,16 +332,6 @@
   },
   {
    "i": 34,
-   "id": "m2-drill",
-   "module": "M2",
-   "nav": "Module 2 exam drill · questions",
-   "title": "Module 2 — exam drill",
-   "src": "pp. 11–14",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 35,
    "id": "m2-open",
    "module": "M2",
    "nav": "Module 2 opening",
@@ -351,7 +341,7 @@
    "obj": ""
   },
   {
-   "i": 36,
+   "i": 35,
    "id": "m2-abstraction",
    "module": "M2",
    "nav": "Input–output abstraction",
@@ -361,7 +351,7 @@
    "obj": "Define a system as a deterministic map between signals."
   },
   {
-   "i": 37,
+   "i": 36,
    "id": "m2-memory",
    "module": "M2",
    "nav": "Memory",
@@ -371,7 +361,7 @@
    "obj": "Define memorylessness and test it on the definition examples."
   },
   {
-   "i": 38,
+   "i": 37,
    "id": "m2-invertible",
    "module": "M2",
    "nav": "Invertibility",
@@ -381,7 +371,7 @@
    "obj": "Define invertibility and demonstrate both proof strategies."
   },
   {
-   "i": 39,
+   "i": 38,
    "id": "m2-causal",
    "module": "M2",
    "nav": "Causality",
@@ -391,7 +381,7 @@
    "obj": "Define causality and work all five source examples."
   },
   {
-   "i": 40,
+   "i": 39,
    "id": "m2-stable",
    "module": "M2",
    "nav": "BIBO stability",
@@ -401,7 +391,7 @@
    "obj": "Define boundedness and BIBO stability; prove one case, disprove another."
   },
   {
-   "i": 41,
+   "i": 40,
    "id": "m2-ti",
    "module": "M2",
    "nav": "Time invariance",
@@ -411,7 +401,7 @@
    "obj": "State the test as a comparison of two computed signals and work both examples."
   },
   {
-   "i": 42,
+   "i": 41,
    "id": "m2-ti-b",
    "module": "M2",
    "nav": "Time invariance · the counterexample",
@@ -421,7 +411,7 @@
    "obj": "Work the n·x[n] counterexample and name the pattern behind every failure."
   },
   {
-   "i": 43,
+   "i": 42,
    "id": "m2-linear",
    "module": "M2",
    "nav": "Linearity",
@@ -431,7 +421,7 @@
    "obj": "State superposition and work both source examples in full."
   },
   {
-   "i": 44,
+   "i": 43,
    "id": "m2-workflow",
    "module": "M2",
    "nav": "Classification workflow",
@@ -441,7 +431,7 @@
    "obj": "Give a repeatable order of attack for classifying an unfamiliar system."
   },
   {
-   "i": 45,
+   "i": 44,
    "id": "m2-lab-d",
    "module": "M2",
    "nav": "Laboratory D · Property checker",
@@ -451,7 +441,7 @@
    "obj": "Apply the six formal tests to thirteen source systems."
   },
   {
-   "i": 46,
+   "i": 45,
    "id": "m2-synth",
    "module": "M2",
    "nav": "Module 2 synthesis",
@@ -461,10 +451,20 @@
    "obj": "Consolidate and motivate the LTI restriction."
   },
   {
+   "i": 46,
+   "id": "m2-drill",
+   "module": "M2",
+   "nav": "Module 2 · practice questions",
+   "title": "Module 2 — practice questions",
+   "src": "pp. 11–14",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 47,
    "id": "m3-drill-map",
    "module": "M3",
-   "nav": "Module 3 exam drill · question types",
+   "nav": "Module 3 · question types",
    "title": "Module 3 — what a question looks like",
    "src": "pp. 14–21",
    "steps": 0,
@@ -472,16 +472,6 @@
   },
   {
    "i": 48,
-   "id": "m3-drill",
-   "module": "M3",
-   "nav": "Module 3 exam drill · questions",
-   "title": "Module 3 — exam drill",
-   "src": "pp. 14–21",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 49,
    "id": "m3-open",
    "module": "M3",
    "nav": "Module 3 opening",
@@ -491,7 +481,7 @@
    "obj": ""
   },
   {
-   "i": 50,
+   "i": 49,
    "id": "m3-impulse",
    "module": "M3",
    "nav": "Impulse response",
@@ -501,7 +491,7 @@
    "obj": "Define h and explain why one experiment can characterise a whole system."
   },
   {
-   "i": 51,
+   "i": 50,
    "id": "m3-representation",
    "module": "M3",
    "nav": "Representation property",
@@ -511,7 +501,7 @@
    "obj": "Derive the representation property from the sampling property."
   },
   {
-   "i": 52,
+   "i": 51,
    "id": "m3-convsum",
    "module": "M3",
    "nav": "The convolution sum",
@@ -521,7 +511,7 @@
    "obj": "Give the three-line LTI derivation and name where each property is used."
   },
   {
-   "i": 53,
+   "i": 52,
    "id": "m3-steps",
    "module": "M3",
    "nav": "Flip, shift, multiply, add",
@@ -531,7 +521,7 @@
    "obj": "Name the procedure and explain the role of the flip."
   },
   {
-   "i": 54,
+   "i": 53,
    "id": "m3-ex-dt1",
    "module": "M3",
    "nav": "Worked example · finite sequences",
@@ -541,7 +531,7 @@
    "obj": "Reproduce the definition example with the superposition method and verify."
   },
   {
-   "i": 55,
+   "i": 54,
    "id": "m3-ex-dt1-b",
    "module": "M3",
    "nav": "Worked example · adding the copies",
@@ -551,7 +541,7 @@
    "obj": "Add the shifted impulse responses and check the result two ways."
   },
   {
-   "i": 56,
+   "i": 55,
    "id": "m3-ex-dt2",
    "module": "M3",
    "nav": "Worked example · geometric",
@@ -561,7 +551,7 @@
    "obj": "Work the geometric example, including the case split and the series condition."
   },
   {
-   "i": 57,
+   "i": 56,
    "id": "m3-convint",
    "module": "M3",
    "nav": "The convolution integral",
@@ -571,7 +561,7 @@
    "obj": "Transfer the derivation to continuous time."
   },
   {
-   "i": 58,
+   "i": 57,
    "id": "m3-ex-ct1",
    "module": "M3",
    "nav": "Worked example · CT case split",
@@ -581,7 +571,7 @@
    "obj": "Set up the exponential/step example and read the limits of both cases off the overlap."
   },
   {
-   "i": 59,
+   "i": 58,
    "id": "m3-ex-ct1-b",
    "module": "M3",
    "nav": "Worked example · the two branches",
@@ -591,7 +581,7 @@
    "obj": "Assemble the two cases into one answer and check it three ways."
   },
   {
-   "i": 60,
+   "i": 59,
    "id": "m3-ex-ct2",
    "module": "M3",
    "nav": "Worked example · five cases",
@@ -601,7 +591,7 @@
    "obj": "Work the rect ∗ ramp example, listing every case boundary and verifying continuity."
   },
   {
-   "i": 61,
+   "i": 60,
    "id": "m3-lab-e",
    "module": "M3",
    "nav": "Laboratory E · Convolution",
@@ -611,7 +601,7 @@
    "obj": "See flip, shift, multiply and accumulate for four source cases."
   },
   {
-   "i": 62,
+   "i": 61,
    "id": "m3-props",
    "module": "M3",
    "nav": "Convolution properties",
@@ -621,7 +611,7 @@
    "obj": "State commutativity, distributivity and associativity with their interconnection meanings."
   },
   {
-   "i": 63,
+   "i": 62,
    "id": "m3-lti-props",
    "module": "M3",
    "nav": "LTI property criteria",
@@ -631,7 +621,7 @@
    "obj": "Give the impulse-response criterion for each system property."
   },
   {
-   "i": 64,
+   "i": 63,
    "id": "m3-synth",
    "module": "M3",
    "nav": "Module 3 synthesis",
@@ -641,10 +631,20 @@
    "obj": "Consolidate and open the door to the frequency domain."
   },
   {
+   "i": 64,
+   "id": "m3-drill",
+   "module": "M3",
+   "nav": "Module 3 · practice questions",
+   "title": "Module 3 — practice questions",
+   "src": "pp. 14–21",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 65,
    "id": "m4-drill-map",
    "module": "M4",
-   "nav": "Module 4 exam drill · question types",
+   "nav": "Module 4 · question types",
    "title": "Module 4 — what a question looks like",
    "src": "pp. 22–41",
    "steps": 0,
@@ -652,16 +652,6 @@
   },
   {
    "i": 66,
-   "id": "m4-drill",
-   "module": "M4",
-   "nav": "Module 4 exam drill · questions",
-   "title": "Module 4 — exam drill",
-   "src": "pp. 22–41",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 67,
    "id": "m4-open",
    "module": "M4",
    "nav": "Module 4 opening",
@@ -671,7 +661,7 @@
    "obj": ""
   },
   {
-   "i": 68,
+   "i": 67,
    "id": "m4-eigen-ct",
    "module": "M4",
    "nav": "Eigenfunctions · continuous time",
@@ -681,7 +671,7 @@
    "obj": "Derive the eigenfunction property in continuous time and name the eigenvalue."
   },
   {
-   "i": 69,
+   "i": 68,
    "id": "m4-eigen-dt",
    "module": "M4",
    "nav": "Eigenfunctions · discrete time",
@@ -691,7 +681,7 @@
    "obj": "Derive the discrete-time eigenfunction property and keep it separate from the continuous-time one."
   },
   {
-   "i": 70,
+   "i": 69,
    "id": "m4-eigen-why",
    "module": "M4",
    "nav": "Why eigenfunctions matter",
@@ -701,7 +691,7 @@
    "obj": "Show that a linear combination of eigenfunctions needs no convolution."
   },
   {
-   "i": 71,
+   "i": 70,
    "id": "m4-eigen-ex",
    "module": "M4",
    "nav": "Worked example · a pure delay",
@@ -711,7 +701,7 @@
    "obj": "Work the delay example through the eigenfunction route and verify it directly."
   },
   {
-   "i": 72,
+   "i": 71,
    "id": "m4-fs-exist",
    "module": "M4",
    "nav": "When a series exists",
@@ -721,7 +711,7 @@
    "obj": "State the three Dirichlet conditions and show one signal violating each."
   },
   {
-   "i": 73,
+   "i": 72,
    "id": "m4-fs-synth",
    "module": "M4",
    "nav": "Synthesis equation",
@@ -731,7 +721,7 @@
    "obj": "State the synthesis equation and read the coefficients off a sum of sinusoids."
   },
   {
-   "i": 74,
+   "i": 73,
    "id": "m4-period",
    "module": "M4",
    "nav": "Fundamental period of a sum",
@@ -741,7 +731,7 @@
    "obj": "Give the general rule for the fundamental period of a sum and show where the shortcut fails."
   },
   {
-   "i": 75,
+   "i": 74,
    "id": "m4-period-ex",
    "module": "M4",
    "nav": "Period of a sum · examples",
@@ -751,7 +741,7 @@
    "obj": "Work three period examples and show the failure the rule prevents."
   },
   {
-   "i": 76,
+   "i": 75,
    "id": "m4-fs-coef",
    "module": "M4",
    "nav": "Analysis equation",
@@ -761,7 +751,7 @@
    "obj": "State and prove the analysis equation through the orthogonality of complex exponentials."
   },
   {
-   "i": 77,
+   "i": 76,
    "id": "m4-fs-proof",
    "module": "M4",
    "nav": "Orthogonality",
@@ -771,7 +761,7 @@
    "obj": "Prove the analysis equation through the orthogonality of complex exponentials."
   },
   {
-   "i": 78,
+   "i": 77,
    "id": "m4-dc",
    "module": "M4",
    "nav": "The DC term",
@@ -781,7 +771,7 @@
    "obj": "Interpret a₀ as the average value over one period."
   },
   {
-   "i": 79,
+   "i": 78,
    "id": "m4-rect",
    "module": "M4",
    "nav": "Rectangular wave · coefficients",
@@ -791,7 +781,7 @@
    "obj": "Derive the coefficients of the periodic rectangular wave, both branches."
   },
   {
-   "i": 80,
+   "i": 79,
    "id": "m4-rect-sample",
    "module": "M4",
    "nav": "Rectangular wave · envelope",
@@ -801,7 +791,7 @@
    "obj": "Separate the continuous envelope from the discrete samples that are the coefficients."
   },
   {
-   "i": 81,
+   "i": 80,
    "id": "m4-howmany",
    "module": "M4",
    "nav": "How many harmonics",
@@ -811,7 +801,7 @@
    "obj": "Define the truncated series and the mean-square error, and describe the Gibbs phenomenon."
   },
   {
-   "i": 82,
+   "i": 81,
    "id": "m4-saw",
    "module": "M4",
    "nav": "Sawtooth wave",
@@ -821,7 +811,7 @@
    "obj": "Derive the sawtooth coefficients and read their purely imaginary structure."
   },
   {
-   "i": 83,
+   "i": 82,
    "id": "m4-saw-b",
    "module": "M4",
    "nav": "Sawtooth · result",
@@ -831,7 +821,7 @@
    "obj": "State the sawtooth result and read the odd-signal symmetry off it."
   },
   {
-   "i": 84,
+   "i": 83,
    "id": "m4-imptrain",
    "module": "M4",
    "nav": "Impulse train",
@@ -841,7 +831,7 @@
    "obj": "Compute the coefficients of the impulse train and read the flat spectrum."
   },
   {
-   "i": 85,
+   "i": 84,
    "id": "m4-dtfs",
    "module": "M4",
    "nav": "Discrete-time series",
@@ -851,7 +841,7 @@
    "obj": "State the DTFS pair and prove that the coefficients repeat with period N."
   },
   {
-   "i": 86,
+   "i": 85,
    "id": "m4-dtfs-ex",
    "module": "M4",
    "nav": "Discrete-time example",
@@ -861,7 +851,7 @@
    "obj": "Find the period and the DTFS coefficients of a sum of a sine and a cosine sequence."
   },
   {
-   "i": 87,
+   "i": 86,
    "id": "m4-dt-square",
    "module": "M4",
    "nav": "DT square wave · the sum",
@@ -871,7 +861,7 @@
    "obj": "Evaluate the finite geometric sum and state the condition it actually needs."
   },
   {
-   "i": 88,
+   "i": 87,
    "id": "m4-dt-square-b",
    "module": "M4",
    "nav": "DT square wave · result",
@@ -881,7 +871,7 @@
    "obj": "State both branches of the discrete-time square-wave coefficients and reconstruct exactly."
   },
   {
-   "i": 89,
+   "i": 88,
    "id": "m4-dt-saw",
    "module": "M4",
    "nav": "DT sawtooth",
@@ -891,7 +881,7 @@
    "obj": "Compute the coefficients of an odd period-11 sequence by pairing terms."
   },
   {
-   "i": 90,
+   "i": 89,
    "id": "m4-props-1",
    "module": "M4",
    "nav": "Properties · linearity, shift",
@@ -901,7 +891,7 @@
    "obj": "State and prove linearity and the time-shift property, and read what a shift does to magnitude."
   },
   {
-   "i": 91,
+   "i": 90,
    "id": "m4-props-2",
    "module": "M4",
    "nav": "Properties · reversal, conjugation, product",
@@ -911,7 +901,7 @@
    "obj": "State the remaining properties and get the summation range of the discrete-time product right."
   },
   {
-   "i": 92,
+   "i": 91,
    "id": "m4-props-mult",
    "module": "M4",
    "nav": "Properties · multiplication",
@@ -921,7 +911,7 @@
    "obj": "State the multiplication property and get the discrete-time summation range right."
   },
   {
-   "i": 93,
+   "i": 92,
    "id": "m4-parseval",
    "module": "M4",
    "nav": "Parseval",
@@ -931,7 +921,7 @@
    "obj": "State Parseval’s relation in both domains and use it as an accounting identity."
   },
   {
-   "i": 94,
+   "i": 93,
    "id": "m4-lti",
    "module": "M4",
    "nav": "Series through an LTI system",
@@ -941,7 +931,7 @@
    "obj": "Derive b_k = a_k H(jkω₀) and give the conjugate-pair reassembly explicitly."
   },
   {
-   "i": 95,
+   "i": 94,
    "id": "m4-pairing",
    "module": "M4",
    "nav": "Putting the output together",
@@ -951,7 +941,7 @@
    "obj": "Derive the conjugate-pair reassembly and name the factor of two and the phase convention."
   },
   {
-   "i": 96,
+   "i": 95,
    "id": "m4-lpf",
    "module": "M4",
    "nav": "Worked example · low-pass",
@@ -961,7 +951,7 @@
    "obj": "Filter a four-term periodic signal and assemble the real output correctly."
   },
   {
-   "i": 97,
+   "i": 96,
    "id": "m4-hpf",
    "module": "M4",
    "nav": "Worked example · high-pass",
@@ -971,7 +961,7 @@
    "obj": "Repeat the calculation for a high-pass response and get every phase from the positive index."
   },
   {
-   "i": 98,
+   "i": 97,
    "id": "m4-dt-filt",
    "module": "M4",
    "nav": "Worked example · discrete high-pass",
@@ -981,7 +971,7 @@
    "obj": "Filter a period-4 impulse train with a two-tap high-pass system."
   },
   {
-   "i": 99,
+   "i": 98,
    "id": "m4-dt-filt-b",
    "module": "M4",
    "nav": "Worked example · discrete low-pass",
@@ -991,7 +981,7 @@
    "obj": "Repeat the discrete filtering calculation for the low-pass system and compare the two."
   },
   {
-   "i": 100,
+   "i": 99,
    "id": "m4-lab-f",
    "module": "M4",
    "nav": "Laboratory F · Reconstruction",
@@ -1001,7 +991,7 @@
    "obj": "Watch a partial sum approach a waveform, and watch the Gibbs overshoot refuse to."
   },
   {
-   "i": 101,
+   "i": 100,
    "id": "m4-lab-g",
    "module": "M4",
    "nav": "Laboratory G · Frequency response",
@@ -1011,10 +1001,20 @@
    "obj": "Follow one signal through the chain a_k → H → b_k → y and expose the pairing step."
   },
   {
+   "i": 101,
+   "id": "m4-drill",
+   "module": "M4",
+   "nav": "Module 4 · practice questions",
+   "title": "Module 4 — practice questions",
+   "src": "pp. 22–41",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 102,
    "id": "m5-drill-map",
    "module": "M5",
-   "nav": "Module 5 exam drill · question types",
+   "nav": "Module 5 · question types",
    "title": "Module 5 — what a question looks like",
    "src": "pp. 42–63",
    "steps": 0,
@@ -1022,16 +1022,6 @@
   },
   {
    "i": 103,
-   "id": "m5-drill",
-   "module": "M5",
-   "nav": "Module 5 exam drill · questions",
-   "title": "Module 5 — exam drill",
-   "src": "pp. 42–63",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 104,
    "id": "m5-open",
    "module": "M5",
    "nav": "Module 5 opening",
@@ -1041,7 +1031,7 @@
    "obj": ""
   },
   {
-   "i": 105,
+   "i": 104,
    "id": "m5-derive-1",
    "module": "M5",
    "nav": "From a series to a transform",
@@ -1051,7 +1041,7 @@
    "obj": "Build the periodic extension of a pulse and state the condition the construction needs."
   },
   {
-   "i": 106,
+   "i": 105,
    "id": "m5-derive-2",
    "module": "M5",
    "nav": "Coefficients as samples",
@@ -1061,7 +1051,7 @@
    "obj": "Show that T·a_k is one function of ω, sampled at multiples of ω₀."
   },
   {
-   "i": 107,
+   "i": 106,
    "id": "m5-derive-3",
    "module": "M5",
    "nav": "The sum becomes an integral",
@@ -1071,7 +1061,7 @@
    "obj": "Carry the synthesis sum to the limit and produce the 1/2π explicitly."
   },
   {
-   "i": 108,
+   "i": 107,
    "id": "m5-pair",
    "module": "M5",
    "nav": "Analysis and synthesis",
@@ -1081,7 +1071,7 @@
    "obj": "Name both equations correctly and state what each one does."
   },
   {
-   "i": 109,
+   "i": 108,
    "id": "m5-exist",
    "module": "M5",
    "nav": "When the transform exists",
@@ -1091,7 +1081,7 @@
    "obj": "State the two existence conditions separately and show that neither implies the other."
   },
   {
-   "i": 110,
+   "i": 109,
    "id": "m5-limit",
    "module": "M5",
    "nav": "Transforms that are impulses",
@@ -1101,7 +1091,7 @@
    "obj": "Explain in what sense a constant or a periodic signal has a transform."
   },
   {
-   "i": 111,
+   "i": 110,
    "id": "m5-ex-delta",
    "module": "M5",
    "nav": "Worked example · the impulse",
@@ -1111,7 +1101,7 @@
    "obj": "Transform δ(t) and δ(t−t₀) and read the magnitude and phase."
   },
   {
-   "i": 112,
+   "i": 111,
    "id": "m5-ex-expw",
    "module": "M5",
    "nav": "Worked example · a single frequency",
@@ -1121,7 +1111,7 @@
    "obj": "Invert 2πδ(ω−ω₀) and show why the 2π is part of the answer."
   },
   {
-   "i": 113,
+   "i": 112,
    "id": "m5-ex-exp",
    "module": "M5",
    "nav": "Worked example · one-sided exponential",
@@ -1131,7 +1121,7 @@
    "obj": "Transform the decaying exponential and state where a > 0 is needed."
   },
   {
-   "i": 114,
+   "i": 113,
    "id": "m5-ex-exp-phase",
    "module": "M5",
    "nav": "Worked example · its phase",
@@ -1141,7 +1131,7 @@
    "obj": "Derive the phase with its minus sign and check it against the plot."
   },
   {
-   "i": 115,
+   "i": 114,
    "id": "m5-ex-twosided",
    "module": "M5",
    "nav": "Worked example · two-sided exponential",
@@ -1151,7 +1141,7 @@
    "obj": "Transform the two-sided exponential and connect evenness to a real transform."
   },
   {
-   "i": 116,
+   "i": 115,
    "id": "m5-rect-sinc",
    "module": "M5",
    "nav": "Rectangular pulse",
@@ -1161,7 +1151,7 @@
    "obj": "Transform the rectangular pulse and fix the sinc convention used everywhere after this."
   },
   {
-   "i": 117,
+   "i": 116,
    "id": "m5-rect-zeros",
    "module": "M5",
    "nav": "Where the sinc is zero",
@@ -1171,7 +1161,7 @@
    "obj": "State the zero set with the origin excluded and justify the exclusion."
   },
   {
-   "i": 118,
+   "i": 117,
    "id": "m5-sinc-rect",
    "module": "M5",
    "nav": "The ideal low-pass pair",
@@ -1181,7 +1171,7 @@
    "obj": "Invert an ideal low-pass band and read its time-domain peak."
   },
   {
-   "i": 119,
+   "i": 118,
    "id": "m5-inverse-rel",
    "module": "M5",
    "nav": "Narrow in time, wide in frequency",
@@ -1191,7 +1181,7 @@
    "obj": "State the inverse relation as a scaling statement, with the bandwidth measure named."
   },
   {
-   "i": 120,
+   "i": 119,
    "id": "m5-bandlimit",
    "module": "M5",
    "nav": "Duration and band limitation",
@@ -1201,7 +1191,7 @@
    "obj": "Separate the true statement about finite duration from the false converse."
   },
   {
-   "i": 121,
+   "i": 120,
    "id": "m5-periodic",
    "module": "M5",
    "nav": "A periodic signal",
@@ -1211,7 +1201,7 @@
    "obj": "Derive the impulse train in frequency from the Fourier series."
   },
   {
-   "i": 122,
+   "i": 121,
    "id": "m5-ex-square",
    "module": "M5",
    "nav": "Worked example · square wave",
@@ -1221,7 +1211,7 @@
    "obj": "Compute the impulse weights for three periods and read the spacing correctly."
   },
   {
-   "i": 123,
+   "i": 122,
    "id": "m5-ex-sinus",
    "module": "M5",
    "nav": "Worked example · cosine and sine",
@@ -1231,7 +1221,7 @@
    "obj": "Transform a cosine and a sine and keep both halves of each pair."
   },
   {
-   "i": 124,
+   "i": 123,
    "id": "m5-ex-sinus-b",
    "module": "M5",
    "nav": "Worked example · a mixed signal",
@@ -1241,7 +1231,7 @@
    "obj": "Assemble one spectrum from three terms and show it as magnitude and phase."
   },
   {
-   "i": 125,
+   "i": 124,
    "id": "m5-ex-imptrain",
    "module": "M5",
    "nav": "Worked example · impulse train",
@@ -1251,7 +1241,7 @@
    "obj": "Transform the periodic impulse train and state the reciprocal spacing rule."
   },
   {
-   "i": 126,
+   "i": 125,
    "id": "m5-props-1",
    "module": "M5",
    "nav": "Properties · linearity, time shift",
@@ -1261,7 +1251,7 @@
    "obj": "State and prove the two properties that need no new machinery."
   },
   {
-   "i": 127,
+   "i": 126,
    "id": "m5-props-shift-ex",
    "module": "M5",
    "nav": "Worked example · a shifted sum",
@@ -1271,7 +1261,7 @@
    "obj": "Apply linearity and the shift together and check the value at the origin."
   },
   {
-   "i": 128,
+   "i": 127,
    "id": "m5-props-freq",
    "module": "M5",
    "nav": "Properties · frequency shift",
@@ -1281,7 +1271,7 @@
    "obj": "Prove the frequency-shift property from the expression the property states."
   },
   {
-   "i": 129,
+   "i": 128,
    "id": "m5-props-conj",
    "module": "M5",
    "nav": "Properties · conjugation and symmetry",
@@ -1291,7 +1281,7 @@
    "obj": "Derive the conjugate symmetry of a real signal and its even and odd consequences."
   },
   {
-   "i": 130,
+   "i": 129,
    "id": "m5-props-diff",
    "module": "M5",
    "nav": "Properties · differentiation",
@@ -1301,7 +1291,7 @@
    "obj": "Prove the differentiation property correctly and expose the step students reproduce."
   },
   {
-   "i": 131,
+   "i": 130,
    "id": "m5-props-scale",
    "module": "M5",
    "nav": "Properties · time scaling",
@@ -1311,7 +1301,7 @@
    "obj": "Prove the scaling property for both signs of a without double-counting the reversal."
   },
   {
-   "i": 132,
+   "i": 131,
    "id": "m5-props-scale-ex",
    "module": "M5",
    "nav": "Worked example · scaling a band",
@@ -1321,7 +1311,7 @@
    "obj": "Apply the scaling property in both directions and check heights and widths."
   },
   {
-   "i": 133,
+   "i": 132,
    "id": "m5-duality",
    "module": "M5",
    "nav": "Duality",
@@ -1331,7 +1321,7 @@
    "obj": "State and prove duality with the correct argument on the right-hand side."
   },
   {
-   "i": 134,
+   "i": 133,
    "id": "m5-duality-ex",
    "module": "M5",
    "nav": "Worked example · duality",
@@ -1341,7 +1331,7 @@
    "obj": "Use duality on the rectangular pulse and confirm the result independently."
   },
   {
-   "i": 135,
+   "i": 134,
    "id": "m5-parseval",
    "module": "M5",
    "nav": "Parseval",
@@ -1351,7 +1341,7 @@
    "obj": "Prove Parseval and fix the normalisation the energy is measured under."
   },
   {
-   "i": 136,
+   "i": 135,
    "id": "m5-parseval-ex",
    "module": "M5",
    "nav": "Worked example · Parseval",
@@ -1361,7 +1351,7 @@
    "obj": "Compute an energy in the frequency domain and confirm it in the time domain."
   },
   {
-   "i": 137,
+   "i": 136,
    "id": "m5-conv",
    "module": "M5",
    "nav": "Convolution property",
@@ -1371,7 +1361,7 @@
    "obj": "State and prove the convolution property with one consistent set of symbols."
   },
   {
-   "i": 138,
+   "i": 137,
    "id": "m5-conv-ex",
    "module": "M5",
    "nav": "Worked example · two exponentials",
@@ -1381,7 +1371,7 @@
    "obj": "Solve an LTI problem by transform and partial fractions, and check the peak."
   },
   {
-   "i": 139,
+   "i": 138,
    "id": "m5-conv-lpf",
    "module": "M5",
    "nav": "Worked example · filters in cascade",
@@ -1391,7 +1381,7 @@
    "obj": "Multiply two ideal bands and read the three time-domain peaks."
   },
   {
-   "i": 140,
+   "i": 139,
    "id": "m5-mult",
    "module": "M5",
    "nav": "Multiplication property",
@@ -1401,7 +1391,7 @@
    "obj": "State the dual of the convolution property and place its 1/2π."
   },
   {
-   "i": 141,
+   "i": 140,
    "id": "m5-am",
    "module": "M5",
    "nav": "Amplitude modulation",
@@ -1411,7 +1401,7 @@
    "obj": "Derive the DSB-SC spectrum and name the two copies."
   },
   {
-   "i": 142,
+   "i": 141,
    "id": "m5-am-sinc",
    "module": "M5",
    "nav": "Modulating a band",
@@ -1421,7 +1411,7 @@
    "obj": "Move a sinc-shaped band to a carrier and read the band edges."
   },
   {
-   "i": 143,
+   "i": 142,
    "id": "m5-am-overlap",
    "module": "M5",
    "nav": "When the copies overlap",
@@ -1431,7 +1421,7 @@
    "obj": "Work the case where the two copies meet, and separate replication from overlap."
   },
   {
-   "i": 144,
+   "i": 143,
    "id": "m5-sinc2",
    "module": "M5",
    "nav": "Products of sincs",
@@ -1441,7 +1431,7 @@
    "obj": "Convolve two rectangular bands and read the triangle and the trapezoid."
   },
   {
-   "i": 145,
+   "i": 144,
    "id": "m5-tables",
    "module": "M5",
    "nav": "Property summary",
@@ -1451,7 +1441,7 @@
    "obj": "Collect the properties and pairs of this module for reference."
   },
   {
-   "i": 146,
+   "i": 145,
    "id": "m5-diffeq",
    "module": "M5",
    "nav": "Systems from a differential equation",
@@ -1461,7 +1451,7 @@
    "obj": "Turn an LCCDE into H(jω) and state when H exists."
   },
   {
-   "i": 147,
+   "i": 146,
    "id": "m5-diffeq-ex",
    "module": "M5",
    "nav": "Worked example · simple poles",
@@ -1471,7 +1461,7 @@
    "obj": "Invert a rational H with distinct poles and check the result."
   },
   {
-   "i": 148,
+   "i": 147,
    "id": "m5-partial",
    "module": "M5",
    "nav": "Repeated poles",
@@ -1481,7 +1471,7 @@
    "obj": "State the repeated-pole partial-fraction rule and show why the cover-up rule fails there."
   },
   {
-   "i": 149,
+   "i": 148,
    "id": "m5-diffeq-b",
    "module": "M5",
    "nav": "Worked example · a repeated pole",
@@ -1491,7 +1481,7 @@
    "obj": "Solve a full LTI problem with a double pole and use y(0)=0 as the check."
   },
   {
-   "i": 150,
+   "i": 149,
    "id": "m5-diffeq-b2",
    "module": "M5",
    "nav": "Worked example · the check",
@@ -1501,7 +1491,7 @@
    "obj": "Assemble the output and use y(0)=0 to catch a lost sign."
   },
   {
-   "i": 151,
+   "i": 150,
    "id": "m5-lab-h",
    "module": "M5",
    "nav": "Laboratory H · Time and frequency",
@@ -1511,10 +1501,20 @@
    "obj": "Move one signal in time and watch its transform answer, with and without a carrier."
   },
   {
+   "i": 151,
+   "id": "m5-drill",
+   "module": "M5",
+   "nav": "Module 5 · practice questions",
+   "title": "Module 5 — practice questions",
+   "src": "pp. 42–63",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 152,
    "id": "m6-drill-map",
    "module": "M6",
-   "nav": "Module 6 exam drill · question types",
+   "nav": "Module 6 · question types",
    "title": "Module 6 — what a question looks like",
    "src": "pp. 64–79",
    "steps": 0,
@@ -1522,16 +1522,6 @@
   },
   {
    "i": 153,
-   "id": "m6-drill",
-   "module": "M6",
-   "nav": "Module 6 exam drill · questions",
-   "title": "Module 6 — exam drill",
-   "src": "pp. 64–79",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 154,
    "id": "m6-open",
    "module": "M6",
    "nav": "Module 6 opening",
@@ -1541,7 +1531,7 @@
    "obj": ""
   },
   {
-   "i": 155,
+   "i": 154,
    "id": "m6-derive",
    "module": "M6",
    "nav": "Building the transform",
@@ -1551,7 +1541,7 @@
    "obj": "Build the periodic replication of a finite-support sequence and state the condition it needs."
   },
   {
-   "i": 156,
+   "i": 155,
    "id": "m6-dtfs-link",
    "module": "M6",
    "nav": "Series coefficients as samples",
@@ -1561,7 +1551,7 @@
    "obj": "Write the series analysis equation with the correct sign and identify the envelope it samples."
   },
   {
-   "i": 157,
+   "i": 156,
    "id": "m6-limit",
    "module": "M6",
    "nav": "Letting the period grow",
@@ -1571,7 +1561,7 @@
    "obj": "Take the limit N to infinity and produce the synthesis equation."
   },
   {
-   "i": 158,
+   "i": 157,
    "id": "m6-pair",
    "module": "M6",
    "nav": "The transform pair",
@@ -1581,7 +1571,7 @@
    "obj": "State the DTFT pair with the two names attached correctly and state the convergence condition."
   },
   {
-   "i": 159,
+   "i": 158,
    "id": "m6-periodic",
    "module": "M6",
    "nav": "Why the spectrum repeats",
@@ -1591,7 +1581,7 @@
    "obj": "Prove the 2pi-periodicity and contrast it with the continuous-time case."
   },
   {
-   "i": 160,
+   "i": 159,
    "id": "m6-ex-shift",
    "module": "M6",
    "nav": "Worked example · shifted sample",
@@ -1601,7 +1591,7 @@
    "obj": "Transform a shifted unit sample and read the linear phase off the picture."
   },
   {
-   "i": 161,
+   "i": 160,
    "id": "m6-ex-anun",
    "module": "M6",
    "nav": "Worked example · $a^{n}u[n]$",
@@ -1611,7 +1601,7 @@
    "obj": "Transform a^n u[n] and state the condition the geometric sum needs."
   },
   {
-   "i": 162,
+   "i": 161,
    "id": "m6-ex-anun-b",
    "module": "M6",
    "nav": "$a^{n}u[n]$ · magnitude and phase",
@@ -1621,7 +1611,7 @@
    "obj": "Derive the closed forms for the extremes of magnitude and phase and check them on the figures."
   },
   {
-   "i": 163,
+   "i": 162,
    "id": "m6-ex-absn",
    "module": "M6",
    "nav": "Worked example · $a^{|n|}$",
@@ -1631,7 +1621,7 @@
    "obj": "Transform a^{|n|} by splitting the sum and show the result is real and positive."
   },
   {
-   "i": 164,
+   "i": 163,
    "id": "m6-ex-rect",
    "module": "M6",
    "nav": "Worked example · rectangular pulse",
@@ -1641,7 +1631,7 @@
    "obj": "Sum the finite geometric series correctly and obtain the Dirichlet kernel."
   },
   {
-   "i": 165,
+   "i": 164,
    "id": "m6-ex-rect-b",
    "module": "M6",
    "nav": "Rectangular pulse · reading it",
@@ -1651,7 +1641,7 @@
    "obj": "Handle the excluded points, and compare two pulse widths."
   },
   {
-   "i": 166,
+   "i": 165,
    "id": "m6-real-phase",
    "module": "M6",
    "nav": "Real is not zero-phase",
@@ -1661,7 +1651,7 @@
    "obj": "Separate real from non-negative and give the phase of a sign-changing real spectrum."
   },
   {
-   "i": 167,
+   "i": 166,
    "id": "m6-ex-lpf",
    "module": "M6",
    "nav": "Worked example · ideal low-pass",
@@ -1671,7 +1661,7 @@
    "obj": "Invert the ideal discrete-time low-pass spectrum and state the sinc convention."
   },
   {
-   "i": 168,
+   "i": 167,
    "id": "m6-cexp",
    "module": "M6",
    "nav": "Transform of a complex exponential",
@@ -1681,7 +1671,7 @@
    "obj": "State and prove the impulse-train transform of a discrete-time complex exponential."
   },
   {
-   "i": 169,
+   "i": 168,
    "id": "m6-dt-periodic",
    "module": "M6",
    "nav": "Transform of a periodic sequence",
@@ -1691,7 +1681,7 @@
    "obj": "Turn a discrete-time Fourier series into a train of impulses and specialise to cosine and sine."
   },
   {
-   "i": 170,
+   "i": 169,
    "id": "m6-sqwave",
    "module": "M6",
    "nav": "Periodic square wave",
@@ -1701,7 +1691,7 @@
    "obj": "Compute the square-wave coefficients and draw the impulse weights unequally and with their signs."
   },
   {
-   "i": 171,
+   "i": 170,
    "id": "m6-ex-imptrain",
    "module": "M6",
    "nav": "Worked example · impulse train",
@@ -1711,7 +1701,7 @@
    "obj": "Transform the impulse train and keep the summation index distinct from the free variable."
   },
   {
-   "i": 172,
+   "i": 171,
    "id": "m6-ex-cos",
    "module": "M6",
    "nav": "Worked example · two cosines",
@@ -1721,7 +1711,7 @@
    "obj": "Reduce two out-of-range frequencies into one period and place the impulses."
   },
   {
-   "i": 173,
+   "i": 172,
    "id": "m6-ex-cos-b",
    "module": "M6",
    "nav": "Two cosines · the period",
@@ -1731,7 +1721,7 @@
    "obj": "State the discrete-time fundamental-period rule and apply it to the two components and their sum."
   },
   {
-   "i": 174,
+   "i": 173,
    "id": "m6-props-1",
    "module": "M6",
    "nav": "Properties · shifts",
@@ -1741,7 +1731,7 @@
    "obj": "State the three shift properties and show what each does to magnitude and phase."
   },
   {
-   "i": 175,
+   "i": 174,
    "id": "m6-props-2",
    "module": "M6",
    "nav": "Properties · symmetry",
@@ -1751,7 +1741,7 @@
    "obj": "State the conjugate-symmetry properties and their consequences for a real sequence."
   },
   {
-   "i": 176,
+   "i": 175,
    "id": "m6-expansion",
    "module": "M6",
    "nav": "Properties · time expansion",
@@ -1761,7 +1751,7 @@
    "obj": "State the expansion property, prove it by an index change, and read the halved period off the picture."
   },
   {
-   "i": 177,
+   "i": 176,
    "id": "m6-expansion-b",
    "module": "M6",
    "nav": "Time expansion · worked example",
@@ -1771,7 +1761,7 @@
    "obj": "Apply the expansion property to the five-point pulse and watch the argument halve."
   },
   {
-   "i": 178,
+   "i": 177,
    "id": "m6-props-3",
    "module": "M6",
    "nav": "Properties · differencing",
@@ -1781,7 +1771,7 @@
    "obj": "Name the first difference correctly and separate it from the frequency derivative."
   },
   {
-   "i": 179,
+   "i": 178,
    "id": "m6-parseval",
    "module": "M6",
    "nav": "Parseval",
@@ -1791,7 +1781,7 @@
    "obj": "State Parseval for the DTFT and check it on two sequences."
   },
   {
-   "i": 180,
+   "i": 179,
    "id": "m6-conv",
    "module": "M6",
    "nav": "Properties · convolution",
@@ -1801,7 +1791,7 @@
    "obj": "State the convolution property and separate the magnitude and phase statements."
   },
   {
-   "i": 181,
+   "i": 180,
    "id": "m6-conv-ex",
    "module": "M6",
    "nav": "Worked example · two exponentials",
@@ -1811,7 +1801,7 @@
    "obj": "Run the partial fractions in a named variable and state the condition the expansion needs."
   },
   {
-   "i": 182,
+   "i": 181,
    "id": "m6-conv-lpf",
    "module": "M6",
    "nav": "Worked example · filter cascade",
@@ -1821,7 +1811,7 @@
    "obj": "Multiply two ideal spectra, fix the band-edge convention, and finish the second problem."
   },
   {
-   "i": 183,
+   "i": 182,
    "id": "m6-conv-lpf-b",
    "module": "M6",
    "nav": "Filtering · a stepped spectrum",
@@ -1831,7 +1821,7 @@
    "obj": "Split a stepped output spectrum into stacked ideal bands and write the sequence."
   },
   {
-   "i": 184,
+   "i": 183,
    "id": "m6-mult",
    "module": "M6",
    "nav": "Properties · multiplication",
@@ -1841,7 +1831,7 @@
    "obj": "State the multiplication property with the periodic convolution and show the replicas overlapping."
   },
   {
-   "i": 185,
+   "i": 184,
    "id": "m6-mult-b",
    "module": "M6",
    "nav": "Multiplication · the overlap",
@@ -1851,7 +1841,7 @@
    "obj": "Read the doubled value at the period edge and check the result against z[0]."
   },
   {
-   "i": 186,
+   "i": 185,
    "id": "m6-mult-ex",
    "module": "M6",
    "nav": "Worked example · modulation",
@@ -1861,7 +1851,7 @@
    "obj": "Take one period of an impulse train into a periodic convolution and compute the band edges."
   },
   {
-   "i": 187,
+   "i": 186,
    "id": "m6-tables",
    "module": "M6",
    "nav": "Property summary",
@@ -1871,7 +1861,7 @@
    "obj": "Collect the properties and the transform pairs derived in this module."
   },
   {
-   "i": 188,
+   "i": 187,
    "id": "m6-duality",
    "module": "M6",
    "nav": "Duality",
@@ -1881,7 +1871,7 @@
    "obj": "Rule out a DTFT self-duality and state the two dualities that do hold."
   },
   {
-   "i": 189,
+   "i": 188,
    "id": "m6-freqresp",
    "module": "M6",
    "nav": "Difference equations",
@@ -1891,7 +1881,7 @@
    "obj": "Transform a linear constant-coefficient difference equation into a ratio of polynomials."
   },
   {
-   "i": 190,
+   "i": 189,
    "id": "m6-ex-diff",
    "module": "M6",
    "nav": "Worked example · second order",
@@ -1901,7 +1891,7 @@
    "obj": "Factor the denominator, run the partial fractions in z, and invert to the impulse response."
   },
   {
-   "i": 191,
+   "i": 190,
    "id": "m6-ex-pair",
    "module": "M6",
    "nav": "The repeated-pole pair",
@@ -1911,7 +1901,7 @@
    "obj": "Derive (n+1)a^n u[n] by differentiating the geometric pair, giving the exponent and the sign a reason."
   },
   {
-   "i": 192,
+   "i": 191,
    "id": "m6-ex-diff-b",
    "module": "M6",
    "nav": "Worked example · the output",
@@ -1921,7 +1911,7 @@
    "obj": "Expand a transform with a repeated pole and assemble the output sequence."
   },
   {
-   "i": 193,
+   "i": 192,
    "id": "m6-lab-i",
    "module": "M6",
    "nav": "Laboratory I · Periodicity",
@@ -1931,10 +1921,20 @@
    "obj": "See a sequence and its spectrum together, over more than one period, at every step."
   },
   {
+   "i": 193,
+   "id": "m6-drill",
+   "module": "M6",
+   "nav": "Module 6 · practice questions",
+   "title": "Module 6 — practice questions",
+   "src": "pp. 64–79",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
+  },
+  {
    "i": 194,
    "id": "m7-drill-map",
    "module": "M7",
-   "nav": "Module 7 exam drill · question types",
+   "nav": "Module 7 · question types",
    "title": "Module 7 — what a question looks like",
    "src": "pp. 80–88",
    "steps": 0,
@@ -1942,16 +1942,6 @@
   },
   {
    "i": 195,
-   "id": "m7-drill",
-   "module": "M7",
-   "nav": "Module 7 exam drill · questions",
-   "title": "Module 7 — exam drill",
-   "src": "pp. 80–88",
-   "steps": 0,
-   "obj": "Twenty open-ended questions in examination form, with worked solutions."
-  },
-  {
-   "i": 196,
    "id": "m7-open",
    "module": "M7",
    "nav": "Module 7 opening",
@@ -1961,7 +1951,7 @@
    "obj": ""
   },
   {
-   "i": 197,
+   "i": 196,
    "id": "m7-sampler",
    "module": "M7",
    "nav": "The sampler",
@@ -1971,7 +1961,7 @@
    "obj": "Define impulse-train sampling and read the weight of each impulse off the sifting property."
   },
   {
-   "i": 198,
+   "i": 197,
    "id": "m7-rates",
    "module": "M7",
    "nav": "Rate in rad/s and in hertz",
@@ -1981,7 +1971,7 @@
    "obj": "Separate the sampling angular frequency in rad/s from the sampling frequency in hertz."
   },
   {
-   "i": 199,
+   "i": 198,
    "id": "m7-freq",
    "module": "M7",
    "nav": "The sampled spectrum",
@@ -1991,7 +1981,7 @@
    "obj": "Derive the sampled spectrum and account for the factor 1/T."
   },
   {
-   "i": 200,
+   "i": 199,
    "id": "m7-replicas",
    "module": "M7",
    "nav": "Replication",
@@ -2001,7 +1991,7 @@
    "obj": "Establish that replication is unconditional and name the baseband apart from the copies."
   },
   {
-   "i": 201,
+   "i": 200,
    "id": "m7-three",
    "module": "M7",
    "nav": "Three sampling rates",
@@ -2011,7 +2001,7 @@
    "obj": "Compare the three rates by the width of the gap between neighbouring copies."
   },
   {
-   "i": 202,
+   "i": 201,
    "id": "m7-aliasing",
    "module": "M7",
    "nav": "Aliasing",
@@ -2021,7 +2011,7 @@
    "obj": "Define aliasing as the overlap of copies and show why no filter can undo it."
   },
   {
-   "i": 203,
+   "i": 202,
    "id": "m7-theorem",
    "module": "M7",
    "nav": "The sampling theorem",
@@ -2031,7 +2021,7 @@
    "obj": "State the theorem with the strict inequality and show that equality empties the cutoff interval."
   },
   {
-   "i": 204,
+   "i": 203,
    "id": "m7-boundary",
    "module": "M7",
    "nav": "The boundary is not safe",
@@ -2041,7 +2031,7 @@
    "obj": "Show quantitatively that a sine at the band edge is annihilated by sampling at exactly the Nyquist rate."
   },
   {
-   "i": 205,
+   "i": 204,
    "id": "m7-ex-rates",
    "module": "M7",
    "nav": "Worked example · three rates",
@@ -2051,7 +2041,7 @@
    "obj": "Compute the rate, the guard band and the copy height for three sampling periods of the same signal."
   },
   {
-   "i": 206,
+   "i": 205,
    "id": "m7-ex-73a",
    "module": "M7",
    "nav": "Worked example · a line spectrum",
@@ -2061,7 +2051,7 @@
    "obj": "Draw the spectrum of a constant plus a cosine plus a sine, with exact impulse locations and weights."
   },
   {
-   "i": 207,
+   "i": 206,
    "id": "m7-ex-73b",
    "module": "M7",
    "nav": "Worked example · the period",
@@ -2071,7 +2061,7 @@
    "obj": "Compute the sampling period from the rate and defend it with three independent checks."
   },
   {
-   "i": 208,
+   "i": 207,
    "id": "m7-ex-73c",
    "module": "M7",
    "nav": "Worked example · a triangular spectrum",
@@ -2081,7 +2071,7 @@
    "obj": "Separate the area of a convolution from the peak of the spectrum it produces."
   },
   {
-   "i": 209,
+   "i": 208,
    "id": "m7-recon",
    "module": "M7",
    "nav": "Reconstruction",
@@ -2091,7 +2081,7 @@
    "obj": "Specify the reconstruction filter and justify its gain and its cutoff."
   },
   {
-   "i": 210,
+   "i": 209,
    "id": "m7-interp",
    "module": "M7",
    "nav": "Band-limited interpolation",
@@ -2101,7 +2091,7 @@
    "obj": "Derive the interpolation kernel, state the sinc convention, and make the cutoff choice explicit."
   },
   {
-   "i": 211,
+   "i": 210,
    "id": "m7-zoh",
    "module": "M7",
    "nav": "The zero-order hold",
@@ -2111,7 +2101,7 @@
    "obj": "Derive the zero-order-hold response and show why it is not ideal reconstruction."
   },
   {
-   "i": 212,
+   "i": 211,
    "id": "m7-foh",
    "module": "M7",
    "nav": "The first-order hold",
@@ -2121,7 +2111,7 @@
    "obj": "Build the first-order-hold response as a convolution of two rectangles and read its transform."
   },
   {
-   "i": 213,
+   "i": 212,
    "id": "m7-perfect",
    "module": "M7",
    "nav": "When recovery is exact",
@@ -2131,7 +2121,7 @@
    "obj": "Restate the band-limited hypothesis and show what happens when it fails."
   },
   {
-   "i": 214,
+   "i": 213,
    "id": "m7-alias-cos",
    "module": "M7",
    "nav": "A cosine below the rate",
@@ -2141,7 +2131,7 @@
    "obj": "Track a single cosine through three rates and identify the surviving line."
   },
   {
-   "i": 215,
+   "i": 214,
    "id": "m7-ex-alias",
    "module": "M7",
    "nav": "Worked example · three periods",
@@ -2151,7 +2141,7 @@
    "obj": "Test three sampling periods against the Nyquist rate of the signal actually being sampled."
   },
   {
-   "i": 216,
+   "i": 215,
    "id": "m7-hw-alias",
    "module": "M7",
    "nav": "Two components, one rate",
@@ -2161,7 +2151,7 @@
    "obj": "Sample a two-component signal below its Nyquist rate and identify both surviving lines."
   },
   {
-   "i": 217,
+   "i": 216,
    "id": "m7-antialias",
    "module": "M7",
    "nav": "The anti-aliasing filter",
@@ -2171,7 +2161,7 @@
    "obj": "Place the anti-aliasing filter before the sampler and compare the two error energies."
   },
   {
-   "i": 218,
+   "i": 217,
    "id": "m7-temporal",
    "module": "M7",
    "nav": "Aliasing in time",
@@ -2181,7 +2171,7 @@
    "obj": "Apply the alias formula to a rotating object observed frame by frame."
   },
   {
-   "i": 219,
+   "i": 218,
    "id": "m7-spatial",
    "module": "M7",
    "nav": "Aliasing in space",
@@ -2191,7 +2181,7 @@
    "obj": "Apply the alias formula to a spatial pattern sampled on a regular grid."
   },
   {
-   "i": 220,
+   "i": 219,
    "id": "m7-lab-j",
    "module": "M7",
    "nav": "Laboratory J · Sampling studio",
@@ -2199,6 +2189,16 @@
    "src": "pp. 80–88",
    "steps": 0,
    "obj": "Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together."
+  },
+  {
+   "i": 220,
+   "id": "m7-drill",
+   "module": "M7",
+   "nav": "Module 7 · practice questions",
+   "title": "Module 7 — practice questions",
+   "src": "pp. 80–88",
+   "steps": 0,
+   "obj": "Twenty open-ended questions with worked solutions, in the form they are asked in."
   },
   {
    "i": 221,

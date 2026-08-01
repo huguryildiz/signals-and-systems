@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 1.
+   Practice questions — Module 1.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -413,27 +413,34 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M1 = [
+window.DRILLMAP_M1 = [
 
-{ id:'m1-drill-map', module:'M1', nav:'Module 1 exam drill · question types',
+{ id:'m1-drill-map', module:'M1', nav:'Module 1 · question types',
   title:'Module 1 — what a question looks like', src:'pp. 2–10',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 1 question types periodicity energy power transformation even odd impulse taxonomy practice',
+  keywords:'practice questions module 1 question types periodicity energy power transformation even odd impulse taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Exam drill', src:'pp. 2–10'},
+  {t:'eyebrow', text:'Module 1 · Question types', src:'pp. 2–10'},
   {t:'title', text:'Five shapes, and the method each one wants'},
   {t:'lede', text:'Questions on signal foundations come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M1'}
-]},
+]}
 
-{ id:'m1-drill', module:'M1', nav:'Module 1 exam drill · questions',
-  title:'Module 1 — exam drill', src:'pp. 2–10',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 1 questions practice periodicity energy power transformation even odd sifting impulse step',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M1 = [
+
+{ id:'m1-drill', module:'M1', nav:'Module 1 · practice questions',
+  title:'Module 1 — practice questions', src:'pp. 2–10',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 1 practice periodicity energy power transformation even odd sifting impulse step',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Exam drill D1-01 … D1-20', src:'pp. 2–10'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 1 · Practice D1-01 … D1-20', src:'pp. 2–10'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: a period must divide into every term a whole number of times, a transformation must preserve the width of the support up to the scale factor, the even and odd parts must add back to the signal, and a running sum or integral must settle at the total weight of the impulses that built it.'},
   {t:'rule', short:true},
   {t:'drill', module:'M1'}

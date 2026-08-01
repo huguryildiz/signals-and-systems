@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 7.
+   Practice questions — Module 7.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -454,28 +454,35 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M7 = [
+window.DRILLMAP_M7 = [
 
-{ id:'m7-drill-map', module:'M7', nav:'Module 7 exam drill · question types',
+{ id:'m7-drill-map', module:'M7', nav:'Module 7 · question types',
   title:'Module 7 — what a question looks like', src:'pp. 80–88',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 7 question types Nyquist rate bandwidth aliasing guard band reconstruction taxonomy practice',
+  keywords:'practice questions module 7 question types Nyquist rate bandwidth aliasing guard band reconstruction taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Exam drill', src:'pp. 80–88'},
+  {t:'eyebrow', text:'Module 7 · Question types', src:'pp. 80–88'},
   {t:'title', text:'Five shapes, and the method each one wants'},
   {t:'lede', text:'Questions on sampling come in five shapes, and three of them reduce to the same task: find the highest frequency present. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M7'},
   {t:'note', kind:'def', head:'The two rules that decide most of these questions', html:'A <b>product</b> in time convolves the spectra, so the bandwidths <b>add</b>. A <b>convolution</b> in time multiplies the spectra, so the bandwidth is the <b>smaller</b> of the two. A <b>sum</b> takes the larger. Getting these three straight answers most of the module.'}
-]},
+]}
 
-{ id:'m7-drill', module:'M7', nav:'Module 7 exam drill · questions',
-  title:'Module 7 — exam drill', src:'pp. 80–88',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 7 questions practice Nyquist rate sampling aliasing bandwidth guard band reconstruction zero order hold',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M7 = [
+
+{ id:'m7-drill', module:'M7', nav:'Module 7 · practice questions',
+  title:'Module 7 — practice questions', src:'pp. 80–88',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 7 practice Nyquist rate sampling aliasing bandwidth guard band reconstruction zero order hold',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Exam drill D7-01 … D7-20', src:'pp. 80–88'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 7 · Practice D7-01 … D7-20', src:'pp. 80–88'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Give $\\omega_M$ before the rate every time, so the factor of two is visible, and state the units — a rate in rad/s and a rate in hertz differ by $2\\pi$. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
   {t:'rule', short:true},
   {t:'drill', module:'M7'}
