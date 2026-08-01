@@ -9,7 +9,7 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.3 · Modules 0–7, laboratories A–J, exam drills D1–D7, twenty questions a module',
+    version:'v1.3 · Modules 0–7, laboratories A–J, practice questions D1–D7, twenty a module',
     date:'2026-07-27',
     language:'Academic English',
     conventions:{
@@ -176,7 +176,7 @@ const CONTENT = {
   ],
 
 
-  /* ---- exam drills: open-ended questions in examination form ----
+  /* ---- practice questions: open-ended, in the form they are asked in ----
      DRILL holds the questions themselves, one flat array populated by the
      module drill files. DRILLTYPES holds, per module, the recurring question
      types those questions are drawn from: what each type asks for, the method

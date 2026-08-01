@@ -19,8 +19,15 @@ lists that looked the same and behaved the same; now there is one.
 All 140 questions are newly written. The 87 drill questions and 84 bank
 questions that stood before this change are deleted, not migrated.
 
-The taxonomy scene in front of each drill stays. It names the recurring question
-shapes and is the map of the twenty questions that follow.
+The taxonomy scene stays at the front of the module. It names the recurring question
+shapes and is the map of the twenty questions, which sit at the **end** of the module,
+after the teaching scenes: the map is read before the work, and the work is done once the
+module has been taught. `99_tail.html` concatenates `DRILLMAP_M<n>`, then `SCENES_M<n>`,
+then `DRILL_M<n>` for each module.
+
+**Nothing student-facing calls them an examination.** The two sections read *question
+types* and *practice questions*, and the word does not appear on the page. Revised
+2026-08-02.
 
 ---
 
@@ -124,9 +131,10 @@ In print, each question is a page.
 | `build/src/93_drill_m2.js` … `98_drill_m7.js` | the same, Modules 2 to 7 |
 
 Each file defines `CONTENT.DRILLTYPES.M<n>`, appends its 20 questions to
-`CONTENT.DRILL`, and sets `window.DRILL_M<n>` to its two scenes — the taxonomy
-scene and the drill scene. `99_tail.html` already concatenates
-`window.DRILL_M1 … DRILL_M7`, so the registration does not change.
+`CONTENT.DRILL`, and sets **two** scene arrays: `window.DRILLMAP_M<n>` holding the
+taxonomy scene and `window.DRILL_M<n>` holding the questions scene. They are two
+arrays rather than one because they no longer sit together — `99_tail.html`
+concatenates the map, then the module, then the questions.
 
 Deleted: `95_qbank.js`, `96_qbank_m4.js`, `verify/qbank_check.py`,
 `verify/qbank_struct.js`, the `qbank` renderer and the `{t:'qbank'}` scene block

@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 2.
+   Practice questions — Module 2.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -432,28 +432,35 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M2 = [
+window.DRILLMAP_M2 = [
 
-{ id:'m2-drill-map', module:'M2', nav:'Module 2 exam drill · question types',
+{ id:'m2-drill-map', module:'M2', nav:'Module 2 · question types',
   title:'Module 2 — what a question looks like', src:'pp. 11–14',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 2 question types system properties linearity time invariance causality stability invertibility interconnection series parallel feedback taxonomy practice',
+  keywords:'practice questions module 2 question types system properties linearity time invariance causality stability invertibility interconnection series parallel feedback taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Exam drill', src:'pp. 11–14'},
+  {t:'eyebrow', text:'Module 2 · Question types', src:'pp. 11–14'},
   {t:'title', text:'Four disguises for one question, and a fifth question entirely'},
   {t:'lede', text:'Four shapes are the same question wearing different clothes: given a rule relating input to output, decide whether the system is memoryless, linear, time invariant, causal and stable, and justify every answer. The fifth shape asks something else — how a property survives when systems are combined, and whether the map from input to output can be undone.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M2'},
   {t:'note', kind:'warn', head:'A property is settled by a proof or by a counterexample, never by an impression', html:'To establish a property, argue for every input. To destroy it, name one input, or one pair of inputs and one shift, and show the rule fails. An interconnection inherits a property only when every one of its parts has that property, and only for a property that survives addition and composition — invertibility does not, in general.'}
-]},
+]}
 
-{ id:'m2-drill', module:'M2', nav:'Module 2 exam drill · questions',
-  title:'Module 2 — exam drill', src:'pp. 11–14',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 2 questions practice memoryless linear time invariant causal stable counterexample invertibility interconnection series parallel feedback block diagram',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M2 = [
+
+{ id:'m2-drill', module:'M2', nav:'Module 2 · practice questions',
+  title:'Module 2 — practice questions', src:'pp. 11–14',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 2 practice memoryless linear time invariant causal stable counterexample invertibility interconnection series parallel feedback block diagram',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Exam drill D2-01 … D2-20', src:'pp. 11–14'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 2 · Practice D2-01 … D2-20', src:'pp. 11–14'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Where a system is given as a rule, answer all five properties and give a proof or a named counterexample for each. Two cheap checks: a linear system must map the zero input to the zero output, and a memoryless system is always causal. A third, for the last five questions: linearity and time invariance pass from the parts of a series or parallel connection to the whole, and stability of a feedback loop usually comes down to a condition on the loop gain.'},
   {t:'rule', short:true},
   {t:'drill', module:'M2'}

@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 6.
+   Practice questions — Module 6.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -425,28 +425,35 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M6 = [
+window.DRILLMAP_M6 = [
 
-{ id:'m6-drill-map', module:'M6', nav:'Module 6 exam drill · question types',
+{ id:'m6-drill-map', module:'M6', nav:'Module 6 · question types',
   title:'Module 6 — what a question looks like', src:'pp. 64–79',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 6 question types DTFT periodicity inverse transform LTI symmetry taxonomy practice',
+  keywords:'practice questions module 6 question types DTFT periodicity inverse transform LTI symmetry taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 6 · Exam drill', src:'pp. 64–79'},
+  {t:'eyebrow', text:'Module 6 · Question types', src:'pp. 64–79'},
   {t:'title', text:'Five shapes, and the method each one wants'},
   {t:'lede', text:'Questions on the discrete-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M6'},
   {t:'note', kind:'warn', head:'One difference governs every question here', html:'The discrete-time transform is periodic in $\\omega$ with period $2\\pi$. Every answer is given on one interval, every frequency is reduced into that interval before it is used, and $\\omega=\\pi$ — not infinity — is the highest frequency there is.'}
-]},
+]}
 
-{ id:'m6-drill', module:'M6', nav:'Module 6 exam drill · questions',
-  title:'Module 6 — exam drill', src:'pp. 64–79',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 6 questions practice DTFT geometric sequence rectangular window inverse transform frequency response parseval symmetry',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M6 = [
+
+{ id:'m6-drill', module:'M6', nav:'Module 6 · practice questions',
+  title:'Module 6 — practice questions', src:'pp. 64–79',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 6 practice DTFT geometric sequence rectangular window inverse transform frequency response parseval symmetry',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 6 · Exam drill D6-01 … D6-20', src:'pp. 64–79'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 6 · Practice D6-01 … D6-20', src:'pp. 64–79'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. The cheapest check in this module is $X(e^{j0})=\\sum_n x[n]$, the total sum of the sequence. The second cheapest is $x[0]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,\\d\\omega$, the mean of the spectrum. For a real sequence, a third check is free: $\\left|X(e^{j\\omega})\\right|$ must come out even and $\\angle X(e^{j\\omega})$ odd.'},
   {t:'rule', short:true},
   {t:'drill', module:'M6'}

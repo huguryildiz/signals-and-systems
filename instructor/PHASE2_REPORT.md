@@ -12,7 +12,7 @@ for anyone editing the artifact. Sections 0, 1, 2, 5 and 7 are rewritten to say 
 ## 0. One-paragraph state
 
 The artifact carries the whole course: **223 scenes across Modules 0–7**, ten interactive laboratories
-A–J, an exam drill of twenty worked questions in front of every module from 1 to 7, and a lecture-notes
+A–J, twenty worked practice questions in every module from 1 to 7, and a lecture-notes
 HTML/PDF pipeline beside it. All 88 source pages were read directly at 160 dpi before anything was
 authored from them, and every page is mapped to the scenes and questions that carry it in
 `coverage_matrix.md`. Seventy-seven confirmed issues in the source material are recorded as A-09 … A-104
@@ -620,6 +620,14 @@ tightened; the name has its clearance back.
 `ERRORS: none` · `textclash.js` `TOTAL COLLISIONS: 0` · `mathscan.js` `0 / 223` · `labwalk.js` 1038
 states, `PROBLEMS: none` · `notes/mathscan.js` 0 literal, 0 KaTeX errors · `verify_m1_m3.py` 50 passed
 · `verify_drills.py` 559 passed · `rule_check.py` `TOTAL VIOLATIONS: 0`.
+
+**Revised the same day.** The questions were moved from the front of each module to the **end** of it,
+which is where they are worked; the taxonomy stays at the front, where its own text already said it
+belonged. Each drill file now exports two scene arrays, `DRILLMAP_M<n>` and `DRILL_M<n>`, and
+`99_tail.html` concatenates map, module, questions. **Every student-facing use of the word
+*examination* was removed at the same time** — the two sections read *question types* and *practice
+questions*. A section that calls itself an exam is read as the exam; these are modelled on the papers,
+not taken from them, and the screen should not suggest otherwise.
 
 **Still open.** The five PDF editions. `notes/editions.js` was rewritten against the drill data in the
 same commit — it had still been reading the bank's `opts` and `a` fields, which stopped existing when
