@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 5.
+   Practice questions — Module 5.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -444,27 +444,34 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M5 = [
+window.DRILLMAP_M5 = [
 
-{ id:'m5-drill-map', module:'M5', nav:'Module 5 exam drill · question types',
+{ id:'m5-drill-map', module:'M5', nav:'Module 5 · question types',
   title:'Module 5 — what a question looks like', src:'pp. 42–63',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 5 question types Fourier transform duality Parseval inverse modulation taxonomy practice',
+  keywords:'practice questions module 5 question types Fourier transform duality Parseval inverse modulation taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Exam drill', src:'pp. 42–63'},
+  {t:'eyebrow', text:'Module 5 · Question types', src:'pp. 42–63'},
   {t:'title', text:'Five shapes, and the method each one wants'},
   {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M5'}
-]},
+]}
 
-{ id:'m5-drill', module:'M5', nav:'Module 5 exam drill · questions',
-  title:'Module 5 — exam drill', src:'pp. 42–63',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 5 questions practice Fourier transform duality Parseval partial fractions modulation communication chain',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M5 = [
+
+{ id:'m5-drill', module:'M5', nav:'Module 5 · practice questions',
+  title:'Module 5 — practice questions', src:'pp. 42–63',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 5 practice Fourier transform duality Parseval partial fractions modulation communication chain',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Exam drill D5-01 … D5-20', src:'pp. 42–63'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 5 · Practice D5-01 … D5-20', src:'pp. 42–63'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. The cheapest check in this module is the area test, $X(0)=\\int x(t)\\,\\d t$, and it catches most factor errors. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
   {t:'rule', short:true},
   {t:'drill', module:'M5'}

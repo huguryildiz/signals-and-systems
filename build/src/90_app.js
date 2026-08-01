@@ -66,8 +66,8 @@ const RENDER = (() => {
     instr:   b => `<div class="instr"><div class="instr-panel">
         <span class="note-h">${md(b.head||'Instructor note')}</span>${symLinks(md(b.html))}</div></div>`,
     lab:     b => `<div class="lab" data-lab="${b.id}"></div>`,
-    /* An exam drill. One question fills the screen, because a question in
-       examination form carries a statement, a figure, several lettered parts and
+    /* A module's practice questions. One question fills the screen, because a
+       question of this kind carries a statement, a figure, several lettered parts and
        a full worked solution, and that is already more than the fixed stage
        holds. The reader moves between questions with the pager; the question
        body scrolls vertically inside the stage, and fitScene() leaves a scene
@@ -113,7 +113,7 @@ const RENDER = (() => {
     }).join('');
   }
 
-  /* ---------- exam drill ----------
+  /* ---------- a practice question ----------
      An open-ended question in examination form: a statement, an optional
      figure, lettered parts, and a worked solution that is drawn only once the
      reader asks for it. The revealed flag is the same field the question bank
@@ -182,7 +182,7 @@ const RENDER = (() => {
     const figs = Array.from(inner.querySelectorAll('figure.fig > svg'));
     figs.forEach(s => s.style.maxHeight = '');
     delete host.dataset.capped;
-    if(host.querySelector('.dr-page')){   /* an exam drill scrolls, never scales */
+    if(host.querySelector('.dr-page')){   /* a question page scrolls, never scales */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
       delete host.dataset.fit; return; }
     inner.style.transform = ''; inner.style.width = ''; inner.style.height = '100%';

@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Exam drill — Module 3.
+   Practice questions — Module 3.
    The module opens with two scenes: a taxonomy of the question types that
-   recur in examinations, and a pager of twenty open-ended questions in that
+   keep coming back, and a pager of twenty open-ended questions in that
    form. The worked solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
@@ -531,27 +531,34 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILL_M3 = [
+window.DRILLMAP_M3 = [
 
-{ id:'m3-drill-map', module:'M3', nav:'Module 3 exam drill · question types',
+{ id:'m3-drill-map', module:'M3', nav:'Module 3 · question types',
   title:'Module 3 — what a question looks like', src:'pp. 14–21',
   objective:'Name the five recurring question shapes before the module is read.',
-  keywords:'exam drill module 3 question types impulse response convolution causality stability taxonomy practice',
+  keywords:'practice questions module 3 question types impulse response convolution causality stability taxonomy practice',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Exam drill', src:'pp. 14–21'},
+  {t:'eyebrow', text:'Module 3 · Question types', src:'pp. 14–21'},
   {t:'title', text:'Five shapes, and the method each one wants'},
   {t:'lede', text:'Questions on linear time-invariant systems come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M3'}
-]},
+]}
 
-{ id:'m3-drill', module:'M3', nav:'Module 3 exam drill · questions',
-  title:'Module 3 — exam drill', src:'pp. 14–21',
-  objective:'Twenty open-ended questions in examination form, with worked solutions.',
-  keywords:'exam drill module 3 questions practice impulse response convolution sum integral causality stability step response',
+];
+
+/* The questions themselves sit at the end of the module, after the teaching
+   scenes. The taxonomy above sits in front of it: one is a map read before the
+   work, the other is the work. */
+window.DRILL_M3 = [
+
+{ id:'m3-drill', module:'M3', nav:'Module 3 · practice questions',
+  title:'Module 3 — practice questions', src:'pp. 14–21',
+  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  keywords:'practice questions module 3 practice impulse response convolution sum integral causality stability step response',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Exam drill D3-01 … D3-20', src:'pp. 14–21'},
-  {t:'title', text:'Exam drill'},
+  {t:'eyebrow', text:'Module 3 · Practice D3-01 … D3-20', src:'pp. 14–21'},
+  {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: the supports of a convolution add and the totals multiply, a case boundary is continuous from both sides, and a running sum or integral settles at the total weight of the impulse response it was built from.'},
   {t:'rule', short:true},
   {t:'drill', module:'M3'}

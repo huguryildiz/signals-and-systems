@@ -258,7 +258,7 @@ const SC = [
       <p><b>M3 · LTI systems.</b> A system with both of those properties is described completely by one function, $h$, and one operation, convolution.</p>
       <p><b>M4+ · Fourier and sampling.</b> Complex exponentials are the eigenfunctions of LTI systems. This one fact turns convolution into multiplication and opens the frequency domain. It also explains what is lost when a continuous signal is sampled.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'What is covered here', html:'Modules 0 to 7 are complete, with ten laboratories, A to J, and an exam drill of twenty worked questions in front of every module from 1 onwards.'}
+      {t:'note', kind:'ok', head:'What is covered here', html:'Modules 0 to 7 are complete, with ten laboratories, A to J, and twenty worked practice questions in every module from 1 onwards.'}
     ]}
   ]}
 ]},
