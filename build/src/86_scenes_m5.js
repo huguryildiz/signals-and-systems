@@ -2017,41 +2017,7 @@ const SC = [
   {t:'title', text:'One control in time, two panels in frequency'},
   {t:'small', html:'Change a width or a rate and watch the transform answer. Then switch the carrier on: the spectrum becomes two half-height copies, and lowering the carrier brings them together until they meet.'},
   {t:'lab', id:'H'}
-]},
-
-{ id:'m5-qbank', module:'M5', nav:'Module 5 question bank', title:'Module 5 — question bank', src:'pp. 42–63',
-  objective:'Twelve questions covering Module 5 outcomes.',
-  keywords:'questions quiz Q5 bank module 5 exercises fourier transform', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Question bank Q5-01 … Q5-12', src:'pp. 42–63'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–5. Several questions target the factor $2\\pi$ and where it lives, several test whether the negative-frequency half of a real spectrum is being kept, and several ask which sinc convention a written formula is in.'},
-  {t:'qbank', module:'M5'}
-]},
-
-{ id:'m5-synth', module:'M5', nav:'Module 5 synthesis', title:'Module 5 — what to carry forward', src:'pp. 42–63',
-  dark:true, objective:'Consolidate the module and open the question Module 6 answers.',
-  keywords:'synthesis summary module 5 checklist discrete time preview DTFT periodic spectrum', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 5 · Synthesis', src:'pp. 42–63'},
-  {t:'title', text:'A checklist, and the domain it does not reach'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Decide which direction is needed. Integrating over $t$ gives $X(j\\omega)$; integrating over $\\omega$, with $1/2\\pi$, gives $x(t)$.</p>
-      <p style="color:var(--graphite)"><b>2.</b> Look for a known pair before integrating anything. Most signals in this module are one pair plus one or two properties.</p>
-      <p style="color:var(--graphite)"><b>3.</b> State every condition the result depends on: $a>0$ for an exponential, and which sinc convention is in use.</p>
-      <p style="color:var(--graphite)"><b>4.</b> Keep both halves of a real spectrum. Magnitude even, phase odd, and one impulse at each of $\\pm\\omega_0$.</p>
-      <p style="color:var(--graphite)"><b>5.</b> Track the $2\\pi$: on the synthesis side, in front of $\\delta(\\omega-\\omega_0)$, dividing the convolution in frequency, and dividing the energy in Parseval.</p>
-      <p style="color:var(--graphite)"><b>6.</b> Through an LTI system, $Y=XH$. From a differential equation, read $H$ off the coefficients and split it into simple fractions.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Three checks catch most errors', html:'<span style="color:var(--graphite)">$X(j0)$ is the area under the signal, and $x(0)$ is the area under the spectrum divided by $2\\pi$. A causal convolution starts at zero. A real signal has an even magnitude and an odd phase. Each of the three costs one line.</span>'}]}
-  ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 6 begins</p>'},
-    {t:'lede', text:'Everything here was continuous time. A computer never sees a continuous signal; it sees a sequence. So the same question has to be asked again for x[n], and one thing changes that changes everything.'},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:var(--graphite)">In continuous time, $e^{-j\\omega t}$ is a different signal for every real $\\omega$. In discrete time it is not: $e^{-j(\\omega+2\\pi)n}=e^{-j\\omega n}$ for every integer $n$, because $e^{-j2\\pi n}=1$.</p>`},
-      {t:'eq', plain:true, tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}=X\\bigl(e^{j(\\omega+2\\pi)}\\bigr)'},
-      {t:'body', html:`<p style="color:var(--graphite)">A discrete-time spectrum therefore <b>repeats</b>, with period $2\\pi$. Every result of this module has a counterpart there, and the periodicity is the one thing with no continuous-time analogue. That is Module 6.</p>`}]}
-  ]}
 ]}
-
 ];
 window.SCENES_M5 = SC;
 })();

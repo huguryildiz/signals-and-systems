@@ -31,7 +31,8 @@ const APP = (() => {
     sidebar: 'on',      // contents rail
     theme: 'light',     // 'light' | 'dark'
     display: 'normal',  // 'normal' | 'projector'
-    quiz: {}            // qid -> {picked, correct, attempts, revealed}
+    quiz: {},           // qid -> {picked, correct, attempts, revealed}
+    drillPage: {}       // module id -> index of the drill question on screen
   };
 
   let SCENES = [], MODULES = [], onRender = ()=>{};
@@ -48,7 +49,8 @@ const APP = (() => {
       theme: saved.theme || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),
       display: saved.display || 'normal',
       visited: saved.visited || {},
-      quiz: saved.quiz || {}
+      quiz: saved.quiz || {},
+      drillPage: saved.drillPage || {}
     });
     applyBodyFlags();
     bindKeys();
@@ -62,7 +64,8 @@ const APP = (() => {
   function persist(){
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.sidebar,
                   theme:state.theme, display:state.display,
-                  visited:state.visited, quiz:state.quiz, at:SCENES[state.i]&&SCENES[state.i].id });
+                  visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
+                  at:SCENES[state.i]&&SCENES[state.i].id });
   }
   function applyBodyFlags(){
     document.body.dataset.mode = state.mode;
@@ -277,7 +280,7 @@ const APP = (() => {
       sel = 0;
       out.innerHTML = hits.length? hits.map((r,k)=>`<div class="sres ${k===0?'on':''}" data-act="goto" data-id="${r.id}">
         <div class="t">${r.title}</div><div class="m">${r.module} · scene ${r.i+1}</div></div>`).join('')
-        : `<div class="sres"><div class="t">No match.</div><div class="m">Try a symbol, a property name, or a question id such as Q1-07.</div></div>`;
+        : `<div class="sres"><div class="t">No match.</div><div class="m">Try a symbol, a property name, or a question id such as D1-07.</div></div>`;
     };
     draw('');
     box.addEventListener('input', ()=>draw(box.value));

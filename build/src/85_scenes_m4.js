@@ -1335,41 +1335,7 @@ const SC = [
   {t:'title', text:'From coefficients to output, one step at a time'},
   {t:'lede', text:'Pick a system and a cutoff. The four panels follow the same signal through the whole chain, and the last step can be shown with or without the factor of two, so the size of that error is visible rather than described.'},
   {t:'lab', id:'G'}
-]},
-
-{ id:'m4-qbank', module:'M4', nav:'Module 4 question bank', title:'Module 4 — question bank', src:'pp. 22–41',
-  objective:'Twelve questions covering Module 4 outcomes.',
-  keywords:'questions quiz Q4 bank module 4 exercises fourier series', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 4 · Question bank Q4-01 … Q4-12', src:'pp. 22–41'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–4. Several questions target the missing factor of two when a real output is reassembled, and several test whether the discrete-time statements are being carried over from the continuous-time ones.'},
-  {t:'qbank', module:'M4'}
-]},
-
-{ id:'m4-synth', module:'M4', nav:'Module 4 synthesis', title:'Module 4 — what to carry forward', src:'pp. 22–41',
-  dark:true, objective:'Consolidate the module and open the question the Fourier transform answers.',
-  keywords:'synthesis summary module 4 checklist aperiodic preview fourier transform envelope', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 4 · Synthesis', src:'pp. 22–41'},
-  {t:'title', text:'A checklist, and the signal it cannot handle'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the signal is periodic, and find $T_0$ or $N$ before anything else.</p>
-      <p style="color:var(--graphite)"><b>2.</b> Set $\\omega_0=2\\pi/T_0$ or $2\\pi/N$, and express every component frequency as a multiple of it. That multiple is $k$.</p>
-      <p style="color:var(--graphite)"><b>3.</b> If the signal is already a sum of sinusoids, read the coefficients off with Euler’s relations. Otherwise integrate or sum, and treat $k=0$ separately.</p>
-      <p style="color:var(--graphite)"><b>4.</b> Check $a_0$ against the average of the signal by eye, and check the symmetry: real gives $a_{-k}=a_k^{*}$.</p>
-      <p style="color:var(--graphite)"><b>5.</b> Through an LTI system, $b_k=a_kH(jk\\omega_0)$ — one product per harmonic.</p>
-      <p style="color:var(--graphite)"><b>6.</b> To return to a real signal, pair $k$ with $-k$: the amplitude is $2|b_k|$ and the phase is $\\angle b_k$. The term $b_0$ stands alone.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Two checks catch nearly every error', html:'<span style="color:var(--graphite)">A coefficient plot that is not symmetric in the right way means the signal is not real, or the algebra is wrong. An output whose swing is half of what the harmonics suggest means the pairing step lost its factor of two.</span>'}]}
-  ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 5 begins</p>'},
-    {t:'lede', text:'Everything here needed the signal to repeat. A single pulse does not repeat, has no fundamental period, and therefore has no harmonics to carry coefficients. So what happens to a Fourier series when the period is made longer and longer?'},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:var(--graphite)">The rectangular wave already answered it. Its coefficients were samples of one envelope, $E(\\omega)$, taken every $\\omega_0=2\\pi/T_0$. Lengthen the period and the envelope does not move; only the samples crowd together and shrink as $1/T_0$.</p>`},
-      {t:'eq', plain:true, tex:'T_0a_k=E(k\\omega_0)\\quad\\xrightarrow{\\;T_0\\to\\infty\\;}\\quad X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,\\d t'},
-      {t:'body', html:`<p style="color:var(--graphite)">In the limit the stems merge into the curve they were always sampling. That curve is the <b>Fourier transform</b>, and it is the whole of Module 5.</p>`}]}
-  ]}
 ]}
-
 ];
 window.SCENES_M4 = SC;
 })();

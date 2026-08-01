@@ -15,10 +15,13 @@ venv/
 node_modules/
 
 # --- Large / restricted source material (kept on disk, never tracked) ---
-# Book.pdf is a cross-check reference only: never reproduced or redistributed.
-source/Book.pdf
-# 41 MB handwritten scan; too large for git history. Keep a local copy.
-source/Lecture Notes.pdf
+# The whole directory, not file by file. Book.pdf is a cross-check reference only
+# and is never reproduced or redistributed; the handwritten scan is 41 MB and too
+# large for git history; and source/exams holds the examination papers themselves,
+# which are the model for the drills and must never leave this machine. Naming the
+# files one by one let source/exams in by default when it was added on 2026-08-01.
+# Keep local copies; a fresh clone will not contain any of it.
+source/
 
 # --- Pipeline output that is not a deliverable ---
 # notes/build.js and notes/editions.js write these so notes/topdf.js can turn them

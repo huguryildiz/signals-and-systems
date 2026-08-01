@@ -34,12 +34,7 @@ const path = require('path');
        closes again is still measured while it is open. Collecting the handles
        once and probing only at the end misses a whole panel of damage. */
     let err=r.err; const raw=[...r.raw], bogus=[...r.bogus];
-    /* An exam drill hides its worked solution behind a button, and a solution is
-       the longest piece of authored mathematics in the artifact. Left closed it
-       is invisible to this scan, so damage there would pass every gate. Each
-       solution is opened in turn; the panel redraws on every click, so the
-       handles are re-queried exactly as they are for a laboratory above. */
-    for(const sel of ['[data-cls]','[data-prop]','[data-reveal]','.drill [data-sol]']){
+    for(const sel of ['[data-cls]','[data-prop]','[data-reveal]']){
       const n = await page.$$eval('#scene-host '+sel, els=>els.length).catch(()=>0);
       for(let i=0;i<n;i++){
         const h = (await page.$$('#scene-host '+sel))[i];
@@ -49,6 +44,30 @@ const path = require('path');
         const p2 = await probe();
         err = Math.max(err, p2.err); raw.push(...p2.raw); bogus.push(...p2.bogus);
       }
+    }
+    /* An exam drill shows one question at a time and hides its worked solution
+       behind a button, and a solution is the longest piece of authored
+       mathematics in the artifact. Left unpaged and unopened, nineteen of the
+       twenty questions and every one of the solutions are invisible to this
+       scan, so damage there would pass every gate. Each question is opened in
+       turn and the pager advanced; the panel redraws on every click, so the
+       handles are re-queried per click exactly as they are for a laboratory. */
+    const ndrill = await page.evaluate(()=>{
+      const el=document.querySelector('#scene-host .dr-page .drill'); if(!el) return 0;
+      const q=CONTENT.DRILL.find(x=>x.id===el.dataset.qid);
+      return q ? CONTENT.DRILL.filter(x=>x.module===q.module).length : 0; }).catch(()=>0);
+    for(let i=0;i<ndrill;i++){
+      const sol = await page.$('#scene-host .drill [data-sol]');
+      if(sol){
+        try{ await sol.click({timeout:800}); }catch(e){}
+        await page.waitForTimeout(90);
+        const p2 = await probe();
+        err = Math.max(err, p2.err); raw.push(...p2.raw); bogus.push(...p2.bogus);
+      }
+      const nx = await page.$('#scene-host .dr-pager [data-step="1"]:not([disabled])');
+      if(!nx) break;
+      try{ await nx.click({timeout:800}); }catch(e){ break; }
+      await page.waitForTimeout(90);
     }
     const rawU=[...new Set(raw)], bogusU=[...new Set(bogus)];
     if(err||rawU.length||bogusU.length){ bad++;

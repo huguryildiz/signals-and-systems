@@ -11,8 +11,8 @@ for anyone editing the artifact. Sections 0, 1, 2, 5 and 7 are rewritten to say 
 
 ## 0. One-paragraph state
 
-The artifact carries the whole course: **220 scenes across Modules 0–7**, ten interactive laboratories
-A–J, seven 12-question banks with full solutions and distractor reasoning, and a lecture-notes
+The artifact carries the whole course: **223 scenes across Modules 0–7**, ten interactive laboratories
+A–J, an exam drill of twenty worked questions in front of every module from 1 to 7, and a lecture-notes
 HTML/PDF pipeline beside it. All 88 source pages were read directly at 160 dpi before anything was
 authored from them, and every page is mapped to the scenes and questions that carry it in
 `coverage_matrix.md`. Seventy-seven confirmed issues in the source material are recorded as A-09 … A-104
@@ -557,3 +557,70 @@ backslash is eaten by JavaScript and the page prints `(i); y[n]=…` instead of 
 the trap `CLAUDE.md` §8 names, and it caught this work once. `build/labtest.js` was updated to drive
 the open-ended bank and now reports `options=0` explicitly, so a regression that reintroduces the
 buttons fails a gate.
+
+
+---
+
+## 13. Maintenance record — 2026-08-02, one drill a module of twenty questions (v1.3)
+
+**What changed.** Every module from 1 to 7 now carries a single examination section of **twenty**
+open-ended questions — 140 in all — instead of a twelve-question drill beside a twelve-question bank.
+The bank is gone: its scenes, its `CONTENT.QBANK` data, its seven source files, its block renderer, its
+CSS and its two check scripts. All 140 questions are newly written; none of the 171 that stood before
+was migrated.
+
+**Why the bank went.** Both lists were open-ended, both rendered the same way and both said *work it on
+paper, then open the solution*. A reader met two sections and could not tell what separated them. One
+section, twenty questions, is what the two were trying to be.
+
+**The defect this began with.** `.dr-scroll` set `column-count:2` on a panel that was already
+height-constrained and `overflow-x:hidden`. CSS multicolumn under a fixed height overflows **sideways**,
+so questions three and later were laid out in columns three, four and five, clipped, and unreachable —
+present in the DOM, invisible on the page, and passing every gate. A reader saw two or four questions
+where the heading said twelve. Paging one question to a screen removes the mechanism rather than
+tuning it.
+
+**How it is presented now.** `Question 7 of 20` between a **Previous** and a **Next** button, disabled
+at the ends; the position is held per module in `S.drillPage` and persists on the device. The question
+body is a single column that scrolls; `fitScene()` leaves a scene containing `.dr-page` unscaled. In
+print each question is a page.
+
+**Where the questions come from.** The three papers in `source/exams` — Midterm I, Midterm II and the
+Final, each setting 2018, 2019 and 2021 side by side — are the model for the form and the difficulty
+and nothing else. **No question reproduces one of them or is a renumbered variant of one.** What was
+taken is the skill a question measures. About twelve of a module's twenty are built on those skills;
+the other eight cover what the papers have not examined. The `src` field names the paper question whose
+skill a question is built on and renders in the instructor edition only.
+
+**Verification.** The drill checks were split one file per module — `verify/drills_m1.py` …
+`drills_m7.py` over the shared helpers in `verify/drill_common.py`, run together by
+`verify_drills.py` — so a module can be authored and checked on its own. **559 claims, 0 failures.**
+
+Three gates were taught to page. `labtest.js` now walks all twenty questions of all seven modules,
+opening each solution, and reports `DRILL pages=140 solutions=140 parts=386 options=0`; it fails if a
+pager stops short of the last question. `mathscan.js` and `textclash.js` each advance the pager and
+open every solution, because a question left unpaged is a question no gate has ever rendered.
+
+**What the first full run found.** Two classes of damage that no earlier gate could have caught,
+because the questions carrying them had never been rendered:
+
+- **Four Module 6 spectra drew their impulses clipped.** `impulse()` takes `top = min(yb, |weight|)`,
+  so an impulse of weight `4\pi` on an axis running to `10.5` is drawn at `10.5` while one of weight
+  `3\pi` is drawn at its true `9.42`. The heights then read as a wrong ratio. The ranges now hold the
+  weights.
+- **Six impulse labels carried a Unicode `π`.** `labelText` is not one of the fields `rule_check.py`
+  scans, so an R7 violation there is invisible to the wording gate. They are TeX notes now. **If a new
+  figure helper grows a text field, add it to `rule_check.py` in the same commit.**
+
+One more collision was geometric: a figure whose range ran well below zero placed its axis name under
+the axis rather than under the data area, where the dashed zero markers still reached it. The range was
+tightened; the name has its clearance back.
+
+**Gate results at v1.3.** `qa.js` 223 scenes, 0 errors, 0 overflow, 2 dense · `labtest.js`
+`ERRORS: none` · `textclash.js` `TOTAL COLLISIONS: 0` · `mathscan.js` `0 / 223` · `labwalk.js` 1038
+states, `PROBLEMS: none` · `notes/mathscan.js` 0 literal, 0 KaTeX errors · `verify_m1_m3.py` 50 passed
+· `verify_drills.py` 559 passed · `rule_check.py` `TOTAL VIOLATIONS: 0`.
+
+**Still open.** The five PDF editions. `notes/editions.js` was rewritten against the drill data in the
+same commit — it had still been reading the bank's `opts` and `a` fields, which stopped existing when
+the banks went open-ended on 2026-08-01 — but it has not been run or rendered since.

@@ -743,17 +743,7 @@ const SC = [
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
         <span style="color:var(--graphite)">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
   ]}
-]},
-
-{ id:'m1-qbank', module:'M1', nav:'Module 1 question bank', title:'Module 1 — question bank', src:'pp. 2–10',
-  objective:'Twelve questions covering Module 1 outcomes.',
-  keywords:'questions quiz Q1 bank module 1 exercises', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Question bank Q1-01 … Q1-12', src:'pp. 2–10'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Twelve questions: 3 conceptual, 3 short calculation, 2 misconception-diagnostic, 2 multi-step, 1 graph interpretation, 1 synthesis. Everything needed is in Module 1. Work each question on paper, then open its solution and compare.'},
-  {t:'qbank', module:'M1'}
 ]}
-
 ];
 window.SCENES_M1 = SC;
 })();

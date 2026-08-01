@@ -66,27 +66,24 @@ const RENDER = (() => {
     instr:   b => `<div class="instr"><div class="instr-panel">
         <span class="note-h">${md(b.head||'Instructor note')}</span>${symLinks(md(b.html))}</div></div>`,
     lab:     b => `<div class="lab" data-lab="${b.id}"></div>`,
-    check:   b => quizHTML(b.q, true),
-    quizset: b => `<div class="stack">${b.qs.map(q=>quizHTML(q,false)).join('')}</div>`,
-    qbank:   b => { const qs=(CONTENT.QBANK||[]).filter(q=>q.module===b.module);
-        const seen=qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
-        return `<div class="qb-head small">${qs.length} questions. Work each one on paper first;
-          the solution stays hidden until you ask for it.
-          ${seen?`<span class="dr-seen">Solutions opened: ${seen} / ${qs.length} on this device.</span>`:''}</div>
-        <div class="qb-scroll dr-scroll">${qs.map(q=>
-          `<div class="qb-item${(S.quiz[q.id]||{}).revealed?' dr-open':''}">${quizHTML(q,false)}</div>`).join('')}</div>`; },
-    /* An exam drill panel. It reuses .qb-scroll, the artifact's scrolling
-       region, because a question in examination form carries a statement, a
-       figure, several parts and a full worked solution, and that is more than
-       the fixed stage holds. fitScene() leaves a scene containing .qb-scroll
-       unscaled for the same reason. */
+    /* An exam drill. One question fills the screen, because a question in
+       examination form carries a statement, a figure, several lettered parts and
+       a full worked solution, and that is already more than the fixed stage
+       holds. The reader moves between questions with the pager; the question
+       body scrolls vertically inside the stage, and fitScene() leaves a scene
+       containing .dr-page unscaled for that reason. */
     drill:   b => { const qs=(CONTENT.DRILL||[]).filter(q=>q.module===b.module);
-        const seen=qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
-        return `<div class="qb-head small">${qs.length} questions in examination form.
-          ${seen?`<span class="dr-seen">Solutions opened: ${seen} / ${qs.length} on this device.</span>`
-                :'No solution has been opened on this device yet.'}</div>
-        <div class="qb-scroll dr-scroll">${qs.map(q=>
-          `<div class="qb-item${(S.quiz[q.id]||{}).revealed?' dr-open':''}">${drillHTML(q)}</div>`).join('')}</div>`; },
+        if(!qs.length) return '';
+        const i = Math.min(Math.max(S.drillPage[b.module]|0, 0), qs.length-1);
+        const seen = qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
+        return `<div class="dr-pager">
+          <button class="btn" data-drill="${b.module}" data-step="-1"${i===0?' disabled':''}>&larr; Previous</button>
+          <span class="dr-count">Question ${i+1} <span class="dr-of">of</span> ${qs.length}</span>
+          <button class="btn" data-drill="${b.module}" data-step="1"${i===qs.length-1?' disabled':''}>Next &rarr;</button>
+          <span class="dr-seen">${seen?`Solutions opened: ${seen} of ${qs.length} on this device.`
+                                     :'No solution has been opened on this device yet.'}</span>
+        </div>
+        <div class="dr-page">${drillHTML(qs[i])}</div>`; },
     /* The taxonomy of a module's question types, read from CONTENT.DRILLTYPES. */
     drilltypes: b => { const ts=(CONTENT.DRILLTYPES[b.module]||[]);
         return `<div class="dr-types" style="${b.style||''}">${ts.map((ty,i)=>
@@ -116,35 +113,6 @@ const RENDER = (() => {
     }).join('');
   }
 
-  /* ---------- question bank ----------
-     Every question is open-ended. The reader is given the question and, when
-     asked for, the worked solution — there are no options to choose between,
-     because choosing between four printed statements is not the skill an
-     examination tests. The distractor analysis that the bank was written with
-     is kept in the data and shown in the instructor edition, where it is a
-     record of the errors to watch for rather than something to click. */
-  function quizHTML(q, compact){
-    const st = S.quiz[q.id] || {};
-    const wrongs = q.wrong ? Object.keys(q.wrong).map(k=>q.wrong[k]) : [];
-    return `<div class="quiz" data-qid="${q.id}">
-      <div class="qid">${q.id} · ${q.kind||'concept'}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
-      <div class="qstem">${symLinks(md(q.stem))}</div>
-      ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
-      ${st.hint?`<div class="hintbox"><span class="note-h">Hint ${st.hint}</span>${md(q.hints[st.hint-1])}</div>`:''}
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        ${q.hints&&q.hints.length?`<button class="btn" data-hint="${q.id}" ${st.hint>=q.hints.length?'disabled':''}>Hint ${Math.min((st.hint||0)+1,q.hints.length)} of ${q.hints.length}</button>`:''}
-        <button class="btn" data-sol="${q.id}">${st.revealed?'Hide worked solution':'Show worked solution'}</button>
-      </div>
-      ${st.revealed?`<div class="note ok" style="margin-top:6px">
-          <span class="note-h">Worked solution</span>${symLinks(md(q.sol))}
-          ${q.err?`<div style="margin-top:12px" class="note err"><span class="note-h">Most likely student error</span>${md(q.err)}</div>`:''}
-        </div>`:''}
-      ${wrongs.length?`<div class="instr"><div class="instr-panel"><span class="note-h">Errors to watch for</span>
-          <ul class="dr-wrongs">${wrongs.map(x=>`<li>${md(x)}</li>`).join('')}</ul></div></div>`:''}
-      ${q.teach?`<div class="instr"><div class="instr-panel"><span class="note-h">Teaching note</span>${md(q.teach)}</div></div>`:''}
-    </div>`;
-  }
-
   /* ---------- exam drill ----------
      An open-ended question in examination form: a statement, an optional
      figure, lettered parts, and a worked solution that is drawn only once the
@@ -168,15 +136,12 @@ const RENDER = (() => {
     </div>`;
   }
 
-  function findQ(id){
-    for(const b of (CONTENT.QBANK||[])) if(b.id===id) return b;
-    for(const b of (CONTENT.DRILL||[])) if(b.id===id) return b;
-    return null;
-  }
   document.addEventListener('click', e=>{
-    const h = e.target.closest('[data-hint]');
-    if(h){ const id=h.dataset.hint, q=findQ(id); const st=S.quiz[id]||(S.quiz[id]={});
-      st.hint = Math.min((st.hint||0)+1, q.hints.length); APP.persist(); draw(); return; }
+    const d = e.target.closest('[data-drill]');
+    if(d && !d.disabled){ const m=d.dataset.drill;
+      const n=(CONTENT.DRILL||[]).filter(q=>q.module===m).length;
+      S.drillPage[m] = Math.min(Math.max((S.drillPage[m]|0) + (+d.dataset.step), 0), n-1);
+      APP.persist(); draw(); return; }
     const s = e.target.closest('[data-sol]');
     if(s){ const id=s.dataset.sol; const st=S.quiz[id]||(S.quiz[id]={});
       st.revealed=!st.revealed; APP.persist(); draw(); return; }
@@ -217,7 +182,7 @@ const RENDER = (() => {
     const figs = Array.from(inner.querySelectorAll('figure.fig > svg'));
     figs.forEach(s => s.style.maxHeight = '');
     delete host.dataset.capped;
-    if(host.querySelector('.qb-scroll')){   /* question banks scroll, never scale */
+    if(host.querySelector('.dr-page')){   /* an exam drill scrolls, never scales */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
       delete host.dataset.fit; return; }
     inner.style.transform = ''; inner.style.width = ''; inner.style.height = '100%';
@@ -307,5 +272,5 @@ const RENDER = (() => {
     APP.buildSidebar();
   }
 
-  return { draw, blocks, tex, md, quizHTML, drillHTML, symLinks };
+  return { draw, blocks, tex, md, drillHTML, symLinks };
 })();
