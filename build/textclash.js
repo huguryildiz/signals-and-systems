@@ -14,9 +14,9 @@ const path = require('path'), fs = require('fs');
 
 /* the last three are the graticule, the shadow mask and the edge of a screen:
    the furniture a cathode-ray tube is drawn with, guides in the same sense */
-const GRID = ['#E2DACA', '#2C2820', '#D9D0BE', '#BFB39B', '#E4DCCA',
+const GRID = ['#E5E1D8', '#223040', '#DCD7CC', '#C2BCB0', '#27333F', '#3A4754',
               '#1E2A2E', '#060B0D', '#25343A'];  /* grid + rule tokens: guides, not content */
-const AXIS = ['#8C8579', '#8E8578'];
+const AXIS = ['#8A939C', '#7C858F'];
 
 (async () => {
   const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
@@ -27,11 +27,12 @@ const AXIS = ['#8C8579', '#8E8578'];
 
   const scenes = await page.evaluate(() => APP.scenes().map(s => ({ id: s.id, steps: s.steps || 0 })));
   const all = [];
-  for (const s of scenes) {
-    for (let st = 0; st <= (s.steps || 0); st++) {
-      await page.evaluate(([id, step]) => APP.goId(id, step), [s.id, st]);
-      await page.waitForTimeout(120);
-      const found = await page.evaluate(({ GRID, AXIS }) => {
+  /* The sweep is one function so it can be run on a state the step loop cannot
+     reach. An exam drill hides its answer figures behind a Show worked solution
+     button, and a collapsed panel has no reveal state, so those figures are drawn
+     only after a click. Sweeping the closed panel alone would leave every answer
+     figure unchecked. */
+  const sweep = () => page.evaluate(({ GRID, AXIS }) => {
         const out = [];
         const svgs = Array.from(document.querySelectorAll('#scene-host svg'));
         svgs.forEach((svg, si) => {
@@ -76,8 +77,8 @@ const AXIS = ['#8C8579', '#8E8578'];
           };
           /* a light fill is a background plate (box interior, node disc): a label
              sitting on it is by design, not a collision */
-          const LIGHTFILL = ['#FCF9F3', '#F7F2E8', '#FFFFFF', '#EFE8DA', '#F2EDE1', '#BFB39B',
-                             '#D9D0BE', '#E2DACA', '#1F2A33', '#16232F', '#0A0F12', 'NONE', ''];
+          const LIGHTFILL = ['#FFFFFF', '#FAF8F4', '#F2EFE8', '#C2BCB0', '#DCD7CC', '#E5E1D8',
+                             '#1A2634', '#0E1621', '#12314E', '#1B4066', '#0A0F12', 'NONE', ''];
           /* isPointInStroke answers about the path, not about what is painted, so a
              clipped trace still reports a hit outside its clip. Read the clip
              rectangle and drop any hit that falls outside it. */
@@ -155,7 +156,24 @@ const AXIS = ['#8C8579', '#8E8578'];
         });
         return out;
       }, { GRID, AXIS });
+
+  for (const s of scenes) {
+    for (let st = 0; st <= (s.steps || 0); st++) {
+      await page.evaluate(([id, step]) => APP.goId(id, step), [s.id, st]);
+      await page.waitForTimeout(120);
+      const found = await sweep();
       found.forEach(f => all.push({ scene: s.id, step: st, ...f }));
+    }
+    /* Open each drill solution in turn and sweep the figures it draws. The panel
+       redraws on every click, so the handles are re-queried per click. */
+    const nsol = await page.$$eval('#scene-host .drill [data-sol]', els => els.length).catch(() => 0);
+    for (let i = 0; i < nsol; i++) {
+      const h = (await page.$$('#scene-host .drill [data-sol]'))[i];
+      if (!h) continue;
+      try { await h.click({ timeout: 800 }); } catch (e) { continue; }
+      await page.waitForTimeout(90);
+      const found = await sweep();
+      found.forEach(f => all.push({ scene: s.id, step: 'sol' + i, ...f }));
     }
   }
   await browser.close();

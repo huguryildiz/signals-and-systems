@@ -28,11 +28,11 @@ const SC = [
       ];
       steps.forEach((s,i)=>{
         const y=34+i*50;
-        g.push(`<line x1="34" y1="${y-16}" x2="${W-20}" y2="${y-16}" stroke="#E2DACA"/>`);
-        g.push(`<text x="0" y="${y+3}" font-size="12" font-family="ui-monospace,monospace" letter-spacing="1.6" fill="#4A657F">${i<9?'0':''}${i+1}</text>`);
-        g.push(`<text x="46" y="${y+4}" font-size="19" font-family="Georgia,serif" fill="#1B1A17">${s[0]}</text>`);
-        g.push(P.texName(s[1],{xRight:W-20, baseline:y+4, size:15.5, color:'#BE5539', figW:W}));
-        if(i<steps.length-1) g.push(`<line x1="12" y1="${y+12}" x2="12" y2="${y+32}" stroke="#BFB39B" stroke-width="1" stroke-dasharray="1 5"/>`);
+        g.push(`<line x1="34" y1="${y-16}" x2="${W-20}" y2="${y-16}" stroke="${C.grid}"/>`);
+        g.push(`<text x="0" y="${y+3}" font-size="12" font-family="ui-monospace,monospace" letter-spacing="1.6" fill="${C.slate}">${i<9?'0':''}${i+1}</text>`);
+        g.push(`<text x="46" y="${y+4}" font-size="19" font-family="Georgia,serif" fill="${C.ink}">${s[0]}</text>`);
+        g.push(P.texName(s[1],{xRight:W-20, baseline:y+4, size:15.5, color:C.coral, figW:W}));
+        if(i<steps.length-1) g.push(`<line x1="12" y1="${y+12}" x2="12" y2="${y+32}" stroke="${C.ruleStrong}" stroke-width="1" stroke-dasharray="1 5"/>`);
       });
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
     }}
@@ -94,7 +94,7 @@ const SC = [
     {t:'eq', size:'sm', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n},\\qquad x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})e^{j\\omega n}\\,\\d\\omega'},
     {t:'note', kind:'def', head:'sinc', html:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. The convention is restated wherever sinc appears.'},
     {t:'note', kind:'def', head:'Sampling', html:'A rate is angular unless it is named in hertz: $\\omega_s=2\\pi/T$ rad/s and $f_s=1/T$ Hz. The sampling theorem is stated with a strict inequality, $\\omega_s>2\\omega_M$.'},
-    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.0 — Modules 0–7 in 219 scenes, laboratories A–J, question banks Q1–Q7 with 84 questions. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
+    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.2 — Modules 0–7 in 233 scenes, laboratories A–J, question banks Q1–Q7 with 84 questions, and exam drills D1–D7 with 87 open-ended questions in examination form. Each module opens with a taxonomy of its recurring question types and a drill panel of questions modelled on them. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
   ]}
 ]}
 
