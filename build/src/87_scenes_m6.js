@@ -96,10 +96,10 @@ const SC = [
   {t:'lede', text:'An aperiodic sequence has a spectrum, and that spectrum is a continuous function of frequency. It is also periodic: every value it takes at $\\omega$ it takes again at $\\omega+2\\pi$. Everything this module does follows from that one fact.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
-      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#8FA8BF;margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
+      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]\\,e^{-j\\omega n}', label:'Analysis'},
     {t:'eq', tex:'x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,e^{j\\omega n}\\,\\d\\omega', label:'Synthesis'},
-    {t:'note', kind:'ok', head:'Why the second line has a finite range', html:'<span style="color:#DED5C6">The spectrum repeats every $2\\pi$, so it carries no information outside one period. Integrating over one period recovers the whole sequence; integrating over all frequencies would count the same information again and again.</span>'}
+    {t:'note', kind:'ok', head:'Why the second line has a finite range', html:'<span style="color:var(--graphite)">The spectrum repeats every $2\\pi$, so it carries no information outside one period. Integrating over one period recovers the whole sequence; integrating over all frequencies would count the same information again and again.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:820,h:430,xr:[-3*PI,3*PI],yr:[-0.55,4.6],grid:false,zeroAxes:false,arrows:false,
@@ -269,15 +269,15 @@ const SC = [
       {t:'note', kind:'warn', head:'Three things that are not in the continuous-time pair', html:'The factor $\\tfrac{1}{2\\pi}$ sits on the synthesis side. The integration range is one period, $\\int_{2\\pi}$, not $-\\infty$ to $\\infty$. And the left-hand side is written $X(e^{j\\omega})$, not $X(j\\omega)$, precisely to record that it is a function of $e^{j\\omega}$ and therefore repeats.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:250,items:[
-      {t:'text',x:120,y:52,label:'\\text{sequence}',tex:true,fs:16,color:'#4A657F'},
+      {t:'text',x:120,y:52,label:'\\text{sequence}',tex:true,fs:16,color:C.slate},
       {t:'box',x:40,y:70,w:160,h:64,label:'x[n]',tex:true,fs:19},
-      {t:'text',x:700,y:52,label:'\\text{spectrum}',tex:true,fs:16,color:'#4A657F'},
+      {t:'text',x:700,y:52,label:'\\text{spectrum}',tex:true,fs:16,color:C.slate},
       {t:'box',x:620,y:70,w:160,h:64,label:'X(e^{j\\omega})',tex:true,fs:19},
       {t:'arrow',x1:210,y1:88,x2:610,y2:88,color:'#14707F',label:'\\text{analysis}',tex:true},
       {t:'line',d:'M610,120 L215,120',color:'#4A7A46'},
       {t:'line',d:'M215,120 l9,-4.5 v9 Z',color:'#4A7A46'},
       {t:'text',x:412,y:150,label:'\\text{synthesis}',tex:true,fs:15,color:'#4A7A46'},
-      {t:'text',x:412,y:205,label:'\\text{one is a sum over }n,\\;\\text{the other an integral over }\\omega',tex:true,fs:14,color:'#6E6960'}
+      {t:'text',x:412,y:205,label:'\\text{one is a sum over }n,\\;\\text{the other an integral over }\\omega',tex:true,fs:14,color:C.muted}
     ]}), caption:'The direction of the arrow is the definition of the name.'},
     {t:'reveal', at:3, items:[
       {t:'fig', frame:true, svg:()=>{
@@ -1320,7 +1320,7 @@ const SC = [
       {t:'arrow',x1:510,y1:100,x2:760,y2:100,color:'#4A7A46'},
       {t:'text',x:185,y:82,label:'X(e^{j\\omega})',tex:true,fs:16,color:'#14707F'},
       {t:'text',x:635,y:82,label:'X(e^{j\\omega})H(e^{j\\omega})',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:420,y:175,label:'|Y|=|X|\\cdot|H|\\qquad \\angle Y=\\angle X+\\angle H',tex:true,fs:16,color:'#4A657F'}
+      {t:'text',x:420,y:175,label:'|Y|=|X|\\cdot|H|\\qquad \\angle Y=\\angle X+\\angle H',tex:true,fs:16,color:C.slate}
     ]}), caption:'One multiplication per frequency, in place of the whole convolution sum.'},
     {t:'reveal', at:1, items:[
       {t:'fig', frame:true, svg:()=>{
@@ -1732,7 +1732,7 @@ const SC = [
       {t:'arrow',x1:560,y1:110,x2:780,y2:110,color:'#4A7A46'},
       {t:'text',x:165,y:92,label:'X(e^{j\\omega})',tex:true,fs:16,color:'#14707F'},
       {t:'text',x:670,y:92,label:'Y(e^{j\\omega})',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:420,y:196,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:'#4A657F'}
+      {t:'text',x:420,y:196,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:C.slate}
     ]}), caption:'The recursion has become a single algebraic factor.'}
   ]}
 ]},
@@ -1904,9 +1904,9 @@ const SC = [
   {t:'title', level:1, text:'Discrete time makes<br>frequency a circle.'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'lede', text:'The frequency axis of a sequence is not a line. Move along it by $2\\pi$ and you are back where you started, so every spectrum in this module was drawn over more than one period with the period marked.'},
-    {t:'note', kind:'ok', head:'Carry these forward', html:'<span style="color:#DED5C6">The pair, with analysis as the sum and synthesis as the integral over one period. The $2\\pi$-periodicity and its one-line proof. Real means phase $0$ or $\\pi$, not phase zero. Multiplication in time is a <b>periodic</b> convolution. The unnormalised sinc, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$. And discrete time has a difference, not a derivative.</span>'},
+    {t:'note', kind:'ok', head:'Carry these forward', html:'<span style="color:var(--graphite)">The pair, with analysis as the sum and synthesis as the integral over one period. The $2\\pi$-periodicity and its one-line proof. Real means phase $0$ or $\\pi$, not phase zero. Multiplication in time is a <b>periodic</b> convolution. The unnormalised sinc, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$. And discrete time has a difference, not a derivative.</span>'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Three habits that fail here', html:'<span style="color:#DED5C6">Reading a spectrum as though it stopped at $\\pm\\pi$. Taking the multiplication property as an integral over all frequencies. And using a continuous-time transform pair on a discrete-time problem, or the reverse — the two have different periodicity, a different scale factor and a different integration range.</span>'}]}
+      {t:'note', kind:'warn', head:'Three habits that fail here', html:'<span style="color:var(--graphite)">Reading a spectrum as though it stopped at $\\pm\\pi$. Taking the multiplication property as an integral over all frequencies. And using a continuous-time transform pair on a discrete-time problem, or the reverse — the two have different periodicity, a different scale factor and a different integration range.</span>'}]}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:300,xr:[-3*PI,3*PI],yr:[-1.1,6.4],grid:false,zeroAxes:false,arrows:false,
@@ -1916,7 +1916,7 @@ const SC = [
       return a.svg(); },
       caption:'One spectrum, three periods, and the same information in each of them.'},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'What comes next', html:'<span style="color:#DED5C6">A sequence usually comes from somewhere: a continuous-time signal, read at regular instants. Module 7 asks what that reading costs. The answer is written in copies of a spectrum, spaced by the sampling frequency — and this module has already shown what happens when copies of a spectrum are allowed to meet.</span>'}]}
+      {t:'note', kind:'def', head:'What comes next', html:'<span style="color:var(--graphite)">A sequence usually comes from somewhere: a continuous-time signal, read at regular instants. Module 7 asks what that reading costs. The answer is written in copies of a spectrum, spaced by the sampling frequency — and this module has already shown what happens when copies of a spectrum are allowed to meet.</span>'}]}
   ]}
 ]}
 

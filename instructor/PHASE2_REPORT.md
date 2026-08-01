@@ -446,3 +446,114 @@ a decision:
    `:425`, `:601`). The `src:` fields and the file's section comments are legitimate and must stay exempt.
 
 Fixing both means editing worked-solution prose, which is content, so it was not done unilaterally.
+
+---
+
+## 11. Maintenance record — 2026-08-01, exam drill sections added (v1.2)
+
+Each of Modules 1–7 now opens with two scenes placed **in front of** its teaching scenes:
+
+- `m<k>-drill-map` — a taxonomy of the question types that recur in examinations for that module: what
+  each type asks for, the ordered method that answers it, and a link to the scene where that method is
+  taught. Four to six types per module.
+- `m<k>-drill` — a scrolling panel of open-ended questions in examination form, lettered `a)`, `b)`,
+  `c)`, with a worked solution behind a button. The solution follows the R7 order — Given, Find,
+  Method, Solution, Check — and ends with the checks that catch most errors without redoing the work.
+
+Eighty-seven questions in all: twelve each for Modules 1, 2, 4, 6 and 7, fourteen for Module 3, and
+thirteen for Module 5. Module 0 has none; it is the course opening and carries no examinable method.
+
+**The questions are new.** They are modelled on the recurring shapes of the course examinations, not
+copied from them, and no paper, year or question number is ever rendered to a student.
+
+**This was got wrong on the first pass and had to be repaired.** Twenty-four drill questions had been
+written with the *same signals and the same numbers* as the paper they were modelled on — an
+exponential pulse convolved with the same window, the same two sinusoids in a Fourier-series
+question, the same geometric sequence in a transform question. That is a copy, not a model, and it
+contradicts the paragraph above. Every one of them was rewritten: the question type, the difficulty
+and the method are unchanged, and the signals, coefficients, rates and bandwidths are different.
+A closing sweep for the signal signatures of the papers now reports only signals that are standard
+textbook objects appearing in a different question type — `e^{-2t}u(t)` in an even/odd split, for
+instance — and no examination item.
+
+**How to keep it that way.** When a drill question is added or edited, check its signal against the
+papers before the numbers are fixed, not afterwards. A question that shares a type with a paper is
+the point; one that shares its numbers is a leak. The paper a
+question derives from is recorded in its `src:` field and shows only in the instructor edition,
+through the existing `data-instr` mechanism. This is R3.
+
+**Files.** `build/src/92_drill_m1_m3.js`, `93_drill_m4_m5.js`, `94_drill_m6_m7.js` hold the content;
+`CONTENT.DRILL` and `CONTENT.DRILLTYPES` are declared in `80_content_core.js`; the `drill` and
+`drilltypes` block renderers and `drillHTML` are in `90_app.js`; the `.dr-*` styles are in
+`10_style.css`; and the scene order is assembled in `99_tail.html`. `build.js` was not touched.
+
+**Why a scrolling panel rather than a scene per question.** A statement, two figures and a five-part
+worked solution do not fit the fixed 1920×1080 stage, and a solution trimmed to fit is not a solution.
+The drill panel reuses `.qb-scroll`, the artifact's one scrolling region, which `fitScene()` already
+leaves unscaled. A question whose solution is open takes the full width (`column-span:all`) so the
+solution is never cut in half at a column break. **Known consequence:** a scrolling region does not
+print, so the drills will not appear in the PDF editions, exactly as the question banks do not. If the
+PDFs need them, that requires a separate print path, and it does not exist.
+
+**Two defects found and fixed while building this.**
+
+1. `60_plot.js` carried its own KaTeX option object with no macro list, while `90_app.js` defines
+   `\d`, `\Ev` and `\Od` for the running text. A figure label using any of them failed to parse, fell
+   back to its source string and printed the backslash on the page. The two lists now agree and must
+   be kept in step.
+2. `mathscan.js` could not see a drill solution, because a collapsed panel has no reveal state and
+   `qa.js` renders a scene at its last reveal state. It now clicks every `.drill [data-sol]` in turn,
+   re-querying the handles after each click. Its tag whitelist also gained `OL`. `textclash.js` had
+   the same blind spot for the answer figures a solution draws, and it was closed the same way: its
+   sweep is now a named function, run once per step and again after each solution is opened. Its first
+   run in that form reported **four collisions in figures that had already passed every other gate**:
+   an annotation on the frequency-response curve in D4-06, two half-period tick numbers crossed by the
+   Dirichlet kernel where it dips negative in D6-03, and a guide line landing on the tick number that
+   named the same frequency in D7-05. All four were in `figSol` figures — the ones only a revealed
+   solution draws. Each was fixed by removing what had no free space to sit in, which is what R7 asks
+   for; the information was already in the surrounding text in every case.
+
+**Verification.** `verify/verify_drills.py` re-derives every number stated in a `Check` step —
+225 PASS, 0 FAIL. For Module 2, where the answers are proofs and counterexamples rather than numbers,
+it checks that each named counterexample does what the solution claims. All nine gates of `CLAUDE.md`
+§5 were run after the change.
+
+
+---
+
+## 12. Maintenance record — 2026-08-01, the question banks became open-ended
+
+The seven 12-question banks were multiple choice: four printed options, one correct, with a
+distractor analysis behind each wrong one. They are now **open-ended**, like the exam drills. A
+question is stated, the reader works it on paper, and a button reveals the worked solution. Nothing
+is chosen from a list.
+
+**Why.** Choosing between four printed statements is not the skill an examination tests, and a
+printed distractor set gives away the shape of the answer before any work is done.
+
+**What changed in the renderer.** `quizHTML` in `90_app.js` no longer draws `.opt` buttons or the
+`.fb` feedback panel; it draws the statement, the hint ladder, and the reveal. The `.opt[data-q]` and
+`[data-retry]` click handlers and the `.opt` / `.fb` styles were removed with them — they were
+orphaned by the change and nothing else rendered them. The bank's progress line now counts solutions
+opened rather than answers marked correct, and a question whose solution is open spans both columns,
+exactly as in the drill panel.
+
+**What changed in the content.** Twenty-three question stems ended in *Which statement is correct?*
+and were rewritten as instructions the existing worked solution already answers — *State the two
+conditions…*, *Say whether the claim is correct…*, *Classify the modulator on all five properties…*.
+Four questions carried their content in the options rather than the stem (*Which of the following
+systems is memoryless?*); for those the four cases were moved into the stem as (i)–(iv). Eight
+references to *Option A/B/C/D* inside worked solutions became *Case (i)…(iv)*, three references to
+*distractors* were reworded, and two scene introductions that described how the wrong options were
+built were rewritten.
+
+**Nothing authored was discarded.** The `opts`, `a`, `why` and `wrong` fields stay in the data. The
+`wrong` entries — the analysis of what each mistaken reading gets wrong — are now shown in the
+**instructor edition** under *Errors to watch for*, where they are a list of what to watch for rather
+than something to click.
+
+**A trap that recurred.** Writing the case list into a stem needs `\\;` for a thin space. A single
+backslash is eaten by JavaScript and the page prints `(i); y[n]=…` instead of `(i)  y[n]=…`. This is
+the trap `CLAUDE.md` §8 names, and it caught this work once. `build/labtest.js` was updated to drive
+the open-ended bank and now reports `options=0` explicitly, so a regression that reintroduces the
+buttons fails a gate.

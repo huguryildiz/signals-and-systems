@@ -1,6 +1,6 @@
 # Exam drill sections — design
 
-**Status: design, approved 2026-08-01.** Instructor-only record. Read `CLAUDE.md` first; every rule
+**Status: built 2026-08-01, artifact v1.2.** This was the design; `PHASE2_REPORT.md` §11 records what was built and where it differed. Instructor-only record. Read `CLAUDE.md` first; every rule
 in its §6 and §7 binds this work. This document says what the exam drill sections are, how they are
 built, and how they are verified. It does not repeat anything already fixed in `CLAUDE.md`.
 

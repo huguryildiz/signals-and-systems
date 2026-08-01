@@ -2,7 +2,7 @@
 CONTENT.QBANK = CONTENT.QBANK.concat([
 
 { id:'Q4-01', module:'M4', kind:'concept', src:'pp. 22–23',
-  stem:'An LTI system has impulse response $h(t)$. Which statement about complex exponentials and this system is correct?',
+  stem:'An LTI system has impulse response $h(t)$. State the eigenfunction property of an LTI system precisely, including what plays the role of the eigenvalue.',
   opts:['$e^{st}$ comes out of the system as $H(s)e^{st}$, where $H(s)=\\int_{-\\infty}^{\\infty}h(\\tau)e^{-s\\tau}\\,d\\tau$ is a number that depends on $s$ but not on $t$.',
         '$e^{st}$ comes out as $H(t)e^{st}$, where $H(t)$ is the impulse response evaluated at the current time.',
         'Every input signal is an eigenfunction of an LTI system, because convolution is linear.',
@@ -152,7 +152,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'The identity-system test is the fastest diagnostic. If the reassembly does not reproduce the input when $H=1$, it is wrong regardless of what the numbers look like.' },
 
 { id:'Q4-10', module:'M4', kind:'exam', src:'pp. 39–40',
-  stem:'The same input goes through $H(j\\omega)=\\dfrac{j\\omega}{1+j\\omega}$, giving $b_1=0.4764\\,e^{+j0.308}$, $b_2=0.4938\\,e^{-j1.413}$ and $b_3=0.4972\\,e^{+j1.153}$. Which output is correct?',
+  stem:'The same input goes through $H(j\\omega)=\\dfrac{j\\omega}{1+j\\omega}$, giving $b_1=0.4764\\,e^{+j0.308}$, $b_2=0.4938\\,e^{-j1.413}$ and $b_3=0.4972\\,e^{+j1.153}$. Write the output as a real signal in amplitude-and-phase form.',
   opts:['$y(t)=0.953\\cos(\\pi t+0.308)+0.988\\cos(2\\pi t-1.413)+0.994\\cos(3\\pi t+1.153)$',
         '$y(t)=1+0.953\\cos(\\pi t+0.308)+0.988\\cos(2\\pi t-1.413)+0.994\\cos(3\\pi t+1.153)$',
         '$y(t)=0.48\\cos(\\pi t-0.31)+0.49\\cos(2\\pi t-1.41)+0.50\\cos(3\\pi t-1.15)$',
@@ -186,7 +186,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Work the table both ways — from a symmetry to the coefficient structure and back. Students who have learned it in one direction only cannot read a plot.' },
 
 { id:'Q4-12', module:'M4', kind:'synthesis', src:'pp. 30, 34, 37',
-  stem:'A square wave and a triangular wave are each truncated to the same number of harmonics. Which statement about the two approximations is correct?',
+  stem:'A square wave and a triangular wave are each truncated to the same number of harmonics. Compare the two truncated approximations, and say what governs the difference between them.',
   opts:['The triangular wave is approximated far better, because its coefficients decay like $1/k^{2}$ instead of $1/k$; and only the square wave shows an overshoot that does not shrink as more harmonics are added.',
         'Both are approximated equally well, since Parseval’s relation applies to both.',
         'The square wave is approximated better, because its coefficients are larger and therefore carry more of the signal.',

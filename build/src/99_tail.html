@@ -1,10 +1,20 @@
 <script>
 /* ---------- assemble the scene list from the content modules ---------- */
 (function(){
+  /* Each module opens with its exam drill: a taxonomy of the question types
+     that recur in examinations, then a panel of questions in that form. The
+     drill scenes carry the module id of the module they precede, so the
+     contents rail and the module list need no separate entry. */
   const SCENES = [].concat(
-    window.SCENES_M0||[], window.SCENES_M1||[], window.SCENES_M2||[],
-    window.SCENES_M3||[], window.SCENES_M4||[], window.SCENES_M5||[],
-    window.SCENES_M6||[], window.SCENES_M7||[], window.SCENES_END||[]
+    window.SCENES_M0||[],
+    window.DRILL_M1||[], window.SCENES_M1||[],
+    window.DRILL_M2||[], window.SCENES_M2||[],
+    window.DRILL_M3||[], window.SCENES_M3||[],
+    window.DRILL_M4||[], window.SCENES_M4||[],
+    window.DRILL_M5||[], window.SCENES_M5||[],
+    window.DRILL_M6||[], window.SCENES_M6||[],
+    window.DRILL_M7||[], window.SCENES_M7||[],
+    window.SCENES_END||[]
   );
 
   /* glossary + conventions + help panels */

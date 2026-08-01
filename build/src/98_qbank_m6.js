@@ -36,7 +36,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for the one-line proof and then for the continuous-time version of the same line. Where the argument fails is the whole content of the difference.' },
 
 { id:'Q6-03', module:'M6', kind:'concept', src:'pp. 64, 69',
-  stem:'A sequence $x[n]$ is periodic with period $N$. Which statement correctly separates its Fourier series coefficients $a_k$ from the transform $X(e^{j\\omega})$ of an aperiodic sequence?',
+  stem:'A sequence $x[n]$ is periodic with period $N$. State how the Fourier series coefficients $a_k$ of a periodic sequence differ in kind from the transform $X(e^{j\\omega})$ of an aperiodic one.',
   opts:['$a_k$ is a discrete set of numbers, itself periodic in $k$ with period $N$; $X(e^{j\\omega})$ is a continuous function of $\\omega$, periodic with period $2\\pi$. Both are periodic, but in different variables and for different reasons.',
         '$a_k$ is a continuous function of $k$ and $X(e^{j\\omega})$ is a discrete set of samples, so the two are the same object read in opposite directions.',
         '$a_k$ is periodic in $k$ with period $N$ and $X(e^{j\\omega})$ is not periodic at all, since an aperiodic sequence must have an aperiodic spectrum.',
@@ -172,7 +172,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Require the factoring to be checked by expansion, and the first three values of $h$ to be checked against the recursion. Both take one line and catch every sign slip.' },
 
 { id:'Q6-11', module:'M6', kind:'graph', src:'pp. 65, 67',
-  stem:'Four sketches are offered as the magnitude $|X(e^{j\\omega})|$ of some sequence, each drawn on $-3\\pi\\le\\omega\\le3\\pi$. Which one can be a discrete-time Fourier transform magnitude?',
+  stem:'Four sketches are offered as the magnitude $|X(e^{j\\omega})|$ of some sequence, each drawn on $-3\\pi\\le\\omega\\le3\\pi$. Decide which of them can be a discrete-time Fourier transform magnitude, and reject the others with a reason.<br>(i) A curve that repeats exactly every $2\\pi$. (ii) A single hump on $|\\omega|\\le\\pi$ that is zero outside it. (iii) A curve that decays steadily to zero as $|\\omega|$ grows. (iv) A curve that is odd about $\\omega=0$.',
   opts:['A curve that repeats itself exactly every $2\\pi$, so that the picture on $-3\\pi\\le\\omega\\le-\\pi$, on $-\\pi\\le\\omega\\le\\pi$ and on $\\pi\\le\\omega\\le3\\pi$ are three copies of the same shape.',
         'A single hump on $|\\omega|\\le\\pi$ that is zero everywhere outside it, so that the spectrum stops at the edge of the first period.',
         'A curve that decays steadily towards zero as $|\\omega|$ grows, so that the sequence contains less and less at high frequency.',
@@ -189,7 +189,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for the value at one point and at that point plus $2\\pi$. If the sketch cannot answer both, it is not finished.' },
 
 { id:'Q6-12', module:'M6', kind:'synthesis', src:'pp. 64–79',
-  stem:'Which statement correctly transfers between the continuous-time and the discrete-time Fourier transform?',
+  stem:'State which properties of the continuous-time transform carry over to the discrete-time transform unchanged, and which do not.',
   opts:['Convolution in time becomes multiplication of the transforms in both cases; multiplication in time becomes a convolution of the transforms in both cases, but in discrete time that convolution is <em>periodic</em>, over one period of $2\\pi$, with a factor $\\tfrac{1}{2\\pi}$.',
         'Both synthesis equations integrate over all frequencies, so both carry $\\int_{-\\infty}^{\\infty}$ and a factor $\\tfrac{1}{2\\pi}$.',
         'The pair $x(t)=e^{-at}u(t)\\leftrightarrow1/(a+j\\omega)$ may be used for $x[n]=a^{n}u[n]$ by replacing $t$ with $n$ and $j\\omega$ with $e^{-j\\omega}$.',

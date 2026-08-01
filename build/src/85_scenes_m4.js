@@ -43,10 +43,10 @@ const SC = [
   {t:'lede', text:'A linear time-invariant system returns a complex exponential unchanged in shape, scaled by a single number. Write a periodic signal as a sum of complex exponentials and the hardest operation in Module 3 becomes multiplication.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
-      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#8FA8BF;margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
+      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0 t}', label:'Synthesis'},
     {t:'eq', tex:'a_k=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jk\\omega_0 t}\\,\\d t', label:'Analysis'},
-    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:#DED5C6">Convolution with the impulse response becomes one multiplication per harmonic. The system is described by how it treats each frequency, and nothing else.</span>'}
+    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:var(--graphite)">Convolution with the impulse response becomes one multiplication per harmonic. The system is described by how it treats each frequency, and nothing else.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:430,xr:[-4,4],yr:[-0.35,4.1],grid:false,zeroAxes:false,arrows:false,
@@ -990,7 +990,7 @@ const SC = [
       {t:'box',x:360,y:36,w:180,h:48,label:'\\text{one period of }\\ell',tex:true,fs:15},
       {t:'arrow',x1:540,y1:60,x2:660,y2:60},
       {t:'text',x:690,y:66,label:'\\sum_{\\ell=\\langle N\\rangle}a_\\ell b_{k-\\ell}',anchor:'start',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:400,y:130,label:'the sum stops after N terms',fs:13,anchor:'start',color:'#4A657F'}
+      {t:'text',x:400,y:130,label:'the sum stops after N terms',fs:13,anchor:'start',color:C.slate}
     ]}), caption:'The discrete-time product convolves the coefficients over one period, and one period only.'},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
@@ -1069,8 +1069,8 @@ const SC = [
       {t:'arrow',x1:230,y1:238,x2:340,y2:238},{t:'box',x:340,y:216,w:130,h:44,label:'H(j\\omega)',tex:true},
       {t:'arrow',x1:470,y1:238,x2:560,y2:238},
       {t:'text',x:590,y:244,label:'b_ke^{jk\\omega_0t}',anchor:'start',tex:true,fs:16,color:'#4A7A46'},
-      {t:'line',d:'M30 88 h780',color:'#D9D0BE'},
-      {t:'line',d:'M30 188 h780',color:'#D9D0BE'}
+      {t:'line',d:'M30 88 h780',color:C.rule},
+      {t:'line',d:'M30 188 h780',color:C.rule}
     ]}), caption:'Each harmonic travels through the system on its own. Nothing crosses between the rows, which is what makes the method work.'}
   ]}
 ]},
@@ -1352,21 +1352,21 @@ const SC = [
   {t:'eyebrow', text:'Module 4 · Synthesis', src:'pp. 22–41'},
   {t:'title', text:'A checklist, and the signal it cannot handle'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6"><b>1.</b> Confirm the signal is periodic, and find $T_0$ or $N$ before anything else.</p>
-      <p style="color:#DED5C6"><b>2.</b> Set $\\omega_0=2\\pi/T_0$ or $2\\pi/N$, and express every component frequency as a multiple of it. That multiple is $k$.</p>
-      <p style="color:#DED5C6"><b>3.</b> If the signal is already a sum of sinusoids, read the coefficients off with Euler’s relations. Otherwise integrate or sum, and treat $k=0$ separately.</p>
-      <p style="color:#DED5C6"><b>4.</b> Check $a_0$ against the average of the signal by eye, and check the symmetry: real gives $a_{-k}=a_k^{*}$.</p>
-      <p style="color:#DED5C6"><b>5.</b> Through an LTI system, $b_k=a_kH(jk\\omega_0)$ — one product per harmonic.</p>
-      <p style="color:#DED5C6"><b>6.</b> To return to a real signal, pair $k$ with $-k$: the amplitude is $2|b_k|$ and the phase is $\\angle b_k$. The term $b_0$ stands alone.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the signal is periodic, and find $T_0$ or $N$ before anything else.</p>
+      <p style="color:var(--graphite)"><b>2.</b> Set $\\omega_0=2\\pi/T_0$ or $2\\pi/N$, and express every component frequency as a multiple of it. That multiple is $k$.</p>
+      <p style="color:var(--graphite)"><b>3.</b> If the signal is already a sum of sinusoids, read the coefficients off with Euler’s relations. Otherwise integrate or sum, and treat $k=0$ separately.</p>
+      <p style="color:var(--graphite)"><b>4.</b> Check $a_0$ against the average of the signal by eye, and check the symmetry: real gives $a_{-k}=a_k^{*}$.</p>
+      <p style="color:var(--graphite)"><b>5.</b> Through an LTI system, $b_k=a_kH(jk\\omega_0)$ — one product per harmonic.</p>
+      <p style="color:var(--graphite)"><b>6.</b> To return to a real signal, pair $k$ with $-k$: the amplitude is $2|b_k|$ and the phase is $\\angle b_k$. The term $b_0$ stands alone.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Two checks catch nearly every error', html:'<span style="color:#DED5C6">A coefficient plot that is not symmetric in the right way means the signal is not real, or the algebra is wrong. An output whose swing is half of what the harmonics suggest means the pairing step lost its factor of two.</span>'}]}
+      {t:'note', kind:'ok', head:'Two checks catch nearly every error', html:'<span style="color:var(--graphite)">A coefficient plot that is not symmetric in the right way means the signal is not real, or the algebra is wrong. An output whose swing is half of what the harmonics suggest means the pairing step lost its factor of two.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 5 begins</p>'},
     {t:'lede', text:'Everything here needed the signal to repeat. A single pulse does not repeat, has no fundamental period, and therefore has no harmonics to carry coefficients. So what happens to a Fourier series when the period is made longer and longer?'},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:#DED5C6">The rectangular wave already answered it. Its coefficients were samples of one envelope, $E(\\omega)$, taken every $\\omega_0=2\\pi/T_0$. Lengthen the period and the envelope does not move; only the samples crowd together and shrink as $1/T_0$.</p>`},
+      {t:'body', html:`<p style="color:var(--graphite)">The rectangular wave already answered it. Its coefficients were samples of one envelope, $E(\\omega)$, taken every $\\omega_0=2\\pi/T_0$. Lengthen the period and the envelope does not move; only the samples crowd together and shrink as $1/T_0$.</p>`},
       {t:'eq', plain:true, tex:'T_0a_k=E(k\\omega_0)\\quad\\xrightarrow{\\;T_0\\to\\infty\\;}\\quad X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,\\d t'},
-      {t:'body', html:`<p style="color:#DED5C6">In the limit the stems merge into the curve they were always sampling. That curve is the <b>Fourier transform</b>, and it is the whole of Module 5.</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">In the limit the stems merge into the curve they were always sampling. That curve is the <b>Fourier transform</b>, and it is the whole of Module 5.</p>`}]}
   ]}
 ]}
 

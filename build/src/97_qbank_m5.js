@@ -2,7 +2,7 @@
 CONTENT.QBANK = CONTENT.QBANK.concat([
 
 { id:'Q5-01', module:'M5', kind:'concept', src:'p. 44',
-  stem:'Two equations define the continuous-time Fourier transform pair. Which statement names them correctly?',
+  stem:'Two equations define the continuous-time Fourier transform pair. Name each equation, and say which variable each one integrates over.',
   opts:['$X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}dt$ is the analysis equation; $x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)e^{j\\omega t}d\\omega$ is the synthesis equation.',
         '$X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}dt$ is the synthesis equation, because it builds the spectrum out of the signal.',
         'Either equation may be called analysis, since both integrate one function against a complex exponential.',
@@ -31,7 +31,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          3:'Signals failing both still have transforms in the limiting sense: a constant, a complex exponential and every periodic signal do, and their spectra are impulses.'},
   hints:['Try to find one signal satisfying each condition and failing the other.',
          'What is the transform of $x(t)=1$? Does that signal satisfy either condition?'],
-  sol:'The two conditions are separate guarantees, joined by "or".<br><b>Condition A.</b> $\\int|x|^{2}dt<\\infty$ is enough for $X(j\\omega)$ to exist.<br><b>Condition B.</b> $x$ absolutely integrable, with finitely many maxima, minima and finite jumps in any finite interval, is also enough.<br><b>Neither implies the other.</b> Take $x(t)=\\sin(t)/t$: $\\int|x|^{2}dt=\\pi$ is finite, but $\\int|x|\\,dt$ diverges because the tails fall only like $1/|t|$. Now take $x(t)=1/\\sqrt{t}$ on $0<t<1$ and zero elsewhere: $\\int_{0}^{1}t^{-1/2}dt=2$ is finite, while $\\int_{0}^{1}t^{-1}dt$ diverges.<br><b>Neither is necessary.</b> $x(t)=1$ fails both and still has the transform $2\\pi\\delta(\\omega)$, in the limiting sense: it is the limit of the transforms of $e^{-a|t|}$, which are $2a/(a^{2}+\\omega^{2})$, as $a\\to0$. Every periodic signal is in the same position.<br>Result: option A.',
+  sol:'The two conditions are separate guarantees, joined by "or".<br><b>Condition A.</b> $\\int|x|^{2}dt<\\infty$ is enough for $X(j\\omega)$ to exist.<br><b>Condition B.</b> $x$ absolutely integrable, with finitely many maxima, minima and finite jumps in any finite interval, is also enough.<br><b>Neither implies the other.</b> Take $x(t)=\\sin(t)/t$: $\\int|x|^{2}dt=\\pi$ is finite, but $\\int|x|\\,dt$ diverges because the tails fall only like $1/|t|$. Now take $x(t)=1/\\sqrt{t}$ on $0<t<1$ and zero elsewhere: $\\int_{0}^{1}t^{-1/2}dt=2$ is finite, while $\\int_{0}^{1}t^{-1}dt$ diverges.<br><b>Neither is necessary.</b> $x(t)=1$ fails both and still has the transform $2\\pi\\delta(\\omega)$, in the limiting sense: it is the limit of the transforms of $e^{-a|t|}$, which are $2a/(a^{2}+\\omega^{2})$, as $a\\to0$. Every periodic signal is in the same position.',
   err:'Reading the two conditions as one statement repeated, so that failing one is taken to mean failing both.',
   teach:'The counterexamples are worth memorising in pairs. A student who can produce both directions has understood that "sufficient" is not "equivalent".' },
 
@@ -84,10 +84,10 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          'Square the heights before integrating, not after.'],
   sol:'Parseval, under the $R=1\\,\\Omega$ normalisation:$$E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}dt=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X_3(j\\omega)|^{2}d\\omega.$$The spectrum is piecewise constant, so square each height and multiply by the width it occupies.<br>Inner band: height 2, so $|X|^{2}=4$, over $-2\\pi<\\omega<2\\pi$, a width of $4\\pi$. Contribution $16\\pi$.<br>Outer bands: height 1, so $|X|^{2}=1$, over $2\\pi<|\\omega|<4\\pi$, two intervals of width $2\\pi$ each. Contribution $2\\pi+2\\pi=4\\pi$.$$E_\\infty=\\frac{1}{2\\pi}\\bigl[2\\pi+16\\pi+2\\pi\\bigr]=\\frac{20\\pi}{2\\pi}=10\\ \\text{J}.$$Check by the other route. Synthesis gives $x_3(t)=\\dfrac{\\sin(2\\pi t)+\\sin(4\\pi t)}{\\pi t}$, and integrating $x_3^{2}(t)$ over all time returns 10 J as well. The two routes use different equations, so their agreement is a real check.<br>Note in passing that $x_3(0)=\\frac{1}{2\\pi}\\int X_3\\,d\\omega=\\frac{1}{2\\pi}[8\\pi+4\\pi]=6$, which is the peak of the signal and not its energy.',
   err:'Integrating $X$ instead of $|X|^{2}$, which returns $2\\pi x(0)$ and has nothing to do with energy.',
-  teach:'The distractor 6 is the peak of the same signal. A student who answers 6 has done a correct calculation of the wrong quantity, which is worth naming rather than marking wrong and moving on.' },
+  teach:'The value 6 is the peak of the same signal. A student who answers 6 has done a correct calculation of the wrong quantity, which is worth naming rather than marking wrong and moving on.' },
 
 { id:'Q5-06', module:'M5', kind:'calc', src:'p. 63',
-  stem:'A system has $H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$ and the input is $x(t)=e^{-t}u(t)$. Which output is correct?',
+  stem:'A system has $H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$ and the input is $x(t)=e^{-t}u(t)$. Write the output as a real signal in amplitude-and-phase form.',
   opts:['$y(t)=\\left[\\tfrac14e^{-t}+\\tfrac12te^{-t}-\\tfrac14e^{-3t}\\right]u(t)$',
         '$y(t)=\\left[\\tfrac14e^{-t}+\\tfrac12te^{-t}+\\tfrac14e^{-3t}\\right]u(t)$',
         '$y(t)=\\left[\\tfrac12e^{-t}+\\tfrac12e^{-3t}\\right]u(t)$',
@@ -155,7 +155,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for all three peaks. Computing 8, 6 and 12 in one line each makes the area reading concrete.' },
 
 { id:'Q5-10', module:'M5', kind:'exam', src:'pp. 46–47',
-  stem:'A rectangular pulse of half-width $T_1$ has transform $2\\sin(\\omega T_1)/\\omega$. Which restatement is correct <em>in the convention used in this course</em>, where $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$?',
+  stem:'A rectangular pulse of half-width $T_1$ has transform $2\\sin(\\omega T_1)/\\omega$. Restate the result correctly <em>in the convention used in this course</em>, where $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.',
   opts:['$X(j\\omega)=2T_1\\operatorname{sinc}(\\omega T_1)$',
         '$X(j\\omega)=2T_1\\operatorname{sinc}(\\omega T_1/\\pi)$',
         '$X(j\\omega)=2T_1\\operatorname{sinc}(\\omega)$',
@@ -201,7 +201,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for the area check first. Once the peak is identified as an area, its direction stops being something to remember.' },
 
 { id:'Q5-12', module:'M5', kind:'synthesis', src:'pp. 42–63',
-  stem:'A real signal $x(t)$ has $X(j\\omega)$ known. It is delayed by $t_0$, then compressed by a factor 2 in time, then multiplied by $\\cos(\\omega_ct)$. Which statement about the final spectrum is correct?',
+  stem:'A real signal $x(t)$ has $X(j\\omega)$ known. It is delayed by $t_0$, then compressed by a factor 2 in time, then multiplied by $\\cos(\\omega_ct)$. Give the final spectrum in terms of $X(j\\omega)$, applying the three operations in order.',
   opts:['The delay changes only the phase; the compression halves the height and doubles the width; the carrier makes two half-height copies at $\\pm\\omega_c$. The magnitude at the end is even in $\\omega$, because the signal is still real.',
         'The delay changes only the phase; the compression doubles the height and halves the width; the carrier moves the spectrum to $\\omega_c$.',
         'The delay changes the magnitude by $|e^{-j\\omega t_0}|$, which shrinks it; the rest is as in the first option.',
@@ -213,7 +213,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          3:'They do not commute. Delaying and then compressing gives $x(2t-t_0)$; compressing and then delaying gives $x(2(t-t_0))=x(2t-2t_0)$. The two differ by a factor of two in the delay.'},
   hints:['Take the three properties one at a time and write what each does to magnitude and to phase.',
          'Test the commuting claim on $x(2t-t_0)$ against $x(2(t-t_0))$.'],
-  sol:'Apply the properties in order.<br><b>1. Delay.</b> $x(t-t_0)\\leftrightarrow e^{-j\\omega t_0}X(j\\omega)$. Since $|e^{-j\\omega t_0}|=1$, no magnitude changes at any frequency; the phase gains $-\\omega t_0$, a straight line of slope $-t_0$.<br><b>2. Compression.</b> $x(at)\\leftrightarrow\\frac{1}{|a|}X(j\\omega/a)$ with $a=2$ gives $\\frac12X(j\\omega/2)$: the height halves and every feature moves out to twice its frequency. Area is preserved, and by the synthesis equation that means the value at $t=0$ is unchanged.<br><b>3. Carrier.</b> $z(t)=v(t)\\cos(\\omega_ct)\\leftrightarrow\\frac12V\\bigl(j(\\omega-\\omega_c)\\bigr)+\\frac12V\\bigl(j(\\omega+\\omega_c)\\bigr)$: two copies, each at half the height of what entered.<br><b>Realness survives all three.</b> A delay, a real time scaling and multiplication by a real cosine all map real signals to real signals, so the final spectrum still satisfies $X(-j\\omega)=X^{*}(j\\omega)$: magnitude even, phase odd.<br><b>Order matters.</b> Delaying then compressing gives $x(2t-t_0)$; compressing then delaying gives $x(2t-2t_0)$. The two are different signals, so the operations do not commute and the sequence has to be applied as stated.<br>Result: option A.',
+  sol:'Apply the properties in order.<br><b>1. Delay.</b> $x(t-t_0)\\leftrightarrow e^{-j\\omega t_0}X(j\\omega)$. Since $|e^{-j\\omega t_0}|=1$, no magnitude changes at any frequency; the phase gains $-\\omega t_0$, a straight line of slope $-t_0$.<br><b>2. Compression.</b> $x(at)\\leftrightarrow\\frac{1}{|a|}X(j\\omega/a)$ with $a=2$ gives $\\frac12X(j\\omega/2)$: the height halves and every feature moves out to twice its frequency. Area is preserved, and by the synthesis equation that means the value at $t=0$ is unchanged.<br><b>3. Carrier.</b> $z(t)=v(t)\\cos(\\omega_ct)\\leftrightarrow\\frac12V\\bigl(j(\\omega-\\omega_c)\\bigr)+\\frac12V\\bigl(j(\\omega+\\omega_c)\\bigr)$: two copies, each at half the height of what entered.<br><b>Realness survives all three.</b> A delay, a real time scaling and multiplication by a real cosine all map real signals to real signals, so the final spectrum still satisfies $X(-j\\omega)=X^{*}(j\\omega)$: magnitude even, phase odd.<br><b>Order matters.</b> Delaying then compressing gives $x(2t-t_0)$; compressing then delaying gives $x(2t-2t_0)$. The two are different signals, so the operations do not commute and the sequence has to be applied as stated.',
   err:'Treating the three operations as independent labels rather than as an ordered composition, so that a scaling applied after a shift is written as if it had been applied before.',
   teach:'This question is a good closing exercise because every wrong option is a single property misremembered. Ask which one, rather than marking the whole answer.' }
 
