@@ -1,7 +1,7 @@
 /* Builds the three document editions that sit beside the lecture notes.
 
    All three are generated from the content the artifact already carries — the
-   question bank, the glossary and the conventions manifest — so a question id
+   exam drills, the glossary and the conventions manifest — so a question id
    means the same thing in every edition, and nothing here is a second copy of
    anything that would have to be kept in step by hand.
 
@@ -20,8 +20,8 @@ const B = path.join(__dirname, '..', 'build', 'src');
 const R = p => fs.readFileSync(path.join(B, p), 'utf8');
 const g = s => s.replace(/<\/script>/gi, '<\\/script>');
 
-/* the question bank and the glossary, loaded the way the artifact loads them */
-const QBANK_FILES = fs.readdirSync(B).filter(f => /^9[5-9]_qbank.*\.js$/.test(f)).sort();
+/* the exam drills and the glossary, loaded the way the artifact loads them */
+const DRILL_FILES = fs.readdirSync(B).filter(f => /^9[2-8]_drill_m\d\.js$/.test(f)).sort();
 
 const doc = (title, builder, extra = '') => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <title>${title}</title>
@@ -44,16 +44,16 @@ const doc = (title, builder, extra = '') => `<!DOCTYPE html><html lang="en"><hea
 <script>${g(R('60_plot.js'))}</script>
 <script>${g(S('src/render.js'))}</script>
 <script>${g(R('80_content_core.js'))}</script>
-${QBANK_FILES.map(f => `<script>${g(R(f))}</script>`).join('\n')}
+${DRILL_FILES.map(f => `<script>${g(R(f))}</script>`).join('\n')}
 ${extra}
 <script>${builder}</script>
 </body></html>`;
 
 const MODULE_TITLE = `const MT = Object.fromEntries(CONTENT.MODULES.map(m=>[m.id,m.title]));`;
-const KIND = `const KIND = {concept:'Concept', calc:'Calculation', misconception:'Misconception',
-  exam:'Exam-style', graph:'Graph reading', synthesis:'Synthesis'};`;
+const KIND = `const KIND = (m,k)=>{ const t=(CONTENT.DRILLTYPES[m]||[]).find(x=>x.k===k);
+  return t ? t.name : k; };`;
 const GROUP = `const BY = {};
-  CONTENT.QBANK.forEach(q=>{ (BY[q.module] = BY[q.module] || []).push(q); });
+  CONTENT.DRILL.forEach(q=>{ (BY[q.module] = BY[q.module] || []).push(q); });
   const MODS = CONTENT.MODULES.map(m=>m.id).filter(id=>BY[id]);`;
 
 /* ---------------------------------------------------------------- workbook */
@@ -62,23 +62,23 @@ ${MODULE_TITLE}${KIND}${GROUP}
 const B = [
  {t:'title', kicker:'Signals and Systems', text:'Student Workbook',
   sub:'Every question in the course, with no answer and no solution. Work each one on the page, then check it against the artifact or against the instructor edition.',
-  meta:[['Contains', CONTENT.QBANK.length + ' questions across ' + MODS.length + ' modules'],
+  meta:[['Contains', CONTENT.DRILL.length + ' questions across ' + MODS.length + ' modules'],
         ['Level','Undergraduate, second year'],
         ['Answers','Not printed in this edition']]},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'h3', text:'How to use it'},
- {t:'p', text:'The questions are in the order the course meets them, and each is labelled with what it asks for. Only the four options are printed; the reasoning stays for you to supply. The question numbers are shared with every other edition, so Q5-04 is the same question in the artifact, in this workbook and in the instructor solutions.'},
+ {t:'p', text:'The questions are in the order the course meets them, and each is labelled with what it asks for. Only the statement and its lettered parts are printed; the reasoning stays for you to supply. The question numbers are shared with every other edition, so D5-04 is the same question in the artifact, in this workbook and in the instructor solutions.'},
  {t:'page'}
 ];
 MODS.forEach((id,i)=>{
   B.push({t:'h1', num:'MODULE ' + id.replace('M',''), text: MT[id]});
-  B.push({t:'p', lead:true, text:'Twelve questions on ' + MT[id].toLowerCase() + '. Write your reasoning in the space under each one.'});
+  B.push({t:'p', lead:true, text:BY[id].length + ' questions on ' + MT[id].toLowerCase() + '. Write your reasoning in the space under each one.'});
   BY[id].forEach(q=>{
-    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + (KIND[q.kind]||q.kind) + '</div>'});
+    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + KIND(id,q.type) + '</div>'});
     B.push({t:'p', text:q.stem});
     if(q.figure) B.push({t:'fig', svg:q.figure});
-    B.push({t:'raw', html:'<ul class="opts">' + q.opts.map((o,k)=>
-      '<li><b>' + 'ABCD'[k] + '</b>&nbsp; ' + renderInline(o) + '</li>').join('') + '</ul>'});
+    B.push({t:'raw', html:'<ul class="opts">' + (q.parts||[]).map((o,k)=>
+      '<li><b>' + 'abcde'[k] + ')</b>&nbsp; ' + renderInline(o) + '</li>').join('') + '</ul>'});
     B.push({t:'raw', html:'<div class="workspace"></div></div>'});
   });
   if(i < MODS.length-1) B.push({t:'page'});
@@ -90,28 +90,24 @@ const solutions = `
 ${MODULE_TITLE}${KIND}${GROUP}
 const B = [
  {t:'title', kicker:'Signals and Systems', text:'Instructor Solutions',
-  sub:'Every question with its keyed answer, the reason each distractor is wrong, the worked solution, the error it is built to catch, and a teaching note. Not for distribution to students.',
-  meta:[['Contains', CONTENT.QBANK.length + ' questions, fully worked'],
+  sub:'Every question with its worked solution, the error it is built to catch, and a teaching note. Not for distribution to students.',
+  meta:[['Contains', CONTENT.DRILL.length + ' questions, fully worked'],
         ['Edition', CONTENT.META.version],
         ['Distribution','Instructor only']]},
- {t:'box', kind:'warn', hd:'Instructor edition', html:'This document prints the answer key, the distractor reasoning and the source pages behind every question. The student workbook contains the same questions with none of it. Question ids are shared, so a number quoted in class resolves in either document.'},
+ {t:'box', kind:'warn', hd:'Instructor edition', html:'This document prints the worked solution and the source pages behind every question. The student workbook contains the same questions with none of it. Question ids are shared, so a number quoted in class resolves in either document.'},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'page'}
 ];
 MODS.forEach((id,i)=>{
   B.push({t:'h1', num:'MODULE ' + id.replace('M',''), text: MT[id]});
   BY[id].forEach(q=>{
-    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + (KIND[q.kind]||q.kind) +
+    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + KIND(id,q.type) +
       (q.src ? ' &middot; ref ' + q.src : '') + '</div>'});
     B.push({t:'p', text:q.stem});
     if(q.figure) B.push({t:'fig', svg:q.figure});
-    B.push({t:'raw', html:'<ul class="opts">' + q.opts.map((o,k)=>
-      '<li><b>' + 'ABCD'[k] + (k===q.a ? ' \\u2713' : '') + '</b>&nbsp; ' + renderInline(o) + '</li>').join('') + '</ul>'});
-    B.push({t:'raw', html:'<div class="key"><b>Answer: ' + 'ABCD'[q.a] + '.</b> ' + renderInline(q.why||'') + '</div>'});
-    Object.keys(q.wrong||{}).sort().forEach(k=>{
-      B.push({t:'raw', html:'<div class="why"><b>' + 'ABCD'[+k] + ' is wrong.</b> ' + renderInline(q.wrong[k]) + '</div>'});
-    });
-    if(q.hints) B.push({t:'raw', html:'<div class="why"><b>Hints.</b> ' + q.hints.map(renderInline).join(' &middot; ') + '</div>'});
+    B.push({t:'raw', html:'<ul class="opts">' + (q.parts||[]).map((o,k)=>
+      '<li><b>' + 'abcde'[k] + ')</b>&nbsp; ' + renderInline(o) + '</li>').join('') + '</ul>'});
+    if(q.figSol) B.push({t:'fig', svg:q.figSol});
     if(q.sol) B.push({t:'raw', html:'<div class="why"><b>Worked solution.</b> ' + renderInline(q.sol) + '</div>'});
     if(q.err) B.push({t:'raw', html:'<div class="why"><b>The error this catches.</b> ' + renderInline(q.err) + '</div>'});
     if(q.teach) B.push({t:'raw', html:'<div class="why"><b>Teaching note.</b> ' + renderInline(q.teach) + '</div>'});

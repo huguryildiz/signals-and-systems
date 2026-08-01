@@ -409,17 +409,7 @@ const SC = [
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
         <span style="color:var(--graphite)">Both are handled by <em>local</em> LTI approximations: small-signal linearisation about an operating point for the amplifier, and block-wise time invariance over a coherence interval for the channel. The engineering question is then how long the approximation stays valid. That is a quantitative version of “how badly is the property broken”.</span></div></div>`}]}
   ]}
-]},
-
-{ id:'m2-qbank', module:'M2', nav:'Module 2 question bank', title:'Module 2 — question bank', src:'pp. 11–14',
-  objective:'Twelve questions covering Module 2 outcomes.',
-  keywords:'questions quiz Q2 bank module 2 exercises', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Question bank Q2-01 … Q2-12', src:'pp. 11–14'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–2. The questions target the two mistakes this module invites: classifying a system without applying a formal test, and assuming that one property implies another.'},
-  {t:'qbank', module:'M2'}
 ]}
-
 ];
 window.SCENES_M2 = SC;
 })();

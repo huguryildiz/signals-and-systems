@@ -9,7 +9,7 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.2 · Modules 0–7, laboratories A–J, question banks Q1–Q7, exam drills D1–D7',
+    version:'v1.3 · Modules 0–7, laboratories A–J, exam drills D1–D7, twenty questions a module',
     date:'2026-07-27',
     language:'Academic English',
     conventions:{
@@ -175,7 +175,6 @@ const CONTENT = {
       lin:{v:true, arg:'Proof: $y_3=2\\pi(ax_1+bx_2)=a\\,2\\pi x_1+b\\,2\\pi x_2=ay_1+by_2$. This system is LTI.'} } }
   ],
 
-  QBANK: [],  /* populated by the module question-bank files */
 
   /* ---- exam drills: open-ended questions in examination form ----
      DRILL holds the questions themselves, one flat array populated by the

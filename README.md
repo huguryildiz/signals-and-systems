@@ -174,7 +174,7 @@ build/
 │   ├── 84_scenes_m3.js         Module 3 — LTI systems and convolution (15 scenes)
 │   ├── 90_app.js               Scene renderer and block types
 │   ├── 91_scenes_end.js        Closing synthesis and symbol table
-│   ├── 95_qbank.js             Question banks Q1–Q3
+│   ├── 92_drill_m1.js … 98_drill_m7.js   Exam drills D1–D7, twenty questions a module
 │   └── 99_tail.html            Scene registration and boot
 ├── build.js                    Concatenates src/ → dist/Signals_and_Systems.html
 ├── qa.js labtest.js textclash.js   Three of the five gates
@@ -184,7 +184,7 @@ notes/
 ├── build.js topdf.js           Lecture-notes pipeline → HTML → PDF
 └── src/                        c1.js · c23.js · render.js · notes.css
 
-verify/                         verify_m1_m3.py · qbank_check.py · qbank_struct.js
+verify/                         verify_m1_m3.py · verify_drills.py · drill_common.py · drills_m1–m7.py
 tools/rule_check.py             The editorial banned-phrase scanner
 audit/                          Page inventories, page_titles.tsv, scenes.json  (never distribute)
 instructor/                     PHASE2_REPORT.md, coverage_matrix.md            (never distribute)
@@ -233,17 +233,18 @@ reported.
 | Layout                  | `cd build && node pw.js qa.js`                   | 0 errors, 0 overflow             |
 | Interaction             | `cd build && node pw.js labtest.js`              | `ERRORS: none`                   |
 | Labels                  | `cd build && node pw.js textclash.js`            | `TOTAL COLLISIONS: 0`            |
-| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 58`|
+| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 223`|
 | Numbers                 | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`          |
+| Drill numbers           | `cd verify && ../.venv/bin/python verify_drills.py` | `559 passed, 0 failed`        |
 | Wording                 | `tools/rule_check.py` (below)                    | `TOTAL VIOLATIONS: 0`            |
 
 ```bash
 .venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/91_*.js" \
-        "build/src/95_qbank.js" "build/src/70_labs.js" "notes/src/*.js"
+        "build/src/9[2-8]_drill_m*.js" "build/src/70_labs.js" "notes/src/*.js"
 ```
 
 `qa.js` renders every scene at its last step and measures it against the stage. `labtest.js` drives
-every laboratory control, quiz path and mode toggle. `textclash.js` walks every scene at every step and
+every laboratory control and mode toggle, and walks every drill pager to its last question. `textclash.js` walks every scene at every step and
 tests the glyph box of every figure label against the drawn geometry of that figure. `verify_m1_m3.py`
 recomputes every numerical result, one PASS/FAIL line each. `mathscan.js` reports a formula KaTeX could
 not parse, mathematics left as literal `$…$`, and any element whose tag name is not valid HTML or SVG.
@@ -321,9 +322,10 @@ pages, and `instructor/PHASE2_REPORT.md` records how the artifact was built and 
 
 ## Current State
 
-**v1.0 — complete.** Modules 0–7 in 220 scenes, laboratories A–J, question banks Q1–Q7 with 84
-questions, 981 numerical checks, zero clipping, zero runtime errors, zero label collisions, and four
-printed editions beside the artifact.
+**v1.3 — complete.** Modules 0–7 in 223 scenes, laboratories A–J, and an exam drill of twenty
+open-ended questions in front of every module from 1 to 7 — 140 questions, each with a worked solution
+that ends by testing its own answer a second way. 609 numerical checks, zero clipping, zero runtime
+errors, zero label collisions, and the lecture notes beside the artifact.
 
 All 88 source pages were read directly before anything was authored from them, and every page is mapped
 to the scenes and questions that carry it. Seventy-seven confirmed issues in the source material are
