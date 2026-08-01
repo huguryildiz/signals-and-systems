@@ -1884,42 +1884,7 @@ const SC = [
   {t:'title', text:'One period is never the whole picture'},
   {t:'lede', text:'Choose a sequence and a parameter. The panels show the sequence as stems and its transform over three periods of $2\\pi$, with one period marked. The frequency-shift state slides the spectrum and lets what leaves a period come back at the other end.'},
   {t:'lab', id:'I'}
-]},
-
-/* ============================================================ question bank */
-{ id:'m6-qbank', module:'M6', nav:'Module 6 question bank', title:'Module 6 — question bank', src:'pp. 64–79',
-  objective:'Twelve questions covering Module 6 outcomes.',
-  keywords:'questions quiz Q6 bank module 6 exercises discrete time fourier transform', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 6 · Question bank Q6-01 … Q6-12', src:'pp. 64–79'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–6. Several questions test whether the spectrum is being read as periodic; several test whether a continuous-time pair or property is being carried into a discrete-time problem.'},
-  {t:'qbank', module:'M6'}
-]},
-
-/* ============================================================ synthesis */
-{ id:'m6-synth', module:'M6', nav:'Module 6 synthesis', title:'Module 6 — what to carry forward', src:'pp. 64–79',
-  dark:true, objective:'Consolidate the module and open the question Module 7 answers.',
-  keywords:'synthesis summary module 6 checklist sampling preview periodicity carried forward', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 6 · Synthesis', src:'pp. 64–79'},
-  {t:'title', level:1, text:'Discrete time makes<br>frequency a circle.'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'lede', text:'The frequency axis of a sequence is not a line. Move along it by $2\\pi$ and you are back where you started, so every spectrum in this module was drawn over more than one period with the period marked.'},
-    {t:'note', kind:'ok', head:'Carry these forward', html:'<span style="color:var(--graphite)">The pair, with analysis as the sum and synthesis as the integral over one period. The $2\\pi$-periodicity and its one-line proof. Real means phase $0$ or $\\pi$, not phase zero. Multiplication in time is a <b>periodic</b> convolution. The unnormalised sinc, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$. And discrete time has a difference, not a derivative.</span>'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Three habits that fail here', html:'<span style="color:var(--graphite)">Reading a spectrum as though it stopped at $\\pm\\pi$. Taking the multiplication property as an integral over all frequencies. And using a continuous-time transform pair on a discrete-time problem, or the reverse — the two have different periodicity, a different scale factor and a different integration range.</span>'}]}
-  ], right:[
-    {t:'fig', svg:()=>{
-      const a=P.Axes({w:800,h:300,xr:[-3*PI,3*PI],yr:[-1.1,6.4],grid:false,zeroAxes:false,arrows:false,
-        pad:{l:24,r:24,t:24,b:24},xticksOverride:[],yticksOverride:[]});
-      a.curve(w=>dirich(wrap(w),2),{color:'#7FC3CE',width:2.4,n:6000});
-      for(const m of [-3,-1,1,3]) a.vline(m*PI,{color:'#6D7F8C',dash:'2 6',opacity:.8});
-      return a.svg(); },
-      caption:'One spectrum, three periods, and the same information in each of them.'},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'What comes next', html:'<span style="color:var(--graphite)">A sequence usually comes from somewhere: a continuous-time signal, read at regular instants. Module 7 asks what that reading costs. The answer is written in copies of a spectrum, spaced by the sampling frequency — and this module has already shown what happens when copies of a spectrum are allowed to meet.</span>'}]}
-  ]}
 ]}
-
 ];
 
 window.SCENES_M6 = SC;

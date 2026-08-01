@@ -582,17 +582,7 @@ const SC = [
       {t:'eq', plain:true, tex:'y(t)=\\int h(\\tau)e^{s(t-\\tau)}\\d\\tau=e^{st}\\underbrace{\\int h(\\tau)e^{-s\\tau}\\d\\tau}_{\\text{a number, }H(s)}'},
       {t:'body', html:`<p style="color:var(--graphite)">The signal comes out with its shape unchanged, scaled by a constant. Complex exponentials are the <b>eigenfunctions</b> of LTI systems. That single fact is the whole of Modules 4 to 7.</p>`}]}
   ]}
-]},
-
-{ id:'m3-qbank', module:'M3', nav:'Module 3 question bank', title:'Module 3 — question bank', src:'pp. 14–21',
-  objective:'Twelve questions covering Module 3 outcomes.',
-  keywords:'questions quiz Q3 bank module 3 exercises convolution', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Question bank Q3-01 … Q3-12', src:'pp. 14–21'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–3. Several questions target the missing-flip error, and several test whether the LTI property criteria are being confused with the general definitions of Module 2.'},
-  {t:'qbank', module:'M3'}
 ]}
-
 ];
 window.SCENES_M3 = SC;
 })();

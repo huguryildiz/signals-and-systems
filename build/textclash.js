@@ -164,16 +164,28 @@ const AXIS = ['#8A939C', '#7C858F'];
       const found = await sweep();
       found.forEach(f => all.push({ scene: s.id, step: st, ...f }));
     }
-    /* Open each drill solution in turn and sweep the figures it draws. The panel
+    /* Page through the whole drill, opening each worked solution and sweeping the
+       figures it draws. An answer figure exists only once the solution is
+       revealed, and only one question is on screen at a time, so the step loop
+       alone would leave nineteen of the twenty questions unmeasured. The panel
        redraws on every click, so the handles are re-queried per click. */
-    const nsol = await page.$$eval('#scene-host .drill [data-sol]', els => els.length).catch(() => 0);
-    for (let i = 0; i < nsol; i++) {
-      const h = (await page.$$('#scene-host .drill [data-sol]'))[i];
-      if (!h) continue;
-      try { await h.click({ timeout: 800 }); } catch (e) { continue; }
+    const ndrill = await page.evaluate(() => {
+      const el = document.querySelector('#scene-host .dr-page .drill'); if (!el) return 0;
+      const q = CONTENT.DRILL.find(x => x.id === el.dataset.qid);
+      return q ? CONTENT.DRILL.filter(x => x.module === q.module).length : 0;
+    }).catch(() => 0);
+    for (let i = 0; i < ndrill; i++) {
+      const h = await page.$('#scene-host .drill [data-sol]');
+      if (h) {
+        try { await h.click({ timeout: 800 }); } catch (e) { }
+        await page.waitForTimeout(90);
+        const found = await sweep();
+        found.forEach(f => all.push({ scene: s.id, step: 'sol' + i, ...f }));
+      }
+      const nx = await page.$('#scene-host .dr-pager [data-step="1"]:not([disabled])');
+      if (!nx) break;
+      try { await nx.click({ timeout: 800 }); } catch (e) { break; }
       await page.waitForTimeout(90);
-      const found = await sweep();
-      found.forEach(f => all.push({ scene: s.id, step: 'sol' + i, ...f }));
     }
   }
   await browser.close();

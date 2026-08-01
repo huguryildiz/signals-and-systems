@@ -49,7 +49,7 @@ const SC = [
 
 { id:'end-map', module:'Synthesis', nav:'What each module added', title:'What each module added', src:'pp. 2–88',
   objective:'Name the one thing each module contributes and the equation that carries it.',
-  keywords:'course map modules summary equations laboratories question banks', steps:1, blocks:[
+  keywords:'course map modules summary equations laboratories exam drills', steps:1, blocks:[
   {t:'eyebrow', text:'Synthesis · Modules 0–7', src:'pp. 2–88'},
   {t:'title', text:'Eight modules, eight additions'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -69,9 +69,9 @@ const SC = [
   ], right:[
     {t:'sub', text:'Where the practice sits'},
     {t:'body', html:`<p>Ten laboratories run beside the modules, A to J. Each one is a single question made adjustable: what a transformation does to a support, what a filter keeps, how many harmonics a waveform needs, where a spectrum lands after modulation, what a rate too low destroys.</p>
-      <p>Seven question banks, Q1 to Q7, carry twelve questions each. Every question states why the keyed answer is right and why each of the other three is wrong, so a wrong answer is worth as much to read as a right one.</p>`},
+      <p>An exam drill stands in front of every module from 1 to 7, twenty questions each. Nothing is multiple choice: a question is stated, worked on paper, and then checked against a full solution that ends by testing its own answer a second way.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'How to use what is left', html:'Work a laboratory until its readout stops surprising you, then answer its module\'s bank without the solutions open. The two are built to be used in that order: the laboratory makes a behaviour visible, and the bank asks whether you can predict it before you look.'}]}
+      {t:'note', kind:'def', head:'How to use what is left', html:'Work a laboratory until its readout stops surprising you, then work its module\'s drill with the solutions closed. The two are built to be used in that order: the laboratory makes a behaviour visible, and the drill asks whether you can predict it before you look.'}]}
   ]}
 ]},
 
@@ -94,7 +94,7 @@ const SC = [
     {t:'eq', size:'sm', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n},\\qquad x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})e^{j\\omega n}\\,\\d\\omega'},
     {t:'note', kind:'def', head:'sinc', html:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. The convention is restated wherever sinc appears.'},
     {t:'note', kind:'def', head:'Sampling', html:'A rate is angular unless it is named in hertz: $\\omega_s=2\\pi/T$ rad/s and $f_s=1/T$ Hz. The sampling theorem is stated with a strict inequality, $\\omega_s>2\\omega_M$.'},
-    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.2 — Modules 0–7 in 233 scenes, laboratories A–J, question banks Q1–Q7 with 84 questions, and exam drills D1–D7 with 87 open-ended questions in examination form. Each module opens with a taxonomy of its recurring question types and a drill panel of questions modelled on them. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
+    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.3 — Modules 0–7 in 223 scenes, laboratories A–J, and exam drills D1–D7 with 140 open-ended questions in examination form, twenty to a module. Each module opens with a taxonomy of its recurring question types and a drill of questions modelled on them, one question to a screen. Every number a solution states in its Check step is re-derived independently: 559 checks over the drills and 50 over the module content. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
   ]}
 ]}
 

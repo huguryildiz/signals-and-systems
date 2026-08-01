@@ -153,20 +153,34 @@ const path = require('path');
   }
   out.push('LABORATORIES SWEPT: ' + found.map(o => o.lab).join(' '));
 
-  // ---- question bank and exam drill: both are open-ended, so what there is to
-  //      drive is the hint ladder and the reveal of the worked solution
-  await scene('m1-qbank');
-  await p.click('[data-hint="Q1-02"]'); await p.waitForTimeout(120);
-  const hint = await p.$$eval('.hintbox', e => e.length);
-  await p.click('[data-sol="Q1-03"]'); await p.waitForTimeout(150);
-  const sol = await p.$$eval('.note.ok', e => e.length);
-  const opts = await p.$$eval('.opt', e => e.length);
-  out.push(`QBANK hint=${hint} solution=${sol} options=${opts}`);
-  await scene('m1-drill');
-  await p.click('.drill [data-sol="D1-01"]'); await p.waitForTimeout(150);
-  const dsol = await p.$$eval('.qb-item.dr-open .note.ok', e => e.length);
-  const dparts = await p.$$eval('.drill .dr-parts li', e => e.length);
-  out.push(`DRILL solution=${dsol} parts=${dparts}`);
+  // ---- exam drills: every question is open-ended and one question is on screen
+  //      at a time, so what there is to drive is the pager and the reveal of the
+  //      worked solution. Every question of every module is opened, because a
+  //      question left unpaged is a question no gate has ever rendered.
+  let dpages = 0, dsol = 0, dparts = 0, dopts = 0;
+  for (const m of ['M1','M2','M3','M4','M5','M6','M7']) {
+    await scene(m.toLowerCase() + '-drill');
+    const n = await p.evaluate(mm => CONTENT.DRILL.filter(q => q.module === mm).length, m);
+    if (!n) { errs.push(`DRILL ${m}: no questions`); continue; }
+    for (let i = 0; i < n; i++) {
+      const shown = await p.$$eval('#scene-host .dr-page .drill', e => e.length);
+      if (shown !== 1) errs.push(`DRILL ${m} q${i + 1}: ${shown} questions on screen, expected 1`);
+      const b = await p.$('#scene-host .drill [data-sol]');
+      if (!b) { errs.push(`DRILL ${m} q${i + 1}: no solution button`); }
+      else {
+        await b.click(); await p.waitForTimeout(120);
+        dsol += await p.$$eval('#scene-host .drill .note.ok', e => e.length);
+      }
+      dparts += await p.$$eval('#scene-host .drill .dr-parts li', e => e.length);
+      dopts += await p.$$eval('#scene-host .opt', e => e.length);
+      dpages++;
+      const nx = await p.$('#scene-host .dr-pager [data-step="1"]:not([disabled])');
+      if (!nx) { if (i !== n - 1) errs.push(`DRILL ${m}: pager stopped at ${i + 1} of ${n}`); break; }
+      await nx.click(); await p.waitForTimeout(120);
+    }
+  }
+  out.push(`DRILL pages=${dpages} solutions=${dsol} parts=${dparts} options=${dopts}`);
+  if (dopts !== 0) errs.push(`DRILL: ${dopts} answer options rendered — every question is open-ended`);
 
   // ---- modes, overlays, deep links, reset
   await p.keyboard.press('i'); await p.waitForTimeout(120);

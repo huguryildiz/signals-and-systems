@@ -1201,43 +1201,7 @@ const SC = [
   {t:'title', text:'One rate control, four linked pictures'},
   {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
   {t:'lab', id:'J'}
-]},
-
-/* ----------------------------------------------------------- question bank */
-{ id:'m7-qbank', module:'M7', nav:'Module 7 question bank', title:'Module 7 — question bank', src:'pp. 80–88',
-  objective:'Twelve questions covering Module 7 outcomes.',
-  keywords:'questions quiz Q7 bank module 7 exercises sampling aliasing nyquist reconstruction', steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Question bank Q7-01 … Q7-12', src:'pp. 80–88'},
-  {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–7. Several questions separate replication from aliasing, several test whether the Nyquist boundary is being read as safe, and several ask for a rate in the unit it was requested in.'},
-  {t:'qbank', module:'M7'}
-]},
-
-/* ------------------------------------------------------------- synthesis */
-{ id:'m7-synth', module:'M7', nav:'Module 7 synthesis', title:'Module 7 — what to carry forward', src:'pp. 80–88',
-  dark:true, objective:'Consolidate the module into a procedure and a short list of traps.',
-  keywords:'synthesis summary module 7 checklist procedure sampling design traps carry forward', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 7 · Synthesis', src:'pp. 80–88'},
-  {t:'title', text:'A procedure, and the four ways it goes wrong'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Find $\\omega_M$, the highest angular frequency the signal carries. If there is none, the signal is not band-limited and has to be filtered before anything else.</p>
-      <p style="color:var(--graphite)"><b>2.</b> Choose $\\omega_s$ strictly above $2\\omega_M$, leaving a guard band $\\omega_s-2\\omega_M$ wide enough for a real filter.</p>
-      <p style="color:var(--graphite)"><b>3.</b> Compute $T=2\\pi/\\omega_s$ and check $\\omega_sT=2\\pi$. Quote $f_s=1/T$ in hertz only when hertz was asked for.</p>
-      <p style="color:var(--graphite)"><b>4.</b> Draw the copies at every multiple of $\\omega_s$, each $1/T$ times the original height. Mark the baseband $k=0$.</p>
-      <p style="color:var(--graphite)"><b>5.</b> Place the reconstruction filter: gain $T$, cutoff strictly inside $\\omega_M<\\omega_c<\\omega_s-\\omega_M$.</p>
-      <p style="color:var(--graphite)"><b>6.</b> If the copies overlap, say which line came from which copy, and give the alias frequency $|\\omega_s-\\omega_0|$ for each component that moved.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The four traps, in one place', html:'<span style="color:var(--graphite)">Saying the copies disappear below the Nyquist rate — they never do, they overlap. Treating $\\omega_s=2\\omega_M$ as safe — the admissible cutoff interval is empty there. Reading $2\\pi/T$ in hertz — that is rad/s, and the error is a factor of $2\\pi$. Calling a hold output the reconstructed signal — a hold is an approximation with a measurable error.</span>'}]}
-  ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>What this module leaves you with</p>'},
-    {t:'lede', text:'A continuous signal and a sequence of numbers are now the same object, provided one inequality holds. That equivalence is what lets every result of the earlier modules be carried out on a machine.'},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:var(--graphite)">The sampled signal carries the whole of $x(t)$ when $\\omega_s>2\\omega_M$, and the interpolation formula says exactly how to get it back:</p>`},
-      {t:'eq', plain:true, tex:'x(t)=\\sum_{n=-\\infty}^{\\infty}x(nT)\\,\\frac{\\sin\\bigl(\\omega_c(t-nT)\\bigr)}{\\pi(t-nT)/T}'},
-      {t:'body', html:`<p style="color:var(--graphite)">Every term is a sample, and every sample is a number. Between them there is nothing left to know.</p>`}]}
-  ]}
 ]}
-
 ];
 window.SCENES_M7 = SC;
 })();
