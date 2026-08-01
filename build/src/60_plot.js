@@ -12,18 +12,17 @@ const PLOT = (() => {
      They follow the palette, so a figure drawn on the dark page is a dark
      figure, not a light figure pasted onto it. */
   const LIGHT = {
-    axis:'#8C8579', grid:'#E2DACA', ink:'#1B1A17', muted:'#6E6960',
+    axis:'#8A939C', grid:'#E5E1D8', ink:'#232B33', muted:'#616B76',
     in:'#14707F', h:'#C08422', out:'#4A7A46', mid:'#6A5A92', err:'#A63B2A',
-    coral:'#BE5539', slate:'#4A657F',
-    plate:'#FCF9F3', canvas:'#F7F2E8', rule:'#D9D0BE', ruleStrong:'#BFB39B'
+    coral:'#A0451C', slate:'#28567E',
+    plate:'#FFFFFF', canvas:'#FAF8F4', rule:'#DCD7CC', ruleStrong:'#C2BCB0'
   };
   const DARK = {
-    axis:'#8E8button', grid:'#2C2820', ink:'#F4EDDF', muted:'#A79D8B',
+    axis:'#7C858F', grid:'#223040', ink:'#E6E2D9', muted:'#A29D94',
     in:'#4FBECE', h:'#E5B255', out:'#82C27B', mid:'#AC99DC', err:'#E8785F',
-    coral:'#E08A6B', slate:'#8FA9C2',
-    plate:'#1E1B15', canvas:'#16140F', rule:'#332E26', ruleStrong:'#4B4338'
+    coral:'#E09A6A', slate:'#8FB8DC',
+    plate:'#1A2634', canvas:'#0E1621', rule:'#27333F', ruleStrong:'#3A4754'
   };
-  DARK.axis = '#8E8578';
   const COL = Object.assign({}, LIGHT);
   let LBLS = 1;   /* label scale  */
   let STRW = 1;   /* stroke scale */
@@ -54,7 +53,12 @@ const PLOT = (() => {
      the rest: an axis name touching the axis line, its arrowhead or a tick mark
      is a collision, where a short label anywhere else is allowed to sit on the
      geometry behind its halo. */
-  const TEXOPT = { throwOnError:true, strict:false, output:'html' };
+  /* The macros are the ones the running text uses. Without them a figure label
+     carrying \d, \Ev or \Od fails to parse, falls back to its source string, and
+     prints the backslash on the page — the same mathematics reads as type in a
+     paragraph and as source in a figure. The two renderers must agree. */
+  const TEXOPT = { throwOnError:true, strict:false, output:'html',
+    macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{d}' } };
   function texName(src, opts){
     const { xRight, xLeft, xMid, baseline, size } = opts;
     const ink = opts.color || COL.ink;

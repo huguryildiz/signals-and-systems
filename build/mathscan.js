@@ -14,7 +14,7 @@ const path = require('path');
     const txt=host.innerText||'';
     const m=txt.match(/\$[^$\n]{1,80}\$|\\[a-zA-Z]{2,}|&lt;/g);
     if(m) out.raw.push(...[...new Set(m)].slice(0,8).map(x=>'RAW: '+x));
-    const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN',
+    const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','OL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN',
       /* the title motif blurs its glow with an SVG filter */
       'FILTER','FEGAUSSIANBLUR']);
     host.querySelectorAll('*').forEach(e=>{ const t=e.tagName.toUpperCase();
@@ -34,7 +34,12 @@ const path = require('path');
        closes again is still measured while it is open. Collecting the handles
        once and probing only at the end misses a whole panel of damage. */
     let err=r.err; const raw=[...r.raw], bogus=[...r.bogus];
-    for(const sel of ['[data-cls]','[data-prop]','[data-reveal]']){
+    /* An exam drill hides its worked solution behind a button, and a solution is
+       the longest piece of authored mathematics in the artifact. Left closed it
+       is invisible to this scan, so damage there would pass every gate. Each
+       solution is opened in turn; the panel redraws on every click, so the
+       handles are re-queried exactly as they are for a laboratory above. */
+    for(const sel of ['[data-cls]','[data-prop]','[data-reveal]','.drill [data-sol]']){
       const n = await page.$$eval('#scene-host '+sel, els=>els.length).catch(()=>0);
       for(let i=0;i<n;i++){
         const h = (await page.$$('#scene-host '+sel))[i];

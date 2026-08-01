@@ -153,15 +153,20 @@ const path = require('path');
   }
   out.push('LABORATORIES SWEPT: ' + found.map(o => o.lab).join(' '));
 
-  // ---- quiz engine
+  // ---- question bank and exam drill: both are open-ended, so what there is to
+  //      drive is the hint ladder and the reveal of the worked solution
   await scene('m1-qbank');
-  await p.click('.opt[data-q="Q1-01"][data-k="0"]'); await p.waitForTimeout(120);
-  const fb = await p.$$eval('.fb', e => e.length);
   await p.click('[data-hint="Q1-02"]'); await p.waitForTimeout(120);
   const hint = await p.$$eval('.hintbox', e => e.length);
   await p.click('[data-sol="Q1-03"]'); await p.waitForTimeout(150);
   const sol = await p.$$eval('.note.ok', e => e.length);
-  out.push(`QUIZ feedback=${fb} hint=${hint} solution=${sol}`);
+  const opts = await p.$$eval('.opt', e => e.length);
+  out.push(`QBANK hint=${hint} solution=${sol} options=${opts}`);
+  await scene('m1-drill');
+  await p.click('.drill [data-sol="D1-01"]'); await p.waitForTimeout(150);
+  const dsol = await p.$$eval('.qb-item.dr-open .note.ok', e => e.length);
+  const dparts = await p.$$eval('.drill .dr-parts li', e => e.length);
+  out.push(`DRILL solution=${dsol} parts=${dparts}`);
 
   // ---- modes, overlays, deep links, reset
   await p.keyboard.press('i'); await p.waitForTimeout(120);

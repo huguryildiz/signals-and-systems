@@ -84,10 +84,10 @@ const SC = [
   {t:'lede', text:'Keep only the value of a signal every $T$ seconds and everything between the instants is gone. This module says exactly when nothing was lost, and exactly what is lost when something was.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
-      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#8FA8BF;margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
+      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X_p(j\\omega)=\\frac{1}{T}\\sum_{k=-\\infty}^{\\infty}X\\bigl(j(\\omega-k\\omega_s)\\bigr)', label:'Sampling replicates the spectrum'},
     {t:'eq', tex:'\\omega_s>2\\omega_M\\;\\Longrightarrow\\;x(t)\\ \\text{is recoverable}', label:'and the copies stay apart'},
-    {t:'note', kind:'ok', head:'Two words that are not the same', html:'<span style="color:#DED5C6">Sampling always makes <b>copies</b>. Copies that reach each other <b>overlap</b>, and only that overlap is aliasing. Keeping the two apart is most of this module.</span>'}
+    {t:'note', kind:'ok', head:'Two words that are not the same', html:'<span style="color:var(--graphite)">Sampling always makes <b>copies</b>. Copies that reach each other <b>overlap</b>, and only that overlap is aliasing. Keeping the two apart is most of this module.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:820,h:430,xr:[-8.5*PI,8.5*PI],yr:[-0.3,4.9],grid:false,zeroAxes:false,arrows:false,
@@ -97,7 +97,7 @@ const SC = [
         const pk=1.05;
         for(let k=-3;k<=3;k++)
           a.curve(w=>{ const v=tri(w-k*ws,WM,pk); return isFinite(v)? v+base : NaN; },
-            {color:k===0?'#7FC3CE':(Math.abs(k)===1?'#AC99DC':'#8FA9C2'),width:i===2?1.3:2.2,dash:i===2?'4 4':null,n:1400});
+            {color:k===0?'#7FC3CE':(Math.abs(k)===1?'#AC99DC':C.slate),width:i===2?1.3:2.2,dash:i===2?'4 4':null,n:1400});
         if(i===2) a.curve(w=>{ const v=rep(w,WM,pk,ws,4); return v>0.002? v+base : NaN; },{color:'#E8785F',width:2.6,n:1800});
       });
       return a.svg(); }}
@@ -1220,21 +1220,21 @@ const SC = [
   {t:'eyebrow', text:'Module 7 · Synthesis', src:'pp. 80–88'},
   {t:'title', text:'A procedure, and the four ways it goes wrong'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6"><b>1.</b> Find $\\omega_M$, the highest angular frequency the signal carries. If there is none, the signal is not band-limited and has to be filtered before anything else.</p>
-      <p style="color:#DED5C6"><b>2.</b> Choose $\\omega_s$ strictly above $2\\omega_M$, leaving a guard band $\\omega_s-2\\omega_M$ wide enough for a real filter.</p>
-      <p style="color:#DED5C6"><b>3.</b> Compute $T=2\\pi/\\omega_s$ and check $\\omega_sT=2\\pi$. Quote $f_s=1/T$ in hertz only when hertz was asked for.</p>
-      <p style="color:#DED5C6"><b>4.</b> Draw the copies at every multiple of $\\omega_s$, each $1/T$ times the original height. Mark the baseband $k=0$.</p>
-      <p style="color:#DED5C6"><b>5.</b> Place the reconstruction filter: gain $T$, cutoff strictly inside $\\omega_M<\\omega_c<\\omega_s-\\omega_M$.</p>
-      <p style="color:#DED5C6"><b>6.</b> If the copies overlap, say which line came from which copy, and give the alias frequency $|\\omega_s-\\omega_0|$ for each component that moved.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Find $\\omega_M$, the highest angular frequency the signal carries. If there is none, the signal is not band-limited and has to be filtered before anything else.</p>
+      <p style="color:var(--graphite)"><b>2.</b> Choose $\\omega_s$ strictly above $2\\omega_M$, leaving a guard band $\\omega_s-2\\omega_M$ wide enough for a real filter.</p>
+      <p style="color:var(--graphite)"><b>3.</b> Compute $T=2\\pi/\\omega_s$ and check $\\omega_sT=2\\pi$. Quote $f_s=1/T$ in hertz only when hertz was asked for.</p>
+      <p style="color:var(--graphite)"><b>4.</b> Draw the copies at every multiple of $\\omega_s$, each $1/T$ times the original height. Mark the baseband $k=0$.</p>
+      <p style="color:var(--graphite)"><b>5.</b> Place the reconstruction filter: gain $T$, cutoff strictly inside $\\omega_M<\\omega_c<\\omega_s-\\omega_M$.</p>
+      <p style="color:var(--graphite)"><b>6.</b> If the copies overlap, say which line came from which copy, and give the alias frequency $|\\omega_s-\\omega_0|$ for each component that moved.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The four traps, in one place', html:'<span style="color:#DED5C6">Saying the copies disappear below the Nyquist rate — they never do, they overlap. Treating $\\omega_s=2\\omega_M$ as safe — the admissible cutoff interval is empty there. Reading $2\\pi/T$ in hertz — that is rad/s, and the error is a factor of $2\\pi$. Calling a hold output the reconstructed signal — a hold is an approximation with a measurable error.</span>'}]}
+      {t:'note', kind:'err', head:'The four traps, in one place', html:'<span style="color:var(--graphite)">Saying the copies disappear below the Nyquist rate — they never do, they overlap. Treating $\\omega_s=2\\omega_M$ as safe — the admissible cutoff interval is empty there. Reading $2\\pi/T$ in hertz — that is rad/s, and the error is a factor of $2\\pi$. Calling a hold output the reconstructed signal — a hold is an approximation with a measurable error.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>What this module leaves you with</p>'},
     {t:'lede', text:'A continuous signal and a sequence of numbers are now the same object, provided one inequality holds. That equivalence is what lets every result of the earlier modules be carried out on a machine.'},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:#DED5C6">The sampled signal carries the whole of $x(t)$ when $\\omega_s>2\\omega_M$, and the interpolation formula says exactly how to get it back:</p>`},
+      {t:'body', html:`<p style="color:var(--graphite)">The sampled signal carries the whole of $x(t)$ when $\\omega_s>2\\omega_M$, and the interpolation formula says exactly how to get it back:</p>`},
       {t:'eq', plain:true, tex:'x(t)=\\sum_{n=-\\infty}^{\\infty}x(nT)\\,\\frac{\\sin\\bigl(\\omega_c(t-nT)\\bigr)}{\\pi(t-nT)/T}'},
-      {t:'body', html:`<p style="color:#DED5C6">Every term is a sample, and every sample is a number. Between them there is nothing left to know.</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">Every term is a sample, and every sample is a number. Between them there is nothing left to know.</p>`}]}
   ]}
 ]}
 

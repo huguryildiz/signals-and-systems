@@ -36,10 +36,10 @@ const SC = [
   {t:'lede', text:'Module 4 needed the signal to repeat, so that its frequencies could be counted one harmonic at a time. Stretch the period until the copies never come back, and the stems merge into a curve. That curve is the Fourier transform.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
-      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#8FA8BF;margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
+      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Analysis'},
     {t:'eq', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega', label:'Synthesis'},
-    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:#DED5C6">Convolution becomes multiplication for every signal, not only for periodic ones. A system is still described by one function of frequency, and the input no longer has to repeat.</span>'}
+    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:var(--graphite)">Convolution becomes multiplication for every signal, not only for periodic ones. A system is still described by one function of frequency, and the input no longer has to repeat.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:430,xr:[-9,9],yr:[-0.6,7.2],grid:false,zeroAxes:false,arrows:false,
@@ -200,14 +200,14 @@ const SC = [
     {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:270,items:[
       {t:'box',x:70,y:40,w:210,h:74,label:'x(t)',tex:true,fs:20,color:'#14707F'},
       {t:'box',x:550,y:40,w:210,h:74,label:'X(j\\omega)',tex:true,fs:20,color:'#6A5A92'},
-      {t:'arrow',x1:280,y1:60,x2:550,y2:60,label:'\\text{analysis}',tex:true,color:'#BE5539'},
-      {t:'line',d:'M550,96 L290,96',color:'#4A657F'},
-      {t:'line',d:'M280,96 l9,-4.5 v9 Z',color:'#4A657F'},
-      {t:'text',x:415,y:126,label:'\\text{synthesis}',tex:true,fs:15,color:'#4A657F'},
+      {t:'arrow',x1:280,y1:60,x2:550,y2:60,label:'\\text{analysis}',tex:true,color:C.coral},
+      {t:'line',d:'M550,96 L290,96',color:C.slate},
+      {t:'line',d:'M280,96 l9,-4.5 v9 Z',color:C.slate},
+      {t:'text',x:415,y:126,label:'\\text{synthesis}',tex:true,fs:15,color:C.slate},
       {t:'text',x:175,y:150,label:'\\text{one function of time}',tex:true,fs:13},
       {t:'text',x:655,y:150,label:'\\text{one function of frequency}',tex:true,fs:13},
-      {t:'text',x:415,y:205,label:'\\text{integrate over }t\\;\\Rightarrow\\;\\text{a function of }\\omega',tex:true,fs:14,color:'#BE5539'},
-      {t:'text',x:415,y:240,label:'\\text{integrate over }\\omega\\;\\Rightarrow\\;\\text{a function of }t',tex:true,fs:14,color:'#4A657F'}
+      {t:'text',x:415,y:205,label:'\\text{integrate over }t\\;\\Rightarrow\\;\\text{a function of }\\omega',tex:true,fs:14,color:C.coral},
+      {t:'text',x:415,y:240,label:'\\text{integrate over }\\omega\\;\\Rightarrow\\;\\text{a function of }t',tex:true,fs:14,color:C.slate}
     ]}), caption:'The direction of each equation is fixed by the variable it integrates away.'},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
@@ -1238,14 +1238,14 @@ const SC = [
     {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:250,items:[
       {t:'box',x:60,y:34,w:200,h:62,label:'x(t)',tex:true,fs:19,color:'#14707F'},
       {t:'box',x:570,y:34,w:200,h:62,label:'X(j\\omega)',tex:true,fs:19,color:'#6A5A92'},
-      {t:'arrow',x1:260,y1:60,x2:570,y2:60,label:'\\mathcal{F}',tex:true,color:'#BE5539'},
+      {t:'arrow',x1:260,y1:60,x2:570,y2:60,label:'\\mathcal{F}',tex:true,color:C.coral},
       {t:'box',x:60,y:152,w:200,h:62,label:'X(t)',tex:true,fs:19,color:'#6A5A92'},
       {t:'box',x:570,y:152,w:200,h:62,label:'2\\pi x(-\\omega)',tex:true,fs:19,color:'#14707F'},
-      {t:'arrow',x1:260,y1:178,x2:570,y2:178,label:'\\mathcal{F}',tex:true,color:'#BE5539'},
-      {t:'line',d:'M160,96 L160,152',color:'#4A657F'},
-      {t:'line',d:'M670,96 L670,152',color:'#4A657F'},
-      {t:'text',x:250,y:130,anchor:'start',label:'\\text{read as a signal}',tex:true,fs:12,color:'#4A657F'},
-      {t:'text',x:580,y:130,anchor:'end',label:'\\text{reversed, times }2\\pi',tex:true,fs:12,color:'#4A657F'}
+      {t:'arrow',x1:260,y1:178,x2:570,y2:178,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'line',d:'M160,96 L160,152',color:C.slate},
+      {t:'line',d:'M670,96 L670,152',color:C.slate},
+      {t:'text',x:250,y:130,anchor:'start',label:'\\text{read as a signal}',tex:true,fs:12,color:C.slate},
+      {t:'text',x:580,y:130,anchor:'end',label:'\\text{reversed, times }2\\pi',tex:true,fs:12,color:C.slate}
     ]}), caption:'The second row is free once the first has been computed.'},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
@@ -1421,7 +1421,7 @@ const SC = [
       {t:'arrow',x1:510,y1:180,x2:760,y2:180},
       {t:'text',x:185,y:164,label:'X(j\\omega)',tex:true,fs:16,color:'#14707F'},
       {t:'text',x:635,y:164,label:'Y=XH',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:415,y:122,label:'\\text{the same system, seen twice}',tex:true,fs:13,color:'#4A657F'}
+      {t:'text',x:415,y:122,label:'\\text{the same system, seen twice}',tex:true,fs:13,color:C.slate}
     ]}), caption:'One diagram in time, the same diagram in frequency. Only the operation between the boxes changed.'},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
@@ -1833,15 +1833,15 @@ const SC = [
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:230,items:[
       {t:'box',x:50,y:26,w:250,h:64,label:'\\text{differential equation}',tex:true,fs:15},
-      {t:'arrow',x1:300,y1:58,x2:520,y2:58,label:'\\mathcal{F}',tex:true,color:'#BE5539'},
+      {t:'arrow',x1:300,y1:58,x2:520,y2:58,label:'\\mathcal{F}',tex:true,color:C.coral},
       {t:'box',x:520,y:26,w:250,h:64,label:'\\text{algebra in }j\\omega',tex:true,fs:15},
       {t:'box',x:520,y:140,w:250,h:64,label:'H(j\\omega)=B(j\\omega)/A(j\\omega)',tex:true,fs:16,color:'#C08422'},
-      {t:'line',d:'M645,90 L645,140',color:'#4A657F'},
-      {t:'line',d:'M645,140 l-4.5,-9 h9 Z',color:'#4A657F'},
+      {t:'line',d:'M645,90 L645,140',color:C.slate},
+      {t:'line',d:'M645,140 l-4.5,-9 h9 Z',color:C.slate},
       {t:'box',x:50,y:140,w:250,h:64,label:'h(t)',tex:true,fs:17,color:'#C08422'},
-      {t:'line',d:'M520,172 L310,172',color:'#4A657F'},
-      {t:'line',d:'M300,172 l9,-4.5 v9 Z',color:'#4A657F'},
-      {t:'text',x:410,y:196,label:'\\text{partial fractions, then the table}',tex:true,fs:12,color:'#4A657F'}
+      {t:'line',d:'M520,172 L310,172',color:C.slate},
+      {t:'line',d:'M300,172 l9,-4.5 v9 Z',color:C.slate},
+      {t:'text',x:410,y:196,label:'\\text{partial fractions, then the table}',tex:true,fs:12,color:C.slate}
     ]}), caption:'The route the next two scenes follow, in both directions.'},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
@@ -2034,21 +2034,21 @@ const SC = [
   {t:'eyebrow', text:'Module 5 · Synthesis', src:'pp. 42–63'},
   {t:'title', text:'A checklist, and the domain it does not reach'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6"><b>1.</b> Decide which direction is needed. Integrating over $t$ gives $X(j\\omega)$; integrating over $\\omega$, with $1/2\\pi$, gives $x(t)$.</p>
-      <p style="color:#DED5C6"><b>2.</b> Look for a known pair before integrating anything. Most signals in this module are one pair plus one or two properties.</p>
-      <p style="color:#DED5C6"><b>3.</b> State every condition the result depends on: $a>0$ for an exponential, and which sinc convention is in use.</p>
-      <p style="color:#DED5C6"><b>4.</b> Keep both halves of a real spectrum. Magnitude even, phase odd, and one impulse at each of $\\pm\\omega_0$.</p>
-      <p style="color:#DED5C6"><b>5.</b> Track the $2\\pi$: on the synthesis side, in front of $\\delta(\\omega-\\omega_0)$, dividing the convolution in frequency, and dividing the energy in Parseval.</p>
-      <p style="color:#DED5C6"><b>6.</b> Through an LTI system, $Y=XH$. From a differential equation, read $H$ off the coefficients and split it into simple fractions.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Decide which direction is needed. Integrating over $t$ gives $X(j\\omega)$; integrating over $\\omega$, with $1/2\\pi$, gives $x(t)$.</p>
+      <p style="color:var(--graphite)"><b>2.</b> Look for a known pair before integrating anything. Most signals in this module are one pair plus one or two properties.</p>
+      <p style="color:var(--graphite)"><b>3.</b> State every condition the result depends on: $a>0$ for an exponential, and which sinc convention is in use.</p>
+      <p style="color:var(--graphite)"><b>4.</b> Keep both halves of a real spectrum. Magnitude even, phase odd, and one impulse at each of $\\pm\\omega_0$.</p>
+      <p style="color:var(--graphite)"><b>5.</b> Track the $2\\pi$: on the synthesis side, in front of $\\delta(\\omega-\\omega_0)$, dividing the convolution in frequency, and dividing the energy in Parseval.</p>
+      <p style="color:var(--graphite)"><b>6.</b> Through an LTI system, $Y=XH$. From a differential equation, read $H$ off the coefficients and split it into simple fractions.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Three checks catch most errors', html:'<span style="color:#DED5C6">$X(j0)$ is the area under the signal, and $x(0)$ is the area under the spectrum divided by $2\\pi$. A causal convolution starts at zero. A real signal has an even magnitude and an odd phase. Each of the three costs one line.</span>'}]}
+      {t:'note', kind:'ok', head:'Three checks catch most errors', html:'<span style="color:var(--graphite)">$X(j0)$ is the area under the signal, and $x(0)$ is the area under the spectrum divided by $2\\pi$. A causal convolution starts at zero. A real signal has an even magnitude and an odd phase. Each of the three costs one line.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 6 begins</p>'},
     {t:'lede', text:'Everything here was continuous time. A computer never sees a continuous signal; it sees a sequence. So the same question has to be asked again for x[n], and one thing changes that changes everything.'},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:#DED5C6">In continuous time, $e^{-j\\omega t}$ is a different signal for every real $\\omega$. In discrete time it is not: $e^{-j(\\omega+2\\pi)n}=e^{-j\\omega n}$ for every integer $n$, because $e^{-j2\\pi n}=1$.</p>`},
+      {t:'body', html:`<p style="color:var(--graphite)">In continuous time, $e^{-j\\omega t}$ is a different signal for every real $\\omega$. In discrete time it is not: $e^{-j(\\omega+2\\pi)n}=e^{-j\\omega n}$ for every integer $n$, because $e^{-j2\\pi n}=1$.</p>`},
       {t:'eq', plain:true, tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}=X\\bigl(e^{j(\\omega+2\\pi)}\\bigr)'},
-      {t:'body', html:`<p style="color:#DED5C6">A discrete-time spectrum therefore <b>repeats</b>, with period $2\\pi$. Every result of this module has a counterpart there, and the periodicity is the one thing with no continuous-time analogue. That is Module 6.</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">A discrete-time spectrum therefore <b>repeats</b>, with period $2\\pi$. Every result of this module has a counterpart there, and the periodicity is the one thing with no continuous-time analogue. That is Module 6.</p>`}]}
   ]}
 ]}
 

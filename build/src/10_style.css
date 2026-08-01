@@ -7,26 +7,26 @@
 
 :root{
   /* ---- surface ---- */
-  --paper:        #F7F2E8;   /* primary canvas, warm ivory */
-  --paper-2:      #FCF9F3;   /* raised panel */
-  --paper-3:      #EFE8DA;   /* sunken well / grid tint */
-  --fig-halo:     #FCF9F3;   /* label halo inside figures */
-  --navy:         #16232F;   /* high-contrast scenes & dividers */
-  --navy-2:       #1E3242;
+  --paper:        #FAF8F4;   /* primary canvas, cool ivory */
+  --paper-2:      #FFFFFF;   /* raised panel */
+  --paper-3:      #F2EFE8;   /* sunken well / grid tint */
+  --fig-halo:     #FFFFFF;   /* label halo inside figures */
+  --navy:         #12314E;   /* high-contrast scenes & dividers */
+  --navy-2:       #1B4066;
 
   /* ---- ink ---- */
-  --ink:          #1B1A17;
-  --graphite:     #3B3934;
-  --muted:        #6E6960;
-  --faint:        #9A948A;
-  --rule:         #D9D0BE;
-  --rule-strong:  #BFB39B;
+  --ink:          #232B33;
+  --graphite:     #3B4650;
+  --muted:        #616B76;
+  --faint:        #939BA4;
+  --rule:         #DCD7CC;
+  --rule-strong:  #C2BCB0;
 
   /* ---- accents ---- */
-  --coral:        #BE5539;   /* major editorial emphasis */
-  --terracotta:   #A9502F;
-  --slate:        #4A657F;   /* eyebrow labels, metadata, structure */
-  --slate-deep:   #33506B;
+  --coral:        #A0451C;   /* major editorial emphasis */
+  --terracotta:   #7F3512;
+  --slate:        #28567E;   /* eyebrow labels, metadata, structure */
+  --slate-deep:   #1D4265;
 
   /* ---- signal semantics (harmonised, colour-blind safe pairs) ---- */
   --sig-in:       #14707F;   /* input / continuous-time signal   (cyan)   */
@@ -64,24 +64,24 @@
    so figures, callouts and quizzes stay legible and keep their meaning.
    ========================================================================== */
 body[data-theme=dark]{
-  --paper:        #16140F;
-  --paper-2:      #1E1B15;
-  --paper-3:      #100E0A;
-  --fig-halo:     #1E1B15;
-  --navy:         #0C1218;
-  --navy-2:       #131C25;
+  --paper:        #0E1621;
+  --paper-2:      #1A2634;
+  --paper-3:      #0A111A;
+  --fig-halo:     #1A2634;
+  --navy:         #080F18;
+  --navy-2:       #15202E;
 
-  --ink:          #F4EEE1;
-  --graphite:     #DED6C5;
-  --muted:        #A79D8B;
-  --faint:        #7B7263;
-  --rule:         #332E26;
-  --rule-strong:  #4B4338;
+  --ink:          #E6E2D9;
+  --graphite:     #C8C3B9;
+  --muted:        #A29D94;
+  --faint:        #7E848C;
+  --rule:         #27333F;
+  --rule-strong:  #3A4754;
 
-  --coral:        #E08A6B;
-  --terracotta:   #C9714F;
-  --slate:        #8FA9C2;
-  --slate-deep:   #A8BFD4;
+  --coral:        #E09A6A;
+  --terracotta:   #EBB289;
+  --slate:        #8FB8DC;
+  --slate-deep:   #A9CBE8;
 
   --sig-in:       #4FBECE;
   --sig-h:        #E5B255;
@@ -94,10 +94,9 @@ body[data-theme=dark]{
   --sig-err-soft: rgba(232,120,95,.16);
 }
 body[data-theme=dark] #stage::after{ opacity:.25;
-  background-image:radial-gradient(rgba(255,240,200,.045) 1px, transparent 1px); }
+  background-image:radial-gradient(rgba(214,230,255,.045) 1px, transparent 1px); }
 body[data-theme=dark] .eq{ background:rgba(255,255,255,.035); }
-body[data-theme=dark] .eq.key{ background:linear-gradient(0deg,rgba(224,138,107,.07),rgba(224,138,107,.07)),rgba(255,255,255,.035); }
-body[data-theme=dark] .opt,
+body[data-theme=dark] .eq.key{ background:linear-gradient(0deg,rgba(224,154,106,.08),rgba(224,154,106,.08)),rgba(255,255,255,.035); }
 body[data-theme=dark] .ctrls,
 body[data-theme=dark] .readout div,
 body[data-theme=dark] .fig-frame,
@@ -126,8 +125,8 @@ body[data-display=projector] .eq .katex{ font-size:1.42em; }
 body[data-display=projector] .eq.lg .katex{ font-size:1.66em; }
 body[data-display=projector] .eq.sm .katex{ font-size:1.18em; }
 body[data-display=projector] .katex{ font-size:1.10em; }
-body[data-display=projector]{ --rule:#C6BAA2; }      /* stronger hairlines */
-body[data-display=projector][data-theme=dark]{ --rule:#443D33; }
+body[data-display=projector]{ --rule:#C2BCB0; }      /* stronger hairlines */
+body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
 body[data-display=projector] .scene{ padding:44px 76px 60px; }
 body[data-display=projector] .cols{ gap:34px; }
 
@@ -254,15 +253,15 @@ body[data-sidebar=off] #sidebar{ display:none; }
   transform-origin:top left; }
 .scene.dark{
   /* a complete token override, so every element inherits correct contrast */
-  --ink:#F4EDDF; --graphite:#DED5C6; --muted:#B4AA98; --faint:#8B8171;
-  --rule:rgba(239,231,216,.20); --rule-strong:rgba(239,231,216,.32);
+  --ink:#E6E2D9; --graphite:#C9C4BA; --muted:#A9B0B8; --faint:#838C96;
+  --rule:rgba(233,236,242,.20); --rule-strong:rgba(233,236,242,.32);
   --paper:var(--navy); --paper-2:rgba(255,255,255,.05); --paper-3:rgba(255,255,255,.09);
   --fig-halo:var(--navy);
-  --slate:#8FA8BF; --slate-deep:#A9C0D6; --coral:#E08A6B; --terracotta:#D07E5D;
+  --slate:#8FB8DC; --slate-deep:#A9CBE8; --coral:#E09A6A; --terracotta:#EBB289;
   background:var(--navy); color:var(--ink);
 }
 .scene.dark .katex{ color:var(--ink); }
-.scene.dark .lede{ color:#CFC5B4; }
+.scene.dark .lede{ color:#C3CCD6; }
 
 /* eyebrow / metadata */
 .eyebrow{
@@ -589,23 +588,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .quiz{ display:flex; flex-direction:column; gap:var(--s2); max-width:1180px; }
 .qid{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; color:var(--faint); }
 .qstem{ font-size:calc(21px * var(--ts)); line-height:1.55; color:var(--ink); }
-.opts{ display:flex; flex-direction:column; gap:10px; }
-.opt{
-  display:flex; gap:14px; align-items:flex-start; text-align:left;
-  padding:14px 18px; background:var(--paper-2);
-  border:1px solid var(--rule); border-radius:var(--radius);
-  font-size:calc(19px * var(--ts)); line-height:1.45; color:var(--graphite);
-  cursor:pointer; transition:all 140ms var(--ease); font-family:var(--sans);
-}
-.opt:hover:not(.locked){ border-color:var(--slate); background:#fff; }
-.opt .k{ font-family:var(--mono); font-size:14px; color:var(--slate); padding-top:3px; }
-.opt.sel{ border-color:var(--slate); box-shadow:inset 0 0 0 1px var(--slate); }
-.opt.correct{ border-color:var(--sig-out); background:var(--sig-out-soft); }
-.opt.wrong{ border-color:var(--sig-err); background:var(--sig-err-soft); }
-.opt.locked{ cursor:default; }
-.fb{ font-size:calc(18px * var(--ts)); line-height:1.55; padding:14px 18px; border-radius:var(--radius); }
-.fb.good{ background:var(--sig-out-soft); border-left:2px solid var(--sig-out); }
-.fb.bad{ background:var(--sig-err-soft); border-left:2px solid var(--sig-err); }
+/* Answer options and their feedback panel were removed when the question bank
+   became open-ended: a question is now stated, worked on paper, and checked
+   against its solution. Nothing renders .opt or .fb any more. */
 .hintbox{ font-size:calc(18px * var(--ts)); line-height:1.55; color:var(--graphite);
   border-left:2px solid var(--sig-h); padding:10px 0 10px 18px; }
 
@@ -689,6 +674,54 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 .qb-item{ border-top:1px solid var(--rule); padding-top:18px; break-inside:avoid; }
 .qb-scroll::-webkit-scrollbar{ width:9px; }
 .qb-scroll::-webkit-scrollbar-thumb{ background:var(--rule-strong); border-radius:6px; }
+
+/* ==========================================================================
+   Exam drills: the taxonomy scene, and the panel of open-ended questions
+   ========================================================================== */
+.dr-types{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:24px 38px; align-items:start; }
+.dr-type{ border-top:2px solid var(--rule-strong); padding-top:14px; }
+.dr-type-h{ display:flex; align-items:baseline; gap:10px;
+  font-family:var(--serif); font-size:calc(21px * var(--ts)); line-height:1.25;
+  color:var(--ink); margin-bottom:8px; }
+.dr-type-k{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em;
+  color:var(--coral); flex:none; padding-top:2px; }
+.dr-type-asks{ font-size:calc(16.5px * var(--ts)); line-height:1.5; color:var(--graphite); }
+.dr-type-m{ margin:10px 0 0; padding-left:20px;
+  font-size:calc(15.5px * var(--ts)); line-height:1.48; color:var(--muted); }
+.dr-type-m li{ margin:3px 0; }
+.dr-type-go{ display:inline-block; margin-top:10px; cursor:pointer;
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
+  color:var(--slate); border-bottom:1px dotted var(--slate); }
+.dr-type-go:hover{ color:var(--coral); border-bottom-color:var(--coral); }
+
+.dr-seen{ color:var(--sig-out); }
+/* Questions pack into two columns rather than a two-column grid: a grid aligns
+   the rows, so a short question beside a long one leaves the gap the row needs.
+   Columns flow, and .qb-item already refuses to break across one. */
+.dr-scroll{ display:block; column-count:2; column-gap:46px; }
+.dr-scroll > .qb-item{ margin-bottom:26px; }
+/* A worked solution is longer than a column, so an open question takes the full
+   width instead of being cut in half and continued at the top of the next
+   column. Closed questions keep flowing in two columns around it. */
+.dr-scroll > .qb-item.dr-open{ column-span:all; }
+/* Examination parts are lettered a), b), c) — not numbered, because the numbers
+   would read as steps of one method rather than as separate questions. */
+.drill .dr-parts{ margin:0; padding-left:30px; list-style:none; counter-reset:drpart;
+  display:flex; flex-direction:column; gap:9px;
+  font-size:calc(19px * var(--ts)); line-height:1.5; color:var(--graphite); }
+.drill .dr-parts li{ counter-increment:drpart; position:relative; }
+.drill .dr-parts li::before{
+  content:counter(drpart,lower-alpha) ")"; position:absolute; left:-30px; top:1px;
+  font-family:var(--mono); font-size:.78em; color:var(--slate); }
+.drill .note.ok figure.fig{ margin-top:14px; }
+/* two figures a question shows together — the input and the impulse response,
+   or an input-output pair. Each keeps its own column and scales inside it. */
+.dr-pair{ display:flex; gap:16px; align-items:flex-start; }
+  .dr-pair > div{ flex:1 1 0; min-width:0; }
+/* the distractor analysis a bank question was written with, kept for the
+   instructor edition */
+.dr-wrongs{ margin:8px 0 0; padding-left:20px; display:flex; flex-direction:column; gap:6px; }
 
 kbd{ font-family:var(--mono); font-size:12px; background:var(--paper-3);
   border:1px solid var(--rule-strong); border-bottom-width:2px;

@@ -15,10 +15,10 @@ const SC = [
   {t:'lede', text:'Require linearity and time invariance together, and the whole system is encoded in its response to a single impulse. Every response to every possible input follows from that one function.'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'raw', html:`<div style="margin-top:20px">
-      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#8FA8BF;margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
+      <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,h[n-k]', label:'Convolution sum'},
     {t:'eq', tex:'y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau', label:'Convolution integral'},
-    {t:'note', kind:'err', head:'The precondition is not optional', html:'<span style="color:#DED5C6">Convolution can only be applied when the system is LTI. Applying it to a system that fails either property produces a confident, meaningless number.</span>'}
+    {t:'note', kind:'err', head:'The precondition is not optional', html:'<span style="color:var(--graphite)">Convolution can only be applied when the system is LTI. Applying it to a system that fails either property produces a confident, meaningless number.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:760,h:430,xr:[-1,9],yr:[-0.4,2.4],grid:false,zeroAxes:false,arrows:false,
@@ -129,18 +129,18 @@ const SC = [
       {t:'arrow',x1:160,y1:120,x2:300,y2:120},{t:'box',x:300,y:98,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:120,x2:560,y2:120},
       {t:'text',x:620,y:126,label:'h[n-k]',anchor:'start',tex:true,fs:16,color:'#C08422'},
-      {t:'text',x:355,y:88,label:'time invariance',fs:12,color:'#4A657F'},
+      {t:'text',x:355,y:88,label:'time invariance',fs:12,color:C.slate},
       {t:'text',x:60,y:226,label:'x[k]\\cdot\\delta[n-k]',anchor:'start',tex:true,fs:16,color:'#14707F'},
       {t:'arrow',x1:200,y1:220,x2:300,y2:220},{t:'box',x:300,y:198,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:220,x2:560,y2:220},
       {t:'text',x:620,y:226,label:'x[k]\\cdot h[n-k]',anchor:'start',tex:true,fs:16,color:'#C08422'},
-      {t:'text',x:355,y:188,label:'homogeneity',fs:12,color:'#4A657F'},
+      {t:'text',x:355,y:188,label:'homogeneity',fs:12,color:C.slate},
       {t:'text',x:60,y:336,label:'\\sum_k x[k]\\delta[n-k]',anchor:'start',tex:true,fs:16,color:'#14707F'},
       {t:'arrow',x1:220,y1:330,x2:300,y2:330},{t:'box',x:300,y:308,w:110,h:44,label:'S',tex:true},
       {t:'arrow',x1:410,y1:330,x2:560,y2:330},
       {t:'text',x:620,y:336,label:'\\sum_k x[k]h[n-k]',anchor:'start',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:355,y:298,label:'additivity',fs:12,color:'#4A657F'},
-      {t:'line',d:'M40 260 h740',color:'#D9D0BE'}
+      {t:'text',x:355,y:298,label:'additivity',fs:12,color:C.slate},
+      {t:'line',d:'M40 260 h740',color:C.rule}
     ]}), caption:'The whole derivation as one diagram. Each rung uses exactly one property, and the properties are used in this order.'}
   ]}
 ]},
@@ -546,7 +546,7 @@ const SC = [
       {t:'arrow',x1:500,y1:75,x2:610,y2:75},
       {t:'text',x:95,y:62,label:'x[n]',tex:true,fs:15},{t:'text',x:325,y:62,label:'y[n]',tex:true,fs:15},
       {t:'text',x:660,y:80,label:'x[n]',tex:true,fs:15},
-      {t:'text',x:440,y:130,label:'inverse system',fs:12,color:'#4A657F'}
+      {t:'text',x:440,y:130,label:'inverse system',fs:12,color:C.slate}
     ]}), caption:'Invertibility as a cascade that reduces to the identity, $h*g=\\delta$.'},
     {t:'reveal', at:3, items:[
       {t:'grid', cols:2, gap:'16px', items:[
@@ -566,21 +566,21 @@ const SC = [
   {t:'eyebrow', text:'Module 3 · Synthesis', src:'pp. 14–21'},
   {t:'title', text:'A convolution checklist, and a question it cannot answer'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6"><b>1.</b> Confirm the system is LTI. Nothing below is valid otherwise.</p>
-      <p style="color:#DED5C6"><b>2.</b> Choose which signal to flip — the simpler one.</p>
-      <p style="color:#DED5C6"><b>3.</b> Write the support of each factor as an inequality in the dummy variable.</p>
-      <p style="color:#DED5C6"><b>4.</b> Equate the moving edges with the fixed edges to list <em>every</em> case boundary before integrating anything.</p>
-      <p style="color:#DED5C6"><b>5.</b> Integrate or sum case by case.</p>
-      <p style="color:#DED5C6"><b>6.</b> Check continuity at each boundary, check that supports add, and check that total area (or total sum) multiplies.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the system is LTI. Nothing below is valid otherwise.</p>
+      <p style="color:var(--graphite)"><b>2.</b> Choose which signal to flip — the simpler one.</p>
+      <p style="color:var(--graphite)"><b>3.</b> Write the support of each factor as an inequality in the dummy variable.</p>
+      <p style="color:var(--graphite)"><b>4.</b> Equate the moving edges with the fixed edges to list <em>every</em> case boundary before integrating anything.</p>
+      <p style="color:var(--graphite)"><b>5.</b> Integrate or sum case by case.</p>
+      <p style="color:var(--graphite)"><b>6.</b> Check continuity at each boundary, check that supports add, and check that total area (or total sum) multiplies.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The three checks in step 6 catch nearly every error', html:'<span style="color:#DED5C6">A discontinuity at a case boundary means a limit is wrong. A support that is too wide or too narrow means a flip or a shift is wrong. A total area that does not multiply means an integrand is wrong.</span>'}]}
+      {t:'note', kind:'ok', head:'The three checks in step 6 catch nearly every error', html:'<span style="color:var(--graphite)">A discontinuity at a case boundary means a limit is wrong. A support that is too wide or too narrow means a flip or a shift is wrong. A total area that does not multiply means an integrand is wrong.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 4 begins</p>'},
     {t:'lede', text:'Convolution is complete and general, but it is hard work. Five cases for two simple shapes is not a method that scales. So is there a class of input signals for which an LTI system does something simpler than convolve?'},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:#DED5C6">There is. Put $x(t)=e^{st}$ into the convolution integral:</p>`},
+      {t:'body', html:`<p style="color:var(--graphite)">There is. Put $x(t)=e^{st}$ into the convolution integral:</p>`},
       {t:'eq', plain:true, tex:'y(t)=\\int h(\\tau)e^{s(t-\\tau)}\\d\\tau=e^{st}\\underbrace{\\int h(\\tau)e^{-s\\tau}\\d\\tau}_{\\text{a number, }H(s)}'},
-      {t:'body', html:`<p style="color:#DED5C6">The signal comes out with its shape unchanged, scaled by a constant. Complex exponentials are the <b>eigenfunctions</b> of LTI systems. That single fact is the whole of Modules 4 to 7.</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">The signal comes out with its shape unchanged, scaled by a constant. Complex exponentials are the <b>eigenfunctions</b> of LTI systems. That single fact is the whole of Modules 4 to 7.</p>`}]}
   ]}
 ]},
 

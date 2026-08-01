@@ -13,9 +13,9 @@ const SC = [
   {t:'title', level:1, text:'What a signal is,<br>and what it carries'},
   {t:'lede', text:'Before any system acts on a signal, four questions need answers. How much energy or power does it carry? How does it move under shifting and scaling? Does it repeat? What happens when it is built out of exponentials?'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'body', html:`<p style="color:#CFC5B4">This module runs from the first definitions to the discrete-time periodicity condition. Two results here cause most of the later mistakes:</p>`},
-    {t:'note', kind:'warn', head:'Result 1', html:'<span style="color:#DED5C6">A signal is <em>energy-type</em>, <em>power-type</em>, or <em>neither</em>. These are not opposites and the third case is real.</span>'},
-    {t:'note', kind:'warn', head:'Result 2', html:'<span style="color:#DED5C6">A discrete-time sinusoid is periodic only when $\\omega_0/2\\pi$ is rational. Continuous-time sinusoids carry no such condition.</span>'}
+    {t:'body', html:`<p style="color:var(--graphite)">This module runs from the first definitions to the discrete-time periodicity condition. Two results here cause most of the later mistakes:</p>`},
+    {t:'note', kind:'warn', head:'Result 1', html:'<span style="color:var(--graphite)">A signal is <em>energy-type</em>, <em>power-type</em>, or <em>neither</em>. These are not opposites and the third case is real.</span>'},
+    {t:'note', kind:'warn', head:'Result 2', html:'<span style="color:var(--graphite)">A discrete-time sinusoid is periodic only when $\\omega_0/2\\pi$ is rational. Continuous-time sinusoids carry no such condition.</span>'}
   ], right:[
     /* The page under these two figures is navy, so the axis, the tick numbers
        and the axis names are drawn in the ink of that page. */
@@ -23,7 +23,7 @@ const SC = [
       [{t:'fig', svg:()=>{
         const a=P.Axes({w:760,h:300,xr:[0,14],yr:[-1.15,1.15],grid:false,
           xlabel:'t',ylabel:'x(t)=e^{-t/6}\\cos(2t)',
-          chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#EFE7D8'},
+          chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#E6E2D9'},
           pad:{l:46,r:30,t:22,b:34},xstep:2,ytarget:3});
         a.curve(t=>Math.exp(-t/6)*Math.cos(2*t),{color:'#7FC3CE',width:2.4});
         return a.svg();
@@ -31,7 +31,7 @@ const SC = [
       [{t:'fig', svg:()=>{
         const a=P.Axes({w:760,h:300,xr:[0,27],yr:[-1.15,1.15],grid:false,
           xlabel:'n',ylabel:'x[n]=\\cos(2\\pi n/9)',
-          chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#EFE7D8'},
+          chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#E6E2D9'},
           pad:{l:46,r:30,t:22,b:34},xstep:9,ytarget:3});
         a.stem(disc(n=>Math.cos(2*Math.PI*n/9),0,27),{color:'#E3B45E',r:4.2,width:1.8});
         return a.svg();
@@ -729,19 +729,19 @@ const SC = [
   {t:'eyebrow', text:'Module 1 · Synthesis', src:'pp. 2–10'},
   {t:'title', text:'Five results, and one habit'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6"><b>1.</b> $E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.</p>
-      <p style="color:#DED5C6"><b>2.</b> $x(at-b)$ requires <em>shift, then scale</em>. The other order gives $x(at-ab)$.</p>
-      <p style="color:#DED5C6"><b>3.</b> $T_0$ and $N_0$ are the <em>smallest</em> positive periods; $\\omega_0=2\\pi/T_0=2\\pi/N_0$.</p>
-      <p style="color:#DED5C6"><b>4.</b> $\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.</p>
-      <p style="color:#DED5C6"><b>5.</b> A discrete-time exponential is periodic if and only if $\\omega_0/2\\pi$ is rational. A continuous-time one always is.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> $E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.</p>
+      <p style="color:var(--graphite)"><b>2.</b> $x(at-b)$ requires <em>shift, then scale</em>. The other order gives $x(at-ab)$.</p>
+      <p style="color:var(--graphite)"><b>3.</b> $T_0$ and $N_0$ are the <em>smallest</em> positive periods; $\\omega_0=2\\pi/T_0=2\\pi/N_0$.</p>
+      <p style="color:var(--graphite)"><b>4.</b> $\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.</p>
+      <p style="color:var(--graphite)"><b>5.</b> A discrete-time exponential is periodic if and only if $\\omega_0/2\\pi$ is rational. A continuous-time one always is.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The habit', html:'<span style="color:#DED5C6">Every claim in this module was settled by going back to a definition and evaluating a limit or an integral. None was settled by looking at a picture. Module 2 makes that habit explicit and gives it six names.</span>'}]}
+      {t:'note', kind:'ok', head:'The habit', html:'<span style="color:var(--graphite)">Every claim in this module was settled by going back to a definition and evaluating a limit or an integral. None was settled by looking at a picture. Module 2 makes that habit explicit and gives it six names.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
     {t:'lede', text:'A signal that carries finite energy delivers zero average power, and a signal that delivers finite average power carries infinite energy. Which quantity should you specify for a radio transmitter, and which for a radar pulse? What does that choice say about the measurement you would actually make?'},
     {t:'reveal', at:1, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
-        <span style="color:#DED5C6">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
+        <span style="color:var(--graphite)">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
   ]}
 ]},
 
@@ -750,7 +750,7 @@ const SC = [
   keywords:'questions quiz Q1 bank module 1 exercises', steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Question bank Q1-01 … Q1-12', src:'pp. 2–10'},
   {t:'title', text:'Question bank'},
-  {t:'small', html:'Twelve questions: 3 conceptual, 3 short calculation, 2 misconception-diagnostic, 2 multi-step, 1 graph interpretation, 1 synthesis. Everything needed is in Module 1. Answers are checked immediately. Full solutions stay hidden until you ask for them.'},
+  {t:'small', html:'Twelve questions: 3 conceptual, 3 short calculation, 2 misconception-diagnostic, 2 multi-step, 1 graph interpretation, 1 synthesis. Everything needed is in Module 1. Work each question on paper, then open its solution and compare.'},
   {t:'qbank', module:'M1'}
 ]}
 

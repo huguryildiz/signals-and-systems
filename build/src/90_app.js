@@ -69,11 +69,33 @@ const RENDER = (() => {
     check:   b => quizHTML(b.q, true),
     quizset: b => `<div class="stack">${b.qs.map(q=>quizHTML(q,false)).join('')}</div>`,
     qbank:   b => { const qs=(CONTENT.QBANK||[]).filter(q=>q.module===b.module);
-        const done=qs.filter(q=>(S.quiz[q.id]||{}).correct).length;
-        return `<div class="qb-head small">Progress on this bank: <b>${done} / ${qs.length}</b> answered correctly on this device.
-          ${done===qs.length&&qs.length?'<span style="color:var(--sig-out)"> — bank complete.</span>':''}</div>
-        <div class="qb-scroll">${qs.map((q,i)=>
-          `<div class="qb-item">${quizHTML(q,false)}</div>`).join('')}</div>`; },
+        const seen=qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
+        return `<div class="qb-head small">${qs.length} questions. Work each one on paper first;
+          the solution stays hidden until you ask for it.
+          ${seen?`<span class="dr-seen">Solutions opened: ${seen} / ${qs.length} on this device.</span>`:''}</div>
+        <div class="qb-scroll dr-scroll">${qs.map(q=>
+          `<div class="qb-item${(S.quiz[q.id]||{}).revealed?' dr-open':''}">${quizHTML(q,false)}</div>`).join('')}</div>`; },
+    /* An exam drill panel. It reuses .qb-scroll, the artifact's scrolling
+       region, because a question in examination form carries a statement, a
+       figure, several parts and a full worked solution, and that is more than
+       the fixed stage holds. fitScene() leaves a scene containing .qb-scroll
+       unscaled for the same reason. */
+    drill:   b => { const qs=(CONTENT.DRILL||[]).filter(q=>q.module===b.module);
+        const seen=qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
+        return `<div class="qb-head small">${qs.length} questions in examination form.
+          ${seen?`<span class="dr-seen">Solutions opened: ${seen} / ${qs.length} on this device.</span>`
+                :'No solution has been opened on this device yet.'}</div>
+        <div class="qb-scroll dr-scroll">${qs.map(q=>
+          `<div class="qb-item${(S.quiz[q.id]||{}).revealed?' dr-open':''}">${drillHTML(q)}</div>`).join('')}</div>`; },
+    /* The taxonomy of a module's question types, read from CONTENT.DRILLTYPES. */
+    drilltypes: b => { const ts=(CONTENT.DRILLTYPES[b.module]||[]);
+        return `<div class="dr-types" style="${b.style||''}">${ts.map((ty,i)=>
+          `<div class="dr-type">
+             <div class="dr-type-h"><span class="dr-type-k">${String.fromCharCode(65+i)}</span>${md(ty.name)}</div>
+             <div class="dr-type-asks">${symLinks(md(ty.asks))}</div>
+             <ol class="dr-type-m">${ty.method.map(s=>`<li>${symLinks(md(s))}</li>`).join('')}</ol>
+             ${ty.go?`<a class="dr-type-go" data-act="goto" data-id="${ty.go}">where this is taught →</a>`:''}
+           </div>`).join('')}</div>`; },
     /* a raw block may carry a function instead of a string, exactly as fig does,
        so a figure built in JavaScript is generated per render and picks up the
        palette of the theme in force */
@@ -94,37 +116,52 @@ const RENDER = (() => {
     }).join('');
   }
 
-  /* ---------- quiz ---------- */
+  /* ---------- question bank ----------
+     Every question is open-ended. The reader is given the question and, when
+     asked for, the worked solution — there are no options to choose between,
+     because choosing between four printed statements is not the skill an
+     examination tests. The distractor analysis that the bank was written with
+     is kept in the data and shown in the instructor edition, where it is a
+     record of the errors to watch for rather than something to click. */
   function quizHTML(q, compact){
-    const st = S.quiz[q.id] || {attempts:0};
-    const locked = st.correct;
-    const opts = (q.opts||[]).map((o,k)=>{
-      const key = String.fromCharCode(65+k);
-      let cls = '';
-      if(st.picked!=null){
-        if(k===q.a) cls = st.picked===k || st.revealed ? 'correct' : '';
-        else if(st.picked===k) cls='wrong';
-      }
-      if(locked||st.revealed) cls+=' locked';
-      return `<button class="opt ${cls}" data-q="${q.id}" data-k="${k}" ${locked||st.revealed?'disabled':''}>
-        <span class="k">${key}</span><span>${md(o)}</span></button>`;
-    }).join('');
-    const showFb = st.picked!=null;
-    const fbTxt = showFb ? (st.picked===q.a ? (q.why||'Correct.') : (q.wrong&&q.wrong[st.picked]) || 'Not correct — check the governing definition.') : '';
+    const st = S.quiz[q.id] || {};
+    const wrongs = q.wrong ? Object.keys(q.wrong).map(k=>q.wrong[k]) : [];
     return `<div class="quiz" data-qid="${q.id}">
       <div class="qid">${q.id} · ${q.kind||'concept'}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
       <div class="qstem">${symLinks(md(q.stem))}</div>
       ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
-      <div class="opts">${opts}</div>
       ${st.hint?`<div class="hintbox"><span class="note-h">Hint ${st.hint}</span>${md(q.hints[st.hint-1])}</div>`:''}
-      ${showFb?`<div class="fb ${st.picked===q.a?'good':'bad'}">${md(fbTxt)}</div>`:''}
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         ${q.hints&&q.hints.length?`<button class="btn" data-hint="${q.id}" ${st.hint>=q.hints.length?'disabled':''}>Hint ${Math.min((st.hint||0)+1,q.hints.length)} of ${q.hints.length}</button>`:''}
-        ${st.picked!=null&&!st.correct?`<button class="btn" data-retry="${q.id}">Try again</button>`:''}
-        <button class="btn" data-sol="${q.id}">${st.revealed?'Hide solution':'Show full solution'}</button>
+        <button class="btn" data-sol="${q.id}">${st.revealed?'Hide worked solution':'Show worked solution'}</button>
       </div>
       ${st.revealed?`<div class="note ok" style="margin-top:6px">
           <span class="note-h">Worked solution</span>${symLinks(md(q.sol))}
+          ${q.err?`<div style="margin-top:12px" class="note err"><span class="note-h">Most likely student error</span>${md(q.err)}</div>`:''}
+        </div>`:''}
+      ${wrongs.length?`<div class="instr"><div class="instr-panel"><span class="note-h">Errors to watch for</span>
+          <ul class="dr-wrongs">${wrongs.map(x=>`<li>${md(x)}</li>`).join('')}</ul></div></div>`:''}
+      ${q.teach?`<div class="instr"><div class="instr-panel"><span class="note-h">Teaching note</span>${md(q.teach)}</div></div>`:''}
+    </div>`;
+  }
+
+  /* ---------- exam drill ----------
+     An open-ended question in examination form: a statement, an optional
+     figure, lettered parts, and a worked solution that is drawn only once the
+     reader asks for it. The revealed flag is the same field the question bank
+     uses, so persistence and the reset action need no new code. */
+  function drillHTML(q){
+    const st = S.quiz[q.id] || {};
+    const ty = (CONTENT.DRILLTYPES[q.module]||[]).find(t=>t.k===q.type);
+    return `<div class="quiz drill" data-qid="${q.id}">
+      <div class="qid">${q.id}${ty?' · '+md(ty.name):''}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
+      <div class="qstem">${symLinks(md(q.stem))}</div>
+      ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
+      <ol class="dr-parts">${(q.parts||[]).map(p=>`<li>${symLinks(md(p))}</li>`).join('')}</ol>
+      <div><button class="btn" data-sol="${q.id}">${st.revealed?'Hide worked solution':'Show worked solution'}</button></div>
+      ${st.revealed?`<div class="note ok" style="margin-top:6px">
+          <span class="note-h">Worked solution</span>${symLinks(md(q.sol))}
+          ${q.figSol?`<figure class="fig">${typeof q.figSol==='function'?q.figSol():q.figSol}</figure>`:''}
           ${q.err?`<div style="margin-top:12px" class="note err"><span class="note-h">Most likely student error</span>${md(q.err)}</div>`:''}
         </div>`:''}
       ${q.teach?`<div class="instr"><div class="instr-panel"><span class="note-h">Teaching note</span>${md(q.teach)}</div></div>`:''}
@@ -133,23 +170,15 @@ const RENDER = (() => {
 
   function findQ(id){
     for(const b of (CONTENT.QBANK||[])) if(b.id===id) return b;
+    for(const b of (CONTENT.DRILL||[])) if(b.id===id) return b;
     return null;
   }
   document.addEventListener('click', e=>{
-    const o = e.target.closest('.opt[data-q]');
-    if(o){
-      const id=o.dataset.q, k=+o.dataset.k, q=findQ(id); if(!q) return;
-      const st = S.quiz[id] || (S.quiz[id]={attempts:0});
-      st.picked=k; st.attempts++; st.correct = (k===q.a);
-      APP.persist(); draw(); return;
-    }
     const h = e.target.closest('[data-hint]');
-    if(h){ const id=h.dataset.hint, q=findQ(id); const st=S.quiz[id]||(S.quiz[id]={attempts:0});
+    if(h){ const id=h.dataset.hint, q=findQ(id); const st=S.quiz[id]||(S.quiz[id]={});
       st.hint = Math.min((st.hint||0)+1, q.hints.length); APP.persist(); draw(); return; }
-    const r = e.target.closest('[data-retry]');
-    if(r){ const st=S.quiz[r.dataset.retry]; if(st){ st.picked=null; } APP.persist(); draw(); return; }
     const s = e.target.closest('[data-sol]');
-    if(s){ const id=s.dataset.sol; const st=S.quiz[id]||(S.quiz[id]={attempts:0});
+    if(s){ const id=s.dataset.sol; const st=S.quiz[id]||(S.quiz[id]={});
       st.revealed=!st.revealed; APP.persist(); draw(); return; }
     const sym = e.target.closest('.sym[data-sym]');
     if(sym){ APP.open('ov-gloss');
@@ -278,5 +307,5 @@ const RENDER = (() => {
     APP.buildSidebar();
   }
 
-  return { draw, blocks, tex, md, quizHTML, symLinks };
+  return { draw, blocks, tex, md, quizHTML, drillHTML, symLinks };
 })();

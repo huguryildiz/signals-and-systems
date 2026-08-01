@@ -2,7 +2,7 @@
 CONTENT.QBANK = CONTENT.QBANK.concat([
 
 { id:'Q7-01', module:'M7', kind:'concept', src:'pp. 80–81',
-  stem:'A signal $x(t)$ is multiplied by an impulse train $p(t)=\\sum_n\\delta(t-nT)$. Which statement about the result is correct?',
+  stem:'A signal $x(t)$ is multiplied by an impulse train $p(t)=\\sum_n\\delta(t-nT)$. Describe $x_p(t)$ and its spectrum $X_p(j\\omega)$.',
   opts:['$x_p(t)=\\sum_n x(nT)\\delta(t-nT)$ and $X_p(j\\omega)=\\frac{1}{T}\\sum_k X\\bigl(j(\\omega-k\\omega_s)\\bigr)$, and both hold for every value of $T$.',
         '$x_p(t)=\\sum_n x(nT)\\delta(t-nT)$ and $X_p(j\\omega)=\\sum_k X\\bigl(j(\\omega-k\\omega_s)\\bigr)$, with no factor in front of the sum.',
         '$X_p(j\\omega)=X(j\\omega)P(j\\omega)$, because multiplication in time is multiplication in frequency.',
@@ -36,7 +36,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Draw the chain twice on the board, with the filter in each position, and follow one component at $0.7\\omega_s$ through both. The difference is visible in two steps.' },
 
 { id:'Q7-03', module:'M7', kind:'concept', src:'pp. 83–85',
-  stem:'A converter reconstructs a signal with a zero-order hold, sampling well above the Nyquist rate. Which statement is correct?',
+  stem:'A converter reconstructs a signal with a zero-order hold, sampling well above the Nyquist rate. Say whether the claim is correct. If it is not, give the correct result and the reasoning that produces it.',
   opts:['The output is an approximation: $H_0(j\\omega)=e^{-j\\omega T/2}\\,2\\sin(\\omega T/2)/\\omega$ is not flat inside the band and is not zero outside it, so the output differs from $x(t)$ by an amount that can be computed.',
         'The output equals $x(t)$, because the sampling theorem is satisfied and the theorem guarantees exact recovery.',
         'The output equals $x(t)$ apart from a delay of $T/2$, which is the only effect the hold has.',
@@ -166,7 +166,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Aliasing is component by component. Ask which component moved and where to, rather than whether the signal aliased.' },
 
 { id:'Q7-11', module:'M7', kind:'graph', src:'p. 81',
-  stem:'The figure shows $X_p(j\\omega)$ for a signal with $\\omega_M=2\\pi$ rad/s. Reading the figure, which statement is correct?',
+  stem:'The figure shows $X_p(j\\omega)$ for a signal with $\\omega_M=2\\pi$ rad/s. Read the sampling frequency off the figure, and say whether the signal can be recovered.',
   figure:()=>{ const PI=Math.PI, ws=5*PI, pk=2.5;
     const tri=(w,wm,p)=>Math.abs(w)<=wm?p*(1-Math.abs(w)/wm):NaN;
     const a=PLOT.Axes({w:820,h:230,xr:[-8*PI,8*PI],yr:[-0.25,3.4],
@@ -193,7 +193,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for three numbers off any replica diagram before anything else: the spacing, the height, and the two ends of the gap. All three are readable, and each one checks the others.' },
 
 { id:'Q7-12', module:'M7', kind:'synthesis', src:'pp. 80–88',
-  stem:'A signal of finite duration is to be recorded digitally and played back. Which chain gives an output that is exactly a band-limited version of the input, and why is nothing better available?',
+  stem:'A signal of finite duration is to be recorded digitally and played back. Describe the chain that gives an output which is exactly a band-limited version of the input, and say why nothing better is available.',
   opts:['Lowpass filter, then sample above twice the filter cutoff, then reconstruct with gain $T$ and a cutoff inside the guard band. A signal of finite duration is never band-limited, so the band limit has to be imposed before sampling rather than assumed.',
         'Sample above twice the highest frequency of interest, then reconstruct with gain $T$. A finite-duration signal is band-limited to that frequency, so no filter is needed before the sampler.',
         'Sample at any rate, then reconstruct with a zero-order hold and raise the rate until the steps are small enough. In the limit the hold output equals the input.',

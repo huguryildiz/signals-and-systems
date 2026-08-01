@@ -4,7 +4,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
 /* ===================== MODULE 1 — SIGNAL FOUNDATIONS (pp. 2–10) ===================== */
 
 { id:'Q1-01', module:'M1', kind:'concept', src:'pp. 2–3',
-  stem:'The course uses the normalised ($R=1\\,\\Omega$) definitions $E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,dt$ and $P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,dt$. Which statement describes an energy signal correctly?',
+  stem:'The course uses the normalised ($R=1\\,\\Omega$) definitions $E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,dt$ and $P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,dt$. State the two conditions that together define an energy signal, and prove that the second follows from the first.',
   opts:['Its total energy $E_\\infty$ is finite and its average power $P_\\infty$ is a finite non-zero constant.',
         'Its total energy $E_\\infty$ is finite, so its average power $P_\\infty$ is zero.',
         'Its average power $P_\\infty$ is finite while its total energy grows without bound.',
@@ -21,7 +21,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Insist on both halves of the classification. A student who writes only $E_\\infty<\\infty$ has not yet distinguished the energy class from the power class.' },
 
 { id:'Q1-02', module:'M1', kind:'concept', src:'p. 10',
-  stem:'A discrete-time complex exponential $x[n]=Ce^{j\\omega_0 n}$ repeats only if $N=(2\\pi/\\omega_0)k$ is a positive integer for some integer $k$. Which of the following discrete-time signals is periodic?',
+  stem:'A discrete-time complex exponential $x[n]=Ce^{j\\omega_0 n}$ repeats only if $N=(2\\pi/\\omega_0)k$ is a positive integer for some integer $k$. Decide which of the four sequences below are periodic, and give $N_0$ for each one that is.$$\\text{(i)}\\;\\cos(3n)\\qquad\\text{(ii)}\\;e^{j2n}\\qquad\\text{(iii)}\\;\\cos\\!\\left(\\tfrac{3\\pi}{8}n\\right)\\qquad\\text{(iv)}\\;e^{jn/2}$$',
   opts:['$x[n]=\\cos(3n)$',
         '$x[n]=e^{j2n}$',
         '$x[n]=\\cos\\!\\left(\\dfrac{3\\pi}{8}n\\right)$',
@@ -32,13 +32,13 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          1:'$\\omega_0=2$ gives $\\omega_0/2\\pi=1/\\pi$, again irrational. The sequence is aperiodic despite being built from a complex exponential.',
          3:'$\\omega_0=1/2$ gives $\\omega_0/2\\pi=1/(4\\pi)$, irrational. The samples come arbitrarily close to repeating but never repeat exactly, which is not periodicity.'},
   hints:['Periodicity in discrete time requires an integer $N$. The equation to satisfy is $\\omega_0N=2\\pi k$ with $N,k$ integers.',
-         'Form the ratio $\\omega_0/2\\pi$ for each option and ask whether it is a ratio of two integers.'],
+         'Form the ratio $\\omega_0/2\\pi$ for each sequence and ask whether it is a ratio of two integers.'],
   sol:'Condition: $x[n]=x[n+N]$ requires $e^{j\\omega_0N}=1$, i.e. $\\omega_0N=2\\pi k$, so$$N=\\frac{2\\pi}{\\omega_0}k,\\qquad k\\in\\mathbb{Z},$$and $N$ must be a positive integer. Equivalently $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}\\in\\mathbb{Q}$.<br>Screening the options: $\\omega_0/2\\pi$ equals $3/(2\\pi)$, $1/\\pi$, $3/16$ and $1/(4\\pi)$ respectively. Only $3/16$ is rational.<br>For that option, $N=(16/3)k$ is an integer first at $k=3$, so $N_0=16$ samples and the fundamental frequency is $\\omega_0=2\\pi/N_0=\\pi/8$ rad/sample — consistent with the given $3\\pi/8$ being the third harmonic of $\\pi/8$.<br>Check: $\\cos\\!\\left(\\frac{3\\pi}{8}(n+16)\\right)=\\cos\\!\\left(\\frac{3\\pi}{8}n+6\\pi\\right)=\\cos\\!\\left(\\frac{3\\pi}{8}n\\right)$, and no smaller positive integer works because $16k/3$ is an integer only for $k$ a multiple of 3.',
   err:'Transferring the continuous-time rule $T_0=2\\pi/\\omega_0$ to discrete time and reporting a non-integer "period" such as $2\\pi/3$ for $\\cos(3n)$.',
   teach:'Require the rationality test $\\omega_0/2\\pi\\in\\mathbb{Q}$ to be written down explicitly. An answer that merely computes $2\\pi/\\omega_0$ has skipped the decisive step.' },
 
 { id:'Q1-03', module:'M1', kind:'concept', src:'pp. 6–7',
-  stem:'The unit impulse obeys two distinct properties in continuous time. Which statement separates them correctly?',
+  stem:'The unit impulse obeys two distinct properties in continuous time. State the sampling property and the sifting property, and say precisely how the two results differ in kind.',
   opts:['Both expressions evaluate to the number $x(t_0)$. Sampling and sifting are two names for one operation.',
         'The sampling property returns the number $x(t_0)$, while the sifting property returns the scaled impulse $x(t_0)\\delta(t-t_0)$.',
         'The sampling property returns a signal, $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$, whereas the sifting property returns a number, $\\int_{-\\infty}^{\\infty}x(t)\\delta(t-t_0)\\,dt=x(t_0)$.',
@@ -106,7 +106,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'A correct answer must name the integer $k$ that was used. Without it the student cannot demonstrate that the period found is the smallest one.' },
 
 { id:'Q1-07', module:'M1', kind:'misconception', src:'pp. 2–3',
-  stem:'A student writes: "$x(t)=2u(t)$ has the constant value 2 for $t\\ge0$, so its energy is $E_\\infty=4$ J and it is an energy signal." Which statement is correct?',
+  stem:'A student writes: "$x(t)=2u(t)$ has the constant value 2 for $t\\ge0$, so its energy is $E_\\infty=4$ J and it is an energy signal." Say whether the claim is correct. If it is not, give the correct result and the reasoning that produces it.',
   opts:['$E_\\infty\\to\\infty$ and $P_\\infty=2$ W: it is a power signal.',
         '$E_\\infty\\to\\infty$ and $P_\\infty=4$ W: it is a power signal.',
         'The student is right: $E_\\infty=4$ J and $P_\\infty=0$, an energy signal.',
@@ -174,7 +174,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask for the integer pair $(m,n)$. Students who cannot supply it usually guessed the least common multiple rather than deriving it.' },
 
 { id:'Q1-11', module:'M1', kind:'graph', src:'pp. 3–4',
-  stem:'A discrete-time signal is displayed as a stem plot with exactly four non-zero stems: height $2$ at $n=-3$, height $-1$ at $n=-2$, height $3$ at $n=0$ and height $1$ at $n=1$. Which stem plot represents $y[n]=x[-n+2]$?',
+  stem:'A discrete-time signal is displayed as a stem plot with exactly four non-zero stems: height $2$ at $n=-3$, height $-1$ at $n=-2$, height $3$ at $n=0$ and height $1$ at $n=1$. Determine and plot $y[n]=x[-n+2]$.',
   opts:['Heights $1$ at $n=1$, $3$ at $n=2$, $-1$ at $n=4$, $2$ at $n=5$.',
         'Heights $2$ at $n=-5$, $-1$ at $n=-4$, $3$ at $n=-2$, $1$ at $n=-1$.',
         'Heights $1$ at $n=-3$, $3$ at $n=-2$, $-1$ at $n=0$, $2$ at $n=1$.',
@@ -186,7 +186,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          3:'This is the pure reflection $x[-n]$, with the shift by 2 omitted altogether.'},
   hints:['Write the transformation as $y[n]=x[an-b]$ with $a=-1$. Identify $b$ before sketching anything.',
          'A safe check: pick one sample, e.g. $n=5$, and evaluate $x[2-5]=x[-3]$.'],
-  sol:'Operations: reflection $x[-n]$ and shift $x[n-n_0]$, combined by the shift-then-scale rule.<br>Step 1 — normal form. $y[n]=x[-n+2]=x[(-1)n-(-2)]$, so $a=-1$ and $b=-2$.<br>Step 2 — shift first: $v[n]=x[n+2]$, whose stems move two positions left, to $n=-5,-4,-2,-1$ with heights $2,-1,3,1$.<br>Step 3 — scale (here reflect): $y[n]=v[-n]$ mirrors those positions about $n=0$, giving stems at $n=5,4,2,1$ with heights $2,-1,3,1$ respectively.<br>Step 4 — sample-by-sample confirmation:$$y[1]=x[1]=1,\\quad y[2]=x[0]=3,\\quad y[4]=x[-2]=-1,\\quad y[5]=x[-3]=2,$$and $y[n]=0$ for every other $n$.<br>Interpretation: the plot is the original stem pattern read backwards and relocated so that the sample originally at $n=0$ now sits at $n=2$. The reflection maps the support $[-3,1]$ to $[1,5]$, preserving its length of five sample positions.<br>Verification: enumerating $y[n]=x[2-n]$ for $n=-10\\dots10$ reproduces exactly the set of pairs $(1,1),(2,3),(4,-1),(5,2)$, and each of the three distractors corresponds to a different, distinct transformation.',
+  sol:'Operations: reflection $x[-n]$ and shift $x[n-n_0]$, combined by the shift-then-scale rule.<br>Step 1 — normal form. $y[n]=x[-n+2]=x[(-1)n-(-2)]$, so $a=-1$ and $b=-2$.<br>Step 2 — shift first: $v[n]=x[n+2]$, whose stems move two positions left, to $n=-5,-4,-2,-1$ with heights $2,-1,3,1$.<br>Step 3 — scale (here reflect): $y[n]=v[-n]$ mirrors those positions about $n=0$, giving stems at $n=5,4,2,1$ with heights $2,-1,3,1$ respectively.<br>Step 4 — sample-by-sample confirmation:$$y[1]=x[1]=1,\\quad y[2]=x[0]=3,\\quad y[4]=x[-2]=-1,\\quad y[5]=x[-3]=2,$$and $y[n]=0$ for every other $n$.<br>Interpretation: the plot is the original stem pattern read backwards and relocated so that the sample originally at $n=0$ now sits at $n=2$. The reflection maps the support $[-3,1]$ to $[1,5]$, preserving its length of five sample positions.<br>Verification: enumerating $y[n]=x[2-n]$ for $n=-10\\dots10$ reproduces exactly the set of pairs $(1,1),(2,3),(4,-1),(5,2)$, and the three transformations closest to it — a pure shift, a pure reflection, and a reflection with the shift applied in the wrong order — each give a different, distinct answer.',
   err:'Reflecting first and then shifting in the same direction as the printed sign, which produces $x[-n-2]$ and moves the pattern to the negative axis.',
   teach:'The sign of the shift after a reflection is the discriminating step. Check the student\'s intermediate signal $v[n]$ rather than only the final sketch.' },
 
@@ -210,7 +210,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
 /* ============= MODULE 2 — SYSTEMS AND THEIR PROPERTIES (pp. 11–14) ============= */
 
 { id:'Q2-01', module:'M2', kind:'concept', src:'p. 11',
-  stem:'Which of the following systems is memoryless?',
+  stem:'Decide which of the four systems below are memoryless, with a reason for each.$$\\text{(i)}\\;y[n]=x[n]-x[n-2]\\qquad\\text{(ii)}\\;y(t)=e^{x(t)}\\cos(2t)$$$$\\text{(iii)}\\;y(t)=\\int_{t-1}^{t}x(\\tau)\\,\\d\\tau\\qquad\\text{(iv)}\\;y[n]=x[n]+y[n-1]$$',
   opts:['$y[n]=x[n]-x[n-2]$',
         '$y(t)=e^{x(t)}\\cos(2t)$',
         '$y(t)=\\displaystyle\\int_{t-1}^{t}x(\\tau)\\,d\\tau$',
@@ -222,12 +222,12 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          3:'Back-substitution gives $y[n]=\\sum_{k=0}^{\\infty}x[n-k]$, so the output depends on the entire input history.'},
   hints:['Ask only one question: to compute $y$ at a given instant, do I need any value of $x$ at a different instant?',
          'An explicit dependence on $t$ or $n$ in a coefficient is not memory — memory is a dependence on the input at other times.'],
-  sol:'Definition: a system is memoryless if the output at time $t$ (or $n$) depends only on the input at that same time.<br>Option A: computing $y[n]$ requires $x[n-2]$, a value from two steps earlier — memory.<br>Option B: fixing $t$ determines $\\cos(2t)$ as a number, and then $y(t)=e^{x(t)}\\cos(2t)$ is a fixed function of the single value $x(t)$. No other input value is needed, so the system is memoryless. This mirrors the definition example $y(t)=[2x(t)-x^{2}(t)]^{2}$, which is memoryless although non-linear, and $y(t)=x(t)\\cos(t+1)$, where the explicit $t$ is a known gain.<br>Option C: the integral needs every $x(\\tau)$ with $t-1\\le\\tau\\le t$ — memory of one second.<br>Option D: the recursion accumulates all past inputs, $y[n]=\\sum_{k\\ge0}x[n-k]$ — infinite memory.<br>Interpretation: memorylessness is about the time argument of $x$, not about the algebraic complexity of the rule. A memoryless system may be non-linear (option B is), time varying (option B is), or both.<br>Check: a resistor $v(t)=Ri(t)$ is memoryless, whereas a capacitor $v(t)=\\frac{1}{C}\\int_{-\\infty}^{t}i(\\tau)d\\tau$ is not — exactly the contrast between B and C.',
-  err:'Declaring option B to have memory because $\\cos(2t)$ "changes with time". A time-varying coefficient makes the system time varying, not a system with memory.',
+  sol:'Definition: a system is memoryless if the output at time $t$ (or $n$) depends only on the input at that same time.<br>Case (i): computing $y[n]$ requires $x[n-2]$, a value from two steps earlier — memory.<br>Case (ii): fixing $t$ determines $\\cos(2t)$ as a number, and then $y(t)=e^{x(t)}\\cos(2t)$ is a fixed function of the single value $x(t)$. No other input value is needed, so the system is memoryless. This mirrors the definition example $y(t)=[2x(t)-x^{2}(t)]^{2}$, which is memoryless although non-linear, and $y(t)=x(t)\\cos(t+1)$, where the explicit $t$ is a known gain.<br>Case (iii): the integral needs every $x(\\tau)$ with $t-1\\le\\tau\\le t$ — memory of one second.<br>Case (iv): the recursion accumulates all past inputs, $y[n]=\\sum_{k\\ge0}x[n-k]$ — infinite memory.<br>Interpretation: memorylessness is about the time argument of $x$, not about the algebraic complexity of the rule. A memoryless system may be non-linear (case (ii) is), time varying (case (ii) is), or both.<br>Check: a resistor $v(t)=Ri(t)$ is memoryless, whereas a capacitor $v(t)=\\frac{1}{C}\\int_{-\\infty}^{t}i(\\tau)d\\tau$ is not — exactly the contrast between cases (ii) and (iii).',
+  err:'Declaring case (ii) to have memory because $\\cos(2t)$ "changes with time". A time-varying coefficient makes the system time varying, not a system with memory.',
   teach:'Separate the two ideas explicitly when marking: memory concerns the time argument of the input, time variance concerns an explicit $t$ in the rule.' },
 
 { id:'Q2-02', module:'M2', kind:'concept', src:'pp. 11–12',
-  stem:'Which argument correctly establishes that a system is not invertible?',
+  stem:'State what must be shown to establish that a system is not invertible, and illustrate it with one example.',
   opts:['Show that the system has memory, since a system that stores past inputs cannot be one-to-one.',
         'Exhibit two distinct input signals that produce identical outputs for all time.',
         'Show that the system is non-linear, because only linear systems possess inverses.',
@@ -239,12 +239,12 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
          3:'A gain of less than one loses no information: $y(t)=0.1\\,x(t)$ is invertible via $x(t)=10\\,y(t)$. What matters is whether two different inputs can collide, not the size of the output.'},
   hints:['State the definition first: distinct inputs must give distinct outputs.',
          'To disprove a one-to-one property you need a collision — two inputs, one output.'],
-  sol:'Definition: a system is invertible when distinct inputs produce distinct outputs, so that the input can be recovered from the output. There are two routes: (1) give an inversion formula to prove invertibility, (2) give a counterexample to disprove it.<br>Disproof structure: find $x_1\\neq x_2$ with $S\\{x_1\\}=S\\{x_2\\}$ for all time. Example: for $y(t)=x^{2}(t)$, take $x_1(t)=1$ and $x_2(t)=-1$. Both give $y(t)=1$, so the sign of the input cannot be recovered.<br>Proof structure for the positive case: for $y(t)=[\\cos(t)+2]x(t)$, note $\\cos t+2\\ge1>0$, so the gain never vanishes and$$x(t)=\\frac{y(t)}{\\cos(t)+2}$$is a valid inversion formula, which settles the question affirmatively.<br>Interpretation: invertibility is a statement about the map as a whole. Neither memory, nor linearity, nor the amplitude of the output enters the definition.<br>Sanity check on the distractors: delay (memory, invertible), cube law (non-linear, invertible), $0.1\\,x(t)$ (attenuating, invertible) — each is a counterexample to one of the three rejected criteria.',
+  sol:'Definition: a system is invertible when distinct inputs produce distinct outputs, so that the input can be recovered from the output. There are two routes: (1) give an inversion formula to prove invertibility, (2) give a counterexample to disprove it.<br>Disproof structure: find $x_1\\neq x_2$ with $S\\{x_1\\}=S\\{x_2\\}$ for all time. Example: for $y(t)=x^{2}(t)$, take $x_1(t)=1$ and $x_2(t)=-1$. Both give $y(t)=1$, so the sign of the input cannot be recovered.<br>Proof structure for the positive case: for $y(t)=[\\cos(t)+2]x(t)$, note $\\cos t+2\\ge1>0$, so the gain never vanishes and$$x(t)=\\frac{y(t)}{\\cos(t)+2}$$is a valid inversion formula, which settles the question affirmatively.<br>Interpretation: invertibility is a statement about the map as a whole. Neither memory, nor linearity, nor the amplitude of the output enters the definition.<br>Sanity check on the neighbouring cases: delay (memory, invertible), cube law (non-linear, invertible), $0.1\\,x(t)$ (attenuating, invertible) — each is a counterexample to one of the three rejected criteria.',
   err:'Arguing informally that "information is lost" without exhibiting two concrete inputs that collide.',
   teach:'Award credit only for an explicit counterexample or an explicit inversion formula. Verbal plausibility arguments should not pass here.' },
 
 { id:'Q2-03', module:'M2', kind:'concept', src:'p. 12',
-  stem:'Which statement expresses the BIBO stability requirement correctly?',
+  stem:'State the BIBO stability requirement precisely, and say what a single counterexample has to consist of.',
   opts:['There must exist at least one bounded input whose response is bounded.',
         'The output must remain bounded for every input, whether that input is bounded or not.',
         'Every input satisfying $|x(t)|<B<\\infty$ for all $t$ must produce a bounded output. A single bounded input with an unbounded response disproves stability.',
@@ -261,7 +261,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'When marking, check the direction of the argument: a general inequality for a proof, a single explicit input for a disproof.' },
 
 { id:'Q2-04', module:'M2', kind:'calc', src:'pp. 4, 13',
-  stem:'Apply the formal time-invariance test to $y(t)=x(2t)$ with $t_0=3$ s. Let $y_1(t)$ be the response to $x_1(t)$, and let $y_2(t)$ be the response to the shifted input $x_2(t)=x_1(t-3)$. Which pair of expressions is correct?',
+  stem:'Apply the formal time-invariance test to $y(t)=x(2t)$ with $t_0=3$ s. Let $y_1(t)$ be the response to $x_1(t)$, and let $y_2(t)$ be the response to the shifted input $x_2(t)=x_1(t-3)$. Give $y_1(t)$ and $y_2(t)$ in terms of $x_1$, and say whether the system is time invariant.',
   opts:['$y_2(t)=x_1(2t-6)$ and $y_1(t-3)=x_1(2t-3)$. The system is not time invariant.',
         '$y_2(t)=x_1(2t-3)$ and $y_1(t-3)=x_1(2t-6)$. The system is not time invariant.',
         '$y_2(t)=x_1(2t-3)$ and $y_1(t-3)=x_1(2t-3)$. The system is time invariant.',
@@ -312,7 +312,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Look for the order of operations in the bounding step. The square must be taken on the bound, not the bound on the square.' },
 
 { id:'Q2-07', module:'M2', kind:'misconception', src:'pp. 11, 14',
-  stem:'A student argues: "$y[n]=5x[n]-2$ uses only the present sample, so it is memoryless. And a memoryless system is automatically linear." Which statement is correct?',
+  stem:'A student argues: "$y[n]=5x[n]-2$ uses only the present sample, so it is memoryless. And a memoryless system is automatically linear." Say whether the claim is correct. If it is not, give the correct result and the reasoning that produces it.',
   opts:['The system is memoryless and linear. The constant $-2$ merely shifts the output level.',
         'The system is memoryless, but it is not linear: with $a=b=1$ the true response to $x_1[n]+x_2[n]$ exceeds $y_1[n]+y_2[n]$ by 2 at every $n$.',
         'The system has memory because of the constant term, and systems with memory are never linear.',
@@ -329,7 +329,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'The one-line zero-input test is the fastest marking check. Accept it as a complete disproof of linearity.' },
 
 { id:'Q2-08', module:'M2', kind:'misconception', src:'p. 13',
-  stem:'To test $y[n]=(-1)^{n}x[n]$ for time invariance, a student applies $x_1[n]=\\delta[n]$, then $x_2[n]=\\delta[n-2]$, observes that $y_2[n]=y_1[n-2]$, and concludes that the system is time invariant. Which statement is correct?',
+  stem:'To test $y[n]=(-1)^{n}x[n]$ for time invariance, a student applies $x_1[n]=\\delta[n]$, then $x_2[n]=\\delta[n-2]$, observes that $y_2[n]=y_1[n-2]$, and concludes that the system is time invariant. Say whether the claim is correct. If it is not, give the correct result and the reasoning that produces it.',
   opts:['The conclusion is sound: verifying the property for one shift is enough, because time invariance is a linear property.',
         'The conclusion is wrong because $\\delta[n]$ may never be used as a test input for time invariance.',
         'The conclusion is unjustified: the test must hold for every $t_0$. With $t_0=1$, $y_2[n]=-\\delta[n-1]$ while $y_1[n-1]=\\delta[n-1]$, so the system is not time invariant.',
@@ -363,7 +363,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Require one line of justification per property. A bare classification list cannot show whether the reflected term was analysed.' },
 
 { id:'Q2-10', module:'M2', kind:'exam', src:'pp. 11–14',
-  stem:'A modulator implements $y(t)=x(t)\\cos(5t)$, with $t$ in seconds. Which single statement is completely correct?',
+  stem:'A modulator implements $y(t)=x(t)\\cos(5t)$, with $t$ in seconds. Classify the modulator on all five properties — memoryless, linear, time invariant, causal and BIBO stable — with a reason for each.',
   opts:['Linear, memoryless, causal and BIBO stable, but neither time invariant nor invertible.',
         'Linear, memoryless, time invariant and invertible, with inverse $x(t)=y(t)/\\cos(5t)$.',
         'Non-linear, because the input is multiplied by another signal, but time invariant and BIBO stable.',
@@ -397,7 +397,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Check that the student invoked linearity to fix the zero-input response — without it, no conclusion about causality can be drawn from one test.' },
 
 { id:'Q2-12', module:'M2', kind:'synthesis', src:'pp. 12–13',
-  stem:'A temperature logger integrates its sensor reading with the accumulator $y[n]=y[n-1]+x[n]$, initially at rest. The sensor has a constant offset error of $0.02$ °C in every sample, so the input contains the bounded component $x_e[n]=0.02\\,u[n]$. Which statement describes the situation correctly?',
+  stem:'A temperature logger integrates its sensor reading with the accumulator $y[n]=y[n-1]+x[n]$, initially at rest. The sensor has a constant offset error of $0.02$ °C in every sample, so the input contains the bounded component $x_e[n]=0.02\\,u[n]$. Describe what the offset does to the logged output over time, and name the system property that is responsible.',
   opts:['The accumulator is causal and linear but not BIBO stable. The offset alone drives the output to $0.02\\times10^{4}=200$ °C after $10^{4}$ samples.',
         'The accumulator is BIBO stable, since every input sample is bounded by $0.02$ °C, so the output can never exceed $0.02$ °C.',
         'The accumulator is unstable because it is not causal: the running sum uses samples that have not yet arrived.',
@@ -433,7 +433,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask which step of the derivation each property supplies. Naming both properties without locating them is a weaker answer.' },
 
 { id:'Q3-02', module:'M3', kind:'concept', src:'p. 21',
-  stem:'Which statement about an LTI system and its impulse response is correct?',
+  stem:'State what the impulse response determines about the system, and what it does not.',
   opts:['It is memoryless if and only if $h[n]=0$ for $n<0$.',
         'It is BIBO stable if and only if $h[n]$ is bounded for every $n$.',
         'It is BIBO stable if and only if $\\displaystyle\\sum_{k=-\\infty}^{\\infty}|h[k]|<\\infty$.',
@@ -467,7 +467,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'If a student cites a product rule, ask which domain it belongs to. That reveals whether the confusion is conceptual or premature.' },
 
 { id:'Q3-04', module:'M3', kind:'calc', src:'pp. 15–16',
-  stem:'Compute $y[n]=x[n]*h[n]$ for $x[n]$ with values $2,-1,3$ at $n=0,1,2$ and $h[n]$ with values $1,4$ at $n=0,1$. Both sequences are zero elsewhere.',
+  stem:'Compute $y[n]=x[n]*h[n]$ for $x[n]$ with values $2,-1,3$ at $n=0,1,2$ and $h[n]$ with values $1,4$ at $n=0,1$. Both sequences are zero elsewhere. State the support of $y[n]$ before computing it.',
   opts:['$y[n]$ has values $2,\\,7,\\,-1,\\,12$ at $n=0,1,2,3$.',
         '$y[n]$ has values $2,\\,8,\\,-4,\\,12$ at $n=0,1,2,3$.',
         '$y[n]$ has values $8,\\,-2,\\,11,\\,3$ at $n=0,1,2,3$.',
@@ -535,7 +535,7 @@ CONTENT.QBANK = CONTENT.QBANK.concat([
   teach:'Ask the student to write the index pairs before the arithmetic. The flip error is visible there and nowhere else.' },
 
 { id:'Q3-08', module:'M3', kind:'misconception', src:'p. 21',
-  stem:'A causal LTI system has impulse response $h[n]=\\dfrac{1}{n+1}u[n]$. A student argues: "$h[n]\\to0$ as $n\\to\\infty$ and the system is causal, so it must be BIBO stable." Which statement is correct?',
+  stem:'A causal LTI system has impulse response $h[n]=\\dfrac{1}{n+1}u[n]$. A student argues: "$h[n]\\to0$ as $n\\to\\infty$ and the system is causal, so it must be BIBO stable." Say whether the claim is correct. If it is not, give the correct result and the reasoning that produces it.',
   opts:['The system is stable: a causal impulse response that decays to zero always yields a bounded output.',
         'The system is causal but not BIBO stable, because $\\sum_{n\\ge0}\\frac{1}{n+1}$ is the harmonic series, which diverges.',
         'The system is neither causal nor stable, since $h[n]$ is not absolutely summable.',

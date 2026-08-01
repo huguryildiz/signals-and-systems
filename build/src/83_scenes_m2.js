@@ -14,14 +14,14 @@ const SC = [
   {t:'lede', text:'A system is described by what it does to signals, not by what it is made of. Six properties decide almost everything that follows. Two of them, taken together, are the whole content of Module 3.'},
   {t:'raw', html:`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin:auto 0;max-width:1500px">
     ${['Memoryless','Invertible','Causal','BIBO stable','Time invariant','Linear'].map((n,i)=>
-      `<div style="border-top:2px solid ${i>=4?'#BE5539':'rgba(239,231,216,.35)'};padding-top:14px">
-        <div style="font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:#8FA8BF">0${i+1}</div>
-        <div style="font-family:var(--serif);font-size:25px;margin-top:6px;color:#EFE7D8">${n}</div>
-        ${i>=4?'<div style="font-size:14px;color:#BE7A63;margin-top:8px">required for convolution</div>':''}
+      `<div style="border-top:2px solid ${i>=4?'var(--coral)':'rgba(233,236,242,.35)'};padding-top:14px">
+        <div style="font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--slate)">0${i+1}</div>
+        <div style="font-family:var(--serif);font-size:25px;margin-top:6px;color:var(--ink)">${n}</div>
+        ${i>=4?'<div style="font-size:14px;color:var(--terracotta);margin-top:8px">required for convolution</div>':''}
       </div>`).join('')}
   </div>`},
   {t:'raw', html:'<div style="margin-top:auto"></div>'},
-  {t:'note', kind:'warn', head:'Method, not intuition', html:'<span style="color:#DED5C6">Each property is settled either by a proof that holds for <em>every</em> input, or by a single explicit counterexample. Nothing in this module is decided by inspecting a block diagram.</span>'}
+  {t:'note', kind:'warn', head:'Method, not intuition', html:'<span style="color:var(--graphite)">Each property is settled either by a proof that holds for <em>every</em> input, or by a single explicit counterexample. Nothing in this module is decided by inspecting a block diagram.</span>'}
 ]},
 
 { id:'m2-abstraction', module:'M2', nav:'Input–output abstraction', title:'The input–output abstraction', src:'p. 11',
@@ -122,7 +122,7 @@ const SC = [
       {t:'text',x:120,y:20,label:'inputs',fs:14},{t:'text',x:560,y:20,label:'outputs',fs:14},
       {t:'line',d:'M120 85 C 250 60, 430 60, 560 85',color:'#14707F'},
       {t:'line',d:'M120 145 C 250 170, 430 170, 560 145',color:'#4A7A46'},
-      {t:'text',x:340,y:52,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:'#4A657F',tex:true}
+      {t:'text',x:340,y:52,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
     ]}), caption:'Invertibility is a statement about the <em>map</em>, not about any single signal.'},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
@@ -246,12 +246,12 @@ const SC = [
       {t:'arrow',x1:350,y1:80,x2:470,y2:80},{t:'box',x:470,y:48,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:620,y1:80,x2:770,y2:80},
       {t:'text',x:130,y:66,label:'x(t)',tex:true,fs:17},{t:'text',x:695,y:66,label:'y_2(t)',tex:true,fs:17},
-      {t:'text',x:60,y:150,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:'#4A657F'},
+      {t:'text',x:60,y:150,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:C.slate},
       {t:'arrow',x1:60,y1:230,x2:200,y2:230},{t:'box',x:200,y:198,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:350,y1:230,x2:470,y2:230},{t:'box',x:470,y:198,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
       {t:'arrow',x1:620,y1:230,x2:770,y2:230},
       {t:'text',x:130,y:216,label:'x(t)',tex:true,fs:17},{t:'text',x:690,y:216,label:'y_1(t-t_0)',tex:true,fs:17},
-      {t:'text',x:60,y:288,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:'#4A657F'}
+      {t:'text',x:60,y:288,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:C.slate}
     ]}), caption:'The test as two chains. A time-invariant system is one whose two chains produce the same signal, for every input and every shift.'}
   ]}
 ]},
@@ -325,18 +325,18 @@ const SC = [
       {t:'note', kind:'err', head:'“Linear” does not mean “straight line”', html:'$y(t)=x(t)+5$ is <b>not</b> linear, because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$. That is a five-second first test, and it rules out any constant offset.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:330,items:[
-      {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:'#4A657F'},
+      {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
       {t:'arrow',x1:100,y1:90,x2:280,y2:90},{t:'box',x:280,y:58,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:430,y1:90,x2:610,y2:90},
       {t:'text',x:190,y:78,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
       {t:'text',x:520,y:78,label:'y_3',tex:true,fs:15},
-      {t:'text',x:100,y:186,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:'#4A657F'},
+      {t:'text',x:100,y:186,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
       {t:'arrow',x1:100,y1:240,x2:280,y2:240},{t:'box',x:280,y:208,w:150,h:64,label:'S',tex:true},
       {t:'arrow',x1:430,y1:240,x2:610,y2:240},
       {t:'text',x:190,y:228,label:'x_1,\\;x_2',tex:true,fs:15},
       {t:'text',x:520,y:228,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
-      {t:'text',x:660,y:170,label:'equal?',fs:16,color:'#BE5539'},
-      {t:'line',d:'M640 90 h40 v150 h-40',color:'#BE5539'}
+      {t:'text',x:660,y:170,label:'equal?',fs:16,color:C.coral},
+      {t:'line',d:'M640 90 h40 v150 h-40',color:C.coral}
     ]}), caption:'Linearity is the statement that these two routes always agree. Every proof in this module is a comparison of the two.'}
   ]}
 ]},
@@ -367,11 +367,11 @@ const SC = [
       ];
       const cols=['mem','inv','caus','stab','TI','lin'];
       const W=820,H=360,x0=250,cw=88,rh=40;
-      const g=[`<text x="8" y="30" font-size="13" fill="#4A657F" font-family="ui-monospace,monospace" letter-spacing="1.4">SYSTEM</text>`];
-      cols.forEach((c,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="30" font-size="12" fill="#4A657F" text-anchor="middle" font-family="ui-monospace,monospace" letter-spacing="1.2">${c.toUpperCase()}</text>`));
+      const g=[`<text x="8" y="30" font-size="13" fill="${C.slate}" font-family="ui-monospace,monospace" letter-spacing="1.4">SYSTEM</text>`];
+      cols.forEach((c,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="30" font-size="12" fill="${C.slate}" text-anchor="middle" font-family="ui-monospace,monospace" letter-spacing="1.2">${c.toUpperCase()}</text>`));
       rows.forEach((r,j)=>{
         const y=58+rh*j;
-        g.push(`<line x1="0" y1="${y-14}" x2="${W}" y2="${y-14}" stroke="#E2DACA"/>`);
+        g.push(`<line x1="0" y1="${y-14}" x2="${W}" y2="${y-14}" stroke="${C.grid}"/>`);
         g.push(P.texName(r[0],{xLeft:8, baseline:y+9, size:14, color:C.ink, figW:x0-16}));
         r[1].forEach((v,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="${y+7}" font-size="16" text-anchor="middle"
           fill="${v?'#4A7A46':'#A63B2A'}">${v?'✓':'✗'}</text>`));
@@ -396,18 +396,18 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Synthesis', src:'pp. 11–14'},
   {t:'title', text:'Why two of the six matter more than the rest'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:#DED5C6">Four of the six properties describe what a system is <em>allowed</em> to do: use memory, look ahead, amplify without bound, discard information. They constrain implementation.</p>
-      <p style="color:#DED5C6">Two of them, <b>linearity</b> and <b>time invariance</b>, do something different. Together they make the system <em>completely determined by a single test</em>.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)">Four of the six properties describe what a system is <em>allowed</em> to do: use memory, look ahead, amplify without bound, discard information. They constrain implementation.</p>
+      <p style="color:var(--graphite)">Two of them, <b>linearity</b> and <b>time invariance</b>, do something different. Together they make the system <em>completely determined by a single test</em>.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:#DED5C6">If a system is linear and time invariant, then its response to <b>one</b> input, the unit impulse, determines its response to <b>every</b> input. The system reduces from an infinite-dimensional map to one function $h$.</span>'}]},
+      {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:var(--graphite)">If a system is linear and time invariant, then its response to <b>one</b> input, the unit impulse, determines its response to <b>every</b> input. The system reduces from an infinite-dimensional map to one function $h$.</span>'}]},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:#CFC5B4">The argument is three lines long and uses only what you already have: the representation property from Module 1 ($x$ is a sum of weighted, shifted impulses), time invariance (a shifted impulse gives a shifted impulse response), and linearity (weights and sums pass through).</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">The argument is three lines long and uses only what you already have: the representation property from Module 1 ($x$ is a sum of weighted, shifted impulses), time invariance (a shifted impulse gives a shifted impulse response), and linearity (weights and sums pass through).</p>`}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
     {t:'lede', text:'A saturating amplifier is time invariant but not linear. A fading radio channel is linear but not time invariant. Both are very common, and neither one has an impulse response. What does that cost you in practice? What do engineers do about it?'},
     {t:'reveal', at:2, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
-        <span style="color:#DED5C6">Both are handled by <em>local</em> LTI approximations: small-signal linearisation about an operating point for the amplifier, and block-wise time invariance over a coherence interval for the channel. The engineering question is then how long the approximation stays valid. That is a quantitative version of “how badly is the property broken”.</span></div></div>`}]}
+        <span style="color:var(--graphite)">Both are handled by <em>local</em> LTI approximations: small-signal linearisation about an operating point for the amplifier, and block-wise time invariance over a coherence interval for the channel. The engineering question is then how long the approximation stays valid. That is a quantitative version of “how badly is the property broken”.</span></div></div>`}]}
   ]}
 ]},
 
@@ -416,7 +416,7 @@ const SC = [
   keywords:'questions quiz Q2 bank module 2 exercises', steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Question bank Q2-01 … Q2-12', src:'pp. 11–14'},
   {t:'title', text:'Question bank'},
-  {t:'small', html:'Everything needed is in Modules 1–2. The wrong options are built from the two mistakes this module targets: classifying a system without a formal test, and assuming that one property implies another.'},
+  {t:'small', html:'Everything needed is in Modules 1–2. The questions target the two mistakes this module invites: classifying a system without applying a formal test, and assuming that one property implies another.'},
   {t:'qbank', module:'M2'}
 ]}
 
