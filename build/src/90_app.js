@@ -28,9 +28,21 @@ const RENDER = (() => {
   }
 
   /* ---------- glossary symbol linking ---------- */
+  /* A title attribute carries no typesetting, so the hover text is the glossary
+     description reduced to the characters KaTeX would have drawn. Without this
+     the tooltip would show the TeX source it is now written in. */
+  const SYMTITLE = {};
+  function symTitle(k){
+    if(SYMTITLE[k]==null){
+      const d = document.createElement('div');
+      d.innerHTML = md((CONTENT.GLOSS[k]||{}).d||'');
+      SYMTITLE[k] = d.textContent.replace(/\s+/g,' ').trim().replace(/"/g,'&quot;');
+    }
+    return SYMTITLE[k];
+  }
   function symLinks(html){
     return html.replace(/\{\{sym:([a-zA-Z0-9_]+)\|([^}]+)\}\}/g,
-      (m,k,label)=>`<span class="sym" data-sym="${k}" title="${(CONTENT.GLOSS[k]||{}).d||''}">${label}</span>`);
+      (m,k,label)=>`<span class="sym" data-sym="${k}" title="${symTitle(k)}">${label}</span>`);
   }
 
   /* ---------- block renderers ---------- */

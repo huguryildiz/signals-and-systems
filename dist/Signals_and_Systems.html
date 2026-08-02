@@ -1370,8 +1370,8 @@ const CONTENT = {
     conventions:{
       ctft:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt',
       dtft:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}',
-      sinc:'Unnormalised: \\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}. Stated explicitly wherever used.',
-      energy:'Normalised (R = 1 Ω) energy and power throughout.'
+      sinc:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. Stated explicitly wherever used.',
+      energy:'Normalised ($R=1\\ \\Omega$) energy and power throughout.'
     }
   },
 
@@ -1388,22 +1388,22 @@ const CONTENT = {
 
   /* ---- notation glossary; every symbol defined once, linked from prose ---- */
   GLOSS: {
-    xt:{ s:'x(t)', d:'Continuous-time signal or system input; t ∈ ℝ.', go:'m1-def' },
-    xn:{ s:'x[n]', d:'Discrete-time signal or system input; n ∈ ℤ (integer time index).', go:'m1-def' },
-    yt:{ s:'y(t), y[n]', d:'System output in continuous and discrete time.', go:'m2-abstraction' },
-    ht:{ s:'h(t), h[n]', d:'Impulse response: the output of an LTI system when the input is a unit impulse.', go:'m3-impulse' },
-    dt:{ s:'δ(t)', d:'Continuous-time unit impulse (Dirac delta). It is not an ordinary function. It is defined by its sifting action.', go:'m1-ct-impulse' },
-    dn:{ s:'δ[n]', d:'Discrete-time unit impulse: 1 at n = 0, zero elsewhere. An ordinary sequence.', go:'m1-dt-impulse' },
-    ut:{ s:'u(t)', d:'Continuous-time unit step: 1 for t ≥ 0, 0 otherwise.', go:'m1-ct-impulse' },
-    un:{ s:'u[n]', d:'Discrete-time unit step: 1 for n ≥ 0, 0 otherwise.', go:'m1-dt-impulse' },
-    Einf:{ s:'E∞', d:'Total energy over an infinite interval (R = 1 normalisation).', go:'m1-energy-inf' },
-    Pinf:{ s:'P∞', d:'Time-averaged power over an infinite interval.', go:'m1-power' },
-    T0:{ s:'T₀', d:'Fundamental period of a continuous-time periodic signal: the smallest T > 0 with x(t) = x(t+T).', go:'m1-fundamental' },
-    N0:{ s:'N₀', d:'Fundamental period of a discrete-time periodic signal: the smallest integer N > 0 with x[n] = x[n+N].', go:'m1-fundamental' },
-    w0:{ s:'ω₀', d:'Fundamental angular frequency: 2π/T₀ (rad/s) or 2π/N₀ (rad/sample).', go:'m1-fundamental' },
-    conv:{ s:'∗', d:'Convolution operator. Defined only for linear time-invariant systems.', go:'m3-convsum' },
-    Cexp:{ s:'C, a, α, β', d:'Complex exponential parameters: x(t) = C e^{at}, x[n] = C e^{βn} = C αⁿ with α = e^{β}.', go:'m1-ct-cexp' },
-    Ev:{ s:'Ev{·}, Od{·}', d:'Even and odd parts: Ev{x} = ½[x(t)+x(−t)], Od{x} = ½[x(t)−x(−t)].', go:'m1-evenodd' },
+    xt:{ s:'x(t)', d:'Continuous-time signal or system input; $t\\in\\mathbb{R}$.', go:'m1-def' },
+    xn:{ s:'x[n]', d:'Discrete-time signal or system input; $n\\in\\mathbb{Z}$ (integer time index).', go:'m1-def' },
+    yt:{ s:'y(t),\\;y[n]', d:'System output in continuous and discrete time.', go:'m2-abstraction' },
+    ht:{ s:'h(t),\\;h[n]', d:'Impulse response: the output of an LTI system when the input is a unit impulse.', go:'m3-impulse' },
+    dt:{ s:'\\delta(t)', d:'Continuous-time unit impulse (Dirac delta). It is not an ordinary function. It is defined by its sifting action.', go:'m1-ct-impulse' },
+    dn:{ s:'\\delta[n]', d:'Discrete-time unit impulse: $1$ at $n=0$, zero elsewhere. An ordinary sequence.', go:'m1-dt-impulse' },
+    ut:{ s:'u(t)', d:'Continuous-time unit step: $1$ for $t\\ge 0$, $0$ otherwise.', go:'m1-ct-impulse' },
+    un:{ s:'u[n]', d:'Discrete-time unit step: $1$ for $n\\ge 0$, $0$ otherwise.', go:'m1-dt-impulse' },
+    Einf:{ s:'E_\\infty', d:'Total energy over an infinite interval ($R=1$ normalisation).', go:'m1-energy-inf' },
+    Pinf:{ s:'P_\\infty', d:'Time-averaged power over an infinite interval.', go:'m1-power' },
+    T0:{ s:'T_0', d:'Fundamental period of a continuous-time periodic signal: the smallest $T>0$ with $x(t)=x(t+T)$.', go:'m1-fundamental' },
+    N0:{ s:'N_0', d:'Fundamental period of a discrete-time periodic signal: the smallest integer $N>0$ with $x[n]=x[n+N]$.', go:'m1-fundamental' },
+    w0:{ s:'\\omega_0', d:'Fundamental angular frequency: $2\\pi/T_0$ (rad/s) or $2\\pi/N_0$ (rad/sample).', go:'m1-fundamental' },
+    conv:{ s:'\\ast', d:'Convolution operator. Defined only for linear time-invariant systems.', go:'m3-convsum' },
+    Cexp:{ s:'C,\\;a,\\;\\alpha,\\;\\beta', d:'Complex exponential parameters: $x(t)=Ce^{at}$, $x[n]=Ce^{\\beta n}=C\\alpha^{n}$ with $\\alpha=e^{\\beta}$.', go:'m1-ct-cexp' },
+    Ev:{ s:'\\Ev\\{\\cdot\\},\\;\\Od\\{\\cdot\\}', d:'Even and odd parts: $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$.', go:'m1-evenodd' },
     S:{ s:'S', d:'System operator mapping an input signal to an output signal.', go:'m2-abstraction' }
   },
 
@@ -2411,9 +2411,21 @@ const RENDER = (() => {
   }
 
   /* ---------- glossary symbol linking ---------- */
+  /* A title attribute carries no typesetting, so the hover text is the glossary
+     description reduced to the characters KaTeX would have drawn. Without this
+     the tooltip would show the TeX source it is now written in. */
+  const SYMTITLE = {};
+  function symTitle(k){
+    if(SYMTITLE[k]==null){
+      const d = document.createElement('div');
+      d.innerHTML = md((CONTENT.GLOSS[k]||{}).d||'');
+      SYMTITLE[k] = d.textContent.replace(/\s+/g,' ').trim().replace(/"/g,'&quot;');
+    }
+    return SYMTITLE[k];
+  }
   function symLinks(html){
     return html.replace(/\{\{sym:([a-zA-Z0-9_]+)\|([^}]+)\}\}/g,
-      (m,k,label)=>`<span class="sym" data-sym="${k}" title="${(CONTENT.GLOSS[k]||{}).d||''}">${label}</span>`);
+      (m,k,label)=>`<span class="sym" data-sym="${k}" title="${symTitle(k)}">${label}</span>`);
   }
 
   /* ---------- block renderers ---------- */
@@ -6019,12 +6031,12 @@ const dtRect = (k,N,N1)=>{ const r = k/N;
   return Math.sin(2*Math.PI*k*(N1+0.5)/N)/(N*Math.sin(Math.PI*k/N)); };
 
 Object.assign(CONTENT.GLOSS, {
-  ak:{ s:'a_k', d:'Fourier series coefficient of harmonic index k. It is a complex number: |a_k| is the amplitude of the k-th harmonic and ∠a_k is its phase.', go:'m4-fs-synth' },
-  bk:{ s:'b_k', d:'Fourier series coefficient of the output of a linear time-invariant system, b_k = a_k H(jkω₀).', go:'m4-lti' },
-  Hs:{ s:'H(s)', d:'Transfer function of a continuous-time linear time-invariant system: the eigenvalue attached to the eigenfunction e^{st}.', go:'m4-eigen-ct' },
-  Hz:{ s:'H(z)', d:'Transfer function of a discrete-time linear time-invariant system: the eigenvalue attached to the eigenfunction zⁿ.', go:'m4-eigen-dt' },
-  Hjw:{ s:'H(j\\omega)', d:'Frequency response of a continuous-time system, H(s) evaluated at s = jω. It reports what the system does to the complex exponential of angular frequency ω rad/s.', go:'m4-lti' },
-  Hejw:{ s:'H(e^{j\\omega})', d:'Frequency response of a discrete-time system, H(z) evaluated at z = e^{jω}. It is periodic in ω with period 2π.', go:'m4-dt-filt' },
+  ak:{ s:'a_k', d:'Fourier series coefficient of harmonic index $k$. It is a complex number: $|a_k|$ is the amplitude of the $k$-th harmonic and $\\angle a_k$ is its phase.', go:'m4-fs-synth' },
+  bk:{ s:'b_k', d:'Fourier series coefficient of the output of a linear time-invariant system, $b_k=a_kH(jk\\omega_0)$.', go:'m4-lti' },
+  Hs:{ s:'H(s)', d:'Transfer function of a continuous-time linear time-invariant system: the eigenvalue attached to the eigenfunction $e^{st}$.', go:'m4-eigen-ct' },
+  Hz:{ s:'H(z)', d:'Transfer function of a discrete-time linear time-invariant system: the eigenvalue attached to the eigenfunction $z^{n}$.', go:'m4-eigen-dt' },
+  Hjw:{ s:'H(j\\omega)', d:'Frequency response of a continuous-time system, $H(s)$ evaluated at $s=j\\omega$. It reports what the system does to the complex exponential of angular frequency $\\omega$ rad/s.', go:'m4-lti' },
+  Hejw:{ s:'H(e^{j\\omega})', d:'Frequency response of a discrete-time system, $H(z)$ evaluated at $z=e^{j\\omega}$. It is periodic in $\\omega$ with period $2\\pi$.', go:'m4-dt-filt' },
   eigen:{ s:'\\text{eigenfunction}', d:'A signal that a system returns unchanged in shape, scaled by a constant. For every linear time-invariant system the complex exponentials are the eigenfunctions.', go:'m4-eigen-ct' },
   mse:{ s:'\\text{MSE}', d:'Mean-square error between a signal and a truncated Fourier series, averaged over one period.', go:'m4-howmany' }
 });
@@ -7655,9 +7667,9 @@ const aSq = (k,T,T1)=> k===0 ? 2*T1/T : Math.sin(2*PI*k*T1/T)/(PI*k);
 const lpfTime = (t,W)=> (W/PI)*sincU(W*t);
 
 Object.assign(CONTENT.GLOSS, {
-  Xjw:{ s:'X(j\\omega)', d:'Continuous-time Fourier transform of x(t). It is a complex function of the real angular frequency ω, in rad/s. The letter X is reserved for a signal; H is reserved for a system.', go:'m5-pair' },
-  sincf:{ s:'\\operatorname{sinc}(\\theta)', d:'Unnormalised sinc: sinc(θ) = sin θ / θ, with sinc(0) = 1 and zeros at θ = ±π, ±2π, … This course uses no other convention.', go:'m5-rect-sinc' },
-  Wband:{ s:'W', d:'Band edge of an ideal low-pass band, in rad/s: the transform is 1 for |ω| < W and 0 beyond it.', go:'m5-sinc-rect' },
+  Xjw:{ s:'X(j\\omega)', d:'Continuous-time Fourier transform of $x(t)$. It is a complex function of the real angular frequency $\\omega$, in rad/s. The letter $X$ is reserved for a signal; $H$ is reserved for a system.', go:'m5-pair' },
+  sincf:{ s:'\\operatorname{sinc}(\\theta)', d:'Unnormalised sinc: $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, with $\\operatorname{sinc}(0)=1$ and zeros at $\\theta=\\pm\\pi,\\;\\pm2\\pi,\\;\\ldots$ This course uses no other convention.', go:'m5-rect-sinc' },
+  Wband:{ s:'W', d:'Band edge of an ideal low-pass band, in rad/s: the transform is $1$ for $|\\omega|<W$ and $0$ beyond it.', go:'m5-sinc-rect' },
   wc:{ s:'\\omega_c', d:'Carrier angular frequency of an amplitude-modulated signal, in rad/s.', go:'m5-am' }
 });
 
@@ -9855,12 +9867,12 @@ const dtRect = (k,N,N1)=>{ const r=k/N;
   return Math.sin(2*PI*k*(N1+0.5)/N)/(N*Math.sin(PI*k/N)); };
 
 Object.assign(CONTENT.GLOSS, {
-  Xejw:{ s:'X(e^{j\\omega})', d:'Discrete-time Fourier transform of the sequence x[n]. It is a continuous function of ω and it repeats every 2π.', go:'m6-pair' },
-  dtftper:{ s:'2\\pi\\text{-periodicity}', d:'X(e^{j(ω+2π)}) = X(e^{jω}) for every sequence, because e^{−j2πn} = 1 at every integer n.', go:'m6-periodic' },
-  dirk:{ s:'\\frac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}', d:'Dirichlet kernel: the transform of the rectangular pulse that is 1 on −N₁ ≤ n ≤ N₁. It is real and it changes sign.', go:'m6-ex-rect' },
-  pconv:{ s:'\\circledast', d:'Periodic convolution: an integral over one period of 2π, not over all frequencies. It is what the multiplication property produces in discrete time.', go:'m6-mult' },
-  zsub:{ s:'z=e^{-j\\omega}', d:'A named algebraic variable used to run partial fractions on a discrete-time transform. Substituting a value for z is algebra in z, not an evaluation of the unit-modulus quantity e^{−jω}.', go:'m6-conv' },
-  expan:{ s:'x_{(k)}[n]', d:'Time expansion of x[n] by an integer factor k: x[n/k] when n is a multiple of k, and zero otherwise.', go:'m6-expansion' }
+  Xejw:{ s:'X(e^{j\\omega})', d:'Discrete-time Fourier transform of the sequence $x[n]$. It is a continuous function of $\\omega$ and it repeats every $2\\pi$.', go:'m6-pair' },
+  dtftper:{ s:'2\\pi\\text{-periodicity}', d:'$X(e^{j(\\omega+2\\pi)})=X(e^{j\\omega})$ for every sequence, because $e^{-j2\\pi n}=1$ at every integer $n$.', go:'m6-periodic' },
+  dirk:{ s:'\\frac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}', d:'Dirichlet kernel: the transform of the rectangular pulse that is $1$ on $-N_1\\le n\\le N_1$. It is real and it changes sign.', go:'m6-ex-rect' },
+  pconv:{ s:'\\circledast', d:'Periodic convolution: an integral over one period of $2\\pi$, not over all frequencies. It is what the multiplication property produces in discrete time.', go:'m6-mult' },
+  zsub:{ s:'z=e^{-j\\omega}', d:'A named algebraic variable used to run partial fractions on a discrete-time transform. Substituting a value for $z$ is algebra in $z$, not an evaluation of the unit-modulus quantity $e^{-j\\omega}$.', go:'m6-conv' },
+  expan:{ s:'x_{(k)}[n]', d:'Time expansion of $x[n]$ by an integer factor $k$: $x[n/k]$ when $n$ is a multiple of $k$, and zero otherwise.', go:'m6-expansion' }
 });
 
 const SC = [
@@ -11806,15 +11818,15 @@ const KCOL = k => k===0 ? C.in : (Math.abs(k)===1 ? C.mid : C.slate);
 
 Object.assign(CONTENT.GLOSS, {
   Tsamp:{ s:'T', d:'Sampling period: the time between two consecutive samples, in seconds.', go:'m7-sampler' },
-  ws:{ s:'\\omega_s', d:'Sampling angular frequency, ω_s = 2π/T, in radians per second. It is not the sampling frequency in hertz.', go:'m7-rates' },
-  fs:{ s:'f_s', d:'Sampling frequency, f_s = 1/T, in hertz. It counts samples per second, and ω_s = 2πf_s.', go:'m7-rates' },
-  wM:{ s:'\\omega_M', d:'Highest angular frequency a band-limited signal carries: X(jω) = 0 for |ω| > ω_M.', go:'m7-theorem' },
-  wc:{ s:'\\omega_c', d:'Cutoff of the reconstruction filter, in rad/s. It must satisfy ω_M < ω_c < ω_s − ω_M.', go:'m7-recon' },
-  pt:{ s:'p(t)', d:'Impulse train of period T, used as the sampling function.', go:'m7-sampler' },
-  xp:{ s:'x_p(t)', d:'Impulse-train sampled signal: an impulse at every nT whose weight is x(nT).', go:'m7-sampler' },
-  xr:{ s:'x_r(t)', d:'Output of the reconstruction filter. It equals x(t) only when the sampling theorem is satisfied.', go:'m7-recon' },
-  replica:{ s:'\\text{replica}', d:'A copy of X(jω) centred at a multiple of ω_s in the sampled spectrum. Copies appear at every sampling rate.', go:'m7-replicas' },
-  alias:{ s:'\\text{aliasing}', d:'The overlap of neighbouring copies. It happens only when ω_s < 2ω_M, and no filter can undo it.', go:'m7-aliasing' },
+  ws:{ s:'\\omega_s', d:'Sampling angular frequency, $\\omega_s=2\\pi/T$, in radians per second. It is not the sampling frequency in hertz.', go:'m7-rates' },
+  fs:{ s:'f_s', d:'Sampling frequency, $f_s=1/T$, in hertz. It counts samples per second, and $\\omega_s=2\\pi f_s$.', go:'m7-rates' },
+  wM:{ s:'\\omega_M', d:'Highest angular frequency a band-limited signal carries: $X(j\\omega)=0$ for $|\\omega|>\\omega_M$.', go:'m7-theorem' },
+  wc:{ s:'\\omega_c', d:'Cutoff of the reconstruction filter, in rad/s. It must satisfy $\\omega_M<\\omega_c<\\omega_s-\\omega_M$.', go:'m7-recon' },
+  pt:{ s:'p(t)', d:'Impulse train of period $T$, used as the sampling function.', go:'m7-sampler' },
+  xp:{ s:'x_p(t)', d:'Impulse-train sampled signal: an impulse at every $nT$ whose weight is $x(nT)$.', go:'m7-sampler' },
+  xr:{ s:'x_r(t)', d:'Output of the reconstruction filter. It equals $x(t)$ only when the sampling theorem is satisfied.', go:'m7-recon' },
+  replica:{ s:'\\text{replica}', d:'A copy of $X(j\\omega)$ centred at a multiple of $\\omega_s$ in the sampled spectrum. Copies appear at every sampling rate.', go:'m7-replicas' },
+  alias:{ s:'\\text{aliasing}', d:'The overlap of neighbouring copies. It happens only when $\\omega_s<2\\omega_M$, and no filter can undo it.', go:'m7-aliasing' },
   guard:{ s:'\\omega_s-2\\omega_M', d:'Guard band: the empty gap between the top of the baseband and the bottom of the first copy.', go:'m7-three' },
   zoh:{ s:'H_0(j\\omega)', d:'Frequency response of the zero-order hold, which holds each sample until the next one arrives.', go:'m7-zoh' },
   foh:{ s:'H_1(j\\omega)', d:'Frequency response of the first-order hold, which joins consecutive samples by a straight line.', go:'m7-foh' }
@@ -18415,18 +18427,15 @@ window.DRILL_M7 = [
   /* glossary + conventions + help panels */
   const gh = document.getElementById('glosshost');
   gh.innerHTML = Object.entries(CONTENT.GLOSS).map(([k,v])=>
-    `<div class="gitem" id="g-${k}"><div class="gs">${RENDER.tex(
-        v.s.replace(/δ/g,'\\delta').replace(/ω₀/g,'\\omega_0').replace(/T₀/g,'T_0')
-         .replace(/N₀/g,'N_0').replace(/E∞/g,'E_\\infty').replace(/P∞/g,'P_\\infty')
-         .replace(/∗/g,'*').replace(/·/g,'\\cdot'), false)}</div>
-      <div class="gd">${v.d}${v.go?` <a data-act="goto" data-id="${v.go}">go to definition →</a>`:''}</div></div>`).join('');
+    `<div class="gitem" id="g-${k}"><div class="gs">${RENDER.tex(v.s, false)}</div>
+      <div class="gd">${RENDER.md(v.d)}${v.go?` <a data-act="goto" data-id="${v.go}">go to definition →</a>`:''}</div></div>`).join('');
   document.getElementById('convhost').innerHTML = [
     ['CTFT', CONTENT.META.conventions.ctft],
     ['DTFT', CONTENT.META.conventions.dtft]
   ].map(([n,t])=>`<div class="gitem"><div class="gs"><span class="eq-label">${n}</span></div>
       <div class="gd">${RENDER.tex(t,false)}</div></div>`).join('')
-    + `<div class="gitem"><div class="gs"><span class="eq-label">sinc</span></div><div class="gd">${CONTENT.META.conventions.sinc}</div></div>`
-    + `<div class="gitem"><div class="gs"><span class="eq-label">energy</span></div><div class="gd">${CONTENT.META.conventions.energy}</div></div>`;
+    + `<div class="gitem"><div class="gs"><span class="eq-label">sinc</span></div><div class="gd">${RENDER.md(CONTENT.META.conventions.sinc)}</div></div>`
+    + `<div class="gitem"><div class="gs"><span class="eq-label">energy</span></div><div class="gd">${RENDER.md(CONTENT.META.conventions.energy)}</div></div>`;
   document.getElementById('helphost').innerHTML = [
     ['→ / space','Advance one reveal state, then one scene'],
     ['←','Step back one reveal state, then one scene'],

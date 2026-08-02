@@ -15,8 +15,8 @@ const CONTENT = {
     conventions:{
       ctft:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt',
       dtft:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}',
-      sinc:'Unnormalised: \\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}. Stated explicitly wherever used.',
-      energy:'Normalised (R = 1 Ω) energy and power throughout.'
+      sinc:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. Stated explicitly wherever used.',
+      energy:'Normalised ($R=1\\ \\Omega$) energy and power throughout.'
     }
   },
 
@@ -33,22 +33,22 @@ const CONTENT = {
 
   /* ---- notation glossary; every symbol defined once, linked from prose ---- */
   GLOSS: {
-    xt:{ s:'x(t)', d:'Continuous-time signal or system input; t ∈ ℝ.', go:'m1-def' },
-    xn:{ s:'x[n]', d:'Discrete-time signal or system input; n ∈ ℤ (integer time index).', go:'m1-def' },
-    yt:{ s:'y(t), y[n]', d:'System output in continuous and discrete time.', go:'m2-abstraction' },
-    ht:{ s:'h(t), h[n]', d:'Impulse response: the output of an LTI system when the input is a unit impulse.', go:'m3-impulse' },
-    dt:{ s:'δ(t)', d:'Continuous-time unit impulse (Dirac delta). It is not an ordinary function. It is defined by its sifting action.', go:'m1-ct-impulse' },
-    dn:{ s:'δ[n]', d:'Discrete-time unit impulse: 1 at n = 0, zero elsewhere. An ordinary sequence.', go:'m1-dt-impulse' },
-    ut:{ s:'u(t)', d:'Continuous-time unit step: 1 for t ≥ 0, 0 otherwise.', go:'m1-ct-impulse' },
-    un:{ s:'u[n]', d:'Discrete-time unit step: 1 for n ≥ 0, 0 otherwise.', go:'m1-dt-impulse' },
-    Einf:{ s:'E∞', d:'Total energy over an infinite interval (R = 1 normalisation).', go:'m1-energy-inf' },
-    Pinf:{ s:'P∞', d:'Time-averaged power over an infinite interval.', go:'m1-power' },
-    T0:{ s:'T₀', d:'Fundamental period of a continuous-time periodic signal: the smallest T > 0 with x(t) = x(t+T).', go:'m1-fundamental' },
-    N0:{ s:'N₀', d:'Fundamental period of a discrete-time periodic signal: the smallest integer N > 0 with x[n] = x[n+N].', go:'m1-fundamental' },
-    w0:{ s:'ω₀', d:'Fundamental angular frequency: 2π/T₀ (rad/s) or 2π/N₀ (rad/sample).', go:'m1-fundamental' },
-    conv:{ s:'∗', d:'Convolution operator. Defined only for linear time-invariant systems.', go:'m3-convsum' },
-    Cexp:{ s:'C, a, α, β', d:'Complex exponential parameters: x(t) = C e^{at}, x[n] = C e^{βn} = C αⁿ with α = e^{β}.', go:'m1-ct-cexp' },
-    Ev:{ s:'Ev{·}, Od{·}', d:'Even and odd parts: Ev{x} = ½[x(t)+x(−t)], Od{x} = ½[x(t)−x(−t)].', go:'m1-evenodd' },
+    xt:{ s:'x(t)', d:'Continuous-time signal or system input; $t\\in\\mathbb{R}$.', go:'m1-def' },
+    xn:{ s:'x[n]', d:'Discrete-time signal or system input; $n\\in\\mathbb{Z}$ (integer time index).', go:'m1-def' },
+    yt:{ s:'y(t),\\;y[n]', d:'System output in continuous and discrete time.', go:'m2-abstraction' },
+    ht:{ s:'h(t),\\;h[n]', d:'Impulse response: the output of an LTI system when the input is a unit impulse.', go:'m3-impulse' },
+    dt:{ s:'\\delta(t)', d:'Continuous-time unit impulse (Dirac delta). It is not an ordinary function. It is defined by its sifting action.', go:'m1-ct-impulse' },
+    dn:{ s:'\\delta[n]', d:'Discrete-time unit impulse: $1$ at $n=0$, zero elsewhere. An ordinary sequence.', go:'m1-dt-impulse' },
+    ut:{ s:'u(t)', d:'Continuous-time unit step: $1$ for $t\\ge 0$, $0$ otherwise.', go:'m1-ct-impulse' },
+    un:{ s:'u[n]', d:'Discrete-time unit step: $1$ for $n\\ge 0$, $0$ otherwise.', go:'m1-dt-impulse' },
+    Einf:{ s:'E_\\infty', d:'Total energy over an infinite interval ($R=1$ normalisation).', go:'m1-energy-inf' },
+    Pinf:{ s:'P_\\infty', d:'Time-averaged power over an infinite interval.', go:'m1-power' },
+    T0:{ s:'T_0', d:'Fundamental period of a continuous-time periodic signal: the smallest $T>0$ with $x(t)=x(t+T)$.', go:'m1-fundamental' },
+    N0:{ s:'N_0', d:'Fundamental period of a discrete-time periodic signal: the smallest integer $N>0$ with $x[n]=x[n+N]$.', go:'m1-fundamental' },
+    w0:{ s:'\\omega_0', d:'Fundamental angular frequency: $2\\pi/T_0$ (rad/s) or $2\\pi/N_0$ (rad/sample).', go:'m1-fundamental' },
+    conv:{ s:'\\ast', d:'Convolution operator. Defined only for linear time-invariant systems.', go:'m3-convsum' },
+    Cexp:{ s:'C,\\;a,\\;\\alpha,\\;\\beta', d:'Complex exponential parameters: $x(t)=Ce^{at}$, $x[n]=Ce^{\\beta n}=C\\alpha^{n}$ with $\\alpha=e^{\\beta}$.', go:'m1-ct-cexp' },
+    Ev:{ s:'\\Ev\\{\\cdot\\},\\;\\Od\\{\\cdot\\}', d:'Even and odd parts: $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$.', go:'m1-evenodd' },
     S:{ s:'S', d:'System operator mapping an input signal to an output signal.', go:'m2-abstraction' }
   },
 
