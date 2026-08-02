@@ -50,7 +50,13 @@ CONTENT.DRILLTYPES.M3 = [
             'Stable exactly when $\\sum_n|h[n]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.',
             'A one-sided geometric or exponential is summable only when it decays away from its edge.',
             'The two properties are independent. Neither implies the other.'],
-    go:'m3-lti-props' }
+    go:'m3-lti-props' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'One system, its impulse response, and its response to a given input, in that order.',
+    method:['Find $h$ first, whatever else the question asks. Every later part is a convolution against it, and an error here reaches all of them.',
+            'To read $h$ off a difference equation, feed the equation an impulse and iterate; to read it off a pair of plots, match the widths first, because the width of $h$ is the width of $y$ minus the width of $x$.',
+            'Convolve by whichever route is shorter: against a sum of impulses, shift and scale a copy of $h$ for each one; against a pulse, slide and integrate.',
+            'Check the total before checking the shape. In discrete time $\\sum_n y[n]=\\left(\\sum_n x[n]\\right)\\left(\\sum_n h[n]\\right)$, and the areas multiply the same way in continuous time.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -527,7 +533,224 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.note(2.4,0.27,'0.25',{anchor:'end',color:C.muted,fs:14});
     return a.svg();},
   err:'Writing $s(t)=1-e^{-4t}$ without the factor $\\tfrac14$, by forgetting that integrating $e^{-4t}$ brings down a factor of $1/4$, not $1$.',
-  teach:'Ask the student to state the discrete-time analogue from the previous question, $h[n]=s[n]-s[n-1]$, next to $h(t)=\\d s/\\d t$, side by side. A difference and a derivative are the same idea, once and for all, in the two settings the module keeps separate.' }
+  teach:'Ask the student to state the discrete-time analogue from the previous question, $h[n]=s[n]-s[n-1]$, next to $h(t)=\\d s/\\d t$, side by side. A difference and a derivative are the same idea, once and for all, in the two settings the module keeps separate.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. The impulse response first, the convolution
+   after it, and the sum rule as the check on both.
+   ---------------------------------------------------------------------- */
+
+{ id:'D3-21', module:'M3', type:'full', src:'MT1 Q3',
+  stem:'The input and output relationship of an LTI system is described as$$y[n]=3x[n]+x[n-2]+2x[n-3].$$',
+  parts:['Determine and plot the impulse response of this LTI system, $h[n]$.',
+         'For the input signal $x[n]=\\sum_{k=-1}^{2}k\\,\\delta[n-2k]$, compute and plot the output signal $y[n]=x[n]*h[n]$, using the discrete-time convolution.'],
+  sol:'<b>Given.</b> A three-term moving average with weights $3$, $1$ and $2$ at lags $0$, $2$ and $3$.<br>'
+     +'<b>Find.</b> The impulse response, and the response to a sum of four scaled impulses.<br>'
+     +'<b>Method.</b> Feed the system $\\delta[n]$ to get $h[n]$. Then use linearity and time invariance: each impulse in the input produces a scaled and shifted copy of $h$, and the copies add.<br>'
+     +'<b>Solution — part (a).</b> Setting $x[n]=\\delta[n]$ leaves one term from each lag:$$h[n]=3\\delta[n]+\\delta[n-2]+2\\delta[n-3],$$so $h[0]=3$, $h[2]=1$, $h[3]=2$, and zero elsewhere.<br>'
+     +'<b>Solution — part (b).</b> Write the input out. With $k$ running over $-1,0,1,2$ and the impulse sitting at $n=2k$,$$x[n]=-\\delta[n+2]+0\\cdot\\delta[n]+\\delta[n-2]+2\\delta[n-4],$$so $x[-2]=-1$, $x[2]=1$, $x[4]=2$, and zero elsewhere; the $k=0$ term vanishes because its weight is zero. Each surviving impulse contributes a copy of $h$:$$y[n]=-h[n+2]+h[n-2]+2h[n-4].$$Reading the three copies off $h$ and adding index by index,$$y[-2]=-3,\\;y[0]=-1,\\;y[1]=-2,\\;y[2]=3,\\;y[4]=7,\\;y[5]=2,\\;y[6]=2,\\;y[7]=4,$$and zero elsewhere. The value at $n=4$ is the only one where two copies overlap: $h[2]=1$ from the second copy and $2h[0]=6$ from the third.<br>'
+     +'<b>Check.</b> The sum rule settles it in one line. The input samples add to $-1+1+2=2$ and the impulse response to $3+1+2=6$, so the output must add to $12$:$$-3-1-2+3+7+2+2+4=12.$$The support agrees too: $x$ runs from $-2$ to $4$ and $h$ from $0$ to $3$, so $y$ must live on $-2\\le n\\le7$, and it does.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,4.6],yr:[-0.6,3.6],xlabel:'n',ylabel:'h[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,3],[2,1],[3,2]],{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.6,8.6],yr:[-3.8,7.8],xlabel:'n',ylabel:'y[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:2,ystep:2});
+      a.stem([[-2,-3],[0,-1],[1,-2],[2,3],[4,7],[5,2],[6,2],[7,4]],{color:C.out}); return a.svg();})()),
+  err:'Reading $\\sum_{k=-1}^{2}k\\,\\delta[n-2k]$ as four impulses at $n=-1,0,1,2$ with weight $k$. The impulse sits at $n=2k$, so the locations are $-2,0,2,4$ and they are two apart, not one.',
+  teach:'The sum rule is the check to insist on here, because it costs one line and catches almost every arithmetic slip in a convolution. Ask for it before the plot is drawn.' },
+
+{ id:'D3-22', module:'M3', type:'full', src:'MT1 Q3',
+  stem:'In the figure below, the signal $x[n]$ is input into a linear time-invariant (LTI) system, resulting in $y[n]$ as the output.',
+  parts:['Determine and plot the impulse response of this LTI system, $h[n]$. <em>Hint: attempt to express $y[n]$ as a function of $x[n]$.</em>',
+         'Given the input signal $x_1[n]=2\\delta[n+1]-\\delta[n]+\\delta[n-2]$, sketch the output signal $y_1[n]=x_1[n]*h[n]$, using the discrete-time convolution.'],
+  figure:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-1.6,4.6],yr:[-0.6,3.8],xlabel:'n',ylabel:'x[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,3],[2,1]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-1.6,4.6],yr:[-0.6,7.8],xlabel:'n',ylabel:'y[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:2});
+      a.stem([[0,1],[1,5],[2,7],[3,2]],{color:C.out}); return a.svg();})()),
+  sol:'<b>Given.</b> $x[n]$ with samples $1,3,1$ at $n=0,1,2$, and $y[n]$ with samples $1,5,7,2$ at $n=0,1,2,3$.<br>'
+     +'<b>Find.</b> The impulse response, and the response to a second input.<br>'
+     +'<b>Method.</b> Match the supports first. If $x$ occupies $N_x$ samples and $y$ occupies $N_y$, then $h$ occupies $N_y-N_x+1$. Then solve for the samples of $h$ one at a time, starting from the earliest.<br>'
+     +'<b>Solution — part (a).</b> $x$ occupies three samples and $y$ four, so $h$ occupies $4-3+1=2$ samples, beginning at $n=0$ because $y$ and $x$ both begin there. Write $h[0]=a$ and $h[1]=b$. The convolution gives, in order,$$y[0]=x[0]h[0]=a=1,$$$$y[1]=x[1]h[0]+x[0]h[1]=3+b=5\\;\\Rightarrow\\;b=2.$$So$$h[n]=\\delta[n]+2\\delta[n-1],$$that is, $y[n]=x[n]+2x[n-1]$.<br>'
+     +'<b>Solution — part (b).</b> Apply that relation to $x_1$, which has $x_1[-1]=2$, $x_1[0]=-1$, $x_1[2]=1$:$$y_1[n]=x_1[n]+2x_1[n-1],$$giving $y_1[-1]=2$, $y_1[0]=-1+4=3$, $y_1[1]=0-2=-2$, $y_1[2]=1$, $y_1[3]=2$, and zero elsewhere.<br>'
+     +'<b>Check.</b> The two remaining samples of $y$ were not used to find $h$, so they are a free test: $y[2]=x[2]h[0]+x[1]h[1]=1+6=7$ and $y[3]=x[2]h[1]=2$, both matching the plot. For part (b) the sum rule gives $\\left(\\sum x_1\\right)\\left(\\sum h\\right)=2\\cdot3=6$, and $2+3-2+1+2=6$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,3.6],yr:[-0.6,2.6],xlabel:'n',ylabel:'h[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,2]],{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,4.6],yr:[-2.8,3.8],xlabel:'n',ylabel:'y_1[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[-1,2],[0,3],[1,-2],[2,1],[3,2]],{color:C.out}); return a.svg();})()),
+  err:'Guessing $h$ from the ratio of the peaks, $7/3$, instead of solving the convolution equations in order. Only the first equation involves a single unknown; every later one has to be solved after the ones before it.',
+  teach:'The width rule, $N_h=N_y-N_x+1$, is worth stating as a rule and not as an observation. It tells the student how many unknowns to expect before any algebra starts, and it catches the case where the given plots are not consistent with any LTI system at all.' },
+
+{ id:'D3-23', module:'M3', type:'full', src:'MT1 Q3',
+  stem:'The input and output relationship of an LTI system is described as$$y[n]=\\tfrac13y[n-1]+x[n].$$',
+  parts:['Determine and plot the impulse response of this LTI system, $h[n]$.',
+         'For the input signal $x[n]=u[n]$, compute and plot the output signal $y[n]=x[n]*h[n]$, using the discrete-time convolution.'],
+  sol:'<b>Given.</b> A first-order recursive system with feedback coefficient $\\tfrac13$, at rest before the input arrives.<br>'
+     +'<b>Find.</b> The impulse response and the step response.<br>'
+     +'<b>Method.</b> Feed the difference equation an impulse and iterate from rest. Then convolve with the step, which for a causal $h$ is a running sum.<br>'
+     +'<b>Solution — part (a).</b> With $x[n]=\\delta[n]$ and $h[n]=0$ for $n<0$,$$h[0]=\\tfrac13\\cdot0+1=1,\\quad h[1]=\\tfrac13,\\quad h[2]=\\tfrac19,\\quad h[3]=\\tfrac1{27},$$and the pattern is clear:$$h[n]=\\left(\\tfrac13\\right)^{n}u[n].$$'
+     +'<b>Solution — part (b).</b> Convolving with the step accumulates $h$:$$y[n]=\\sum_{k=-\\infty}^{\\infty}u[k]h[n-k]=\\sum_{m=0}^{n}\\left(\\tfrac13\\right)^{m}\\quad(n\\ge0),$$a finite geometric series. Summing it,$$y[n]=\\frac{1-\\left(\\tfrac13\\right)^{n+1}}{1-\\tfrac13}=\\frac32\\left[1-\\left(\\tfrac13\\right)^{n+1}\\right]u[n].$$The first values are $y[0]=1$, $y[1]=\\tfrac43$, $y[2]=\\tfrac{13}{9}$, and the sequence climbs to $\\tfrac32$.<br>'
+     +'<b>Check.</b> Two independent tests. The difference equation itself must hold: $y[1]=\\tfrac13y[0]+1=\\tfrac13+1=\\tfrac43$, as found. And the final value must be $\\sum_n h[n]=\\dfrac{1}{1-\\tfrac13}=\\tfrac32$, which is the limit of $y[n]$ — the response to a step settles at the total area of the impulse response, and here it does.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,7.6],yr:[-0.2,1.3],xlabel:'n',ylabel:'h[n]',
+      pad:{l:50,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,1],[1,1/3],[2,1/9],[3,1/27],[4,1/81],[5,1/243],[6,1/729],[7,1/2187]],{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,7.6],yr:[-0.2,1.8],xlabel:'n',ylabel:'y[n]',
+      pad:{l:50,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,1],[1,4/3],[2,13/9],[3,40/27],[4,121/81],[5,364/243],[6,1093/729],[7,3280/2187]],{color:C.out});
+      return a.svg();})()),
+  err:'Reporting the step response as $\\tfrac32\\left[1-\\left(\\tfrac13\\right)^{n}\\right]$, with $n$ in place of $n+1$. That expression gives $y[0]=0$, but the system passes the input straight through at $n=0$, so $y[0]=1$.',
+  teach:'The final-value check is the one to teach as a habit. A student who knows that the step response settles at $\\sum h[n]$ can test any answer of this kind in a single line, and the test catches an off-by-one in the exponent immediately.' },
+
+{ id:'D3-24', module:'M3', type:'full', src:'MT1 Q4',
+  stem:'Let $x(t)=e^{-2|t|}[u(t+1)-u(t-1)]$ be an input to the LTI system which has the following impulse response, $h(t)=u(t)$. Compute and plot the output signal $y(t)=x(t)*h(t)$, using the continuous-time convolution.',
+  parts:['Write the convolution integral and identify the ranges of $t$ that need separate treatment.',
+         'Evaluate the integral on each range and plot $y(t)$.'],
+  sol:'<b>Given.</b> A two-sided decaying pulse cut off outside $|t|<1$, driving an integrator.<br>'
+     +'<b>Find.</b> The output of the convolution.<br>'
+     +'<b>Method.</b> With $h(t)=u(t)$ the convolution is a running integral,$$y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)u(t-\\tau)\\,\\d\\tau=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau.$$The input has three pieces — nothing below $\\tau=-1$, a rising exponential $e^{2\\tau}$ on $-1<\\tau<0$, a falling one $e^{-2\\tau}$ on $0<\\tau<1$, nothing above — so the answer has four ranges.<br>'
+     +'<b>Solution — part (a).</b> The breakpoints of the integral are the edges of the support and the kink at the origin, so the ranges are $t<-1$, $-1\\le t<0$, $0\\le t<1$ and $t\\ge1$.<br>'
+     +'<b>Solution — part (b).</b> On $t<-1$ nothing has been accumulated, so $y(t)=0$. On $-1\\le t<0$,$$y(t)=\\int_{-1}^{t}e^{2\\tau}\\,\\d\\tau=\\tfrac12\\left(e^{2t}-e^{-2}\\right).$$At $t=0$ this has reached $\\tfrac12\\left(1-e^{-2}\\right)$. On $0\\le t<1$ the falling half is added,$$y(t)=\\tfrac12\\left(1-e^{-2}\\right)+\\int_{0}^{t}e^{-2\\tau}\\,\\d\\tau=\\tfrac12\\left(1-e^{-2}\\right)+\\tfrac12\\left(1-e^{-2t}\\right).$$For $t\\ge1$ the input is exhausted and the integral holds its value,$$y(t)=1-e^{-2}\\approx0.8647.$$'
+     +'<b>Check.</b> The final value must be the total area under $x$, and it is:$$\\int_{-1}^{1}e^{-2|\\tau|}\\,\\d\\tau=2\\int_{0}^{1}e^{-2\\tau}\\,\\d\\tau=1-e^{-2},$$matching the plateau. The two pieces also join without a jump: at $t=0$ both expressions give $\\tfrac12\\left(1-e^{-2}\\right)\\approx0.4323$, and at $t=1$ the second gives $\\tfrac12\\left(1-e^{-2}\\right)+\\tfrac12\\left(1-e^{-2}\\right)=1-e^{-2}$, the plateau again. The output is continuous everywhere and rises fastest at $t=0$, where the input is largest.',
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-2.4,3.4],yr:[-0.1,1.05],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:0.25});
+    a.curve(t=> t<-1 ? 0 : t<0 ? 0.5*(Math.exp(2*t)-Math.exp(-2))
+            : t<1 ? 0.5*(1-Math.exp(-2))+0.5*(1-Math.exp(-2*t)) : 1-Math.exp(-2),
+      {color:C.out}); return a.svg();},
+  err:'Treating $e^{-2|t|}$ as $e^{-2t}$ over the whole support. The exponent is $+2\\tau$ on the left half, and using $-2\\tau$ there makes the integral diverge at the lower limit instead of giving a finite rise.',
+  teach:'The final value is the check worth teaching, because it holds for every input driven into an integrator: the output settles at the area of the input. A student who computes that area first has an answer to test the whole calculation against.' },
+
+{ id:'D3-25', module:'M3', type:'full', src:'MT1 Q4',
+  stem:'Let $$x(t)=\\begin{cases}e^{-3t},&0\\le t\\le1\\\\0,&\\text{otherwise}\\end{cases}$$be an input to the LTI system which has the following impulse response, $h(t)=u(t)-u(t-2)$. Compute the output signal $y(t)=x(t)*h(t)$, using the continuous-time convolution.',
+  parts:['Identify the ranges of $t$ over which the overlap of $x(\\tau)$ and $h(t-\\tau)$ changes.',
+         'Evaluate the convolution integral on each range and plot $y(t)$.'],
+  sol:'<b>Given.</b> A decaying pulse of length $1$ driving a rectangular impulse response of length $2$.<br>'
+     +'<b>Find.</b> The output of the convolution.<br>'
+     +'<b>Method.</b> Write $y(t)=\\int x(\\tau)h(t-\\tau)\\,\\d\\tau$. The window $h(t-\\tau)$ equals $1$ for $t-2\\le\\tau\\le t$ and is zero elsewhere, so$$y(t)=\\int_{\\max(0,\\,t-2)}^{\\min(1,\\,t)}e^{-3\\tau}\\,\\d\\tau,$$and the ranges are decided by which of the two limits is active.<br>'
+     +'<b>Solution — part (a).</b> The window is $2$ long and the pulse $1$ long, so there are four ranges: no overlap for $t<0$; the window entering, $0\\le t<1$; the window covering the whole pulse, $1\\le t<2$; the window leaving, $2\\le t<3$; and no overlap again for $t\\ge3$.<br>'
+     +'<b>Solution — part (b).</b> On $0\\le t<1$ the limits are $0$ and $t$:$$y(t)=\\int_{0}^{t}e^{-3\\tau}\\,\\d\\tau=\\tfrac13\\left(1-e^{-3t}\\right).$$On $1\\le t<2$ the window covers the pulse entirely, so$$y(t)=\\int_{0}^{1}e^{-3\\tau}\\,\\d\\tau=\\tfrac13\\left(1-e^{-3}\\right)\\approx0.3167,$$a plateau. On $2\\le t<3$ the lower limit becomes $t-2$:$$y(t)=\\int_{t-2}^{1}e^{-3\\tau}\\,\\d\\tau=\\tfrac13\\left(e^{-3(t-2)}-e^{-3}\\right).$$Outside $0\\le t<3$ the output is zero.<br>'
+     +'<b>Check.</b> The pieces must join. At $t=1$ the first gives $\\tfrac13\\left(1-e^{-3}\\right)$, the plateau. At $t=2$ the third gives $\\tfrac13\\left(e^{0}-e^{-3}\\right)$, the plateau again. At $t=3$ it gives $\\tfrac13\\left(e^{-3}-e^{-3}\\right)=0$, so the output closes. The support is right too: convolution adds the supports, $[0,1]+[0,2]=[0,3]$, which is where the answer lives.',
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-1.2,4.4],yr:[-0.04,0.4],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.1});
+    a.curve(t=> t<0 ? 0 : t<1 ? (1-Math.exp(-3*t))/3
+            : t<2 ? (1-Math.exp(-3))/3 : t<3 ? (Math.exp(-3*(t-2))-Math.exp(-3))/3 : 0,
+      {color:C.out}); return a.svg();},
+  err:'Using three ranges instead of four, by assuming the window enters and leaves without ever covering the pulse completely. The window is longer than the pulse, so there is a stretch where the whole pulse is inside it and the output is flat.',
+  teach:'Ask what happens if $h$ is shortened to $u(t)-u(t-0.5)$. The plateau disappears and the plateau range is replaced by a sliding one, which is the case where the shorter signal is the impulse response. Seeing both settles which signal decides the flat stretch.' },
+
+{ id:'D3-26', module:'M3', type:'full', src:'MT1 Q4',
+  stem:'The $x(t)$ signal sketched below is an input to the LTI system with the impulse response $h(t)$, also sketched below. Compute and plot the output signal $y(t)=x(t)*h(t)$, using the continuous-time convolution.',
+  parts:['Write $h(t)$ in terms of step functions and give its running integral.',
+         'Evaluate the convolution and plot $y(t)$.'],
+  figure:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-2.4,3.4],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.poly([[-2.4,0],[0,0],[0,2],[2,2],[2,0],[3.4,0]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-2.4,2.4],yr:[-1.6,1.6],xlabel:'t\\;(\\text{s})',ylabel:'h(t)',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.poly([[-2.4,0],[-1,0],[-1,1],[0,1],[0,-1],[1,-1],[1,0],[2.4,0]],{color:C.h}); return a.svg();})()),
+  sol:'<b>Given.</b> A rectangular input of height $2$ on $0<t<2$, and an impulse response that is $+1$ on $-1<t<0$ and $-1$ on $0<t<1$.<br>'
+     +'<b>Find.</b> The output of the convolution.<br>'
+     +'<b>Method.</b> A rectangular input makes the convolution a difference of running integrals of $h$. Writing $H(t)=\\int_{-\\infty}^{t}h(s)\\,\\d s$ and substituting $s=t-\\tau$,$$y(t)=2\\int_{0}^{2}h(t-\\tau)\\,\\d\\tau=2\\int_{t-2}^{t}h(s)\\,\\d s=2\\left[H(t)-H(t-2)\\right].$$'
+     +'<b>Solution — part (a).</b> In step form,$$h(t)=u(t+1)-2u(t)+u(t-1),$$and integrating,$$H(t)=\\begin{cases}0,&t<-1\\\\t+1,&-1\\le t<0\\\\1-t,&0\\le t<1\\\\0,&t\\ge1,\\end{cases}$$a triangle of height $1$ centred at the origin. Its total area is zero, which is why $H$ returns to zero.<br>'
+     +'<b>Solution — part (b).</b> Taking $2[H(t)-H(t-2)]$ range by range:$$y(t)=\\begin{cases}2t+2,&-1\\le t<0\\\\2-2t,&0\\le t<1\\\\2-2t,&1\\le t<2\\\\2t-6,&2\\le t<3\\\\0,&\\text{otherwise.}\\end{cases}$$The middle two lines are the same expression, so the output is a triangle rising to $2$ at $t=0$, falling through zero at $t=1$, reaching $-2$ at $t=2$, and returning to zero at $t=3$.<br>'
+     +'<b>Check.</b> The areas multiply: $x$ has area $2\\cdot2=4$ and $h$ has area $1-1=0$, so $y$ must have area zero. It does — the positive triangle on $[-1,1]$ has area $\\tfrac12\\cdot2\\cdot2=2$ and the negative one on $[1,3]$ has area $-2$. The support is right as well: $[0,2]+[-1,1]=[-1,3]$.',
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-2.2,4.2],yr:[-2.8,2.8],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-2.2,0],[-1,0],[0,2],[2,-2],[3,0],[4.2,0]],{color:C.out}); return a.svg();},
+  err:'Reporting a support of $[0,3]$ by forgetting that $h$ begins at $t=-1$. The impulse response is not causal here, so the output starts before the input does, and the support runs from $-1$.',
+  teach:'The area check is unusually informative in this question, because $h$ has zero area. Any answer whose positive and negative parts do not cancel exactly is wrong, and a student can see that before evaluating a single integral.' },
+
+{ id:'D3-27', module:'M3', type:'full', src:'Final Q1',
+  stem:'Consider a discrete-time <em>causal</em> LTI system where the output signal $y[n]$ is obtained when the input signal $x[n]$ is applied to this system. Both are plotted below.',
+  parts:['Calculate and plot the impulse response of this LTI system.',
+         'Determine and plot the output signal if the input signal is defined as $x_2[n]=(-1)^{n}$ for $0\\le n\\le3$, and zero otherwise.'],
+  figure:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-1.6,4.6],yr:[-0.6,3.8],xlabel:'n',ylabel:'x[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,1]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:230,xr:[-1.6,4.6],yr:[-0.6,3.8],xlabel:'n',ylabel:'y[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,3],[2,2]],{color:C.out}); return a.svg();})()),
+  sol:'<b>Given.</b> $x[n]=\\delta[n]+\\delta[n-1]$, and $y[n]$ with samples $1,3,2$ at $n=0,1,2$. The system is causal and LTI.<br>'
+     +'<b>Find.</b> The impulse response, and the response to a second input.<br>'
+     +'<b>Method.</b> Causality puts $h[n]=0$ for $n<0$, so the first output sample comes from the first input sample alone. Solve the convolution equations forwards.<br>'
+     +'<b>Solution — part (a).</b> With $x[0]=x[1]=1$,$$y[0]=h[0]=1,$$$$y[1]=h[1]+h[0]=3\\;\\Rightarrow\\;h[1]=2,$$$$y[2]=h[2]+h[1]=2\\;\\Rightarrow\\;h[2]=0.$$Every later equation gives $h[n]=-h[n-1]$ with $h[2]=0$, so all remaining samples vanish and$$h[n]=\\delta[n]+2\\delta[n-1].$$'
+     +'<b>Solution — part (b).</b> The relation is $y[n]=x[n]+2x[n-1]$. With $x_2=\\{1,-1,1,-1\\}$ on $0\\le n\\le3$,$$y_2[0]=1,\\;y_2[1]=-1+2=1,\\;y_2[2]=1-2=-1,\\;y_2[3]=-1+2=1,\\;y_2[4]=0-2=-2,$$and zero elsewhere.<br>'
+     +'<b>Check.</b> The sum rule holds in both parts. In (a), $\\sum x=2$ and $\\sum y=6$, so $\\sum h$ must be $3$, and $1+2=3$. In (b), $\\sum x_2=0$, so $\\sum y_2$ must be zero: $1+1-1+1-2=0$. The support is right too, $[0,3]+[0,1]=[0,4]$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,3.6],yr:[-0.6,2.6],xlabel:'n',ylabel:'h[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,2]],{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,5.6],yr:[-2.8,1.8],xlabel:'n',ylabel:'y_2[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[0,1],[1,1],[2,-1],[3,1],[4,-2]],{color:C.out}); return a.svg();})()),
+  err:'Stopping at $h[2]=0$ and assuming the impulse response ends there without saying why. The equations continue, and it is because $y[n]=0$ for $n\\ge3$ together with $h[2]=0$ that every later sample is forced to zero as well.',
+  teach:'Causality is what makes this question solvable, and it is worth saying so. Without it $h$ could start at any negative index and the equations would have no unique solution.' },
+
+{ id:'D3-28', module:'M3', type:'full', src:'Final Q1',
+  stem:'Consider two discrete-time systems with input $x[n]$ and output $y[n]$, each defined by a difference equation and each initially at rest:$$\\text{S}_1:\\;y[n]=x[n]+2y[n-1],\\qquad\\text{S}_2:\\;y[n]=x[n]+\\tfrac12y[n-1].$$',
+  parts:['Plot the impulse response of $\\text{S}_1$.',
+         'For the impulse response obtained in part (a), state whether the system is stable or not.',
+         'Repeat both parts for $\\text{S}_2$, and say what decides the difference.'],
+  sol:'<b>Given.</b> Two first-order recursions differing only in the feedback coefficient, $2$ against $\\tfrac12$.<br>'
+     +'<b>Find.</b> Both impulse responses, and the stability of each.<br>'
+     +'<b>Method.</b> Iterate each equation from rest with $x[n]=\\delta[n]$. Then test $\\sum_n|h[n]|<\\infty$, which is stability for an LTI system.<br>'
+     +'<b>Solution — part (a).</b> For $\\text{S}_1$, starting from $h[n]=0$ for $n<0$,$$h[0]=1,\\;h[1]=2,\\;h[2]=4,\\;h[3]=8,$$so$$h_1[n]=2^{n}u[n],$$a one-sided geometric sequence that grows.<br>'
+     +'<b>Solution — part (b).</b> <b>Not stable.</b>$$\\sum_{n=0}^{\\infty}\\left|2^{n}\\right|=\\sum_{n=0}^{\\infty}2^{n}=\\infty,$$so the absolute sum diverges. Concretely, the bounded input $x[n]=\\delta[n]$ already produces an output that grows without bound.<br>'
+     +'<b>Solution — part (c).</b> For $\\text{S}_2$ the same iteration gives $h_2[n]=\\left(\\tfrac12\\right)^{n}u[n]$, and$$\\sum_{n=0}^{\\infty}\\left(\\tfrac12\\right)^{n}=\\frac{1}{1-\\tfrac12}=2<\\infty,$$so $\\text{S}_2$ is <b>stable</b>. What decides the difference is the magnitude of the feedback coefficient: a one-sided geometric sequence $a^{n}u[n]$ is absolutely summable exactly when $|a|<1$. At $|a|=1$ the sum still diverges, so the boundary case $y[n]=x[n]+y[n-1]$ — the accumulator, with $h[n]=u[n]$ — is unstable too.<br>'
+     +'<b>Check.</b> Both impulse responses satisfy their own difference equations: for $\\text{S}_1$, $h[3]=0+2h[2]=8$; for $\\text{S}_2$, $h[3]=0+\\tfrac12h[2]=\\tfrac18$. And the stable one has a finite total, $2$, which is also the value its step response settles at — a number the unstable system has no counterpart for.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,5.6],yr:[-2,34],xlabel:'n',ylabel:'h_1[n]',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:8});
+      a.stem([[0,1],[1,2],[2,4],[3,8],[4,16],[5,32]],{color:C.err}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,5.6],yr:[-0.15,1.2],xlabel:'n',ylabel:'h_2[n]',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,1],[1,0.5],[2,0.25],[3,0.125],[4,0.0625],[5,0.03125]],{color:C.h}); return a.svg();})()),
+  err:'Calling $\\text{S}_1$ stable because every individual sample $2^{n}$ is finite. Stability asks for a bound that holds for all $n$ at once, and no finite bound holds for a sequence that doubles at every step.',
+  teach:'The boundary case is the one to add out loud. Students remember $|a|<1$ as the condition and often assume $|a|=1$ is the harmless edge; the accumulator shows it is not, and it is the system they meet most often.' },
+
+{ id:'D3-29', module:'M3', type:'full', src:'MT1 Q3',
+  stem:'An LTI system has the impulse response $h[n]=\\delta[n]-\\delta[n-2]$.',
+  parts:['Write the input-output difference equation of the system.',
+         'For the input $x[n]=u[n]-u[n-4]$, compute and plot the output $y[n]=x[n]*h[n]$.',
+         'State whether the system is causal and whether it is stable.'],
+  sol:'<b>Given.</b> A two-tap impulse response with weights $+1$ at lag $0$ and $-1$ at lag $2$.<br>'
+     +'<b>Find.</b> The difference equation, one convolution, and two properties.<br>'
+     +'<b>Method.</b> Each non-zero sample of $h$ is one term of the difference equation. The input is a rectangular pulse of four samples, so the convolution is a difference of two shifted copies of it.<br>'
+     +'<b>Solution — part (a).</b> Reading the taps off $h$,$$y[n]=x[n]-x[n-2].$$'
+     +'<b>Solution — part (b).</b> The input has $x[n]=1$ for $0\\le n\\le3$ and zero elsewhere. Then $y[n]=x[n]-x[n-2]$ gives$$y[0]=1,\\;y[1]=1,\\;y[2]=1-1=0,\\;y[3]=1-1=0,\\;y[4]=0-1=-1,\\;y[5]=0-1=-1,$$and zero elsewhere. The system passes the two edges of the pulse and cancels its flat interior.<br>'
+     +'<b>Solution — part (c).</b> <b>Causal</b>, since $h[n]=0$ for $n<0$; the output uses only $x[n]$ and $x[n-2]$. <b>Stable</b>, since $\\sum_n|h[n]|=1+1=2<\\infty$.<br>'
+     +'<b>Check.</b> The sum rule confirms the cancellation: $\\sum x=4$ and $\\sum h=1-1=0$, so $\\sum y$ must be zero, and $1+1+0+0-1-1=0$. The support is right too, $[0,3]+[0,2]=[0,5]$. That the interior of the pulse comes out flat at zero is the expected behaviour of a difference operator: it responds to change and ignores constancy.',
+  figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-1.6,7.6],yr:[-1.8,1.8],xlabel:'n',ylabel:'y[n]',
+      pad:{l:50,r:28,t:30,b:34},xstep:1,ystep:1});
+    a.stem([[0,1],[1,1],[2,0],[3,0],[4,-1],[5,-1]],{color:C.out}); return a.svg();},
+  err:'Reporting a six-sample output that is non-zero throughout, by convolving without noticing that the two shifted copies overlap and cancel on $2\\le n\\le3$. The overlap is exactly where the pulse is flat.',
+  teach:'This is the discrete difference operator met as a filter. Ask what it does to a constant input: nothing, which is the same statement as $\\sum h[n]=0$ and is worth connecting to the frequency response met in Module 6.' },
+
+{ id:'D3-30', module:'M3', type:'full', src:'MT1 Q4',
+  stem:'Let $x(t)=u(t)-u(t-2)$ be an input to the LTI system which has the impulse response $h(t)=e^{-t}u(t)$.',
+  parts:['Identify the ranges of $t$ over which the overlap changes, and write the convolution integral on each.',
+         'Evaluate the integral and plot $y(t)=x(t)*h(t)$.',
+         'State the value $y(t)$ approaches as $t\\to\\infty$ and explain it.'],
+  sol:'<b>Given.</b> A rectangular pulse of height $1$ and length $2$ driving a one-sided decaying exponential.<br>'
+     +'<b>Find.</b> The output, and its behaviour at large $t$.<br>'
+     +'<b>Method.</b> Write $y(t)=\\int x(\\tau)h(t-\\tau)\\,\\d\\tau$. The factor $h(t-\\tau)=e^{-(t-\\tau)}$ is present only for $\\tau\\le t$, and $x(\\tau)$ only for $0\\le\\tau\\le2$, so the limits are $0$ and $\\min(2,t)$.<br>'
+     +'<b>Solution — part (a).</b> Three ranges: no overlap for $t<0$; a growing overlap for $0\\le t<2$, with limits $0$ and $t$; and the full pulse inside the exponential for $t\\ge2$, with limits $0$ and $2$.<br>'
+     +'<b>Solution — part (b).</b> On $0\\le t<2$,$$y(t)=\\int_{0}^{t}e^{-(t-\\tau)}\\,\\d\\tau=e^{-t}\\int_{0}^{t}e^{\\tau}\\,\\d\\tau=e^{-t}\\left(e^{t}-1\\right)=1-e^{-t}.$$For $t\\ge2$,$$y(t)=\\int_{0}^{2}e^{-(t-\\tau)}\\,\\d\\tau=e^{-t}\\left(e^{2}-1\\right).$$The output rises towards $1$ while the pulse is on, reaching $1-e^{-2}\\approx0.8647$ at $t=2$, and decays exponentially afterwards.<br>'
+     +'<b>Solution — part (c).</b> As $t\\to\\infty$, $y(t)=e^{-t}\\left(e^{2}-1\\right)\\to0$. The input has stopped and the impulse response decays, so nothing sustains the output. Unlike the integrator, this system forgets.<br>'
+     +'<b>Check.</b> The two pieces join at $t=2$: the first gives $1-e^{-2}$ and the second $e^{-2}\\left(e^{2}-1\\right)=1-e^{-2}$, the same number. The support is $[0,2]+[0,\\infty)=[0,\\infty)$, and the output is indeed zero for $t<0$ and non-zero from $t=0$ on. The peak value is below $1$, which it must be: the output of a unit-area impulse response driven by a unit-height input can never exceed the input height.',
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-1.2,7.2],yr:[-0.1,1.1],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:0.25});
+    a.curve(t=> t<0 ? 0 : t<2 ? 1-Math.exp(-t) : Math.exp(-t)*(Math.exp(2)-1), {color:C.out}); return a.svg();},
+  err:'Writing $y(t)=e^{-t}\\left(e^{2}-1\\right)$ for every $t>0$, by using the limits $0$ and $2$ before the pulse has finished. Until $t=2$ only part of the pulse has entered the window, and the upper limit is $t$.',
+  teach:'Set the final value beside the previous question with $h(t)=u(t)$. There the output held its final value; here it returns to zero. The difference is whether $h$ has finite area with a decaying tail or an infinite one, and it is the same distinction as stability.' }
 
 ]);
 
@@ -535,11 +758,11 @@ window.DRILLMAP_M3 = [
 
 { id:'m3-drill-map', module:'M3', nav:'Module 3 · question types',
   title:'Module 3 — what a question looks like', src:'pp. 14–21',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 3 question types impulse response convolution causality stability taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 3 · Question types', src:'pp. 14–21'},
-  {t:'title', text:'Five shapes, and the method each one wants'},
+  {t:'title', text:'Six shapes, and the method each one wants'},
   {t:'lede', text:'Questions on linear time-invariant systems come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M3'}
@@ -554,10 +777,10 @@ window.DRILL_M3 = [
 
 { id:'m3-drill', module:'M3', nav:'Module 3 · practice questions',
   title:'Module 3 — practice questions', src:'pp. 14–21',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 3 practice impulse response convolution sum integral causality stability step response',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Practice D3-01 … D3-20', src:'pp. 14–21'},
+  {t:'eyebrow', text:'Module 3 · Practice D3-01 … D3-30', src:'pp. 14–21'},
   {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: the supports of a convolution add and the totals multiply, a case boundary is continuous from both sides, and a running sum or integral settles at the total weight of the impulse response it was built from.'},
   {t:'rule', short:true},

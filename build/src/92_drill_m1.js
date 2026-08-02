@@ -50,7 +50,13 @@ CONTENT.DRILLTYPES.M1 = [
             'Sampling returns a signal: $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$.',
             'A scaled argument carries a factor: $\\delta(at-b)=\\frac{1}{|a|}\\delta\\!\\left(t-\\frac{b}{a}\\right)$.',
             'The impulse and the step are related by $\\delta=\\d u/\\d t$ in continuous time and $\\delta[n]=u[n]-u[n-1]$ in discrete time; running the relation the other way turns a train of impulses into a staircase.'],
-    go:'m1-ct-impulse' }
+    go:'m1-ct-impulse' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'Several parts under one statement, each part usually resting on the part before it.',
+    method:['Read all the parts before starting. A later part almost always uses the signal a earlier part produced, so an error early on travels.',
+            'Name the type of each part before working it, and use the method for that type unchanged.',
+            'Carry exact values between parts. A rounded intermediate result is the usual reason a final number is close but wrong.',
+            'Check each part against the one before: a transformation must preserve the width of the support up to the scale factor, and the even and odd parts must add back to the signal they came from.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -409,7 +415,272 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.stem([[-2,0],[-1,0],[0,1],[1,1],[2,3],[3,3],[4,2],[5,2],[6,2]],{color:C.mid});
     return a.svg();},
   err:'Reporting the running sum as another train of impulses, $u[n]+2u[n-2]-u[n-4]$ misread as a sum of samples rather than a sum of steps, so the plotted answer shows isolated dots instead of a staircase that holds its value between jumps.',
-  teach:'Part (c) is the one to press on. A student who can only produce $q(t)$ by repeating the integration, rather than by relabelling $y[n]$, has not understood that the discrete and continuous constructions are the same argument in two notations.' }
+  teach:'Part (c) is the one to press on. A student who can only produce $q(t)$ by repeating the integration, rather than by relabelling $y[n]$, has not understood that the discrete and continuous constructions are the same argument in two notations.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. Each carries one statement and several lettered
+   parts, and every later part rests on the signal an earlier part built.
+   ---------------------------------------------------------------------- */
+
+{ id:'D1-21', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (c) to (e) all use the signal $x(t)$ plotted below.',
+  parts:['Is $x[n]=\\cos\\!\\left(\\tfrac{4\\pi}{9}n-2\\right)$ periodic? If so, find its fundamental period.',
+         'Calculate the energy $E_\\infty$ of the $x(t)$ signal plotted below.',
+         'Plot $y(t)=x\\!\\left(3-\\tfrac{t}{2}\\right)$.',
+         'Plot $z(t)=\\Ev\\{y(t)\\}$, the even part of the $y(t)$ signal of part (c).',
+         'Evaluate $\\int_{-\\infty}^{\\infty}z(t)\\{\\delta(t+4)+\\delta(t-8)\\}\\,\\d t$, with $z(t)$ as defined in part (d).'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-1.4,4.6],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-1.4,0],[0,0],[1,2],[3,0],[4.6,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A discrete-time cosine, and a triangular pulse $x(t)=2t$ on $0\\le t\\le1$, $x(t)=3-t$ on $1\\le t\\le3$, zero elsewhere.<br>'
+     +'<b>Find.</b> A period, an energy, two plots, and one integral against a pair of impulses.<br>'
+     +'<b>Method.</b> Each part uses the method of its own type. The order matters: part (d) needs the $y(t)$ of part (c), and part (e) needs the $z(t)$ of part (d).<br>'
+     +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{4\\pi}{9}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{2}{9}$, which is rational and the sequence repeats. Then $N=\\dfrac{2\\pi}{\\omega_0}k=\\dfrac92k$ is an integer first at $k=2$, so $N_0=9$. The phase $-2$ plays no part in the test.<br>'
+     +'<b>Solution — part (b).</b>$$E_\\infty=\\int_{0}^{1}(2t)^{2}\\,\\d t+\\int_{1}^{3}(3-t)^{2}\\,\\d t=\\frac43+\\frac83=4\\;\\text{J}.$$'
+     +'<b>Solution — part (c).</b> Write the argument as $3-\\tfrac t2$: the signal is reflected and stretched by $2$. The support $0\\le3-\\tfrac t2\\le3$ gives $0\\le t\\le6$, twice the original width. The peak sits where $3-\\tfrac t2=1$, at $t=4$, and keeps its height $2$. On $0\\le t\\le4$, $y(t)=3-(3-\\tfrac t2)=\\tfrac t2$; on $4\\le t\\le6$, $y(t)=2(3-\\tfrac t2)=6-t$. The pulse is a triangle on $[0,6]$ peaking at $(4,2)$.<br>'
+     +'<b>Solution — part (d).</b> $z(t)=\\tfrac12[y(t)+y(-t)]$. Since $y$ lives on $[0,6]$ and $y(-t)$ on $[-6,0]$, the two never overlap, so$$z(t)=\\tfrac12 y(|t|),$$a pair of triangles on $[-6,6]$ peaking at $t=\\pm4$ with height $1$.<br>'
+     +'<b>Solution — part (e).</b> Sifting picks out two values:$$\\int_{-\\infty}^{\\infty}z(t)\\{\\delta(t+4)+\\delta(t-8)\\}\\,\\d t=z(-4)+z(8)=1+0=1.$$The second impulse sits outside the support of $z$, so it contributes nothing.<br>'
+     +'<b>Check.</b> In (b) the triangle never exceeds $2$ and lasts $3$ seconds, so $E_\\infty\\le4\\cdot3=12$, and $4$ sits inside that. In (c) the width went from $3$ to $6$, which is the factor $1/|a|=2$ the scaling promises. In (d), $z(0)=\\tfrac12[y(0)+y(0)]=0$, and $z$ is even by construction. In (e) the answer is $z(-4)=\\tfrac12y(4)=\\tfrac12\\cdot2=1$, the peak of $y$ halved, as the even part of a one-sided signal must be.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:240,xr:[-1.2,7.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:48,r:26,t:28,b:36},xstep:2,ystep:1});
+      a.poly([[-1.2,0],[0,0],[4,2],[6,0],[7.2,0]],{color:C.out}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:240,xr:[-7.2,7.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'z(t)',
+      pad:{l:48,r:26,t:28,b:36},xstep:2,ystep:1});
+      a.poly([[-7.2,0],[-6,0],[-4,1],[0,0],[4,1],[6,0],[7.2,0]],{color:C.mid}); return a.svg();})()),
+  err:'Scaling before shifting in part (c) and reporting a support of $[-6,0]$ or a peak at $t=2$. Write the argument as $3-t/2$ and map the edges of the support one at a time; the width must come out twice the original.',
+  teach:'Ask for the width of the support after part (c) before anything else is checked. A student whose answer is not $6$ units wide has an error that will travel into (d) and (e), and catching it here saves the rest of the question.' },
+
+{ id:'D1-22', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (c) and (d) use the signal $y(t)$ plotted below.',
+  parts:['Is the signal $x(t)=2je^{j5t}$ periodic? If so, what is its fundamental period?',
+         'Determine the energy $E_\\infty$ of the signal $x[n]=3^{-n}u[n]$.',
+         'Generate a plot of $y(-3t+2)$ using the given signal $y(t)$.',
+         'Plot the even part of the $y(t)$ signal given below.',
+         'Evaluate $\\int_{-\\infty}^{\\infty}e^{-t}\\delta(2t-4)\\,\\d t$.'],
+  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-3.2,3.2],yr:[-1.6,3.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-3.2,0],[-2,0],[-2,-1],[2,3],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A continuous-time complex exponential, a decaying sequence, and a ramp $y(t)=t+1$ on $-2\\le t\\le2$, zero elsewhere.<br>'
+     +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
+     +'<b>Method.</b> Every continuous-time complex exponential repeats; only the discrete-time case needs a rationality test. The energy of a geometric sequence is a geometric series. A scaled impulse argument carries a factor $1/|a|$.<br>'
+     +'<b>Solution — part (a).</b> $x(t)=2je^{j5t}$ has $\\omega_0=5$ rad/s. Every continuous-time complex exponential is periodic, with$$T_0=\\frac{2\\pi}{|\\omega_0|}=\\frac{2\\pi}{5}\\;\\text{s}\\approx1.257\\;\\text{s}.$$The constant $2j$ scales and rotates the phasor but does not change how often it returns.<br>'
+     +'<b>Solution — part (b).</b> The sequence is non-zero only for $n\\ge0$, where $|x[n]|^{2}=9^{-n}$:$$E_\\infty=\\sum_{n=0}^{\\infty}9^{-n}=\\frac{1}{1-\\tfrac19}=\\frac98=1.125\\;\\text{J}.$$'
+     +'<b>Solution — part (c).</b> The support $-2\\le-3t+2\\le2$ gives $0\\le t\\le\\tfrac43$, one third of the original width, and the reflection reverses the order. On that interval $y(-3t+2)=(-3t+2)+1=3-3t$, running from $3$ at $t=0$ down to $-1$ at $t=\\tfrac43$.<br>'
+     +'<b>Solution — part (d).</b> On $|t|<2$ both $y(t)$ and $y(-t)$ are present, so$$\\Ev\\{y(t)\\}=\\tfrac12[(t+1)+(-t+1)]=1,$$and outside $|t|>2$ both vanish. The even part is a rectangle of height $1$ on $-2<t<2$. The ramp part of $y$ is odd and cancels completely.<br>'
+     +'<b>Solution — part (e).</b> Rescale the impulse first: $\\delta(2t-4)=\\tfrac12\\delta(t-2)$. Then$$\\int_{-\\infty}^{\\infty}e^{-t}\\cdot\\tfrac12\\delta(t-2)\\,\\d t=\\tfrac12e^{-2}\\approx0.0677.$$'
+     +'<b>Check.</b> In (b) the first term alone is $1$ and the rest add $\\tfrac18$, so $\\tfrac98$ is the right size. In (c) the width went from $4$ to $\\tfrac43$, the factor $1/|a|=\\tfrac13$ the scaling promises, and one interior value confirms the sign: at $t=\\tfrac23$ the argument is $0$ and $y(0)=1$, matching $3-3\\cdot\\tfrac23=1$. In (d) the even and odd parts must add back: $1+t=y(t)$ on $|t|<2$, as they do. In (e) forgetting the factor would give $e^{-2}$, twice the answer.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.8,2.2],yr:[-1.6,3.6],xlabel:'t\\;(\\text{s})',ylabel:'y(-3t+2)',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-0.8,0],[0,0],[0,3],[4/3,-1],[4/3,0],[2.2,0]],{color:C.out}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.2,3.2],yr:[-1.6,3.6],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{y(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-3.2,0],[-2,0],[-2,1],[2,1],[2,0],[3.2,0]],{color:C.mid}); return a.svg();})()),
+  err:'Writing $\\delta(2t-4)=\\delta(t-2)$ in part (e) and losing the factor $\\tfrac12$. The scaling rule $\\delta(at-b)=\\tfrac{1}{|a|}\\delta\\!\\left(t-\\tfrac ba\\right)$ applies to the impulse exactly as it does to any other signal, and the weight is what changes.',
+  teach:'Part (d) is worth dwelling on. The ramp is odd about $t=0$ and the constant is even, so the even part is the constant alone. A student who sees that can write the answer without any algebra.' },
+
+{ id:'D1-23', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (b) and (c) use the sequence $x_1[n]$ of part (a); parts (d) and (e) use the signal $x_3(t)$ plotted below.',
+  parts:['Sketch and label the signal $x_1[n]=\\sum_{k=-\\infty}^{\\infty}\\{\\delta[n-3k]-\\delta[n+1+4k]\\}$.',
+         'Is the $x_1[n]$ of part (a) periodic? If so, what is its fundamental period?',
+         'For the $x_1[n]$ of part (a), plot the odd part of $x_2[n]=\\begin{cases}x_1[n],&-3\\le n\\le3\\\\0,&\\text{otherwise.}\\end{cases}$',
+         'Calculate the energy $E_\\infty$ of the $x_3(t)$ signal plotted below.',
+         'For the $x_3(t)$ of part (d), evaluate $\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t+0.6)\\,\\d t$.'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.2,3.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-3.2,0],[-2,0],[-2,2],[0,0],[2,2],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A difference of two impulse trains, and a V-shaped pulse $x_3(t)=|t|$ on $|t|\\le2$, zero elsewhere.<br>'
+     +'<b>Find.</b> A sketch, a period, an odd part, an energy, and one sifting integral.<br>'
+     +'<b>Method.</b> Read each train separately, then add them sample by sample. Two trains of periods $N_1$ and $N_2$ produce a sequence of period $\\operatorname{lcm}(N_1,N_2)$.<br>'
+     +'<b>Solution — part (a).</b> The first train places $+1$ wherever $n=3k$, that is at every $n\\equiv0\\pmod 3$. The second places $-1$ wherever $n=-1-4k$, that is at every $n\\equiv3\\pmod 4$. Over one stretch $0\\le n\\le11$ that gives $+1$ at $n=0,3,6,9$ and $-1$ at $n=3,7,11$. The index $n=3$ receives both, and the two cancel:$$x_1[0]=1,\\;x_1[3]=0,\\;x_1[6]=1,\\;x_1[7]=-1,\\;x_1[9]=1,\\;x_1[11]=-1,$$and zero at every other index of the stretch.<br>'
+     +'<b>Solution — part (b).</b> The first train repeats every $3$ samples and the second every $4$, so the sum repeats every$$N_0=\\operatorname{lcm}(3,4)=12.$$Nothing shorter works: a shift of $3$ leaves the first train alone but moves the second.<br>'
+     +'<b>Solution — part (c).</b> Windowing to $-3\\le n\\le3$ keeps $x_2[-3]=1$, $x_2[-1]=-1$, $x_2[0]=1$, $x_2[3]=0$, and zero elsewhere. Then $\\Od\\{x_2\\}[n]=\\tfrac12(x_2[n]-x_2[-n])$ gives$$\\Od\\{x_2\\}[-3]=\\tfrac12,\\quad\\Od\\{x_2\\}[-1]=-\\tfrac12,\\quad\\Od\\{x_2\\}[1]=\\tfrac12,\\quad\\Od\\{x_2\\}[3]=-\\tfrac12,$$and zero everywhere else, including $n=0$.<br>'
+     +'<b>Solution — part (d).</b>$$E_\\infty=\\int_{-2}^{2}t^{2}\\,\\d t=2\\int_{0}^{2}t^{2}\\,\\d t=\\frac{16}{3}\\;\\text{J}\\approx5.333\\;\\text{J}.$$'
+     +'<b>Solution — part (e).</b> Sifting returns the value of the signal at the impulse location, and $-0.6$ lies inside the support:$$\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t+0.6)\\,\\d t=x_3(-0.6)=|-0.6|=0.6.$$'
+     +'<b>Check.</b> In (b), $12$ divides into the first train four times and into the second three times, both whole numbers. In (c) the odd part must vanish at $n=0$, and it does, because $\\tfrac12(x_2[0]-x_2[0])=0$ whatever $x_2[0]$ is. In (d) the pulse never exceeds $2$ and lasts $4$ seconds, so $E_\\infty\\le4\\cdot4=16$; $\\tfrac{16}{3}$ sits inside. In (e) the value is read off the left arm of the V, where $x_3(t)=-t$, giving $0.6$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,12.6],yr:[-1.6,1.6],xlabel:'n',ylabel:'x_1[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:3,ystep:1});
+      a.stem([[0,1],[3,0],[6,1],[7,-1],[9,1],[11,-1]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[-3,0.5],[-1,-0.5],[1,0.5],[3,-0.5]],{color:C.mid}); return a.svg();})()),
+  err:'Missing the cancellation at $n=3$ in part (a) and reporting both a $+1$ and a $-1$ there. Where two trains land on the same index the values add, and here they add to zero.',
+  teach:'Part (b) is the one students get wrong by multiplying: $3\\cdot4=12$ happens to be right here because $3$ and $4$ are coprime. Ask what the answer would be for trains of period $4$ and $6$ — the product $24$ is a period, but the fundamental one is $12$.' },
+
+{ id:'D1-24', module:'M1', type:'full', src:'Final Q1',
+  stem:'Consider the signal $$x(t)=\\left[t+3\\{u(t+2)-u(t-2)\\}\\right]\\times\\{u(t+3)-u(t-3)\\}.$$',
+  parts:['Plot the even part of $x(t)$.',
+         'Plot the odd part of $x(t)$.',
+         'Calculate the energies of the even and odd parts of $x(t)$, and of $x(t)$ itself.'],
+  sol:'<b>Given.</b> A ramp raised by $3$ over the inner window, the whole product cut off outside $|t|<3$.<br>'
+     +'<b>Find.</b> The even and odd parts, and three energies.<br>'
+     +'<b>Method.</b> Write $x$ piecewise first. The outer window keeps $|t|<3$; the inner one adds $3$ only on $|t|<2$. Then use $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$ on each piece.<br>'
+     +'<b>Solution — piecewise form.</b>$$x(t)=\\begin{cases}t+3,&|t|<2\\\\t,&2<|t|<3\\\\0,&|t|>3.\\end{cases}$$'
+     +'<b>Solution — part (a).</b> On $|t|<2$, $\\tfrac12[(t+3)+(-t+3)]=3$. On $2<|t|<3$, $\\tfrac12[t+(-t)]=0$. So$$\\Ev\\{x(t)\\}=\\begin{cases}3,&|t|<2\\\\0,&\\text{otherwise,}\\end{cases}$$a rectangle of height $3$ and width $4$.<br>'
+     +'<b>Solution — part (b).</b> On $|t|<2$, $\\tfrac12[(t+3)-(-t+3)]=t$. On $2<|t|<3$, $\\tfrac12[t-(-t)]=t$. So$$\\Od\\{x(t)\\}=\\begin{cases}t,&|t|<3\\\\0,&\\text{otherwise,}\\end{cases}$$a single ramp across the whole window.<br>'
+     +'<b>Solution — part (c).</b>$$E_{\\Ev}=\\int_{-2}^{2}9\\,\\d t=36\\;\\text{J},\\qquad E_{\\Od}=\\int_{-3}^{3}t^{2}\\,\\d t=18\\;\\text{J},$$and because the two parts are orthogonal,$$E_x=E_{\\Ev}+E_{\\Od}=54\\;\\text{J}.$$'
+     +'<b>Check.</b> The two parts must add back to $x$: on $|t|<2$, $3+t$ is $x$; on $2<|t|<3$, $0+t$ is $x$. Computing $E_x$ directly confirms the split:$$\\int_{-3}^{-2}t^{2}\\,\\d t+\\int_{-2}^{2}(t+3)^{2}\\,\\d t+\\int_{2}^{3}t^{2}\\,\\d t=\\frac{19}{3}+\\frac{124}{3}+\\frac{19}{3}=54\\;\\text{J},$$so the energies do add, which they would not if the parts overlapped in the wrong way.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-4.2,4.2],yr:[-0.5,3.8],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{x(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-4.2,0],[-2,0],[-2,3],[2,3],[2,0],[4.2,0]],{color:C.mid}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-4.2,4.2],yr:[-3.8,3.8],xlabel:'t\\;(\\text{s})',ylabel:'\\Od\\{x(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-4.2,0],[-3,0],[-3,-3],[3,3],[3,0],[4.2,0]],{color:C.out}); return a.svg();})()),
+  err:'Taking the even part to be $3$ on the whole window $|t|<3$. Outside $|t|=2$ the constant is no longer there, so only the ramp survives, and a ramp has no even part.',
+  teach:'The additivity of the energies is the check worth insisting on. It holds because the even and odd parts are orthogonal, and a student who verifies $36+18=54$ against a direct integration has confirmed both parts at once.' },
+
+{ id:'D1-25', module:'M1', type:'full', src:'Final Q1',
+  stem:'Two discrete-time complex exponentials differ only in whether $\\pi$ appears in the frequency:$$x_1[n]=e^{j\\frac{4}{7}n},\\qquad x_2[n]=e^{j\\frac{4\\pi}{7}n}.$$',
+  parts:['Determine whether $x_1[n]$ is periodic. If it is, find its fundamental period.',
+         'Determine whether $x_2[n]$ is periodic. If it is, find its fundamental period, and say what makes the two cases differ.'],
+  sol:'<b>Given.</b> Two discrete-time complex exponentials, $\\omega_1=\\tfrac47$ and $\\omega_2=\\tfrac{4\\pi}{7}$ rad/sample.<br>'
+     +'<b>Find.</b> Whether each repeats, and with what fundamental period.<br>'
+     +'<b>Method.</b> A discrete-time exponential repeats only if $x[n]=x[n+N]$ for some positive <em>integer</em> $N$. That needs $\\omega_0N=2\\pi k$ with $k$ an integer, so $\\omega_0/2\\pi$ must be rational.<br>'
+     +'<b>Solution — part (a).</b>$$\\frac{\\omega_1}{2\\pi}=\\frac{4/7}{2\\pi}=\\frac{2}{7\\pi}.$$Since $\\pi$ is irrational, $\\tfrac{2}{7\\pi}$ is irrational, and no integer $N$ satisfies the condition. $x_1[n]$ is <b>not periodic</b>.<br>'
+     +'<b>Solution — part (b).</b>$$\\frac{\\omega_2}{2\\pi}=\\frac{4\\pi/7}{2\\pi}=\\frac{2}{7},$$which is rational, so $x_2[n]$ <b>is periodic</b>. Then $N=\\dfrac{2\\pi}{\\omega_2}k=\\dfrac72k$ is an integer first at $k=2$, giving $N_0=7$. What separates the two is the factor $\\pi$ in the frequency: it is exactly what cancels against the $2\\pi$ in the test and leaves a ratio of two integers.<br>'
+     +'<b>Check.</b> For $x_2$, $e^{j\\frac{4\\pi}{7}(n+7)}=e^{j\\frac{4\\pi}{7}n}e^{j4\\pi}$, and $e^{j4\\pi}=1$, so $N=7$ does return the sequence to itself; no smaller positive integer does, because $\\tfrac72k$ is an integer only when $k$ is even. For $x_1$, the continuous-time signal $e^{j4t/7}$ is perfectly periodic with $T_0=\\tfrac{7\\pi}{2}$ — it is sampling on the integers that destroys the repetition, because $\\tfrac{7\\pi}{2}$ is not an integer.',
+  err:'Reporting $N_0=\\tfrac{7\\pi}{2}$ for $x_1[n]$ by transferring the continuous-time formula $T_0=2\\pi/\\omega_0$. A period of a sequence has to be an integer, and no non-integer answer can be one.',
+  teach:'These two are worth showing side by side. Students learn the rule as "check whether $\\omega_0/2\\pi$ is rational" and then apply it without noticing that a missing $\\pi$ decides the case. Ask which of the two a sampled continuous-time cosine would give.' },
+
+{ id:'D1-26', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (c) to (e) all use the signal $x(t)$ plotted below.',
+  parts:['Is $x[n]=\\sin\\!\\left(\\tfrac{6\\pi}{7}n+\\tfrac{\\pi}{4}\\right)$ periodic? If so, find its fundamental period.',
+         'Calculate the energy $E_\\infty$ of the $x(t)$ signal plotted below.',
+         'Plot $y(t)=x(2t+4)$.',
+         'Plot $z(t)=\\Od\\{y(t)\\}$, the odd part of the $y(t)$ signal of part (c).',
+         'Evaluate $\\int_{-\\infty}^{\\infty}z(t)\\delta(3t+3)\\,\\d t$, with $z(t)$ as defined in part (d).'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-1.4,5.6],yr:[-0.5,3.8],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-1.4,0],[0,0],[1,3],[2,3],[4,0],[5.6,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A discrete-time sine, and a trapezoid $x(t)=3t$ on $0\\le t\\le1$, $x(t)=3$ on $1\\le t\\le2$, $x(t)=\\tfrac32(4-t)$ on $2\\le t\\le4$, zero elsewhere.<br>'
+     +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
+     +'<b>Method.</b> As before, each part uses the method of its own type, and parts (d) and (e) rest on the plot built in (c).<br>'
+     +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{6\\pi}{7}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac37$, rational. Then $N=\\dfrac{2\\pi}{\\omega_0}k=\\dfrac73k$ is an integer first at $k=3$, so $N_0=7$.<br>'
+     +'<b>Solution — part (b).</b>$$E_\\infty=\\int_{0}^{1}9t^{2}\\,\\d t+\\int_{1}^{2}9\\,\\d t+\\int_{2}^{4}\\tfrac94(4-t)^{2}\\,\\d t=3+9+6=18\\;\\text{J}.$$'
+     +'<b>Solution — part (c).</b> Write the argument as $2(t+2)$: the signal is advanced by $2$ and compressed by $2$. The support $0\\le2t+4\\le4$ gives $-2\\le t\\le0$, half the original width. The flat top, at $1\\le2t+4\\le2$, sits on $-\\tfrac32\\le t\\le-1$ and keeps its height $3$.<br>'
+     +'<b>Solution — part (d).</b> $z(t)=\\tfrac12[y(t)-y(-t)]$. Since $y$ lives on $[-2,0]$ and $y(-t)$ on $[0,2]$, the two never overlap, so$$z(t)=\\begin{cases}\\tfrac12y(t),&t<0\\\\-\\tfrac12y(-t),&t>0,\\end{cases}$$a copy of $y$ halved on the left and its negative mirror image on the right.<br>'
+     +'<b>Solution — part (e).</b> Rescale the impulse: $\\delta(3t+3)=\\tfrac13\\delta(t+1)$. From (c), $y(-1)=x(2)=3$, so $z(-1)=\\tfrac12\\cdot3=\\tfrac32$, and$$\\int_{-\\infty}^{\\infty}z(t)\\delta(3t+3)\\,\\d t=\\tfrac13z(-1)=\\tfrac13\\cdot\\tfrac32=\\tfrac12.$$'
+     +'<b>Check.</b> In (b) the trapezoid never exceeds $3$ and lasts $4$ seconds, so $E_\\infty\\le9\\cdot4=36$; $18$ is half of that, which is right for a shape that is at full height for only part of its width. In (c) the width went from $4$ to $2$, the factor $1/|a|=\\tfrac12$ the scaling promises. In (d), $z$ must vanish at $t=0$, and it does, because $y(0)=x(4)=0$. In (e) dropping the factor $\\tfrac13$ would give $\\tfrac32$, three times the answer.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.8,1.4],yr:[-0.5,3.8],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:48,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-2.8,0],[-2,0],[-1.5,3],[-1,3],[0,0],[1.4,0]],{color:C.out}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.8,2.8],yr:[-2.2,2.2],xlabel:'t\\;(\\text{s})',ylabel:'\\Od\\{y(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-2.8,0],[-2,0],[-1.5,1.5],[-1,1.5],[0,0],[1,-1.5],[1.5,-1.5],[2,0],[2.8,0]],{color:C.mid}); return a.svg();})()),
+  err:'Reading $x(2t+4)$ as a delay of $4$ followed by a compression, and reporting a support of $[2,4]$ or $[4,8]$. Factor the argument as $2(t+2)$ first: the shift that acts is $2$, not $4$, and it moves the signal to the left.',
+  teach:'Part (e) rewards a student who notices that only one value of $z$ is ever needed. Reading $z(-1)$ off the plot of $y$ is faster than writing $z$ out as a formula, and it is the habit worth building.' },
+
+{ id:'D1-27', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (c) to (e) use the signal $y(t)$ plotted below.',
+  parts:['Is the signal $x(t)=5e^{j\\frac{3\\pi}{4}t}$ periodic? If so, what is its fundamental period?',
+         'Determine the energy $E_\\infty$ of the signal $x[n]=\\left(\\tfrac12\\right)^{n}u[n-2]$.',
+         'Generate a plot of $y(2t-1)$ using the given signal $y(t)$.',
+         'Plot the even part of the $y(t)$ signal given below.',
+         'Evaluate $\\int_{-\\infty}^{\\infty}y(t)\\delta(2t-1)\\,\\d t$, with $y(t)$ as given below.'],
+  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-3.2,3.2],yr:[-1.6,1.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:0.5});
+    a.poly([[-3.2,0],[0,0],[0,1],[2,-1],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A continuous-time complex exponential, a delayed geometric sequence, and a falling ramp $y(t)=1-t$ on $0\\le t\\le2$, zero elsewhere.<br>'
+     +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
+     +'<b>Method.</b> Take the parts in order; (c) and (d) both work from the given plot, and (e) needs only one value of it.<br>'
+     +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{3\\pi}{4}$ rad/s, and every continuous-time complex exponential is periodic:$$T_0=\\frac{2\\pi}{|\\omega_0|}=\\frac{2\\pi}{3\\pi/4}=\\frac83\\;\\text{s}\\approx2.667\\;\\text{s}.$$'
+     +'<b>Solution — part (b).</b> The step $u[n-2]$ starts the sum at $n=2$, where $|x[n]|^{2}=\\left(\\tfrac14\\right)^{n}$:$$E_\\infty=\\sum_{n=2}^{\\infty}\\left(\\tfrac14\\right)^{n}=\\frac{(1/4)^{2}}{1-\\tfrac14}=\\frac{1/16}{3/4}=\\frac{1}{12}\\approx0.0833\\;\\text{J}.$$'
+     +'<b>Solution — part (c).</b> Write the argument as $2\\!\\left(t-\\tfrac12\\right)$: the signal is delayed by $\\tfrac12$ and compressed by $2$. The support $0\\le2t-1\\le2$ gives $\\tfrac12\\le t\\le\\tfrac32$, half the original width, and on it $y(2t-1)=1-(2t-1)=2-2t$, running from $1$ down to $-1$.<br>'
+     +'<b>Solution — part (d).</b> On $0<t<2$ only $y(t)$ is present and on $-2<t<0$ only $y(-t)$, so$$\\Ev\\{y(t)\\}=\\tfrac12(1-|t|)\\quad\\text{for }|t|<2,$$zero elsewhere. It runs from $\\tfrac12$ at $t=0$ down to $-\\tfrac12$ at $t=\\pm2$.<br>'
+     +'<b>Solution — part (e).</b> Rescale the impulse: $\\delta(2t-1)=\\tfrac12\\delta\\!\\left(t-\\tfrac12\\right)$, and $y\\!\\left(\\tfrac12\\right)=1-\\tfrac12=\\tfrac12$, so$$\\int_{-\\infty}^{\\infty}y(t)\\delta(2t-1)\\,\\d t=\\tfrac12\\cdot\\tfrac12=\\tfrac14.$$'
+     +'<b>Check.</b> In (b) the first term alone is $\\tfrac{1}{16}=0.0625$ and the rest add about $0.021$, so $\\tfrac{1}{12}$ is the right size; starting the sum at $n=0$ instead would give $\\tfrac43$, sixteen times too large. In (c) the width went from $2$ to $1$, the factor $1/|a|=\\tfrac12$ the scaling promises. In (d) the even and odd parts must add back to $y$: at $t=1$, $\\Ev=0$ and $\\Od=0$, matching $y(1)=0$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.8,2.4],yr:[-1.6,1.6],xlabel:'t\\;(\\text{s})',ylabel:'y(2t-1)',
+      pad:{l:52,r:26,t:28,b:36},xstep:0.5,ystep:0.5});
+      a.poly([[-0.8,0],[0.5,0],[0.5,1],[1.5,-1],[1.5,0],[2.4,0]],{color:C.out}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.2,3.2],yr:[-1.1,1.1],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{y(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:0.5});
+      a.poly([[-3.2,0],[-2,0],[-2,-0.5],[0,0.5],[2,-0.5],[2,0],[3.2,0]],{color:C.mid}); return a.svg();})()),
+  err:'Starting the sum in part (b) at $n=0$. The step is $u[n-2]$, so the first non-zero sample is at $n=2$ and the series begins with $\\left(\\tfrac14\\right)^{2}$, not with $1$.',
+  teach:'Part (d) catches students who assume the even part of a one-sided signal is that signal halved. That is true only where the reflection does not reach, and here the reflection covers $-2<t<0$, so the answer has support twice as wide as $y$.' },
+
+{ id:'D1-28', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'Work the following parts in order. Parts (b) and (c) use the sequence $x_1[n]$ of part (a); parts (d) and (e) use the signal $x_3(t)$ plotted below.',
+  parts:['Sketch and label the signal $x_1[n]=\\sum_{k=-\\infty}^{\\infty}\\{\\delta[n-4k]-\\delta[n+1+6k]\\}$.',
+         'Is the $x_1[n]$ of part (a) periodic? If so, what is its fundamental period?',
+         'For the $x_1[n]$ of part (a), plot the odd part of $x_2[n]=\\begin{cases}x_1[n],&-4\\le n\\le4\\\\0,&\\text{otherwise.}\\end{cases}$',
+         'Calculate the energy $E_\\infty$ of the $x_3(t)$ signal plotted below.',
+         'For the $x_3(t)$ of part (d), evaluate $\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t-1.5)\\,\\d t$.'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.2,3.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',
+      pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
+    a.poly([[-3.2,0],[-2,0],[-2,1],[-1,1],[-1,2],[1,2],[1,1],[2,1],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
+  sol:'<b>Given.</b> A difference of two impulse trains, and a stepped pulse $x_3(t)=2$ on $|t|\\le1$, $x_3(t)=1$ on $1<|t|\\le2$, zero elsewhere.<br>'
+     +'<b>Find.</b> A sketch, a period, an odd part, an energy, and one sifting integral.<br>'
+     +'<b>Method.</b> Read each train separately, then add them index by index.<br>'
+     +'<b>Solution — part (a).</b> The first train places $+1$ at every $n\\equiv0\\pmod 4$, the second $-1$ at every $n=-1-6k$, that is at every $n\\equiv5\\pmod 6$. Over one stretch $0\\le n\\le11$ that gives $+1$ at $n=0,4,8$ and $-1$ at $n=5,11$. No index receives both, so nothing cancels here.<br>'
+     +'<b>Solution — part (b).</b> The trains repeat every $4$ and every $6$ samples, so$$N_0=\\operatorname{lcm}(4,6)=12,$$not $24$: the two periods share the factor $2$, so the product overshoots.<br>'
+     +'<b>Solution — part (c).</b> Windowing to $-4\\le n\\le4$ keeps $x_2[-4]=1$, $x_2[-1]=-1$, $x_2[0]=1$, $x_2[4]=1$, and zero elsewhere. Then $\\Od\\{x_2\\}[n]=\\tfrac12(x_2[n]-x_2[-n])$ gives$$\\Od\\{x_2\\}[-1]=-\\tfrac12,\\qquad\\Od\\{x_2\\}[1]=\\tfrac12,$$and zero everywhere else. At $n=\\pm4$ the two samples are equal, so they contribute nothing to the odd part; at $n=0$ the odd part always vanishes.<br>'
+     +'<b>Solution — part (d).</b>$$E_\\infty=\\int_{-1}^{1}2^{2}\\,\\d t+2\\int_{1}^{2}1^{2}\\,\\d t=8+2=10\\;\\text{J}.$$'
+     +'<b>Solution — part (e).</b> The point $t=1.5$ lies on the lower step, where $x_3=1$:$$\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t-1.5)\\,\\d t=x_3(1.5)=1.$$'
+     +'<b>Check.</b> In (b), $12$ divides into the first train three times and into the second twice, both whole numbers, and no smaller positive integer does. In (c) the odd part is non-zero only where $x_2$ fails to be symmetric, which is the pair $n=\\pm1$ alone. In (d) the pulse never exceeds $2$ and lasts $4$ seconds, so $E_\\infty\\le4\\cdot4=16$; $10$ sits inside.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,12.6],yr:[-1.6,1.6],xlabel:'n',ylabel:'x_1[n]',
+      pad:{l:48,r:26,t:28,b:34},xstep:2,ystep:1});
+      a.stem([[0,1],[4,1],[5,-1],[8,1],[11,-1]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-5.6,5.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[-1,-0.5],[1,0.5]],{color:C.mid}); return a.svg();})()),
+  err:'Reporting $N_0=24$ in part (b) by multiplying the two periods. The product is always a period; it is the fundamental one only when the two are coprime, and $4$ and $6$ share the factor $2$.',
+  teach:'Part (c) is the useful contrast with the previous question of this kind. Here the window is symmetric and catches equal samples at $n=\\pm4$, so those drop out of the odd part entirely — a student who reports four non-zero samples has not applied the definition at $n=4$.' },
+
+{ id:'D1-29', module:'M1', type:'full', src:'Final Q1',
+  stem:'Consider the signal $$x(t)=\\left[2t+\\{u(t+1)-u(t-1)\\}\\right]\\times\\{u(t+2)-u(t-2)\\}.$$',
+  parts:['Plot the even part of $x(t)$.',
+         'Plot the odd part of $x(t)$.',
+         'Calculate the energies of the even and odd parts of $x(t)$, and of $x(t)$ itself.'],
+  sol:'<b>Given.</b> A ramp of slope $2$ raised by $1$ over the inner window, the whole product cut off outside $|t|<2$.<br>'
+     +'<b>Find.</b> The even and odd parts, and three energies.<br>'
+     +'<b>Method.</b> Write $x$ piecewise, then split each piece with $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$.<br>'
+     +'<b>Solution — piecewise form.</b>$$x(t)=\\begin{cases}2t+1,&|t|<1\\\\2t,&1<|t|<2\\\\0,&|t|>2.\\end{cases}$$'
+     +'<b>Solution — part (a).</b> On $|t|<1$, $\\tfrac12[(2t+1)+(-2t+1)]=1$. On $1<|t|<2$, $\\tfrac12[2t+(-2t)]=0$. So the even part is a rectangle of height $1$ on $|t|<1$.<br>'
+     +'<b>Solution — part (b).</b> On $|t|<1$, $\\tfrac12[(2t+1)-(-2t+1)]=2t$; on $1<|t|<2$, $\\tfrac12[2t-(-2t)]=2t$. So$$\\Od\\{x(t)\\}=\\begin{cases}2t,&|t|<2\\\\0,&\\text{otherwise,}\\end{cases}$$one ramp across the whole window.<br>'
+     +'<b>Solution — part (c).</b>$$E_{\\Ev}=\\int_{-1}^{1}1\\,\\d t=2\\;\\text{J},\\qquad E_{\\Od}=\\int_{-2}^{2}4t^{2}\\,\\d t=\\frac{64}{3}\\;\\text{J},$$and by orthogonality$$E_x=2+\\frac{64}{3}=\\frac{70}{3}\\;\\text{J}\\approx23.33\\;\\text{J}.$$'
+     +'<b>Check.</b> The parts add back: $1+2t=x$ on $|t|<1$, and $0+2t=x$ on $1<|t|<2$. Integrating $x^{2}$ directly,$$\\int_{-2}^{-1}4t^{2}\\,\\d t+\\int_{-1}^{1}(2t+1)^{2}\\,\\d t+\\int_{1}^{2}4t^{2}\\,\\d t=\\frac{28}{3}+\\frac{14}{3}+\\frac{28}{3}=\\frac{70}{3},$$which matches, so the split is right.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.2,3.2],yr:[-0.5,1.8],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{x(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:0.5});
+      a.poly([[-3.2,0],[-1,0],[-1,1],[1,1],[1,0],[3.2,0]],{color:C.mid}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.2,3.2],yr:[-4.6,4.6],xlabel:'t\\;(\\text{s})',ylabel:'\\Od\\{x(t)\\}',
+      pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:2});
+      a.poly([[-3.2,0],[-2,0],[-2,-4],[2,4],[2,0],[3.2,0]],{color:C.out}); return a.svg();})()),
+  err:'Reporting the odd part as $2t$ on $|t|<1$ only, on the grounds that the ramp outside is not part of the raised section. The window in the definition is the outer one, $|t|<2$, and the ramp runs across all of it.',
+  teach:'Set this beside the question with the same shape and different numbers. The even part changes width with the inner window and the odd part with the outer one, and seeing the two questions together makes that separation obvious.' },
+
+{ id:'D1-30', module:'M1', type:'full', src:'MT1 Q1',
+  stem:'A signal is built from three step functions:$$x(t)=u(t+2)-2u(t)+u(t-2).$$',
+  parts:['Sketch $x(t)$ and give its piecewise form.',
+         'Determine $\\dfrac{\\d x}{\\d t}$ as a sum of impulses.',
+         'Evaluate $\\int_{-\\infty}^{\\infty}x(t)\\delta(t-1)\\,\\d t$.',
+         'Evaluate $\\int_{-\\infty}^{\\infty}\\dfrac{\\d x}{\\d t}\\,t^{2}\\,\\d t$.',
+         'Calculate the energy $E_\\infty$ of $x(t)$.'],
+  sol:'<b>Given.</b> A signal assembled from three steps with weights $+1$, $-2$ and $+1$.<br>'
+     +'<b>Find.</b> A sketch, a derivative, two integrals, and an energy.<br>'
+     +'<b>Method.</b> Add the steps interval by interval. Differentiating a step gives an impulse at the jump, with the weight of the jump. Sifting against an impulse returns a number.<br>'
+     +'<b>Solution — part (a).</b> Below $t=-2$ every step is off. On $-2<t<0$ only the first is on, giving $1$. On $0<t<2$ the second has switched on, giving $1-2=-1$. Above $t=2$ all three are on, giving $1-2+1=0$. So$$x(t)=\\begin{cases}1,&-2<t<0\\\\-1,&0<t<2\\\\0,&\\text{otherwise,}\\end{cases}$$a pair of rectangles of opposite sign.<br>'
+     +'<b>Solution — part (b).</b> Each step contributes an impulse at its own jump, carrying the weight of that jump:$$\\frac{\\d x}{\\d t}=\\delta(t+2)-2\\delta(t)+\\delta(t-2).$$'
+     +'<b>Solution — part (c).</b> The point $t=1$ lies in the negative rectangle:$$\\int_{-\\infty}^{\\infty}x(t)\\delta(t-1)\\,\\d t=x(1)=-1.$$'
+     +'<b>Solution — part (d).</b> Sift $t^{2}$ against each impulse in turn:$$\\int_{-\\infty}^{\\infty}\\frac{\\d x}{\\d t}\\,t^{2}\\,\\d t=(-2)^{2}-2\\cdot0^{2}+2^{2}=4-0+4=8.$$'
+     +'<b>Solution — part (e).</b> The signal has magnitude $1$ over a total length of $4$ seconds:$$E_\\infty=\\int_{-2}^{0}1\\,\\d t+\\int_{0}^{2}1\\,\\d t=4\\;\\text{J}.$$'
+     +'<b>Check.</b> The impulse weights in (b) must sum to zero, because $x$ starts and ends at zero: $1-2+1=0$. Integrating the derivative back gives $x$ again, which confirms the signs. In (d) the middle impulse contributes nothing because $t^{2}$ vanishes at $t=0$ — a student who writes $-2$ there has sifted the weight instead of the function. In (e) squaring removes the sign, so both rectangles contribute equally.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.8,1.8],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:50,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.poly([[-3.4,0],[-2,0],[-2,1],[0,1],[0,-1],[2,-1],[2,0],[3.4,0]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-2.6,1.8],xlabel:'t\\;(\\text{s})',ylabel:'\\d x/\\d t',
+      pad:{l:50,r:26,t:28,b:36},xstep:1,ystep:1});
+      a.impulse(-2,1,{color:C.mid}); a.impulse(0,-2,{color:C.mid}); a.impulse(2,1,{color:C.mid});
+      return a.svg();})()),
+  err:'Answering part (d) with $1-2+1=0$, the sum of the impulse weights, instead of weighting each by $t^{2}$ at its own location. Sifting evaluates the other factor at the impulse, and $t^{2}$ is $4$, $0$ and $4$ at the three locations.',
+  teach:'Parts (c) and (d) look alike and are not. In (c) the impulse selects a value of $x$; in (d) the impulses are the signal and $t^{2}$ is what gets selected. Asking which factor is doing the sifting is the question that separates them.' }
 
 ]);
 
@@ -417,11 +688,11 @@ window.DRILLMAP_M1 = [
 
 { id:'m1-drill-map', module:'M1', nav:'Module 1 · question types',
   title:'Module 1 — what a question looks like', src:'pp. 2–10',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 1 question types periodicity energy power transformation even odd impulse taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Question types', src:'pp. 2–10'},
-  {t:'title', text:'Five shapes, and the method each one wants'},
+  {t:'title', text:'Six shapes, and the method each one wants'},
   {t:'lede', text:'Questions on signal foundations come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M1'}
@@ -436,10 +707,10 @@ window.DRILL_M1 = [
 
 { id:'m1-drill', module:'M1', nav:'Module 1 · practice questions',
   title:'Module 1 — practice questions', src:'pp. 2–10',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 1 practice periodicity energy power transformation even odd sifting impulse step',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Practice D1-01 … D1-20', src:'pp. 2–10'},
+  {t:'eyebrow', text:'Module 1 · Practice D1-01 … D1-30', src:'pp. 2–10'},
   {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: a period must divide into every term a whole number of times, a transformation must preserve the width of the support up to the scale factor, the even and odd parts must add back to the signal, and a running sum or integral must settle at the total weight of the impulses that built it.'},
   {t:'rule', short:true},

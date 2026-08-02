@@ -451,3 +451,200 @@ chk("D3-20 Check: s(1/4) matches direct numerical integration of h", close(s20_n
     f"closed={s20_num:.6f}, trapz={s20_trapz:.6f}")
 chk("D3-20 Check: h(1/4) approx 0.368 matches ds/dt at t=1/4", close(h20_num, float(ds20.subs(tv20, sp.Rational(1, 4))), tol=1e-9),
     f"{h20_num:.6f}")
+
+
+# ===========================================================================
+# Full-length questions D3-21 ... D3-30.
+#
+# Every convolution is recomputed from the definition (a direct double loop
+# for the discrete cases, numerical quadrature for the continuous ones), never
+# from the closed form the solution derives, and the sum rule
+# sum(y) = sum(x) * sum(h) is applied as an independent second test.
+# ===========================================================================
+
+# --- D3-21 -----------------------------------------------------------------
+h21 = {0: 3, 2: 1, 3: 2}
+x21d = {-2: -1, 2: 1, 4: 2}
+y21d = conv_dt(x21d, h21)
+chk("D3-21 (a) h[n] = 3 delta[n] + delta[n-2] + 2 delta[n-3]",
+    h21 == {0: 3, 2: 1, 3: 2})
+chk("D3-21 (b) x[n] has impulses at -2, 2, 4 with weights -1, 1, 2",
+    {2 * kk: kk for kk in range(-1, 3) if kk != 0} == {-2: -1, 2: 1, 4: 2})
+chk("D3-21 (b) y[n] table",
+    y21d == {-2: -3, 0: -1, 1: -2, 2: 3, 4: 7, 5: 2, 6: 2, 7: 4}, f"{dict(sorted(y21d.items()))}")
+chk("D3-21 (check) sum rule: sum(y) = sum(x) sum(h) = 12",
+    sum(y21d.values()) == sum(x21d.values()) * sum(h21.values()) == 12)
+chk("D3-21 (check) support [-2, 7] = [-2,4] + [0,3]",
+    min(y21d) == -2 and max(y21d) == 7)
+
+# --- D3-22 -----------------------------------------------------------------
+x22 = {0: 1, 1: 3, 2: 1}
+y22g = {0: 1, 1: 5, 2: 7, 3: 2}
+h22 = {0: 1, 1: 2}
+chk("D3-22 (a) the recovered h reproduces the given y",
+    conv_dt(x22, h22) == y22g, f"{dict(sorted(conv_dt(x22, h22).items()))}")
+chk("D3-22 (a) width rule: N_h = N_y - N_x + 1 = 2",
+    (max(y22g) - min(y22g) + 1) - (max(x22) - min(x22) + 1) + 1 == 2)
+x1_22 = {-1: 2, 0: -1, 2: 1}
+y1_22 = conv_dt(x1_22, h22)
+chk("D3-22 (b) y1[n] table",
+    y1_22 == {-1: 2, 0: 3, 1: -2, 2: 1, 3: 2}, f"{dict(sorted(y1_22.items()))}")
+chk("D3-22 (check) sum rule for part (b): 2 * 3 = 6",
+    sum(y1_22.values()) == sum(x1_22.values()) * sum(h22.values()) == 6)
+
+# --- D3-23 -----------------------------------------------------------------
+h23 = {m: (1 / 3) ** m for m in range(0, 60)}
+chk("D3-23 (a) h[n] satisfies the difference equation",
+    all(close(h23[m], (1 / 3) * h23[m - 1] + (1.0 if m == 0 else 0.0))
+        for m in range(1, 30)))
+step23 = {m: 1.0 for m in range(0, 60)}
+y23 = conv_dt(step23, h23, lo=0, hi=30)
+closed23 = lambda m: 1.5 * (1 - (1 / 3) ** (m + 1))
+chk("D3-23 (b) closed form matches the convolution",
+    all(close(y23[m], closed23(m)) for m in range(0, 25)),
+    f"y[0]={y23[0]:.6f}, y[1]={y23[1]:.6f}, y[2]={y23[2]:.6f}")
+chk("D3-23 (b) y[0]=1, y[1]=4/3, y[2]=13/9",
+    close(y23[0], 1.0) and close(y23[1], 4 / 3) and close(y23[2], 13 / 9))
+chk("D3-23 (check) final value = sum of h = 3/2",
+    close(closed23(200), 1.5) and close(sum(h23.values()), 1.5))
+
+# --- D3-24 -----------------------------------------------------------------
+x24c = lambda s: math.exp(-2 * abs(s)) if abs(s) <= 1 else 0.0
+_g24 = np.linspace(-6, 8, 1400001)
+def y24_num(s):
+    m = _g24 <= s
+    return float(np.trapezoid(np.array([x24c(v) for v in _g24[m]]), _g24[m]))
+def y24_closed(s):
+    if s < -1:
+        return 0.0
+    if s < 0:
+        return 0.5 * (math.exp(2 * s) - math.exp(-2))
+    if s < 1:
+        return 0.5 * (1 - math.exp(-2)) + 0.5 * (1 - math.exp(-2 * s))
+    return 1 - math.exp(-2)
+chk("D3-24 closed form matches numerical convolution",
+    all(close(y24_closed(v), y24_num(v), tol=1e-4)
+        for v in (-1.5, -0.5, 0.0, 0.4, 0.9, 1.5, 3.0)),
+    f"y(0.4): closed={y24_closed(0.4):.6f}, numeric={y24_num(0.4):.6f}")
+chk("D3-24 (check) final value = area of x = 1 - exp(-2)",
+    close(y24_closed(5.0), 1 - math.exp(-2))
+    and close(1 - math.exp(-2), 0.8646647, tol=1e-6))
+chk("D3-24 (check) pieces join at t=0 and t=1",
+    close(0.5 * (math.exp(0) - math.exp(-2)), 0.5 * (1 - math.exp(-2)))
+    and close(y24_closed(0.9999999), y24_closed(1.0), tol=1e-5))
+
+# --- D3-25 -----------------------------------------------------------------
+x25 = lambda s: math.exp(-3 * s) if 0 <= s <= 1 else 0.0
+h25 = lambda s: 1.0 if 0 <= s <= 2 else 0.0
+def y25_closed(s):
+    if s < 0:
+        return 0.0
+    if s < 1:
+        return (1 - math.exp(-3 * s)) / 3
+    if s < 2:
+        return (1 - math.exp(-3)) / 3
+    if s < 3:
+        return (math.exp(-3 * (s - 2)) - math.exp(-3)) / 3
+    return 0.0
+_ts25 = [0.5, 1.5, 2.5, 3.5, -0.5]
+_num25 = conv_ct(x25, h25, _ts25, lo=-5, hi=8, npts=400001)
+chk("D3-25 closed form matches numerical convolution",
+    allclose([y25_closed(v) for v in _ts25], _num25, tol=1e-4),
+    f"closed={[round(y25_closed(v),6) for v in _ts25]}, numeric={[round(float(v),6) for v in _num25]}")
+chk("D3-25 (b) plateau value = (1 - exp(-3))/3",
+    close(y25_closed(1.5), (1 - math.exp(-3)) / 3)
+    and close((1 - math.exp(-3)) / 3, 0.3167376, tol=1e-6))
+chk("D3-25 (check) pieces join at t=1 and t=2, and close at t=3",
+    close(y25_closed(0.9999999), y25_closed(1.0), tol=1e-6)
+    and close(y25_closed(1.9999999), y25_closed(2.0), tol=1e-6)
+    and close(y25_closed(2.9999999), 0.0, tol=1e-6))
+chk("D3-25 (check) support [0,3] = [0,1] + [0,2]",
+    close(y25_closed(-0.1), 0.0) and close(y25_closed(3.1), 0.0))
+
+# --- D3-26 -----------------------------------------------------------------
+x26c = lambda s: 2.0 if 0 <= s <= 2 else 0.0
+h26 = lambda s: 1.0 if -1 <= s < 0 else (-1.0 if 0 <= s <= 1 else 0.0)
+def y26_closed(s):
+    if -1 <= s < 0:
+        return 2 * s + 2
+    if 0 <= s < 2:
+        return 2 - 2 * s
+    if 2 <= s < 3:
+        return 2 * s - 6
+    return 0.0
+_ts26 = [-0.5, 0.5, 1.5, 2.5, -1.5, 3.5]
+_num26 = conv_ct(x26c, h26, _ts26, lo=-5, hi=6, npts=400001)
+chk("D3-26 closed form matches numerical convolution",
+    allclose([y26_closed(v) for v in _ts26], _num26, tol=1e-3),
+    f"closed={[y26_closed(v) for v in _ts26]}, numeric={[round(float(v),5) for v in _num26]}")
+chk("D3-26 (a) H(t) is a triangle of height 1 with zero total area",
+    close(float(np.trapezoid([h26(v) for v in np.linspace(-3, 3, 600001)],
+                             np.linspace(-3, 3, 600001))), 0.0, tol=1e-4))
+chk("D3-26 (check) areas multiply: 4 * 0 = 0",
+    close(float(np.trapezoid([y26_closed(v) for v in np.linspace(-3, 5, 800001)],
+                             np.linspace(-3, 5, 800001))), 0.0, tol=1e-4))
+chk("D3-26 (check) peak +2 at t=0 and -2 at t=2",
+    close(y26_closed(0.0), 2.0) and close(y26_closed(2.0), -2.0))
+chk("D3-26 (check) support [-1,3] = [0,2] + [-1,1]",
+    close(y26_closed(-1.1), 0.0) and close(y26_closed(3.1), 0.0))
+
+# --- D3-27 -----------------------------------------------------------------
+x27 = {0: 1, 1: 1}
+y27g = {0: 1, 1: 3, 2: 2}
+h27 = {0: 1, 1: 2}
+chk("D3-27 (a) the recovered h reproduces the given y",
+    conv_dt(x27, h27) == y27g, f"{dict(sorted(conv_dt(x27, h27).items()))}")
+x2_27 = {m: (-1) ** m for m in range(0, 4)}
+y2_27 = conv_dt(x2_27, h27)
+chk("D3-27 (b) y2[n] table",
+    y2_27 == {0: 1, 1: 1, 2: -1, 3: 1, 4: -2}, f"{dict(sorted(y2_27.items()))}")
+chk("D3-27 (check) sum rules: 2*3=6 in (a), 0*3=0 in (b)",
+    sum(y27g.values()) == sum(x27.values()) * sum(h27.values()) == 6
+    and sum(y2_27.values()) == sum(x2_27.values()) * sum(h27.values()) == 0)
+
+# --- D3-28 -----------------------------------------------------------------
+h1_28 = {m: 2.0 ** m for m in range(0, 40)}
+h2_28 = {m: 0.5 ** m for m in range(0, 200)}
+chk("D3-28 (a) h1 satisfies y[n] = x[n] + 2 y[n-1]",
+    all(close(h1_28[m], (1.0 if m == 0 else 0.0) + 2 * h1_28[m - 1])
+        for m in range(1, 30)))
+chk("D3-28 (b) sum |h1| diverges: partial sums double each step",
+    sum(h1_28[m] for m in range(0, 30)) > 1e8)
+chk("D3-28 (c) h2 satisfies y[n] = x[n] + y[n-1]/2",
+    all(close(h2_28[m], (1.0 if m == 0 else 0.0) + 0.5 * h2_28[m - 1])
+        for m in range(1, 30)))
+chk("D3-28 (c) sum |h2| = 2, so S2 is stable",
+    close(sum(h2_28.values()), 2.0))
+chk("D3-28 (c) the accumulator, |a| = 1, is also unstable",
+    sum(1.0 for _ in range(0, 10 ** 6)) > 1e5)
+
+# --- D3-29 -----------------------------------------------------------------
+h29 = {0: 1, 2: -1}
+x29d = {m: 1 for m in range(0, 4)}
+y29 = conv_dt(x29d, h29)
+chk("D3-29 (a) h gives y[n] = x[n] - x[n-2]", h29 == {0: 1, 2: -1})
+chk("D3-29 (b) y[n] table, with the flat interior cancelled",
+    y29 == {0: 1, 1: 1, 4: -1, 5: -1}, f"{dict(sorted(y29.items()))}")
+chk("D3-29 (check) sum rule: 4 * 0 = 0",
+    sum(y29.values()) == sum(x29d.values()) * sum(h29.values()) == 0)
+chk("D3-29 (c) causal and stable",
+    min(h29) >= 0 and close(sum(abs(v) for v in h29.values()), 2.0))
+
+# --- D3-30 -----------------------------------------------------------------
+x30c = lambda s: 1.0 if 0 <= s <= 2 else 0.0
+h30 = lambda s: math.exp(-s) if s >= 0 else 0.0
+y30_closed = lambda s: (0.0 if s < 0 else
+                        (1 - math.exp(-s) if s < 2
+                         else math.exp(-s) * (math.exp(2) - 1)))
+_ts30 = [-0.5, 0.5, 1.5, 2.5, 4.0]
+_num30 = conv_ct(x30c, h30, _ts30, lo=-4, hi=25, npts=600001)
+chk("D3-30 closed form matches numerical convolution",
+    allclose([y30_closed(v) for v in _ts30], _num30, tol=1e-4),
+    f"closed={[round(y30_closed(v),6) for v in _ts30]}, numeric={[round(float(v),6) for v in _num30]}")
+chk("D3-30 (b) pieces join at t=2 at the value 1 - exp(-2)",
+    close(y30_closed(1.9999999), y30_closed(2.0), tol=1e-6)
+    and close(y30_closed(2.0), 1 - math.exp(-2)))
+chk("D3-30 (c) output decays to zero",
+    close(y30_closed(40.0), 0.0, tol=1e-9) and y30_closed(20.0) > 0)
+chk("D3-30 (check) peak stays below the input height 1",
+    max(y30_closed(v) for v in np.linspace(0, 20, 20001)) < 1.0)

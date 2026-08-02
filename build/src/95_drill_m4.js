@@ -50,7 +50,13 @@ CONTENT.DRILLTYPES.M4 = [
             'A delay $t_0$ multiplies $a_k$ by $e^{-jk\\omega_0t_0}$: magnitudes are untouched, phases tilt linearly.',
             'Differentiation multiplies $a_k$ by $jk\\omega_0$.',
             'Multiplication by $e^{jM\\omega_0t}$ shifts the index: $b_k=a_{k-M}$.'],
-    go:'m4-props-1' }
+    go:'m4-props-1' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'One periodic signal, its coefficients, and what a system or a second signal does to them.',
+    method:['Find the fundamental period first and fix $\\omega_0$ from it. Every index in the answer is counted against that one $\\omega_0$, and a wrong period misplaces all of them.',
+            'Where a signal is a sum of sinusoids, expand each into complex exponentials and read the coefficients off; do not integrate what can be recognised.',
+            'Where a system is present, the coefficients pass through it one harmonic at a time: $b_k=a_kH(jk\\omega_0)$ in continuous time and $b_k=a_kH(e^{jk\\omega_0})$ in discrete time.',
+            'Check the power with Parseval. The average power is $\\sum_k|a_k|^{2}$, and it must agree with the value read straight off the amplitudes in the time domain.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -420,7 +426,238 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> By Parseval,$$P=\\sum_k|a_k|^2=1^2+2(2)^2+2(\\sqrt2)^2=1+8+4=13\\;\\text{W}.$$Using the real-form amplitudes $A_0=1$, $A_3=4$, $A_5=2\\sqrt2$,$$P=A_0^2+\\frac{A_3^2}{2}+\\frac{A_5^2}{2}=1+\\frac{16}{2}+\\frac{8}{2}=1+8+4=13\\;\\text{W}.$$'
      +'<b>Check.</b> Evaluate $x(0)$ two ways. Directly from all five coefficients: $a_0+a_3+a_{-3}+a_5+a_{-5}=1+2e^{j\\pi/3}+2e^{-j\\pi/3}+(1-j)+(1+j)=1+4\\cos(\\pi/3)+2=1+2+2=5$. From the real form: $1+4\\cos(\\pi/3)+2\\sqrt2\\cos(-\\pi/4)=1+2+2\\sqrt2\\cdot\\tfrac{\\sqrt2}{2}=1+2+2=5$. The two agree, independently of the power computation in part (c).',
   err:'Using $A_3=|a_3|=2$ and $A_5=|a_5|=\\sqrt2$ directly in the amplitude power formula instead of the doubled values $A_3=2|a_3|=4$ and $A_5=2|a_5|=2\\sqrt2$ that the real cosine form actually carries, which understates $P$ by a factor of $4$ on each harmonic term.',
-  teach:'This question only works if part (b) is trusted before part (c) is attempted: the amplitude rule in the Method needs the coefficients of the real cosines, not the magnitudes of the original complex $a_k$, and part (b) is where that distinction becomes concrete.' }
+  teach:'This question only works if part (b) is trusted before part (c) is attempted: the amplitude rule in the Method needs the coefficients of the real cosines, not the magnitudes of the original complex $a_k$, and part (b) is where that distinction becomes concrete.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. A periodic signal, its coefficients, and what a
+   system or a second signal does to them.
+   ---------------------------------------------------------------------- */
+
+{ id:'D4-21', module:'M4', type:'full', src:'MT2 Q1',
+  stem:'Let $$x[n]=2+(-1)^{n}\\qquad\\text{and}\\qquad y[n]=\\sin\\!\\left(\\tfrac{4\\pi}{5}n+\\tfrac{\\pi}{2}\\right)$$be two periodic signals.',
+  parts:['Determine the Fourier series coefficients and plot the magnitude of each coefficient for $x[n]$.',
+         'Determine the Fourier series coefficients and plot the magnitude of each coefficient for $y[n]$.',
+         'Let $z[n]=x[n]y[n]$ be a periodic signal with fundamental period $10$. Determine the Fourier series coefficients and plot the magnitude of each coefficient for $z[n]$.'],
+  sol:'<b>Given.</b> A two-sample alternating signal and a discrete-time sinusoid, and their product.<br>'
+     +'<b>Find.</b> Three sets of coefficients.<br>'
+     +'<b>Method.</b> Recognise rather than integrate. Write each signal as a sum of complex exponentials and read the coefficients off. For the product, express both factors over the common period $10$ first.<br>'
+     +'<b>Solution — part (a).</b> $(-1)^{n}=e^{j\\pi n}$, and with $N=2$ the fundamental frequency is $\\omega_0=\\tfrac{2\\pi}{2}=\\pi$. So$$x[n]=2e^{j0\\cdot\\pi n}+1\\cdot e^{j1\\cdot\\pi n},$$giving $a_0=2$ and $a_1=1$ over one period. The magnitudes are $|a_0|=2$ and $|a_1|=1$.<br>'
+     +'<b>Solution — part (b).</b> First $\\sin\\!\\left(\\theta+\\tfrac{\\pi}{2}\\right)=\\cos\\theta$, so $y[n]=\\cos\\!\\left(\\tfrac{4\\pi}{5}n\\right)$. Since $\\tfrac{4\\pi/5}{2\\pi}=\\tfrac25$, the period is $N=5$ and $\\omega_0=\\tfrac{2\\pi}{5}$. Then$$y[n]=\\tfrac12e^{j2\\omega_0n}+\\tfrac12e^{-j2\\omega_0n},$$so $b_2=b_{-2}=b_3=\\tfrac12$ over one period of five, and every other coefficient is zero.<br>'
+     +'<b>Solution — part (c).</b> Re-index both factors on $N=10$, where $\\Omega_0=\\tfrac{2\\pi}{10}=\\tfrac{\\pi}{5}$. Then $e^{j\\pi n}=e^{j5\\Omega_0n}$ and $e^{\\pm j4\\pi n/5}=e^{\\pm j4\\Omega_0n}$, so $A_0=2$, $A_5=1$ and $B_4=B_6=\\tfrac12$. Multiplying in time is periodic convolution of the coefficients, $C_k=\\sum_{m}A_mB_{k-m}$ with indices modulo $10$. Only $m=0$ and $m=5$ contribute:$$C_k=2B_k+B_{k-5}.$$That gives$$C_4=1,\\quad C_6=1,\\quad C_9=\\tfrac12,\\quad C_1=\\tfrac12,$$and zero at every other index.<br>'
+     +'<b>Check.</b> Expand the product directly:$$z[n]=\\{2+(-1)^{n}\\}\\cos\\!\\left(\\tfrac{4\\pi}{5}n\\right)=2\\cos\\!\\left(\\tfrac{4\\pi}{5}n\\right)+e^{j\\pi n}\\cos\\!\\left(\\tfrac{4\\pi}{5}n\\right).$$The first term gives coefficients $1$ at $k=\\pm4$, that is at $k=4$ and $k=6$. The second is $\\tfrac12e^{j(\\pi+4\\pi/5)n}+\\tfrac12e^{j(\\pi-4\\pi/5)n}$, and $\\pi\\pm\\tfrac{4\\pi}{5}$ are $9\\Omega_0$ and $\\Omega_0$, giving $\\tfrac12$ at $k=9$ and $k=1$. The two routes agree. Conjugate symmetry holds as it must for a real signal: $C_1=C_{-1}^{*}=C_9^{*}$ and $C_4=C_6^{*}$, both pairs real and equal.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,9.6],yr:[-0.15,1.3],xlabel:'k',ylabel:'|C_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[1,0.5],[4,1],[6,1],[9,0.5]],{color:C.mid}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,4.6],yr:[-0.15,0.7],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.25});
+      a.stem([[2,0.5],[3,0.5]],{color:C.in}); return a.svg();})()),
+  err:'Computing $C_k$ as the ordinary product $A_kB_k$. Multiplication in time is convolution of the coefficient sequences, not multiplication of them; the ordinary product would leave every coefficient zero here, since $A$ and $B$ are non-zero at no common index.',
+  teach:'Part (c) is the one worth doing twice, once by periodic convolution and once by expanding the product. The two routes agreeing is what convinces a student that the convolution rule is not an extra formula but the same algebra written differently.' },
+
+{ id:'D4-22', module:'M4', type:'full', src:'MT2 Q1',
+  stem:'Let $x[n]$ be a periodic signal with fundamental period $N=4$, sketched below.',
+  parts:['Plot the Fourier series coefficients of $x[n]$.',
+         'Compute the Fourier series coefficients and plot the magnitude of each coefficient for the signal $y[n]=x[n]-x[n-1]$.',
+         'Calculate the average power of the $y[n]$ signal defined in part (b).'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-4.6,8.6],yr:[-1.8,3.8],xlabel:'n',ylabel:'x[n]',
+      pad:{l:50,r:28,t:30,b:34},xstep:1,ystep:1});
+    a.stem([[-4,3],[-3,1],[-2,-1],[-1,1],[0,3],[1,1],[2,-1],[3,1],[4,3],[5,1],[6,-1],[7,1],[8,3]],{color:C.in});
+    return a.svg();},
+  sol:'<b>Given.</b> A period-four sequence with samples $3,1,-1,1$ at $n=0,1,2,3$.<br>'
+     +'<b>Find.</b> Its coefficients, the coefficients of its first difference, and the average power of that difference.<br>'
+     +'<b>Method.</b> Use the analysis equation over one period, with $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$ so that $e^{-jk\\omega_0n}=(-j)^{kn}$. For the difference, use the shift property rather than a second analysis.<br>'
+     +'<b>Solution — part (a).</b>$$a_k=\\frac14\\sum_{n=0}^{3}x[n](-j)^{kn}.$$Evaluating each:$$a_0=\\tfrac14(3+1-1+1)=1,$$$$a_1=\\tfrac14(3-j+1+j)=1,$$$$a_2=\\tfrac14(3-1-1-1)=0,$$$$a_3=\\tfrac14(3+j+1-j)=1.$$So the coefficients are $1,1,0,1$ at $k=0,1,2,3$.<br>'
+     +'<b>Solution — part (b).</b> A delay of one sample multiplies $a_k$ by $e^{-jk\\omega_0}=(-j)^{k}$, so$$b_k=a_k\\left\\{1-(-j)^{k}\\right\\}.$$That gives$$b_0=1(1-1)=0,\\quad b_1=1(1+j),\\quad b_2=0,\\quad b_3=1(1-j),$$with magnitudes $|b_0|=0$, $|b_1|=|b_3|=\\sqrt2$, $|b_2|=0$.<br>'
+     +'<b>Solution — part (c).</b> By Parseval for periodic sequences,$$P=\\sum_{k=\\langle4\\rangle}|b_k|^{2}=0+2+0+2=4\\;\\text{W}.$$'
+     +'<b>Check.</b> Build $y[n]$ directly: $y[0]=3-1=2$, $y[1]=1-3=-2$, $y[2]=-1-1=-2$, $y[3]=1+1=2$. Then$$P=\\frac14\\sum_{n=0}^{3}|y[n]|^{2}=\\frac14(4+4+4+4)=4\\;\\text{W},$$matching part (c). The vanishing of $b_0$ is also expected: a difference removes the constant, and $y[n]$ does sum to zero over one period.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.4],xlabel:'k',ylabel:'a_k',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,1],[1,1],[2,0],[3,1]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.8],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,0],[1,Math.SQRT2],[2,0],[3,Math.SQRT2]],{color:C.out}); return a.svg();})()),
+  err:'Taking $b_k=a_k-a_{k-1}$, differencing the coefficients instead of applying the shift property. A delay in time multiplies each coefficient by a phase factor; it does not difference the coefficient sequence.',
+  teach:'The check in part (c) is the whole value of the question: computing the power twice, once from the coefficients and once from four samples, is Parseval made concrete in a case small enough to verify by hand.' },
+
+{ id:'D4-23', module:'M4', type:'full', src:'MT2 Q1',
+  stem:'Let $x(t)$ be a periodic signal defined as$$x(t)=6\\cos^{2}\\!\\left(\\tfrac{\\pi}{4}t\\right)-4\\sin\\!\\left(\\tfrac{\\pi}{3}t\\right).$$',
+  parts:['Calculate the fundamental period of $x(t)$.',
+         'Plot the magnitude and phase of each set of Fourier series coefficients of $x(t)$.',
+         'Calculate the average power in one period of the periodic signal $x(t)$.'],
+  sol:'<b>Given.</b> A squared cosine and a sine at unrelated-looking frequencies.<br>'
+     +'<b>Find.</b> The fundamental period, the coefficients, and the average power.<br>'
+     +'<b>Method.</b> Linearise the square first with $\\cos^{2}\\theta=\\tfrac12(1+\\cos2\\theta)$. Only then are the frequencies present visible, and only then can the period be found.<br>'
+     +'<b>Solution — part (a).</b>$$6\\cos^{2}\\!\\left(\\tfrac{\\pi}{4}t\\right)=3+3\\cos\\!\\left(\\tfrac{\\pi}{2}t\\right),$$so the signal is$$x(t)=3+3\\cos\\!\\left(\\tfrac{\\pi}{2}t\\right)-4\\sin\\!\\left(\\tfrac{\\pi}{3}t\\right).$$The two harmonic terms have periods $T_1=\\tfrac{2\\pi}{\\pi/2}=4$ and $T_2=\\tfrac{2\\pi}{\\pi/3}=6$, so$$T_0=\\operatorname{lcm}(4,6)=12\\;\\text{s},\\qquad\\omega_0=\\frac{2\\pi}{12}=\\frac{\\pi}{6}\\;\\text{rad/s}.$$Note that squaring doubled the first frequency: without linearising, $T_1$ would have been read as $8$ and the answer as $24$.<br>'
+     +'<b>Solution — part (b).</b> Against $\\omega_0=\\tfrac{\\pi}{6}$, the term $\\cos\\!\\left(\\tfrac{\\pi}{2}t\\right)$ is the third harmonic and $\\sin\\!\\left(\\tfrac{\\pi}{3}t\\right)$ the second. Expanding,$$3\\cos(3\\omega_0t)=\\tfrac32e^{j3\\omega_0t}+\\tfrac32e^{-j3\\omega_0t},$$$$-4\\sin(2\\omega_0t)=2je^{j2\\omega_0t}-2je^{-j2\\omega_0t}.$$So$$a_0=3,\\quad a_{\\pm3}=\\tfrac32,\\quad a_2=2j,\\quad a_{-2}=-2j,$$and every other coefficient is zero. The magnitudes are $|a_0|=3$, $|a_{\\pm2}|=2$, $|a_{\\pm3}|=\\tfrac32$; the phases are $\\angle a_0=0$, $\\angle a_2=\\tfrac{\\pi}{2}$, $\\angle a_{-2}=-\\tfrac{\\pi}{2}$, $\\angle a_{\\pm3}=0$.<br>'
+     +'<b>Solution — part (c).</b> By Parseval,$$P=\\sum_{k}|a_k|^{2}=3^{2}+2^{2}+2^{2}+\\left(\\tfrac32\\right)^{2}+\\left(\\tfrac32\\right)^{2}=9+8+4.5=21.5\\;\\text{W}.$$'
+     +'<b>Check.</b> Compute the power from the amplitudes instead. A constant $A_0$ contributes $A_0^{2}$ and a sinusoid of amplitude $A$ contributes $\\tfrac{A^{2}}{2}$:$$P=3^{2}+\\frac{3^{2}}{2}+\\frac{4^{2}}{2}=9+4.5+8=21.5\\;\\text{W},$$the same number. The phase pattern is right too: $x$ is real, so $a_{-k}=a_k^{*}$, and the purely imaginary pair at $k=\\pm2$ is what a sine contributes, while the real pair at $k=\\pm3$ is what a cosine contributes.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-0.3,3.6],xlabel:'k',ylabel:'|a_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[-3,1.5],[-2,2],[0,3],[2,2],[3,1.5]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-2.2,2.2],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',
+      pad:{l:62,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[-3,0],[-2,-Math.PI/2],[0,0],[2,Math.PI/2],[3,0]],{color:C.mid}); return a.svg();})()),
+  err:'Reading the period of $\\cos^{2}\\!\\left(\\tfrac{\\pi}{4}t\\right)$ as $8$ seconds and concluding $T_0=24$. Squaring a cosine doubles its frequency and halves its period, so the term repeats every $4$ seconds, not every $8$.',
+  teach:'Part (a) is the trap and the lesson. Ask for a sketch of $\\cos^{2}$ over one cycle of $\\cos$ before any algebra: the picture shows two humps where the cosine has one, and the doubling becomes something the student saw rather than a rule they were told.' },
+
+{ id:'D4-24', module:'M4', type:'full', src:'MT2 Q2',
+  stem:'Let $x[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-4k]$ be the input of a discrete-time LTI system with impulse response $h[n]=\\left(\\tfrac12\\right)^{n}u[n]$. Let $y[n]=x[n]*h[n]$ be the output signal.',
+  parts:['Determine the Fourier series coefficients and plot the magnitude of each coefficient for $x[n]$.',
+         'Determine the frequency response of $h[n]$ and plot its magnitude spectrum.',
+         'Determine the Fourier series coefficients and plot the magnitude of each coefficient for $y[n]$.'],
+  sol:'<b>Given.</b> An impulse train of period $4$ driving a one-pole filter.<br>'
+     +'<b>Find.</b> The input coefficients, the frequency response, and the output coefficients.<br>'
+     +'<b>Method.</b> A periodic input passes through an LTI system one harmonic at a time: $b_k=a_kH\\!\\left(e^{jk\\omega_0}\\right)$. Nothing needs to be convolved.<br>'
+     +'<b>Solution — part (a).</b> With $N=4$ and one impulse per period,$$a_k=\\frac14\\sum_{n=0}^{3}x[n]e^{-jk\\frac{2\\pi}{4}n}=\\frac14\\cdot1=\\frac14$$for every $k$. An impulse train has a flat coefficient spectrum.<br>'
+     +'<b>Solution — part (b).</b>$$H\\!\\left(e^{j\\omega}\\right)=\\sum_{n=0}^{\\infty}\\left(\\tfrac12\\right)^{n}e^{-j\\omega n}=\\frac{1}{1-\\tfrac12e^{-j\\omega}},$$whose magnitude is$$\\left|H\\!\\left(e^{j\\omega}\\right)\\right|=\\frac{1}{\\sqrt{\\tfrac54-\\cos\\omega}},$$largest at $\\omega=0$, where it is $2$, and smallest at $\\omega=\\pi$, where it is $\\tfrac23$. This is a low-pass characteristic.<br>'
+     +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$,$$b_k=\\frac14\\cdot\\frac{1}{1-\\tfrac12e^{-jk\\pi/2}}.$$Evaluating the four distinct harmonics:$$b_0=\\frac{1/4}{1-\\tfrac12}=\\frac12,\\qquad b_2=\\frac{1/4}{1+\\tfrac12}=\\frac16,$$$$b_1=\\frac{1/4}{1+\\tfrac j2},\\qquad b_3=\\frac{1/4}{1-\\tfrac j2},$$so $|b_1|=|b_3|=\\dfrac{1/4}{\\sqrt{5}/2}=\\dfrac{1}{2\\sqrt5}\\approx0.2236$.<br>'
+     +'<b>Check.</b> The magnitudes must follow the shape of $\\left|H\\right|$, and they do: largest at $k=0$ where $|H|=2$, smallest at $k=2$ where $|H|=\\tfrac23$, and equal at $k=1$ and $k=3$ because those two frequencies, $\\tfrac{\\pi}{2}$ and $\\tfrac{3\\pi}{2}\\equiv-\\tfrac{\\pi}{2}$, are a conjugate pair. Each is $\\tfrac14$ times the corresponding $|H|$: $\\tfrac14\\cdot2=\\tfrac12$ and $\\tfrac14\\cdot\\tfrac23=\\tfrac16$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',
+      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+      a.curve(w=>1/Math.sqrt(1.25-Math.cos(w)),{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.06,0.62],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.25});
+      a.stem([[0,0.5],[1,1/(2*Math.sqrt(5))],[2,1/6],[3,1/(2*Math.sqrt(5))]],{color:C.out}); return a.svg();})()),
+  err:'Convolving $x$ and $h$ in the time domain and then analysing the result. It gives the same answer with far more work; the point of the Fourier series is that an LTI system acts on each coefficient separately.',
+  teach:'Ask what happens as the pole moves from $\\tfrac12$ towards $1$. The coefficient at $k=0$ grows without bound while the others stay finite, which is the frequency-domain picture of an accumulator losing stability.' },
+
+{ id:'D4-25', module:'M4', type:'full', src:'MT2 Q2',
+  stem:'Let $$x(t)=1+2\\cos\\!\\left(\\tfrac{\\pi}{2}t+\\tfrac{\\pi}{4}\\right)+3\\sin(\\pi t)$$be a periodic signal that is applied to a linear time-invariant (LTI) system with the impulse response $h(t)=\\delta(t)-2e^{-2t}u(t)$. At the output of the LTI system, the $y(t)$ signal is obtained.',
+  parts:['Determine the Fourier series coefficients and plot the magnitude of each coefficient for $x(t)$.',
+         'Determine the frequency response of $h(t)$.',
+         'Determine the Fourier series coefficients and plot the magnitude of each coefficient for $y(t)$.'],
+  sol:'<b>Given.</b> A constant plus two sinusoids, driving a system whose impulse response is an impulse minus a decaying exponential.<br>'
+     +'<b>Find.</b> The input coefficients, the frequency response, and the output coefficients.<br>'
+     +'<b>Method.</b> Fix $\\omega_0$ from the two periods, expand the sinusoids, then apply $b_k=a_kH(jk\\omega_0)$.<br>'
+     +'<b>Solution — part (a).</b> The periods are $T_1=\\tfrac{2\\pi}{\\pi/2}=4$ and $T_2=\\tfrac{2\\pi}{\\pi}=2$, so $T_0=4$ and $\\omega_0=\\tfrac{\\pi}{2}$. The cosine is the first harmonic and the sine the second:$$2\\cos(\\omega_0t+\\tfrac{\\pi}{4})=e^{j\\pi/4}e^{j\\omega_0t}+e^{-j\\pi/4}e^{-j\\omega_0t},$$$$3\\sin(2\\omega_0t)=-\\tfrac{3j}{2}e^{j2\\omega_0t}+\\tfrac{3j}{2}e^{-j2\\omega_0t}.$$So$$a_0=1,\\quad a_{1}=e^{j\\pi/4},\\quad a_{-1}=e^{-j\\pi/4},\\quad a_{2}=-\\tfrac{3j}{2},\\quad a_{-2}=\\tfrac{3j}{2},$$with magnitudes $1$, $1$, $1$, $\\tfrac32$, $\\tfrac32$.<br>'
+     +'<b>Solution — part (b).</b> Transforming term by term, $\\delta(t)\\to1$ and $2e^{-2t}u(t)\\to\\dfrac{2}{2+j\\omega}$, so$$H(j\\omega)=1-\\frac{2}{2+j\\omega}=\\frac{j\\omega}{2+j\\omega}.$$This is a high-pass characteristic: $H(0)=0$ and $|H|\\to1$ as $\\omega\\to\\infty$.<br>'
+     +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{\\pi}{2}$,$$b_0=a_0H(0)=0,$$so the constant is removed entirely. For the first harmonic, $\\left|H\\!\\left(j\\tfrac{\\pi}{2}\\right)\\right|=\\dfrac{\\pi/2}{\\sqrt{4+\\pi^{2}/4}}\\approx0.6177$, so $|b_{\\pm1}|\\approx0.6177$. For the second, $\\left|H(j\\pi)\\right|=\\dfrac{\\pi}{\\sqrt{4+\\pi^{2}}}\\approx0.8436$, so $|b_{\\pm2}|=\\tfrac32\\cdot0.8436\\approx1.2654$.<br>'
+     +'<b>Check.</b> The shape of the answer is what a high-pass filter must produce: the DC term is gone, the first harmonic is attenuated to about $62\\%$, and the second, being at twice the frequency, passes at about $84\\%$. The ordering $|b_0|<|b_1|<|b_2|$ is the reverse of what the low-pass system in the previous question gave, on an input with the same shape.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',
+      pad:{l:58,r:26,t:28,b:38},xstep:2,ystep:0.5});
+      a.curve(w=>Math.abs(w)/Math.sqrt(4+w*w),{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.12,1.5],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      const h1=(Math.PI/2)/Math.sqrt(4+Math.PI*Math.PI/4), h2=Math.PI/Math.sqrt(4+Math.PI*Math.PI);
+      a.stem([[-2,1.5*h2],[-1,h1],[0,0],[1,h1],[2,1.5*h2]],{color:C.out}); return a.svg();})()),
+  err:'Reporting $b_0=1$ because the impulse in $h(t)$ passes the input through unchanged. The exponential term also has a DC response, and the two cancel exactly: $H(0)=1-\\tfrac{2}{2}=0$.',
+  teach:'This is the cleanest example of a system removing a DC offset. Ask what $h(t)=\\delta(t)-ae^{-at}u(t)$ does for other values of $a$: the zero at $\\omega=0$ stays wherever $a$ goes, because the area of the exponential is always $1$.' },
+
+{ id:'D4-26', module:'M4', type:'full', src:'MT2 Q2',
+  stem:'The periodic signal $x[n]$ sketched below is the input of a discrete-time LTI system with the impulse response $h[n]=u[n+1]-u[n-2]$. Let $y[n]=x[n]*h[n]$ be the output signal.',
+  parts:['Plot the Fourier series coefficients of $x[n]$.',
+         'Determine the frequency response of $h[n]$.',
+         'Plot the Fourier series coefficients of $y[n]$.'],
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-4.6,8.6],yr:[-2.8,2.8],xlabel:'n',ylabel:'x[n]',
+      pad:{l:50,r:28,t:30,b:34},xstep:1,ystep:1});
+    a.stem([[-4,2],[-3,0],[-2,-2],[-1,0],[0,2],[1,0],[2,-2],[3,0],[4,2],[5,0],[6,-2],[7,0],[8,2]],{color:C.in});
+    return a.svg();},
+  sol:'<b>Given.</b> A period-four sequence with samples $2,0,-2,0$, driving a three-tap moving sum centred on $n$.<br>'
+     +'<b>Find.</b> The input coefficients, the frequency response, and the output coefficients.<br>'
+     +'<b>Method.</b> Recognise the input as a single sinusoid before analysing it. Read $h$ off its step form, then apply $b_k=a_kH\\!\\left(e^{jk\\omega_0}\\right)$.<br>'
+     +'<b>Solution — part (a).</b> The samples $2,0,-2,0$ are $x[n]=2\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$, so with $N=4$ and $\\omega_0=\\tfrac{\\pi}{2}$,$$x[n]=e^{j\\omega_0n}+e^{-j\\omega_0n},$$giving $a_1=a_{-1}=a_3=1$ and $a_0=a_2=0$.<br>'
+     +'<b>Solution — part (b).</b> The step difference gives $h[n]=1$ for $-1\\le n\\le1$, so$$H\\!\\left(e^{j\\omega}\\right)=\\sum_{n=-1}^{1}e^{-j\\omega n}=e^{j\\omega}+1+e^{-j\\omega}=1+2\\cos\\omega,$$real and even, as a symmetric impulse response must be.<br>'
+     +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
+     +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\;y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:1});
+      a.curve(w=>1+2*Math.cos(w),{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.4],xlabel:'k',ylabel:'b_k',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      a.stem([[0,0],[1,1],[2,0],[3,1]],{color:C.out}); return a.svg();})()),
+  err:'Reporting a gain of $3$ on the output because the filter has three taps of unit height. The gain of $3$ is the value of $H$ at $\\omega=0$ only; at the frequency this input actually occupies the gain is $1$.',
+  teach:'This question makes the point that a filter does nothing to a signal whose frequencies it passes at unit gain. Ask which input would be amplified by three — a constant — and which would be inverted — the alternating sequence at $\\omega=\\pi$.' },
+
+{ id:'D4-27', module:'M4', type:'full', src:'Final Q2',
+  stem:'Let $$a_k=\\begin{cases}2,&k\\text{ even}\\\\1,&k\\text{ odd}\\\\0,&|k|\\ge3\\end{cases}$$be the Fourier series coefficients of a continuous-time signal $x(t)$ which is periodic with $6$ seconds.',
+  parts:['Find the Fourier series representation of $x(t)$, and write it as a sum of real cosines.',
+         'Calculate the average power of $x(t)$.'],
+  sol:'<b>Given.</b> Five non-zero coefficients, specified by the parity of the index, on a period of six seconds.<br>'
+     +'<b>Find.</b> The signal itself and its average power.<br>'
+     +'<b>Method.</b> List the coefficients that survive, then pair $k$ with $-k$ to turn each pair of exponentials into a cosine.<br>'
+     +'<b>Solution — part (a).</b> With $T_0=6$ the fundamental frequency is $\\omega_0=\\tfrac{2\\pi}{6}=\\tfrac{\\pi}{3}$. The condition $|k|\\ge3$ leaves only $k=0,\\pm1,\\pm2$, and the parity rule gives$$a_0=2,\\quad a_{\\pm1}=1,\\quad a_{\\pm2}=2.$$The synthesis equation is then$$x(t)=\\sum_{k=-2}^{2}a_ke^{jk\\omega_0t}=2+\\left(e^{j\\omega_0t}+e^{-j\\omega_0t}\\right)+2\\left(e^{j2\\omega_0t}+e^{-j2\\omega_0t}\\right),$$and pairing the exponentials,$$x(t)=2+2\\cos\\!\\left(\\tfrac{\\pi}{3}t\\right)+4\\cos\\!\\left(\\tfrac{2\\pi}{3}t\\right).$$'
+     +'<b>Solution — part (b).</b> By Parseval,$$P=\\sum_{k=-2}^{2}|a_k|^{2}=2^{2}+1^{2}+1^{2}+2^{2}+2^{2}=14\\;\\text{W}.$$'
+     +'<b>Check.</b> Compute the power from the real form instead. The constant contributes $2^{2}=4$, the first cosine $\\tfrac{2^{2}}{2}=2$, the second $\\tfrac{4^{2}}{2}=8$, and $4+2+8=14$. The factor of two between the two routes is accounted for exactly: each cosine of amplitude $A$ splits into two coefficients of magnitude $\\tfrac A2$, contributing $2\\cdot\\tfrac{A^{2}}{4}=\\tfrac{A^{2}}{2}$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.6,3.6],yr:[-0.3,2.6],xlabel:'k',ylabel:'a_k',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[-2,2],[-1,1],[0,2],[1,1],[2,2]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-4.5,8.5],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:52,r:26,t:28,b:38},xstep:2,ystep:4});
+      a.curve(t=>2+2*Math.cos(Math.PI*t/3)+4*Math.cos(2*Math.PI*t/3),{color:C.out}); return a.svg();})()),
+  err:'Applying the parity rule to $|k|\\ge3$ as well and keeping coefficients at $k=\\pm4$ because $4$ is even. The three cases are read in order, and the last one overrides the first two wherever $|k|\\ge3$.',
+  teach:'Ask for $x(0)$ as a second check: from the real form it is $2+2+4=8$, and from the coefficients it is $\\sum_ka_k=2+1+1+2+2=8$. Evaluating the synthesis equation at one point is the cheapest test of a coefficient list there is.' },
+
+{ id:'D4-28', module:'M4', type:'full', src:'Final Q2',
+  stem:'A periodic signal $x[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-6k]$ is the input of a discrete-time LTI system with the impulse response$$h[n]=\\frac{\\sin\\!\\left(\\tfrac{\\pi}{2}n\\right)}{\\pi n}.$$Let $y[n]=x[n]*h[n]$ be the output signal.',
+  parts:['Plot the Fourier series coefficients of $x[n]$.',
+         'Plot the frequency response of $h[n]$.',
+         'Calculate the average power in one period for the periodic signal $y[n]$.'],
+  sol:'<b>Given.</b> An impulse train of period $6$ driving an ideal low-pass filter.<br>'
+     +'<b>Find.</b> The input coefficients, the frequency response, and the output power.<br>'
+     +'<b>Method.</b> The filter keeps the harmonics inside its band and deletes the rest, so the output power is a sum over the surviving harmonics only.<br>'
+     +'<b>Solution — part (a).</b> With $N=6$ and one impulse per period,$$a_k=\\frac16\\sum_{n=0}^{5}x[n]e^{-jk\\frac{2\\pi}{6}n}=\\frac16$$for every $k$: a flat spectrum, as every impulse train has.<br>'
+     +'<b>Solution — part (b).</b> The sequence $\\dfrac{\\sin(\\omega_cn)}{\\pi n}$ with $\\omega_c=\\tfrac{\\pi}{2}$ is the ideal low-pass filter,$$H\\!\\left(e^{j\\omega}\\right)=\\begin{cases}1,&|\\omega|\\le\\tfrac{\\pi}{2}\\\\0,&\\tfrac{\\pi}{2}<|\\omega|\\le\\pi,\\end{cases}$$repeating with period $2\\pi$.<br>'
+     +'<b>Solution — part (c).</b> The harmonics sit at $k\\omega_0=k\\tfrac{\\pi}{3}$. Taking $k$ over one period and folding to $|\\omega|\\le\\pi$: $k=0$ gives $0$, $k=1$ gives $\\tfrac{\\pi}{3}$, $k=5$ gives $-\\tfrac{\\pi}{3}$ — all inside the band; $k=2,3,4$ give $\\tfrac{2\\pi}{3}$, $\\pi$, $-\\tfrac{2\\pi}{3}$ — all outside. So$$b_0=b_1=b_5=\\tfrac16,\\qquad b_2=b_3=b_4=0,$$and by Parseval$$P_y=\\sum_{k=\\langle6\\rangle}|b_k|^{2}=3\\cdot\\frac{1}{36}=\\frac{1}{12}\\;\\text{W}\\approx0.0833\\;\\text{W}.$$'
+     +'<b>Check.</b> Build $y[n]$ and average it directly. From the three surviving coefficients,$$y[n]=\\tfrac16\\left(1+2\\cos\\tfrac{\\pi n}{3}\\right),$$so over one period $y=\\tfrac12,\\tfrac13,0,-\\tfrac16,0,\\tfrac13$ at $n=0,\\dots,5$, and$$P_y=\\frac16\\left(\\tfrac14+\\tfrac19+0+\\tfrac1{36}+0+\\tfrac19\\right)=\\frac16\\cdot\\frac12=\\frac1{12}\\;\\text{W}.$$The two routes agree. The input power is $\\sum|a_k|^{2}=6\\cdot\\tfrac1{36}=\\tfrac16$, so the filter removed exactly half of it.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:0.5});
+      a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
+      return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,5.6],yr:[-0.03,0.22],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.05});
+      a.stem([[0,1/6],[1,1/6],[2,0],[3,0],[4,0],[5,1/6]],{color:C.out}); return a.svg();})()),
+  err:'Keeping the harmonic at $k=4$ because $4\\omega_0=\\tfrac{4\\pi}{3}$ looks larger than $\\pi$ and so "outside the plotted range". Discrete-time frequencies are read modulo $2\\pi$, so $\\tfrac{4\\pi}{3}$ is the same frequency as $-\\tfrac{2\\pi}{3}$ — still outside the band, but for the right reason.',
+  teach:'The folding step in part (c) is where the discrete case differs from the continuous one, and it is worth doing out loud for all six indices. A student who folds correctly sees why the surviving set is symmetric about $k=0$ and must contain $k=5$ whenever it contains $k=1$.' },
+
+{ id:'D4-29', module:'M4', type:'full', src:'MT2 Q1',
+  stem:'Let $x(t)$ be the periodic square wave of period $T_0=4$ seconds defined over one period by$$x(t)=\\begin{cases}1,&|t|<1\\\\0,&1<|t|<2.\\end{cases}$$',
+  parts:['Give the fundamental frequency $\\omega_0$ and the Fourier series coefficients $a_k$.',
+         'State which coefficients vanish and say why.',
+         'Calculate the average power of $x(t)$, and verify it against Parseval.'],
+  sol:'<b>Given.</b> A square wave that is on for half of each period, centred on the origin.<br>'
+     +'<b>Find.</b> The coefficients, the pattern of the zeros, and the power.<br>'
+     +'<b>Method.</b> Integrate over one period. The signal is even and real, so the coefficients are real and even in $k$.<br>'
+     +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$, and$$a_k=\\frac14\\int_{-1}^{1}e^{-jk\\frac{\\pi}{2}t}\\,\\d t=\\frac14\\cdot\\frac{2\\sin\\!\\left(\\tfrac{k\\pi}{2}\\right)}{k\\pi/2}=\\frac{\\sin\\!\\left(\\tfrac{k\\pi}{2}\\right)}{k\\pi}$$for $k\\ne0$, and $a_0=\\tfrac14\\int_{-1}^{1}\\d t=\\tfrac12$. The first few are$$a_0=\\tfrac12,\\quad a_1=\\tfrac1\\pi,\\quad a_2=0,\\quad a_3=-\\tfrac1{3\\pi},\\quad a_4=0,\\quad a_5=\\tfrac1{5\\pi}.$$'
+     +'<b>Solution — part (b).</b> Every even $k$ other than zero gives $\\sin\\!\\left(\\tfrac{k\\pi}{2}\\right)=0$, so $a_k=0$ there. That is the signature of a duty cycle of exactly one half: the harmonic at $2\\omega_0$ completes a whole number of cycles inside the on-interval and inside the off-interval alike, and its contributions cancel.<br>'
+     +'<b>Solution — part (c).</b> Directly,$$P=\\frac14\\int_{-1}^{1}1^{2}\\,\\d t=\\frac12\\;\\text{W}.$$By Parseval,$$P=\\sum_k|a_k|^{2}=\\frac14+\\frac{2}{\\pi^{2}}\\left(1+\\frac19+\\frac1{25}+\\cdots\\right)=\\frac14+\\frac{2}{\\pi^{2}}\\cdot\\frac{\\pi^{2}}{8}=\\frac14+\\frac14=\\frac12\\;\\text{W}.$$'
+     +'<b>Check.</b> The two routes agree at $\\tfrac12$, and the direct computation is the easy one: the signal is $1$ for half the period and $0$ for the other half, so its mean square is exactly one half. The sum of odd reciprocal squares used in the second route, $1+\\tfrac19+\\tfrac1{25}+\\cdots=\\tfrac{\\pi^{2}}{8}$, is what makes the series close on the same number — which is a check on the coefficient formula, not an assumption of it.',
+  figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-6.6,6.6],yr:[-0.2,0.62],xlabel:'k',ylabel:'a_k',
+      pad:{l:52,r:28,t:30,b:34},xstep:1,ystep:0.25});
+    const pts=[]; for(let k=-6;k<=6;k++) pts.push([k, k===0?0.5:Math.sin(k*Math.PI/2)/(k*Math.PI)]);
+    a.stem(pts,{color:C.in}); return a.svg();},
+  err:'Reporting $a_0=\\tfrac{\\sin(0)}{0}$ as undefined, or as $1$. The formula for $a_k$ is derived by dividing by $k$ and is valid only for $k\\ne0$; the coefficient at $k=0$ is the average value, and it has to be integrated separately.',
+  teach:'The vanishing even harmonics are worth connecting to the duty cycle. Ask what the coefficients look like for an on-interval of length $1$ in a period of $4$ — the zeros move to every fourth index, and the student sees that the pattern of zeros reads the duty cycle straight off the spectrum.' },
+
+{ id:'D4-30', module:'M4', type:'full', src:'MT2 Q2',
+  stem:'Let $$x(t)=3+2\\cos(2t)+\\cos(4t)$$be the input to an LTI system with impulse response $h(t)=e^{-t}u(t)$, and let $y(t)$ be the output.',
+  parts:['Give the fundamental period of $x(t)$ and its Fourier series coefficients.',
+         'Determine the frequency response $H(j\\omega)$ and evaluate it at each harmonic present.',
+         'Determine the Fourier series coefficients of $y(t)$ and plot their magnitudes.'],
+  sol:'<b>Given.</b> A constant and two cosines driving a one-pole low-pass filter.<br>'
+     +'<b>Find.</b> The input coefficients, the frequency response at the harmonics, and the output coefficients.<br>'
+     +'<b>Method.</b> Fix $\\omega_0$ from the lower of the two frequencies, check that the higher is a whole multiple of it, then apply $b_k=a_kH(jk\\omega_0)$.<br>'
+     +'<b>Solution — part (a).</b> The periods are $\\tfrac{2\\pi}{2}=\\pi$ and $\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$, and the second divides the first, so $T_0=\\pi$ and $\\omega_0=2$ rad/s. The cosines are the first and second harmonics:$$a_0=3,\\quad a_{\\pm1}=1,\\quad a_{\\pm2}=\\tfrac12,$$every other coefficient zero.<br>'
+     +'<b>Solution — part (b).</b>$$H(j\\omega)=\\int_{0}^{\\infty}e^{-t}e^{-j\\omega t}\\,\\d t=\\frac{1}{1+j\\omega}.$$At the harmonics,$$H(0)=1,\\qquad H(j2)=\\frac{1}{1+2j},\\qquad H(j4)=\\frac{1}{1+4j},$$with magnitudes $1$, $\\tfrac{1}{\\sqrt5}\\approx0.4472$ and $\\tfrac{1}{\\sqrt{17}}\\approx0.2425$.<br>'
+     +'<b>Solution — part (c).</b>$$b_0=3,\\qquad b_{\\pm1}=\\frac{1}{1\\pm2j},\\qquad b_{\\pm2}=\\frac{1/2}{1\\pm4j},$$with magnitudes$$|b_0|=3,\\quad|b_{\\pm1}|=\\frac{1}{\\sqrt5}\\approx0.4472,\\quad|b_{\\pm2}|=\\frac{1}{2\\sqrt{17}}\\approx0.1213.$$'
+     +'<b>Check.</b> The filter is low-pass, so the DC term must pass untouched and each harmonic must be attenuated more than the one below it. That is the pattern: gain $1$ at $\\omega=0$, then $0.447$, then $0.243$. Reading the same thing as power, the input power is $9+2\\cdot1+2\\cdot\\tfrac14=11.5$ W and the output power is $9+2\\cdot\\tfrac15+2\\cdot\\tfrac1{68}\\approx9.43$ W, so the filter has removed about $18\\%$ of it, almost all of it from the highest harmonic.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,8],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',
+      pad:{l:58,r:26,t:28,b:38},xstep:2,ystep:0.5});
+      a.curve(w=>1/Math.sqrt(1+w*w),{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.25,3.4],xlabel:'k',ylabel:'|b_k|',
+      pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:1});
+      a.stem([[-2,1/(2*Math.sqrt(17))],[-1,1/Math.sqrt(5)],[0,3],[1,1/Math.sqrt(5)],[2,1/(2*Math.sqrt(17))]],{color:C.out});
+      return a.svg();})()),
+  err:'Taking $\\omega_0=4$ from the higher frequency and calling $\\cos(2t)$ a half-harmonic. The fundamental is the largest frequency that divides every frequency present, which is $2$ here, not the largest frequency present.',
+  teach:'Set this beside the high-pass question with the same shape of input. The two produce opposite orderings of $|b_k|$, and running both makes the point that the coefficient list of the output is the coefficient list of the input read through the shape of $|H|$.' }
 
 ]);
 
@@ -428,11 +665,11 @@ window.DRILLMAP_M4 = [
 
 { id:'m4-drill-map', module:'M4', nav:'Module 4 · question types',
   title:'Module 4 — what a question looks like', src:'pp. 22–41',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 4 question types Fourier series coefficients power spectrum taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 4 · Question types', src:'pp. 22–41'},
-  {t:'title', text:'Five shapes, and the method each one wants'},
+  {t:'title', text:'Six shapes, and the method each one wants'},
   {t:'lede', text:'Questions on Fourier series come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M4'}
@@ -447,10 +684,10 @@ window.DRILL_M4 = [
 
 { id:'m4-drill', module:'M4', nav:'Module 4 · practice questions',
   title:'Module 4 — practice questions', src:'pp. 22–41',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 4 practice Fourier series coefficients Parseval frequency response symmetry convergence',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 4 · Practice D4-01 … D4-20', src:'pp. 22–41'},
+  {t:'eyebrow', text:'Module 4 · Practice D4-01 … D4-30', src:'pp. 22–41'},
   {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: $a_0$ must equal the mean of one period, a real signal must satisfy $a_{-k}=a_k^{*}$, and the average power computed from the coefficients must match the power computed in time.'},
   {t:'rule', short:true},

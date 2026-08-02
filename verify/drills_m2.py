@@ -432,3 +432,177 @@ Tx20 = lambda xv, tv: xv * math.cos(tv - 1)  # T{x}(t) = x(t-1)cos(t-1) with x t
 lhs20b = Tx20(a20 * x1_20 + b20 * x2_20, tsamp20)
 rhs20b = a20 * Tx20(x1_20, tsamp20) + b20 * Tx20(x2_20, tsamp20)
 chk("D2-20 (d) overall connection is linear in the relocated sample of x", close(lhs20b, rhs20b))
+
+
+# ===========================================================================
+# Full-length questions D2-21 ... D2-30.
+#
+# The answers here are proofs and counterexamples rather than numbers, so what
+# is checked is that each named counterexample does what the solution claims:
+# that the two responses really do differ, that the bounded input really does
+# produce an unbounded output, and that the bound claimed for a stable system
+# really does hold.
+# ===========================================================================
+
+def _shift(x, n0):
+    """The sequence x delayed by n0, as a function of n."""
+    return lambda nn: x(nn - n0)
+
+
+# --- D2-21:  y[n] = sum_{k=0}^{n+2} sin(pi k / 6) x[k] -----------------------
+def S21(x, nn):
+    if nn + 2 < 0:
+        return 0.0
+    return sum(math.sin(math.pi * kk / 6) * x(kk) for kk in range(0, nn + 3))
+
+d0 = lambda nn: 1.0 if nn == 0 else 0.0
+d1 = lambda nn: 1.0 if nn == 1 else 0.0
+chk("D2-21 (iii) response to delta[n] is identically zero",
+    all(close(S21(d0, m), 0.0) for m in range(-2, 12)))
+chk("D2-21 (iii) response to delta[n-1] is 1/2 for n >= -1",
+    all(close(S21(d1, m), 0.5) for m in range(-1, 12)))
+chk("D2-21 (iii) shifted response differs from response to shifted input",
+    not close(S21(d1, 3), S21(d0, 2)),
+    f"y1[3]={S21(d1,3)}, y[2]={S21(d0,2)}")
+sgn21 = lambda kk: (1.0 if math.sin(math.pi * kk / 6) > 1e-12
+                    else (-1.0 if math.sin(math.pi * kk / 6) < -1e-12 else 0.0))
+_y21a, _y21b = S21(sgn21, 400), S21(sgn21, 4000)
+chk("D2-21 (v) bounded input drives the output past any bound",
+    all(abs(sgn21(kk)) <= 1 for kk in range(0, 200))
+    and _y21b > 2000 and _y21b > 9 * _y21a,
+    f"y[400]={_y21a:.2f}, y[4000]={_y21b:.2f}, ratio={_y21b/_y21a:.3f}")
+chk("D2-21 (v) the growth is linear, so no finite bound holds",
+    abs(_y21b / _y21a - 10.0) < 0.3, f"ratio={_y21b/_y21a:.4f} against 10")
+chk("D2-21 (iv) y[0] uses x[1] and x[2]",
+    not close(S21(lambda kk: 1.0 if kk == 2 else 0.0, 0), 0.0))
+chk("D2-21 (ii) linearity holds on a test pair",
+    close(S21(lambda kk: 2 * d0(kk) + 3 * d1(kk), 5),
+          2 * S21(d0, 5) + 3 * S21(d1, 5)))
+
+# --- D2-22:  y(t) = (t+2) x(t-3) --------------------------------------------
+uc = lambda s: 1.0 if s >= 0 else 0.0
+T22 = lambda x, s: (s + 2) * x(s - 3)
+chk("D2-22 (iii) y1(5) = 7 while y(4) = 6",
+    close(T22(lambda s: uc(s - 1), 5.0), 7.0)
+    and close(T22(uc, 4.0), 6.0)
+    and not close(T22(lambda s: uc(s - 1), 5.0), T22(uc, 4.0)))
+chk("D2-22 (v) bounded input x=1 gives y(t)=t+2, unbounded",
+    close(T22(lambda s: 1.0, 100.0), 102.0))
+chk("D2-22 (iv) causal: y(t) reads only t-3",
+    close(T22(lambda s: uc(s - 10), 5.0), 0.0))
+chk("D2-22 (ii) linearity holds on a test pair",
+    close(T22(lambda s: 2 * uc(s) + 3 * uc(s - 1), 6.0),
+          2 * T22(uc, 6.0) + 3 * T22(lambda s: uc(s - 1), 6.0)))
+
+# --- D2-23:  y(t) = Od{x(t)} -------------------------------------------------
+T23 = lambda x, s: 0.5 * (x(s) - x(-s))
+chk("D2-23 (iii) y1(0) = 0 while y(-1) = -1/2",
+    close(T23(lambda s: uc(s - 1), 0.0), 0.0)
+    and close(T23(uc, -1.0), -0.5))
+chk("D2-23 (iv) not causal: y(-2) needs x(2)",
+    not close(T23(lambda s: uc(s - 1), -2.0), T23(lambda s: 0.0, -2.0)))
+chk("D2-23 (v) |y| <= B for a bounded input",
+    all(abs(T23(lambda s: math.cos(7 * s), v)) <= 1.0 + 1e-12
+        for v in np.linspace(-5, 5, 501)))
+chk("D2-23 (ii) linearity holds on a test pair",
+    close(T23(lambda s: 2 * uc(s) + 3 * math.cos(s), 1.3),
+          2 * T23(uc, 1.3) + 3 * T23(math.cos, 1.3)))
+
+# --- D2-24:  y[n] = x[n] x[n-2] ---------------------------------------------
+T24 = lambda x, nn: x(nn) * x(nn - 2)
+d2 = lambda nn: 1.0 if nn == 2 else 0.0
+chk("D2-24 (ii) each input alone gives zero output",
+    all(close(T24(d0, m), 0.0) and close(T24(d2, m), 0.0) for m in range(-4, 8)))
+chk("D2-24 (ii) their sum gives delta[n-2], so additivity fails",
+    close(T24(lambda nn: d0(nn) + d2(nn), 2), 1.0)
+    and all(close(T24(lambda nn: d0(nn) + d2(nn), m), 0.0)
+            for m in range(-4, 8) if m != 2))
+chk("D2-24 (iii) time invariant on a test input",
+    all(close(T24(_shift(lambda nn: d0(nn) + 2 * d1(nn), 3), m),
+              T24(lambda nn: d0(nn) + 2 * d1(nn), m - 3)) for m in range(-4, 10)))
+chk("D2-24 (v) |y| <= B^2",
+    all(abs(T24(lambda nn: 3 * math.cos(nn), m)) <= 9.0 + 1e-12
+        for m in range(-20, 21)))
+
+# --- D2-25:  y(t) = integral to 2t ------------------------------------------
+chk("D2-25 (iii) delta input switches y on at t=0",
+    close(uc(2 * 0.1), 1.0) and close(uc(2 * -0.1), 0.0))
+chk("D2-25 (iii) delayed delta switches y on at t=1/2, not t=1",
+    close(uc(2 * 0.6 - 1), 1.0) and close(uc(2 * 0.4 - 1), 0.0),
+    "a delay of 1 at the input became a delay of 1/2 at the output")
+_grid25 = np.linspace(-30, 30, 600001)
+def I25(x, s):
+    m = _grid25 <= 2 * s
+    return float(np.trapezoid(np.array([x(v) for v in _grid25[m]]), _grid25[m])) if m.any() else 0.0
+chk("D2-25 (iv) not causal: y(1) integrates up to tau = 2",
+    not close(I25(lambda v: 1.0 if 1.5 < v < 1.9 else 0.0, 1.0), 0.0))
+chk("D2-25 (v) bounded step input gives y(t) = 2t, unbounded",
+    close(I25(uc, 5.0), 10.0, tol=1e-3), f"{I25(uc, 5.0):.4f}")
+
+# --- D2-26:  y[n] = n x[n+1] ------------------------------------------------
+T26 = lambda x, nn: nn * x(nn + 1)
+chk("D2-26 (iii) response to delta[n] is -delta[n+1]",
+    close(T26(d0, -1), -1.0)
+    and all(close(T26(d0, m), 0.0) for m in range(-6, 8) if m != -1))
+chk("D2-26 (iii) response to delta[n-1] is identically zero",
+    all(close(T26(d1, m), 0.0) for m in range(-6, 8)))
+chk("D2-26 (iii) so the two disagree at n = 0",
+    not close(T26(d1, 0), T26(d0, -1)))
+chk("D2-26 (v) bounded input x=1 gives y[n]=n, unbounded",
+    close(T26(lambda nn: 1.0, 500), 500.0))
+chk("D2-26 (ii) linearity holds on a test pair",
+    close(T26(lambda nn: 2 * d0(nn) + 3 * d1(nn), 4),
+          2 * T26(d0, 4) + 3 * T26(d1, 4)))
+
+# --- D2-27:  y(t) = exp(x(t)) -----------------------------------------------
+T27 = lambda x, s: math.exp(x(s))
+chk("D2-27 (ii) zero input gives output 1, not 0", close(T27(lambda s: 0.0, 2.0), 1.0))
+chk("D2-27 (ii) scaling fails: exp(2x) != 2 exp(x)",
+    not close(T27(lambda s: 2 * 1.3, 0.0), 2 * T27(lambda s: 1.3, 0.0)))
+chk("D2-27 (iii) time invariant",
+    all(close(T27(lambda s: math.cos(s - 1.7), v), T27(math.cos, v - 1.7))
+        for v in np.linspace(-4, 4, 81)))
+chk("D2-27 (v) |x| <= B gives |y| <= exp(B)",
+    all(abs(T27(lambda s: 2 * math.sin(s), v)) <= math.exp(2.0) + 1e-12
+        for v in np.linspace(-8, 8, 401)))
+
+# --- D2-28:  y[n] = sum_{k=n-3}^{n+3} x[k] ----------------------------------
+T28 = lambda x, nn: sum(x(kk) for kk in range(nn - 3, nn + 4))
+chk("D2-28 (iii) time invariant on a test input",
+    all(close(T28(_shift(lambda nn: d0(nn) + 2 * d2(nn), 5), m),
+              T28(lambda nn: d0(nn) + 2 * d2(nn), m - 5)) for m in range(-8, 14)))
+chk("D2-28 (iv) not causal: y[0] reads x[3]",
+    close(T28(lambda nn: 1.0 if nn == 3 else 0.0, 0), 1.0))
+chk("D2-28 (v) |y| <= 7B",
+    all(abs(T28(lambda nn: 2 * (-1) ** nn, m)) <= 14.0 + 1e-12 for m in range(-20, 21)))
+chk("D2-28 (v) the window has exactly seven terms",
+    close(T28(lambda nn: 1.0, 17), 7.0))
+
+# --- D2-29:  y(t) = x(t/3) --------------------------------------------------
+T29 = lambda x, s: x(s / 3.0)
+rect29 = lambda s: 1.0 if 0 <= s < 1 else 0.0
+chk("D2-29 (iii) pulse lands on [0,3) for the original input",
+    close(T29(rect29, 1.5), 1.0) and close(T29(rect29, 3.5), 0.0))
+chk("D2-29 (iii) a delay of 1 moved the output pulse to [3,6), a delay of 3",
+    close(T29(lambda s: rect29(s - 1), 4.5), 1.0)
+    and close(T29(lambda s: rect29(s - 1), 1.5), 0.0))
+chk("D2-29 (iv) not causal: y(-6) = x(-2) and -2 > -6",
+    close(T29(lambda s: 1.0 if -2.5 < s < -1.5 else 0.0, -6.0), 1.0))
+chk("D2-29 (v) |y| <= B",
+    all(abs(T29(lambda s: 4 * math.sin(s), v)) <= 4.0 + 1e-12
+        for v in np.linspace(-30, 30, 601)))
+
+# --- D2-30:  y(t) = x(t) cos(3t) --------------------------------------------
+T30 = lambda x, s: x(s) * math.cos(3 * s)
+chk("D2-30 (iii) constant input, output changes under a shift of pi/3",
+    close(T30(lambda s: 1.0, 0.4), math.cos(1.2))
+    and close(math.cos(3 * (0.4 - math.pi / 3)), -math.cos(1.2))
+    and not close(T30(lambda s: 1.0, 0.4), math.cos(3 * (0.4 - math.pi / 3))))
+chk("D2-30 (v) |y| <= B",
+    all(abs(T30(lambda s: 5 * math.sin(s), v)) <= 5.0 + 1e-12
+        for v in np.linspace(-10, 10, 501)))
+chk("D2-30 (ii) linearity holds on a test pair",
+    close(T30(lambda s: 2 * math.sin(s) + 3 * uc(s), 1.1),
+          2 * T30(math.sin, 1.1) + 3 * T30(uc, 1.1)))
+chk("D2-30 (i) memoryless: y(t) depends on x(t) alone",
+    close(T30(lambda s: 1.0 if abs(s - 2.0) < 1e-9 else 0.0, 5.0), 0.0))

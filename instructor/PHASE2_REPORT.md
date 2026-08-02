@@ -632,3 +632,44 @@ not taken from them, and the screen should not suggest otherwise.
 **Still open.** The five PDF editions. `notes/editions.js` was rewritten against the drill data in the
 same commit — it had still been reading the bank's `opts` and `a` fields, which stopped existing when
 the banks went open-ended on 2026-08-01 — but it has not been run or rendered since.
+
+---
+
+## 15. Maintenance record — 2026-08-02, the examination questions in the modules (v1.5)
+
+**What changed.** Every module from 1 to 7 grew from twenty practice questions to **thirty**, so the
+artifact carries 210. The ten added to each module are written in the form the examination papers use:
+one statement, three to five lettered parts, one worked solution covering all of them.
+
+**Where they came from.** The three analysis sheets in `source/exams` hold thirty-six questions — three
+papers, three years each (2018, 2019, 2021), four questions a year. All thirty-six are represented.
+Twenty-eight are carried whole into the module their subject belongs to. Final Q1 and Q2 mix modules and
+are split part by part: 2019 Q1(a) to Module 1 and Q1(b,c) to Module 3; 2019 Q2(a,b) to Module 4 and
+Q2(c) to Module 5. The remaining thirty-two are further variants of the same paper questions.
+
+**The rule that changed.** Until this work no question reproduced a paper question: the paper was a
+model for the skill and every setup was written fresh. A full-length question may now keep the shape —
+the same number of parts, in the same order, asking the same things — but not one number. Every
+coefficient, frequency, phase, support interval, decay rate, impulse location and figure is new, and a
+replacement must leave the character of the answer intact. `CLAUDE.md` §2 carries the rule; the design
+is in `docs/superpowers/specs/2026-08-02-exam-derived-questions-design.md`.
+
+**Schema and layout.** Neither changed. The questions use the fields that already existed — `stem`,
+`figure`, `parts`, `sol`, `figSol`, `err`, `teach`, `src` — and `.dr-page` already scrolled inside the
+stage, so a five-part solution needs no new mechanism. Each module's taxonomy gained a sixth entry,
+`k:'full'`, naming the form; the taxonomy scene titles were corrected from five shapes to six.
+
+**Verification.** `verify/drills_m1.py` … `drills_m7.py` gained 354 checks, taking the drill suite from
+559 to **913**. Module 2's answers are arguments rather than numbers, so what is checked there is that
+each named counterexample does what the solution claims — that the two responses really do differ, that
+the bounded input really does drive the output past any bound.
+
+**What the gates printed.** `node --check` silent; `qa.js` 0 errors, 0 overflow; `labtest.js`
+`DRILL pages=210 solutions=210 parts=621 options=0`, ERRORS none; `textclash.js` TOTAL COLLISIONS 0;
+`mathscan.js` 0 / 223; `notes/mathscan.js` LITERAL MATH 0, KATEX ERRORS 0; `seccheck.js` ADDRESSED 222,
+ANCHORED 196, PROBLEMS none; `verify_m1_m3.py` 50 passed; `verify_drills.py` 913 passed;
+`rule_check.py` TOTAL VIOLATIONS 0.
+
+**One repair during the work.** `textclash.js` found a collision in D6-22: the impulse weight labels of
+a spectrum plotted at half width ran into the neighbouring impulse. The two answer figures of that
+question were moved from a side-by-side pair to full width, and the sweep came back clean.

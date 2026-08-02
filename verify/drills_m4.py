@@ -490,3 +490,223 @@ tt20 = np.linspace(0, 2 * np.pi, 400001)
 xt20 = x20_real(tt20)
 P_time_20 = float(_trapz(xt20 ** 2, tt20) / (2 * np.pi))
 chk("D4-20 time-domain average power = 13 W (numeric integral)", close(P_time_20, 13, tol=1e-3), f"{P_time_20}")
+
+
+# ===========================================================================
+# Full-length questions D4-21 ... D4-30.
+#
+# Every discrete-time coefficient is recomputed by the analysis sum evaluated
+# numerically over one period, every continuous-time one by quadrature, and
+# every power is checked twice: once by Parseval from the coefficients and
+# once as a mean square in the time domain.
+# ===========================================================================
+
+def dt_fs(x, N):
+    """Fourier series coefficients of a period-N sequence, straight from the
+    analysis sum (not from any recognised pair)."""
+    return np.array([sum(x(m) * np.exp(-1j * 2 * np.pi * kk * m / N)
+                         for m in range(N)) / N for kk in range(N)])
+
+
+def ct_fs(x, T0, kmax=8, npts=200001):
+    """Fourier series coefficients of a T0-periodic signal, by quadrature."""
+    g = np.linspace(-T0 / 2, T0 / 2, npts)
+    xv = np.array([complex(x(v)) for v in g])
+    out = {}
+    for kk in range(-kmax, kmax + 1):
+        out[kk] = complex(np.trapezoid(xv * np.exp(-1j * 2 * np.pi * kk * g / T0), g) / T0)
+    return out
+
+
+# --- D4-21 -----------------------------------------------------------------
+a21 = dt_fs(lambda m: 2 + (-1.0) ** m, 2)
+chk("D4-21 (a) a0 = 2 and a1 = 1", allclose(a21, np.array([2.0, 1.0])), f"{a21}")
+b21 = dt_fs(lambda m: np.cos(4 * np.pi * m / 5), 5)
+chk("D4-21 (b) b2 = b3 = 1/2, others zero",
+    close(b21[2], 0.5) and close(b21[3], 0.5)
+    and allclose(b21[[0, 1, 4]], np.zeros(3)), f"{np.round(b21,6)}")
+z21f = lambda m: (2 + (-1.0) ** m) * np.cos(4 * np.pi * m / 5)
+c21 = dt_fs(z21f, 10)
+chk("D4-21 (c) C1 = C9 = 1/2 and C4 = C6 = 1",
+    close(c21[1], 0.5) and close(c21[9], 0.5)
+    and close(c21[4], 1.0) and close(c21[6], 1.0)
+    and allclose(c21[[0, 2, 3, 5, 7, 8]], np.zeros(6)), f"{np.round(c21,6)}")
+chk("D4-21 (c) z really has period 10",
+    all(close(z21f(m), z21f(m + 10)) for m in range(0, 20)))
+chk("D4-21 (check) conjugate symmetry, C1 = conj(C9)", close(c21[1], np.conj(c21[9])))
+
+# --- D4-22 -----------------------------------------------------------------
+x22p = lambda m: [3, 1, -1, 1][m % 4]
+a22 = dt_fs(x22p, 4)
+chk("D4-22 (a) a = (1, 1, 0, 1)",
+    allclose(a22, np.array([1.0, 1.0, 0.0, 1.0])), f"{np.round(a22,6)}")
+y22p = lambda m: x22p(m) - x22p(m - 1)
+b22 = dt_fs(y22p, 4)
+chk("D4-22 (b) b = (0, 1+j, 0, 1-j)",
+    allclose(b22, np.array([0.0, 1 + 1j, 0.0, 1 - 1j])), f"{np.round(b22,6)}")
+chk("D4-22 (b) |b1| = |b3| = sqrt(2)",
+    close(abs(b22[1]), np.sqrt(2)) and close(abs(b22[3]), np.sqrt(2)))
+chk("D4-22 (b) shift property: b_k = a_k (1 - (-j)^k)",
+    allclose(b22, np.array([a22[kk] * (1 - (-1j) ** kk) for kk in range(4)])))
+chk("D4-22 (c) P = 4 by Parseval", close(np.sum(np.abs(b22) ** 2), 4.0))
+chk("D4-22 (c) P = 4 as a mean square in time",
+    close(sum(abs(y22p(m)) ** 2 for m in range(4)) / 4, 4.0),
+    f"y = {[y22p(m) for m in range(4)]}")
+
+# --- D4-23 -----------------------------------------------------------------
+x23f = lambda s: 6 * np.cos(np.pi * s / 4) ** 2 - 4 * np.sin(np.pi * s / 3)
+chk("D4-23 (a) T0 = 12 and nothing shorter repeats",
+    all(close(x23f(v), x23f(v + 12)) for v in np.linspace(0, 5, 41))
+    and not all(close(x23f(v), x23f(v + 6)) for v in np.linspace(0, 5, 41))
+    and not all(close(x23f(v), x23f(v + 4)) for v in np.linspace(0, 5, 41)))
+a23 = ct_fs(x23f, 12.0, kmax=5)
+chk("D4-23 (b) a0 = 3, a2 = 2j, a-2 = -2j, a+-3 = 3/2",
+    close(a23[0], 3.0, tol=1e-4) and close(a23[2], 2j, tol=1e-4)
+    and close(a23[-2], -2j, tol=1e-4) and close(a23[3], 1.5, tol=1e-4)
+    and close(a23[-3], 1.5, tol=1e-4),
+    f"a0={a23[0]:.5f}, a2={a23[2]:.5f}, a3={a23[3]:.5f}")
+chk("D4-23 (b) every other coefficient vanishes",
+    all(close(a23[kk], 0.0, tol=1e-4) for kk in (-5, -4, -1, 1, 4, 5)))
+chk("D4-23 (c) P = 21.5 by Parseval",
+    close(sum(abs(v) ** 2 for v in a23.values()), 21.5, tol=1e-3),
+    f"{sum(abs(v)**2 for v in a23.values()):.6f}")
+_g23 = np.linspace(0, 12, 400001)
+chk("D4-23 (c) P = 21.5 as a mean square in time",
+    close(float(np.trapezoid(x23f(_g23) ** 2, _g23)) / 12.0, 21.5, tol=1e-4))
+chk("D4-23 (check) amplitude route also gives 21.5",
+    close(3 ** 2 + 3 ** 2 / 2 + 4 ** 2 / 2, 21.5))
+
+# --- D4-24 -----------------------------------------------------------------
+a24 = dt_fs(lambda m: 1.0 if m % 4 == 0 else 0.0, 4)
+chk("D4-24 (a) a_k = 1/4 for every k", allclose(a24, 0.25 * np.ones(4)))
+H24 = lambda om: 1 / (1 - 0.5 * np.exp(-1j * om))
+chk("D4-24 (b) H from the geometric sum matches the direct sum",
+    close(H24(0.7), sum(0.5 ** m * np.exp(-1j * 0.7 * m) for m in range(300))))
+chk("D4-24 (b) |H| is 2 at omega=0 and 2/3 at omega=pi",
+    close(abs(H24(0.0)), 2.0) and close(abs(H24(np.pi)), 2 / 3))
+b24 = np.array([a24[kk] * H24(kk * np.pi / 2) for kk in range(4)])
+chk("D4-24 (c) b0 = 1/2 and b2 = 1/6",
+    close(b24[0], 0.5) and close(b24[2], 1 / 6), f"{np.round(b24,6)}")
+chk("D4-24 (c) |b1| = |b3| = 1/(2 sqrt 5)",
+    close(abs(b24[1]), 1 / (2 * np.sqrt(5))) and close(abs(b24[3]), 1 / (2 * np.sqrt(5))),
+    f"{abs(b24[1]):.7f}")
+h24seq = {m: 0.5 ** m for m in range(0, 400)}
+x24seq = lambda m: 1.0 if m % 4 == 0 else 0.0
+y24direct = dt_fs(lambda m: sum(h24seq[kk] * x24seq(m - kk) for kk in range(0, 400)), 4)
+chk("D4-24 (check) coefficients agree with a direct convolution",
+    allclose(b24, y24direct, tol=1e-6), f"{np.round(y24direct,6)}")
+
+# --- D4-25 -----------------------------------------------------------------
+x25f = lambda s: 1 + 2 * np.cos(np.pi * s / 2 + np.pi / 4) + 3 * np.sin(np.pi * s)
+a25 = ct_fs(x25f, 4.0, kmax=4)
+chk("D4-25 (a) T0 = 4",
+    all(close(x25f(v), x25f(v + 4)) for v in np.linspace(0, 3, 31))
+    and not all(close(x25f(v), x25f(v + 2)) for v in np.linspace(0, 3, 31)))
+chk("D4-25 (a) a0 = 1, a1 = exp(j pi/4), a2 = -1.5j",
+    close(a25[0], 1.0, tol=1e-4) and close(a25[1], np.exp(1j * np.pi / 4), tol=1e-4)
+    and close(a25[2], -1.5j, tol=1e-4),
+    f"a1={a25[1]:.5f}, a2={a25[2]:.5f}")
+H25 = lambda om: 1j * om / (2 + 1j * om)
+chk("D4-25 (b) H(0) = 0, so the constant is removed", close(H25(0.0), 0.0))
+chk("D4-25 (b) H equals 1 - 2/(2+j omega)",
+    close(H25(1.3), 1 - 2 / (2 + 1j * 1.3)))
+chk("D4-25 (c) b0 = 0", close(a25[0] * H25(0.0), 0.0, tol=1e-6))
+chk("D4-25 (c) |H(j pi/2)| = 0.6177 and |H(j pi)| = 0.8436",
+    close(abs(H25(np.pi / 2)), 0.6177, tol=1e-4)
+    and close(abs(H25(np.pi)), 0.8436, tol=1e-4),
+    f"{abs(H25(np.pi/2)):.6f}, {abs(H25(np.pi)):.6f}")
+chk("D4-25 (c) |b2| = 1.5 * 0.8436 = 1.2654",
+    close(abs(a25[2] * H25(np.pi)), 1.2654, tol=1e-3),
+    f"{abs(a25[2]*H25(np.pi)):.6f}")
+
+# --- D4-26 -----------------------------------------------------------------
+x26p = lambda m: [2, 0, -2, 0][m % 4]
+a26 = dt_fs(x26p, 4)
+chk("D4-26 (a) a1 = a3 = 1, a0 = a2 = 0",
+    allclose(a26, np.array([0.0, 1.0, 0.0, 1.0])), f"{np.round(a26,6)}")
+chk("D4-26 (a) the samples are 2 cos(pi n / 2)",
+    all(close(x26p(m), 2 * np.cos(np.pi * m / 2)) for m in range(0, 8)))
+H26 = lambda om: 1 + 2 * np.cos(om)
+chk("D4-26 (b) H from the three taps equals 1 + 2 cos(omega)",
+    close(H26(0.9), sum(np.exp(-1j * 0.9 * m) for m in (-1, 0, 1))))
+chk("D4-26 (b) H = 3, 1, -1, 1 at the four harmonics",
+    allclose([H26(kk * np.pi / 2) for kk in range(4)], np.array([3.0, 1.0, -1.0, 1.0])))
+b26 = np.array([a26[kk] * H26(kk * np.pi / 2) for kk in range(4)])
+chk("D4-26 (c) b = a, so the filter leaves this input alone",
+    allclose(b26, a26), f"{np.round(b26,6)}")
+y26p = lambda m: x26p(m + 1) + x26p(m) + x26p(m - 1)
+chk("D4-26 (check) direct convolution gives y = x",
+    all(close(y26p(m), x26p(m)) for m in range(0, 12)),
+    f"y = {[y26p(m) for m in range(4)]}")
+
+# --- D4-27 -----------------------------------------------------------------
+a27 = {0: 2, 1: 1, -1: 1, 2: 2, -2: 2}
+x27f = lambda s: sum(a27[kk] * np.exp(1j * kk * 2 * np.pi * s / 6) for kk in a27)
+chk("D4-27 (a) synthesis gives 2 + 2cos(pi t/3) + 4cos(2 pi t/3)",
+    all(close(x27f(v), 2 + 2 * np.cos(np.pi * v / 3) + 4 * np.cos(2 * np.pi * v / 3))
+        for v in np.linspace(-3, 3, 61)))
+chk("D4-27 (a) the coefficients come back from the analysis integral",
+    all(close(ct_fs(lambda s: x27f(s).real, 6.0, kmax=3)[kk], a27[kk], tol=1e-4)
+        for kk in a27))
+chk("D4-27 (b) P = 14 by Parseval", close(sum(abs(v) ** 2 for v in a27.values()), 14.0))
+_g27 = np.linspace(0, 6, 300001)
+chk("D4-27 (b) P = 14 as a mean square in time",
+    close(float(np.trapezoid(np.abs(x27f(_g27)) ** 2, _g27)) / 6.0, 14.0, tol=1e-4))
+chk("D4-27 (check) x(0) = 8 by both routes",
+    close(x27f(0.0), 8.0) and close(sum(a27.values()), 8))
+
+# --- D4-28 -----------------------------------------------------------------
+a28 = dt_fs(lambda m: 1.0 if m % 6 == 0 else 0.0, 6)
+chk("D4-28 (a) a_k = 1/6 for every k", allclose(a28, np.ones(6) / 6))
+_om28 = [(kk * np.pi / 3 + np.pi) % (2 * np.pi) - np.pi for kk in range(6)]
+b28 = np.array([a28[kk] * (1.0 if abs(_om28[kk]) <= np.pi / 2 else 0.0) for kk in range(6)])
+chk("D4-28 (c) only k = 0, 1, 5 survive the band",
+    allclose(b28, np.array([1 / 6, 1 / 6, 0, 0, 0, 1 / 6])), f"{np.round(b28,6)}")
+chk("D4-28 (c) P = 1/12 by Parseval",
+    close(np.sum(np.abs(b28) ** 2), 1 / 12), f"{np.sum(np.abs(b28)**2):.8f}")
+y28 = lambda m: (1 + 2 * np.cos(np.pi * m / 3)) / 6
+chk("D4-28 (check) P = 1/12 as a mean square in time",
+    close(sum(abs(y28(m)) ** 2 for m in range(6)) / 6, 1 / 12),
+    f"y = {[round(float(y28(m)),6) for m in range(6)]}")
+chk("D4-28 (check) the filter removed exactly half the input power",
+    close(np.sum(np.abs(a28) ** 2), 1 / 6)
+    and close(np.sum(np.abs(b28) ** 2), 0.5 * np.sum(np.abs(a28) ** 2)))
+
+# --- D4-29 -----------------------------------------------------------------
+sq29 = lambda s: 1.0 if abs(((s + 2) % 4) - 2) < 1 else 0.0
+a29num = ct_fs(sq29, 4.0, kmax=6)
+a29closed = lambda kk: 0.5 if kk == 0 else np.sin(kk * np.pi / 2) / (kk * np.pi)
+chk("D4-29 (a) closed form matches the analysis integral",
+    all(close(a29num[kk], a29closed(kk), tol=1e-4) for kk in range(-6, 7)),
+    f"a0={a29num[0]:.6f}, a1={a29num[1]:.6f}, a3={a29num[3]:.6f}")
+chk("D4-29 (a) a0 = 1/2, a1 = 1/pi, a3 = -1/(3 pi)",
+    close(a29closed(0), 0.5) and close(a29closed(1), 1 / np.pi)
+    and close(a29closed(3), -1 / (3 * np.pi)))
+chk("D4-29 (b) every non-zero even coefficient vanishes",
+    all(close(a29closed(kk), 0.0) for kk in (2, 4, 6, -2, -4, -6)))
+chk("D4-29 (c) P = 1/2 directly", close(0.25 * 2.0, 0.5))
+chk("D4-29 (c) P = 1/2 by Parseval over many harmonics",
+    close(0.25 + sum(2 * a29closed(kk) ** 2 for kk in range(1, 4001, 2)), 0.5, tol=1e-4),
+    f"{0.25 + sum(2*a29closed(kk)**2 for kk in range(1,4001,2)):.8f}")
+
+# --- D4-30 -----------------------------------------------------------------
+x30f = lambda s: 3 + 2 * np.cos(2 * s) + np.cos(4 * s)
+a30 = ct_fs(x30f, np.pi, kmax=3)
+chk("D4-30 (a) T0 = pi and omega0 = 2",
+    all(close(x30f(v), x30f(v + np.pi)) for v in np.linspace(0, 2, 41))
+    and not all(close(x30f(v), x30f(v + np.pi / 2)) for v in np.linspace(0, 2, 41)))
+chk("D4-30 (a) a0 = 3, a+-1 = 1, a+-2 = 1/2",
+    close(a30[0], 3.0, tol=1e-4) and close(a30[1], 1.0, tol=1e-4)
+    and close(a30[2], 0.5, tol=1e-4), f"a0={a30[0]:.5f}, a1={a30[1]:.5f}, a2={a30[2]:.5f}")
+H30 = lambda om: 1 / (1 + 1j * om)
+chk("D4-30 (b) |H(j2)| = 1/sqrt5 and |H(j4)| = 1/sqrt17",
+    close(abs(H30(2.0)), 1 / np.sqrt(5)) and close(abs(H30(4.0)), 1 / np.sqrt(17)))
+chk("D4-30 (c) |b0| = 3, |b1| = 1/sqrt5, |b2| = 1/(2 sqrt17)",
+    close(abs(a30[0] * H30(0.0)), 3.0, tol=1e-4)
+    and close(abs(a30[1] * H30(2.0)), 1 / np.sqrt(5), tol=1e-4)
+    and close(abs(a30[2] * H30(4.0)), 1 / (2 * np.sqrt(17)), tol=1e-4),
+    f"|b1|={abs(a30[1]*H30(2.0)):.6f}, |b2|={abs(a30[2]*H30(4.0)):.6f}")
+chk("D4-30 (check) input power 11.5, output power about 9.43",
+    close(9 + 2 * 1 + 2 * 0.25, 11.5)
+    and close(9 + 2 * (1 / 5) + 2 * (1 / 68), 9.4294, tol=1e-3),
+    f"{9 + 2*(1/5) + 2*(1/68):.6f}")

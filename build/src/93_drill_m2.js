@@ -47,7 +47,13 @@ CONTENT.DRILLTYPES.M2 = [
             'In parallel, the outputs add. A property that survives addition survives the connection.',
             'In feedback, the relation is implicit. Iterate it, or solve it, before anything else — stability of a feedback loop usually comes down to a condition on the loop gain.',
             'For invertibility, find an inversion formula that works for every input, or find two distinct inputs that share one output.'],
-    go:'m2-invertible' }
+    go:'m2-invertible' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'One system, tested against all five properties in turn.',
+    method:['Take the properties one at a time and in the order asked. Each has its own test, and none of them substitutes for another.',
+            'To claim a property, prove it for every input. To deny one, a single counterexample settles it, and is worth more than a paragraph of words.',
+            'For time invariance, build the response to the shifted input and the shift of the response separately, then compare the two. Do not argue from the look of the equation.',
+            'A coefficient that depends on the independent variable breaks time invariance. A coefficient that grows without bound, or a sum with a growing number of terms, usually breaks stability.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -428,7 +434,203 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (d).</b> $S_1$ is linear, since multiplying by the fixed function $\\cos(t)$ is linear in $x$; $S_2$ is linear, since a pure delay is linear. A series connection of two linear systems is linear. <b>The overall connection is linear.</b> This is confirmed directly: $T\\{x\\}(t)=x(t-1)\\cos(t-1)$ is a fixed function of $t$ multiplied by a relocated sample of $x$, with no product or power of $x$ itself.<br>'
      +'<b>Check.</b> The time-invariant stage, $S_2$, never repairs the failure of $S_1$: because $S_2$ only relocates its argument, whatever mismatch $S_1$ produces between a shifted response and a response to a shifted input is carried, unchanged in kind, through the delay. Numerically, $\\cos(0)=1$ against $\\sin(0)=0$ is exactly the pair of values used in part (a), only evaluated one second later in $t$ — the failure of the connection is the failure of $S_1$, read off one instant later.',
   err:'Concluding that the series connection must be time invariant because $S_2$ is. A single time-invariant stage cannot restore a property that a different stage in the same chain has already lost.',
-  teach:'This question is the place to make the general point precise: time invariance of a series connection needs every stage to have it, while linearity of a series connection needs only that every stage be linear. The two closure statements are not interchangeable, and this system is built to keep one and lose the other.' }
+  teach:'This question is the place to make the general point precise: time invariance of a series connection needs every stage to have it, while linearity of a series connection needs only that every stage be linear. The two closure statements are not interchangeable, and this system is built to keep one and lose the other.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. One system, all five properties, each answer
+   carrying its own proof or its own counterexample.
+   ---------------------------------------------------------------------- */
+
+{ id:'D2-21', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y[n]=\\sum_{k=0}^{n+2}\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)x[k].$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer; an unjustified answer earns nothing.'],
+  sol:'<b>Given.</b> A running weighted sum whose lower limit is fixed at $k=0$ and whose upper limit runs to $n+2$.<br>'
+     +'<b>Find.</b> All five properties, each with a proof or a counterexample.<br>'
+     +'<b>Method.</b> Read the two limits first. A fixed lower limit and a variable weight both point away from time invariance; an upper limit above $n$ points away from causality.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> $y[n]$ collects every sample from $k=0$ to $k=n+2$, so it depends on values of $x$ at indices other than $n$. For instance $y[3]$ uses $x[0]$ through $x[5]$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> For $x[k]=\\alpha x_1[k]+\\beta x_2[k]$,$$y[n]=\\sum_{k=0}^{n+2}\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)\\{\\alpha x_1[k]+\\beta x_2[k]\\}=\\alpha y_1[n]+\\beta y_2[n],$$because a finite sum of scaled terms splits. The weights do not involve $x$, so nothing non-linear enters.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x[n]=\\delta[n]$. Only $k=0$ survives, and $\\sin(0)=0$, so $y[n]=0$ for every $n\\ge-2$. Now take $x_1[n]=\\delta[n-1]$, a delay by one. Only $k=1$ survives, giving$$y_1[n]=\\sin\\!\\left(\\tfrac{\\pi}{6}\\right)=\\tfrac12\\quad\\text{for }n\\ge-1.$$If the system were time-invariant, $y_1[n]$ would equal $y[n-1]=0$. It does not, so the system is not time-invariant. Both the $k$-dependent weight and the fixed lower limit are responsible.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> The upper limit $n+2$ reaches two samples into the future: $y[0]$ uses $x[1]$ and $x[2]$.<br>'
+     +'<b>Solution — (v) stable.</b> <b>No.</b> Choose the bounded input $x[k]=\\operatorname{sgn}\\!\\left(\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)\\right)$, so $|x[k]|\\le1$. Every term of the sum is then $\\left|\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)\\right|\\ge0$, and over each period of $12$ samples the terms add to a fixed positive amount. The running sum therefore grows without bound as $n\\to\\infty$, and a bounded input has produced an unbounded output.<br>'
+     +'<b>Check.</b> The counterexample in (iii) survives the obvious objection: it is not the delay that fails but the weight, and choosing $\\delta[n]$ against $\\delta[n-1]$ isolates exactly that, since the two inputs differ only by a shift. The instability in (v) is not automatic — a plain running sum $\\sum_{k=0}^{n}x[k]$ is also unstable, but a weighted sum could have been stable if the weights were absolutely summable. Here they are not: $\\left|\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)\\right|$ does not decay at all.',
+  err:'Calling the system stable because $\\left|\\sin\\!\\left(\\tfrac{\\pi}{6}k\\right)\\right|\\le1$ bounds each term. Each term being bounded says nothing when the number of terms grows with $n$; stability needs the weights to be absolutely summable, and a bounded non-decaying weight never is.',
+  teach:'Part (iii) is where a chosen counterexample beats an argument. A student who writes "the weight depends on $k$, so it is not time-invariant" has the right instinct and no proof; the pair $\\delta[n]$ and $\\delta[n-1]$ turns it into one in two lines.' },
+
+{ id:'D2-22', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input-output relationship of a system.$$y(t)=(t+2)\\,x(t-3)$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A delay of three seconds followed by multiplication by the ramp $t+2$.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> Separate the two operations. The delay is time-invariant and causal; the multiplying factor is what decides the rest.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> $y(t)$ is built from $x(t-3)$, a value three seconds in the past, not from $x(t)$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> For $x=\\alpha x_1+\\beta x_2$,$$y(t)=(t+2)\\{\\alpha x_1(t-3)+\\beta x_2(t-3)\\}=\\alpha y_1(t)+\\beta y_2(t).$$Multiplying by a fixed function of $t$ is a linear operation on $x$: the factor never involves $x$ itself.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x(t)=u(t)$, so $y(t)=(t+2)u(t-3)$. Now delay the input by one second, $x_1(t)=u(t-1)$, giving$$y_1(t)=(t+2)u(t-4).$$The delayed response is $y(t-1)=(t+1)u(t-4)$. The two agree on where they switch on but not on their amplitude — at $t=5$, $y_1(5)=7$ while $y(4)=6$ — so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>Yes.</b> $y(t)$ uses only $x(t-3)$, and $t-3<t$ for every $t$. No future value is ever read.<br>'
+     +'<b>Solution — (v) stable.</b> <b>No.</b> The bounded input $x(t)=1$ for all $t$ gives $y(t)=t+2$, which grows without bound as $t\\to\\infty$. A bounded input has produced an unbounded output.<br>'
+     +'<b>Check.</b> The two failures have one cause and the two successes another. The factor $t+2$ is a function of $t$, which is what breaks time invariance, and it is unbounded, which is what breaks stability; the delay by $3$ is what makes the system causal and not memoryless, and it is innocent of both failures. Replacing $t+2$ by the constant $2$ would leave a system that is time-invariant and stable, with (i) and (iv) unchanged.',
+  err:'Calling the system non-linear because of the factor $t+2$. Linearity is tested in $x$, not in $t$: a coefficient that depends on time is still a coefficient, and multiplying by it preserves both additivity and scaling.',
+  teach:'Ask what changes if the factor is $t+2$ or $\\cos t$. Both break time invariance; only the first breaks stability. Separating the two failures is the point of the question.' },
+
+{ id:'D2-23', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y(t)=\\Od\\{x(t)\\}=\\tfrac12[x(t)-x(-t)].$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> The system that returns the odd part of its input.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> The reflection $x(-t)$ is what does everything here. Ask what it reads at a given instant, and how it responds to a shift.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> $y(t)$ needs $x(-t)$ as well as $x(t)$, and for $t\\ne0$ these are values at two different instants. For instance $y(2)=\\tfrac12[x(2)-x(-2)]$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> Reflection and subtraction are both linear:$$\\tfrac12[\\{\\alpha x_1(t)+\\beta x_2(t)\\}-\\{\\alpha x_1(-t)+\\beta x_2(-t)\\}]=\\alpha y_1(t)+\\beta y_2(t).$$'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x(t)=u(t)$, so $y(t)=\\tfrac12[u(t)-u(-t)]$, which is $+\\tfrac12$ for $t>0$ and $-\\tfrac12$ for $t<0$. Now delay by one, $x_1(t)=u(t-1)$, giving$$y_1(t)=\\tfrac12[u(t-1)-u(-t-1)],$$which is $+\\tfrac12$ for $t>1$, $-\\tfrac12$ for $t<-1$, and $0$ in between. The delayed response $y(t-1)$ is $+\\tfrac12$ for $t>1$ and $-\\tfrac12$ for $t<1$, with no flat stretch at all. At $t=0$ the two differ, $y_1(0)=0$ against $y(-1)=-\\tfrac12$, so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> For $t<0$ the reflection reads the future: $y(-2)=\\tfrac12[x(-2)-x(2)]$ needs $x(2)$, four seconds ahead.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> If $|x(t)|\\le B$ for every $t$, then$$|y(t)|\\le\\tfrac12\\{|x(t)|+|x(-t)|\\}\\le\\tfrac12(B+B)=B,$$so the output is bounded by the same bound as the input.<br>'
+     +'<b>Check.</b> The counterexample in (iii) is worth reading twice: the response to the shifted step has a flat middle section that the shifted response does not, and that section exists because the reflection point stays at the origin while the signal moves away from it. That is the general reason reflection is never time-invariant — the origin is a fixed landmark for the system and not for the signal.',
+  err:'Answering (v) with "no", on the argument that the system reads the future and so cannot be well behaved. Causality and stability are independent: this system is stable and non-causal at once, and the bound $|y|\\le B$ holds whatever the system does with the time axis.',
+  teach:'Set this beside the even-part system. Every answer is the same for both, including the bound in (v), which is worth pointing out: taking the odd part can only reduce the magnitude, never increase it beyond the input bound.' },
+
+{ id:'D2-24', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y[n]=x[n]\\,x[n-2].$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A system that multiplies each sample by the sample two places behind it.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> A product of two values of the input is the signature of a non-linear system. Everything else follows from the fact that no coefficient depends on $n$.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> $y[n]$ needs $x[n-2]$ as well as $x[n]$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>No.</b> Take $x_1[n]=\\delta[n]$ and $x_2[n]=\\delta[n-2]$. Each alone gives zero output, since the two factors are never non-zero at the same index: $y_1[n]=y_2[n]=0$. Their sum $x[n]=\\delta[n]+\\delta[n-2]$ gives$$y[n]=\\{\\delta[n]+\\delta[n-2]\\}\\{\\delta[n-2]+\\delta[n-4]\\}=\\delta[n-2],$$because the term $\\delta[n-2]\\delta[n-2]$ survives. Additivity would require $y[n]=y_1[n]+y_2[n]=0$, and it does not hold.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>Yes.</b> Let $x_1[n]=x[n-n_0]$. Then$$y_1[n]=x_1[n]x_1[n-2]=x[n-n_0]x[n-n_0-2]=y[n-n_0].$$No coefficient depends on $n$, so a shift of the input produces exactly the shift of the output.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>Yes.</b> The output at $n$ uses the indices $n$ and $n-2$ only, neither of them in the future.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> If $|x[n]|\\le B$ then $|y[n]|=|x[n]||x[n-2]|\\le B^{2}$, a finite bound.<br>'
+     +'<b>Check.</b> The counterexample in (ii) is the one to trust, because the easy test fails here: scaling alone does not expose the system, since $x\\to2x$ gives $y\\to4y$, which looks like a failure of homogeneity and is, but the cleaner demonstration is the additivity pair above, where two inputs with zero output produce a non-zero output together. Note that (iii) and (v) hold in spite of (ii): a non-linear system can be perfectly time-invariant and perfectly stable.',
+  err:'Concluding from (ii) that the system cannot be time-invariant. Linearity and time invariance are independent properties; this system fails the first and satisfies the second, which is exactly why the two are tested separately.',
+  teach:'The pair in (ii) is worth setting as a small exercise on its own: find two inputs that each give zero output and whose sum does not. It shows that additivity can fail even where scaling looks harmless.' },
+
+{ id:'D2-25', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input-output relationship of a system.$$y(t)=\\int_{-\\infty}^{2t}x(\\tau)\\,\\d\\tau$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A running integral whose upper limit is $2t$ rather than $t$.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> The integral by itself is linear, unstable and causal; the factor $2$ in the limit is what changes the last two answers.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> The output accumulates the whole past of the input, so it depends on values of $x$ at every instant up to $2t$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> Integration is linear:$$\\int_{-\\infty}^{2t}\\{\\alpha x_1(\\tau)+\\beta x_2(\\tau)\\}\\,\\d\\tau=\\alpha y_1(t)+\\beta y_2(t).$$'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x(t)=\\delta(t)$, so $y(t)=u(2t)=u(t)$: the step switches on at $t=0$. Delay the input by one, $x_1(t)=\\delta(t-1)$, and$$y_1(t)=u(2t-1)=u\\!\\left(t-\\tfrac12\\right),$$which switches on at $t=\\tfrac12$. The delayed response $y(t-1)=u(t-1)$ switches on at $t=1$. A delay of one at the input produced a delay of one half at the output, so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> For $t>0$ the upper limit $2t$ exceeds $t$, so the output reads the future: $y(1)$ integrates $x$ up to $\\tau=2$.<br>'
+     +'<b>Solution — (v) stable.</b> <b>No.</b> The bounded input $x(t)=1$ gives $y(t)=\\int_{-\\infty}^{2t}\\d\\tau$, which is infinite for every $t$. Even the bounded input $x(t)=u(t)$ gives $y(t)=2t$ for $t>0$, unbounded.<br>'
+     +'<b>Check.</b> Part (iii) is the interesting one, and the counterexample states the reason exactly: the compression in the limit halves every delay. A system whose upper limit were $t-3$ instead of $2t$ would be time-invariant, causal and still unstable — which isolates the factor $2$ as the cause of the first two failures and the integration as the cause of the third.',
+  err:'Answering (iv) with "yes" because an integral only ever looks backwards. The integral looks backwards from its upper limit, and here that limit is ahead of the present time for every $t>0$.',
+  teach:'Compare this with the plain integrator, upper limit $t$. Only two answers change, (iii) and (iv), and both change because of the same factor. It is the cleanest way to show that the limit of the integral is part of the system, not a detail of notation.' },
+
+{ id:'D2-26', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y[n]=n\\,x[n+1].$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> An advance by one sample, followed by multiplication by the index $n$.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> Two features decide everything: the advance and the index-dependent, unbounded coefficient.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> $y[n]$ is built from $x[n+1]$, not from $x[n]$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> $n\\{\\alpha x_1[n+1]+\\beta x_2[n+1]\\}=\\alpha y_1[n]+\\beta y_2[n]$. The coefficient $n$ does not involve $x$.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x[n]=\\delta[n]$, so $y[n]=n\\,\\delta[n+1]=-\\delta[n+1]$, a single sample of value $-1$ at $n=-1$. Delay by one, $x_1[n]=\\delta[n-1]$, and$$y_1[n]=n\\,\\delta[n]=0,$$identically zero, because the surviving index is $n=0$ and the coefficient there is zero. The delayed response $y[n-1]=-\\delta[n]$ is not zero, so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> $y[n]$ needs $x[n+1]$, one sample ahead.<br>'
+     +'<b>Solution — (v) stable.</b> <b>No.</b> The bounded input $x[n]=1$ for every $n$ gives $y[n]=n$, which is unbounded as $n\\to\\infty$.<br>'
+     +'<b>Check.</b> The counterexample in (iii) is unusually sharp: one response is zero and the other is not, so no scaling or relabelling could reconcile them. Note also that (ii) and (v) point in opposite directions and both are correct — linearity says nothing about boundedness, and an unbounded coefficient is exactly a linear system that is not stable.',
+  err:'Calling the system non-linear because the output depends on $n$. The test for linearity holds $n$ fixed and varies $x$; a coefficient that changes with $n$ leaves both additivity and scaling intact.',
+  teach:'Ask what would change if the coefficient were $(-1)^{n}$ instead of $n$. Time invariance still fails, causality still fails, but stability is restored — which separates "depends on $n$" from "grows with $n$".' },
+
+{ id:'D2-27', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input-output relationship of a system.$$y(t)=e^{x(t)}$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A memoryless non-linearity: the output at each instant is the exponential of the input at that instant.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> A system with no delay, no reflection and no time-dependent coefficient can only fail linearity. Test that one carefully and the rest follow.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>Yes.</b> $y(t)$ depends on $x$ at the instant $t$ and at no other.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>No.</b> The quickest test is the zero input: $x(t)=0$ gives $y(t)=e^{0}=1$, not $0$. A linear system must answer the zero signal with the zero signal. Scaling fails too: $e^{2x}=(e^{x})^{2}\\ne2e^{x}$ in general.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>Yes.</b> If $x_1(t)=x(t-t_0)$ then $y_1(t)=e^{x(t-t_0)}=y(t-t_0)$. The rule applied at each instant is the same rule at every instant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>Yes.</b> Every memoryless system is causal: the output at $t$ uses only the input at $t$, which is not in the future.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> If $|x(t)|\\le B$ then $-B\\le x(t)\\le B$, so $e^{-B}\\le y(t)\\le e^{B}$ and $|y(t)|\\le e^{B}$, a finite bound for every finite $B$.<br>'
+     +'<b>Check.</b> Four properties hold and one fails, which is the pattern for a memoryless non-linearity. The zero-input test in (ii) is worth trusting: it is a necessary condition for linearity, so a single evaluation settles the question without any algebra. The bound in (v) depends on $B$ but not on $t$, which is what stability asks for — a bound that grew with $t$ would not do.',
+  err:'Calling the system unstable because $e^{x}$ grows quickly. Stability asks only that every bounded input give a bounded output, and $e^{B}$ is finite for every finite $B$. How fast the bound grows with $B$ is not part of the definition.',
+  teach:'This is the cleanest example of the separation between linearity and everything else. Ask students to name a second memoryless non-linearity with the same four answers — $y=x^{2}$ and $y=|x|$ both work — and the pattern becomes a rule they can apply on sight.' },
+
+{ id:'D2-28', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y[n]=\\sum_{k=n-3}^{n+3}x[k].$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A moving sum over a window of seven samples centred on $n$.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> Both limits move with $n$, which is the opposite of the fixed-limit running sum. That single difference changes two of the answers.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> The window spans $x[n-3]$ to $x[n+3]$, seven samples in all.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> A finite sum of inputs splits term by term, and there are no coefficients to worry about.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>Yes.</b> With $x_1[n]=x[n-n_0]$, substituting $m=k-n_0$ gives$$y_1[n]=\\sum_{k=n-3}^{n+3}x[k-n_0]=\\sum_{m=n-n_0-3}^{n-n_0+3}x[m]=y[n-n_0].$$Both limits shift together, so the window travels with the signal.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> The window reaches to $n+3$, three samples ahead of the present.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> If $|x[n]|\\le B$ then $|y[n]|\\le7B$, since the sum has exactly seven terms whatever $n$ is.<br>'
+     +'<b>Check.</b> The contrast with the running sum $\\sum_{k=0}^{n}x[k]$ is the whole point, and it comes down to the number of terms. Here that number is fixed at seven, so a bounded input gives a bounded output and the shift argument in (iii) goes through cleanly. There the number grows with $n$, and both properties are lost.',
+  err:'Calling the system unstable by analogy with the accumulator. The accumulator is unstable because its window grows; a moving window of fixed length is a finite sum, and a finite sum of bounded terms is bounded.',
+  teach:'Ask what makes this system non-causal and how to repair it. Shifting the window to $k=n-6$ through $k=n$ keeps every other answer and makes it causal — the same filter, delayed by three, which is the standard fix and worth naming as one.' },
+
+{ id:'D2-29', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input-output relationship of a system.$$y(t)=x\\!\\left(\\tfrac{t}{3}\\right)$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A pure time scaling: the input is stretched by a factor of three.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> Scaling reads the input at $t/3$. Compare that instant with $t$ for positive and negative $t$ separately, and test a shift explicitly.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>No.</b> For $t\\ne0$ the instant $t/3$ is not $t$, so the output at $t$ is a value the input took at another time. For instance $y(6)=x(2)$.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> Relabelling the argument does not disturb sums or scalings: $\\{\\alpha x_1+\\beta x_2\\}\\!\\left(\\tfrac t3\\right)=\\alpha y_1(t)+\\beta y_2(t)$.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take the rectangular pulse $x(t)=u(t)-u(t-1)$, so $y(t)=u\\!\\left(\\tfrac t3\\right)-u\\!\\left(\\tfrac t3-1\\right)$, a pulse on $0<t<3$. Delay the input by one, $x_1(t)=x(t-1)$, and$$y_1(t)=x_1\\!\\left(\\tfrac t3\\right)=x\\!\\left(\\tfrac t3-1\\right),$$a pulse on $3<t<6$. The delayed response $y(t-1)$ is a pulse on $1<t<4$. A delay of one at the input produced a delay of three at the output, so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>No.</b> For $t<0$ the instant $t/3$ lies to the right of $t$: $y(-6)=x(-2)$, and $-2>-6$, so the output reads a value the input has not reached yet.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> The output takes only values the input takes, so $|x(t)|\\le B$ gives $|y(t)|\\le B$ directly.<br>'
+     +'<b>Check.</b> Part (iv) is the answer students most often get wrong, and the sign of $t$ is the reason. For $t>0$ the reading point $t/3$ is in the past and nothing is wrong; the failure happens entirely on the negative axis. One instant is enough to show it, and $t=-6$ does.<br>'
+     +'Part (iii) then confirms the general rule: a scaling by $a$ turns a delay of $t_0$ into a delay of $t_0/a$, and only $a=1$ leaves it unchanged.',
+  err:'Answering (iv) with "yes" after checking only positive $t$. The definition of causality quantifies over every instant, and for a time scaling the negative axis is where it fails.',
+  teach:'Have the student sketch $y(t)$ and $y_1(t)$ from part (iii) on the same axis. Seeing a pulse of width three land in two different places makes the failure concrete in a way the algebra does not.' },
+
+{ id:'D2-30', module:'M2', type:'full', src:'MT1 Q2',
+  stem:'Consider the following input and output relationship of a system$$y(t)=x(t)\\cos(3t).$$',
+  parts:['Determine whether the system is memoryless.',
+         'Determine whether the system is linear.',
+         'Determine whether the system is time-invariant.',
+         'Determine whether the system is causal.',
+         'Determine whether the system is stable. Justify every answer.'],
+  sol:'<b>Given.</b> A modulator: the input is multiplied by a fixed carrier.<br>'
+     +'<b>Find.</b> All five properties.<br>'
+     +'<b>Method.</b> The carrier is a function of $t$ but not of $x$, and it is bounded. Each of those two facts settles a different property.<br>'
+     +'<b>Solution — (i) memoryless.</b> <b>Yes.</b> $y(t)$ uses $x$ at the instant $t$ only; the carrier is not an input.<br>'
+     +'<b>Solution — (ii) linear.</b> <b>Yes.</b> $\\{\\alpha x_1(t)+\\beta x_2(t)\\}\\cos(3t)=\\alpha y_1(t)+\\beta y_2(t)$: multiplication by a fixed function of $t$ preserves both additivity and scaling.<br>'
+     +'<b>Solution — (iii) time-invariant.</b> <b>No.</b> Take $x(t)=1$, so $y(t)=\\cos(3t)$. Delay the input by $t_0=\\tfrac{\\pi}{3}$; the delayed input is still $x_1(t)=1$, so $y_1(t)=\\cos(3t)$. The delayed response is$$y(t-t_0)=\\cos(3t-\\pi)=-\\cos(3t),$$the negative of $y_1(t)$. A delay left the input alone and changed the output, so the system is not time-invariant.<br>'
+     +'<b>Solution — (iv) causal.</b> <b>Yes.</b> A memoryless system is always causal.<br>'
+     +'<b>Solution — (v) stable.</b> <b>Yes.</b> $|y(t)|=|x(t)||\\cos(3t)|\\le B\\cdot1=B$.<br>'
+     +'<b>Check.</b> The counterexample in (iii) is the strongest kind available: the input is invariant under the shift, so any change at all in the output proves the failure. Compare with the system $y(t)=(t+2)x(t-3)$, which fails (iii) for the same reason — a coefficient depending on $t$ — but fails (v) as well, because its coefficient is unbounded while $\\cos(3t)$ is not.',
+  err:'Calling the system non-linear because two signals are multiplied. Linearity fails only when the input is multiplied by itself or by another input; here one factor is a fixed function of time, which is a coefficient and nothing more.',
+  teach:'This system is the modulator of Module 5, met here as a systems question. Point that forward: the same $y(t)=x(t)\\cos\\omega_c t$ that fails time invariance is the one whose spectrum splits into two shifted copies, and the failure of time invariance is exactly what makes that shift possible.' }
 
 ]);
 
@@ -436,11 +638,11 @@ window.DRILLMAP_M2 = [
 
 { id:'m2-drill-map', module:'M2', nav:'Module 2 · question types',
   title:'Module 2 — what a question looks like', src:'pp. 11–14',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 2 question types system properties linearity time invariance causality stability invertibility interconnection series parallel feedback taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Question types', src:'pp. 11–14'},
-  {t:'title', text:'Four disguises for one question, and a fifth question entirely'},
+  {t:'title', text:'Four disguises for one question, a fifth entirely its own, and a sixth that asks them together'},
   {t:'lede', text:'Four shapes are the same question wearing different clothes: given a rule relating input to output, decide whether the system is memoryless, linear, time invariant, causal and stable, and justify every answer. The fifth shape asks something else — how a property survives when systems are combined, and whether the map from input to output can be undone.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M2'},
@@ -456,12 +658,12 @@ window.DRILL_M2 = [
 
 { id:'m2-drill', module:'M2', nav:'Module 2 · practice questions',
   title:'Module 2 — practice questions', src:'pp. 11–14',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 2 practice memoryless linear time invariant causal stable counterexample invertibility interconnection series parallel feedback block diagram',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Practice D2-01 … D2-20', src:'pp. 11–14'},
+  {t:'eyebrow', text:'Module 2 · Practice D2-01 … D2-30', src:'pp. 11–14'},
   {t:'title', text:'Practice questions'},
-  {t:'small', html:'Work each question on paper before opening its solution. Where a system is given as a rule, answer all five properties and give a proof or a named counterexample for each. Two cheap checks: a linear system must map the zero input to the zero output, and a memoryless system is always causal. A third, for the last five questions: linearity and time invariance pass from the parts of a series or parallel connection to the whole, and stability of a feedback loop usually comes down to a condition on the loop gain.'},
+  {t:'small', html:'Work each question on paper before opening its solution. Where a system is given as a rule, answer all five properties and give a proof or a named counterexample for each. Two cheap checks: a linear system must map the zero input to the zero output, and a memoryless system is always causal. A third, wherever a system is built from other systems: linearity and time invariance pass from the parts of a series or parallel connection to the whole, and stability of a feedback loop usually comes down to a condition on the loop gain.'},
   {t:'rule', short:true},
   {t:'drill', module:'M2'}
 ]}
