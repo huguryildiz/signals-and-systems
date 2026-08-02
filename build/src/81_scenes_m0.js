@@ -172,7 +172,7 @@ const SC = [
     {t:'raw', html:`<div style="display:flex;gap:56px;align-items:flex-start;font-size:16px;color:var(--muted);
         border-top:1px solid var(--rule);padding-top:20px;max-width:1360px">
       <div><b style="color:var(--graphite)">Course</b><br>Signals and Systems</div>
-      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate, second year</div>
+      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate</div>
       <div><b style="color:var(--graphite)">Covers</b><br>Modules 1–3: signals, systems, LTI systems</div>
       <div><b style="color:var(--graphite)">Conventions</b><br>Normalised energy (R = 1 Ω); j is the imaginary unit</div>
       <div><b style="color:var(--graphite)">Navigate</b><br><kbd>→</kbd> advance · <kbd>M</kbd> map · <kbd>/</kbd> search · <kbd>?</kbd> help</div>
@@ -286,11 +286,12 @@ const SC = [
         visually. It is then defined, written as an equation, and derived one step at a time. After that it is used in a
         worked example and tested with a short check. Worked examples always use the same five headings:
         Given, Find, Method, Solution, Check.</p>
-        <p>Every scene carries its address in this course: chapter, section, scene. Many also carry an
-        anchor such as <b>OW &sect;1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
+        <p>Every scene carries its address in this course: chapter, section, scene. It sits in the band
+        above the title. Many scenes carry a second mark there, an open book with a number beside it,
+        such as <b>CH1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
         <em>Signals and Systems</em>, second edition, where the same material is developed at length.
-        The two numbering systems are not the same, so the anchor always carries the <b>OW</b> marker.
-        This course reaches the continuous-time Fourier transform in chapter 5; the textbook reaches it
+        The book is what tells the two apart, because the two numbering systems are not the same: this
+        course reaches the continuous-time Fourier transform in chapter 5, and the textbook reaches it
         in chapter 4.</p>`}
     ]}],
     [{t:'card', head:'Conventions fixed for the whole artifact', items:[

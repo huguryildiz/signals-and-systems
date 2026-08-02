@@ -172,7 +172,8 @@ const RENDER = (() => {
     const eb = host.querySelector('.eyebrow');
     if(eb && sc.sec) eb.insertAdjacentHTML('beforeend',
       `<span class="ebnum">${sc.sec}</span>`
-      + (sc.book?`<span class="ebbook">${CONTENT.BOOKMARK} &sect;${sc.book}</span>`:''));
+      + (sc.book?`<span class="ebbook" title="${CONTENT.BOOKREF.replace(/<[^>]+>/g,'')}"
+           >${CONTENT.BOOKICON}CH${sc.book}</span>`:''));
     /* mount interactive laboratories */
     host.querySelectorAll('[data-lab]').forEach(el=>{
       const L = LABS[el.dataset.lab];

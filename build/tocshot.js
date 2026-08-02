@@ -19,6 +19,9 @@ const OUT = process.argv[2] || '/tmp';
     const rail = await page.$('#sidebar');
     if(rail) await rail.screenshot({ path: path.join(OUT, `rail-${theme}.png`) });
     await page.screenshot({ path: path.join(OUT, `scene-${theme}.png`) });
+    /* the eyebrow at its own scale, so the chip can actually be judged */
+    const eb = await page.$('#scene-host .eyebrow');
+    if(eb) await eb.screenshot({ path: path.join(OUT, `eyebrow-${theme}.png`), scale:'css', omitBackground:false });
   }
 
   await page.evaluate(()=>{ document.body.dataset.theme='light'; APP.open('map'); APP.buildMap(); });
