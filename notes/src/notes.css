@@ -101,11 +101,15 @@ td:last-child,th:last-child{ padding-right:0; }
 
 /* contents */
 .toc{ margin-top:14pt; }
-.toc .c{ display:grid; grid-template-columns:26pt 1fr; gap:4pt 10pt;
-  border-top:0.7pt solid var(--rule2); padding:5pt 0; }
+/* Number, title and anchor sit on one line; the summary runs under the title.
+   The anchor points into the course textbook and is set quiet, so a reader
+   following the contents is not slowed by it. */
+.toc .c{ display:grid; grid-template-columns:26pt 1fr auto; gap:4pt 10pt;
+  border-top:0.7pt solid var(--rule2); padding:5pt 0; align-items:baseline; }
 .toc .c .n{ font-family:var(--mono); font-size:9pt; color:var(--accent); }
 .toc .c .t{ font-family:var(--serif); font-size:12pt; color:var(--ink); }
-.toc .c .s{ grid-column:2; font-size:9.4pt; color:var(--muted); margin-top:1pt; }
+.toc .c .a{ font-family:var(--mono); font-size:8.2pt; color:var(--muted); white-space:nowrap; }
+.toc .c .s{ grid-column:2 / span 2; font-size:9.4pt; color:var(--muted); margin-top:1pt; }
 
 /* title page */
 .title{ padding-top:52pt; }

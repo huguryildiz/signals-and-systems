@@ -226,13 +226,23 @@ nothing more.
 Four surfaces, one behaviour.
 
 **The contents rail** (`buildSidebar` in `build/src/40_core.js`). The module badge
-is replaced by a chapter heading carrying the chapter number and title. Sections
-appear as an intermediate heading. Each scene entry leads with its number and
-ends with its anchor, set small and muted and right-aligned so a reader scanning
-titles is not slowed by it.
+is replaced by a chapter heading carrying the chapter number and title. A section
+is an intermediate heading and also a control: it opens and closes the scenes
+under it, so a chapter is scanned at section level and drilled into one section
+at a time. A section is open when the reader has said so, and otherwise when the
+scene on screen is inside it — the rail is short without ever hiding where the
+reader stands. An open section draws a rule down the left of the run it holds.
+The rule is the entry's own left border, so it is continuous between rows and
+turns coral on the scene the reader is standing in.
 
-**The course map** (`buildMap`, same file). The same three levels, and the same
-anchor beside each entry.
+Each entry is two columns: address and title. **The textbook anchor is not in the
+contents.** It was built there first and taken out: in a narrow rail it competed
+with the titles for width and pushed half of them onto a second line, and the
+reader scanning a list of titles is not the reader who wants it. It belongs on
+the scene, where someone working through the material can act on it.
+
+**The course map** (`buildMap`, same file). The same levels, every section open,
+and no anchors: it is the whole-course view.
 
 **The scene itself** (the `eyebrow` block in `build/src/90_app.js`). The eyebrow
 already carries an instructor-only `[ref …]` for the lecture-notes page. The
@@ -247,33 +257,51 @@ each row.
 
 ### 5.1 What a reader sees
 
+The rail, with section 1.2 open and 1.3 closed:
+
 ```
 1  SIGNALS
-   1.2  Energy and power
-        1.2.1  Instantaneous power              OW §1.1.2
-        1.2.2  Total energy                     OW §1.1.2
-        1.2.3  Average power                    OW §1.1.2
-        1.2.4  Energy, power, or neither        OW §1.1.2
-        1.L1   Laboratory B · Energy and power  OW §1.1.2
-   1.3  Transformations of the independent variable
-        1.3.1  Time shifting                    OW §1.2.1
+   1.Q1   Module 1 · question types
+   1.1  DEFINITIONS AND NOTATION                ▸
+   1.2  ENERGY AND POWER                        ▾
+      │ 1.2.1  Instantaneous power
+      │ 1.2.2  Total energy            ← on screen
+      │ 1.2.3  Average power
+      │ 1.2.4  Energy, power, or neither
+      │ 1.L1   Laboratory B · Energy and power
+   1.3  TRANSFORMATIONS OF THE INDEPENDENT …    ▸
+```
+
+The scene, whose eyebrow carries the address and the anchor:
+
+```
+— MODULE 1 · ENERGY AND POWER · 1.2.2  OW §1.1.2
 ```
 
 ## 6. Data
 
-Three additions, no removals.
+Everything is declared in one new file, `build/src/89_sections.js`, and nothing is
+removed. **No scene file carries an address or an anchor.** Writing either into
+223 scene definitions would have meant a sweep over the scene files, which
+CLAUDE.md §8 singles out as the edit that has broken this repository twice; one
+declaration is also reviewable as a single table, and a renumbering becomes a
+one-file edit.
 
-- `CONTENT.MODULES` entries gain `ch` — the chapter number.
-- `CONTENT.SECTIONS` is new: for each chapter, the ordered list of sections with
-  number and title. It is the only place a section title is written.
-- Every scene gains `sec` — its full address, `'1.2.3'` or `'1.L1'` — and, where
-  one exists, `book`.
+- `CONTENT.CHAPTERS` — the nine chapters, each with its number, title and module.
+  `flat:true` marks a chapter with no section level.
+- `CONTENT.SECTIONS` — per module, the ordered sections with number, title and
+  the scene ids each holds. It is the only place a section title is written, and
+  the only place the order of a section's scenes is stated.
+- `CONTENT.BOOK` — scene id to textbook address. A scene absent from it renders
+  no anchor.
+- `CONTENT.BOOKMARK` and `CONTENT.BOOKREF` — the short marker and the full
+  statement of what it points into.
+- `window.applyNumbering(scenes)` — walks the declaration, hangs `sec` and `book`
+  on each scene object and returns the chapter view the contents render from. It
+  is called once in `99_tail.html`, before anything reads either field.
 
-`sec` is authored rather than derived. A derived number would renumber every
-scene below an insertion, which silently invalidates a number a student wrote
-down, and it would make the address a function of file order rather than a
-stated fact. The chapter and section parts of `sec` must agree with
-`CONTENT.SECTIONS`; §7 says how that is checked.
+Addresses are derived rather than written down twice, so a section that gains a
+scene renumbers by itself and cannot drift out of step with the declaration.
 
 ## 7. Verification
 
@@ -281,7 +309,9 @@ The nine gates of the operating instructions all still apply and all must still
 report their stated numbers. The scene set, the scene order and the drill pager
 do not change, so none of them should move.
 
-One new check joins them, in `verify/`:
+One new gate joins them: `build/seccheck.js`, run through `pw.js` like the other
+Playwright gates. It reads the addresses off the built artifact rather than
+parsing the declaration, so it checks what a reader actually meets:
 
 - every scene has a `sec`;
 - no two scenes share a `sec`;
@@ -303,7 +333,10 @@ student-facing string is a failure, for the same reason a lost backslash is.
 - Any change to the drill questions, their pager, or their instructor-only `src`.
 - Any change to the five PDF editions beyond what the lecture-notes contents
   block requires.
-- Reproducing any section title, figure, table or sentence from the textbook.
+- Reproducing any section title, figure, table, cover or sentence from the
+  textbook. The cover was asked for on 2026-08-02 and declined: it is the
+  publisher's artwork, and embedding it in a single-file artifact distributes it.
+  The book is named in words instead, once, in `m0-howto` and once in the notes.
 
 ## 9. Record
 

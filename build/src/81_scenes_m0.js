@@ -285,7 +285,13 @@ const SC = [
       {t:'body', html:`<p>Each module builds only on the modules before it. Inside a module, a concept is first shown
         visually. It is then defined, written as an equation, and derived one step at a time. After that it is used in a
         worked example and tested with a short check. Worked examples always use the same five headings:
-        Given, Find, Method, Solution, Check.</p>`}
+        Given, Find, Method, Solution, Check.</p>
+        <p>Every scene carries its address in this course: chapter, section, scene. Many also carry an
+        anchor such as <b>OW &sect;1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
+        <em>Signals and Systems</em>, second edition, where the same material is developed at length.
+        The two numbering systems are not the same, so the anchor always carries the <b>OW</b> marker.
+        This course reaches the continuous-time Fourier transform in chapter 5; the textbook reaches it
+        in chapter 4.</p>`}
     ]}],
     [{t:'card', head:'Conventions fixed for the whole artifact', items:[
       {t:'body', html:`<p>Energy and power are <b>normalised</b>, with $R=1\\ \\Omega$. The imaginary unit is written $j$. Angular frequency $\\omega$ is in rad/s in continuous time and in rad/sample in discrete time. Frequency in hertz is always written as such.</p>`}

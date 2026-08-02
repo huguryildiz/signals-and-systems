@@ -47,8 +47,15 @@
        `<figure>${typeof it.svg==='function'?it.svg():it.svg}${it.cap?`<figcaption>${md(it.cap)}</figcaption>`:''}</figure>`).join('')}</div>`,
     table:  b=>`<table>${b.head?`<tr>${b.head.map(h=>`<th>${md(h)}</th>`).join('')}</tr>`:''}
        ${b.rows.map(r=>`<tr>${r.map(c=>`<td>${md(c)}</td>`).join('')}</tr>`).join('')}</table>`,
-    toc:    b=>`<div class="toc">${b.items.map(([n,t,s])=>
-       `<div class="c"><div class="n">${md(n)}</div><div class="t">${md(t)}</div><div class="s">${md(s)}</div></div>`).join('')}</div>`,
+    /* A contents row is number, title, summary and — where the same material is
+       developed at length in the course textbook — an anchor into it. The anchor
+       always carries its `OW` marker: these chapter numbers and the textbook's do
+       not agree, and a bare section mark would read as one of these.
+       The anchor is written before the summary so that grid auto-placement puts
+       it on the title line; the summary then spans the two columns beneath. */
+    toc:    b=>`<div class="toc">${b.items.map(([n,t,s,a])=>
+       `<div class="c"><div class="n">${md(n)}</div><div class="t">${md(t)}</div>${
+         `<div class="a">${a?md(a):''}</div>`}<div class="s">${md(s)}</div></div>`).join('')}</div>`,
     hr:     ()=>'<hr>',
     q:      b=>`<div class="q"><span class="n">${b.n}</span> ${md(b.text)}${
        b.ans?`<div class="ans">Answer: ${md(b.ans)}</div>`:''}</div>`,
