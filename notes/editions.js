@@ -31,6 +31,10 @@ const doc = (title, builder, extra = '') => `<!DOCTYPE html><html lang="en"><hea
 .qcard{ break-inside:avoid; margin:0 0 13pt; }
 .qcard .qh{ font-family:var(--mono); font-size:8.2pt; letter-spacing:.16em; text-transform:uppercase;
   color:var(--slate); margin-bottom:3pt; }
+/* The frame must not rewrite the mathematics a type name carries: uppercase
+   would turn a_k into A_K and the tracking would pull an expression apart
+   glyph by glyph. Both are reset inside the typeset subtree. */
+.qcard .qh .katex{ text-transform:none; letter-spacing:normal; font-size:1.05em; }
 .qcard .opts{ margin:5pt 0 0 0; padding:0; list-style:none; }
 .qcard .opts li{ margin:2.5pt 0 2.5pt 14pt; text-indent:-14pt; }
 .qcard .opts li b{ font-family:var(--mono); font-size:8.6pt; color:var(--slate); }
@@ -50,8 +54,14 @@ ${extra}
 </body></html>`;
 
 const MODULE_TITLE = `const MT = Object.fromEntries(CONTENT.MODULES.map(m=>[m.id,m.title]));`;
+/* A question-type name may carry mathematics — `Inverse transform from a
+   rational $X(j\\omega)$` is one — so it goes through the same md() the running
+   text uses. Interpolated raw it prints the dollar signs and the backslash on
+   the page, which is the R8 failure in the one place nobody proofreads. The
+   .qh frame is uppercase mono with wide tracking and both are reset on .katex
+   below, so the typeset name keeps its own case and spacing. */
 const KIND = `const KIND = (m,k)=>{ const t=(CONTENT.DRILLTYPES[m]||[]).find(x=>x.k===k);
-  return t ? t.name : k; };`;
+  return t ? renderInline(t.name) : k; };`;
 const GROUP = `const BY = {};
   CONTENT.DRILL.forEach(q=>{ (BY[q.module] = BY[q.module] || []).push(q); });
   const MODS = CONTENT.MODULES.map(m=>m.id).filter(id=>BY[id]);`;
