@@ -29,7 +29,7 @@
 
 <!-- ─────────────────────────────── hero ─────────────────────────────── -->
 <section class="hero">
-  <canvas id="flow" class="hero__grid" aria-hidden="true"></canvas>
+  <canvas id="grid" class="hero__grid" aria-hidden="true"></canvas>
   <div class="hero__inner">
     <p class="eyebrow">Undergraduate course · Modules 0–7</p>
     <h1 class="hero__title">Signals and<br><span class="hero__title-em">Systems</span></h1>
@@ -59,14 +59,14 @@
       <p class="eyebrow">Where the course arrives</p>
       <h2>Sample too slowly and you get a different signal</h2>
       <p>
-        The screen beside this shows one cosine in cyan, the instants at which it is sampled in
-        amber, and the signal a receiver rebuilds from those samples alone in green. The sampling
+        The screen beside this shows one cosine in green, the instants at which it is sampled in
+        blue, and the signal a receiver rebuilds from those samples alone in amber. The sampling
         rate drifts. Nothing else on the screen changes.
       </p>
       <p class="eq">ω<sub>s</sub> &gt; 2ω<sub>M</sub></p>
       <p>
-        While the rate stays above twice the highest frequency in the signal, the green curve sits
-        exactly on the cyan one and you cannot see two curves. Below it they separate: the samples
+        While the rate stays above twice the highest frequency in the signal, the amber curve sits
+        exactly on the green one and you cannot see two curves. Below it they separate: the samples
         are still correct, but they now fit a slower cosine just as well, and the rebuilt signal
         drops to that frequency instead. The readout turns red at the same instant, because the
         picture and the inequality are one statement.
@@ -93,8 +93,8 @@
         </div>
       </div>
       <figcaption>
-        A 1 kHz cosine sampled at a rate that drifts through its Nyquist rate. The rebuilt
-        frequency is computed from the same model that draws the trace.
+        A 1 kHz cosine over 4 ms, sampled at a rate that drifts through its Nyquist rate.
+        The rebuilt frequency is computed from the same model that draws the trace.
       </figcaption>
     </figure>
   </div>
@@ -188,7 +188,7 @@
   <p>© 2026 Huseyin Ugur Yildiz — <a href="https://huguryildiz.com/">huguryildiz.com</a></p>
 </footer>
 
-<script src="flow.js"></script>
+<script src="grid.js"></script>
 <script src="sampler.js"></script>
 </body>
 </html>

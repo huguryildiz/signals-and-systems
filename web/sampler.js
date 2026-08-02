@@ -11,7 +11,7 @@
        cos(2*pi*(f0 - k*fs)*n/fs) = cos(2*pi*f0*n/fs - 2*pi*k*n)
 
    is the same sequence. Taking k nearest to f0/fs folds the frequency into
-   the band the receiver can represent, so the drawn green curve passes exactly
+   the band the receiver can represent, so the drawn amber curve passes exactly
    through every sample by construction — which is the whole point: the samples
    are correct and still do not decide the signal.
 
@@ -29,13 +29,16 @@
   var elF0 = document.getElementById('hud-f0');
   var elOut = document.getElementById('hud-out');
 
+  /* The three colours are the page's own: green is a signal, blue is a sample,
+     amber is what comes out the far side. Red appears only when what comes out
+     is no longer the signal that went in. */
   var COL = {
-    grid:  'rgba(150,175,205,.09)',
-    axis:  'rgba(150,175,205,.22)',
-    in:    '#4FBECE',   /* the signal that was sampled */
-    stem:  '#E0AE55',   /* the sampling instants       */
-    out:   '#82C27B',   /* what the samples rebuild    */
-    bad:   '#E2705C'    /* ... when that is a different signal */
+    grid:  'rgba(146,164,214,.09)',
+    axis:  'rgba(146,164,214,.22)',
+    in:    '#39FF85',   /* the signal that was sampled */
+    stem:  '#5B8CFF',   /* the sampling instants       */
+    out:   '#FF9F45',   /* what the samples rebuild    */
+    bad:   '#FF4F6A'    /* ... when that is a different signal */
   };
 
   var F0 = 1000;            /* Hz, fixed          */
@@ -69,9 +72,10 @@
     return Math.abs(F0 - k * fs);
   }
 
-  /* The bottom margin holds the time axis and, above it, the two readings the
-     HUD pins to the same edge. */
-  var PAD_L = 46, PAD_R = 22, PAD_T = 58, PAD_B = 62;
+  /* The readings sit in the corners the theme puts them in, so the data area
+     keeps clear of all four. The time scale is the graticule and the caption,
+     not a row of labels competing with the readout. */
+  var PAD_L = 30, PAD_R = 24, PAD_T = 58, PAD_B = 46;
 
   function X(t) { return PAD_L + (t / WIN) * (W - PAD_L - PAD_R); }
   function Y(v) {
@@ -99,7 +103,7 @@
     var fr = rebuilt(fs);
     var aliased = Math.abs(fr - F0) > 1e-6;
 
-    ctx.fillStyle = '#080D14';
+    ctx.fillStyle = '#04050F';
     ctx.fillRect(0, 0, W, H);
 
     /* graticule */
@@ -129,23 +133,11 @@
       ctx.beginPath(); ctx.arc(x, y, 2.9, 0, Math.PI * 2); ctx.fill();
     }
 
-    /* the signal, then what the samples rebuild — drawn second so that when
-       the two agree the reader sees one curve and not an argument */
     /* The signal is drawn wide and the reconstruction narrow, so that when the
-       two agree the cyan shows as a rim around the green rather than vanishing
-       under it, and when they disagree there is no doubt which is which. */
+       two agree the green shows as a rim around the amber rather than one of
+       them vanishing, and when they disagree there is no doubt which is which. */
     cosine(F0, COL.in, 3.0, 0.9);
     cosine(fr, aliased ? COL.bad : COL.out, 1.5, 1);
-
-    /* the time axis, in milliseconds */
-    ctx.fillStyle = 'rgba(150,175,205,.45)';
-    ctx.font = '11px "SF Mono", ui-monospace, Menlo, monospace';
-    ctx.textAlign = 'center';
-    for (c = 0; c <= 4; c++) {
-      var ms = c;
-      ctx.fillText(ms + ' ms', X(ms / 1000), H - PAD_B + 44);
-    }
-    ctx.textAlign = 'left';
 
     if (elFs) elFs.textContent = (fs / 1000).toFixed(2) + ' kHz';
     if (elF0) elF0.textContent = (F0 / 1000).toFixed(2) + ' kHz';
