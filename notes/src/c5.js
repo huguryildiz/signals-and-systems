@@ -14,12 +14,12 @@ window.C5 = [
 {t:'page'},
 
 {t:'h1', num:'CHAPTER 5', text:'The continuous-time Fourier transform'},
-{t:'p', lead:true, text:'Chapter 4 needed the signal to repeat. A single pulse does not repeat, has no fundamental period, and therefore has no harmonics to carry coefficients. This chapter lets the period grow without bound and watches what the Fourier series becomes. The stems merge into a curve, the sum becomes an integral, and the result applies to almost every signal of finite energy.'},
+{t:'p', lead:true, text:'The continuous-time Fourier transform represents an aperiodic signal by a continuous function of frequency. To derive it, construct a periodic extension of a finite-duration signal and increase the repetition period without bound. The harmonic spacing then approaches zero, and the Fourier-series sum approaches an integral.'},
 
 {t:'h2', num:'5.1', text:'From a series to a transform'},
 {t:'p', text:'Let $x(t)$ be zero for $|t|>T_1$. The number $T_1$ is the half-width of the support and belongs to the signal alone. Build a periodic signal $\\tilde{x}$ by repeating the pulse every $T$ seconds, with $T>2T_1$ so that the copies do not touch:'},
 {t:'eq', tex:'\\tilde{x}(t)=\\sum_{m=-\\infty}^{\\infty}x(t-mT),\\qquad \\tilde{x}(t)=\\tilde{x}(t+T),\\qquad T>2T_1.'},
-{t:'p', text:'Inside one period $\\tilde{x}$ is the original pulse, so Chapter 4 applies to it. As $T$ grows the pulse in the middle never changes and the copies beside it slide away, so $\\tilde{x}(t)\\to x(t)$ for every $t$.'},
+{t:'p', text:'Inside one period, $\\tilde{x}$ equals the original pulse, so its Fourier series can be used. Increase $T$ while keeping the central pulse fixed. The neighbouring copies move to larger values of $|t|$, and $\\tilde{x}(t)\\to x(t)$ for every $t$.'},
 {t:'fig', svg:()=>{
   const a=ax({w:700,h:180,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\tilde{x}(t)',ytarget:2,yticksOverride:[0,1]});
   a.curve(t=>rectPer(t,5,1),{color:C.mid,n:3000});
@@ -30,7 +30,7 @@ window.C5 = [
 {t:'h3', text:'The coefficients are samples of one curve'},
 {t:'p', text:'Apply the analysis equation of Chapter 4 to $\\tilde{x}$ over one period. Inside that period $\\tilde{x}=x$, and outside $|t|<T_1$ the integrand is zero, so the limits may be opened to all of time:'},
 {t:'eq', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\tilde{x}(t)e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\int_{-\\infty}^{\\infty}x(t)e^{-jk\\omega_0t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T}.'},
-{t:'p', text:'The right-hand integral is one expression evaluated at the number $k\\omega_0$. Give it a free variable and a name.'},
+{t:'p', text:'The right-hand integral has the same form for every $k$; only the sampled frequency $k\\omega_0$ changes. Replace that frequency by the continuous variable $\\omega$ and define the transform.'},
 {t:'eqbox', cap:'Definition of the transform', tex:['X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t'],
  after:'Then $a_k=\\frac{1}{T}X(jk\\omega_0)$, so every coefficient of the periodic extension is one point of the curve $X$, scaled by $1/T$. The curve was built from the pulse alone, so lengthening $T$ cannot move it. What lengthening $T$ does is shrink the spacing $\\omega_0=2\\pi/T$ and shrink each coefficient by the same factor.'},
 {t:'figrow', n:2, items:[
@@ -47,7 +47,7 @@ window.C5 = [
 {t:'h3', text:'The sum becomes an integral'},
 {t:'p', text:'Put $a_k=\\frac{1}{T}X(jk\\omega_0)$ back into the synthesis equation and replace $1/T$ by $\\omega_0/2\\pi$. Nothing has been approximated yet.'},
 {t:'eq', tex:'\\tilde{x}(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}=\\frac{1}{2\\pi}\\sum_{k=-\\infty}^{\\infty}X(jk\\omega_0)\\,e^{jk\\omega_0t}\\,\\omega_0.'},
-{t:'p', text:'Every term now carries the spacing $\\omega_0$ as a factor, which is the shape of a Riemann sum. Let $T\\to\\infty$: the left side becomes $x(t)$, the spacing becomes the differential $\\d\\omega$, the sample points fill the axis, and the sum becomes an integral.'},
+{t:'p', text:'Every term now includes the spacing $\\omega_0$, so the expression is a Riemann sum. Let $T\\to\\infty$. Then $\\tilde{x}(t)\\to x(t)$, $\\omega_0\\to\\d\\omega$, the sample frequencies cover the frequency axis, and the sum approaches an integral.'},
 {t:'eqbox', cap:'The continuous-time Fourier transform pair',
  tex:['X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t\\qquad\\text{(analysis)}',
       'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega\\qquad\\text{(synthesis)}'],
@@ -68,7 +68,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.1 — the impulse and the shifted impulse', rows:[
  ['Given','$x(t)=\\delta(t)$, and then $x(t)=\\delta(t-t_0)$.'],
  ['Find','$X(j\\omega)$ in both cases, with magnitude and phase.'],
- ['Method','Substitute into the analysis equation and use the sifting property.'],
+ ['Method','The signal is an impulse, so the sifting property evaluates the analysis integral directly. Substitute the impulse into the analysis equation.'],
  ['Solution','$\\mathcal{F}\\{\\delta(t)\\}=\\int\\delta(t)e^{-j\\omega t}\\d t=1$: every frequency present, equally, with no phase. For the shifted impulse the sifting happens at $t=t_0$, giving $$\\mathcal{F}\\{\\delta(t-t_0)\\}=e^{-j\\omega t_0},\\qquad|X(j\\omega)|=1,\\qquad\\angle X(j\\omega)=-\\omega t_0.$$'],
  ['Check','Push $e^{-j\\omega t_0}$ back through the synthesis equation and the impulse returns. Reading: moving a signal in time never changes the size of any frequency component; it rotates each one by an amount proportional to its frequency.']
 ]},
@@ -76,18 +76,18 @@ window.C5 = [
 {t:'ex', hd:'Example 5.2 — one impulse in frequency', rows:[
  ['Given','$X(j\\omega)=2\\pi\\delta(\\omega-\\omega_0)$.'],
  ['Find','$x(t)$.'],
- ['Method','Synthesis, sifting in the variable $\\omega$.'],
+ ['Method','The spectrum is an impulse, so use the synthesis equation and apply sifting in the variable $\\omega$.'],
  ['Solution','$x(t)=\\frac{1}{2\\pi}\\int2\\pi\\delta(\\omega-\\omega_0)e^{j\\omega t}\\d\\omega=e^{j\\omega_0t}$. The $2\\pi$ of the impulse weight and the $1/2\\pi$ of the synthesis equation cancel exactly, which is why the weight is written as $2\\pi$ and not as 1.'],
  ['Check','$|x(t)|=1$ and $\\angle x(t)=\\omega_0t$. With an impulse of weight 1 the answer would be $e^{j\\omega_0t}/2\\pi$, which is not a unit-amplitude exponential.']
 ]},
-{t:'eqbox', cap:'Two pairs that follow at once',
+{t:'eqbox', cap:'Two consequences of the complex-exponential pair',
  tex:['e^{j\\omega_0t}\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0)','1\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega)'],
  after:'The second is the first at $\\omega_0=0$.'},
 
 {t:'ex', hd:'Example 5.3 — the one-sided exponential', rows:[
  ['Given','$x(t)=e^{-at}u(t)$, with $a$ real.'],
  ['Find','$X(j\\omega)$, the condition on $a$, and the magnitude and phase.'],
- ['Method','Integrate from 0 to $\\infty$; $u(t)$ removes the rest.'],
+ ['Method','The unit step makes the signal zero for negative time. Apply the analysis equation from 0 to $\\infty$.'],
  ['Solution','$X(j\\omega)=\\int_{0}^{\\infty}e^{-(a+j\\omega)t}\\d t$. The upper limit vanishes only when $a>0$, because $|e^{-j\\omega t}|=1$ and the decay is carried by $e^{-at}$ alone. So $$e^{-at}u(t)\\;\\longleftrightarrow\\;\\frac{1}{a+j\\omega},\\qquad a>0,$$ with $|X(j\\omega)|=1/\\sqrt{a^{2}+\\omega^{2}}$ and, writing the angle of a quotient as a subtraction, $$\\angle X(j\\omega)=\\angle1-\\angle(a+j\\omega)=0-\\tan^{-1}(\\omega/a)=-\\tan^{-1}(\\omega/a).$$'],
  ['Check','$|X(j0)|=1/a$ gives 10, 1 and 0.2 for $a=0.1,1,5$. At $a=1$, $\\omega=1$ the phase is $-0.785398$ rad; at $a=0.1$, $\\omega=3$ it is $-1.537475$; at $a=5$, $\\omega=2$ it is $-0.380506$. Every one is negative, and the phase curve falls from $+\\pi/2$ to $-\\pi/2$. A curve that rises belongs to $+\\tan^{-1}(\\omega/a)$, which is the angle of the reciprocal.']
 ]},
@@ -103,7 +103,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.4 — the two-sided exponential', rows:[
  ['Given','$x(t)=e^{-a|t|}$ with $a>0$.'],
  ['Find','$X(j\\omega)$.'],
- ['Method','$|t|$ means two formulas, so split at $t=0$. On the left half the exponent is $+at$.'],
+ ['Method','The absolute value gives different exponential formulas for negative and positive time. Split the analysis integral at $t=0$; on the negative-time interval the exponent is $+at$.'],
  ['Solution','$X(j\\omega)=\\dfrac{1}{a-j\\omega}+\\dfrac{1}{a+j\\omega}=\\dfrac{2a}{a^{2}+\\omega^{2}}$. The imaginary parts cancelled when the fractions were added.'],
  ['Check','$X(j0)=2/a$ gives 4, 2 and 0.4 for $a=0.5,1,5$. The signal is real and even and the transform came out real and even, which is the general rule proved in Section 5.6. Note also that the transform is never zero: at $a=1$ and $\\omega=10^{6}$ it is still $2\\times10^{-12}$.']
 ]},
@@ -112,7 +112,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.5 — the rectangular pulse', rows:[
  ['Given','$x(t)=1$ for $|t|<T_1$ and 0 otherwise.'],
  ['Find','$X(j\\omega)$, its value at the origin, and its zeros.'],
- ['Method','The analysis integral runs from $-T_1$ to $T_1$ with the integrand $e^{-j\\omega t}$.'],
+ ['Method','The signal is non-zero only on $-T_1<t<T_1$, so restrict the analysis integral to that support and integrate $e^{-j\\omega t}$.'],
  ['Solution','$X(j\\omega)=\\left[\\dfrac{e^{-j\\omega t}}{-j\\omega}\\right]_{-T_1}^{T_1}=\\dfrac{e^{j\\omega T_1}-e^{-j\\omega T_1}}{j\\omega}=\\dfrac{2\\sin(\\omega T_1)}{\\omega}$, using $e^{j\\theta}-e^{-j\\theta}=2j\\sin\\theta$. The $j$ cancels, so the answer is real.'],
  ['Check','$X(j0)=2T_1$ by l’Hôpital, which is the area under the pulse: 2, 10 and 20 for $T_1=1,5,10$. The zeros are at $\\omega=\\pm k\\pi/T_1$ for $k=1,2,3,\\dots$ — the origin is excluded, because there the expression is $0/0$ and its limit is the peak.']
 ]},
@@ -129,7 +129,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.6 — the ideal low-pass band', rows:[
  ['Given','$X(j\\omega)=1$ for $|\\omega|<W$ and 0 otherwise.'],
  ['Find','$x(t)$, its peak, and its zeros.'],
- ['Method','Synthesis from $-W$ to $W$, with the $1/2\\pi$ in front.'],
+ ['Method','The spectrum is given and is non-zero only on $-W<\\omega<W$, so apply the synthesis equation over those limits and retain the factor $1/2\\pi$.'],
  ['Solution','$x(t)=\\dfrac{1}{2\\pi}\\displaystyle\\int_{-W}^{W}e^{j\\omega t}\\d\\omega=\\dfrac{e^{jWt}-e^{-jWt}}{2\\pi jt}=\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)$.'],
  ['Check','$x(0)=W/\\pi$ by l’Hôpital: 0.5, 1 and 2 for $W=0.5\\pi,\\pi,2\\pi$. Zeros at $t=\\pm k\\pi/W$, $k=1,2,\\dots$, again with the origin excluded. This signal is not a pulse: it rings on both sides for ever, alternating in sign.']
 ]},
@@ -138,7 +138,7 @@ window.C5 = [
 {t:'h3', text:'Narrow in time, wide in frequency'},
 {t:'p', text:'The pulse of half-width $T_1$ has its first zero at $\\omega=\\pi/T_1$. Halve $T_1$ and that zero doubles. Taking the duration as the full width $T=2T_1$ and the bandwidth as the distance to the first null,'},
 {t:'eq', tex:'T\\times\\text{BW}=2T_1\\cdot\\frac{\\pi}{T_1}=2\\pi\\qquad\\text{at every width}.'},
-{t:'box', kind:'warn', hd:'Not a universal constant', html:'The product is invariant <b>within one shape</b>, because scaling in time divides the duration and multiplies every frequency by the same factor. Change the shape and the number changes: a triangular pulse of the same total duration has its first null at $2\\pi/T_1$, so its product is $4\\pi$. What is always true is the direction: narrowing a signal in time widens its spectrum, and the two cannot both be made small.'},
+{t:'box', kind:'warn', hd:'The value depends on the waveform', html:'The product is invariant for scaled versions of one waveform because time scaling changes duration and frequency width by reciprocal factors. A triangular pulse of the same total duration has its first null at $2\\pi/T_1$, so its product is $4\\pi$. In general, narrowing a signal in time widens its spectrum; both widths cannot be made arbitrarily small.'},
 {t:'p', text:'One implication about band limitation is a theorem and its converse is not. A signal of finite duration cannot be band-limited: the pulse above has a sinc transform, which is non-zero on stretches reaching out to every frequency. But infinite duration guarantees nothing. The signal $e^{-a|t|}$ lasts for ever and its transform $2a/(a^{2}+\\omega^{2})$ is strictly positive at every finite frequency. Small is not zero, and Chapter 7 depends on the difference.'},
 
 {t:'h2', num:'5.5', text:'Periodic signals, sinusoids and the impulse train'},
@@ -154,21 +154,21 @@ window.C5 = [
     a.impulse(k*w0,wt,{color:C.in,label:false}); }
   a.curve(w=>w0*rectFT(w,1),{color:C.coral,width:1.3,dash:'4 5',n:1200});
   return a.svg(); },
-  cap:'The square wave with $T=8T_1$: impulses of weight $2\\pi a_k$, sampling the dashed envelope. Some of the weights are negative, which a plot of $|a_k|$ would hide.'},
+  cap:'The square wave with $T=8T_1$: impulses of weight $2\\pi a_k$ sample the dashed envelope. A magnitude plot would not show which weights are negative.'},
 
 {t:'ex', hd:'Example 5.7 — a constant, a cosine and a sine', rows:[
  ['Given','$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$.'],
  ['Find','$X(j\\omega)$, drawn so that both size and phase can be read.'],
- ['Method','Expand each sinusoid with Euler’s relations and transform term by term.'],
+ ['Method','Each sinusoid is a sum of complex exponentials, whose transform pair is known. Expand with Euler’s relations and apply linearity term by term.'],
  ['Solution','$4\\cos(3\\pi t)=2e^{j3\\pi t}+2e^{-j3\\pi t}$, so its transform is $4\\pi\\delta(\\omega-3\\pi)+4\\pi\\delta(\\omega+3\\pi)$: one impulse at each of $\\pm3\\pi$. Likewise $6\\sin(4\\pi t)=\\frac{6}{2j}\\left[e^{j4\\pi t}-e^{-j4\\pi t}\\right]$ gives $\\frac{6\\pi}{j}\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\delta(\\omega+4\\pi)$, with imaginary weights of modulus $6\\pi=18.849556$. The constant contributes $10\\pi\\delta(\\omega)$. Altogether $$X(j\\omega)=10\\pi\\delta(\\omega)+4\\pi\\delta(\\omega-3\\pi)+4\\pi\\delta(\\omega+3\\pi)+\\frac{6\\pi}{j}\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\delta(\\omega+4\\pi).$$'],
- ['Check','The signal is real, so the magnitude must be even in $\\omega$ and the phase odd. Magnitudes: $31.4159$ at 0, $12.5664$ at $\\pm3\\pi$, $18.8496$ at $\\pm4\\pi$. Phases: 0 except at $\\pm4\\pi$, where they are $\\mp\\pi/2$ because $1/j=-j$. A spectrum with only the positive-frequency impulse of a cosine fails this test at once, and describes a complex signal.']
+ ['Check','The signal is real, so the magnitude must be even in $\\omega$ and the phase odd. Magnitudes: $31.4159$ at 0, $12.5664$ at $\\pm3\\pi$, $18.8496$ at $\\pm4\\pi$. Phases: 0 except at $\\pm4\\pi$, where they are $\\mp\\pi/2$ because $1/j=-j$. A spectrum with only the positive-frequency impulse violates conjugate symmetry and describes a complex signal.']
 ]},
-{t:'box', kind:'warn', hd:'Drawing a complex spectrum', html:'Three of these weights are real and two are imaginary. Drawing an imaginary weight as a downward arrow on the same axis as a real one uses the vertical direction for two meanings at once, and the figure stops being readable. Draw magnitude and phase, or real part and imaginary part, and say in the caption which pair is shown.'},
+{t:'box', kind:'warn', hd:'Drawing a complex spectrum', html:'Three weights are real and two are imaginary. One vertical axis cannot represent both signed real values and signed imaginary values. Plot magnitude and phase, or plot real part and imaginary part, and identify the chosen pair in the caption.'},
 
 {t:'ex', hd:'Example 5.8 — the impulse train', rows:[
  ['Given','$x(t)=\\sum_{k=-\\infty}^{\\infty}\\delta(t-kT)$.'],
  ['Find','$X(j\\omega)$.'],
- ['Method','The signal is periodic with $T_0=T$. Find $a_k$, then use the rule above.'],
+ ['Method','The signal is periodic, so its transform is an impulse at each harmonic. Find its Fourier-series coefficients $a_k$, then give each impulse the weight $2\\pi a_k$.'],
  ['Solution','Over one period exactly one impulse is enclosed, and sifting evaluates the exponential at $t=0$, so $a_k=1/T$ for every $k$. Hence $$\\sum_{k}\\delta(t-kT)\\;\\longleftrightarrow\\;\\frac{2\\pi}{T}\\sum_{k}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right).$$'],
  ['Check','Spacing and weight are the same number, $2\\pi/T$: $6.2832$ for $T=1$ and $3.1416$ for $T=2$. Crowding the impulses in time spreads them in frequency. This one pair is the mechanism behind sampling, in Chapter 7. Note that the limits must enclose exactly one impulse; writing both as $-T/2$ encloses none.']
 ]},
@@ -205,14 +205,14 @@ window.C5 = [
 {t:'h3', text:'Differentiation'},
 {t:'p', text:'Differentiate the <b>synthesis equation</b>, not the signal. On the right the only factor depending on $t$ is $e^{j\\omega t}$, and $\\omega$ is the variable of integration, so it is held fixed:'},
 {t:'eq', tex:'\\frac{\\d}{\\d t}x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\bigl[j\\omega X(j\\omega)\\bigr]e^{j\\omega t}\\,\\d\\omega\\qquad\\Longrightarrow\\qquad \\frac{\\d^{n}x}{\\d t^{n}}\\;\\longleftrightarrow\\;(j\\omega)^{n}X(j\\omega).'},
-{t:'box', kind:'err', hd:'The step to avoid', html:'Pulling $j\\omega$ out and writing $\\d x/\\d t=j\\omega\\,x(t)$ is false. $\\omega$ is the variable being integrated away, so it is not a constant and it is not available outside the integral, and $j\\omega x(t)$ is not a signal at all. One number settles it: for $x(t)=e^{-t^{2}}$, $\\d x/\\d t$ at $t=1$ is $-0.735759$, a real number, while $j\\omega x(t)$ at $t=1$, $\\omega=3$ is $1.103638j$. The boxed result is correct; only the route is wrong, and the same route reappears on integration and on differential equations, where it does change the answer.'},
+{t:'box', kind:'err', hd:'Do not mix the two domains', html:'The equation $\\d x/\\d t=j\\omega\\,x(t)$ is false. The frequency $\\omega$ labels the transform output; it is not a constant in the time-domain signal. For $x(t)=e^{-t^{2}}$, $\\d x/\\d t$ at $t=1$ is $-0.735759$, while $j\\omega x(t)$ at $t=1$, $\\omega=3$ is $1.103638j$. The differentiation property is correct only when derived from the transform integral.'},
 
 {t:'h3', text:'Integration, and the impulse it leaves behind'},
 {t:'p', text:'The running integral is a convolution with the unit step, $\\int_{-\\infty}^{t}x(\\tau)\\d\\tau=x(t)*u(t)$, and the step transforms to $\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$. The convolution property multiplies the transforms, and $X(j\\omega)\\delta(\\omega)=X(0)\\delta(\\omega)$ by the sampling property of the impulse:'},
 {t:'eq', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{j\\omega}X(j\\omega)+\\pi X(0)\\,\\delta(\\omega).'},
-{t:'box', kind:'err', hd:'The term that gets dropped', html:'$X(0)=\\int x(t)\\d t$ is the total area of the signal. If the area is not zero the running integral settles at a non-zero constant instead of decaying, and a constant carries an impulse at $\\omega=0$. Writing only $X(j\\omega)/(j\\omega)$ describes a signal that decays, which is a different signal. A unit pulse on $0<t<1$ has area 1 and integrates to a unit step, so it needs the term; the same pulse followed by its negative has area 0, integrates back down to zero, and the term vanishes on its own. Compute the area first: it is one integral, and it decides half the result.'},
+{t:'box', kind:'err', hd:'Include the impulse term when the area is non-zero', html:'$X(0)=\\int x(t)\\d t$ is the total signal area. If this area is non-zero, the running integral approaches a non-zero constant, whose transform includes an impulse at $\\omega=0$. Writing only $X(j\\omega)/(j\\omega)$ omits that constant component. Calculate the area before applying the integration property.'},
 {t:'h3', text:'Differentiation in frequency'},
-{t:'p', text:'Differentiating the analysis integral with respect to $\\omega$ gives each term a factor $-jt$, so $\\d X/\\d\\omega$ is the transform of $-jt\\,x(t)$ and therefore $t\\,x(t)\\leftrightarrow j\\,\\d X/\\d\\omega$. It is the mirror of differentiation in time, and it is what turns the pair for $e^{-at}u(t)$ into the pair for $te^{-at}u(t)$ without a second integration.'},
+{t:'p', text:'Differentiate the analysis integral with respect to $\\omega$. The integrand gains the factor $-jt$, so $\\d X/\\d\\omega$ is the transform of $-jt\\,x(t)$. Therefore $t\\,x(t)\\leftrightarrow j\\,\\d X/\\d\\omega$. This property obtains the pair for $te^{-at}u(t)$ from the pair for $e^{-at}u(t)$ without another transform integral.'},
 {t:'h3', text:'Even and odd parts'},
 {t:'p', text:'For a real signal, $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ transforms to $\\tfrac12[X(j\\omega)+X(-j\\omega)]=\\tfrac12[X+X^{*}]=\\operatorname{Re}\\{X\\}$, and the odd part gives $j\\operatorname{Im}\\{X\\}$. Splitting a real signal into even and odd parts splits its spectrum into real and imaginary parts, and the two symmetry rules above are the cases in which one part is absent. On $e^{-at}u(t)$ the even part is $\\tfrac12e^{-a|t|}$, whose transform $a/(a^{2}+\\omega^{2})$ is exactly $\\operatorname{Re}\\{1/(a+j\\omega)\\}$; the odd part is $\\tfrac12\\operatorname{sgn}(t)e^{-a|t|}$, whose transform $-j\\omega/(a^{2}+\\omega^{2})$ is $j\\operatorname{Im}\\{1/(a+j\\omega)\\}$.'},
 
@@ -229,7 +229,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.9 — duality on the rectangular pulse', rows:[
  ['Given','$x_1(t)=1$ on $|t|<W$, so $X_1(j\\omega)=2\\sin(W\\omega)/\\omega$.'],
  ['Find','The transform of $x_2(t)=2\\sin(Wt)/t$.'],
- ['Method','Recognise $x_2$ as $X_1$ read in time and apply duality; then confirm by an independent route.'],
+ ['Method','$x_2$ has the same formula as $X_1$ with the independent variable changed, so duality applies. Use duality first, then verify the result with synthesis.'],
  ['Solution','Duality gives $X_2(j\\omega)=2\\pi x_1(-\\omega)$, and $x_1$ is even, so $$X_2(j\\omega)=2\\pi\\ \\text{on}\\ |\\omega|<W,\\qquad 0\\ \\text{beyond}.$$'],
  ['Check','The second route works backwards: putting a band of height $2\\pi$ on $|\\omega|<W$ through the synthesis equation gives $\\frac{1}{2\\pi}\\int_{-W}^{W}2\\pi e^{j\\omega t}\\d\\omega=2\\sin(Wt)/t$, which is $x_2$. The two routes use different equations, so their agreement is a real check. At the origin, $X_2(j0)=2\\pi=6.283185$ for any $W$, and $x_2(0)=2W$ by l’Hôpital.']
 ]},
@@ -243,7 +243,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.10 — energy from a two-band spectrum', rows:[
  ['Given','$X_3(j\\omega)=2$ for $|\\omega|<2\\pi$, 1 for $2\\pi<|\\omega|<4\\pi$, and 0 beyond.'],
  ['Find','The total energy.'],
- ['Method','Parseval. The spectrum is piecewise constant, so square each height and multiply by its width.'],
+ ['Method','The spectrum is piecewise constant, so the frequency-domain energy integral is simpler than the time-domain integral. Apply Parseval, square each height, and multiply by the corresponding width.'],
  ['Solution','$E_{\\infty}=\\dfrac{1}{2\\pi}\\left[2\\pi+16\\pi+2\\pi\\right]=\\dfrac{20\\pi}{2\\pi}=10$ J. The inner band contributes $2^{2}\\cdot4\\pi=16\\pi$ and the two outer bands $1^{2}\\cdot2\\pi$ each.'],
  ['Check','Synthesis gives $x_3(t)=\\left[\\sin(2\\pi t)+\\sin(4\\pi t)\\right]/(\\pi t)$, and integrating $x_3^{2}$ over all time returns 10 J as well. Note that $\\frac{1}{2\\pi}\\int X_3\\d\\omega=6$, which is the peak $x_3(0)$ and not the energy: using the heights unsquared computes the wrong quantity correctly.']
 ]},
@@ -259,20 +259,20 @@ window.C5 = [
 {t:'ex', hd:'Example 5.11 — two exponentials in cascade', rows:[
  ['Given','$x(t)=e^{-at}u(t)$ and $h(t)=e^{-bt}u(t)$, with $a,b>0$ and $a\\neq b$.'],
  ['Find','$y(t)=x*h$.'],
- ['Method','Multiply the transforms, split into simple fractions, invert term by term.'],
+ ['Method','The output is a convolution in time, so it becomes multiplication in frequency. Multiply the transforms, expand the product into simple fractions, and invert each term.'],
  ['Solution','$Y=\\dfrac{1}{(a+j\\omega)(b+j\\omega)}=\\dfrac{A}{a+j\\omega}+\\dfrac{B}{b+j\\omega}$ with $A=\\dfrac{1}{b-a}$ and $B=-A$, so $$y(t)=\\frac{e^{-at}-e^{-bt}}{b-a}\\,u(t).$$'],
  ['Check','$y(0)=0$, as a convolution of two causal signals must be. For $a=1$, $b=2$ the peak is at $t=\\ln2=0.693147$ with value exactly $1/4$. At $\\omega=0$: $|X|=1$, $|H|=0.5$ and $|Y|=0.5$, and the product of the first two is the third — the property itself at one frequency.']
 ]},
 {t:'ex', hd:'Example 5.12 — ideal filters in cascade', rows:[
  ['Given','$X(j\\omega)=2$ on $|\\omega|\\le4\\pi$; an ideal low-pass system with $H(j\\omega)=3$ on $|\\omega|\\le2\\pi$.'],
  ['Find','$Y(j\\omega)$, $y(t)$ and the three time-domain peaks.'],
- ['Method','Multiply the spectra frequency by frequency, then invert.'],
+ ['Method','An LTI system gives $Y=XH$. Multiply the input spectrum and frequency response at each frequency, then apply the inverse transform.'],
  ['Solution','Beyond $2\\pi$ the system contributes zero, so $Y=6$ on $|\\omega|\\le2\\pi$ and zero elsewhere; the narrower band decides. Inverting, $y(t)=6\\sin(2\\pi t)/(\\pi t)$.'],
  ['Check','Each peak is the area of its own band divided by $2\\pi$: $x(0)=8$, $h(0)=6$, $y(0)=12$. The output peak is the largest because a peak counts area, and $6\\times4\\pi$ exceeds $2\\times8\\pi$.']
 ]},
 
 {t:'h2', num:'5.10', text:'Amplitude modulation'},
-{t:'p', text:'Multiplying by a cosine of frequency $\\omega_c$, the carrier, convolves the spectrum with two impulses at once. The $1/2\\pi$ of the multiplication property and the $\\pi$ of each impulse combine into a factor $\\frac12$ on each copy.'},
+{t:'p', text:'A cosine of frequency $\\omega_c$ is called a carrier. Multiplying by it convolves the signal spectrum with two impulses. The factor $1/2\\pi$ in the multiplication property and the weight $\\pi$ of each impulse give a factor $\\frac12$ for each shifted copy.'},
 {t:'eqbox', cap:'Double-sideband suppressed-carrier modulation',
  tex:['z(t)=x(t)\\cos(\\omega_ct)\\;\\longleftrightarrow\\;Z(j\\omega)=\\tfrac12X\\bigl(j(\\omega-\\omega_c)\\bigr)+\\tfrac12X\\bigl(j(\\omega+\\omega_c)\\bigr)'],
  after:'The spectrum is not moved to $\\omega_c$; it is <b>duplicated</b>, one copy at $+\\omega_c$ and one at $-\\omega_c$, each at half height. A description that says "the signal moved up to the carrier" loses the negative-frequency copy and the factor of one half in the same sentence.'},
@@ -290,14 +290,14 @@ window.C5 = [
 {t:'p', text:'Products of two band-limited signals follow the same arithmetic. Two rectangles of height $A$ and half-width $\\omega_0$ convolve to a triangle of apex $2A^{2}\\omega_0$ on $|\\omega|\\le2\\omega_0$; with the $1/2\\pi$, the transform of $\\left[\\sin(2\\pi t)/(\\pi t)\\right]^{2}$ is a triangle of apex 2 on $|\\omega|\\le4\\pi$, and the time-domain peak is $2^{2}=4$. With unequal half-widths $2\\pi$ and $4\\pi$ the result is a trapezoid of height 2, flat on $|\\omega|\\le2\\pi$ and zero beyond $6\\pi$, with time-domain peak $2\\times4=8$. The flat top is as wide as the difference of the two half-widths, and it shrinks to a point when they are equal.'},
 
 {t:'h2', num:'5.11', text:'Systems described by a differential equation'},
-{t:'p', text:'Transform both sides of a linear differential equation with constant coefficients. Linearity handles the sum and the differentiation property turns each $\\d^{k}/\\d t^{k}$ into $(j\\omega)^{k}$, so the equation becomes algebra.'},
+{t:'p', text:'The Fourier transform converts a linear differential equation with constant coefficients into an algebraic equation. Apply linearity to the sums and replace each derivative $\\d^{k}/\\d t^{k}$ by the factor $(j\\omega)^{k}$.'},
 {t:'eqbox', cap:'Frequency response from the coefficients',
  tex:['\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x}{\\d t^{k}}\\quad\\Longrightarrow\\quad H(j\\omega)=\\frac{\\sum_{k=0}^{M}b_k(j\\omega)^{k}}{\\sum_{k=0}^{N}a_k(j\\omega)^{k}}'],
- after:'The frequency response is a ratio of two polynomials in $j\\omega$, read straight off the coefficients. The recipe is then: read $H$, multiply by $X$, split into simple fractions and invert with the table. It is worth writing $s=j\\omega$ while the algebra is done and changing back at the end; treating the two-character symbol $j\\omega$ as a single variable works but invites sign slips as soon as a derivative is needed.'},
+ after:'The differential-equation coefficients form two polynomials in $j\\omega$, and their ratio is the frequency response. Next calculate $Y=XH$, expand it into simple fractions, and invert each term with the transform table. During the algebra, define $s=j\\omega$ and substitute back at the end.'},
 {t:'ex', hd:'Example 5.13 — simple poles', rows:[
  ['Given','$\\dfrac{\\d^{2}y}{\\d t^{2}}+4\\dfrac{\\d y}{\\d t}+3y=\\dfrac{\\d x}{\\d t}+2x$, at rest.'],
  ['Find','$H(j\\omega)$ and $h(t)$.'],
- ['Method','Read the ratio off the coefficients, factor, split, invert.'],
+ ['Method','The differential equation has constant coefficients, so the differentiation property turns it into algebra. Form the frequency-response ratio, factor it, expand it into simple fractions, and invert each term.'],
  ['Solution','$H=\\dfrac{s+2}{s^{2}+4s+3}=\\dfrac{s+2}{(s+1)(s+3)}$ with $s=j\\omega$. Covering up $(s+1)$ and setting $s=-1$ gives $A=\\frac12$; covering up $(s+3)$ and setting $s=-3$ gives $B=\\frac12$. Hence $h(t)=\\left[\\frac12e^{-t}+\\frac12e^{-3t}\\right]u(t)$.'],
  ['Check','$H(j0)=2/3$, and $\\int_{0}^{\\infty}h\\,\\d t=\\frac12+\\frac16=\\frac23$. Also $h(0^{+})=1$. The poles are at $s=-1$ and $s=-3$, both with negative real part, so $h$ is absolutely integrable and $H$ was entitled to exist.']
 ]},
@@ -309,7 +309,7 @@ window.C5 = [
 {t:'ex', hd:'Example 5.14 — a repeated pole, and the check that catches a sign', rows:[
  ['Given','The system of Example 5.13, with input $x(t)=e^{-t}u(t)$.'],
  ['Find','$y(t)$.'],
- ['Method','$Y=XH$, then partial fractions with $s=j\\omega$.'],
+ ['Method','The input passes through an LTI system, so calculate $Y=XH$. Define $s=j\\omega$, expand $Y$ into partial fractions, and invert each term.'],
  ['Solution','$Y=\\dfrac{1}{s+1}\\cdot\\dfrac{s+2}{(s+1)(s+3)}=\\dfrac{s+2}{(s+1)^{2}(s+3)}$: the input pole coincides with a system pole, so $s=-1$ is now double. Then $B=\\left[(s+1)^{2}Y\\right]_{s=-1}=\\frac12$, $A=\\frac{\\d}{\\d s}\\left[(s+1)^{2}Y\\right]_{s=-1}=\\frac{1}{(s+3)^{2}}\\big|_{s=-1}=\\frac14$, and $C=\\left[(s+3)Y\\right]_{s=-3}=-\\frac14$. Hence $$y(t)=\\left[\\tfrac14e^{-t}+\\tfrac12t\\,e^{-t}-\\tfrac14e^{-3t}\\right]u(t).$$'],
  ['Check','$y(0)=\\frac14+0-\\frac14=0$, as a convolution of two causal signals must be. Assembling $C$ as $+\\frac14$ instead gives $y(0)=\\frac12$, which no causal convolution can. The two candidates agree to three decimals past $t=2$ — $0.168549$ against $0.169789$ — so only the value at the origin separates them. Convolving directly returns the same three terms with the same signs.']
 ]},
