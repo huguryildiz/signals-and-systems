@@ -9,7 +9,7 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.6 · Modules 0–7 numbered as chapters 1–7, laboratories A–J, practice questions D1–D7, thirty a module, with the Fourier property tables complete',
+    version:'v1.7 · Modules 0–7 and their notes, laboratories, practice questions, and worked solutions rewritten in plain teaching English',
     date:'2026-08-02',
     language:'Academic English',
     conventions:{
