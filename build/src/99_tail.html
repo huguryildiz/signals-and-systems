@@ -45,7 +45,12 @@
     ['Esc','Close any overlay']
   ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');
 
-  APP.init({ scenes:SCENES, modules:CONTENT.MODULES, render:RENDER.draw });
+  /* Addresses and textbook anchors are derived from the single declaration in
+     `89_sections.js` and hung on the scene objects here, before anything reads
+     them. The chapter view it returns is what the contents surfaces render. */
+  const CHAPTERS = window.applyNumbering(SCENES);
+
+  APP.init({ scenes:SCENES, modules:CONTENT.MODULES, chapters:CHAPTERS, render:RENDER.draw });
   APP.wireSearch();
   RENDER.draw();
 })();

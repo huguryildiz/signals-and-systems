@@ -16,15 +16,17 @@ window.C1 = [
 {t:'p', text:'Each chapter builds on the one before it, and the seven of them are one argument: a signal is a function, a system is a map on functions, an LTI system is described by one function, and the frequency domain is what turns the operation that uses it into a product. Within a chapter, every idea is introduced in the same order: a picture, a definition, an equation, a short derivation, a worked example, and a warning about the mistake that is easiest to make. Worked examples always use five headings: Given, Find, Method, Solution, Check. Do the Check step yourself before reading it.'},
 {t:'p', text:'Two conventions apply everywhere. First, energy and power are <b>normalised</b>: the resistance is taken as $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. Second, the imaginary unit is written $j$.'},
 
+{t:'p', text:'The contents below carries a third column. An entry such as <b>OW &sect;1.1&ndash;1.4</b> points into the course textbook, Oppenheim and Willsky, <i>Signals and Systems</i>, second edition, where the same material is developed at length. The two numbering systems are not the same, so the anchor always carries the <b>OW</b> marker. These notes reach the continuous-time Fourier transform in chapter 5; the textbook reaches it in chapter 4.'},
+
 {t:'toc', items:[
- ['1','Signals','Energy and power. Shifting, reversal and scaling. Periodicity. Impulses and steps. Complex exponentials.'],
- ['2','Systems and their properties','Memory, invertibility, causality, stability, time invariance, linearity.'],
- ['3','Linear time-invariant systems','Impulse response. Convolution sum and convolution integral. Properties of convolution.'],
- ['4','Fourier series','The eigenfunction property. Analysis and synthesis. Existence. Properties. A periodic input through an LTI system.'],
- ['5','The continuous-time Fourier transform','From series to transform. The standard pairs. Every property with its proof. Parseval. Modulation. Differential equations.'],
- ['6','The discrete-time Fourier transform','The same construction in discrete time. Why the spectrum repeats. Periodic convolution. Difference equations.'],
- ['7','Sampling and aliasing','Impulse-train sampling. Replication and the guard band. The sampling theorem. Reconstruction, holds, and aliasing.'],
- ['A','Summary of formulas','Everything from Chapters 1 to 7 on two pages.']
+ ['1','Signals','Energy and power. Shifting, reversal and scaling. Periodicity. Impulses and steps. Complex exponentials.','OW &sect;1.1&ndash;1.4'],
+ ['2','Systems and their properties','Memory, invertibility, causality, stability, time invariance, linearity.','OW &sect;1.5&ndash;1.6'],
+ ['3','Linear time-invariant systems','Impulse response. Convolution sum and convolution integral. Properties of convolution.','OW &sect;2.1&ndash;2.3'],
+ ['4','Fourier series','The eigenfunction property. Analysis and synthesis. Existence. Properties. A periodic input through an LTI system.','OW &sect;3.1&ndash;3.11'],
+ ['5','The continuous-time Fourier transform','From series to transform. The standard pairs. Every property with its proof. Parseval. Modulation. Differential equations.','OW &sect;4.1&ndash;4.7'],
+ ['6','The discrete-time Fourier transform','The same construction in discrete time. Why the spectrum repeats. Periodic convolution. Difference equations.','OW &sect;5.1&ndash;5.8'],
+ ['7','Sampling and aliasing','Impulse-train sampling. Replication and the guard band. The sampling theorem. Reconstruction, holds, and aliasing.','OW &sect;7.1&ndash;7.3'],
+ ['A','Summary of formulas','Everything from Chapters 1 to 7 on two pages.','']
 ]},
 
 {t:'page'},

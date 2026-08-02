@@ -139,7 +139,7 @@ window.C4 = [
 {t:'eqbox', cap:'Truncation and its error',
  tex:['x_N(t)=\\sum_{k=-N}^{N}a_ke^{jk\\omega_0t},\\qquad e_N(t)=x(t)-x_N(t)',
       '\\text{MSE}=\\frac{1}{T_0}\\int_{T_0}\\bigl|e_N(t)\\bigr|^{2}\\,\\d t=\\sum_{|k|>N}\\bigl|a_k\\bigr|^{2}'],
- after:'The second form follows from Parseval’s relation in §4.7. It turns a question about a difference of signals into a question about a tail of a series.'},
+ after:'The second form follows from Parseval’s relation in Section 4.7. It turns a question about a difference of signals into a question about a tail of a series.'},
 {t:'box', kind:'err', html:'<span class="t">The Gibbs phenomenon</span>Near a jump the partial sum overshoots, and the overshoot does not shrink as $N$ grows: its height settles at about <b>8.95% of the size of the jump</b>. What does shrink is its width. That is how the mean-square error can go to zero while the largest error does not.'},
 {t:'table', head:['$N$','Rectangular wave, $T_0=4T_1$','Sawtooth, $T_0=1$'], rows:[
  ['3','$0.025$','$0.0144$'],

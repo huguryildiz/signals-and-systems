@@ -131,11 +131,37 @@ def figure_labels(path):
                         break
     return hits
 
+# ---------------------------------------------------------------------------
+# The textbook anchor. This course's chapter numbers and the textbook's do not
+# agree — chapter 5 is the continuous-time transform here and the discrete-time
+# one there — so an anchor is written `OW §4.3.1` and never as a bare section
+# mark. A bare `§` renders without complaint and reads as this course's own
+# address, which is the same class of damage as a lost backslash: silent, and
+# wrong on the page.
+# ---------------------------------------------------------------------------
+MARK = re.compile(r'(?:§|&sect;)')
+
+def bare_section_marks(path):
+    hits, in_block = [], False
+    for i, raw in enumerate(open(path, encoding='utf-8'), 1):
+        line, in_block = strip_exempt(SRC_FIELD.sub('src:', raw), in_block)
+        for m in MARK.finditer(line):
+            before = line[:m.start()]
+            if not re.search(r'\bOW\b(?:</b>)?\s*$', before):
+                hits.append((i, 'bare section mark — write "OW §x.y"', raw.strip()[:110]))
+                break
+    return hits
+
 targets = sys.argv[1:] or []
 bad = 0
 for t in targets:
     for f in (glob.glob(t) if any(c in t for c in '*?') else [t]):
         if not os.path.isfile(f): continue
+        m = bare_section_marks(f)
+        if m:
+            bad += len(m)
+            print(f'\n{f}: {len(m)} anchor hit(s)')
+            for i, why, s in m[:40]: print(f'  L{i:<5} {why:<46}  {s}')
         h = scan(f)
         if h:
             bad += len(h)
