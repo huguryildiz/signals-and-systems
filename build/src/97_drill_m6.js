@@ -31,7 +31,7 @@ CONTENT.DRILLTYPES.M6 = [
     method:['Write the analysis sum and cut it down to the support of the sequence.',
             'A one-sided geometric sequence sums directly, provided $|a|<1$.',
             'A two-sided one splits at $n=0$, with the $n\\ge1$ half summed separately.',
-            'Check $X(e^{j0})=\\sum_n x[n]$, the total sum, as a free test.'],
+            'Check $X(e^{j0})=\\sum_n x[n]$, the total sum, without doing a second transform.'],
     go:'m6-ex-anun' },
   { k:'dtft-sinu', name:'Sinusoids, impulses, and the $2\\pi$ periodicity',
     asks:'A sum of sinusoids is given. Plot $X(e^{j\\omega})$ as impulses on $-\\pi\\le\\omega\\le\\pi$.',
@@ -78,7 +78,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot $\\left|X(e^{j\\omega})\\right|$ over one period.'],
   sol:'<b>Given.</b> A causal decaying geometric sequence with ratio $\\tfrac12$.<br>'
      +'<b>Find.</b> Its transform, two magnitude values, and its plot over one period.<br>'
-     +'<b>Method.</b> The step cuts the analysis sum to $n\\ge0$, leaving a single geometric series in $\\tfrac12e^{-j\\omega}$.<br>'
+     +'<b>Method.</b> Use the analysis sum because the sequence is given in time. The step restricts the sum to $n\\ge0$, leaving a geometric series in $\\tfrac12e^{-j\\omega}$.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=\\sum_{n=0}^{\\infty}\\left(\\tfrac12e^{-j\\omega}\\right)^{n}=\\frac{1}{1-\\tfrac12e^{-j\\omega}},$$convergent because $\\left|\\tfrac12e^{-j\\omega}\\right|=\\tfrac12<1$ for every $\\omega$.<br>'
      +'<b>Solution — part (b).</b> At $\\omega=0$: $\\left|X\\right|=\\dfrac{1}{1-1/2}=2$. At $\\omega=\\pi$: $\\left|X\\right|=\\dfrac{1}{1+1/2}=\\dfrac23$.<br>'
      +'<b>Solution — part (c).</b> The magnitude runs smoothly from $2$ at $\\omega=0$ down to $\\tfrac23$ at $\\omega=\\pm\\pi$, shown below.<br>'
@@ -98,7 +98,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'State whether $X(e^{j\\omega})$ is real for every $\\omega$, and why.'],
   sol:'<b>Given.</b> A two-sided, scaled geometric sequence, even about $n=0$.<br>'
      +'<b>Find.</b> Its transform, two values, and its symmetry.<br>'
-     +'<b>Method.</b> Split the sum at $n=0$ and sum each half as a geometric series in $ae^{\\mp j\\omega}$, with $a=\\tfrac14$.<br>'
+     +'<b>Method.</b> Split the analysis sum at $n=0$ because the absolute value gives different exponents on the two sides. Each half is a geometric series in $ae^{\\mp j\\omega}$, with $a=\\tfrac14$.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=3\\left[\\frac{1}{1-\\tfrac14e^{-j\\omega}}+\\frac{\\tfrac14e^{j\\omega}}{1-\\tfrac14e^{j\\omega}}\\right]=\\frac{3\\left(1-\\tfrac1{16}\\right)}{1-\\tfrac12\\cos\\omega+\\tfrac1{16}}=\\frac{45}{17-8\\cos\\omega}.$$'
      +'<b>Solution — part (b).</b> $X(e^{j0})=\\dfrac{45}{9}=5$ and $X(e^{j\\pi})=\\dfrac{45}{25}=\\dfrac95=1.8$.<br>'
      +'<b>Solution — part (c).</b> $x[n]$ is real and even, so $X(e^{j\\omega})$ must be real for every $\\omega$ — and $45/(17-8\\cos\\omega)$ has no imaginary part at any $\\omega$, consistent with that.<br>'
@@ -116,7 +116,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.stem(disc(n=>Math.abs(n)<=3?1:0,-5,5),{color:C.in,showZero:true}); return a.svg();},
   sol:'<b>Given.</b> A rectangular window of seven ones, centred on $n=0$.<br>'
      +'<b>Find.</b> Its transform, its zeros, and its plot.<br>'
-     +'<b>Method.</b> The sum is finite; summing the finite geometric series in $e^{-j\\omega}$ over symmetric limits gives a real result directly.<br>'
+     +'<b>Method.</b> Use a finite geometric series because the sequence has consecutive non-zero samples. The symmetric limits then give a real expression directly.<br>'
      +'<b>Solution — part (a).</b> The support is $-3\\le n\\le3$, seven samples, and$$X(e^{j\\omega})=\\sum_{n=-3}^{3}e^{-j\\omega n}=\\frac{\\sin(3.5\\,\\omega)}{\\sin(\\omega/2)}.$$'
      +'<b>Solution — part (b).</b> $X(e^{j0})=7$, the number of ones. The zeros occur where $\\sin(3.5\\,\\omega)=0$ but $\\sin(\\omega/2)\\neq0$, that is $3.5\\,\\omega=k\\pi$ with $k\\neq0$; inside $-\\pi\\le\\omega\\le\\pi$ this gives$$\\omega=\\pm\\frac{2\\pi}{7},\\;\\pm\\frac{4\\pi}{7},\\;\\pm\\frac{6\\pi}{7}.$$'
      +'<b>Solution — part (c).</b> The magnitude falls from $7$ at $\\omega=0$ through the six zeros above to $1$ at $\\omega=\\pm\\pi$, shown below.<br>'
@@ -138,13 +138,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Evaluate $X(e^{j0})$ and check it against the sum of the sequence.'],
   sol:'<b>Given.</b> A causal decaying sequence, delayed by one sample.<br>'
      +'<b>Find.</b> Its transform, found two ways.<br>'
-     +'<b>Method.</b> Substitute $m=n-1$ to reduce the sum to a standard one-sided geometric series, and separately shift the transform of the undelayed sequence.<br>'
+     +'<b>Method.</b> Use both direct analysis and the time-shift property so that each result checks the other. In the direct sum, substitute $m=n-1$ to obtain a standard one-sided geometric series.<br>'
      +'<b>Solution — part (a).</b> With $m=n-1$,$$X(e^{j\\omega})=\\sum_{m=0}^{\\infty}3\\left(\\tfrac13\\right)^{m}e^{-j\\omega(m+1)}=e^{-j\\omega}\\sum_{m=0}^{\\infty}3\\left(\\tfrac13e^{-j\\omega}\\right)^{m}=\\frac{3e^{-j\\omega}}{1-\\tfrac13e^{-j\\omega}}.$$'
      +'<b>Solution — part (b).</b> $W(e^{j\\omega})=\\dfrac{3}{1-\\tfrac13e^{-j\\omega}}$ for $w[n]=3\\left(\\tfrac13\\right)^{n}u[n]$, and $x[n]=w[n-1]$, so by the time-shift property$$X(e^{j\\omega})=e^{-j\\omega}W(e^{j\\omega})=\\frac{3e^{-j\\omega}}{1-\\tfrac13e^{-j\\omega}},$$exactly the formula of part (a).<br>'
      +'<b>Solution — part (c).</b>$$X(e^{j0})=\\frac{3}{1-1/3}=\\frac{9}{2}=4.5.$$'
      +'<b>Check.</b> Directly, $\\displaystyle\\sum_{n=1}^{\\infty}3\\left(\\tfrac13\\right)^{n-1}=3\\sum_{m=0}^{\\infty}\\left(\\tfrac13\\right)^{m}=3\\cdot\\tfrac32=4.5$, matching part (c). At $\\omega=\\pi$ instead, the closed form gives $X(e^{j\\pi})=\\dfrac{3(-1)}{1+1/3}=-\\dfrac94$, and directly $\\displaystyle\\sum_{n=1}^{\\infty}3\\left(\\tfrac13\\right)^{n-1}(-1)^{n}=-3\\sum_{m=0}^{\\infty}\\left(-\\tfrac13\\right)^{m}=-3\\cdot\\tfrac34=-\\dfrac94$, an independent match at a second frequency.',
   err:'Applying the time-shift property with the wrong sign, writing $X=e^{j\\omega}W(e^{j\\omega})$ instead of $e^{-j\\omega}W(e^{j\\omega})$, which reverses the direction of every phase the shift produces.',
-  teach:'Insist both routes of part (b) are actually carried out, not just quoted as agreeing. The shift property is worth nothing to a student who cannot also produce the direct sum it is checked against.' },
+  teach:'Require both routes in part (b). The direct sum verifies the sign in the shift property, so stating that the routes agree is not enough.' },
 
 { id:'D6-05', module:'M6', type:'dtft-sinu', src:'Final Q3',
   stem:'Plot the discrete-time Fourier transform of $$x[n]=4\\cos\\!\\left(\\tfrac{\\pi}{3}n\\right)$$on $-\\pi\\le\\omega\\le\\pi$.',
@@ -153,7 +153,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Confirm the weights by synthesising $x[0]$ from the two impulses.'],
   sol:'<b>Given.</b> A single discrete-time cosine, amplitude $4$, frequency $\\tfrac{\\pi}{3}$ rad/sample.<br>'
      +'<b>Find.</b> Its line spectrum on one period.<br>'
-     +'<b>Method.</b> On any one $2\\pi$ interval, $\\cos(\\omega_0n)\\longleftrightarrow\\pi\\left[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)\\right]$, and the transform scales with the amplitude.<br>'
+     +'<b>Method.</b> Use the cosine transform pair because the signal is one scaled cosine. On any one $2\\pi$ interval, $\\cos(\\omega_0n)\\longleftrightarrow\\pi\\left[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)\\right]$, and amplitude scaling follows from linearity.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=4\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{\\pi}{3}\\right)+\\delta\\!\\left(\\omega+\\tfrac{\\pi}{3}\\right)\\right],\\qquad-\\pi\\le\\omega\\le\\pi.$$'
      +'<b>Solution — part (b).</b> Two impulses, each of weight $4\\pi$, at $\\omega=\\pm\\tfrac{\\pi}{3}$, shown below.<br>'
      +'<b>Check.</b> Synthesising at $n=0$: $x[0]=\\dfrac{1}{2\\pi}\\left[4\\pi+4\\pi\\right]=4$, and directly $x[0]=4\\cos(0)=4$, matching without repeating the transform.',
@@ -164,7 +164,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.note(w,4*Math.PI,'4\\pi',{dx:9,dy:-7,tex:true,fs:12,color:C.mid}); });
     return a.svg();},
   err:'Placing a single impulse at $\\omega=\\pi/3$ and leaving out its negative-frequency partner. A real cosine always contributes two impulses of equal weight.',
-  teach:'Ask for the synthesis check at $n=0$ before anything is plotted — it is the cheapest test of the weight and takes one line.' },
+  teach:'Ask for the synthesis check at $n=0$ before plotting. It tests the impulse weight in one line.' },
 
 { id:'D6-06', module:'M6', type:'dtft-sinu', src:'Final Q3',
   stem:'Plot the discrete-time Fourier transform of $$x[n]=2+3\\cos\\!\\left(\\tfrac{2\\pi}{5}n\\right)$$on $-\\pi\\le\\omega\\le\\pi$.',
@@ -173,7 +173,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot the spectrum, marking every weight.'],
   sol:'<b>Given.</b> A constant plus a cosine at $\\tfrac{2\\pi}{5}$ rad/sample.<br>'
      +'<b>Find.</b> The line spectrum.<br>'
-     +'<b>Method.</b> Use $1\\longleftrightarrow2\\pi\\delta(\\omega)$ and $\\cos(\\omega_0n)\\longleftrightarrow\\pi\\left[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)\\right]$, and add.<br>'
+     +'<b>Method.</b> The sequence is a sum of a constant and a cosine, so use their transform pairs separately and add the spectra by linearity: $1\\longleftrightarrow2\\pi\\delta(\\omega)$ and $\\cos(\\omega_0n)\\longleftrightarrow\\pi\\left[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)\\right]$.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=4\\pi\\,\\delta(\\omega)+3\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{2\\pi}{5}\\right)+\\delta\\!\\left(\\omega+\\tfrac{2\\pi}{5}\\right)\\right],\\qquad-\\pi\\le\\omega\\le\\pi.$$'
      +'<b>Solution — part (b).</b> The impulse at $\\omega=0$ has weight $4\\pi$: a constant of amplitude $A$ carries weight $2\\pi A$ at the single point $\\omega=0$, while a cosine of the same amplitude splits its weight, $\\pi A$, between two points. Here $A=2$ for the constant gives $2\\pi\\cdot2=4\\pi$, and $A=3$ for the cosine gives $3\\pi$ at each of $\\omega=\\pm2\\pi/5$.<br>'
      +'<b>Solution — part (c).</b> Three impulses: $4\\pi$ at $\\omega=0$, and $3\\pi$ at each of $\\omega=\\pm2\\pi/5$, shown below.<br>'
@@ -196,12 +196,12 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Check the result by synthesising $x[1]$.'],
   sol:'<b>Given.</b> A single discrete-time sine, amplitude $5$, frequency $\\tfrac{3\\pi}{4}$ rad/sample.<br>'
      +'<b>Find.</b> Its transform, and one synthesised sample checked.<br>'
-     +'<b>Method.</b> Write $\\sin(\\omega_0n)=\\dfrac{e^{j\\omega_0n}-e^{-j\\omega_0n}}{2j}$ and transform each exponential term with $e^{j\\omega_0n}\\longleftrightarrow2\\pi\\delta(\\omega-\\omega_0)$.<br>'
+     +'<b>Method.</b> Express the sine as exponentials because each exponential has a direct impulse transform pair. Write $\\sin(\\omega_0n)=\\dfrac{e^{j\\omega_0n}-e^{-j\\omega_0n}}{2j}$ and transform each term with $e^{j\\omega_0n}\\longleftrightarrow2\\pi\\delta(\\omega-\\omega_0)$.<br>'
      +'<b>Solution — part (a).</b>$$X_{\\sin}(e^{j\\omega})=\\frac{1}{2j}\\left[2\\pi\\delta(\\omega-\\omega_0)-2\\pi\\delta(\\omega+\\omega_0)\\right]=-j\\pi\\left[\\delta(\\omega-\\omega_0)-\\delta(\\omega+\\omega_0)\\right].$$'
      +'<b>Solution — part (b).</b> With $A=5$, $\\omega_0=\\tfrac{3\\pi}{4}$,$$X(e^{j\\omega})=-j5\\pi\\,\\delta\\!\\left(\\omega-\\tfrac{3\\pi}{4}\\right)+j5\\pi\\,\\delta\\!\\left(\\omega+\\tfrac{3\\pi}{4}\\right),$$two impulses of equal magnitude $5\\pi$ at $\\omega=\\pm\\tfrac{3\\pi}{4}$, purely imaginary and opposite in sign — consistent with a real, odd sequence.<br>'
      +'<b>Check.</b> Synthesising at $n=1$:$$x[1]=\\frac{1}{2\\pi}\\left[-j5\\pi\\,e^{j3\\pi/4}+j5\\pi\\,e^{-j3\\pi/4}\\right]=\\frac{5}{2}\\,j\\left[e^{-j3\\pi/4}-e^{j3\\pi/4}\\right]=5\\sin\\!\\left(\\tfrac{3\\pi}{4}\\right)=\\frac{5\\sqrt2}{2},$$matching $x[1]=5\\sin(3\\pi/4)$ directly, and not the trivial $n=0$ value that every odd sequence gives.',
   err:'Writing the sine pair with a plus sign, $j\\pi\\left[\\delta(\\omega-\\omega_0)+\\delta(\\omega+\\omega_0)\\right]$, which is the cosine pair with the wrong prefactor rather than a genuinely different pattern of signs.',
-  teach:'A check at $n=0$ is worthless here, because every odd sequence gives $x[0]=0$ regardless of whether the weights are right. Insist on $n=1$ or later.' },
+  teach:'Do not use $n=0$ as the only check, because every odd sequence gives $x[0]=0$ even when the weights are wrong. Use $n=1$ or a later index.' },
 
 { id:'D6-08', module:'M6', type:'dtft-sinu', src:'Final Q3',
   stem:'Plot the discrete-time Fourier transform of $$x[n]=2\\cos\\!\\left(\\tfrac{3\\pi}{2}n\\right)+\\cos\\!\\left(\\tfrac{9\\pi}{4}n\\right)$$on $-\\pi\\le\\omega\\le\\pi$.',
@@ -210,7 +210,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot the spectrum, and check the total weight against $x[0]$.'],
   sol:'<b>Given.</b> Two cosines whose stated frequencies lie outside $-\\pi\\le\\omega\\le\\pi$.<br>'
      +'<b>Find.</b> Their equivalent frequencies inside one period, and the resulting spectrum.<br>'
-     +'<b>Method.</b> For integer $n$, $e^{-j2\\pi n}=1$, so a frequency and the same frequency shifted by $2\\pi$ produce identical sequences; subtract $2\\pi$ from each stated frequency until it lies in $-\\pi\\le\\omega\\le\\pi$.<br>'
+     +'<b>Method.</b> Reduce the frequencies before applying transform pairs. For integer $n$, $e^{-j2\\pi n}=1$, so a frequency and the same frequency shifted by $2\\pi$ produce identical sequences. Subtract $2\\pi$ until each frequency lies in $-\\pi\\le\\omega\\le\\pi$.<br>'
      +'<b>Solution — part (a).</b> $\\tfrac{3\\pi}{2}-2\\pi=-\\tfrac{\\pi}{2}$, and $\\cos$ is even, so $\\cos\\!\\left(\\tfrac{3\\pi}{2}n\\right)=\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$. Also $\\tfrac{9\\pi}{4}-2\\pi=\\tfrac{\\pi}{4}$, so $\\cos\\!\\left(\\tfrac{9\\pi}{4}n\\right)=\\cos\\!\\left(\\tfrac{\\pi}{4}n\\right)$. At $n=2$: $\\cos(3\\pi)=-1=\\cos(\\pi)$, and $\\cos\\!\\left(\\tfrac{9\\pi}{2}\\right)=\\cos\\!\\left(\\tfrac{\\pi}{2}\\right)=0$, both matching the reduced forms.<br>'
      +'<b>Solution — part (b).</b>$$X(e^{j\\omega})=2\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{\\pi}{2}\\right)+\\delta\\!\\left(\\omega+\\tfrac{\\pi}{2}\\right)\\right]+\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{\\pi}{4}\\right)+\\delta\\!\\left(\\omega+\\tfrac{\\pi}{4}\\right)\\right].$$'
      +'<b>Solution — part (c).</b> Four impulses: $2\\pi$ at $\\omega=\\pm\\tfrac{\\pi}{2}$ and $\\pi$ at $\\omega=\\pm\\tfrac{\\pi}{4}$, shown below.<br>'
@@ -224,7 +224,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.note(w,Math.PI,'\\pi',{dx:9,dy:-7,tex:true,fs:12,color:C.mid}); });
     return a.svg();},
   err:'Plotting impulses at the stated frequencies $3\\pi/2$ and $9\\pi/4$ directly, outside the one period the spectrum is asked for, instead of reducing them first.',
-  teach:'Have the reduction verified at one specific integer before any impulse is drawn. A match at that point is not a proof for every $n$, but a mismatch there rules the reduction out immediately.' },
+  teach:'Check the frequency reduction at one integer before drawing the impulses. Agreement at one index does not prove equality for every $n$, but disagreement disproves it.' },
 
 { id:'D6-09', module:'M6', type:'dtft-lti', src:'Final Q3',
   stem:'A discrete-time LTI system has impulse response $h[n]=\\left(\\tfrac12\\right)^{\\!n}u[n]$ and input $x[n]=\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$.',
@@ -233,7 +233,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Check $\\left|H(e^{j\\pi/2})\\right|$ using $\\left|H(e^{j\\omega})\\right|^{2}=H(e^{j\\omega})H^{*}(e^{j\\omega})$.'],
   sol:'<b>Given.</b> A one-pole system driven by a cosine at $\\tfrac{\\pi}{2}$ rad/sample.<br>'
      +'<b>Find.</b> $y[n]$, through the frequency response evaluated at one frequency.<br>'
-     +'<b>Method.</b> A sinusoidal input meets an LTI system at a single frequency: $y[n]=\\left|H(e^{j\\omega_0})\\right|\\cos\\!\\left(\\omega_0n+\\angle H(e^{j\\omega_0})\\right)$.<br>'
+     +'<b>Method.</b> Use the sinusoidal eigenfunction property because an LTI system changes only the amplitude and phase of a sinusoid: $y[n]=\\left|H(e^{j\\omega_0})\\right|\\cos\\!\\left(\\omega_0n+\\angle H(e^{j\\omega_0})\\right)$.<br>'
      +'<b>Solution — part (a).</b>$$H(e^{j\\omega})=\\frac{1}{1-\\tfrac12e^{-j\\omega}}.$$'
      +'<b>Solution — part (b).</b> At $\\omega=\\tfrac{\\pi}{2}$, $e^{-j\\pi/2}=-j$, so$$H\\!\\left(e^{j\\pi/2}\\right)=\\frac{1}{1+\\tfrac{j}{2}}=\\frac{1-\\tfrac{j}{2}}{1+\\tfrac14}=\\frac45-\\frac{2}{5}j.$$Its magnitude is $\\dfrac{2}{\\sqrt5}\\approx0.8944$ and its phase is $-\\arctan\\!\\left(\\tfrac12\\right)\\approx-0.4636$ rad, so$$y[n]=\\frac{2}{\\sqrt5}\\cos\\!\\left(\\tfrac{\\pi}{2}n-\\arctan\\tfrac12\\right).$$'
      +'<b>Check.</b> $\\left|H(e^{j\\omega})\\right|^{2}=\\dfrac{1}{\\left|1-\\tfrac12e^{-j\\omega}\\right|^{2}}=\\dfrac{1}{1-\\cos\\omega+\\tfrac14}$. At $\\omega=\\tfrac{\\pi}{2}$, $\\cos\\omega=0$, so $\\left|H\\right|^{2}=\\dfrac{1}{1.25}=0.8$, and $\\sqrt{0.8}=\\dfrac{2}{\\sqrt5}$, matching part (b) by a route that never divides two complex numbers.',
@@ -247,7 +247,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot $\\left|H(e^{j\\omega})\\right|$ over one period.'],
   sol:'<b>Given.</b> A two-tap first-difference filter.<br>'
      +'<b>Find.</b> Its magnitude response and its type.<br>'
-     +'<b>Method.</b> Compute $H(e^{j\\omega})H^{*}(e^{j\\omega})$ directly, which avoids ever taking the square root of a complex number.<br>'
+     +'<b>Method.</b> Compute $H(e^{j\\omega})H^{*}(e^{j\\omega})$ because this product is the squared magnitude and remains real. This avoids taking the square root of a complex expression.<br>'
      +'<b>Solution — part (a).</b> $H(e^{j\\omega})=1-e^{-j\\omega}$, and$$\\left|H(e^{j\\omega})\\right|^{2}=\\left(1-e^{-j\\omega}\\right)\\left(1-e^{j\\omega}\\right)=2-2\\cos\\omega=4\\sin^{2}\\!\\left(\\tfrac{\\omega}{2}\\right),$$so $\\left|H(e^{j\\omega})\\right|=2\\left|\\sin(\\omega/2)\\right|$.<br>'
      +'<b>Solution — part (b).</b> $\\left|H(e^{j0})\\right|=0$ and $\\left|H(e^{j\\pi})\\right|=2$. A system that blocks a constant completely and passes the fastest sequence with the largest gain is a <b>high-pass filter</b>.<br>'
      +'<b>Solution — part (c).</b> The magnitude rises from $0$ at $\\omega=0$ to $2$ at $\\omega=\\pm\\pi$, shown below.<br>'
@@ -267,7 +267,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Check $y[0]$ and $y[1]$ directly against the convolution sum.'],
   sol:'<b>Given.</b> Two causal geometric sequences, ratios $\\tfrac12$ and $\\tfrac14$.<br>'
      +'<b>Find.</b> The output, through the frequency domain.<br>'
-     +'<b>Method.</b> Convolution in time is multiplication in frequency. Split the product into first-order terms in $z=e^{-j\\omega}$ and invert each with the standard pair.<br>'
+     +'<b>Method.</b> Use the convolution property because the required sequence is a convolution. Multiply the transforms, split the rational product into first-order terms in $z=e^{-j\\omega}$, and invert each term with the standard pair.<br>'
      +'<b>Solution — part (a).</b>$$X=\\frac{1}{1-\\tfrac12e^{-j\\omega}},\\qquad H=\\frac{1}{1-\\tfrac14e^{-j\\omega}},\\qquad Y=\\frac{1}{\\left(1-\\tfrac12e^{-j\\omega}\\right)\\left(1-\\tfrac14e^{-j\\omega}\\right)}.$$'
      +'<b>Solution — part (b).</b> With $z=e^{-j\\omega}$, $a=\\tfrac12$, $b=\\tfrac14$,$$\\frac{1}{(1-az)(1-bz)}=\\frac{A}{1-az}+\\frac{B}{1-bz},\\qquad A=\\frac{a}{a-b}=2,\\quad B=\\frac{b}{b-a}=-1,$$so$$y[n]=2\\left(\\tfrac12\\right)^{\\!n}u[n]-\\left(\\tfrac14\\right)^{\\!n}u[n].$$'
      +'<b>Check.</b> $y[0]=2-1=1$, and directly from the convolution sum $y[0]=x[0]h[0]=1\\cdot1=1$, matching. $y[1]=2\\left(\\tfrac12\\right)-\\tfrac14=\\tfrac34$, and directly $y[1]=x[0]h[1]+x[1]h[0]=\\tfrac14+\\tfrac12=\\tfrac34$, matching a second, independent sample.',
@@ -281,7 +281,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Give $Y(e^{j\\omega})$ as a pair of weighted impulses, and plot $\\left|Y(e^{j\\omega})\\right|$.'],
   sol:'<b>Given.</b> A symmetric two-sample average driven by a cosine at $\\tfrac{\\pi}{3}$ rad/sample.<br>'
      +'<b>Find.</b> $y[n]$ and the spectrum of the output.<br>'
-     +'<b>Method.</b> Factor out the midpoint exponential so the remainder is real, evaluate $H$ at the one frequency the input carries, and multiply that value into the two impulses of $X$.<br>'
+     +'<b>Method.</b> Use the sinusoidal eigenfunction property because the input contains only one frequency. Factor out the midpoint exponential so the remaining factor is real, evaluate $H$ at that frequency, and multiply the value into both impulses of $X$.<br>'
      +'<b>Solution — part (a).</b>$$H(e^{j\\omega})=\\tfrac12\\left(1+e^{-j\\omega}\\right)=\\tfrac12e^{-j\\omega/2}\\left(e^{j\\omega/2}+e^{-j\\omega/2}\\right)=e^{-j\\omega/2}\\cos\\!\\left(\\tfrac{\\omega}{2}\\right).$$At $\\omega=\\tfrac{\\pi}{3}$: $H\\!\\left(e^{j\\pi/3}\\right)=e^{-j\\pi/6}\\cos\\!\\left(\\tfrac{\\pi}{6}\\right)=\\dfrac{\\sqrt3}{2}\\,e^{-j\\pi/6}$.<br>'
      +'<b>Solution — part (b).</b>$$y[n]=\\frac{\\sqrt3}{2}\\cos\\!\\left(\\tfrac{\\pi}{3}n-\\tfrac{\\pi}{6}\\right).$$'
      +'<b>Solution — part (c).</b> $X(e^{j\\omega})=\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{\\pi}{3}\\right)+\\delta\\!\\left(\\omega+\\tfrac{\\pi}{3}\\right)\\right]$, and multiplying each impulse by $H$ evaluated at its own location,$$Y(e^{j\\omega})=\\frac{\\sqrt3\\pi}{2}\\,e^{-j\\pi/6}\\,\\delta\\!\\left(\\omega-\\tfrac{\\pi}{3}\\right)+\\frac{\\sqrt3\\pi}{2}\\,e^{j\\pi/6}\\,\\delta\\!\\left(\\omega+\\tfrac{\\pi}{3}\\right),$$so $\\left|Y(e^{j\\omega})\\right|$ is two impulses of equal weight $\\tfrac{\\sqrt3\\pi}{2}$ at $\\omega=\\pm\\tfrac{\\pi}{3}$, shown below.<br>'
@@ -303,7 +303,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot $x[n]$ for $-8\\le n\\le8$.'],
   sol:'<b>Given.</b> An ideal low-pass spectrum with cut-off $\\tfrac{\\pi}{3}$.<br>'
      +'<b>Find.</b> The corresponding sequence.<br>'
-     +'<b>Method.</b> The synthesis integral runs over one period, and the integrand is non-zero only on the passband.<br>'
+     +'<b>Method.</b> Use the synthesis integral because the spectrum is given and the sequence is required. Integrate over one period; the integrand is non-zero only on the passband.<br>'
      +'<b>Solution — part (a).</b> For $n\\neq0$,$$x[n]=\\frac{1}{2\\pi}\\int_{-\\pi/3}^{\\pi/3}e^{j\\omega n}\\,\\d\\omega=\\frac{1}{2\\pi}\\cdot\\frac{e^{j\\pi n/3}-e^{-j\\pi n/3}}{jn}=\\frac{\\sin(\\pi n/3)}{\\pi n}.$$'
      +'<b>Solution — part (b).</b> The integrand is $1$ throughout the passband at $n=0$, so $x[0]=\\dfrac{1}{2\\pi}\\cdot\\dfrac{2\\pi}{3}=\\dfrac13$, which is also $\\displaystyle\\lim_{n\\to0}\\frac{\\sin(\\pi n/3)}{\\pi n}=\\frac{\\pi/3}{\\pi}=\\frac13$. Independently, the mean of the spectrum over one period is the passband width divided by $2\\pi$: $\\dfrac{2\\pi/3}{2\\pi}=\\dfrac13$, matching without evaluating any limit.<br>'
      +'<b>Solution — part (c).</b> A two-sided, slowly decaying sinc-shaped sequence, plotted below.<br>'
@@ -321,7 +321,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'State the support of $x[n]$ and give $\\sum_n x[n]$.'],
   sol:'<b>Given.</b> A finite polynomial in $e^{-j\\omega}$.<br>'
      +'<b>Find.</b> The sequence.<br>'
-     +'<b>Method.</b> Each term $c\\,e^{-j\\omega n_0}$ is $c\\,\\delta[n-n_0]$; read the coefficients off with their delays.<br>'
+     +'<b>Method.</b> Use the shifted-unit-sample pair because the spectrum is a finite sum of exponentials. Match each term $c\\,e^{-j\\omega n_0}$ to $c\\,\\delta[n-n_0]$ and keep its delay sign.<br>'
      +'<b>Solution — part (a).</b>$$x[n]=4\\delta[n]-\\delta[n-1]+2\\delta[n-3],$$that is $x[0]=4$, $x[1]=-1$, $x[2]=0$, $x[3]=2$, and zero elsewhere.<br>'
      +'<b>Solution — part (b).</b> The support is $0\\le n\\le3$, and $\\displaystyle\\sum_n x[n]=4-1+0+2=5$.<br>'
      +'<b>Check.</b> $X(e^{j0})=4-1+2=5$, matching the sum, as it must. At $\\omega=\\pi$, the closed form gives $X(e^{j\\pi})=4-(-1)+2(-1)=3$, and directly from the sequence, $\\displaystyle\\sum_n x[n](-1)^{n}=4+1+0-2=3$, an independent match at a second frequency.',
@@ -340,7 +340,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     return a.svg();},
   sol:'<b>Given.</b> A rectangular spectrum, read from its plot rather than from a formula in the statement.<br>'
      +'<b>Find.</b> The sequence it belongs to.<br>'
-     +'<b>Method.</b> Read the two numbers a rectangle needs — its height and its cut-off — from the axes, then apply the same synthesis integral as for any ideal low-pass spectrum.<br>'
+     +'<b>Method.</b> The graph gives an ideal low-pass spectrum, so first read its height and cut-off from the axes. Then apply the synthesis integral for a rectangular spectrum.<br>'
      +'<b>Solution — part (a).</b> The figure shows a plateau of height $2$ on $|\\omega|\\le\\tfrac{\\pi}{2}$ and zero elsewhere, so$$X(e^{j\\omega})=\\begin{cases}2,&|\\omega|\\le\\tfrac{\\pi}{2},\\\\[2pt]0,&\\tfrac{\\pi}{2}<|\\omega|\\le\\pi.\\end{cases}$$'
      +'<b>Solution — part (b).</b> For $n\\neq0$,$$x[n]=\\frac{1}{2\\pi}\\int_{-\\pi/2}^{\\pi/2}2\\,e^{j\\omega n}\\,\\d\\omega=\\frac{2\\sin(\\pi n/2)}{\\pi n}.$$'
      +'<b>Solution — part (c).</b> $x[0]=\\dfrac{1}{2\\pi}\\cdot2\\cdot\\pi=1$.<br>'
@@ -359,7 +359,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Confirm the result at $\\omega=0$ and at $\\omega=\\pi$, against the original form.'],
   sol:'<b>Given.</b> A spectrum written as a product of a shift and a cosine bracket.<br>'
      +'<b>Find.</b> The sequence.<br>'
-     +'<b>Method.</b> Expand $\\cos\\omega$ with Euler\'s relation first, multiply through by the leading $e^{-j\\omega}$, and collect the result into powers of $e^{-j\\omega}$.<br>'
+     +'<b>Method.</b> Rewrite the spectrum as powers of $e^{-j\\omega}$ because each power identifies a delayed unit sample. Expand $\\cos\\omega$ with Euler\'s relation, multiply by the leading $e^{-j\\omega}$, and collect like powers.<br>'
      +'<b>Solution — part (a).</b> $\\cos\\omega=\\tfrac12\\left(e^{j\\omega}+e^{-j\\omega}\\right)$, so$$X(e^{j\\omega})=e^{-j\\omega}+e^{-j\\omega}\\cos\\omega=e^{-j\\omega}+\\tfrac12\\left(1+e^{-2j\\omega}\\right)=\\tfrac12+e^{-j\\omega}+\\tfrac12e^{-2j\\omega}.$$'
      +'<b>Solution — part (b).</b>$$x[n]=\\tfrac12\\delta[n]+\\delta[n-1]+\\tfrac12\\delta[n-2].$$'
      +'<b>Check.</b> At $\\omega=0$: the original form gives $1\\cdot(1+1)=2$, and the expansion gives $\\tfrac12+1+\\tfrac12=2$. At $\\omega=\\pi$: the original form gives $(-1)(1-1)=0$, and the expansion gives $\\tfrac12+(-1)+\\tfrac12=0$. Both frequencies agree by two independent routes, which a check at $\\omega=0$ alone would not have caught — a shift error inside the bracket leaves $X(e^{j0})$ unchanged but moves $X(e^{j\\pi})$ away from zero.',
@@ -376,7 +376,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Confirm that the two values of part (b) are complex conjugates, and say why one half of a period is enough to describe the spectrum of a real sequence but not of a complex one.'],
   sol:'<b>Given.</b> The general definition of the transform, applied first abstractly and then to one causal sequence.<br>'
      +'<b>Find.</b> A general identity and its confirmation at one specific frequency.<br>'
-     +'<b>Method.</b> Conjugate the analysis sum term by term; since $x[n]$ is real, $x^{*}[n]=x[n]$, and only the exponential is affected.<br>'
+     +'<b>Method.</b> Start from the analysis sum because the required symmetry follows directly from conjugation. Conjugate term by term; since $x[n]$ is real, $x^{*}[n]=x[n]$, so only the exponential changes.<br>'
      +'<b>Solution — part (a).</b>$$X^{*}(e^{j\\omega})=\\sum_n x^{*}[n]e^{j\\omega n}=\\sum_n x[n]e^{-j(-\\omega)n}=X(e^{-j\\omega}),$$using $x^{*}[n]=x[n]$ in the middle step and simply reading $e^{j\\omega n}$ as $e^{-j(-\\omega)n}$ in the last.<br>'
      +'<b>Solution — part (b).</b> $X(e^{j\\omega})=\\dfrac{1}{1-\\tfrac13e^{-j\\omega}}$. At $\\omega=\\tfrac{\\pi}{3}$, $e^{-j\\pi/3}=\\tfrac12-j\\tfrac{\\sqrt3}{2}$, so $1-\\tfrac13e^{-j\\pi/3}=\\tfrac56+j\\tfrac{\\sqrt3}{6}$, and$$X\\!\\left(e^{j\\pi/3}\\right)=\\frac{1}{\\tfrac56+j\\tfrac{\\sqrt3}{6}}=\\frac{6}{5+j\\sqrt3}=\\frac{6(5-j\\sqrt3)}{28}=\\frac{15-3\\sqrt3\\,j}{14}.$$By the same substitution at $\\omega=-\\tfrac{\\pi}{3}$, $e^{j\\pi/3}=\\tfrac12+j\\tfrac{\\sqrt3}{2}$, so $1-\\tfrac13e^{j\\pi/3}=\\tfrac56-j\\tfrac{\\sqrt3}{6}$, and$$X\\!\\left(e^{-j\\pi/3}\\right)=\\frac{6}{5-j\\sqrt3}=\\frac{6(5+j\\sqrt3)}{28}=\\frac{15+3\\sqrt3\\,j}{14}.$$'
      +'<b>Solution — part (c).</b> The two values are $\\dfrac{15\\mp3\\sqrt3\\,j}{14}$, exact conjugates of one another, matching part (a) at this one pair of frequencies. Because $-\\pi\\le\\omega<0$ is fixed by $0\\le\\omega\\le\\pi$ through conjugation, a real sequence needs only half a period stated; a complex sequence has no such relation between the two halves, so both must be given.<br>'
@@ -391,7 +391,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Apply the accumulation property to find $Y(e^{j\\omega})$ for $y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$, and confirm it against $y[n]$ written out directly.'],
   sol:'<b>Given.</b> A two-sample sequence with zero sum.<br>'
      +'<b>Find.</b> Its first difference and its running sum, each two ways.<br>'
-     +'<b>Method.</b> $X(e^{j\\omega})=\\left(1-e^{-j\\omega}\\right)X(e^{j\\omega})$ for differencing, and $Y(e^{j\\omega})=\\dfrac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\displaystyle\\sum_k\\delta(\\omega-2\\pi k)$ for accumulation — but the impulse term is licensed only when $X(e^{j0})\\neq0$, so that number is checked first.<br>'
+     +'<b>Method.</b> Use the differencing and accumulation properties because the two requested sequences apply those operations to $x[n]$. For differencing, $X(e^{j\\omega})=\\left(1-e^{-j\\omega}\\right)X(e^{j\\omega})$. For accumulation, $Y(e^{j\\omega})=\\dfrac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\displaystyle\\sum_k\\delta(\\omega-2\\pi k)$. Compute $X(e^{j0})$ first to determine whether the impulse term is present.<br>'
      +'<b>Solution — part (a).</b> $X(e^{j\\omega})=e^{j\\omega}-e^{-j\\omega}=2j\\sin\\omega$, and $X(e^{j0})=2j\\sin(0)=0$.<br>'
      +'<b>Solution — part (b).</b> $W(e^{j\\omega})=\\left(1-e^{-j\\omega}\\right)\\left(e^{j\\omega}-e^{-j\\omega}\\right)=e^{j\\omega}-1-e^{-j\\omega}+e^{-2j\\omega}$. Directly, $w[n]=x[n]-x[n-1]$ gives $w[-1]=1$, $w[0]=-1$, $w[1]=-1$, $w[2]=1$, that is $w[n]=\\delta[n+1]-\\delta[n]-\\delta[n-1]+\\delta[n-2]$, whose transform is $e^{j\\omega}-1-e^{-j\\omega}+e^{-2j\\omega}$ — the same expression.<br>'
      +'<b>Solution — part (c).</b> Because $X(e^{j0})=0$, the impulse term vanishes and$$Y(e^{j\\omega})=\\frac{2j\\sin\\omega}{1-e^{-j\\omega}}.$$Multiplying numerator and denominator by $e^{j\\omega}$, $Y=\\dfrac{e^{2j\\omega}-1}{e^{j\\omega}-1}=e^{j\\omega}+1$. Directly, $y[n]=\\displaystyle\\sum_{k\\le n}x[k]$ equals $1$ for $n=-1,0$ and $0$ elsewhere, so $y[n]=\\delta[n+1]+\\delta[n]$, whose transform is $e^{j\\omega}+1$ — the same expression.<br>'
@@ -406,13 +406,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Using $\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\pi}^{\\pi}\\dfrac{\\d\\omega}{b-\\cos\\omega}=\\dfrac{1}{\\sqrt{b^{2}-1}}$ for $b>1$, evaluate the frequency-side integral and confirm it matches part (a).'],
   sol:'<b>Given.</b> A scaled causal geometric sequence.<br>'
      +'<b>Find.</b> Its energy, counted in both domains.<br>'
-     +'<b>Method.</b> Sum $\\left|x[n]\\right|^{2}$ directly for the time side; on the frequency side, write $\\left|X(e^{j\\omega})\\right|^{2}$ in the form $c/(b-\\cos\\omega)$ and use the stated integral.<br>'
+     +'<b>Method.</b> Use Parseval because the question asks for the same energy in time and frequency. Sum $\\left|x[n]\\right|^{2}$ directly, then write $\\left|X(e^{j\\omega})\\right|^{2}$ as $c/(b-\\cos\\omega)$ and apply the stated integral.<br>'
      +'<b>Solution — part (a).</b>$$\\sum_n\\left|x[n]\\right|^{2}=4\\sum_{n=0}^{\\infty}\\left(\\tfrac14\\right)^{n}=4\\cdot\\frac{1}{1-1/4}=\\frac{16}{3}.$$'
      +'<b>Solution — part (b).</b>$$\\sum_n\\left|x[n]\\right|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}\\left|X(e^{j\\omega})\\right|^{2}\\,\\d\\omega,$$where $\\left|X(e^{j\\omega})\\right|^{2}$ is the energy-density spectrum: the energy $x[n]$ carries near each frequency $\\omega$.<br>'
      +'<b>Solution — part (c).</b> $X(e^{j\\omega})=\\dfrac{2}{1-\\tfrac12e^{-j\\omega}}$, so $\\left|X(e^{j\\omega})\\right|^{2}=\\dfrac{4}{1-\\cos\\omega+\\tfrac14}=\\dfrac{4}{\\tfrac54-\\cos\\omega}$. With $b=\\tfrac54$,$$\\frac{1}{2\\pi}\\int_{-\\pi}^{\\pi}\\frac{4\\,\\d\\omega}{\\tfrac54-\\cos\\omega}=4\\cdot\\frac{1}{\\sqrt{\\left(\\tfrac54\\right)^{2}-1}}=4\\cdot\\frac{1}{\\sqrt{9/16}}=4\\cdot\\frac43=\\frac{16}{3},$$matching part (a).<br>'
      +'<b>Check.</b> Scaling a sequence by $2$ scales its energy by $2^{2}=4$: the energy of $\\left(\\tfrac12\\right)^{n}u[n]$ alone, unscaled, is $\\dfrac{1}{1-1/4}=\\dfrac43$, and $4\\times\\dfrac43=\\dfrac{16}{3}$ — the same number, reached through a property of energy under scaling rather than by repeating either sum or integral above.',
   err:'Dropping the $\\tfrac{1}{2\\pi}$ factor in part (b), which multiplies the frequency-side answer by $2\\pi$ and leaves it disagreeing with the time-domain energy by a large, easily unnoticed factor.',
-  teach:'The scaling check is worth insisting on. It is independent of the specific integral identity given in part (c), so it also catches an error inside that identity itself, not only an error in applying it.' },
+  teach:'Require the scaling check. It does not use the integral identity from part (c), so it can reveal an error in that identity as well as an error in its use.' },
 
 { id:'D6-20', module:'M6', type:'dtft-prop',
   stem:'Let $x[n]$ be an arbitrary sequence with transform $X(e^{j\\omega})=\\displaystyle\\sum_n x[n]e^{-j\\omega n}$, convergent for every $\\omega$.',
@@ -421,13 +421,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'State the highest discrete-time frequency that exists, and explain in one sentence why continuous time has no such bound.'],
   sol:'<b>Given.</b> The transform of an arbitrary convergent sequence, and two signal generators at frequencies $2\\pi$ apart.<br>'
      +'<b>Find.</b> A general periodicity proof, and its consequence for the two generators.<br>'
-     +'<b>Method.</b> Substitute $\\omega+2\\pi$ into the analysis sum and use that the time index is an integer.<br>'
+     +'<b>Method.</b> Prove periodicity from the analysis definition because the integer time index is the source of the repetition. Substitute $\\omega+2\\pi$ into the sum and simplify the extra exponential factor.<br>'
      +'<b>Solution — part (a).</b>$$X\\!\\left(e^{j(\\omega+2\\pi)}\\right)=\\sum_n x[n]e^{-j(\\omega+2\\pi)n}=\\sum_n x[n]e^{-j\\omega n}\\underbrace{e^{-j2\\pi n}}_{=\\,1\\text{ for integer }n}=X(e^{j\\omega}).$$'
      +'<b>Solution — part (b).</b> For every integer $n$, $\\cos\\!\\left((2.3-2\\pi)n\\right)=\\cos(2.3n-2\\pi n)=\\cos(2.3n)\\cos(2\\pi n)+\\sin(2.3n)\\sin(2\\pi n)=\\cos(2.3n)$, since $\\cos(2\\pi n)=1$ and $\\sin(2\\pi n)=0$ at every integer $n$. The two generators produce <em>exactly</em> the same sequence, sample for sample. Since $X$ is determined entirely by the sequence, part (a) already guarantees this: two frequencies $2\\pi$ apart give the same spectrum, and therefore the same sequence by the synthesis equation, so no measurement made on the output alone can tell the two generators apart.<br>'
      +'<b>Solution — part (c).</b> The highest discrete-time frequency is $\\omega=\\pi$, where $e^{j\\pi n}=(-1)^{n}$ alternates every sample; frequencies beyond $\\pi$ are the same sequences as frequencies already inside $-\\pi\\le\\omega\\le\\pi$. Continuous time has no such bound because $e^{j\\Omega t}$ for real $t$ is a genuinely different function for every distinct $\\Omega$, with nothing analogous to $e^{-j2\\pi t}=1$ forcing a repeat.<br>'
      +'<b>Check.</b> At $n=3$: $\\cos(2.3\\times3)=\\cos(6.9)$ and $\\cos\\!\\left((2.3-2\\pi)\\times3\\right)=\\cos(-11.949\\ldots)$; reducing both arguments modulo $2\\pi$ gives $6.9-2\\pi\\approx0.6168$ and $-11.949\\ldots+2\\times2\\pi\\approx-0.6168$, and $\\cos(0.6168)=\\cos(-0.6168)\\approx0.8163$ by the evenness of cosine — the two generators agree at this sample by direct numerical evaluation, not only by the symbolic argument of part (b).',
   err:'Concluding from $2.3>2.3-2\\pi$ (which is negative) that the two generators are at genuinely different frequencies, and treating $\\omega=2.3$ as though it already lay outside any periodic pattern rather than reducing it into $-\\pi\\le\\omega\\le\\pi$ first.',
-  teach:'Ask which frequency in $-\\pi\\le\\omega\\le\\pi$ the value $2.3$ rad/sample actually reduces to (it is just under $\\pi\\approx3.1416$, so $2.3$ already lies inside that interval, and $2.3-2\\pi\\approx-3.983$ is the one that needs reducing forward — a useful trap for the direction of the reduction).' },
+  teach:'Ask which representative in $-\\pi\\le\\omega\\le\\pi$ corresponds to $2.3$ rad/sample. It is below $\\pi\\approx3.1416$, so $2.3$ already lies in the interval. The value $2.3-2\\pi\\approx-3.983$ must instead be increased by one period. This check fixes the direction of the reduction.' },
 
 /* ----------------------------------------------------------------------
    Full-length questions. Several transforms under one statement, or one
@@ -444,7 +444,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3.4,0],[-Math.PI/2,0],[0,1],[Math.PI/2,0],[3.4,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A reversed pair of steps, and a sequence with a known triangular spectrum multiplied by two different sampling patterns.<br>'
      +'<b>Find.</b> Three transforms.<br>'
-     +'<b>Method.</b> Reduce (a) to a finite rectangular sequence first. In (b) and (c), multiplication in time is periodic convolution in frequency, so each is a sum of shifted copies of $X$.<br>'
+     +'<b>Method.</b> Simplify (a) to a finite rectangular sequence because its transform is known. For (b) and (c), use periodic convolution because each new sequence is a time-domain product; the impulse factors then produce shifted copies of $X$.<br>'
      +'<b>Solution — part (a).</b> The step $u[-n+4]$ is $1$ for $n\\le4$ and $u[-n-1]$ is $1$ for $n\\le-1$, so the difference is $1$ for $0\\le n\\le4$ and zero elsewhere. Then$$Z(e^{j\\omega})=\\sum_{n=0}^{4}e^{-j\\omega n}=\\frac{1-e^{-j5\\omega}}{1-e^{-j\\omega}}=e^{-j2\\omega}\\,\\frac{\\sin(5\\omega/2)}{\\sin(\\omega/2)}.$$'
      +'<b>Solution — part (b).</b> An impulse train of period $4$ has transform$$P(e^{j\\omega})=\\frac{2\\pi}{4}\\sum_{k}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{4}\\right)=\\frac{\\pi}{2}\\sum_{k}\\delta\\!\\left(\\omega-\\frac{\\pi k}{2}\\right).$$Periodic convolution with $\\tfrac{1}{2\\pi}$ then gives four shifted copies of $X$, each scaled by $\\tfrac14$:$$Y(e^{j\\omega})=\\frac14\\sum_{k=0}^{3}X\\!\\left(e^{j(\\omega-\\pi k/2)}\\right).$$Since $X$ occupies $|\\omega|<\\tfrac{\\pi}{2}$ and the copies are spaced $\\tfrac{\\pi}{2}$ apart, adjacent copies just touch at their zeros and do not overlap.<br>'
      +'<b>Solution — part (c).</b> Here $p[n]=(-1)^{n}=e^{j\\pi n}$, a single exponential, so the spectrum is shifted rather than replicated:$$Y(e^{j\\omega})=X\\!\\left(e^{j(\\omega-\\pi)}\\right),$$the same triangle centred at $\\omega=\\pi$ instead of at $\\omega=0$. A low-pass shape has become a high-pass one.<br>'
@@ -460,7 +460,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.poly([[-3.4,1-(Math.PI-3.4>0?0:0)],[-Math.PI,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI,1],[3.4,1]],{color:C.out});
       return a.svg();})()),
   err:'Reading $u[-n+4]$ as a signal that starts at $n=4$ and runs forwards. The argument is reversed, so the step is on for every $n$ up to and including $4$, and it is the second step that cuts the sequence off from below.',
-  teach:'Parts (b) and (c) are the two halves of one idea and are worth contrasting explicitly: a train of impulses replicates the spectrum, a single exponential shifts it. Ask what $p[n]=\\cos(\\pi n/2)$ would do — two shifted copies at half height, which is neither.' },
+  teach:'Compare parts (b) and (c) directly. A train of impulses replicates the spectrum, while a single exponential shifts it. Then ask about $p[n]=\\cos(\\pi n/2)$: it produces two shifted copies at half height, which distinguishes it from both cases.' },
 
 { id:'D6-22', module:'M6', type:'full', src:'Final Q3',
   stem:'Please solve the following problems, giving every answer in $-\\pi\\le\\omega\\le\\pi$.',
@@ -469,7 +469,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot the DTFT of $x[n]=\\dfrac{\\cos(\\pi n)}{\\pi n}\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right)$.'],
   sol:'<b>Given.</b> A two-sided geometric sequence, a sum of two cosines at frequencies above $\\pi$, and a modulated sinc.<br>'
      +'<b>Find.</b> Three transforms, all reduced into one period.<br>'
-     +'<b>Method.</b> For (a), split the sum at the origin. For (b) and (c), reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ before drawing anything.<br>'
+     +'<b>Method.</b> For (a), split at the origin because the absolute value changes the exponential on the two sides. For (b) and (c), reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ because the discrete-time spectrum is periodic.<br>'
      +'<b>Solution — part (a).</b> Split and sum two geometric series:$$X(e^{j\\omega})=\\sum_{n=0}^{\\infty}\\left(\\tfrac13\\right)^{n}e^{-j\\omega n}+\\sum_{n=1}^{\\infty}\\left(\\tfrac13\\right)^{n}e^{j\\omega n}=\\frac{1}{1-\\tfrac13e^{-j\\omega}}+\\frac{\\tfrac13e^{j\\omega}}{1-\\tfrac13e^{j\\omega}}.$$Combining over a common denominator,$$X(e^{j\\omega})=\\frac{1-\\tfrac19}{1-\\tfrac23\\cos\\omega+\\tfrac19}=\\frac{4}{5-3\\cos\\omega},$$real and even, as the transform of a real even sequence must be.<br>'
      +'<b>Solution — part (b).</b> Reduce each frequency modulo $2\\pi$:$$\\tfrac{5\\pi}{2}-2\\pi=\\tfrac{\\pi}{2},\\qquad\\tfrac{4\\pi}{3}-2\\pi=-\\tfrac{2\\pi}{3}.$$So the sequence is $\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)+2\\cos\\!\\left(\\tfrac{2\\pi}{3}n\\right)$, and over one period$$X(e^{j\\omega})=\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{\\pi}{2}\\right)+\\delta\\!\\left(\\omega+\\tfrac{\\pi}{2}\\right)\\right]+2\\pi\\left[\\delta\\!\\left(\\omega-\\tfrac{2\\pi}{3}\\right)+\\delta\\!\\left(\\omega+\\tfrac{2\\pi}{3}\\right)\\right].$$'
      +'<b>Solution — part (c).</b> Since $\\cos(\\pi n)=(-1)^{n}=e^{j\\pi n}$ for integer $n$,$$x[n]=e^{j\\pi n}\\,\\frac{\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right)}{\\pi n}.$$The sinc alone has transform $1$ on $|\\omega|<\\tfrac{\\pi}{3}$, and the exponential shifts that band to be centred at $\\pi$. Folding into $-\\pi\\le\\omega\\le\\pi$,$$X(e^{j\\omega})=\\begin{cases}1,&\\tfrac{2\\pi}{3}<|\\omega|\\le\\pi\\\\0,&|\\omega|<\\tfrac{2\\pi}{3},\\end{cases}$$an ideal high-pass filter with cut-off $\\tfrac{2\\pi}{3}$.<br>'
@@ -494,7 +494,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Plot the DTFT of $y[n]$ in $-\\pi\\le\\omega\\le\\pi$.'],
   sol:'<b>Given.</b> A sum of two sincs into a high-pass filter built from a modulated sinc.<br>'
      +'<b>Find.</b> The three spectra.<br>'
-     +'<b>Method.</b> Every term is $\\dfrac{\\sin(Wn)}{\\pi n}$, a rectangle of half-width $W$. Add the rectangles for $x$; shift the one for $h$ by $\\pi$; multiply for $y$.<br>'
+     +'<b>Method.</b> Use the ideal-band pair because every term has the form $\\dfrac{\\sin(Wn)}{\\pi n}$. Add the corresponding rectangles for $x$, use modulation to shift the spectrum of $h$ by $\\pi$, and use the convolution property to multiply them for $y$.<br>'
      +'<b>Solution — part (a).</b> The first term gives a rectangle of height $1$ on $|\\omega|<\\tfrac{3\\pi}{5}$ and the second a rectangle of height $2$ on $|\\omega|<\\tfrac{\\pi}{5}$. Adding,$$X(e^{j\\omega})=\\begin{cases}3,&|\\omega|<\\tfrac{\\pi}{5}\\\\1,&\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}\\\\0,&\\tfrac{3\\pi}{5}<|\\omega|\\le\\pi,\\end{cases}$$a stepped low-pass shape.<br>'
      +'<b>Solution — part (b).</b> Again $\\cos(\\pi n)=e^{j\\pi n}$, so$$h[n]=2e^{j\\pi n}\\,\\frac{\\sin\\!\\left(\\tfrac{4\\pi}{5}n\\right)}{\\pi n},$$a rectangle of height $2$ and half-width $\\tfrac{4\\pi}{5}$, shifted to be centred at $\\pi$. Folded into one period,$$H(e^{j\\omega})=\\begin{cases}2,&\\tfrac{\\pi}{5}<|\\omega|\\le\\pi\\\\0,&|\\omega|<\\tfrac{\\pi}{5},\\end{cases}$$an ideal high-pass filter of gain $2$ with cut-off $\\tfrac{\\pi}{5}$.<br>'
      +'<b>Solution — part (c).</b> Multiply band by band. On $|\\omega|<\\tfrac{\\pi}{5}$ the filter is zero, so the tall centre of $X$ is removed entirely. On $\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}$ we have $1\\cdot2=2$. Above $\\tfrac{3\\pi}{5}$ the input is zero. So$$Y(e^{j\\omega})=\\begin{cases}2,&\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}\\\\0,&\\text{otherwise in }-\\pi\\le\\omega\\le\\pi,\\end{cases}$$a band-pass result.<br>'
@@ -511,7 +511,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.poly([[-3.4,0],[-3*p/5,0],[-3*p/5,2],[-p/5,2],[-p/5,0],[p/5,0],[p/5,2],[3*p/5,2],[3*p/5,0],[3.4,0]],{color:C.out});
       return a.svg();})()),
   err:'Adding the two rectangles of part (a) as though they had the same width, giving a single rectangle of height $3$ on $|\\omega|<\\tfrac{3\\pi}{5}$. The narrower one contributes only where it is non-zero, so the result is stepped, and the step is exactly what the filter later removes.',
-  teach:'Ask what the output would be if the filter cut-off were $\\tfrac{3\\pi}{5}$ instead of $\\tfrac{\\pi}{5}$. Nothing survives, and the student sees that the answer here depends on the cut-off sitting strictly inside the input band.' },
+  teach:'Ask what the output would be if the filter cut-off were $\\tfrac{3\\pi}{5}$ instead of $\\tfrac{\\pi}{5}$. The output is zero, which shows that the stated result depends on the cut-off lying strictly inside the input band.' },
 
 { id:'D6-24', module:'M6', type:'full', src:'Final Q3',
   stem:'Determine the discrete-time Fourier transforms of the following signals.',
@@ -520,13 +520,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          '$x[n]=\\left(\\tfrac12\\right)^{|n|}$.'],
   sol:'<b>Given.</b> A delayed one-sided geometric sequence, a finite rectangle, and a two-sided geometric sequence.<br>'
      +'<b>Find.</b> Three transforms.<br>'
-     +'<b>Method.</b> Sum each series directly. The three differ only in where the summation starts and stops.<br>'
+     +'<b>Method.</b> Use geometric-series sums because all three sequences contain powers of the same base. Set the correct starting and ending index for each sequence before applying the formula.<br>'
      +'<b>Solution — part (a).</b> The step starts the sum at $n=1$:$$X(e^{j\\omega})=\\sum_{n=1}^{\\infty}\\left(\\tfrac12\\right)^{n}e^{-j\\omega n}=\\frac{\\tfrac12e^{-j\\omega}}{1-\\tfrac12e^{-j\\omega}}.$$'
      +'<b>Solution — part (b).</b> The two steps leave $x[n]=1$ for $-2\\le n\\le2$, five samples centred on the origin:$$X(e^{j\\omega})=\\sum_{n=-2}^{2}e^{-j\\omega n}=\\frac{\\sin(5\\omega/2)}{\\sin(\\omega/2)},$$real and even, because the sequence is symmetric about $n=0$.<br>'
      +'<b>Solution — part (c).</b> Splitting at the origin as in the standard two-sided case,$$X(e^{j\\omega})=\\frac{1-\\tfrac14}{1-\\cos\\omega+\\tfrac14}=\\frac{3}{5-4\\cos\\omega}.$$'
      +'<b>Check.</b> Each at $\\omega=0$ must give the sum of the samples. In (a): $\\dfrac{1/2}{1/2}=1$, and $\\sum_{n\\ge1}\\left(\\tfrac12\\right)^{n}=1$. In (b): the limit of $\\dfrac{\\sin(5\\omega/2)}{\\sin(\\omega/2)}$ is $5$, and there are five samples of height $1$. In (c): $\\dfrac{3}{1}=3$, and $1+2\\sum_{n\\ge1}\\left(\\tfrac12\\right)^{n}=1+2=3$. The evenness in (b) and (c) and the complex phase in (a) are also right, since only (a) is asymmetric about the origin.',
   err:'Starting the sum in part (a) at $n=0$ and reporting $\\dfrac{1}{1-\\tfrac12e^{-j\\omega}}$. The step is $u[n-1]$, so the first non-zero sample is at $n=1$, and the transform carries the extra factor $\\tfrac12e^{-j\\omega}$.',
-  teach:'Set the three side by side and ask which are real. The two symmetric ones are; the delayed one is not, and the reason is the shift, not the decay. It is the cleanest illustration of the symmetry property in the module.' },
+  teach:'Compare the three transforms and ask which are real. The two symmetric sequences have real transforms. The delayed sequence does not, because of its shift rather than its decay. This comparison applies the symmetry property directly.' },
 
 { id:'D6-25', module:'M6', type:'full', src:'Final Q3',
   stem:'A sequence $x[n]$ has the discrete-time Fourier transform $X(e^{j\\omega})$. Express the DTFT of each of the following in terms of $X(e^{j\\omega})$.',
@@ -535,13 +535,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          '$y[n]=x[n]-x[n-1]$, and state the value of $Y$ at $\\omega=0$.'],
   sol:'<b>Given.</b> One sequence and three operations on it.<br>'
      +'<b>Find.</b> The transform after each operation.<br>'
-     +'<b>Method.</b> Each is a standard property, and each follows from a one-line change of index in the analysis sum.<br>'
+     +'<b>Method.</b> Start from the analysis sum because each requested relation changes the time index. Apply the stated shift, reversal, or modulation and then change the summation index to identify the new spectrum.<br>'
      +'<b>Solution — part (a).</b> Substituting $m=n-3$,$$Y(e^{j\\omega})=\\sum_{n}x[n-3]e^{-j\\omega n}=\\sum_{m}x[m]e^{-j\\omega(m+3)}=e^{-j3\\omega}X(e^{j\\omega}).$$The magnitude is unchanged and the phase tilts by $-3\\omega$.<br>'
      +'<b>Solution — part (b).</b> Since $(-1)^{n}=e^{j\\pi n}$, this is a modulation:$$Y(e^{j\\omega})=X\\!\\left(e^{j(\\omega-\\pi)}\\right),$$the whole spectrum shifted by $\\pi$. Low frequencies and high frequencies exchange places.<br>'
      +'<b>Solution — part (c).</b> By linearity and part (a) with a shift of one,$$Y(e^{j\\omega})=\\left(1-e^{-j\\omega}\\right)X(e^{j\\omega}),$$and at $\\omega=0$ the factor vanishes, so $Y(e^{j0})=0$ whatever $X$ is.<br>'
      +'<b>Check.</b> Part (c) can be read in the time domain: $\\sum_ny[n]$ telescopes to zero for any sequence that decays at both ends, and $Y(e^{j0})$ is exactly that sum. Part (b) is consistent with (c) as well: applying (b) twice returns the original, since a shift by $2\\pi$ is no shift at all, and $\\left[(-1)^{n}\\right]^{2}=1$.',
   err:'Writing the answer to (b) as $X\\!\\left(e^{j\\omega}\\right)e^{-j\\pi n}$, mixing a time variable into a frequency-domain expression. After the transform there is no $n$ left; the modulation acts on the argument of $X$, not as a factor in front of it.',
-  teach:'Part (c) is the discrete difference operator, and its zero at $\\omega=0$ is worth naming: the operator annihilates constants, which is the same statement as $\\sum h[n]=0$ met in Module 3.' },
+  teach:'In part (c), identify the operator as a discrete difference. Its zero at $\\omega=0$ means that it removes constants, which is the same condition as $\\sum h[n]=0$ from Module 3.' },
 
 { id:'D6-26', module:'M6', type:'full', src:'Final Q3',
   stem:'Determine the inverse discrete-time Fourier transform of each of the following spectra, each specified over $-\\pi\\le\\omega\\le\\pi$ and repeating with period $2\\pi$.',
@@ -550,13 +550,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          '$X(e^{j\\omega})=\\dfrac{1}{\\left(1-\\tfrac13e^{-j\\omega}\\right)^{2}}$.'],
   sol:'<b>Given.</b> An ideal low-pass spectrum, a cosine in $\\omega$, and a double pole.<br>'
      +'<b>Find.</b> The three sequences.<br>'
-     +'<b>Method.</b> Integrate the synthesis equation for (a); recognise (b) as a pair of exponentials in $\\omega$, which are impulses in $n$; use the known double-pole pair for (c).<br>'
+     +'<b>Method.</b> Choose the inverse method that matches each spectrum. Use synthesis for the rectangular spectrum in (a), match the exponentials in (b) to shifted impulses, and apply the repeated-pole pair in (c).<br>'
      +'<b>Solution — part (a).</b>$$x[n]=\\frac{1}{2\\pi}\\int_{-\\pi/4}^{\\pi/4}e^{j\\omega n}\\,\\d\\omega=\\frac{1}{2\\pi}\\cdot\\frac{2\\sin\\!\\left(\\tfrac{\\pi n}{4}\\right)}{n}=\\frac{\\sin\\!\\left(\\tfrac{\\pi}{4}n\\right)}{\\pi n},$$with $x[0]=\\tfrac14$ by taking the limit.<br>'
      +'<b>Solution — part (b).</b> Write $\\cos(2\\omega)=\\tfrac12e^{j2\\omega}+\\tfrac12e^{-j2\\omega}$. Comparing with the analysis sum $X=\\sum_nx[n]e^{-j\\omega n}$, the term $e^{-j\\omega n}$ appears with $n=2$ and $n=-2$, so$$x[n]=\\tfrac12\\delta[n-2]+\\tfrac12\\delta[n+2].$$'
      +'<b>Solution — part (c).</b> The pair $\\left(n+1\\right)a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\left(1-ae^{-j\\omega}\\right)^{2}}$ with $a=\\tfrac13$ gives$$x[n]=(n+1)\\left(\\tfrac13\\right)^{n}u[n].$$'
      +'<b>Check.</b> In (a), $x[0]=\\tfrac14$ agrees with $\\tfrac{1}{2\\pi}\\int_{-\\pi/4}^{\\pi/4}\\d\\omega=\\tfrac{1}{2\\pi}\\cdot\\tfrac{\\pi}{2}$. In (b), $X(e^{j0})=\\cos0=1$ must be the sum of the samples, and $\\tfrac12+\\tfrac12=1$. In (c), $X(e^{j0})=\\dfrac{1}{(1-\\tfrac13)^{2}}=\\tfrac94$, and summing directly, $\\sum_{n\\ge0}(n+1)\\left(\\tfrac13\\right)^{n}=\\dfrac{1}{(1-\\tfrac13)^{2}}=\\tfrac94$.',
   err:'Reading part (b) as a continuous function to be integrated. It is a finite sum of exponentials in $\\omega$, so the sequence is read off by inspection; integrating gives the same answer after considerably more work, and usually a sign error.',
-  teach:'Part (b) teaches a habit worth building: whenever a spectrum is a finite trigonometric polynomial in $\\omega$, the sequence is finite and can be read off term by term. Ask for the sequence behind $1+2\\cos\\omega$ as a second exercise.' },
+  teach:'Use part (b) to establish a general method: a finite trigonometric polynomial in $\\omega$ corresponds to a finite sequence that can be read term by term. Then apply the method to $1+2\\cos\\omega$.' },
 
 { id:'D6-27', module:'M6', type:'full', src:'Final Q3',
   stem:'Let $x[n]=\\dfrac{\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right)}{\\pi n}$.',
@@ -565,13 +565,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Let $y[n]=(-1)^{n}x[n]$. Give $Y(e^{j\\omega})$ and its energy.'],
   sol:'<b>Given.</b> An ideal low-pass sequence with cut-off $\\tfrac{\\pi}{3}$.<br>'
      +'<b>Find.</b> Its spectrum, its energy, and the effect of modulating it.<br>'
-     +'<b>Method.</b> The sinc pair gives a rectangle. Parseval turns the energy into the area of the squared spectrum, which for a rectangle is a multiplication.<br>'
+     +'<b>Method.</b> Use the sinc pair because it converts the sequence into a rectangular spectrum. Then use Parseval because the required energy becomes the area of the squared rectangle.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=\\begin{cases}1,&|\\omega|<\\tfrac{\\pi}{3}\\\\0,&\\tfrac{\\pi}{3}<|\\omega|\\le\\pi,\\end{cases}$$and $x[0]=\\dfrac{1}{2\\pi}\\int_{-\\pi/3}^{\\pi/3}\\d\\omega=\\dfrac13$, which is also the limit of $\\dfrac{\\sin(\\pi n/3)}{\\pi n}$ as $n\\to0$.<br>'
      +'<b>Solution — part (b).</b>$$E=\\frac{1}{2\\pi}\\int_{-\\pi}^{\\pi}\\left|X(e^{j\\omega})\\right|^{2}\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\pi/3}^{\\pi/3}1\\,\\d\\omega=\\frac{2\\pi/3}{2\\pi}=\\frac13\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> Modulating by $(-1)^{n}$ shifts the spectrum by $\\pi$, so$$Y(e^{j\\omega})=\\begin{cases}1,&\\tfrac{2\\pi}{3}<|\\omega|\\le\\pi\\\\0,&|\\omega|<\\tfrac{2\\pi}{3},\\end{cases}$$a high-pass band of the same total width $\\tfrac{2\\pi}{3}$. Its energy is therefore the same, $\\tfrac13$ J. Multiplying by $\\pm1$ cannot change $|y[n]|$, so the energy could not have changed.<br>'
      +'<b>Check.</b> The energy equals $x[0]$ here, both being $\\tfrac13$, and that is not a coincidence: for an ideal low-pass sequence $\\sum_n x^{2}[n]$ and $x[0]$ are both $\\dfrac{\\omega_c}{\\pi}$, because $x*x=x$ for an ideal filter — convolving an ideal filter with itself reproduces it. Part (c) confirms the general rule that modulation by $(-1)^{n}$ preserves energy exactly, in contrast with the continuous-time cosine, which halves it.',
   err:'Halving the energy in part (c) by analogy with modulation by $\\cos(\\omega_ct)$ in continuous time. Multiplying by $(-1)^{n}$ is multiplying by a single exponential, not by a cosine: there is one shifted copy, not two at half height, so no energy is lost.',
-  teach:'The identity $E=x[0]$ for an ideal filter is worth showing. It follows from Parseval with $X^{2}=X$, and it gives students a one-line check on any ideal-filter energy they compute.' },
+  teach:'Derive the identity $E=x[0]$ for an ideal filter from Parseval and $X^{2}=X$. It then provides a one-line check for any computed ideal-filter energy.' },
 
 { id:'D6-28', module:'M6', type:'full', src:'Final Q3',
   stem:'An LTI system has the impulse response $h[n]=\\left(\\tfrac13\\right)^{n}u[n]$ and is driven by the input $x[n]=\\left(\\tfrac12\\right)^{n}u[n]$.',
@@ -580,7 +580,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Verify $y[0]$ and $y[1]$ against the convolution sum.'],
   sol:'<b>Given.</b> Two one-pole sequences, one as input and one as impulse response.<br>'
      +'<b>Find.</b> The output, through the frequency domain.<br>'
-     +'<b>Method.</b> Convolution in time is multiplication in frequency. Split the product back into two one-pole terms and invert each.<br>'
+     +'<b>Method.</b> Use the convolution property because the output is a time convolution. Multiply the transforms, split the result into one-pole terms, and invert each term with the exponential pair.<br>'
      +'<b>Solution — part (a).</b>$$X(e^{j\\omega})=\\frac{1}{1-\\tfrac12e^{-j\\omega}},\\qquad H(e^{j\\omega})=\\frac{1}{1-\\tfrac13e^{-j\\omega}}.$$'
      +'<b>Solution — part (b).</b>$$Y(e^{j\\omega})=\\frac{1}{\\left(1-\\tfrac12e^{-j\\omega}\\right)\\left(1-\\tfrac13e^{-j\\omega}\\right)}.$$Write $z=e^{-j\\omega}$ and expand:$$\\frac{1}{\\left(1-\\tfrac12z\\right)\\left(1-\\tfrac13z\\right)}=\\frac{A}{1-\\tfrac12z}+\\frac{B}{1-\\tfrac13z},$$with $A=\\dfrac{\\tfrac12}{\\tfrac12-\\tfrac13}=3$ and $B=\\dfrac{\\tfrac13}{\\tfrac13-\\tfrac12}=-2$. Inverting each term,$$y[n]=\\left[3\\left(\\tfrac12\\right)^{n}-2\\left(\\tfrac13\\right)^{n}\\right]u[n].$$'
      +'<b>Solution — part (c).</b> From the formula, $y[0]=3-2=1$ and $y[1]=\\tfrac32-\\tfrac23=\\tfrac56$. From the convolution sum,$$y[0]=x[0]h[0]=1,$$$$y[1]=x[0]h[1]+x[1]h[0]=1\\cdot\\tfrac13+\\tfrac12\\cdot1=\\tfrac56.$$Both agree.<br>'
@@ -595,7 +595,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Determine the frequency response of the series connection $h_1[n]*h_2[n]$, and say what the connection does.'],
   sol:'<b>Given.</b> An ideal low-pass filter with cut-off $\\tfrac{\\pi}{2}$ and its complement.<br>'
      +'<b>Find.</b> Both responses, and the effect of connecting them two ways.<br>'
-     +'<b>Method.</b> Transform each impulse response, then use that a parallel connection adds frequency responses and a series connection multiplies them.<br>'
+     +'<b>Method.</b> Work in frequency because parallel and series connections become addition and multiplication. Transform each impulse response, add the responses for the parallel connection, and multiply them for the series connection.<br>'
      +'<b>Solution — part (a).</b>$$H_1(e^{j\\omega})=\\begin{cases}1,&|\\omega|<\\tfrac{\\pi}{2}\\\\0,&\\tfrac{\\pi}{2}<|\\omega|\\le\\pi,\\end{cases}$$and since $\\delta[n]\\leftrightarrow1$,$$H_2(e^{j\\omega})=1-H_1(e^{j\\omega})=\\begin{cases}0,&|\\omega|<\\tfrac{\\pi}{2}\\\\1,&\\tfrac{\\pi}{2}<|\\omega|\\le\\pi,\\end{cases}$$the complementary high-pass filter.<br>'
      +'<b>Solution — part (b).</b> Adding the impulse responses, the sinc terms cancel and $h_1[n]+h_2[n]=\\delta[n]$, so the parallel connection has frequency response$$H_1+H_2=1$$at every frequency: the two filters together pass everything, which is what complementary means.<br>'
      +'<b>Solution — part (c).</b> In series the responses multiply:$$H_1H_2=H_1\\left(1-H_1\\right)=H_1-H_1^{2}.$$Since $H_1$ is $0$ or $1$ everywhere, $H_1^{2}=H_1$ and the product is zero at every frequency. The cascade passes nothing at all — its impulse response is the zero sequence.<br>'
@@ -610,7 +610,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.poly([[-3.4,1],[-Math.PI/2,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI/2,1],[3.4,1]],{color:C.mid});
       return a.svg();})()),
   err:'Concluding from part (b) that the series connection also gives $\\delta[n]$, on the grounds that the two filters are inverses of one another. Complementary is not inverse: complementary filters add to one, inverse filters multiply to one, and these two multiply to zero.',
-  teach:'This pair is the cleanest demonstration that series and parallel connections do genuinely different things. Ask for a filter that inverts $h_1$ — none exists, because $H_1$ is zero on half the band and nothing can undo that.' },
+  teach:'Use this pair to compare series and parallel connections. Then ask for a filter that inverts $h_1$. No inverse exists because $H_1$ is zero on half the band, so multiplication by another finite response cannot restore those frequencies.' },
 
 { id:'D6-30', module:'M6', type:'full', src:'Final Q3',
   stem:'Let $p[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-5k]$ be a periodic impulse train, and let $x[n]$ be a sequence whose DTFT is $1$ for $|\\omega|<\\tfrac{\\pi}{5}$ and zero elsewhere in $-\\pi\\le\\omega\\le\\pi$.',
@@ -619,7 +619,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'State whether $x[n]$ can be recovered from $y[n]$ by an ideal low-pass filter, and give the filter if it can.'],
   sol:'<b>Given.</b> An impulse train of period $5$ and a band-limited sequence.<br>'
      +'<b>Find.</b> The spectrum of the train, the spectrum of the product, and whether the product can be undone.<br>'
-     +'<b>Method.</b> A train of period $N$ transforms to a train of impulses spaced $\\tfrac{2\\pi}{N}$. Multiplying in time convolves in frequency, which replicates the spectrum at that spacing.<br>'
+     +'<b>Method.</b> Use the impulse-train pair because $p[n]$ is periodic with period $N$. Then use periodic convolution because multiplying by $p[n]$ in time replicates the spectrum at spacing $\\tfrac{2\\pi}{N}$.<br>'
      +'<b>Solution — part (a).</b> The coefficients of $p[n]$ are $a_k=\\tfrac15$ for every $k$, so$$P(e^{j\\omega})=\\frac{2\\pi}{5}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{5}\\right).$$'
      +'<b>Solution — part (b).</b> Periodic convolution with the factor $\\tfrac{1}{2\\pi}$ gives$$Y(e^{j\\omega})=\\frac15\\sum_{k=0}^{4}X\\!\\left(e^{j(\\omega-2\\pi k/5)}\\right),$$five copies of the band, each of height $\\tfrac15$, centred at $\\omega=0,\\pm\\tfrac{2\\pi}{5},\\pm\\tfrac{4\\pi}{5}$. Each copy occupies a width of $\\tfrac{2\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so the copies fill the axis edge to edge without overlapping.<br>'
      +'<b>Solution — part (c).</b> <b>Yes.</b> Because the copies do not overlap, the one centred at the origin is intact. An ideal low-pass filter with cut-off $\\tfrac{\\pi}{5}$ and gain $5$,$$H(e^{j\\omega})=\\begin{cases}5,&|\\omega|<\\tfrac{\\pi}{5}\\\\0,&\\text{otherwise,}\\end{cases}$$keeps that copy and restores its height, giving $X$ exactly.<br>'
@@ -628,7 +628,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.1});
     a.poly([[-3.4,0.2],[3.4,0.2]],{color:C.out}); return a.svg();},
   err:'Reporting five separated bands with gaps between them. The band half-width is $\\tfrac{\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so each copy is exactly as wide as the gap it has to fill: the result is a constant $\\tfrac15$ across the whole period, with no gaps at all.',
-  teach:'The flat spectrum in part (b) surprises students, and it is worth pausing on: sampling a signal whose bandwidth exactly matches the sampling rate produces white output. Ask what $y[n]$ is in the time domain — it is $x[0]\\delta[n]$ repeated, and its flat spectrum follows immediately.' }
+  teach:'Explain why the spectrum in part (b) is flat: the replicated bands exactly cover the period without gaps or overlap. Then ask for $y[n]$ in time. It is $x[0]\\delta[n]$ repeated, whose transform is constant.' }
 
 ]);
 
@@ -661,7 +661,7 @@ window.DRILL_M6 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 6 · Practice D6-01 … D6-30', src:'pp. 64–79'},
   {t:'title', text:'Practice questions'},
-  {t:'small', html:'Work each question on paper before opening its solution. The cheapest check in this module is $X(e^{j0})=\\sum_n x[n]$, the total sum of the sequence. The second cheapest is $x[0]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,\\d\\omega$, the mean of the spectrum. For a real sequence, a third check is free: $\\left|X(e^{j\\omega})\\right|$ must come out even and $\\angle X(e^{j\\omega})$ odd.'},
+  {t:'small', html:'Work each question on paper before opening its solution. First check $X(e^{j0})=\\sum_n x[n]$, the total sum of the sequence. Next check $x[0]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,\\d\\omega$, the mean of the spectrum. For a real sequence, also check that $\\left|X(e^{j\\omega})\\right|$ is even and $\\angle X(e^{j\\omega})$ is odd.'},
   {t:'rule', short:true},
   {t:'drill', module:'M6'}
 ]}

@@ -92,8 +92,8 @@ const SC = [
 { id:'m6-open', module:'M6', nav:'Module 6 opening', title:'Discrete-Time Fourier Transform', src:'pp. 64–79',
   dark:true, keywords:'module 6 discrete time fourier transform DTFT periodic 2pi overview aperiodic sequence', steps:0, blocks:[
   {t:'eyebrow', text:'Module 6 · Discrete-Time Fourier Transform', src:'pp. 64–79'},
-  {t:'title', level:1, text:'A spectrum that<br>repeats for ever.'},
-  {t:'lede', text:'An aperiodic sequence has a spectrum, and that spectrum is a continuous function of frequency. It is also periodic: every value it takes at $\\omega$ it takes again at $\\omega+2\\pi$. Everything this module does follows from that one fact.'},
+  {t:'title', level:1, text:'The spectrum of an<br>aperiodic sequence'},
+  {t:'lede', text:'The discrete-time Fourier transform describes the frequency content of an aperiodic sequence. Its spectrum is a continuous function of frequency, but it repeats every $2\\pi$. This module develops the transform and uses that periodicity in each property.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
@@ -129,7 +129,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'body', html:'Both ends of the interval must point the same way. The statement is $-N_1\\le n\\le N_1$: a band of $2N_1+1$ samples centred on the origin. Reversing the second sign gives an interval with nothing in it.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Where this is going', html:'As $N$ grows, the copies move apart and the middle one stops being disturbed at all. In the limit $N\\to\\infty$ the periodic sequence <i>is</i> $x$, and the series coefficients turn into a continuous function of frequency.'}]}
+      {t:'note', kind:'ok', head:'Purpose of the limit', html:'As $N$ grows, the copies move farther apart, so neighbouring copies no longer affect the middle one. In the limit $N\\to\\infty$, the middle copy equals $x$, and the series coefficients become samples of a continuous function of frequency.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const f=n=>Math.abs(n)<=2?1:0;
@@ -203,7 +203,7 @@ const SC = [
         a.stem(pts,{color:C.mid,showZero:true,r:2.6});
         markPeriod(a,0.335);
         return a.svg(); },
-        caption:'The same envelope with $N=20$. The stems crowd together and shrink; the shape they trace does not move.'}]}
+        caption:'The same envelope with $N=20$. The spacing and the stem heights decrease, while the envelope stays fixed.'}]}
   ]}
 ]},
 
@@ -224,7 +224,7 @@ const SC = [
         label:'Synthesis equation, discrete time',
         note:'The symbol $\\int_{2\\pi}$ means an integral over any interval of length $2\\pi$ — usually $-\\pi$ to $\\pi$, or $0$ to $2\\pi$. Which one is chosen makes no difference, and the next scene says why.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Nothing was lost on the way', html:'The finite support was used once, to make the replication faithful. It is not part of the result: the analysis sum is written over all $n$ and applies to any sequence for which it converges.'}]}
+      {t:'note', kind:'ok', head:'Role of finite support', html:'Finite support was used only to make the replicated copies separate. It is not a condition of the final transform pair. The analysis sum runs over all $n$ and applies whenever that sum converges.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:700,h:230,xr:[-PI,PI],yr:[-1.6,5.9],xlabel:'\\omega',pad:{l:52,r:26,t:30,b:38},
@@ -253,7 +253,7 @@ const SC = [
   objective:'State the DTFT pair with the two names attached correctly and state the convergence condition.',
   keywords:'DTFT pair analysis synthesis equation naming convergence absolutely summable inverse transform', steps:3, blocks:[
   {t:'eyebrow', text:'Module 6 · The pair', src:'p. 65'},
-  {t:'title', text:'Two equations, two names, no room for a swap'},
+  {t:'title', text:'Analysis produces the spectrum; synthesis recovers the sequence'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]\\,e^{-j\\omega n}',
       label:'Analysis equation — the discrete-time Fourier transform',
@@ -262,7 +262,7 @@ const SC = [
       label:'Synthesis equation — the inverse transform',
       note:'Synthesis builds the sequence back up. It starts from the spectrum and produces $x[n]$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The one confusion worth naming', html:'The forward sum is <b>analysis</b> and the integral is <b>synthesis</b>. The names go by what the equation does, never by which one is written first. Attaching them the other way round survives a whole page unnoticed, because both equations stay correct while everything said about them is wrong.'}]},
+      {t:'note', kind:'err', head:'Keep the names with their operations', html:'The forward sum is <b>analysis</b> because it starts with $x[n]$ and produces $X(e^{j\\omega})$. The integral is <b>synthesis</b> because it starts with the spectrum and recovers $x[n]$. Reversing the names does not change either equation, but it describes both operations incorrectly.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'When the sum converges', html:'A sufficient condition is that $x$ is <b>absolutely summable</b>:<br>$\\sum_{n=-\\infty}^{\\infty}|x[n]|<\\infty$. Then the analysis sum converges for every $\\omega$, and $X(e^{j\\omega})$ is a continuous function. Finite-energy sequences also have a transform, in a mean-square sense.'}]},
     {t:'reveal', at:3, items:[
@@ -295,7 +295,7 @@ const SC = [
   objective:'Prove the 2pi-periodicity and contrast it with the continuous-time case.',
   keywords:'periodicity 2pi proof e^{-j2pi n}=1 integer contrast continuous time not periodic aliasing frequency', steps:3, blocks:[
   {t:'eyebrow', text:'Module 6 · The central property', src:'p. 65'},
-  {t:'title', text:'One line of algebra, and the whole module follows'},
+  {t:'title', text:'Integer time makes the spectrum periodic'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'X(e^{j(\\omega+2\\pi)})=\\sum_{n}x[n]e^{-j(\\omega+2\\pi)n}=\\sum_{n}x[n]e^{-j\\omega n}\\underbrace{e^{-j2\\pi n}}_{=\\,1}=X(e^{j\\omega})',
       label:'2π-periodicity'},
@@ -350,7 +350,7 @@ const SC = [
         ['Check','At $n_0=0$ the sequence is $\\delta[n]$ and the transform is the constant 1, which is what the sum gives directly.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Where the periodicity shows', html:'A straight line is not periodic, and yet $X$ is. There is no contradiction: the transform is $e^{-j\\omega n_0}$, which does repeat. It is the <i>principal value</i> of the phase that is drawn, and it jumps by $2\\pi$ whenever the line leaves $(-\\pi,\\pi]$. The sawtooth below is that wrapping, and its period is $2\\pi/n_0$.'}]}
+      {t:'note', kind:'ok', head:'How the phase plot repeats', html:'The transform $e^{-j\\omega n_0}$ is periodic, although the unwrapped phase $-n_0\\omega$ is a straight line. A phase plot usually shows the <i>principal value</i>, restricted to $(-\\pi,\\pi]$. Each time the line leaves that interval, the plotted phase changes by $2\\pi$, which produces the repeated sawtooth with period $2\\pi/n_0$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:190,xr:[-8,10],yr:[-0.25,1.35],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:28,t:28,b:34},xtarget:8,ytarget:2});
@@ -399,7 +399,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Where $|a|<1$ is used, and where it is not', html:'This is an <b>infinite</b> geometric series, so the ratio must have modulus strictly below 1 for it to converge at all:<br>$|ae^{-j\\omega}|=|a|\\,|e^{-j\\omega}|=|a|<1$. Drop the condition and the sum has no value, whatever the closed form says. A <i>finite</i> geometric sum is a different matter and needs only ratio $\\neq1$; that case appears two scenes further on.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Reading the answer', html:'Write the denominator as $1-a\\cos\\omega+ja\\sin\\omega$. As $\\omega$ runs over a period this traces a circle of radius $|a|$ centred at 1. The whole behaviour of the magnitude and the phase is the behaviour of $1/z$ on that circle, and the next scene reads both extremes straight off it.'}]}
+      {t:'note', kind:'ok', head:'Use the denominator geometry', html:'Write the denominator as $1-a\\cos\\omega+ja\\sin\\omega$. As $\\omega$ runs over a period, this point traces a circle of radius $|a|$ centred at 1. The distance and angle of points on that circle determine the magnitude and phase of $1/z$. The next scene uses this geometry to find both extremes.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:210,xr:[-6,16],yr:[-0.22,1.30],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:28,t:28,b:34},xtarget:8,ytarget:3});
@@ -576,7 +576,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'Not a sinc', html:'The denominator is $\\sin(\\omega/2)$, not $\\omega/2$. That is what makes the function periodic: the ratio of two sines repeats, while a sine over a straight line decays. Calling this a sinc loses the one property the whole module is about.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Wider in time, narrower in frequency', html:'Doubling the width of the pulse doubles the peak, from $5$ to $9$, and halves the width of the main lobe. The zero crossings of the kernel sit at $\\omega=2\\pi k/(2N_1+1)$, so they crowd together as $N_1$ grows. The period never moves: it is $2\\pi$ for both.'}]},
+      {t:'note', kind:'def', head:'Effect of pulse width', html:'Doubling the width of the pulse doubles the peak, from $5$ to $9$, and halves the width of the main lobe. The zero crossings occur at $\\omega=2\\pi k/(2N_1+1)$, so their spacing decreases as $N_1$ grows. The period remains $2\\pi$ in both cases.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'warn', head:'The least value moves too', html:'The deepest negative lobe is $-1.2500$ for $N_1=2$ and $-2.0391$ for $N_1=4$. Both are values of a real function, and neither is a magnitude — which is what the next scene is about.'}]}
   ], right:[
@@ -604,7 +604,7 @@ const SC = [
 { id:'m6-real-phase', module:'M6', nav:'Real is not zero-phase', title:'A real spectrum does not have zero phase', src:'p. 67',
   objective:'Separate real from non-negative and give the phase of a sign-changing real spectrum.',
   keywords:'real spectrum phase zero or pi misconception magnitude absolute value dirichlet negative sign change', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 6 · A distinction worth the scene', src:'p. 67'},
+  {t:'eyebrow', text:'Module 6 · Magnitude and sign', src:'p. 67'},
   {t:'title', text:'Real means the phase is $0$ or $\\pi$'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'err', head:'The claim to reject', html:'“$X(e^{j\\omega})$ is real, therefore $|X(e^{j\\omega})|=X(e^{j\\omega})$ and $\\angle X(e^{j\\omega})=0$.” The first half of the sentence is a hypothesis about the imaginary part. The conclusion is about the <b>sign</b>, and nothing in the hypothesis fixes it.'},
@@ -847,7 +847,7 @@ const SC = [
 
 /* ============================================================ impulse train */
 { id:'m6-ex-imptrain', module:'M6', nav:'Worked example · impulse train', title:'Worked example — the discrete-time impulse train', src:'p. 70',
-  objective:'Transform the impulse train and keep the summation index distinct from the free variable.',
+  objective:'Transform the impulse train and keep the summation index distinct from the sequence index.',
   keywords:'impulse train delta[n-kN] coefficients 1/N transform 2pi/N index clash summation variable', steps:3, blocks:[
   {t:'eyebrow', text:'Module 6 · Worked example', src:'p. 70'},
   {t:'title', text:'A train in time gives a train in frequency'},
@@ -857,7 +857,7 @@ const SC = [
       ['Find','The Fourier series coefficients and the transform.'],
       ['Method','Take one period, use the analysis equation of the series, then apply the impulse-spectrum result.']
     ]},
-    {t:'note', kind:'warn', head:'One letter per job', html:'The free variable of the sequence is $n$; the index that runs over the copies is $k$. Writing the summation index as $n$ as well makes the left and right sides of the definition share a symbol that means two different things, and every later step has to guess which is which.'},
+    {t:'note', kind:'warn', head:'Use a separate summation index', html:'The sequence index is $n$, and the index that labels the copies is $k$. If both roles use $n$, the same symbol has two meanings in one equation. Keeping $k$ for the sum makes each later substitution unambiguous.'},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'a_k=\\frac{1}{N}\\sum_{n=\\langle N\\rangle}x[n]e^{-jk\\frac{2\\pi}{N}n}=\\frac{1}{N}\\,e^{-jk\\frac{2\\pi}{N}\\cdot 0}=\\frac{1}{N}',
         note:'Take the period $-\\lfloor N/2\\rfloor\\le n\\le\\dots$ that contains $n=0$. Exactly one sample of the train is in it, at $n=0$, and the sifting reduces the sum to a single term.'},
@@ -1022,7 +1022,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'Time shift leaves the magnitude alone', html:'$|e^{-j\\omega n_0}|=1$, so $|X|$ is untouched and only the phase changes, by the straight line $-n_0\\omega$. Delaying a sequence cannot change how much of each frequency it contains; it can only change when each frequency arrives.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Frequency shift wraps', html:'Sliding a $2\\pi$-periodic spectrum by $\\omega_0$ slides every copy at once. What leaves one end of a period enters the other end of the same period. There is no continuous-time picture of this, because there the spectrum has no copies to slide in from.'}]},
+      {t:'note', kind:'def', head:'A frequency shift is periodic', html:'Shifting a $2\\pi$-periodic spectrum by $\\omega_0$ shifts every repeated copy. A part that crosses one boundary of the displayed period appears at the opposite boundary. Continuous-time spectra do not have this required periodic repetition.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Proof, time shift','$\\sum_n x[n-n_0]e^{-j\\omega n}$. Put $m=n-n_0$: the sum becomes $\\sum_m x[m]e^{-j\\omega(m+n_0)}=e^{-j\\omega n_0}X(e^{j\\omega})$.'],
@@ -1182,7 +1182,7 @@ const SC = [
         ['Consequence','Replacing $\\omega$ by $k\\omega$ compresses the frequency axis by $k$. The spectrum was $2\\pi$-periodic; it is now $2\\pi/k$-periodic, so one period of length $2\\pi$ holds $k$ copies of the old picture.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Nothing is created', html:'The expanded sequence has the same values as the original, spread out with zeros between them. So its energy is unchanged, and the compressed spectrum has $k$ copies of the old picture inside one period rather than a taller one.'}]}
+      {t:'note', kind:'ok', head:'Expansion preserves the sample values', html:'The expanded sequence keeps the original sample values and inserts zeros between them. The zeros add no energy, so the energy is unchanged. In frequency, the compressed spectrum contains $k$ copies within one period but has the same height.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:200,xr:[-4,12],yr:[-0.25,1.42],xlabel:'n',ylabel:'y[n]',pad:{l:52,r:30,t:28,b:34},xtarget:8,ytarget:2});
@@ -1222,7 +1222,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'Where the argument halved', html:'$G$ has $\\sin(5\\omega/2)/\\sin(\\omega/2)$; $Y_{(2)}$ has $\\sin(5\\omega)/\\sin(\\omega)$. Both are the same expression, the second with $\\omega$ replaced by $2\\omega$. So a form with $\\sin(\\omega)$ in the denominator is right for the expanded sequence and wrong for the original — which is exactly the confusion the property exists to settle.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'The last step is a shift and a sum', html:'$1+2e^{-j\\omega}$ is what linearity and the time-shift property give for $y_{(2)}[n]+2y_{(2)}[n-1]$. No new property is needed: the whole sequence is built out of one pulse, one shift, one expansion and one weighted sum.'}]}
+      {t:'note', kind:'def', head:'Complete the construction with known properties', html:'Linearity and the time-shift property give the factor $1+2e^{-j\\omega}$ for $y_{(2)}[n]+2y_{(2)}[n-1]$. Thus the construction uses one pulse, one shift, one expansion, and one weighted sum.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:210,xr:[-3*PI,3*PI],yr:[-0.75,6.5],xlabel:'\\omega',ylabel:'|G(e^{j\\omega})|',
@@ -1311,12 +1311,12 @@ const SC = [
       label:'Parseval’s relation'},
     {t:'note', kind:'def', head:'Energy-density spectrum', html:'$|X(e^{j\\omega})|^{2}$ is the <b>energy-density spectrum</b> of $x$. Integrating it over one period and dividing by $2\\pi$ gives the total energy. Integrating it over part of a period gives the energy carried by that band of frequencies.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'One period, and the $1/2\\pi$', html:'Both are load-bearing. Integrating over all $\\omega$ counts every copy of the same information and diverges. Dropping the $1/2\\pi$ multiplies the answer by $2\\pi$. Neither mistake shows up in the shape of the plot, so both survive until a number is needed.'}]},
+      {t:'note', kind:'warn', head:'Use one period and keep the $1/2\\pi$', html:'Both parts are required. Integrating over all $\\omega$ counts every periodic copy and diverges. Dropping the $1/2\\pi$ multiplies the result by $2\\pi$. A plot does not reveal either error, so check the numerical energy.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
         ['Check 1','$x[n]=a^{n}u[n]$ with $a=\\tfrac12$. Time side: $\\sum_{n\\ge0}(\\tfrac14)^{n}=\\tfrac{1}{1-1/4}=\\tfrac43$. Frequency side: $\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\pi}^{\\pi}\\frac{\\d\\omega}{1-2a\\cos\\omega+a^{2}}=\\dfrac{1}{1-a^{2}}=\\tfrac43$.'],
         ['Check 2','The rectangular pulse with $N_1=2$. Time side: five samples of $1$, so the energy is $5$. Frequency side: $\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\pi}^{\\pi}\\left|\\frac{\\sin(5\\omega/2)}{\\sin(\\omega/2)}\\right|^{2}\\d\\omega=5$.'],
-        ['Reading','Both checks are cheap and both catch the two errors above at once: a missing $1/2\\pi$ shows as a factor $2\\pi$, and a full-line integral does not converge.']
+        ['Check purpose','Both calculations test the normalization and the integration range. A missing $1/2\\pi$ produces a factor $2\\pi$, while an integral over the full frequency line does not converge.']
       ]}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'ok', head:'Why $|X|^{2}$ and not $X$', html:'The relation is about energy, which is a square. Nothing is claimed about $\\int X\\,\\d\\omega$: that integral is $2\\pi x[0]$ by the synthesis equation, which is a different and much weaker statement.'}]}
@@ -1346,7 +1346,7 @@ const SC = [
   objective:'State the convolution property and separate the magnitude and phase statements.',
   keywords:'convolution property Y = X H magnitude product phase sum LTI frequency response discrete', steps:3, blocks:[
   {t:'eyebrow', text:'Module 6 · Properties', src:'p. 73'},
-  {t:'title', text:'The property the whole course was built towards'},
+  {t:'title', text:'Use multiplication instead of a convolution sum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'y[n]=x[n]*h[n]\\;\\longleftrightarrow\\;Y(e^{j\\omega})=X(e^{j\\omega})\\,H(e^{j\\omega})',
       label:'Convolution property',
@@ -1390,7 +1390,7 @@ const SC = [
   objective:'Run the partial fractions in a named variable and state the condition the expansion needs.',
   keywords:'worked example convolution a^n b^n partial fractions z = e^{-j omega} a not equal b cover up residue', steps:4, blocks:[
   {t:'eyebrow', text:'Module 6 · Worked example', src:'p. 73'},
-  {t:'title', text:'Partial fractions, in a variable that is allowed to move'},
+  {t:'title', text:'Use an algebraic variable for partial fractions'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=a^{n}u[n]$ and $h[n]=b^{n}u[n]$, with $|a|<1$, $|b|<1$ and $a\\neq b$.'],
@@ -1402,7 +1402,7 @@ const SC = [
       {t:'eq', size:'sm', tex:'Y=\\frac{1}{(1-az)(1-bz)}=\\frac{A}{1-az}+\\frac{B}{1-bz}',
         note:'Cover up $1-az$ and set $z=1/a$: $A=\\dfrac{1}{1-b/a}=\\dfrac{a}{a-b}$. Cover up $1-bz$ and set $z=1/b$: $B=\\dfrac{1}{1-a/b}=\\dfrac{b}{b-a}=-\\dfrac{b}{a-b}$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The condition the expansion needs', html:'Both coefficients divide by $a-b$, so the whole route requires $a\\neq b$. It is not a technicality to be waved through: at $a=b$ the two poles merge, the expansion above has no meaning, and the answer takes a completely different form. That case is worked separately later in this module.'}]},
+      {t:'note', kind:'warn', head:'The condition the expansion needs', html:'Both coefficients divide by $a-b$, so this partial-fraction form requires $a\\neq b$. At $a=b$, the two poles coincide and the stated expansion is undefined. The repeated-pole case is derived separately later in this module.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', key:true, size:'lg', tex:'y[n]=\\frac{1}{a-b}\\Bigl[a^{\\,n+1}-b^{\\,n+1}\\Bigr]u[n]',
         label:'Solution',
@@ -1535,7 +1535,7 @@ const SC = [
       {t:'wex', rows:[
         ['Worked case','$X(e^{j\\omega})=1$ for $|\\omega|\\le3\\pi/4$ and $Y(e^{j\\omega})=1$ for $|\\omega|\\le\\pi/2$, both zero on the rest of their period and both repeated every $2\\pi$.'],
         ['Ordinary convolution first','Two rectangles of half-widths $3\\pi/4$ and $\\pi/2$ convolve to a trapezoid of height $\\tfrac{1}{2\\pi}\\cdot2\\cdot\\tfrac{\\pi}{2}=\\tfrac12$, flat on $|\\omega|\\le\\pi/4$ and reaching zero at $|\\omega|=5\\pi/4$.'],
-        ['Then wrap','$5\\pi/4>\\pi$, so the trapezoid runs past the edge of a period. What leaves one end comes back at the other, and near $\\omega=\\pm\\pi$ two pieces add.']
+        ['Apply periodicity','$5\\pi/4>\\pi$, so the trapezoid extends beyond one period. The periodic copy from the opposite boundary then overlaps it near $\\omega=\\pm\\pi$, and the two values add.']
       ]}]},
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -1577,7 +1577,7 @@ const SC = [
       ['Check','$\\dfrac{1}{2\\pi}\\displaystyle\\int_{2\\pi}Z\\,\\d\\omega=0.375$, and by the synthesis equation this must equal $z[0]=x[0]\\,y[0]=\\tfrac34\\cdot\\tfrac12=0.375$.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'When the two agree', html:'If the two bands are narrow enough that the result fits inside one period, the periodic and the ordinary convolution give the same picture. Two identical bands of half-width $\\pi/2$ give a triangle of peak $\\tfrac12$ whose base is exactly $|\\omega|\\le\\pi$: it fills the period and touches zero at the edges, with nothing to wrap.'}]},
+      {t:'note', kind:'ok', head:'When ordinary convolution is sufficient', html:'If the result fits inside one period, periodic convolution and ordinary convolution give the same values on that period. Two identical bands of half-width $\\pi/2$ give a triangle of peak $\\tfrac12$ on $|\\omega|\\le\\pi$. It reaches zero at the boundaries, so repeated copies do not overlap.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'What this is not', html:'The overlap here is between copies of a <b>spectrum</b> in a frequency-domain convolution. It is a consequence of the spectrum being periodic, and it happens for every sequence. Module 7 has a different overlap, between replicas produced by sampling, and only that one is aliasing.'}]}
   ], right:[
@@ -1598,7 +1598,7 @@ const SC = [
         a.curve(w=>perConv(w,PI/2,PI/2),{color:C.mid,n:6000});
         markPeriod(a,0.665);
         return a.svg(); },
-        caption:'Two equal bands of half-width $\\pi/2$: a triangle of peak $0.5$ whose base fills exactly one period, so nothing wraps and no value doubles.'}]}
+        caption:'Two equal bands of half-width $\\pi/2$: a triangle of peak $0.5$ whose base fills one period and reaches zero at both boundaries. Repeated copies do not overlap.'}]}
   ]}
 ]},
 
@@ -1703,7 +1703,7 @@ const SC = [
   objective:'Collect every standard discrete-time transform pair the course uses.',
   keywords:'transform pairs table reference unit sample step exponential rectangular sinc impulse train cosine sine sinc convention', steps:2, blocks:[
   {t:'eyebrow', text:'Module 6 · Reference', src:'p. 76'},
-  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'title', text:'Transform pairs used in this module'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Aperiodic sequences'},
     {t:'wex', rows:[
@@ -1860,10 +1860,10 @@ const SC = [
 { id:'m6-ex-pair', module:'M6', nav:'The repeated-pole pair', title:'Deriving the repeated-pole pair', src:'p. 79',
   objective:'Derive (n+1)a^n u[n] by differentiating the geometric pair, giving the exponent and the sign a reason.',
   keywords:'repeated pole pair (n+1)a^n u[n] 1/(1-a e^{-j omega})^2 differentiate with respect to a exponent sign', steps:4, blocks:[
-  {t:'eyebrow', text:'Module 6 · A pair worth deriving', src:'p. 79'},
+  {t:'eyebrow', text:'Module 6 · Repeated-pole pair', src:'p. 79'},
   {t:'title', text:'The pair that closes the loop with $a=b$'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The convolution example needed $a\\neq b$, because both of its partial-fraction coefficients divide by $a-b$. What happens at $a=b$ is a separate pair, and it is worth deriving rather than quoting.'},
+    {t:'body', html:'The convolution example required $a\\neq b$ because both partial-fraction coefficients divide by $a-b$. When $a=b$, the two poles coincide and require a separate transform pair. Deriving that pair shows where its squared denominator comes from.'},
     {t:'reveal', at:1, items:[
       {t:'body', html:'Start from the pair already proved, written as a series in $a$:'},
       {t:'eq', size:'sm', tex:'\\sum_{n=0}^{\\infty}a^{n}e^{-j\\omega n}=\\frac{1}{1-ae^{-j\\omega}},\\qquad |a|<1'},
