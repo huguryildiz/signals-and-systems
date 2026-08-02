@@ -78,12 +78,12 @@ const dtRect = (k,N,N1)=>{ const r=k/N;
   return Math.sin(2*PI*k*(N1+0.5)/N)/(N*Math.sin(PI*k/N)); };
 
 Object.assign(CONTENT.GLOSS, {
-  Xejw:{ s:'X(e^{j\\omega})', d:'Discrete-time Fourier transform of the sequence x[n]. It is a continuous function of ω and it repeats every 2π.', go:'m6-pair' },
-  dtftper:{ s:'2\\pi\\text{-periodicity}', d:'X(e^{j(ω+2π)}) = X(e^{jω}) for every sequence, because e^{−j2πn} = 1 at every integer n.', go:'m6-periodic' },
-  dirk:{ s:'\\frac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}', d:'Dirichlet kernel: the transform of the rectangular pulse that is 1 on −N₁ ≤ n ≤ N₁. It is real and it changes sign.', go:'m6-ex-rect' },
-  pconv:{ s:'\\circledast', d:'Periodic convolution: an integral over one period of 2π, not over all frequencies. It is what the multiplication property produces in discrete time.', go:'m6-mult' },
-  zsub:{ s:'z=e^{-j\\omega}', d:'A named algebraic variable used to run partial fractions on a discrete-time transform. Substituting a value for z is algebra in z, not an evaluation of the unit-modulus quantity e^{−jω}.', go:'m6-conv' },
-  expan:{ s:'x_{(k)}[n]', d:'Time expansion of x[n] by an integer factor k: x[n/k] when n is a multiple of k, and zero otherwise.', go:'m6-expansion' }
+  Xejw:{ s:'X(e^{j\\omega})', d:'Discrete-time Fourier transform of the sequence $x[n]$. It is a continuous function of $\\omega$ and it repeats every $2\\pi$.', go:'m6-pair' },
+  dtftper:{ s:'2\\pi\\text{-periodicity}', d:'$X(e^{j(\\omega+2\\pi)})=X(e^{j\\omega})$ for every sequence, because $e^{-j2\\pi n}=1$ at every integer $n$.', go:'m6-periodic' },
+  dirk:{ s:'\\frac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}', d:'Dirichlet kernel: the transform of the rectangular pulse that is $1$ on $-N_1\\le n\\le N_1$. It is real and it changes sign.', go:'m6-ex-rect' },
+  pconv:{ s:'\\circledast', d:'Periodic convolution: an integral over one period of $2\\pi$, not over all frequencies. It is what the multiplication property produces in discrete time.', go:'m6-mult' },
+  zsub:{ s:'z=e^{-j\\omega}', d:'A named algebraic variable used to run partial fractions on a discrete-time transform. Substituting a value for $z$ is algebra in $z$, not an evaluation of the unit-modulus quantity $e^{-j\\omega}$.', go:'m6-conv' },
+  expan:{ s:'x_{(k)}[n]', d:'Time expansion of $x[n]$ by an integer factor $k$: $x[n/k]$ when $n$ is a multiple of $k$, and zero otherwise.', go:'m6-expansion' }
 });
 
 const SC = [
