@@ -1121,6 +1121,53 @@ const SC = [
 ]},
 
 /* ============================================================ time expansion */
+{ id:'m6-props-evenodd', module:'M6', nav:'Properties · even and odd parts', title:'Even and odd parts of a sequence', src:'p. 73',
+  objective:'State the symmetry of the transform for real and even and for real and odd sequences, and the even-odd decomposition.',
+  keywords:'even odd decomposition real even sequence real transform real odd purely imaginary Ev Od real part imaginary part', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Properties', src:'p. 73'},
+  {t:'title', text:'The even part carries the real part'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'The previous scene proved that a real sequence has $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$. Add a symmetry in $n$ and the statement sharpens to a single word each.'},
+    {t:'wex', rows:[
+      ['Real and even','$X(e^{j\\omega})$ real and even'],
+      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x[n]\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(e^{j\\omega})\\},\\qquad \\Od\\{x[n]\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(e^{j\\omega})\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'Both sides of each statement are read sample by sample and frequency by frequency. The two rows above are the special cases in which one of the two parts is missing.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x[n]\\}=\\tfrac12(x[n]+x[-n])$. By linearity and time reversal its transform is $\\tfrac12[X(e^{j\\omega})+X(e^{-j\\omega})]$, and for a real sequence $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so that is $\\operatorname{Re}\\{X\\}$. The odd part gives $\\tfrac12[X-X^{*}]=j\\operatorname{Im}\\{X\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'The worked case opposite', html:'Take $x[n]=a^{n}u[n]$ with $0<a<1$, whose transform is $1/(1-ae^{-j\\omega})$. Its even part is $\\tfrac12a^{|n|}+\\tfrac12\\delta[n]$, because the two halves overlap at $n=0$. Transforming term by term gives $\\dfrac{1-a\\cos\\omega}{1-2a\\cos\\omega+a^{2}}$, which is exactly $\\operatorname{Re}\\{X(e^{j\\omega})\\}$.'}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-8,8],yr:[-0.2,1.2],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>n>=0?Math.pow(0.6,n):0,-8,8),{color:C.in,r:3.2,showZero:true}); return a.svg(); },
+        caption:'$x[n]=(0.6)^{n}u[n]$, neither even nor odd.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-8,8],yr:[-0.6,1.2],xlabel:'n',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        const f=n=>n>=0?Math.pow(0.6,n):0;
+        a.stem(D(n=>0.5*(f(n)+f(-n)),-8,8),{color:C.mid,r:3.2,showZero:true});
+        a.stem(D(n=>0.5*(f(n)-f(-n)),-8,8),{color:C.err,r:3.2,showZero:true});
+        a.note(7.8,1.05,'\\Ev\\{x\\}',{anchor:'end',color:C.mid,fs:14,tex:true});
+        a.note(7.8,-0.42,'\\Od\\{x\\}',{anchor:'end',color:C.err,fs:14,tex:true});
+        return a.svg(); },
+        caption:'Its even and odd parts. They agree at $n=0$ only for the even one.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:215,xr:[-PI,PI],yr:[-0.3,2.8],xlabel:'\\omega',ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',
+            pad:{l:74,r:22,t:28,b:36},xticksOverride:wTicks(-PI,PI,PI/2),xtickfmt:piTick,ytarget:3});
+          a.curve(w=>(1-0.6*Math.cos(w))/(1-1.2*Math.cos(w)+0.36),{color:C.mid,n:2400}); return a.svg(); },
+          caption:'Even in $\\omega$, and the transform of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:215,xr:[-PI,PI],yr:[-1.1,1.1],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(e^{j\\omega})\\}',
+            pad:{l:74,r:22,t:28,b:36},xticksOverride:wTicks(-PI,PI,PI/2),xtickfmt:piTick,ytarget:3});
+          a.curve(w=>-0.6*Math.sin(w)/(1-1.2*Math.cos(w)+0.36),{color:C.err,n:2400}); return a.svg(); },
+          caption:'Odd in $\\omega$, and $j$ times it is the transform of the odd part.'}]
+      ]}]}
+  ]}
+]},
+
 { id:'m6-expansion', module:'M6', nav:'Properties · time expansion', title:'Time expansion compresses the frequency axis', src:'p. 72',
   objective:'State the expansion property, prove it by an index change, and read the halved period off the picture.',
   keywords:'time expansion x_(k)[n] zero insertion X(e^{jk omega}) compression period pi proof index change', steps:2, blocks:[
@@ -1617,12 +1664,12 @@ const SC = [
 
 /* ============================================================ summary */
 { id:'m6-tables', module:'M6', nav:'Property summary', title:'The properties in one place', src:'p. 76',
-  objective:'Collect the properties and the transform pairs derived in this module.',
-  keywords:'summary table properties pairs list reference linearity shift expansion convolution multiplication parseval', steps:2, blocks:[
+  objective:'Collect every property of the discrete-time Fourier transform for reference.',
+  keywords:'summary table properties list reference linearity shift expansion convolution multiplication accumulation symmetry parseval', steps:2, blocks:[
   {t:'eyebrow', text:'Module 6 · Summary', src:'p. 76'},
   {t:'title', text:'Everything this module proved'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Properties'},
+    {t:'sub', text:'Operations on the sequence'},
     {t:'wex', rows:[
       ['Linearity','$a\\,x_1[n]+b\\,x_2[n]\\leftrightarrow a\\,X_1+b\\,X_2$'],
       ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
@@ -1630,34 +1677,61 @@ const SC = [
       ['Conjugation','$x^{*}[n]\\leftrightarrow X^{*}(e^{-j\\omega})$'],
       ['Time reversal','$x[-n]\\leftrightarrow X(e^{-j\\omega})$'],
       ['Time expansion','$x_{(k)}[n]\\leftrightarrow X(e^{jk\\omega})$'],
-      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
-      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
       ['Convolution','$x[n]*h[n]\\leftrightarrow X(e^{j\\omega})H(e^{j\\omega})$'],
-      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$'],
-      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
+      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$']
     ]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Two names that must not be exchanged', html:'<b>Differencing</b> is the time-domain operation $x[n]-x[n-1]$; <b>differentiation</b> is the frequency-domain derivative $\\d X/\\d\\omega$. The first is a difference because $n$ is an integer; the second is a genuine derivative because $\\omega$ is not.'}]}
   ], right:[
-    {t:'sub', text:'Transform pairs'},
+    {t:'sub', text:'Difference, sum, symmetry and energy'},
+    {t:'wex', rows:[
+      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
+      ['Accumulation','$\\displaystyle\\sum_{m=-\\infty}^{n}x[m]\\leftrightarrow\\frac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\sum_k\\delta(\\omega-2\\pi k)$'],
+      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
+      ['Real sequence','$X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Real and even','$X(e^{j\\omega})$ real and even'],
+      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'The one row with a condition', html:'Accumulation carries an impulse train, and the weight $\\pi X(e^{j0})=\\pi\\sum_n x[n]$ is the total of the sequence. Differencing destroys any constant offset in a running sum, so the impulse train is what puts the offset back. Where the sequence sums to zero the term vanishes on its own.'}]}
+  ]}
+]},
+
+{ id:'m6-pairs', module:'M6', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 76',
+  objective:'Collect every standard discrete-time transform pair the course uses.',
+  keywords:'transform pairs table reference unit sample step exponential rectangular sinc impulse train cosine sine sinc convention', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Reference', src:'p. 76'},
+  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Aperiodic sequences'},
     {t:'wex', rows:[
       ['Unit sample','$\\delta[n]\\leftrightarrow1$'],
       ['Shifted sample','$\\delta[n-n_0]\\leftrightarrow e^{-j\\omega n_0}$'],
+      ['Unit step','$u[n]\\leftrightarrow\\dfrac{1}{1-e^{-j\\omega}}+\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
       ['One-sided exponential','$a^{n}u[n]\\leftrightarrow\\dfrac{1}{1-ae^{-j\\omega}}$, $|a|<1$'],
       ['Repeated pole','$(n+1)a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}}$, $|a|<1$'],
+      ['Pole of order $r$','$\\dfrac{(n+r-1)!}{n!\\,(r-1)!}a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{r}}$, $|a|<1$'],
       ['Two-sided exponential','$a^{|n|}\\leftrightarrow\\dfrac{1-a^{2}}{1-2a\\cos\\omega+a^{2}}$, $|a|<1$'],
       ['Rectangular pulse','$x[n]=1$ on $|n|\\le N_1$ $\\leftrightarrow\\dfrac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$'],
+      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Periodic sequences and impulse trains'},
+    {t:'wex', rows:[
       ['Constant','$1\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
       ['Complex exponential','$e^{j\\omega_0n}\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-\\omega_0-2\\pi k)$'],
       ['Cosine','$\\cos\\omega_0n\\leftrightarrow\\pi\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)+\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Sine','$\\sin\\omega_0n\\leftrightarrow\\dfrac{\\pi}{j}\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)-\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Any periodic sequence','$\\displaystyle\\sum_{k=\\langle N\\rangle}a_ke^{jk(2\\pi/N)n}\\leftrightarrow2\\pi\\sum_k a_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$'],
       ['Impulse train','$\\sum_k\\delta[n-kN]\\leftrightarrow\\dfrac{2\\pi}{N}\\sum_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$']
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]}
-  ]}
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]}
 ]},
 
 /* ============================================================ duality */

@@ -1088,6 +1088,51 @@ const SC = [
 ]}
 ,
 
+{ id:'m5-props-evenodd', module:'M5', nav:'Properties · even and odd parts', title:'Even and odd parts, real and imaginary parts', src:'p. 53',
+  objective:'State the symmetry of the transform for real and even and for real and odd signals, and the even-odd decomposition.',
+  keywords:'symmetry real even transform real odd purely imaginary even odd decomposition Ev Od real part imaginary part differentiation in frequency', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Where the real part of a spectrum comes from'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$, proved with conjugation. Add a symmetry in time and the statement sharpens.'},
+    {t:'wex', rows:[
+      ['Real and even','$X(j\\omega)$ real and even'],
+      ['Real and odd','$X(j\\omega)$ purely imaginary and odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x(t)\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(j\\omega)\\},\\qquad \\Od\\{x(t)\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(j\\omega)\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'Every real signal splits into an even part and an odd part, and the split appears in the spectrum as the split into real and imaginary parts. The two statements above are the special cases in which one of the two parts is absent.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$. By linearity and time reversal its transform is $\\tfrac12[X(j\\omega)+X(-j\\omega)]$, and for a real signal $X(-j\\omega)=X^{*}(j\\omega)$, so that is $\\tfrac12[X+X^{*}]=\\operatorname{Re}\\{X\\}$. The odd part gives $\\tfrac12[X-X^{*}]=j\\operatorname{Im}\\{X\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'t\\,x(t)\\;\\longleftrightarrow\\;j\\frac{\\d}{\\d\\omega}X(j\\omega)', label:'Differentiation in frequency',
+        note:'Differentiate the analysis integral with respect to $\\omega$: each term picks up a factor $-jt$, so $\\d X/\\d\\omega$ is the transform of $-jt\\,x(t)$. Multiplying through by $j$ gives the statement. It is the mirror of differentiation in time, and it is what turns $e^{-at}u(t)$ into $te^{-at}u(t)$ in the table of pairs.'}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'A worked case, opposite', html:'The one-sided exponential $e^{-at}u(t)$ is neither even nor odd. Its even part is $\\tfrac12e^{-a|t|}$, whose transform is $a/(a^{2}+\\omega^{2})$ — real and even, and equal to $\\operatorname{Re}\\{1/(a+j\\omega)\\}$. Its odd part is $\\tfrac12\\operatorname{sgn}(t)e^{-a|t|}$, whose transform is $-j\\omega/(a^{2}+\\omega^{2})$ — purely imaginary and odd, and equal to $j\\operatorname{Im}\\{1/(a+j\\omega)\\}$.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:220,xr:[-3.2,3.2],yr:[-0.65,1.25],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:4});
+      a.curve(t=>t>0?Math.exp(-t):0,{color:C.in,n:3000});
+      a.curve(t=>0.5*Math.exp(-Math.abs(t)),{color:C.mid,n:3000,dash:'6 4'});
+      a.curve(t=>0.5*Math.sign(t)*Math.exp(-Math.abs(t)),{color:C.err,n:3000,dash:'2 4'});
+      a.note(3.1,1.10,'x(t)=e^{-t}u(t)',{anchor:'end',color:C.in,fs:15,tex:true});
+      a.note(-3.1,0.78,'\\Ev\\{x\\}',{anchor:'start',color:C.mid,fs:15,tex:true});
+      a.note(-3.1,0.45,'\\Od\\{x\\}',{anchor:'start',color:C.err,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A one-sided exponential with $a=1$, and the two halves it splits into.'},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.15,1.15],xlabel:'\\omega',ylabel:'\\operatorname{Re}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(w=>1/(1+w*w),{color:C.mid,n:2000}); return a.svg(); },
+          caption:'Real and even, and the transform of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.65,0.65],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(w=>-w/(1+w*w),{color:C.err,n:2000}); return a.svg(); },
+          caption:'Odd, and $j$ times it is the transform of the odd part.'}]
+      ]}]}
+  ]}
+]},
+
 { id:'m5-props-diff', module:'M5', nav:'Properties · differentiation', title:'Differentiation, done under the integral sign', src:'p. 53',
   objective:'Prove the differentiation property correctly and expose the step students reproduce.',
   keywords:'differentiation property jw X integration variable false step under the integral', steps:4, blocks:[
@@ -1129,6 +1174,48 @@ const SC = [
         a.note(5.7,-1.18,'\\operatorname{Im}\\{j\\omega X(j\\omega)\\}',{anchor:'end',color:C.out,fs:14,tex:true});
         return a.svg(); },
         caption:'The spectrum, and the spectrum of the derivative. Multiplying by $j\\omega$ suppresses low frequencies and lifts high ones.'}]}
+  ]}
+]},
+
+{ id:'m5-props-int', module:'M5', nav:'Properties · integration', title:'Integration, and the impulse it leaves behind', src:'p. 53',
+  objective:'State the integration property with its impulse term and show where the term comes from.',
+  keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Dividing by $j\\omega$ is only half the answer'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, size:'lg', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{j\\omega}X(j\\omega)+\\pi X(0)\\,\\delta(\\omega)',
+      label:'Integration',
+      note:'Differentiation multiplies by $j\\omega$, so integration divides by it. The impulse at the origin is the part that has no counterpart in the differentiation property, and it is the part that gets dropped.'},
+    {t:'reveal', at:1, items:[
+      {t:'body', html:'<b>Proof.</b> The running integral is a convolution with the unit step, $\\int_{-\\infty}^{t}x(\\tau)\\d\\tau=x(t)*u(t)$. The step has the transform $u(t)\\leftrightarrow\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$, and by the convolution property the transforms multiply:'},
+      {t:'eq', size:'sm', tex:'X(j\\omega)\\left[\\frac{1}{j\\omega}+\\pi\\delta(\\omega)\\right]=\\frac{X(j\\omega)}{j\\omega}+\\pi X(j\\omega)\\delta(\\omega)=\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)',
+        note:'The last step uses the sampling property of the impulse: multiplying by $\\delta(\\omega)$ keeps only the value at $\\omega=0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'What the impulse term is', html:'$X(0)=\\int x(t)\\d t$ is the total area of the signal. If the area is not zero, the running integral settles at a non-zero constant instead of returning to zero, and a constant has an impulse at $\\omega=0$ in its spectrum. Drop the term and the spectrum you write down belongs to a signal that decays, which is a different signal.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['Area one','A pulse of unit area integrates to a step of height $1$. Its spectrum needs the impulse, and $\\pi X(0)\\delta(\\omega)=\\pi\\delta(\\omega)$ supplies it.'],
+        ['Area zero','A pulse of zero area integrates to something that comes back down to zero. Then $X(0)=0$, the impulse term vanishes on its own, and dividing by $j\\omega$ is the whole answer.'],
+        ['What to do first','Compute the area. It is one integral, and it decides half the result.']
+      ]}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.curve(t=>(t>0&&t<1)?1:0,{color:C.in,n:2600}); return a.svg(); },
+        caption:'Area $1$, so $X(0)=1$.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.curve(t=>(t>0&&t<1)?1:((t>=1&&t<2)?-1:0),{color:C.err,n:2600}); return a.svg(); },
+        caption:'Area $0$, so $X(0)=0$.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(t=>t<=0?0:(t<1?t:1),{color:C.out,n:2600}); return a.svg(); },
+          caption:'Its running integral settles at $1$. The impulse term is needed.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(t=>t<=0?0:(t<1?t:(t<2?2-t:0)),{color:C.out,n:2600}); return a.svg(); },
+          caption:'This one returns to zero. No impulse term.'}]
+      ]}]},
   ]}
 ]},
 
@@ -1769,47 +1856,76 @@ const SC = [
 ]},
 
 { id:'m5-tables', module:'M5', nav:'Property summary', title:'The properties, in one place', src:'p. 62',
-  objective:'Collect the properties and pairs of this module for reference.',
-  keywords:'summary table properties pairs reference list transform pairs sinc convention', steps:2, blocks:[
+  objective:'Collect every property of the continuous-time Fourier transform for reference.',
+  keywords:'summary table properties reference list linearity shift scaling convolution integration symmetry parseval duality', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
-  {t:'title', text:'Everything derived so far, on one page'},
+  {t:'title', text:'Everything the transform obeys, on one page'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Properties'},
+    {t:'sub', text:'Operations on the signal'},
     {t:'wex', rows:[
-      ['Linearity','$a x_1+b x_2\\;\\leftrightarrow\\;a X_1+b X_2$'],
+      ['Linearity','$ax_1(t)+bx_2(t)\\;\\leftrightarrow\\;aX_1(j\\omega)+bX_2(j\\omega)$'],
       ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}X(j\\omega)$'],
       ['Frequency shift','$e^{j\\omega_0t}x(t)\\;\\leftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)$'],
       ['Conjugation','$x^{*}(t)\\;\\leftrightarrow\\;X^{*}(-j\\omega)$'],
-      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$'],
       ['Time reversal','$x(-t)\\;\\leftrightarrow\\;X(-j\\omega)$'],
-      ['Time scaling','$x(at)\\;\\leftrightarrow\\;\\dfrac{1}{|a|}X\\bigl(j\\omega/a\\bigr)$'],
-      ['Differentiation','$\\dfrac{\\d^{n}x}{\\d t^{n}}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
-      ['Duality','$X(t)\\;\\leftrightarrow\\;2\\pi x(-\\omega)$'],
-      ['Convolution','$x*h\\;\\leftrightarrow\\;X\\,H$'],
-      ['Multiplication','$x\\,y\\;\\leftrightarrow\\;\\dfrac{1}{2\\pi}X*Y$'],
-      ['Parseval','$\\displaystyle\\int|x|^{2}\\d t=\\frac{1}{2\\pi}\\int|X|^{2}\\d\\omega$']
+      ['Time and frequency scaling','$x(at)\\;\\leftrightarrow\\;\\dfrac{1}{|a|}X\\bigl(j\\omega/a\\bigr)$'],
+      ['Convolution','$x(t)*h(t)\\;\\leftrightarrow\\;X(j\\omega)H(j\\omega)$'],
+      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\dfrac{1}{2\\pi}X(j\\omega)*Y(j\\omega)$'],
+      ['Duality','$X(t)\\;\\leftrightarrow\\;2\\pi x(-\\omega)$']
     ]}
   ], right:[
-    {t:'sub', text:'Transform pairs'},
+    {t:'sub', text:'Calculus, symmetry and energy'},
+    {t:'wex', rows:[
+      ['Differentiation in time','$\\dfrac{\\d^{n}x(t)}{\\d t^{n}}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
+      ['Integration','$\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau\\;\\leftrightarrow\\;\\dfrac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)$'],
+      ['Differentiation in frequency','$t\\,x(t)\\;\\leftrightarrow\\;j\\dfrac{\\d}{\\d\\omega}X(j\\omega)$'],
+      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Real and even','$X(j\\omega)$ real and even'],
+      ['Real and odd','$X(j\\omega)$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\d\\omega$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'The two rows that carry a condition', html:'<b>Integration</b> is not simply a division by $j\\omega$: the impulse $\\pi X(0)\\delta(\\omega)$ is part of the result whenever the signal has non-zero area, and it is the term that gets dropped. <b>Scaling</b> carries $1/|a|$, with the modulus, so a reversal counts once and not twice.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'How to use it', html:'Almost every problem in this module is one standard pair plus one or two properties. Recognise the shape, look up the pair, apply the properties in the order the signal was built, and check the answer at $\\omega=0$ against the area of the signal.'}]}
+]},
+
+{ id:'m5-pairs', module:'M5', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 62',
+  objective:'Collect every standard continuous-time transform pair the course uses.',
+  keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
+  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Aperiodic signals'},
     {t:'wex', rows:[
       ['Impulse','$\\delta(t)\\;\\leftrightarrow\\;1$'],
       ['Shifted impulse','$\\delta(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}$'],
+      ['Unit step','$u(t)\\;\\leftrightarrow\\;\\dfrac{1}{j\\omega}+\\pi\\delta(\\omega)$'],
+      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{a+j\\omega}$, $a>0$'],
+      ['With a factor $t$','$te^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{2}}$, $a>0$'],
+      ['Repeated pole','$\\dfrac{t^{n-1}}{(n-1)!}e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{n}}$, $a>0$'],
+      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\dfrac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
+      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\dfrac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
+      ['Ideal low-pass band','$\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)\\;\\leftrightarrow\\;1$ on $|\\omega|<W$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Periodic signals and impulse trains'},
+    {t:'wex', rows:[
       ['Constant','$1\\;\\leftrightarrow\\;2\\pi\\delta(\\omega)$'],
       ['Complex exponential','$e^{j\\omega_0t}\\;\\leftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0)$'],
       ['Cosine','$\\cos(\\omega_0t)\\;\\leftrightarrow\\;\\pi\\delta(\\omega-\\omega_0)+\\pi\\delta(\\omega+\\omega_0)$'],
       ['Sine','$\\sin(\\omega_0t)\\;\\leftrightarrow\\;\\dfrac{\\pi}{j}\\delta(\\omega-\\omega_0)-\\dfrac{\\pi}{j}\\delta(\\omega+\\omega_0)$'],
-      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{a+j\\omega}$, $a>0$'],
-      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\dfrac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
-      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\dfrac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)\\;\\leftrightarrow\\;1$ on $|\\omega|<W$'],
-      ['Impulse train','$\\displaystyle\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)$'],
-      ['Periodic signal','$\\displaystyle\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$']
+      ['Any periodic signal','$\\displaystyle\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$'],
+      ['Periodic square wave','$1$ on $|t|<T_1$, $0$ on $T_1<|t|\\le T/2\\;\\leftrightarrow\\;\\displaystyle\\sum_k\\frac{2\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0)$'],
+      ['Impulse train','$\\displaystyle\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)$']
     ]}
   ]},
   {t:'reveal', at:1, items:[
     {t:'note', kind:'warn', head:'Two things to carry with the table', html:'Every sinc above is the <b>unnormalised</b> one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. A table written in the normalised convention divides the argument by $\\pi$, so the two look different while saying the same thing, and copying an argument between them is the commonest way to lose a factor of $\\pi$. The exponential pairs hold only for $a>0$, and the condition belongs on the same line as the result.'}]},
   {t:'reveal', at:2, items:[
-    {t:'note', kind:'ok', head:'How to use a table like this', html:'Almost every problem in this module is one pair from the right-hand column plus one or two properties from the left. Recognise the shape, look up the pair, apply the properties in the order the signal was built, and check the answer at $\\omega=0$ against the area of the signal.'}]}
+    {t:'note', kind:'def', head:'Why the right-hand column is all impulses', html:'A periodic signal is a sum of harmonics, and a single harmonic has all its energy at one frequency. Its transform can therefore only be an impulse there. Every entry on the right is that one fact applied to a different sum, and the $k=0$ entry of the square wave is the mean value $2T_1/T$ scaled by $2\\pi$ in the usual way.'}]}
 ]},
 
 { id:'m5-diffeq', module:'M5', nav:'Systems from a differential equation', title:'From a differential equation to a frequency response', src:'p. 62',

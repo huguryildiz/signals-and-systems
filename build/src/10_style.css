@@ -440,11 +440,14 @@ h3.sub{
 
 /* worked-example ladder */
 .wex{ display:flex; flex-direction:column; gap:9px; }
-.wex-row{ display:grid; grid-template-columns:calc(120px * var(--ts)) 1fr;
+.wex-row{ display:grid; grid-template-columns:calc(136px * var(--ts)) 1fr;
   gap:calc(20px * var(--ts)); align-items:start; }
+/* The key is uppercase mono with wide tracking, so a single long word — DIFFERENTIATION,
+   MULTIPLICATION — is wider than it looks. The column is cut to hold one, and the break
+   is allowed only at a space, so a key never splits mid-word. */
 .wex-k{
   font-family:var(--mono); font-size:calc(12.5px * var(--ts)); letter-spacing:.1em;
-  word-break:break-word;
+  overflow-wrap:normal; word-break:normal; hyphens:none;
   text-transform:uppercase; color:var(--slate); padding-top:6px;
   border-top:1px solid var(--rule);
 }
