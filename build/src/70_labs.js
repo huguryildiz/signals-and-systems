@@ -313,7 +313,7 @@ const LABS = (() => {
           ${isOpen? `<div style="margin-top:6px">
              <div class="small" style="margin-bottom:6px"><b>Criterion.</b> ${p.crit}</div>
              <div style="font-size:18px;line-height:1.55">${r.arg}</div></div>`
-           : `<div class="small">Click to see the criterion and the ${r.v?'argument':'counterexample'}.</div>`}
+           : `<div class="small">Open this result to see the criterion and the ${r.v?'proof':'counterexample'}.</div>`}
         </div>`;
       }).join(''));
       root.querySelector('.counter').textContent=(cur+1)+' / '+CONTENT.SYSTEMS.length;
@@ -329,9 +329,9 @@ const LABS = (() => {
               <button class="btn" data-nav="-1">Previous</button>
               <button class="btn primary" data-nav="1">Next system</button>
               <span class="small counter"></span></div>
-            <div class="note warn" style="margin-top:10px"><span class="note-h">Workflow</span>
-              Never classify by inspection. Apply the formal test: assume, substitute, compare. Or produce a single
-              counterexample. One counterexample settles a property. No number of examples proves it.</div>
+            <div class="note warn" style="margin-top:10px"><span class="note-h">Method</span>
+              To establish a property, apply its definition to every allowed input. To disprove a property,
+              give one explicit counterexample. Examples that pass a test do not prove that the property always holds.</div>
           </div>
           <div class="col"><div class="plist stack" style="gap:12px"></div></div>
         </div>`;
