@@ -9,7 +9,7 @@
 
 <p align="center">
   <strong>Interactive Lecture Artifact and Lecture Notes</strong><br>
-  <sub>A single offline HTML file for a second-year signals course — step through a scene, watch the mathematics build itself.</sub>
+  <sub>A single offline HTML file for an undergraduate signals course — step through a scene, watch the mathematics build itself.</sub>
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@
   <img src="https://img.shields.io/badge/KaTeX%20vendored-16232F?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
   <img src="https://img.shields.io/badge/Playwright-16232F?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
   <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-16232F?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
-  <img src="https://img.shields.io/badge/v1.0%20%C2%B7%20Modules%200--7-16232F?style=for-the-badge" alt="Version v1.0">
+  <img src="https://img.shields.io/badge/v1.6%20%C2%B7%20Modules%200--7-16232F?style=for-the-badge" alt="Version v1.6">
 </p>
 
 ---
@@ -30,7 +30,7 @@
 self-explaining document. It covers the whole course — what a signal is, energy and power, time
 transformations, periodicity, impulses and complex exponentials, system properties, linear
 time-invariant systems through convolution, Fourier series, the continuous- and discrete-time Fourier
-transforms, and sampling and aliasing — in 220 scenes that advance one idea at a time.
+transforms, and sampling and aliasing — in 235 scenes that advance one idea at a time.
 
 Everything runs from one HTML file. No install, no sign-in, no server, no network request at any point.
 Progress is stored on the reader's own device and nowhere else. Beside the artifact sits an A4
@@ -38,7 +38,7 @@ lecture-notes PDF generated from the same content.
 
 The artifact is written as teaching material, not as a report about teaching material: nothing in the
 student view mentions how it was produced. Provenance — source pages, the issue ledger, coverage —
-lives in the instructor edition and in `instructor/`.
+lives in the instructor edition of the artifact and in the working records that are not distributed.
 
 ---
 
@@ -60,17 +60,18 @@ artifact makes that change the interface.
 
 ## Modules
 
-Eight modules and a closing set of three, 220 scenes in all.
+Eight modules and a closing set of three, 235 scenes in all. A module's count includes its two
+question sections: the taxonomy that opens it and the thirty practice questions that close it.
 
 | #   | Module                             | Scenes | What it covers                                                                                                                                                                     |
 | --- | ---------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0   | **Why Signals and Systems?**       | 6      | What a signal represents, what a system does, continuous versus discrete time, the course concept map, how to use the artifact                                                      |
-| 1   | **Signal Foundations**             | 23     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
-| 2   | **Systems and Their Properties**   | 12     | The input–output abstraction, memory, invertibility, causality, BIBO stability, time invariance, linearity, and a classification workflow that puts the six properties in order      |
-| 3   | **Linear Time-Invariant Systems**  | 15     | Impulse response, the representation property, the convolution sum and integral, flip–shift–multiply–add, four worked convolutions including a five-case continuous-time split, convolution properties, LTI property criteria |
-| 4   | **Fourier Series**                 | 37     | The eigenfunction property, the analysis and synthesis equations, existence, the rectangular and sawtooth waves, the envelope and its harmonic samples, series properties, and an LTI system driven by a periodic input |
-| 5   | **Continuous-Time Fourier Transform** | 50  | The limit from series to transform, existence, the standard pairs, the sinc convention, band limits and the inverse relation, every property with its proof, Parseval, convolution and multiplication, modulation, partial fractions and differential equations |
-| 6   | **Discrete-Time Fourier Transform**   | 42  | The same construction in discrete time, 2π-periodicity and where it comes from, the Dirichlet kernel, real spectra that change sign, periodic convolution, the property table, and frequency response from a difference equation |
+| 1   | **Signal Foundations**             | 26     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
+| 2   | **Systems and Their Properties**   | 14     | The input–output abstraction, memory, invertibility, causality, BIBO stability, time invariance, linearity, and a classification workflow that puts the six properties in order      |
+| 3   | **Linear Time-Invariant Systems**  | 18     | Impulse response, the representation property, the convolution sum and integral, flip–shift–multiply–add, four worked convolutions including a five-case continuous-time split, convolution properties, LTI property criteria |
+| 4   | **Fourier Series**                 | 44     | The eigenfunction property, the analysis and synthesis equations, existence, the rectangular and sawtooth waves, the envelope and its harmonic samples, series properties in full with a summary table for each domain, and an LTI system driven by a periodic input |
+| 5   | **Continuous-Time Fourier Transform** | 53  | The limit from series to transform, existence, the standard pairs, the sinc convention, band limits and the inverse relation, every property with its proof, Parseval, convolution and multiplication, modulation, the property table and the table of pairs, partial fractions and differential equations |
+| 6   | **Discrete-Time Fourier Transform**   | 44  | The same construction in discrete time, 2π-periodicity and where it comes from, the Dirichlet kernel, real spectra that change sign, periodic convolution, the property table and the table of pairs, and frequency response from a difference equation |
 | 7   | **Sampling and Aliasing**          | 27     | Impulse-train sampling, spectral replication, the guard band, the sampling theorem and its strict inequality, reconstruction, zero- and first-order holds, aliasing as overlap, anti-aliasing filters, temporal and spatial aliasing |
 | —   | **Closing**                        | 3      | The through-line of the whole course, what each module added, and the full table of conventions and symbols |
 
@@ -184,10 +185,8 @@ notes/
 ├── build.js topdf.js           Lecture-notes pipeline → HTML → PDF
 └── src/                        c1.js · c23.js · render.js · notes.css
 
-verify/                         verify_m1_m3.py · verify_drills.py · drill_common.py · drills_m1–m7.py
+verify/                         verify_m1_m3.py · verify_m4_m6.py · verify_drills.py · drill_common.py · drills_m1–m7.py
 tools/rule_check.py             The editorial banned-phrase scanner
-audit/                          Page inventories, page_titles.tsv, scenes.json  (never distribute)
-instructor/                     PHASE2_REPORT.md, coverage_matrix.md            (never distribute)
 dist/                           The two deliverables
 source/                         Course source material (git-ignored)
 ```
@@ -225,17 +224,21 @@ pages. Nothing else in the repository needs network access.
 
 ## Verification Gates
 
-Six gates. Nothing is done until all six pass, and the number a run printed is the number that gets
-reported.
+Eleven gates. Nothing is done until all eleven pass, and the number a run printed is the number that
+gets reported.
 
 | Gate                    | Command                                          | Must print                       |
 | ----------------------- | ------------------------------------------------ | -------------------------------- |
 | Layout                  | `cd build && node pw.js qa.js`                   | 0 errors, 0 overflow             |
 | Interaction             | `cd build && node pw.js labtest.js`              | `ERRORS: none`                   |
 | Labels                  | `cd build && node pw.js textclash.js`            | `TOTAL COLLISIONS: 0`            |
-| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 223`|
-| Numbers                 | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`          |
-| Drill numbers           | `cd verify && ../.venv/bin/python verify_drills.py` | `559 passed, 0 failed`        |
+| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 235`|
+| Laboratories            | `cd build && node pw.js labwalk.js`              | `STATES WALKED: 1038`, `PROBLEMS: none` |
+| Contents addressing     | `cd build && node pw.js seccheck.js`             | `ADDRESSED: 234`, `ANCHORED: 208` |
+| Notes mathematics       | `cd build && node pw.js ../notes/mathscan.js`    | `LITERAL MATH IN NOTES: 0`       |
+| Numbers, Modules 1–3    | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`          |
+| Numbers, Modules 4–6    | `cd verify && ../.venv/bin/python verify_m4_m6.py` | `26 passed, 0 failed`          |
+| Question numbers        | `cd verify && ../.venv/bin/python verify_drills.py` | `913 passed, 0 failed`        |
 | Wording                 | `tools/rule_check.py` (below)                    | `TOTAL VIOLATIONS: 0`            |
 
 ```bash
@@ -245,8 +248,8 @@ reported.
 
 `qa.js` renders every scene at its last step and measures it against the stage. `labtest.js` drives
 every laboratory control and mode toggle, and walks every drill pager to its last question. `textclash.js` walks every scene at every step and
-tests the glyph box of every figure label against the drawn geometry of that figure. `verify_m1_m3.py`
-recomputes every numerical result, one PASS/FAIL line each. `mathscan.js` reports a formula KaTeX could
+tests the glyph box of every figure label against the drawn geometry of that figure. `verify_m1_m3.py` and
+`verify_m4_m6.py` recompute every numerical result, one PASS/FAIL line each. `mathscan.js` reports a formula KaTeX could
 not parse, mathematics left as literal `$…$`, and any element whose tag name is not valid HTML or SVG.
 `rule_check.py` scans every student-facing string for phrases that would reveal how the material was
 made, and for mathematics inside a figure written as anything other than LaTeX. Its banned list is
@@ -293,9 +296,8 @@ Give students the two files in `dist/`:
 Both are self-contained teaching material. Neither mentions how it was produced and neither shows
 source pages; those appear only in the instructor edition of the artifact, reached with `I`.
 
-`instructor/` holds the continuation brief and the coverage matrix, and `audit/` holds the page-mapping
-inventories. They exist so that any claim in the student material can be traced and checked later. They
-are working records, not teaching material, and they are not handed out.
+The working records that trace a claim in the student material back to a source page are kept out of the
+repository. They are not teaching material, and they are not handed out.
 
 ---
 
@@ -315,30 +317,31 @@ Fixed for the whole course, stated in the artifact where a reader first needs th
 
 The content is built from the course's own handwritten lecture notes, 88 pages. A standard text is used
 as a cross-check for transform conventions, convergence conditions and scale factors only; it is never
-reproduced, quoted or redistributed in any form. `instructor/coverage_matrix.md` maps scenes to source
-pages, and `instructor/PHASE2_REPORT.md` records how the artifact was built and what was found in the source.
+reproduced, quoted or redistributed in any form.
 
 ---
 
 ## Current State
 
-**v1.3 — complete.** Modules 0–7 in 223 scenes, laboratories A–J, and twenty open-ended practice
-questions in every module from 1 to 7 — 140 questions, each with a worked solution that ends by testing
+**v1.6 — complete.** Modules 0–7 in 235 scenes, laboratories A–J, and thirty open-ended practice
+questions in every module from 1 to 7 — 210 questions, each with a worked solution that ends by testing
 its own answer a second way. A module opens with a map of the question types it will ask and closes
-with the questions themselves. 609 numerical checks, zero clipping, zero runtime
-errors, zero label collisions, and the lecture notes beside the artifact.
+with the questions themselves. Every Fourier property the course needs is now both taught and collected
+into a summary: the series properties in a new section of Module 4, the transform properties and the
+standard pairs in a scene each in Modules 5 and 6, and the same tables in Appendix A of the notes.
+989 numerical checks, zero clipping, zero runtime errors, zero label collisions, and the lecture notes
+beside the artifact.
 
 All 88 source pages were read directly before anything was authored from them, and every page is mapped
 to the scenes and questions that carry it. Seventy-seven confirmed issues in the source material are
-recorded in the instructor ledger, and each is stated in the artifact at the point where it occurs — in
+recorded in the issue ledger, and each is stated in the artifact at the point where it occurs — in
 the artifact's own voice, with no reference to a page or a source.
 
-`instructor/PHASE2_REPORT.md` records what was built, what the gates printed, and what remains open.
-
-What the gates printed on the final run: 220 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
+What the gates printed on the final run: 235 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
 with damaged mathematics, 0 literal mathematics in the notes, 1038 laboratory states walked with no
-problem in either theme, 981 numerical checks passed, and 0 wording violations. Both builds are
-byte-reproducible: building twice from unchanged sources gives the same file both times.
+problem in either theme, 234 scenes addressed and 208 anchored to the textbook, 989 numerical checks
+passed, and 0 wording violations. Both builds are byte-reproducible: building twice from unchanged
+sources gives the same file both times.
 
 ---
 
