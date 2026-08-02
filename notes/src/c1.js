@@ -8,15 +8,16 @@ window.C1 = [
 
 /* ---------------- title ---------------- */
 {t:'title', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis',
- sub:'Lecture notes for the whole course: what a signal is, how systems are classified, why linear time-invariant systems are described by a single function, how a signal is decomposed into exponentials, and what sampling does to the result.',
+ sub:'These notes teach the full course. They define signals, classify systems and show why one function describes a linear time-invariant system. They then represent signals with complex exponentials and explain how sampling changes a signal.',
  meta:[['Covers','Chapters 1 to 7, and Appendix A'],['Level','Undergraduate'],
        ['Assumed background','Calculus, complex numbers, basic circuits']]},
 
 {t:'h3', text:'How to read these notes'},
-{t:'p', text:'Each chapter builds on the one before it, and the seven of them are one argument: a signal is a function, a system is a map on functions, an LTI system is described by one function, and the frequency domain is what turns the operation that uses it into a product. Within a chapter, every idea is introduced in the same order: a picture, a definition, an equation, a short derivation, a worked example, and a warning about the mistake that is easiest to make. Worked examples always use five headings: Given, Find, Method, Solution, Check. Do the Check step yourself before reading it.'},
-{t:'p', text:'Two conventions apply everywhere. First, energy and power are <b>normalised</b>: the resistance is taken as $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. Second, the imaginary unit is written $j$.'},
+{t:'p', text:'Read the chapters in order because each chapter uses the one before it. First, a signal is defined as a function. Next, a system is defined as a map on functions. A linear time-invariant system is then described by one function. The frequency-domain chapters use this function to turn convolution into multiplication.'},
+{t:'p', text:'Each topic follows the same teaching order. A picture introduces the purpose of the idea. A definition and an equation state it exactly. A short derivation names each step. A worked example applies the method and ends with a check. Each worked example uses five headings: Given, Find, Method, Solution, Check. Try the Check step before you read it.'},
+{t:'p', text:'Two conventions apply throughout the notes. Energy and power are <b>normalised</b>: the resistance is $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. The imaginary unit is $j$.'},
 
-{t:'p', text:'The contents below carries a third column. An entry such as <b>OW CH1.1&ndash;1.4</b> points into the course textbook, Oppenheim and Willsky, <i>Signals and Systems</i>, second edition, where the same material is developed at length. The <b>OW</b> marker is what tells the two apart, because the two numbering systems are not the same: these notes reach the continuous-time Fourier transform in chapter 5, and the textbook reaches it in chapter 4.'},
+{t:'p', text:'The third contents column gives textbook references. For example, <b>OW CH1.1&ndash;1.4</b> points to the matching material in Oppenheim and Willsky, <i>Signals and Systems</i>, second edition. The <b>OW</b> mark separates a textbook address from a course address. The numbering systems differ: these notes introduce the continuous-time Fourier transform in chapter 5, while the textbook introduces it in chapter 4.'},
 
 {t:'toc', items:[
  ['1','Signals','Energy and power. Shifting, reversal and scaling. Periodicity. Impulses and steps. Complex exponentials.','OW CH1.1&ndash;1.4'],
