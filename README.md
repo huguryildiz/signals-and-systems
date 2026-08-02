@@ -8,19 +8,20 @@
 <h1 align="center">Signals and Systems</h1>
 
 <p align="center">
-  <strong>Interactive Lecture Artifact and Lecture Notes</strong><br>
-  <sub>A single offline HTML file for an undergraduate signals course — step through a scene, watch the mathematics build itself.</sub>
+  <strong>Interactive Lecture Artifact, Laboratories and Lecture Notes</strong><br>
+  <sub>EE 311 · Signals and Systems — a single offline HTML file for an undergraduate signals course. Step through a scene and watch the mathematics build itself.</sub>
 </p>
 
 <p align="center">
-  <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/Read%20it%20online-14707F?style=for-the-badge&logoColor=white" alt="The course online"></a>
-  <a href="dist/Signals_and_Systems.html"><img src="https://img.shields.io/badge/Signals__and__Systems.html-1B1A17?style=for-the-badge&logo=html5&logoColor=F7F2E8" alt="The interactive artifact"></a>
+  <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/signals--and--systems--tedu.vercel.app-080D14?style=for-the-badge&logo=vercel&logoColor=4FBECE" alt="The public page"></a>
   &nbsp;
-  <img src="https://img.shields.io/badge/Offline%20%C2%B7%20one%20file-16232F?style=for-the-badge&logoColor=white" alt="Offline, one file">
-  <img src="https://img.shields.io/badge/KaTeX%20vendored-16232F?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
-  <img src="https://img.shields.io/badge/Playwright-16232F?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
-  <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-16232F?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
-  <img src="https://img.shields.io/badge/v1.6%20%C2%B7%20Modules%200--7-16232F?style=for-the-badge" alt="Version v1.6">
+  <a href="dist/Signals_and_Systems.html"><img src="https://img.shields.io/badge/Signals__and__Systems.html-12314E?style=for-the-badge&logo=html5&logoColor=FAF8F4" alt="The interactive artifact"></a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Offline%20%C2%B7%20one%20file-12314E?style=for-the-badge&logoColor=white" alt="Offline, one file">
+  <img src="https://img.shields.io/badge/KaTeX%20vendored-12314E?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
+  <img src="https://img.shields.io/badge/Playwright-12314E?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
+  <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-12314E?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
+  <img src="https://img.shields.io/badge/v1.7%20%C2%B7%20Modules%200--7-12314E?style=for-the-badge" alt="Version v1.7">
 </p>
 
 ---
