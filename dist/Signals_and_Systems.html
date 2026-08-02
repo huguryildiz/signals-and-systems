@@ -4092,7 +4092,7 @@ const SC = [
   {t:'stack', style:'justify-content:center;flex:1;align-items:flex-start', items:[
     {t:'eyebrow', text:'Interactive learning artifact · Modules 0–3'},
     {t:'title', level:1, text:'Signals and Systems'},
-    {t:'lede', text:'Two ideas carry the whole course. A signal is a function that carries information. A system is a rule that turns one signal into another. Energy, convolution, spectra and sampling are all ways of making these two ideas computable.'},
+    {t:'lede', text:'This course uses two ideas to describe and analyse physical processes. A signal is a function that carries information. A system is a rule that turns an input signal into an output signal. Energy, convolution, spectra and sampling let us calculate with signals and systems.'},
     {t:'raw', html:()=>`<div style="margin:22px 0 26px;width:1360px;max-width:100%">${motifSignalSystem()}</div>`},
     {t:'raw', html:`<div style="display:flex;gap:56px;align-items:flex-start;font-size:16px;color:var(--muted);
         border-top:1px solid var(--rule);padding-top:20px;max-width:1360px">
@@ -4111,13 +4111,13 @@ const SC = [
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'A signal is information written as a function'},
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
-    {t:'body', html:'Two definitions carry the whole idea:'},
+    {t:'body', html:'We use a signal to represent information in a form that we can calculate with. The physical and mathematical definitions describe the same signal in two ways.'},
     {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. A signal is a <b>function of one or more independent variables</b>.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'The first sentence is physical. Something measurable changes: a voltage, a pressure, a pixel intensity. The second sentence is mathematical. That change is written as a function, so it can be differentiated, integrated, shifted and transformed.'},
+      {t:'body', html:'The physical definition tells us what to measure. The measured quantity may be a voltage, a pressure or a pixel intensity. The mathematical definition writes that measurement as a function. We can then differentiate, integrate, shift or transform the function.'},
     ]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Why this matters later', html:'Every operation in this course acts on the <em>function</em>. Every interpretation goes back to the <em>physical variation</em>. Keep both halves. A calculation can be correct and still mean nothing if you drop the physical side.'}
+      {t:'note', kind:'warn', head:'Use both definitions', html:'Each operation in this course acts on the <em>function</em>. The result must still describe the <em>physical variation</em>. A correct calculation is useful only when its physical meaning is also clear.'}
     ]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -4127,7 +4127,7 @@ const SC = [
       a.point(3.2, Math.sin(1.9*3.2)*Math.exp(-0.12*3.2)+0.25*Math.sin(6.4*3.2),{color:C.coral});
       a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:13,color:C.coral,tex:true});
       return a.svg();
-    }, caption:'A one-dimensional signal. The independent variable is time and the dependent variable is the measured quantity. An image is a signal of two space variables, and video adds time as a third.'}
+    }, caption:'This one-dimensional signal uses time as its independent variable. The measured quantity is the dependent variable. An image instead uses two space variables. Video uses two space variables and time.'}
   ]}
 ]},
 
@@ -4137,9 +4137,9 @@ const SC = [
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 11'},
   {t:'title', text:'A system is a rule, not a box'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b> that turns input signals into output signals. It is a “black box” that maps one signal to another <b>deterministically</b>.'},
-    {t:'reveal', at:1, items:[{t:'body', html:'“Deterministically” is the word that does the work here. The same input, given twice, must give the same output. Without that, the six properties of Module 2 could not be tested at all.'}]},
-    {t:'reveal', at:2, items:[{t:'note', kind:'warn', head:'A common misreading', html:'The block diagram is not a circuit. It describes a <em>map between function spaces</em>: $S:\\;x\\mapsto y$. An amplifier, a numerical filter and a pencil-and-paper differentiator can all be the same system.'}]}
+    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b>. It applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always produces the same output.'},
+    {t:'reveal', at:1, items:[{t:'body', html:'The deterministic rule lets us test the system. We can apply an input, calculate the output and compare that output with the requirements for the six properties in Module 2.'}]},
+    {t:'reveal', at:2, items:[{t:'note', kind:'warn', head:'Read the diagram as a rule', html:'The block diagram does not have to represent a circuit. It represents a <em>map between function spaces</em>: $S:\\;x\\mapsto y$. A function space is a set of possible signals. The map assigns one output signal to each input signal. An amplifier, a numerical filter and a differentiator can therefore represent the same rule.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:660,h:300,items:[
       {t:'arrow',x1:60,y1:90,x2:210,y2:90}, {t:'box',x:210,y:52,w:180,h:76,label:'CT system'},
@@ -4150,7 +4150,7 @@ const SC = [
       {t:'arrow',x1:390,y1:220,x2:560,y2:220},
       {t:'text',x:120,y:206,label:'x[n]',tex:true,fs:17}, {t:'text',x:470,y:206,label:'y[n]',tex:true,fs:17},
       {t:'text',x:120,y:242,label:'input',fs:12}, {t:'text',x:470,y:242,label:'output',fs:12}
-    ]}), caption:'The same idea in continuous time and in discrete time. Module 2 turns it into six questions with definite answers. Module 3 shows that two of those answers, linear and time invariant, reduce the whole description to one function.'}
+    ]}), caption:'A system maps an input to an output in continuous time or discrete time. Module 2 tests six system properties. Module 3 uses two of them, linearity and time invariance, to describe a system with one function.'}
   ]}
 ]},
 
@@ -4159,13 +4159,13 @@ const SC = [
   keywords:'continuous discrete time stem MATLAB integer index', steps:1, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Continuous time and discrete time'},
-  {t:'lede', text:'The course runs two parallel tracks. Almost every result appears twice, once with an integral and once with a sum. The few results that do not translate are the interesting ones.'},
+  {t:'lede', text:'We need separate models for signals defined at every time and signals defined only at integer times. Most continuous-time results use integrals. The matching discrete-time results use sums.'},
   {t:'grid', cols:2, gap:'52px', items:[
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> $x(t)$, defined for every $t\\in\\mathbb{R}$. Drawn as an unbroken curve.'} ],
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> $x[n]$, defined only at integers $n\\in\\mathbb{Z}$. Drawn with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal. The space between them is not.'} ]
+    [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
+    [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> The signal $x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its samples with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal values. No signal value exists between adjacent integers.'} ]
   ]},
   {t:'reveal', at:1, items:[
-    {t:'note', kind:'warn', head:'Where the two tracks really differ', html:'There are three places, and they are worth learning now. (i) A discrete-time sinusoid need not be periodic. (ii) Discrete-time frequency only has meaning modulo $2\\pi$. (iii) The discrete-time Fourier transform is itself $2\\pi$-periodic. Everything else translates directly.'}
+    {t:'note', kind:'warn', head:'Keep the two models separate', html:'Three later results differ. (i) A discrete-time sinusoid need not be periodic. (ii) Discrete-time frequency is defined modulo $2\\pi$. This means that frequencies separated by an integer multiple of $2\\pi$ describe the same sequence. (iii) The discrete-time Fourier transform is $2\\pi$-periodic.'}
   ]}
 ]},
 
@@ -4177,13 +4177,13 @@ const SC = [
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
     {t:'fig', svg:conceptMap}
   ], right:[
-    {t:'lede', text:'Each ring depends on the one inside it. Nothing here can be safely skipped.'},
-    {t:'body', html:`<p><b>M1 · Signals.</b> What a signal is, how much energy or power it carries, how it behaves under shifting, reversal and scaling, and when it repeats.</p>
-      <p><b>M2 · Systems.</b> Six properties, each with a formal test. Two of them, linearity and time invariance, are needed for everything that follows.</p>
-      <p><b>M3 · LTI systems.</b> A system with both of those properties is described completely by one function, $h$, and one operation, convolution.</p>
-      <p><b>M4+ · Fourier and sampling.</b> Complex exponentials are the eigenfunctions of LTI systems. This one fact turns convolution into multiplication and opens the frequency domain. It also explains what is lost when a continuous signal is sampled.</p>`},
+    {t:'lede', text:'The course uses each earlier topic to develop the next one. The order below shows these dependencies.'},
+    {t:'body', html:`<p><b>M1 · Signals.</b> Define a signal first. Then calculate its energy or power, transform its time axis and test whether it is periodic.</p>
+      <p><b>M2 · Systems.</b> Test six system properties. Linearity and time invariance are required for the method in the next module.</p>
+      <p><b>M3 · LTI systems.</b> Use the impulse response $h$ to describe a linear time-invariant system. Use convolution to calculate its output.</p>
+      <p><b>M4+ · Fourier and sampling.</b> Represent signals with complex exponentials. An LTI system changes each complex exponential only by a scale factor. This property turns convolution into multiplication in the frequency domain. Sampling then shows when a discrete signal keeps or loses information from a continuous signal.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'What is covered here', html:'Modules 0 to 7 are complete, with ten laboratories, A to J, and twenty worked practice questions in every module from 1 onwards.'}
+      {t:'note', kind:'ok', head:'Course coverage', html:'The course includes Modules 0 to 7 and ten laboratories, A to J. Every module from 1 onwards also includes twenty worked practice questions.'}
     ]}
   ]}
 ]},
@@ -4195,35 +4195,24 @@ const SC = [
   {t:'title', text:'How to use this artifact'},
   {t:'grid', cols:2, gap:'24px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
     [{t:'card', head:'Navigation', items:[
-      {t:'body', html:`<p><kbd>→</kbd> / <kbd>space</kbd> advances one <em>reveal state</em>, then one scene. <kbd>←</kbd> steps back.
-        <kbd>↑</kbd> <kbd>↓</kbd> jump whole scenes. <kbd>Home</kbd> returns to the title.</p>
-        <p><kbd>M</kbd> opens the module map, <kbd>/</kbd> the full-text search, <kbd>G</kbd> the notation glossary, <kbd>?</kbd> this help.</p>
-        <p><kbd>L</kbd> toggles lecture / self-study, <kbd>I</kbd> student / instructor, <kbd>R</kbd> reduced motion.</p>`}
+      {t:'body', html:`<p>Use <kbd>→</kbd> or <kbd>space</kbd> for the next reveal state, then the next scene. Use <kbd>←</kbd> to go back one state. <kbd>↑</kbd> and <kbd>↓</kbd> move by a whole scene. <kbd>Home</kbd> returns to the title.</p>
+        <p><kbd>M</kbd> opens the map, <kbd>/</kbd> search, <kbd>G</kbd> the glossary and <kbd>?</kbd> help. <kbd>L</kbd> changes the study mode, <kbd>I</kbd> changes the edition and <kbd>R</kbd> reduces motion.</p>`}
     ]}],
     [{t:'card', head:'Two modes', items:[
-      {t:'body', html:`<p><b>Lecture mode</b> steps back into the last reveal state of the previous scene, so a derivation on screen stays complete. <b>Self-study mode</b> always re-enters a scene at its first state.</p>`}
+      {t:'body', html:`<p><b>Lecture mode</b> returns to the last reveal state of the previous scene, so a completed derivation stays complete. <b>Self-study mode</b> returns to the first state so you can work through the scene again.</p>`}
     ]}],
     [{t:'card', head:'Two editions', items:[
-      {t:'body', html:`<p>The <b>student edition</b> hides full solutions until they are requested and shows no teaching commentary. The <b>instructor edition</b> exposes presenter notes, misconception warnings and every solution immediately.</p>`}
+      {t:'body', html:`<p>The <b>student edition</b> hides solutions until you request them. It also hides teaching comments. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.</p>`}
     ]}],
     [{t:'card', head:'How the material is organised', items:[
-      {t:'body', html:`<p>Each module builds only on the modules before it. Inside a module, a concept is first shown
-        visually. It is then defined, written as an equation, and derived one step at a time. After that it is used in a
-        worked example and tested with a short check. Worked examples always use the same five headings:
-        Given, Find, Method, Solution, Check.</p>
-        <p>Every scene carries its address in this course: chapter, section, scene. It sits in the band
-        above the title. Many scenes carry a second mark there, an open book with a number beside it,
-        such as <b>CH1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
-        <em>Signals and Systems</em>, second edition, where the same material is developed at length.
-        The book is what tells the two apart, because the two numbering systems are not the same: this
-        course reaches the continuous-time Fourier transform in chapter 5, and the textbook reaches it
-        in chapter 4.</p>`}
+      {t:'body', html:`<p>Each module uses earlier material. A topic starts with a picture and a definition. An equation and a step-by-step derivation follow. A worked example then uses Given, Find, Method, Solution and Check.</p>
+        <p>The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition. The open book separates the two numbering systems.</p>`}
     ]}],
     [{t:'card', head:'Conventions fixed for the whole artifact', items:[
-      {t:'body', html:`<p>Energy and power are <b>normalised</b>, with $R=1\\ \\Omega$. The imaginary unit is written $j$. Angular frequency $\\omega$ is in rad/s in continuous time and in rad/sample in discrete time. Frequency in hertz is always written as such.</p>`}
+      {t:'body', html:`<p>Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$. The imaginary unit is $j$. Angular frequency $\\omega$ uses rad/s in continuous time and rad/sample in discrete time. Frequency in hertz is labelled explicitly.</p>`}
     ]}],
     [{t:'card', head:'Privacy and offline use', items:[
-      {t:'body', html:`<p>The artifact is a single self-contained file. It makes no network requests, collects no analytics, and stores optional progress only on this device. If browser storage is unavailable the artifact still runs and simply forgets progress when closed.</p>`},
+      {t:'body', html:`<p>The artifact is one self-contained file. It does not use the network or collect analytics. It stores progress only on this device. Without browser storage, it runs but does not keep progress after you close it.</p>`},
       {t:'raw', html:'<div><button class="btn" data-act="reset">Reset all local progress</button></div>'}
     ]}]
   ]}
