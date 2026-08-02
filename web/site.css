@@ -291,5 +291,5 @@ body > *:not(.page-bg){ position:relative; z-index:1; }
    edges were. The backdrop is turned down instead — once at the canvas, so
    every band gets the same treatment and no element carries a panel it does
    not otherwise have. */
-.page-bg{ opacity:.52; }
+.page-bg{ opacity:.42; }
 .hero__lead, .hero__title, .eyebrow, .facts{ text-shadow:0 1px 22px rgba(4,5,15,.95); }
