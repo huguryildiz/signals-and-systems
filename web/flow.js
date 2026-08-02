@@ -1,8 +1,13 @@
 /* ==========================================================================
    web/flow.js — the hero backdrop.
 
-   Adapted from Radiant Shaders #01, "Flow Field with Particle Trails" by Paul
-   Bakaus, MIT. Two things are changed. The palette is this course's own signal
+   Adapted from Radiant Shaders #01, "Flow Field with Particle Trails".
+
+       Copyright (c) Paul Bakaus — https://github.com/pbakaus/radiant
+       Released under the MIT licence. This notice travels with the code, which
+       is where the licence asks for it.
+
+   Two things are changed. The palette is this course's own signal
    semantics — cyan for an input, amber for a system, green for an output,
    violet for an intermediate step — and a constant drift carries every
    particle left to right on top of the field, so the picture reads as signals
