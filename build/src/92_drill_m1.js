@@ -423,9 +423,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
    ---------------------------------------------------------------------- */
 
 { id:'D1-21', module:'M1', type:'full', src:'MT1 Q1',
-  stem:'Work the following parts in order. Parts (c) to (e) all use the signal $x(t)$ plotted below.',
+  stem:'Work the following parts in order. Parts (b) to (e) all use the signal $x(t)$ plotted below.',
   parts:['Is $x[n]=\\cos\\!\\left(\\tfrac{4\\pi}{9}n-2\\right)$ periodic? If so, find its fundamental period.',
-         'Calculate the energy $E_\\infty$ of the $x(t)$ signal plotted below.',
+         'Calculate the energy $E_\\infty$ of $x(t)$.',
          'Plot $y(t)=x\\!\\left(3-\\tfrac{t}{2}\\right)$.',
          'Plot $z(t)=\\Ev\\{y(t)\\}$, the even part of the $y(t)$ signal of part (c).',
          'Evaluate $\\int_{-\\infty}^{\\infty}z(t)\\{\\delta(t+4)+\\delta(t-8)\\}\\,\\d t$, with $z(t)$ as defined in part (d).'],
@@ -456,7 +456,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['Is the signal $x(t)=2je^{j5t}$ periodic? If so, what is its fundamental period?',
          'Determine the energy $E_\\infty$ of the signal $x[n]=3^{-n}u[n]$.',
          'Generate a plot of $y(-3t+2)$ using the given signal $y(t)$.',
-         'Plot the even part of the $y(t)$ signal given below.',
+         'Plot the even part of $y(t)$.',
          'Evaluate $\\int_{-\\infty}^{\\infty}e^{-t}\\delta(2t-4)\\,\\d t$.'],
   figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-3.2,3.2],yr:[-1.6,3.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
       pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
@@ -485,7 +485,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['Sketch and label the signal $x_1[n]=\\sum_{k=-\\infty}^{\\infty}\\{\\delta[n-3k]-\\delta[n+1+4k]\\}$.',
          'Is the $x_1[n]$ of part (a) periodic? If so, what is its fundamental period?',
          'For the $x_1[n]$ of part (a), plot the odd part of $x_2[n]=\\begin{cases}x_1[n],&-3\\le n\\le3\\\\0,&\\text{otherwise.}\\end{cases}$',
-         'Calculate the energy $E_\\infty$ of the $x_3(t)$ signal plotted below.',
+         'Calculate the energy $E_\\infty$ of $x_3(t)$.',
          'For the $x_3(t)$ of part (d), evaluate $\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t+0.6)\\,\\d t$.'],
   figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.2,3.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',
       pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
@@ -546,9 +546,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   teach:'These two are worth showing side by side. Students learn the rule as "check whether $\\omega_0/2\\pi$ is rational" and then apply it without noticing that a missing $\\pi$ decides the case. Ask which of the two a sampled continuous-time cosine would give.' },
 
 { id:'D1-26', module:'M1', type:'full', src:'MT1 Q1',
-  stem:'Work the following parts in order. Parts (c) to (e) all use the signal $x(t)$ plotted below.',
+  stem:'Work the following parts in order. Parts (b) to (e) all use the signal $x(t)$ plotted below.',
   parts:['Is $x[n]=\\sin\\!\\left(\\tfrac{6\\pi}{7}n+\\tfrac{\\pi}{4}\\right)$ periodic? If so, find its fundamental period.',
-         'Calculate the energy $E_\\infty$ of the $x(t)$ signal plotted below.',
+         'Calculate the energy $E_\\infty$ of $x(t)$.',
          'Plot $y(t)=x(2t+4)$.',
          'Plot $z(t)=\\Od\\{y(t)\\}$, the odd part of the $y(t)$ signal of part (c).',
          'Evaluate $\\int_{-\\infty}^{\\infty}z(t)\\delta(3t+3)\\,\\d t$, with $z(t)$ as defined in part (d).'],
@@ -579,8 +579,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['Is the signal $x(t)=5e^{j\\frac{3\\pi}{4}t}$ periodic? If so, what is its fundamental period?',
          'Determine the energy $E_\\infty$ of the signal $x[n]=\\left(\\tfrac12\\right)^{n}u[n-2]$.',
          'Generate a plot of $y(2t-1)$ using the given signal $y(t)$.',
-         'Plot the even part of the $y(t)$ signal given below.',
-         'Evaluate $\\int_{-\\infty}^{\\infty}y(t)\\delta(2t-1)\\,\\d t$, with $y(t)$ as given below.'],
+         'Plot the even part of $y(t)$.',
+         'Evaluate $\\int_{-\\infty}^{\\infty}y(t)\\delta(2t-1)\\,\\d t$.'],
   figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-3.2,3.2],yr:[-1.6,1.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
       pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:0.5});
     a.poly([[-3.2,0],[0,0],[0,1],[2,-1],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
@@ -608,7 +608,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['Sketch and label the signal $x_1[n]=\\sum_{k=-\\infty}^{\\infty}\\{\\delta[n-4k]-\\delta[n+1+6k]\\}$.',
          'Is the $x_1[n]$ of part (a) periodic? If so, what is its fundamental period?',
          'For the $x_1[n]$ of part (a), plot the odd part of $x_2[n]=\\begin{cases}x_1[n],&-4\\le n\\le4\\\\0,&\\text{otherwise.}\\end{cases}$',
-         'Calculate the energy $E_\\infty$ of the $x_3(t)$ signal plotted below.',
+         'Calculate the energy $E_\\infty$ of $x_3(t)$.',
          'For the $x_3(t)$ of part (d), evaluate $\\int_{-\\infty}^{\\infty}x_3(t)\\delta(t-1.5)\\,\\d t$.'],
   figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.2,3.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',
       pad:{l:52,r:28,t:30,b:38},xstep:1,ystep:1});
