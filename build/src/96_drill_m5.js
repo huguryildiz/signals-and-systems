@@ -49,7 +49,13 @@ CONTENT.DRILLTYPES.M5 = [
             'Draw the shifted copies and check whether they overlap. Overlap is where information is lost.',
             'An ideal filter multiplies the spectrum by $1$ inside its band and by $0$ outside it.',
             'A chain is done one stage at a time, never all at once, and the final spectrum is checked against the original at one frequency.'],
-    go:'m5-am' }
+    go:'m5-am' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'Several transforms under one statement, or one signal carried through a whole chain.',
+    method:['Name the standard pair each part is built on before transforming anything. Almost every part is a table entry plus one property.',
+            'Where several transforms are asked for, do the simplest first and use it for the others: a duality, a shift or a modulation usually turns one answer into the next.',
+            'In a chain, take one stage at a time and draw the spectrum after each. Overlap between shifted copies is where information is lost, and it is visible only in the drawing.',
+            'Check at one frequency. $X(j0)$ is the area under $x(t)$, and Parseval turns an energy in time into an energy in frequency.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -440,7 +446,232 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-14,0],[-2,0],[-2,1],[2,1],[2,0],[14,0]],{color:C.out});
     return a.svg();},
   err:'Multiplying by $\\cos(20t)$ and reporting that the band at $+10$ also lands inside $|\\omega|<2$, by shifting it only once instead of tracking both the $+20$ and $-20$ shift of every one of the four bands in $S$.',
-  teach:'This is the question that shows why the receiver multiplies by the <em>same</em> carrier the transmitter used for the wanted channel and not the other one. Ask what the output would be if the receiver used $\\cos(10t)$ instead, to see $x_1$ recovered and $x_2$ rejected by the identical argument.' }
+  teach:'This is the question that shows why the receiver multiplies by the <em>same</em> carrier the transmitter used for the wanted channel and not the other one. Ask what the output would be if the receiver used $\\cos(10t)$ instead, to see $x_1$ recovered and $x_2$ rejected by the identical argument.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. Several transforms under one statement, or one
+   signal carried through a whole chain.
+   ---------------------------------------------------------------------- */
+
+{ id:'D5-21', module:'M5', type:'full', src:'MT2 Q3',
+  stem:'Determine the Fourier transforms of the following signals and plot their corresponding magnitude spectra.',
+  parts:['$x(t)=\\cos(2t)\\,u(t)$.',
+         '$x(t)=u(t+3)-u(t-3)$.',
+         '$x(t)=e^{-t(2+j10\\pi)}u(t)$.'],
+  sol:'<b>Given.</b> Three one-sided or finite signals.<br>'
+     +'<b>Find.</b> Their transforms and magnitude spectra.<br>'
+     +'<b>Method.</b> Each is a table entry plus one property. Part (a) needs the transform of the step, part (b) is a plain rectangle, part (c) is a decaying exponential with a complex rate.<br>'
+     +'<b>Solution — part (a).</b> Write the cosine as two exponentials and use $u(t)\\leftrightarrow\\pi\\delta(\\omega)+\\dfrac{1}{j\\omega}$ with the frequency-shift property:$$\\cos(2t)u(t)=\\tfrac12e^{j2t}u(t)+\\tfrac12e^{-j2t}u(t),$$$$X(j\\omega)=\\frac{\\pi}{2}\\left[\\delta(\\omega-2)+\\delta(\\omega+2)\\right]+\\frac12\\left[\\frac{1}{j(\\omega-2)}+\\frac{1}{j(\\omega+2)}\\right].$$Combining the two fractions,$$X(j\\omega)=\\frac{\\pi}{2}\\left[\\delta(\\omega-2)+\\delta(\\omega+2)\\right]+\\frac{j\\omega}{4-\\omega^{2}}.$$'
+     +'<b>Solution — part (b).</b> A rectangle of height $1$ on $|t|<3$:$$X(j\\omega)=\\int_{-3}^{3}e^{-j\\omega t}\\,\\d t=\\frac{2\\sin(3\\omega)}{\\omega}=6\\,\\frac{\\sin(3\\omega)}{3\\omega},$$a sinc with its first zeros at $\\omega=\\pm\\tfrac{\\pi}{3}$ and a peak of $6$ at the origin.<br>'
+     +'<b>Solution — part (c).</b> The exponent is $-2t-j10\\pi t$, so this is $e^{-2t}u(t)$ multiplied by $e^{-j10\\pi t}$:$$X(j\\omega)=\\frac{1}{2+j(\\omega+10\\pi)},\\qquad|X(j\\omega)|=\\frac{1}{\\sqrt{4+(\\omega+10\\pi)^{2}}},$$the usual one-pole magnitude, but centred at $\\omega=-10\\pi$ instead of at the origin.<br>'
+     +'<b>Check.</b> In (b), $X(j0)=6$ must be the area under the rectangle, and it is: height $1$ times width $6$. In (c) the peak value is $\\tfrac12$ at $\\omega=-10\\pi$, which is what $\\left|X\\right|$ gives when the bracket vanishes, and it matches the area $\\int_0^{\\infty}e^{-2t}\\,\\d t=\\tfrac12$ of the unmodulated signal. In (a) the impulses carry the average of the one-sided cosine, and the rational part is odd in $\\omega$, as the transform of a real signal that is neither even nor odd must be in its imaginary part.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-1,6.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+      a.curve(w=>Math.abs(w)<1e-6?6:2*Math.sin(3*w)/w,{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-46,-16],yr:[-0.05,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
+      pad:{l:56,r:26,t:28,b:38},xstep:10,ystep:0.25});
+      a.curve(w=>1/Math.sqrt(4+Math.pow(w+10*Math.PI,2)),{color:C.mid}); return a.svg();})()),
+  err:'Dropping the impulses in part (a) and reporting only $\\dfrac{j\\omega}{4-\\omega^{2}}$. The step has a non-zero average, so its transform carries an impulse at the origin, and shifting that impulse to $\\pm2$ is what the two carriers do to it.',
+  teach:'Part (c) is the one to slow down on. Ask students to read the exponent before they reach for a formula: separating $-2t$ from $-j10\\pi t$ turns an unfamiliar expression into a table entry and a shift, and no integration is needed at all.' },
+
+{ id:'D5-22', module:'M5', type:'full', src:'MT2 Q3',
+  stem:'Please solve the following problems. <em>Hint: if $x(t)\\xrightarrow{\\mathcal{F}}X(j\\omega)=X(\\omega)$, then $X(t)\\xrightarrow{\\mathcal{F}}2\\pi x(-\\omega)$.</em>',
+  parts:['Determine the Fourier transform of $x(t)=e^{-3|t|}$.',
+         'Determine the Fourier transform of $y(t)=\\dfrac{6}{9+t^{2}}$.',
+         'Calculate the total energy in $y(t)$, which is defined in part (b).'],
+  sol:'<b>Given.</b> A two-sided decaying exponential, and a rational signal that is its transform read as a function of time.<br>'
+     +'<b>Find.</b> Two transforms and one energy.<br>'
+     +'<b>Method.</b> Compute (a) directly, then use duality for (b) rather than integrating again. For (c), Parseval turns the energy into an integral of a decaying exponential.<br>'
+     +'<b>Solution — part (a).</b> Split the integral at the origin:$$X(j\\omega)=\\int_{-\\infty}^{0}e^{3t}e^{-j\\omega t}\\,\\d t+\\int_{0}^{\\infty}e^{-3t}e^{-j\\omega t}\\,\\d t=\\frac{1}{3-j\\omega}+\\frac{1}{3+j\\omega}=\\frac{6}{9+\\omega^{2}}.$$It is real and even, as the transform of a real even signal must be.<br>'
+     +'<b>Solution — part (b).</b> Part (a) says $X(\\omega)=\\dfrac{6}{9+\\omega^{2}}$, and $y(t)$ is exactly that function with $t$ in place of $\\omega$. By duality,$$Y(j\\omega)=2\\pi x(-\\omega)=2\\pi e^{-3|-\\omega|}=2\\pi e^{-3|\\omega|}.$$'
+     +'<b>Solution — part (c).</b> By Parseval,$$E=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|Y(j\\omega)|^{2}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}4\\pi^{2}e^{-6|\\omega|}\\,\\d\\omega=2\\pi\\cdot\\frac{2}{6}=\\frac{2\\pi}{3}\\approx2.094\\;\\text{J}.$$'
+     +'<b>Check.</b> Compute the energy in the time domain instead:$$E=\\int_{-\\infty}^{\\infty}\\left(\\frac{6}{9+t^{2}}\\right)^{2}\\d t=36\\int_{-\\infty}^{\\infty}\\frac{\\d t}{(9+t^{2})^{2}}=36\\cdot\\frac{\\pi}{2\\cdot3^{3}}=\\frac{2\\pi}{3},$$using $\\int_{-\\infty}^{\\infty}\\dfrac{\\d t}{(a^{2}+t^{2})^{2}}=\\dfrac{\\pi}{2a^{3}}$. The two agree. A second check: $Y(j0)=2\\pi$ must be the area under $y(t)$, and $\\int\\dfrac{6\\,\\d t}{9+t^{2}}=6\\cdot\\dfrac{\\pi}{3}=2\\pi$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.08,0.78],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
+      a.curve(w=>6/(9+w*w),{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.7,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:1,ystep:2});
+      a.curve(w=>2*Math.PI*Math.exp(-3*Math.abs(w)),{color:C.out}); return a.svg();})()),
+  err:'Answering (b) with $e^{-3|\\omega|}$ and losing the factor $2\\pi$. Duality is not a symmetry of the transform pair: going from $X(t)$ back to a signal costs a factor of $2\\pi$, and it shows up in the energy as a factor of $4\\pi^{2}$.',
+  teach:'Ask why the reflection $x(-\\omega)$ in the duality statement does nothing here. Because $x$ is even, and it is worth saying so explicitly — a student who never meets an odd example will assume the reflection is decoration.' },
+
+{ id:'D5-23', module:'M5', type:'full', src:'MT2 Q3',
+  stem:'Please solve the following problems.',
+  parts:['Determine the inverse Fourier transform of $X(j\\omega)=\\dfrac{j\\omega+7}{(j\\omega)^{2}+5j\\omega+6}$.',
+         'Determine the Fourier transform of $x(t)=e^{-3(t+2)}\\cos(4t)\\,u(t+2)$.',
+         'Determine the Fourier transform of $x(t)=\\sum_{k=0}^{\\infty}\\left(\\tfrac14\\right)^{k}\\delta(t-2k)$.'],
+  sol:'<b>Given.</b> A rational spectrum, an advanced damped cosine, and a decaying impulse train.<br>'
+     +'<b>Find.</b> One inverse transform and two forward ones.<br>'
+     +'<b>Method.</b> Partial fractions for (a); recognise (b) as a standard pair plus a time shift; sum a geometric series for (c).<br>'
+     +'<b>Solution — part (a).</b> Write $s=j\\omega$. The denominator factors as $(s+2)(s+3)$, so$$X=\\frac{s+7}{(s+2)(s+3)}=\\frac{A}{s+2}+\\frac{B}{s+3},$$with $A=\\dfrac{-2+7}{-2+3}=5$ and $B=\\dfrac{-3+7}{-3+2}=-4$. Each term inverts to a one-sided exponential:$$x(t)=5e^{-2t}u(t)-4e^{-3t}u(t).$$'
+     +'<b>Solution — part (b).</b> Let $g(t)=e^{-3t}\\cos(4t)u(t)$, a standard pair:$$G(j\\omega)=\\frac{3+j\\omega}{(3+j\\omega)^{2}+16}.$$The given signal is $g(t+2)$, an advance of two seconds, so$$X(j\\omega)=e^{j2\\omega}\\,\\frac{3+j\\omega}{(3+j\\omega)^{2}+16}.$$'
+     +'<b>Solution — part (c).</b> Transform term by term, using $\\delta(t-t_0)\\leftrightarrow e^{-j\\omega t_0}$:$$X(j\\omega)=\\sum_{k=0}^{\\infty}\\left(\\tfrac14\\right)^{k}e^{-j2k\\omega}=\\sum_{k=0}^{\\infty}\\left(\\tfrac14e^{-j2\\omega}\\right)^{k}=\\frac{1}{1-\\tfrac14e^{-j2\\omega}},$$which converges because $\\left|\\tfrac14e^{-j2\\omega}\\right|=\\tfrac14<1$.<br>'
+     +'<b>Check.</b> In (a), $x(0^{+})=5-4=1$, which agrees with $X\\to\\dfrac{1}{s}$ as $s\\to\\infty$ — a spectrum falling off like $1/\\omega$ belongs to a signal with a unit jump at the origin. In (b) the magnitude is unchanged by the advance, $|X|=|G|$, since $\\left|e^{j2\\omega}\\right|=1$; only the phase tilts, by $2\\omega$. In (c), $X(j0)=\\dfrac{1}{1-\\tfrac14}=\\tfrac43$ must be the total weight of the impulses, and $\\sum_k\\left(\\tfrac14\\right)^{k}=\\tfrac43$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.4],yr:[-0.15,1.15],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',
+      pad:{l:52,r:26,t:28,b:38},xstep:1,ystep:0.5});
+      a.curve(t=>t<0?0:5*Math.exp(-2*t)-4*Math.exp(-3*t),{color:C.out}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,8.6],yr:[-0.15,1.15],xlabel:'t\\;(\\text{s})',ylabel:'x(t)\\;\\text{of part (c)}',
+      pad:{l:66,r:26,t:28,b:38},xstep:2,ystep:0.5});
+      a.impulse(0,1,{color:C.in}); a.impulse(2,0.25,{color:C.in});
+      a.impulse(4,0.0625,{color:C.in}); a.impulse(6,0.015625,{color:C.in});
+      return a.svg();})()),
+  err:'Reading the shift in part (b) as a delay and writing $e^{-j2\\omega}$. The step is $u(t+2)$, so the signal starts at $t=-2$: it has been advanced, and the exponential factor carries a plus sign.',
+  teach:'Part (a) is worth checking by re-combining the partial fractions. Students who never verify the algebra carry a sign error into a plausible-looking pair of exponentials, and the initial-value check $x(0^{+})=1$ catches it in one line.' },
+
+{ id:'D5-24', module:'M5', type:'full', src:'MT2 Q4',
+  stem:'Let $$x(t)=\\cos(t)+\\cos(3t)+2\\cos(5t)$$be an input to the LTI system which has the following impulse response,$$h(t)=\\pi\\,\\frac{\\sin(2t)}{\\pi t}\\,\\frac{\\sin(4t)}{\\pi t}.$$Let $y(t)=x(t)*h(t)$ be the output signal.',
+  parts:['Plot the Fourier transform of $x(t)$.',
+         'Plot the Fourier transform of $h(t)$.',
+         'Plot the Fourier transform of $y(t)$, and give $y(t)$.'],
+  sol:'<b>Given.</b> Three cosines driving a filter built as the product of two sincs.<br>'
+     +'<b>Find.</b> The three spectra and the output signal.<br>'
+     +'<b>Method.</b> A product in time is a convolution in frequency divided by $2\\pi$. Convolving two rectangles gives a trapezoid, and its shape is what the filter does.<br>'
+     +'<b>Solution — part (a).</b> Each cosine gives a pair of impulses of weight $\\pi A$:$$X(j\\omega)=\\pi\\left[\\delta(\\omega-1)+\\delta(\\omega+1)\\right]+\\pi\\left[\\delta(\\omega-3)+\\delta(\\omega+3)\\right]+2\\pi\\left[\\delta(\\omega-5)+\\delta(\\omega+5)\\right].$$'
+     +'<b>Solution — part (b).</b> Write $g_1(t)=\\dfrac{\\sin(2t)}{\\pi t}$ and $g_2(t)=\\dfrac{\\sin(4t)}{\\pi t}$, whose transforms are rectangles of height $1$ on $|\\omega|<2$ and $|\\omega|<4$. Then$$H(j\\omega)=\\pi\\cdot\\frac{1}{2\\pi}\\left(G_1*G_2\\right)(\\omega)=\\tfrac12\\left(G_1*G_2\\right)(\\omega).$$Convolving a rectangle of width $4$ with one of width $8$ gives a trapezoid: flat at height $2\\cdot2=4$ on $|\\omega|\\le2$, falling linearly to zero at $|\\omega|=6$. Halving it,$$H(j\\omega)=\\begin{cases}2,&|\\omega|\\le2\\\\\\tfrac{6-|\\omega|}{2},&2<|\\omega|<6\\\\0,&|\\omega|\\ge6.\\end{cases}$$'
+     +'<b>Solution — part (c).</b> Each impulse is scaled by $H$ at its own frequency:$$H(j1)=2,\\qquad H(j3)=\\tfrac{6-3}{2}=1.5,\\qquad H(j5)=\\tfrac{6-5}{2}=0.5.$$So$$Y(j\\omega)=2\\pi\\left[\\delta(\\omega\\mp1)\\right]+1.5\\pi\\left[\\delta(\\omega\\mp3)\\right]+\\pi\\left[\\delta(\\omega\\mp5)\\right],$$writing $\\delta(\\omega\\mp\\omega_0)$ for the pair, and in the time domain$$y(t)=2\\cos(t)+1.5\\cos(3t)+\\cos(5t).$$'
+     +'<b>Check.</b> Each output amplitude is the input amplitude times the gain at that frequency: $1\\cdot2=2$, $1\\cdot1.5=1.5$, and $2\\cdot0.5=1$. The trapezoid is right too: the flat top has the width of the narrower rectangle, $|\\omega|\\le2$, and the total width is the sum of the two half-widths, $2+4=6$. Its value at the origin, $2$, is $\\tfrac12$ times the area of the narrower rectangle, $4$.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.3,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'H(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:1});
+      a.poly([[-8,0],[-6,0],[-2,2],[2,2],[6,0],[8,0]],{color:C.h}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-1,7.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+      [[-5,Math.PI],[-3,1.5*Math.PI],[-1,2*Math.PI],[1,2*Math.PI],[3,1.5*Math.PI],[5,Math.PI]]
+        .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
+      return a.svg();})()),
+  err:'Taking $H$ to be the product of the two rectangles, giving a rectangle on $|\\omega|<2$. The signals are multiplied in time, so their transforms are convolved, and the result is wider than either rectangle, not narrower.',
+  teach:'The width rule for a convolution of two rectangles is worth stating once and reusing: the flat top has the width of the narrower one and the total support is the sum. It saves the integral every time this shape appears.' },
+
+{ id:'D5-25', module:'M5', type:'full', src:'MT2 Q4',
+  stem:'Let $$x(t)=\\frac{1-e^{-j8\\pi t}}{j2\\pi t}$$be an input to the following communication chain, where $\\times$ shows the multiplication operator and the LTI system has the impulse response $h(t)=e^{-j3\\pi t}\\dfrac{\\sin(2\\pi t)}{\\pi t}$. The input is multiplied by $\\cos(6\\pi t)$ to give $y(t)$, and $y(t)$ is filtered by $h(t)$ to give $z(t)$.',
+  parts:['Plot the Fourier transform of $x(t)$. <em>Hint: can you write $x(t)$ as $e^{jW_1t}\\dfrac{\\sin(W_2t)}{\\pi t}$ for some $W_1,W_2$?</em>',
+         'Plot the Fourier transform of $y(t)$.',
+         'Plot the Fourier transform of $z(t)$.'],
+  sol:'<b>Given.</b> A one-sided band, a cosine modulator, and a band-pass filter.<br>'
+     +'<b>Find.</b> The spectrum after each stage.<br>'
+     +'<b>Method.</b> Rewrite $x$ in the hinted form, which turns it into a shifted rectangle. Then take one stage at a time and draw each spectrum before moving on.<br>'
+     +'<b>Solution — part (a).</b> Factor the numerator symmetrically:$$x(t)=\\frac{e^{-j4\\pi t}\\left(e^{j4\\pi t}-e^{-j4\\pi t}\\right)}{j2\\pi t}=e^{-j4\\pi t}\\,\\frac{2j\\sin(4\\pi t)}{j2\\pi t}=e^{-j4\\pi t}\\,\\frac{\\sin(4\\pi t)}{\\pi t}.$$The sinc has transform $1$ on $|\\omega|<4\\pi$, and the exponential shifts it by $-4\\pi$, so$$X(j\\omega)=\\begin{cases}1,&-8\\pi<\\omega<0\\\\0,&\\text{otherwise,}\\end{cases}$$a rectangle sitting entirely on the negative frequency axis.<br>'
+     +'<b>Solution — part (b).</b> Multiplying by $\\cos(6\\pi t)$ makes two half-height copies, shifted by $\\pm6\\pi$:$$Y(j\\omega)=\\tfrac12X(j(\\omega-6\\pi))+\\tfrac12X(j(\\omega+6\\pi)).$$The first copy occupies $-2\\pi<\\omega<6\\pi$ and the second $-14\\pi<\\omega<-6\\pi$, both at height $\\tfrac12$. They do not overlap, so nothing is lost.<br>'
+     +'<b>Solution — part (c).</b> The filter is a sinc of bandwidth $2\\pi$ shifted by $-3\\pi$:$$H(j\\omega)=\\begin{cases}1,&-5\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$Multiplying, $Z=YH$. The copy on $-14\\pi<\\omega<-6\\pi$ misses the passband entirely. The copy on $-2\\pi<\\omega<6\\pi$ meets it on $-2\\pi<\\omega<-\\pi$. So$$Z(j\\omega)=\\begin{cases}\\tfrac12,&-2\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$'
+     +'<b>Check.</b> Widths account for themselves at every stage. $X$ is $8\\pi$ wide; $Y$ is two copies of that width at half height, so its total area is unchanged; $Z$ keeps only a slice of width $\\pi$, one eighth of one copy. The filter passband is $4\\pi$ wide but only $\\pi$ of it holds any signal, which is why the output band is narrower than the filter.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-16,10],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:4,ystep:0.25});
+      a.poly([[-16,0],[-14,0],[-14,0.5],[-6,0.5],[-6,0],[-2,0],[-2,0.5],[6,0.5],[6,0],[10,0]],{color:C.mid});
+      return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,4],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Z(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
+      a.poly([[-8,0],[-2,0],[-2,0.5],[-1,0.5],[-1,0],[4,0]],{color:C.out}); return a.svg();})()),
+  err:'Assuming the two copies in part (b) are symmetric about the origin because a cosine was used. They are symmetric about $\\pm6\\pi$, not about zero, and since $X$ was one-sided to begin with, the result is one-sided about each carrier too.',
+  teach:'Part (a) is the whole question. A student who cannot factor $1-e^{-j8\\pi t}$ into a shifted sine is stuck; one who can sees a rectangle immediately. Practise that factoring on its own before the chain is attempted.' },
+
+{ id:'D5-26', module:'M5', type:'full', src:'MT2 Q4',
+  stem:'Consider the signal $$x(t)=\\left(\\frac{\\sin(3t)}{\\pi t}\\right)^{2}\\left(1+e^{j12t}\\right),$$which is input to an LTI system with the impulse response $h(t)=\\dfrac{\\sin(5t)}{\\pi t}e^{j5t}$. At the output of the LTI system, the $y(t)$ signal is observed.',
+  parts:['Plot the Fourier transform of $x(t)$.',
+         'Plot the Fourier transform of $h(t)$.',
+         'Plot the Fourier transform of $y(t)$.'],
+  sol:'<b>Given.</b> A squared sinc, duplicated by a complex exponential, into a one-sided band-pass filter.<br>'
+     +'<b>Find.</b> The three spectra.<br>'
+     +'<b>Method.</b> Square first: a squared sinc is a triangle in frequency. Then the factor $\\left(1+e^{j12t}\\right)$ adds a shifted copy, and the filter keeps a window of it.<br>'
+     +'<b>Solution — part (a).</b> The sinc $g(t)=\\dfrac{\\sin(3t)}{\\pi t}$ has $G=1$ on $|\\omega|<3$. Squaring in time convolves in frequency with a factor $\\tfrac{1}{2\\pi}$:$$T(\\omega)=\\frac{1}{2\\pi}(G*G)(\\omega),$$a triangle on $|\\omega|<6$ with peak $\\dfrac{6}{2\\pi}=\\dfrac{3}{\\pi}$. The factor $\\left(1+e^{j12t}\\right)$ then gives$$X(j\\omega)=T(\\omega)+T(\\omega-12),$$two triangles, the first on $|\\omega|<6$ and the second on $6<\\omega<18$, meeting at $\\omega=6$ where both are zero.<br>'
+     +'<b>Solution — part (b).</b> The sinc of bandwidth $5$ shifted by $+5$:$$H(j\\omega)=\\begin{cases}1,&0<\\omega<10\\\\0,&\\text{otherwise.}\\end{cases}$$'
+     +'<b>Solution — part (c).</b> Multiplying keeps the part of $X$ inside $0<\\omega<10$:$$Y(j\\omega)=\\begin{cases}\\dfrac{3}{\\pi}\\left(1-\\dfrac{\\omega}{6}\\right),&0<\\omega<6\\\\[4pt]\\dfrac{3}{\\pi}\\left(1-\\dfrac{12-\\omega}{6}\\right),&6<\\omega<10\\\\[4pt]0,&\\text{otherwise,}\\end{cases}$$the falling half of the first triangle followed by the rising part of the second, cut off at $\\omega=10$ where it has reached $\\dfrac{2}{\\pi}$.<br>'
+     +'<b>Check.</b> The two pieces meet continuously at $\\omega=6$, where both give zero. The peak of $T$ is right: a triangle of base $12$ and peak $\\tfrac{3}{\\pi}$ has area $\\tfrac12\\cdot12\\cdot\\tfrac{3}{\\pi}=\\tfrac{18}{\\pi}$, and that must equal $2\\pi g^{2}(0)$ by the inverse transform at $t=0$ — with $g(0)=\\tfrac{3}{\\pi}$ this is $2\\pi\\cdot\\tfrac{9}{\\pi^{2}}=\\tfrac{18}{\\pi}$, as required.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-9,21],yr:[-0.12,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:6,ystep:0.5});
+      a.poly([[-9,0],[-6,0],[0,3/Math.PI],[6,0],[12,3/Math.PI],[18,0],[21,0]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3,13],yr:[-0.12,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.5});
+      a.poly([[-3,0],[0,0],[0,3/Math.PI],[6,0],[10,2/Math.PI],[10,0],[13,0]],{color:C.out}); return a.svg();})()),
+  err:'Treating $\\left(\\frac{\\sin(3t)}{\\pi t}\\right)^{2}$ as a rectangle of half the width, on the grounds that squaring narrows a function. Squaring in time widens the spectrum: the support goes from $|\\omega|<3$ to $|\\omega|<6$, because convolution adds supports.',
+  teach:'Note that $X$ is not conjugate-symmetric, so $x(t)$ is complex, and the filter here is one-sided as a result. Ask what the answer would be with $\\cos(12t)$ in place of $e^{j12t}$: three triangles, symmetric, and a real signal.' },
+
+{ id:'D5-27', module:'M5', type:'full', src:'Final Q2',
+  stem:'Consider the following signals, where $x_1(t)$ is a periodic signal whose plot shows the areas under its impulses, while $x_2(t)$ and $x_3(t)$ are aperiodic.$$x_1(t)=\\sum_{k=-\\infty}^{\\infty}2\\,\\delta(t-3k)$$$x_2(t)$ is a triangle of height $2$ on $|t|<2$, and $x_3(t)$ is a trapezoid of height $2$, flat on $|t|\\le1$ and reaching zero at $|t|=3$.',
+  parts:['Determine the Fourier transform of $x_1(t)$.',
+         'Determine the Fourier transform of $x_2(t)$.',
+         'Determine the Fourier transform of $x_3(t)$. <em>Hint: consider building it from rectangles.</em>'],
+  sol:'<b>Given.</b> An impulse train of period $3$ and weight $2$, a triangle, and a trapezoid.<br>'
+     +'<b>Find.</b> Three transforms.<br>'
+     +'<b>Method.</b> An impulse train transforms to an impulse train. A triangle is a rectangle convolved with itself; a trapezoid is a convolution of two rectangles of different widths.<br>'
+     +'<b>Solution — part (a).</b> A train of unit impulses with period $T$ has transform $\\dfrac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\dfrac{2\\pi k}{T}\\right)$. Here $T=3$ and each impulse carries weight $2$, so$$X_1(j\\omega)=\\frac{4\\pi}{3}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{3}\\right).$$'
+     +'<b>Solution — part (b).</b> A triangle of height $A$ on $|t|<T$ is a rectangle convolved with itself, and$$X_2(j\\omega)=A\\,T\\left(\\frac{\\sin(\\omega T/2)}{\\omega T/2}\\right)^{2}=4\\left(\\frac{\\sin\\omega}{\\omega}\\right)^{2},$$taking $A=2$ and $T=2$. It is non-negative everywhere, as the transform of a self-convolution must be.<br>'
+     +'<b>Solution — part (c).</b> A trapezoid flat on $|t|\\le1$ and vanishing at $|t|=3$ is the convolution of a rectangle of half-width $2$ with one of half-width $1$: the total half-width is $2+1=3$ and the flat top has half-width $2-1=1$, both as required. Choosing unit heights makes the peak $2\\cdot\\min(2,1)=2$, which matches. So$$X_3(j\\omega)=\\frac{2\\sin(2\\omega)}{\\omega}\\cdot\\frac{2\\sin\\omega}{\\omega}=\\frac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}.$$'
+     +'<b>Check.</b> Each transform at $\\omega=0$ must be the area of its signal. For $x_2$: $\\tfrac12\\cdot4\\cdot2=4$, and $4\\left(\\tfrac{\\sin\\omega}{\\omega}\\right)^{2}\\to4$. For $x_3$: the flat part contributes $2\\cdot2=4$ and the two sloping ends $2\\cdot\\tfrac12\\cdot2\\cdot2=4$, total $8$; and $\\dfrac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}\\to4\\cdot2\\cdot1=8$. Both match.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.5,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:1});
+      a.curve(w=>Math.abs(w)<1e-6?4:4*Math.pow(Math.sin(w)/w,2),{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-2.2,8.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_3(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+      a.curve(w=>Math.abs(w)<1e-6?8:4*Math.sin(2*w)*Math.sin(w)/(w*w),{color:C.out}); return a.svg();})()),
+  err:'Building the trapezoid from rectangles of half-widths $3$ and $1$, reading the two numbers straight off the plot. The half-widths add to give the total and subtract to give the flat top, so they are $2$ and $1$, not $3$ and $1$.',
+  teach:'The three parts are three different reasons a transform is easy: a train because of the train pair, a triangle because it is a self-convolution, a trapezoid because it is a convolution of two unequal rectangles. Ask which of the three could also be done by direct integration, and how much longer it would take.' },
+
+{ id:'D5-28', module:'M5', type:'full', src:'Final Q2',
+  stem:'Let $x(t)=1+3\\cos(2\\pi t)$ be a periodic signal, and let $s(t)=x(t)c(t)$ where $c(t)=\\cos(10\\pi t)$.',
+  parts:['Determine the Fourier transform of $x(t)$.',
+         'Plot the Fourier transform of $s(t)$.',
+         'State the smallest carrier frequency for which the shifted copies would not overlap, and say what happens below it.'],
+  sol:'<b>Given.</b> A constant plus one cosine, multiplied by a higher-frequency carrier.<br>'
+     +'<b>Find.</b> The spectrum before and after modulation, and the condition on the carrier.<br>'
+     +'<b>Method.</b> A periodic signal transforms to impulses at its harmonics, of weight $2\\pi a_k$. Multiplying by a cosine makes two half-height copies at $\\pm\\omega_c$.<br>'
+     +'<b>Solution — part (a).</b> The coefficients are $a_0=1$ and $a_{\\pm1}=\\tfrac32$ against $\\omega_0=2\\pi$, so$$X(j\\omega)=2\\pi\\delta(\\omega)+3\\pi\\left[\\delta(\\omega-2\\pi)+\\delta(\\omega+2\\pi)\\right].$$'
+     +'<b>Solution — part (b).</b> With $\\omega_c=10\\pi$,$$S(j\\omega)=\\tfrac12X(j(\\omega-10\\pi))+\\tfrac12X(j(\\omega+10\\pi)),$$so$$S(j\\omega)=\\pi\\left[\\delta(\\omega-10\\pi)+\\delta(\\omega+10\\pi)\\right]+\\tfrac{3\\pi}{2}\\left[\\delta(\\omega-12\\pi)+\\delta(\\omega-8\\pi)+\\delta(\\omega+8\\pi)+\\delta(\\omega+12\\pi)\\right].$$Six impulses in all: a pair at the carrier and a pair of sidebands on each side of it.<br>'
+     +'<b>Solution — part (c).</b> The spectrum of $x$ extends to $\\omega_M=2\\pi$, so a copy centred at $\\omega_c$ occupies $\\omega_c\\pm2\\pi$ and the copy centred at $-\\omega_c$ occupies $-\\omega_c\\pm2\\pi$. They stay apart as long as$$\\omega_c-2\\pi>-\\omega_c+2\\pi\\quad\\Longleftrightarrow\\quad\\omega_c>2\\pi.$$Below that the upper sideband of the negative copy crosses the lower sideband of the positive one, the two add, and the original cannot be recovered by filtering — the components that overlap can no longer be told apart.<br>'
+     +'<b>Check.</b> The total weight is preserved in the right way. Each impulse of $X$ has been halved and duplicated, so the sum of all weights in $S$ is the same as in $X$: $2\\pi+3\\pi+3\\pi=8\\pi$ before, and $\\pi+\\pi+4\\cdot\\tfrac{3\\pi}{2}=8\\pi$ after. With $\\omega_c=10\\pi$ the copies run over $8\\pi$ to $12\\pi$ and $-12\\pi$ to $-8\\pi$, comfortably clear of each other, consistent with part (c).',
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega/\\pi',ylabel:'S(j\\omega)',
+      pad:{l:52,r:28,t:30,b:38},xstep:2,ystep:2});
+    [[-12,1.5*Math.PI],[-10,Math.PI],[-8,1.5*Math.PI],[8,1.5*Math.PI],[10,Math.PI],[12,1.5*Math.PI]]
+      .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
+    return a.svg();},
+  err:'Halving the carrier impulses but leaving the sidebands at full weight. Every impulse of $X$ is halved, because the whole spectrum is convolved with $\\tfrac12\\left[\\delta(\\omega-\\omega_c)+\\delta(\\omega+\\omega_c)\\right]$, not just the one at the origin.',
+  teach:'Part (c) is the same inequality that governs sampling, met one module early. Ask a student to write $\\omega_c>\\omega_M$ here and $\\omega_s>2\\omega_M$ in Module 7, and to say why one carries a factor of two and the other does not.' },
+
+{ id:'D5-29', module:'M5', type:'full', src:'MT2 Q3',
+  stem:'Determine the Fourier transforms of the following signals.',
+  parts:['$x(t)=e^{-3t}u(t-2)$.',
+         '$x(t)=t\\,e^{-3t}u(t)$.',
+         '$x(t)=\\left[u(t+2)-u(t-2)\\right]*\\left[u(t+2)-u(t-2)\\right]$, where $*$ is the convolution operator.'],
+  sol:'<b>Given.</b> A delayed exponential, an exponential with a linear factor, and a rectangle convolved with itself.<br>'
+     +'<b>Find.</b> Three transforms.<br>'
+     +'<b>Method.</b> Each is a standard pair plus one property: a time shift, a differentiation in frequency, and the convolution rule.<br>'
+     +'<b>Solution — part (a).</b> Integrate from the point where the step switches on:$$X(j\\omega)=\\int_{2}^{\\infty}e^{-3t}e^{-j\\omega t}\\,\\d t=\\frac{e^{-2(3+j\\omega)}}{3+j\\omega}.$$Equivalently, write $x(t)=e^{-6}g(t-2)$ with $g(t)=e^{-3t}u(t)$, and the shift contributes $e^{-j2\\omega}$ while the amplitude carries $e^{-6}$.<br>'
+     +'<b>Solution — part (b).</b> Multiplication by $t$ is differentiation in frequency: if $g(t)=e^{-3t}u(t)$ has $G=\\dfrac{1}{3+j\\omega}$, then$$X(j\\omega)=j\\frac{\\d G}{\\d\\omega}=j\\cdot\\frac{-j}{(3+j\\omega)^{2}}=\\frac{1}{(3+j\\omega)^{2}}.$$'
+     +'<b>Solution — part (c).</b> Convolution in time is multiplication in frequency. The rectangle of height $1$ on $|t|<2$ has transform $\\dfrac{2\\sin(2\\omega)}{\\omega}$, so$$X(j\\omega)=\\left(\\frac{2\\sin(2\\omega)}{\\omega}\\right)^{2}=\\frac{4\\sin^{2}(2\\omega)}{\\omega^{2}}.$$In the time domain this is a triangle of height $4$ on $|t|<4$.<br>'
+     +'<b>Check.</b> Part (a) at $\\omega=0$ gives $\\dfrac{e^{-6}}{3}$, which is $\\int_2^{\\infty}e^{-3t}\\,\\d t$ exactly. Part (b) at $\\omega=0$ gives $\\tfrac19$, and $\\int_0^{\\infty}te^{-3t}\\,\\d t=\\tfrac1{9}$. Part (c) at $\\omega=0$ gives $16$, the area of a triangle of height $4$ and base $8$, $\\tfrac12\\cdot8\\cdot4=16$; it is also the product of the two rectangle areas, $4\\cdot4$, as the convolution rule requires.',
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-5,5],yr:[-1.5,17.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)\\;\\text{of part (c)}',
+      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:4});
+    a.curve(w=>Math.abs(w)<1e-6?16:4*Math.pow(Math.sin(2*w)/w,2),{color:C.out}); return a.svg();},
+  err:'Writing the answer to (a) as $\\dfrac{e^{-j2\\omega}}{3+j\\omega}$, keeping the shift and dropping the amplitude. Delaying $e^{-3t}u(t)$ by two gives $e^{-3(t-2)}u(t-2)$, which is $e^{6}$ times the signal asked for, so the factor $e^{-6}$ has to appear somewhere.',
+  teach:'Parts (a) and (b) both look like the same table entry and use different properties. Ask which property each needs before either is computed; naming them first is what stops the two from being confused.' },
+
+{ id:'D5-30', module:'M5', type:'full', src:'MT2 Q4',
+  stem:'Let $x(t)=\\dfrac{\\sin(4t)}{\\pi t}$, and let $y(t)=x(t)\\cos(6t)$.',
+  parts:['Plot the Fourier transform of $x(t)$ and calculate its total energy.',
+         'Plot the Fourier transform of $y(t)$.',
+         'Calculate the total energy of $y(t)$ and compare it with that of $x(t)$.'],
+  sol:'<b>Given.</b> An ideal low-pass signal and its modulated version.<br>'
+     +'<b>Find.</b> Two spectra and two energies.<br>'
+     +'<b>Method.</b> The sinc pair gives a rectangle. Parseval turns each energy into the area of a squared spectrum, which for rectangles is a multiplication.<br>'
+     +'<b>Solution — part (a).</b>$$X(j\\omega)=\\begin{cases}1,&|\\omega|<4\\\\0,&\\text{otherwise.}\\end{cases}$$By Parseval,$$E_x=\\frac{1}{2\\pi}\\int_{-4}^{4}1^{2}\\,\\d\\omega=\\frac{8}{2\\pi}=\\frac{4}{\\pi}\\approx1.273\\;\\text{J}.$$'
+     +'<b>Solution — part (b).</b> Multiplying by $\\cos(6t)$ gives two half-height copies:$$Y(j\\omega)=\\tfrac12X(j(\\omega-6))+\\tfrac12X(j(\\omega+6)),$$so $Y=\\tfrac12$ on $2<\\omega<10$ and on $-10<\\omega<-2$, and zero elsewhere. The two bands do not overlap, because the carrier $6$ exceeds the bandwidth $4$.<br>'
+     +'<b>Solution — part (c).</b>$$E_y=\\frac{1}{2\\pi}\\left[\\int_{2}^{10}\\tfrac14\\,\\d\\omega+\\int_{-10}^{-2}\\tfrac14\\,\\d\\omega\\right]=\\frac{1}{2\\pi}\\cdot\\frac{16}{4}=\\frac{2}{\\pi}\\approx0.637\\;\\text{J},$$exactly half of $E_x$.<br>'
+     +'<b>Check.</b> The halving is what modulation by a cosine always does when the copies do not overlap: the amplitude is halved, so the squared magnitude is quartered, but there are two copies, giving $\\tfrac24=\\tfrac12$. It can be read in the time domain too:$$y^{2}(t)=x^{2}(t)\\cos^{2}(6t)=\\tfrac12x^{2}(t)\\left[1+\\cos(12t)\\right],$$and the fast term integrates to almost nothing against the slowly varying $x^{2}$, leaving half the energy. Had the carrier been below $4$ the copies would have overlapped and this argument would fail.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.5});
+      a.poly([[-7,0],[-4,0],[-4,1],[4,1],[4,0],[7,0]],{color:C.in}); return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-13,13],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},xstep:4,ystep:0.5});
+      a.poly([[-13,0],[-10,0],[-10,0.5],[-2,0.5],[-2,0],[2,0],[2,0.5],[10,0.5],[10,0],[13,0]],{color:C.out});
+      return a.svg();})()),
+  err:'Reporting $E_y=E_x$ on the grounds that modulation only moves the spectrum. It also halves its height, and energy depends on the square of the height, so half the energy is lost to the doubling of the bands.',
+  teach:'Ask what happens when the carrier is $3$ instead of $6$. The copies overlap on $|\\omega|<1$, the energy is no longer exactly half, and the original can no longer be recovered — the same failure as aliasing, in the modulation setting.' }
 
 ]);
 
@@ -448,11 +679,11 @@ window.DRILLMAP_M5 = [
 
 { id:'m5-drill-map', module:'M5', nav:'Module 5 · question types',
   title:'Module 5 — what a question looks like', src:'pp. 42–63',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 5 question types Fourier transform duality Parseval inverse modulation taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Question types', src:'pp. 42–63'},
-  {t:'title', text:'Five shapes, and the method each one wants'},
+  {t:'title', text:'Six shapes, and the method each one wants'},
   {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M5'}
@@ -467,10 +698,10 @@ window.DRILL_M5 = [
 
 { id:'m5-drill', module:'M5', nav:'Module 5 · practice questions',
   title:'Module 5 — practice questions', src:'pp. 42–63',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 5 practice Fourier transform duality Parseval partial fractions modulation communication chain',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Practice D5-01 … D5-20', src:'pp. 42–63'},
+  {t:'eyebrow', text:'Module 5 · Practice D5-01 … D5-30', src:'pp. 42–63'},
   {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. The cheapest check in this module is the area test, $X(0)=\\int x(t)\\,\\d t$, and it catches most factor errors. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
   {t:'rule', short:true},

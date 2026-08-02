@@ -14,7 +14,7 @@ import math
 import numpy as np
 import sympy as sp
 
-from drill_common import chk, close, allclose, t, tau, n, k, w
+from drill_common import chk, close, allclose, conv_dt, t, tau, n, k, w
 
 I = 1j
 PI = math.pi
@@ -387,3 +387,201 @@ chk("D6-20 cos(2.3 n) = cos((2.3-2pi) n) for every tested integer n",
 ns20b = np.arange(-10, 11)
 chk("D6-20 cos(pi n) = (-1)^n, the fastest discrete-time oscillation",
     allclose(np.cos(PI * ns20b), (-1.0) ** ns20b, tol=1e-8))
+
+
+# ===========================================================================
+# Full-length questions D6-21 ... D6-30.
+#
+# Every transform is recomputed from the analysis sum evaluated numerically,
+# every inverse from the synthesis integral, and every frequency is reduced
+# into -pi <= omega <= pi before it is used.
+# ===========================================================================
+
+def dtft(x, om, N=4000):
+    """The analysis sum, truncated symmetrically. Used for sequences that decay."""
+    ns = np.arange(-N, N + 1)
+    return complex(np.sum(np.array([x(int(v)) for v in ns]) * np.exp(-1j * om * ns)))
+
+
+def idtft(X, nn, npts=400001):
+    """The synthesis integral over one period."""
+    g = np.linspace(-np.pi, np.pi, npts)
+    return complex(np.trapezoid(np.array([X(v) for v in g]) * np.exp(1j * g * nn), g)
+                   / (2 * np.pi))
+
+
+def wrap(om):
+    """Reduce a frequency into -pi <= omega <= pi."""
+    return (om + np.pi) % (2 * np.pi) - np.pi
+
+
+# --- D6-21 -----------------------------------------------------------------
+z21s = lambda m: 1.0 if 0 <= m <= 4 else 0.0
+chk("D6-21 (a) u[-n+4] - u[-n-1] is 1 on 0 <= n <= 4",
+    all(close(z21s(m), (1.0 if (-m + 4) >= 0 else 0.0) - (1.0 if (-m - 1) >= 0 else 0.0))
+        for m in range(-6, 9)))
+Z21 = lambda om: (np.exp(-2j * om) * np.sin(2.5 * om) / np.sin(0.5 * om)
+                  if abs(np.sin(0.5 * om)) > 1e-12 else 5.0)
+chk("D6-21 (a) closed form matches the analysis sum",
+    all(close(Z21(v), dtft(z21s, v, 20), tol=1e-9) for v in (0.4, 1.1, -2.0)))
+chk("D6-21 (a) Z at omega=0 is 5, the number of samples", close(Z21(1e-7), 5.0, tol=1e-6))
+tri21 = lambda om: max(0.0, 1 - abs(wrap(om)) / (np.pi / 2))
+Yb21 = lambda om: sum(tri21(om - kk * np.pi / 2) for kk in range(4)) / 4
+chk("D6-21 (b) four copies at spacing pi/2, each scaled by 1/4",
+    close(Yb21(0.0), 0.25, tol=1e-9))
+chk("D6-21 (b) adjacent copies touch at their zeros without overlapping",
+    all(Yb21(v) <= 0.25 + 1e-9 for v in np.linspace(-np.pi, np.pi, 2001)))
+chk("D6-21 (c) modulation by (-1)^n moves the triangle to omega = pi",
+    close(tri21(np.pi - np.pi), 1.0) and close(tri21(0.0 - np.pi), 0.0))
+
+# --- D6-22 -----------------------------------------------------------------
+x22g = lambda m: (1 / 3) ** abs(m)
+X22a = lambda om: 4 / (5 - 3 * np.cos(om))
+chk("D6-22 (a) closed form matches the analysis sum",
+    all(close(X22a(v), dtft(x22g, v, 200), tol=1e-9) for v in (0.0, 0.9, 2.4, -1.1)),
+    f"X(0.9): closed={X22a(0.9):.9f}, sum={dtft(x22g,0.9,200).real:.9f}")
+chk("D6-22 (a) X(1) = 2 = sum of the samples",
+    close(X22a(0.0), 2.0) and close(1 + 2 * sum((1 / 3) ** m for m in range(1, 200)), 2.0))
+chk("D6-22 (b) 5pi/2 reduces to pi/2 and 4pi/3 to -2pi/3",
+    close(wrap(5 * np.pi / 2), np.pi / 2) and close(wrap(4 * np.pi / 3), -2 * np.pi / 3))
+chk("D6-22 (b) the reduced sequence is sample-for-sample the original",
+    all(close(np.cos(5 * np.pi * m / 2) + 2 * np.cos(4 * np.pi * m / 3),
+              np.cos(np.pi * m / 2) + 2 * np.cos(2 * np.pi * m / 3)) for m in range(-20, 21)))
+chk("D6-22 (c) cos(pi n) equals (-1)^n at every integer",
+    all(close(np.cos(np.pi * m), (-1.0) ** m) for m in range(-20, 21)))
+Xc22 = lambda om: 1.0 if abs(wrap(om)) > 2 * np.pi / 3 else 0.0
+chk("D6-22 (c) the shifted band is a high-pass filter with cut-off 2pi/3",
+    close(Xc22(np.pi), 1.0) and close(Xc22(0.0), 0.0)
+    and close(Xc22(0.9 * 2 * np.pi / 3), 0.0))
+
+# --- D6-23 -----------------------------------------------------------------
+p = np.pi
+X23 = lambda om: (3.0 if abs(wrap(om)) < p / 5
+                  else (1.0 if abs(wrap(om)) < 3 * p / 5 else 0.0))
+H23 = lambda om: 2.0 if abs(wrap(om)) > p / 5 else 0.0
+Y23 = lambda om: X23(om) * H23(om)
+chk("D6-23 (a) X is 3, then 1, then 0",
+    close(X23(0.1), 3.0) and close(X23(0.4 * p), 1.0) and close(X23(0.8 * p), 0.0))
+chk("D6-23 (b) H is 2 above pi/5 and 0 below",
+    close(H23(p / 2), 2.0) and close(H23(0.1), 0.0))
+chk("D6-23 (c) Y = 2 on (pi/5, 3pi/5) and zero elsewhere",
+    close(Y23(0.4 * p), 2.0) and close(Y23(0.1), 0.0) and close(Y23(0.8 * p), 0.0))
+chk("D6-23 (c) both cut-offs of Y are inherited, one from H and one from X",
+    close(Y23(p / 5 + 1e-6), 2.0) and close(Y23(p / 5 - 1e-6), 0.0)
+    and close(Y23(3 * p / 5 - 1e-6), 2.0) and close(Y23(3 * p / 5 + 1e-6), 0.0))
+
+# --- D6-24 -----------------------------------------------------------------
+x24a = lambda m: 0.5 ** m if m >= 1 else 0.0
+X24a = lambda om: 0.5 * np.exp(-1j * om) / (1 - 0.5 * np.exp(-1j * om))
+chk("D6-24 (a) closed form matches the analysis sum",
+    all(close(X24a(v), dtft(x24a, v, 200), tol=1e-9) for v in (0.0, 1.2, -0.6)))
+chk("D6-24 (a) X(1) = 1 = sum of the samples", close(X24a(0.0), 1.0))
+x24b = lambda m: 1.0 if -2 <= m <= 2 else 0.0
+X24b = lambda om: (np.sin(2.5 * om) / np.sin(0.5 * om)
+                   if abs(np.sin(0.5 * om)) > 1e-12 else 5.0)
+chk("D6-24 (b) closed form matches the analysis sum, and is real",
+    all(close(X24b(v), dtft(x24b, v, 20), tol=1e-9) for v in (0.7, 1.9))
+    and close(X24b(1e-7), 5.0, tol=1e-6))
+x24c = lambda m: 0.5 ** abs(m)
+X24c = lambda om: 3 / (5 - 4 * np.cos(om))
+chk("D6-24 (c) closed form matches the analysis sum",
+    all(close(X24c(v), dtft(x24c, v, 200), tol=1e-9) for v in (0.0, 1.5)))
+chk("D6-24 (c) X(1) = 3 = sum of the samples", close(X24c(0.0), 3.0))
+chk("D6-24 (check) only the delayed sequence has a complex transform",
+    abs(X24a(1.2).imag) > 1e-3 and close(X24b(1.2).imag, 0.0)
+    and close(X24c(1.2).imag, 0.0))
+
+# --- D6-25 -----------------------------------------------------------------
+xt25 = lambda m: (0.6 ** m) * math.cos(0.4 * m) if m >= 0 else 0.0
+chk("D6-25 (a) a delay of 3 multiplies X by exp(-j3omega)",
+    all(close(dtft(lambda m: xt25(m - 3), v, 300),
+              np.exp(-3j * v) * dtft(xt25, v, 300), tol=1e-9) for v in (0.5, 2.0)))
+chk("D6-25 (b) (-1)^n x[n] shifts the spectrum by pi",
+    all(close(dtft(lambda m: (-1.0) ** m * xt25(m), v, 300),
+              dtft(xt25, wrap(v - np.pi), 300), tol=1e-9) for v in (0.5, 2.0, -1.3)))
+chk("D6-25 (c) differencing multiplies X by (1 - exp(-j omega))",
+    all(close(dtft(lambda m: xt25(m) - xt25(m - 1), v, 300),
+              (1 - np.exp(-1j * v)) * dtft(xt25, v, 300), tol=1e-9) for v in (0.5, 2.0)))
+chk("D6-25 (c) Y at omega = 0 is zero for any decaying sequence",
+    close(dtft(lambda m: xt25(m) - xt25(m - 1), 0.0, 300), 0.0, tol=1e-9))
+
+# --- D6-26 -----------------------------------------------------------------
+X26a = lambda om: 1.0 if abs(om) < np.pi / 4 else 0.0
+chk("D6-26 (a) the synthesis integral gives sin(pi n/4)/(pi n)",
+    all(close(idtft(X26a, m), np.sin(np.pi * m / 4) / (np.pi * m), tol=1e-5)
+        for m in (1, 2, 3, 5, -4)),
+    f"n=1: integral={idtft(X26a,1).real:.9f}, closed={np.sin(np.pi/4)/np.pi:.9f}")
+chk("D6-26 (a) x[0] = 1/4", close(idtft(X26a, 0), 0.25, tol=1e-9))
+X26b = lambda om: np.cos(2 * om)
+chk("D6-26 (b) the synthesis integral gives half-weight impulses at n = +-2",
+    close(idtft(X26b, 2), 0.5, tol=1e-6) and close(idtft(X26b, -2), 0.5, tol=1e-6)
+    and all(close(idtft(X26b, m), 0.0, tol=1e-6) for m in (0, 1, 3, -1)))
+chk("D6-26 (b) X(1) = 1 = sum of the samples", close(X26b(0.0), 1.0))
+x26c = lambda m: (m + 1) * (1 / 3) ** m if m >= 0 else 0.0
+X26c = lambda om: 1 / (1 - (1 / 3) * np.exp(-1j * om)) ** 2
+chk("D6-26 (c) closed form matches the analysis sum",
+    all(close(X26c(v), dtft(x26c, v, 300), tol=1e-9) for v in (0.0, 1.1)))
+chk("D6-26 (c) X(1) = 9/4 = sum of the samples",
+    close(X26c(0.0), 2.25) and close(sum(x26c(m) for m in range(300)), 2.25))
+
+# --- D6-27 -----------------------------------------------------------------
+x27s = lambda m: np.sin(np.pi * m / 3) / (np.pi * m) if m != 0 else 1 / 3
+chk("D6-27 (a) x[0] = 1/3", close(x27s(0), 1 / 3))
+chk("D6-27 (a) the synthesis integral of the rectangle returns x[n]",
+    all(close(idtft(lambda om: 1.0 if abs(om) < np.pi / 3 else 0.0, m), x27s(m), tol=1e-6)
+        for m in (0, 1, 2, 5, -3)))
+chk("D6-27 (b) E = 1/3 by Parseval", close((2 * np.pi / 3) / (2 * np.pi), 1 / 3))
+chk("D6-27 (b) E = 1/3 as a sum of squares",
+    close(sum(x27s(m) ** 2 for m in range(-40000, 40001)), 1 / 3, tol=1e-4),
+    f"{sum(x27s(m)**2 for m in range(-40000, 40001)):.8f}")
+chk("D6-27 (b) E = x[0] for an ideal filter", close(1 / 3, x27s(0)))
+chk("D6-27 (c) modulation preserves the energy exactly",
+    close(sum(((-1.0) ** m * x27s(m)) ** 2 for m in range(-4000, 4001)),
+          sum(x27s(m) ** 2 for m in range(-4000, 4001))))
+
+# --- D6-28 -----------------------------------------------------------------
+y28c = lambda m: (3 * 0.5 ** m - 2 * (1 / 3) ** m) if m >= 0 else 0.0
+x28s = {m: 0.5 ** m for m in range(0, 300)}
+h28s = {m: (1 / 3) ** m for m in range(0, 300)}
+y28d = conv_dt(x28s, h28s, lo=0, hi=30)
+chk("D6-28 (b) the closed form matches the convolution sum",
+    all(close(y28c(m), y28d[m]) for m in range(0, 25)),
+    f"y[0]={y28d[0]:.9f}, y[1]={y28d[1]:.9f}")
+chk("D6-28 (c) y[0] = 1 and y[1] = 5/6",
+    close(y28c(0), 1.0) and close(y28c(1), 5 / 6))
+chk("D6-28 (check) Y at omega=0 is 3 = 2 * 3/2",
+    close(sum(y28c(m) for m in range(0, 300)), 3.0)
+    and close(sum(x28s.values()) * sum(h28s.values()), 3.0))
+chk("D6-28 (a) the two one-pole transforms are correct",
+    all(close(1 / (1 - 0.5 * np.exp(-1j * v)), dtft(lambda m: 0.5 ** m if m >= 0 else 0.0, v, 200),
+              tol=1e-9) for v in (0.0, 1.4)))
+
+# --- D6-29 -----------------------------------------------------------------
+H1_29 = lambda om: 1.0 if abs(wrap(om)) < np.pi / 2 else 0.0
+H2_29 = lambda om: 1.0 - H1_29(om)
+chk("D6-29 (a) H2 is the complement of H1",
+    all(close(H1_29(v) + H2_29(v), 1.0) for v in np.linspace(-np.pi, np.pi, 401)))
+chk("D6-29 (b) the parallel connection passes everything",
+    all(close(H1_29(v) + H2_29(v), 1.0) for v in np.linspace(-3 * np.pi, 3 * np.pi, 601)))
+chk("D6-29 (b) h1 + h2 = delta[n]",
+    all(close((np.sin(np.pi * m / 2) / (np.pi * m) if m != 0 else 0.5)
+              + ((1.0 if m == 0 else 0.0) - (np.sin(np.pi * m / 2) / (np.pi * m) if m != 0 else 0.5)),
+              1.0 if m == 0 else 0.0) for m in range(-10, 11)))
+chk("D6-29 (c) the series connection passes nothing",
+    all(close(H1_29(v) * H2_29(v), 0.0) for v in np.linspace(-np.pi, np.pi, 1001)))
+chk("D6-29 (c) H1 is idempotent, so H1(1-H1) = 0",
+    all(close(H1_29(v) ** 2, H1_29(v)) for v in np.linspace(-np.pi, np.pi, 401)))
+
+# --- D6-30 -----------------------------------------------------------------
+X30 = lambda om: 1.0 if abs(wrap(om)) < np.pi / 5 else 0.0
+Y30 = lambda om: sum(X30(om - kk * 2 * np.pi / 5) for kk in range(5)) / 5
+chk("D6-30 (b) the five copies tile the period with no gaps and no overlap",
+    all(close(Y30(v), 0.2) for v in np.linspace(-np.pi + 0.01, np.pi - 0.01, 997)),
+    f"Y(0)={Y30(0.0):.6f}, Y(1.7)={Y30(1.7):.6f}")
+chk("D6-30 (b) five bands of width 2pi/5 fill exactly 2 pi",
+    close(5 * (2 * np.pi / 5), 2 * np.pi))
+chk("D6-30 (c) a gain-5 low-pass filter with cut-off pi/5 restores X",
+    all(close(5 * Y30(v) * X30(v), X30(v)) for v in np.linspace(-np.pi, np.pi, 401)))
+chk("D6-30 (a) coefficients of a period-5 train are all 1/5",
+    all(close(sum((1.0 if m % 5 == 0 else 0.0) * np.exp(-1j * 2 * np.pi * kk * m / 5)
+                  for m in range(5)) / 5, 0.2) for kk in range(5)))

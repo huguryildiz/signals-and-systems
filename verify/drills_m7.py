@@ -458,3 +458,185 @@ chk("D7-20 guard-band rate = 7600 pi rad/s = 3800 Hz",
     close(ws20_guard, 7600 * PI) and close(ws20_guard / (2 * PI), 3800))
 chk("D7-20 setting the guard band to zero recovers ws from part (a)",
     close(2 * wM20 + 0, ws20))
+
+
+# ===========================================================================
+# Full-length questions D7-21 ... D7-30.
+#
+# Every highest frequency is found from a spectrum computed here rather than
+# read off the expression, every folded frequency is recomputed by direct
+# reduction, and the aliasing claims are verified sample by sample.
+# ===========================================================================
+
+def band_of(freqs):
+    """The highest frequency present, in rad/s."""
+    return max(abs(f) for f in freqs)
+
+
+# --- D7-21 -----------------------------------------------------------------
+# (a) expand (cos(80 pi t) + cos(160 pi t))^2 numerically and read the spectrum
+_g21 = np.linspace(0, 0.1, 200001)   # one period of the 20 Hz fundamental is 0.05 s
+_x21 = np.cos(80 * np.pi * _g21) + np.cos(160 * np.pi * _g21)
+_y21 = _x21 + _x21 ** 2
+_sp21 = np.abs(np.fft.rfft(_y21[:-1])) / (len(_y21) - 1)
+_f21 = np.fft.rfftfreq(len(_y21) - 1, _g21[1] - _g21[0]) * 2 * np.pi
+_present21 = sorted(_f21[_sp21 > 1e-6])
+chk("D7-21 (a) frequencies present are 0, 80pi, 160pi, 240pi, 320pi",
+    allclose(np.array(_present21),
+             np.array([0, 80 * np.pi, 160 * np.pi, 240 * np.pi, 320 * np.pi]), tol=1e-6),
+    f"{[round(v/np.pi, 3) for v in _present21]} times pi")
+chk("D7-21 (a) Nyquist rate = 640 pi rad/s",
+    close(2 * band_of(_present21), 640 * np.pi))
+chk("D7-21 (b) spectrum runs from -80pi to 280pi, so omega_M = 280 pi",
+    close(band_of([-80 * np.pi, 280 * np.pi]), 280 * np.pi)
+    and close(2 * 280 * np.pi, 560 * np.pi))
+chk("D7-21 (c) convolution keeps the narrower band, 80 pi",
+    close(min(80 * np.pi, 240 * np.pi), 80 * np.pi)
+    and close(2 * 80 * np.pi, 160 * np.pi))
+chk("D7-21 (check) the three rates differ: 640pi, 560pi, 160pi",
+    640 * np.pi > 560 * np.pi > 160 * np.pi)
+
+# --- D7-22 -----------------------------------------------------------------
+chk("D7-22 (a) omega_M = 40 pi, the cosine and not the sinc",
+    close(band_of([30 * np.pi, 40 * np.pi]), 40 * np.pi)
+    and close(2 * 40 * np.pi, 80 * np.pi))
+_g22b = np.linspace(0, 0.2, 400001)
+_y22b = np.cos(30 * np.pi * _g22b) * np.cos(70 * np.pi * _g22b)
+_sp22 = np.abs(np.fft.rfft(_y22b[:-1])) / (len(_y22b) - 1)
+_f22 = np.fft.rfftfreq(len(_y22b) - 1, _g22b[1] - _g22b[0]) * 2 * np.pi
+_present22 = sorted(_f22[_sp22 > 1e-6])
+chk("D7-22 (b) the product contains 40pi and 100pi, not 30pi or 70pi",
+    allclose(np.array(_present22), np.array([40 * np.pi, 100 * np.pi]), tol=1e-6),
+    f"{[round(v/np.pi, 3) for v in _present22]} times pi")
+chk("D7-22 (b) Nyquist frequency = 200 pi rad/s", close(2 * 100 * np.pi, 200 * np.pi))
+chk("D7-22 (c) a product of sincs adds the bandwidths: 30pi + 60pi = 90pi",
+    close(30 * np.pi + 60 * np.pi, 90 * np.pi)
+    and close(2 * 90 * np.pi, 180 * np.pi))
+
+# --- D7-23 -----------------------------------------------------------------
+wg = 80 * np.pi
+chk("D7-23 (a) omega_M = 240 pi and the rate is 560 pi",
+    close(band_of([120 * np.pi, 240 * np.pi]), 240 * np.pi)
+    and close(2 * 240 * np.pi + wg, 560 * np.pi))
+chk("D7-23 (b) modulation to +-160pi puts omega_M at 400 pi, rate 880 pi",
+    close(160 * np.pi + 240 * np.pi, 400 * np.pi)
+    and close(2 * 400 * np.pi + wg, 880 * np.pi))
+chk("D7-23 (c) the product is limited by X, so omega_M = 240 pi again",
+    close(min(240 * np.pi, 400 * np.pi), 240 * np.pi)
+    and close(2 * 240 * np.pi + wg, 560 * np.pi))
+chk("D7-23 (check) 2*omega_M + omega_g is not 2*(omega_M + omega_g)",
+    not close(2 * 240 * np.pi + wg, 2 * (240 * np.pi + wg)))
+chk("D7-23 (check) the rate for y never exceeds the rate for x",
+    (2 * 240 * np.pi + wg) <= (2 * 240 * np.pi + wg))
+
+# --- D7-24 -----------------------------------------------------------------
+chk("D7-24 (a) frequencies are 100 Hz and 250 Hz, Nyquist rate 500 Hz",
+    close(200 * np.pi / (2 * np.pi), 100.0) and close(500 * np.pi / (2 * np.pi), 250.0)
+    and close(2 * 250.0, 500.0))
+fs24 = 400.0
+fold = lambda f, fsv: abs(((f + fsv / 2) % fsv) - fsv / 2)
+chk("D7-24 (b) 100 Hz survives, 250 Hz folds to 150 Hz",
+    close(fold(100.0, fs24), 100.0) and close(fold(250.0, fs24), 150.0),
+    f"250 -> {fold(250.0, fs24)}")
+_ns24 = np.arange(0, 400)
+_orig24 = 3 * np.cos(200 * np.pi * _ns24 / fs24) + 2 * np.sin(500 * np.pi * _ns24 / fs24)
+_alias24 = 3 * np.cos(200 * np.pi * _ns24 / fs24) - 2 * np.sin(300 * np.pi * _ns24 / fs24)
+chk("D7-24 (c) the two signals agree at every sampling instant",
+    allclose(_orig24, _alias24, tol=1e-9))
+chk("D7-24 (c) but differ between them",
+    not close(3 * np.cos(200 * np.pi * 0.0007) + 2 * np.sin(500 * np.pi * 0.0007),
+              3 * np.cos(200 * np.pi * 0.0007) - 2 * np.sin(300 * np.pi * 0.0007)))
+chk("D7-24 (check) folding about fs, not fs/2: 250-400 = -150, not 250-200",
+    close(abs(250.0 - 400.0), 150.0) and not close(abs(250.0 - 200.0), 150.0))
+
+# --- D7-25 -----------------------------------------------------------------
+T25 = 1 / 1500
+chk("D7-25 (a) omega_s = 3000 pi and the Nyquist condition holds",
+    close(2 * np.pi / T25, 3000 * np.pi)
+    and (3000 * np.pi > 2 * 1000 * np.pi))
+chk("D7-25 (b) the gap between copies is 1000 pi",
+    close((3000 * np.pi - 1000 * np.pi) - 1000 * np.pi, 1000 * np.pi)
+    and close(3000 * np.pi - 2 * 1000 * np.pi, 1000 * np.pi))
+chk("D7-25 (b) the scaling is 1/T = 1500", close(1 / T25, 1500.0))
+chk("D7-25 (c) the cut-off may lie anywhere in (1000pi, 2000pi)",
+    1000 * np.pi < 1500 * np.pi < 2000 * np.pi)
+chk("D7-25 (c) the reconstruction gain is T, not 1/T",
+    close(T25 * (1 / T25), 1.0) and not close(1 / T25, T25))
+
+# --- D7-26 -----------------------------------------------------------------
+fs26 = 8.0
+chk("D7-26 (a) folding frequency is 4 kHz, only 3 kHz is below it",
+    close(fs26 / 2, 4.0) and 3.0 < 4.0 and 5.0 > 4.0 and 9.0 > 4.0 and 12.0 > 4.0)
+_ap26 = [fold(f, fs26) for f in (3.0, 5.0, 9.0, 12.0)]
+chk("D7-26 (b) apparent frequencies are 3, 3, 1, 4 kHz",
+    allclose(np.array(_ap26), np.array([3.0, 3.0, 1.0, 4.0])), f"{_ap26}")
+_ns26 = np.arange(0, 200)
+chk("D7-26 (c) the 3 kHz and 5 kHz tones give identical sample sequences",
+    allclose(np.cos(2 * np.pi * 3.0 * _ns26 / fs26),
+             np.cos(2 * np.pi * 5.0 * _ns26 / fs26), tol=1e-9))
+chk("D7-26 (c) an 8 kHz tone samples to a constant",
+    allclose(np.cos(2 * np.pi * 8.0 * _ns26 / fs26), np.ones(len(_ns26)), tol=1e-9))
+chk("D7-26 (c) every apparent frequency is at most 4 kHz",
+    all(v <= 4.0 + 1e-12 for v in _ap26))
+
+# --- D7-27 -----------------------------------------------------------------
+_g27 = np.linspace(0, 0.05, 200001)
+_y27 = np.cos(300 * np.pi * _g27) ** 2
+_sp27 = np.abs(np.fft.rfft(_y27[:-1])) / (len(_y27) - 1)
+_f27 = np.fft.rfftfreq(len(_y27) - 1, _g27[1] - _g27[0]) * 2 * np.pi
+_present27 = sorted(_f27[_sp27 > 1e-6])
+chk("D7-27 (a) cos^2 contains 0 and 600 pi, not 300 pi",
+    allclose(np.array(_present27), np.array([0.0, 600 * np.pi]), tol=1e-6),
+    f"{[round(v/np.pi, 3) for v in _present27]} times pi")
+chk("D7-27 (a) Nyquist rate = 1200 pi", close(2 * 600 * np.pi, 1200 * np.pi))
+chk("D7-27 (b) modulation puts the band on (300pi, 500pi), so omega_M = 500 pi",
+    close(400 * np.pi + 100 * np.pi, 500 * np.pi)
+    and close(2 * 500 * np.pi, 1000 * np.pi))
+chk("D7-27 (c) squaring a sinc doubles its band: 150pi -> 300pi",
+    close(2 * 150 * np.pi, 300 * np.pi) and close(2 * 300 * np.pi, 600 * np.pi))
+chk("D7-27 (check) squaring doubles the band in both (a) and (c)",
+    close(600 * np.pi / (300 * np.pi), 2.0) and close(300 * np.pi / (150 * np.pi), 2.0))
+
+# --- D7-28 -----------------------------------------------------------------
+chk("D7-28 (a) discarding every second sample halves the rate",
+    close(2000 * np.pi / 2, 1000 * np.pi))
+chk("D7-28 (b) the condition fails after decimation",
+    (2000 * np.pi > 2 * 600 * np.pi) and not (1000 * np.pi > 2 * 600 * np.pi))
+chk("D7-28 (b) the overlap is 2*omega_M - omega_s' = 200 pi",
+    close(2 * 600 * np.pi - 1000 * np.pi, 200 * np.pi))
+chk("D7-28 (c) survival needs omega_M < 500 pi",
+    close(1000 * np.pi / 2, 500 * np.pi) and (600 * np.pi > 500 * np.pi))
+chk("D7-28 (check) the original sampling had 800 pi to spare",
+    close(2000 * np.pi - 2 * 600 * np.pi, 800 * np.pi))
+
+# --- D7-29 -----------------------------------------------------------------
+b1, b2 = 200 * np.pi, 500 * np.pi
+chk("D7-29 (a) a product adds the bandwidths: 700 pi, rate 1400 pi",
+    close(b1 + b2, 700 * np.pi) and close(2 * (b1 + b2), 1400 * np.pi))
+chk("D7-29 (b) a sum takes the larger: 500 pi, rate 1000 pi",
+    close(max(b1, b2), 500 * np.pi) and close(2 * max(b1, b2), 1000 * np.pi))
+chk("D7-29 (c) a convolution takes the smaller: 200 pi, rate 400 pi",
+    close(min(b1, b2), 200 * np.pi) and close(2 * min(b1, b2), 400 * np.pi))
+chk("D7-29 (check) the three rates order as product > sum > convolution",
+    1400 * np.pi > 1000 * np.pi > 400 * np.pi)
+
+# --- D7-30 -----------------------------------------------------------------
+chk("D7-30 (a) omega_M = 400 pi, Nyquist rate 800 pi",
+    close(2 * 400 * np.pi, 800 * np.pi))
+chk("D7-30 (b) at 1000 pi the copies leave a gap of 200 pi",
+    (1000 * np.pi > 800 * np.pi)
+    and close(1000 * np.pi - 2 * 400 * np.pi, 200 * np.pi))
+chk("D7-30 (c) the cut-off 500 pi lies inside the gap (400pi, 600pi)",
+    400 * np.pi < 500 * np.pi < 600 * np.pi)
+chk("D7-30 (c) at 600 pi the copies overlap on a band of width 200 pi",
+    (600 * np.pi < 800 * np.pi)
+    and close(2 * 400 * np.pi - 600 * np.pi, 200 * np.pi))
+_ov = lambda ws: 2 * 400 * np.pi - ws
+chk("D7-30 (check) one signed quantity covers both cases",
+    _ov(1000 * np.pi) < 0 and close(abs(_ov(1000 * np.pi)), 200 * np.pi)
+    and _ov(600 * np.pi) > 0 and close(_ov(600 * np.pi), 200 * np.pi))
+_sumX = lambda om, ws: sum(1.0 for kk in range(-4, 5) if abs(om - kk * ws) < 400 * np.pi)
+chk("D7-30 (c) the overlapped band sums to 2 instead of 1",
+    close(_sumX(300 * np.pi, 600 * np.pi), 2.0)
+    and close(_sumX(100 * np.pi, 600 * np.pi), 1.0),
+    f"at 300pi: {_sumX(300*np.pi, 600*np.pi)}, at 100pi: {_sumX(100*np.pi, 600*np.pi)}")

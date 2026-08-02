@@ -57,7 +57,13 @@ CONTENT.DRILLTYPES.M7 = [
             'Reconstruction is interpolation: $x_r(t)=\\sum_nx(nT)\\,h_{LP}(t-nT)$, one shifted kernel per sample, and the kernel is 1 at its own instant and 0 at every other sample instant.',
             'A practical hold approximates the ideal filter; it is not equal to it, and its gain sags away from $T$ as $\\omega$ grows.',
             'An anti-aliasing filter works only ahead of the sampler. Placed after, it cannot separate two numbers that have already been added together.'],
-    go:'m7-recon' }
+    go:'m7-recon' },
+  { k:'full', name:'A full-length question that combines several of the types above',
+    asks:'Several signals under one statement, each needing its highest frequency found before a rate can be quoted.',
+    method:['Find the spectrum of each signal before quoting any rate. The highest frequency is a property of the spectrum, not of the expression it is written with.',
+            'A product in time widens the band: two sincs multiplied give the sum of their bandwidths, and a squared signal doubles its own.',
+            'A convolution in time narrows it: the spectra multiply, so the band is the narrower of the two, never the wider.',
+            'Quote the rate against the definition asked for. The Nyquist rate is $2\\omega_M$; with a guard band it is $2\\omega_M+\\omega_g$; and a sampling frequency in hertz is the rate in rad/s divided by $2\\pi$.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -450,7 +456,193 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.note(-3600*PI,-1.72,'-3600\\pi',{anchor:'middle',color:C.muted,fs:12,tex:true});
     return a.svg();},
   err:'Writing $\\omega_s\\ge2\\omega_M+\\omega_g$ but forgetting to re-identify $\\omega_M$ as the sine term\u2019s frequency, since $3600\\pi$ is the larger of the two non-zero frequencies present, not the cosine term\u2019s $1200\\pi$.',
-  teach:'Have every frequency present in $x(t)$ listed and ordered before $\\omega_M$ is named, exactly as in the very first question of this drill. The habit that opens the module is the one that closes it.' }
+  teach:'Have every frequency present in $x(t)$ listed and ordered before $\\omega_M$ is named, exactly as in the very first question of this drill. The habit that opens the module is the one that closes it.' },
+
+/* ----------------------------------------------------------------------
+   Full-length questions. Several signals under one statement, each
+   needing its own spectrum before a rate can be quoted.
+   ---------------------------------------------------------------------- */
+
+{ id:'D7-21', module:'M7', type:'full', src:'Final Q4',
+  stem:'Determine the Nyquist sampling rate for each of the following signals.',
+  parts:['$y(t)=x(t)+x^{2}(t)$, where $x(t)=\\cos(80\\pi t)+\\cos(160\\pi t)$.',
+         '$y(t)=\\dfrac{\\sin(80\\pi t)}{\\pi t}\\left[1+e^{j200\\pi t}\\right]$.',
+         '$y(t)=\\dfrac{\\sin(80\\pi t)}{\\pi t}*\\dfrac{\\sin(240\\pi t)}{\\pi t}$, where $*$ is the convolution operator.'],
+  sol:'<b>Given.</b> Three signals built from the same few ingredients by squaring, modulating and convolving.<br>'
+     +'<b>Find.</b> The Nyquist rate $\\omega_s=2\\omega_M$ for each.<br>'
+     +'<b>Method.</b> Find $\\omega_M$ from the spectrum, never from the expression. Squaring and multiplying widen the band; convolving narrows it.<br>'
+     +'<b>Solution — part (a).</b> Expanding the square,$$x^{2}(t)=\\tfrac12\\left[1+\\cos(160\\pi t)\\right]+\\cos(240\\pi t)+\\cos(80\\pi t)+\\tfrac12\\left[1+\\cos(320\\pi t)\\right],$$so $y$ contains frequencies $0$, $80\\pi$, $160\\pi$, $240\\pi$ and $320\\pi$. Hence $\\omega_M=320\\pi$ and$$\\omega_s=2\\omega_M=640\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> The sinc gives a rectangle on $|\\omega|<80\\pi$. The factor $e^{j200\\pi t}$ adds a copy of that rectangle shifted to $120\\pi<\\omega<280\\pi$. The spectrum therefore runs from $-80\\pi$ to $280\\pi$, so $\\omega_M=280\\pi$ and$$\\omega_s=2\\omega_M=560\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> Convolution in time is multiplication in frequency, so the spectrum is the product of a rectangle on $|\\omega|<80\\pi$ and one on $|\\omega|<240\\pi$: the narrower one survives. Then $\\omega_M=80\\pi$ and$$\\omega_s=2\\omega_M=160\\pi\\;\\text{rad/s}.$$'
+     +'<b>Check.</b> The three parts move in three different directions, which is the point of the question. Squaring doubled the highest frequency, $160\\pi\\to320\\pi$; modulating pushed the band up without widening it, so the rate rose because $\\omega_M$ is measured from the origin; convolving kept only the narrower band, so the required rate fell below what either factor alone would need. A student who reports $560\\pi$ for part (c) has multiplied the bandwidths instead of the spectra.',
+  err:'Answering part (c) with the wider band, $240\\pi$, by treating convolution as though it added supports. Convolution in <em>time</em> multiplies the spectra, so the support of the result is the intersection of the two, not their sum; it is multiplication in time that adds supports.',
+  teach:'Set parts (a) and (c) beside each other. Both combine two signals; one widens the band and one narrows it, and the difference is only whether the combining happens in time as a product or as a convolution. Getting that pair straight is most of this module.' },
+
+{ id:'D7-22', module:'M7', type:'full', src:'Final Q4',
+  stem:'Plot the Fourier transforms of each of the signals given below and determine the Nyquist sampling frequencies (in rad/s) for each of these signals.',
+  parts:['$x(t)=\\dfrac{\\sin(30\\pi t)}{\\pi t}+\\cos(40\\pi t)$.',
+         '$x(t)=\\cos(30\\pi t)\\cos(70\\pi t)$.',
+         '$x(t)=\\dfrac{\\sin(30\\pi t)}{\\pi t}\\,\\dfrac{\\sin(60\\pi t)}{\\pi t}$.'],
+  sol:'<b>Given.</b> A sinc plus a cosine, a product of two cosines, and a product of two sincs.<br>'
+     +'<b>Find.</b> The spectra and the Nyquist frequencies.<br>'
+     +'<b>Method.</b> Transform each, read $\\omega_M$ off the result, and double it.<br>'
+     +'<b>Solution — part (a).</b> The sinc gives a rectangle of height $1$ on $|\\omega|<30\\pi$; the cosine gives impulses of weight $\\pi$ at $\\omega=\\pm40\\pi$. The impulses lie outside the rectangle, so$$\\omega_M=40\\pi,\\qquad\\omega_s=80\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> Use the product-to-sum identity:$$\\cos(30\\pi t)\\cos(70\\pi t)=\\tfrac12\\cos(100\\pi t)+\\tfrac12\\cos(40\\pi t),$$giving impulses at $\\pm40\\pi$ and $\\pm100\\pi$. So$$\\omega_M=100\\pi,\\qquad\\omega_s=200\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> A product in time is a convolution in frequency, so the two rectangles convolve into a trapezoid. Its support is the sum of the two half-widths:$$30\\pi+60\\pi=90\\pi,$$with a flat top on $|\\omega|<30\\pi$. Hence$$\\omega_M=90\\pi,\\qquad\\omega_s=180\\pi\\;\\text{rad/s}.$$'
+     +'<b>Check.</b> In (b), the two output frequencies are the sum and difference of the two inputs, $70\\pi\\pm30\\pi$, and the larger of them is what sets the rate — not $70\\pi$, which is the largest frequency written down. In (c) the trapezoid height is $2\\min(30\\pi,60\\pi)/(2\\pi)$, but only its width matters here. Comparing (c) with part (c) of the previous question makes the rule concrete: a product of sincs widens, a convolution of sincs narrows.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.5,4],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)\\;\\text{of (a)}',
+      pad:{l:60,r:26,t:28,b:38},xstep:50,ystep:1});
+      a.poly([[-130,0],[-30,0],[-30,1],[30,1],[30,0],[130,0]],{color:C.in});
+      a.impulse(-40,3,{color:C.mid}); a.impulse(40,3,{color:C.mid});
+      return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.15,1.35],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)\\;\\text{of (c)}',
+      pad:{l:60,r:26,t:28,b:38},xstep:50,ystep:0.5});
+      a.poly([[-130,0],[-90,0],[-30,1],[30,1],[90,0],[130,0]],{color:C.out});
+      return a.svg();})()),
+  err:'Quoting $\\omega_M=70\\pi$ in part (b) from the higher of the two written frequencies. Neither $30\\pi$ nor $70\\pi$ is present in the product: the identity replaces them by their sum and difference, and only the sum sets the rate.',
+  teach:'Ask for part (b) drawn as a spectrum before the rate is quoted. Two impulse pairs at $40\\pi$ and $100\\pi$, and nothing at $30\\pi$ or $70\\pi$, is a picture students remember better than the identity itself.' },
+
+{ id:'D7-23', module:'M7', type:'full', src:'Final Q4',
+  stem:'Plot the Fourier transforms of each of the signals given below, and determine the Nyquist sampling frequencies (in rad/s) for each of these signals while considering a guard band of $\\omega_g=80\\pi$ rad/s.',
+  parts:['$x(t)=\\dfrac{\\sin(120\\pi t)}{\\pi t}+\\dfrac{\\sin(240\\pi t)}{\\pi t}$.',
+         '$h(t)=x(t)\\cos(160\\pi t)$.',
+         '$y(t)=x(t)*h(t)$, where $*$ is the convolution operator.'],
+  sol:'<b>Given.</b> A sum of two sincs, its modulated version, and the convolution of the two.<br>'
+     +'<b>Find.</b> The three spectra and the sampling frequency for each, with a guard band.<br>'
+     +'<b>Method.</b> With a guard band the requirement is $\\omega_s\\ge2\\omega_M+\\omega_g$, so each part still turns on finding $\\omega_M$.<br>'
+     +'<b>Solution — part (a).</b> The two sincs give rectangles of height $1$ on $|\\omega|<120\\pi$ and on $|\\omega|<240\\pi$. Adding, $X=2$ on $|\\omega|<120\\pi$ and $X=1$ on $120\\pi<|\\omega|<240\\pi$. So $\\omega_M=240\\pi$ and$$\\omega_s\\ge2(240\\pi)+80\\pi=560\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> Modulation makes two half-height copies of $X$ centred at $\\pm160\\pi$:$$H(j\\omega)=\\tfrac12X(j(\\omega-160\\pi))+\\tfrac12X(j(\\omega+160\\pi)).$$The upper copy reaches $160\\pi+240\\pi=400\\pi$, so $\\omega_M=400\\pi$ and$$\\omega_s\\ge2(400\\pi)+80\\pi=880\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> Convolution in time multiplies the spectra, $Y=XH$. The factor $X$ is zero beyond $240\\pi$, so whatever $H$ does above that is irrelevant and $\\omega_M=240\\pi$. Then$$\\omega_s\\ge2(240\\pi)+80\\pi=560\\pi\\;\\text{rad/s},$$the same as part (a).<br>'
+     +'<b>Check.</b> Part (c) must not exceed part (a): multiplying two spectra can only shrink the support, never grow it, so the rate for $y$ can be no larger than the rate for $x$. It comes out equal here because $H$ is non-zero throughout $|\\omega|<240\\pi$ — the two copies overlap the whole of $X$. Had the carrier been higher, $H$ would have vanished near the origin and the answer to (c) would have been smaller.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-300,300],yr:[-0.3,2.6],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)',
+      pad:{l:60,r:26,t:28,b:38},xstep:100,ystep:1});
+      a.poly([[-300,0],[-240,0],[-240,1],[-120,1],[-120,2],[120,2],[120,1],[240,1],[240,0],[300,0]],{color:C.in});
+      return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-460,460],yr:[-0.2,1.6],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega)',
+      pad:{l:60,r:26,t:28,b:38},xstep:200,ystep:0.5});
+      const seg=c=>[[c-240,0],[c-240,0.5],[c-120,0.5],[c-120,1],[c+120,1],[c+120,0.5],[c+240,0.5],[c+240,0]];
+      a.poly([[-460,0]].concat(seg(-160)).concat(seg(160)).concat([[460,0]]),{color:C.mid});
+      return a.svg();})()),
+  err:'Adding the guard band once for the whole question instead of to each part separately, or adding $\\omega_g$ to $\\omega_M$ before doubling. The requirement is $2\\omega_M+\\omega_g$, not $2(\\omega_M+\\omega_g)$, and the difference here is $80\\pi$ against $160\\pi$.',
+  teach:'Part (c) is worth asking about before it is computed: can convolving two signals ever require a higher rate than one of them alone? The answer is no, and seeing why saves the calculation.' },
+
+{ id:'D7-24', module:'M7', type:'full', src:'Final Q4',
+  stem:'A signal $x(t)=3\\cos(200\\pi t)+2\\sin(500\\pi t)$ is sampled at $f_s=400$ Hz.',
+  parts:['Determine the Nyquist rate of $x(t)$ in hertz.',
+         'State which components alias at $f_s=400$ Hz, and give the apparent frequency of each.',
+         'Write the continuous-time signal that the samples appear to have come from.'],
+  sol:'<b>Given.</b> Two sinusoids at $100$ Hz and $250$ Hz, sampled at $400$ Hz.<br>'
+     +'<b>Find.</b> The Nyquist rate, which components alias, and the signal the samples imitate.<br>'
+     +'<b>Method.</b> Convert every frequency to hertz first. A component below $f_s/2$ survives; one above it folds to $|f-f_s|$.<br>'
+     +'<b>Solution — part (a).</b> The frequencies are $\\dfrac{200\\pi}{2\\pi}=100$ Hz and $\\dfrac{500\\pi}{2\\pi}=250$ Hz, so $f_M=250$ Hz and the Nyquist rate is$$f_s>2f_M=500\\;\\text{Hz}.$$Sampling at $400$ Hz is below this, so aliasing is expected.<br>'
+     +'<b>Solution — part (b).</b> The folding frequency is $f_s/2=200$ Hz. The $100$ Hz component is below it and is unaffected. The $250$ Hz component is above it and folds to$$|250-400|=150\\;\\text{Hz}.$$'
+     +'<b>Solution — part (c).</b> The folding also reverses the sign of a sine, because $\\sin\\left(2\\pi(f-f_s)t\\right)$ evaluated at $t=n/f_s$ equals $-\\sin(2\\pi ft)$ at those instants when $f>f_s/2$ in this way. So the samples are indistinguishable from those of$$x_a(t)=3\\cos(200\\pi t)-2\\sin(300\\pi t).$$'
+     +'<b>Check.</b> Test one sample. At $n=1$, $t=\\tfrac{1}{400}$: the original gives $3\\cos\\!\\left(\\tfrac{\\pi}{2}\\right)+2\\sin\\!\\left(\\tfrac{5\\pi}{4}\\right)=0-\\sqrt2$, and the alias gives $3\\cos\\!\\left(\\tfrac{\\pi}{2}\\right)-2\\sin\\!\\left(\\tfrac{3\\pi}{4}\\right)=0-\\sqrt2$. The two agree, as they must at every sampling instant, and disagree everywhere between them.',
+  err:'Reporting the apparent frequency as $250-200=50$ Hz by folding about $f_s/2$ instead of about $f_s$. The image of $f$ is at $f-f_s$, so a component at $250$ Hz appears at $-150$ Hz, that is at $150$ Hz with a sign change, not at $50$ Hz.',
+  teach:'The single-sample check in the answer is the exercise to set. Two different signals agreeing at every sampling instant is what aliasing <em>is</em>, and verifying it at one instant makes the statement concrete rather than a rule about inequalities.' },
+
+{ id:'D7-25', module:'M7', type:'full', src:'Final Q4',
+  stem:'A band-limited signal has $X(j\\omega)=0$ for $|\\omega|>1000\\pi$ and is sampled with an impulse train of period $T=\\tfrac{1}{1500}$ s.',
+  parts:['Give the sampling frequency $\\omega_s$ and say whether the Nyquist condition is met.',
+         'Describe the spectrum of the sampled signal $x_p(t)$ and the width of the gap between copies.',
+         'Give an ideal reconstruction filter that recovers $x(t)$ exactly, with its gain and a valid cut-off.'],
+  sol:'<b>Given.</b> A signal band-limited to $1000\\pi$ rad/s, sampled at $1500$ samples per second.<br>'
+     +'<b>Find.</b> The sampling frequency, the spectrum after sampling, and a reconstruction filter.<br>'
+     +'<b>Method.</b> Sampling replicates the spectrum at multiples of $\\omega_s$ and scales it by $1/T$. The Nyquist condition is what keeps the copies apart.<br>'
+     +'<b>Solution — part (a).</b>$$\\omega_s=\\frac{2\\pi}{T}=2\\pi\\cdot1500=3000\\pi\\;\\text{rad/s}.$$The Nyquist condition needs $\\omega_s>2\\omega_M=2000\\pi$, and $3000\\pi>2000\\pi$, so it is met.<br>'
+     +'<b>Solution — part (b).</b>$$X_p(j\\omega)=\\frac{1}{T}\\sum_{k=-\\infty}^{\\infty}X\\!\\left(j(\\omega-k\\omega_s)\\right)=1500\\sum_{k}X\\!\\left(j(\\omega-3000\\pi k)\\right),$$copies of $X$ spaced $3000\\pi$ apart, each scaled by $1500$. The copy at the origin ends at $1000\\pi$ and the next begins at $3000\\pi-1000\\pi=2000\\pi$, so the gap between them is$$2000\\pi-1000\\pi=1000\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> The filter must keep the copy at the origin and reject the others, so its cut-off $\\omega_c$ may be anywhere in $1000\\pi<\\omega_c<2000\\pi$. Its gain must undo the factor $\\tfrac1T$, so it is $T$:$$H(j\\omega)=\\begin{cases}T=\\tfrac{1}{1500},&|\\omega|<\\omega_c\\\\0,&\\text{otherwise,}\\end{cases}$$and the midpoint $\\omega_c=1500\\pi$ is the usual choice, since it leaves the largest margin on both sides.<br>'
+     +'<b>Check.</b> The gap of $1000\\pi$ is exactly $\\omega_s-2\\omega_M=3000\\pi-2000\\pi$, as it must be, and it is positive precisely because the Nyquist condition holds. Sampling at $2000\\pi$ instead would close the gap to zero, leaving the copies touching and the choice of $\\omega_c$ forced to a single value.',
+  err:'Giving the reconstruction gain as $1/T$. The sampling step multiplied the spectrum by $1/T$, so the filter has to multiply by $T$ to return it; using $1/T$ leaves the recovered signal too large by $T^{2}$.',
+  teach:'The permitted range for $\\omega_c$ is worth stating as a range and not as a number. Students who memorise $\\omega_s/2$ are stuck when the guard band is asymmetric; students who know the copy edges can place the cut-off anywhere it belongs.' },
+
+{ id:'D7-26', module:'M7', type:'full', src:'Final Q4',
+  stem:'An audio channel is sampled at $f_s=8$ kHz with no anti-aliasing filter. Four pure tones are applied in turn: $3$ kHz, $5$ kHz, $9$ kHz and $12$ kHz.',
+  parts:['Give the folding frequency and say which tones are sampled correctly.',
+         'Give the apparent frequency of each tone after sampling.',
+         'Two of the four tones become indistinguishable. Identify them and say what filter placed where would have prevented it.'],
+  sol:'<b>Given.</b> A sampler at $8$ kHz and four input tones.<br>'
+     +'<b>Find.</b> Which tones alias, where each lands, and how to prevent the collision.<br>'
+     +'<b>Method.</b> Fold each frequency into $0\\le f\\le f_s/2$ by subtracting the nearest multiple of $f_s$ and taking the magnitude.<br>'
+     +'<b>Solution — part (a).</b> The folding frequency is $f_s/2=4$ kHz. Only the $3$ kHz tone lies below it, so only that one is sampled correctly.<br>'
+     +'<b>Solution — part (b).</b> Folding each in turn:$$3\\;\\text{kHz}\\to3\\;\\text{kHz},$$$$5\\;\\text{kHz}\\to|5-8|=3\\;\\text{kHz},$$$$9\\;\\text{kHz}\\to|9-8|=1\\;\\text{kHz},$$$$12\\;\\text{kHz}\\to|12-8|=4\\;\\text{kHz}.$$'
+     +'<b>Solution — part (c).</b> The $3$ kHz and $5$ kHz tones both appear at $3$ kHz, and no processing after the sampler can separate them: their samples are identical sequences. The remedy is an anti-aliasing low-pass filter with cut-off at or below $4$ kHz, placed <em>before</em> the sampler, which removes the $5$ kHz tone while leaving the $3$ kHz one untouched.<br>'
+     +'<b>Check.</b> Each folded value is at most $4$ kHz, as it must be. The pattern $3,3,1,4$ shows the characteristic reflection: frequencies above $4$ kHz map back down, and $12$ kHz, being $8$ kHz above $4$, lands exactly on the folding frequency. A tone at $8$ kHz would map to $0$ — a sinusoid sampled once per cycle looks like a constant.',
+  err:'Placing the anti-aliasing filter after the sampler. Once two tones have produced the same sequence of numbers, no filter can tell them apart; the filter has to remove the offending component while it is still a continuous-time signal.',
+  teach:'Ask what a tone at exactly $8$ kHz would look like. It samples to a constant, which is the most extreme alias there is, and it explains why the condition is a strict inequality rather than $\\ge$.' },
+
+{ id:'D7-27', module:'M7', type:'full', src:'Final Q4',
+  stem:'Determine the Nyquist sampling rate for each of the following signals.',
+  parts:['$y(t)=\\cos^{2}(300\\pi t)$.',
+         '$y(t)=\\dfrac{\\sin(100\\pi t)}{\\pi t}\\cos(400\\pi t)$.',
+         '$y(t)=\\left[\\dfrac{\\sin(150\\pi t)}{\\pi t}\\right]^{2}$.'],
+  sol:'<b>Given.</b> A squared cosine, a modulated sinc, and a squared sinc.<br>'
+     +'<b>Find.</b> The Nyquist rate for each.<br>'
+     +'<b>Method.</b> Squaring in time doubles the band; modulating shifts it without widening it, but moves $\\omega_M$ up.<br>'
+     +'<b>Solution — part (a).</b>$$\\cos^{2}(300\\pi t)=\\tfrac12+\\tfrac12\\cos(600\\pi t),$$so the frequencies present are $0$ and $600\\pi$. Then $\\omega_M=600\\pi$ and$$\\omega_s=1200\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> The sinc gives a rectangle on $|\\omega|<100\\pi$; multiplying by $\\cos(400\\pi t)$ makes two half-height copies centred at $\\pm400\\pi$, so the spectrum occupies $300\\pi<|\\omega|<500\\pi$. Then $\\omega_M=500\\pi$ and$$\\omega_s=1000\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> Squaring in time convolves the spectrum with itself, so the rectangle on $|\\omega|<150\\pi$ becomes a triangle on $|\\omega|<300\\pi$. Then $\\omega_M=300\\pi$ and$$\\omega_s=600\\pi\\;\\text{rad/s}.$$'
+     +'<b>Check.</b> Each part doubles or shifts in a way that can be stated in one line. In (a) the square of a single cosine has twice its frequency and a constant, so the rate doubles. In (c) the square of a sinc has twice its bandwidth, so the rate doubles again. In (b) nothing was squared and the band did not widen — it moved, and the rate rose because $\\omega_M$ is measured from the origin and not across the band. That last distinction is why a band-pass signal can sometimes be sampled far below its Nyquist rate, a case this course does not pursue.',
+  err:'Answering part (a) with $600\\pi$, treating $300\\pi$ as the highest frequency and doubling it. The squaring has already doubled the frequency to $600\\pi$; the Nyquist rate doubles that again.',
+  teach:'Parts (a) and (c) are the same operation on two different signals, and both double the band. Ask students to state the rule once — squaring in time doubles the bandwidth — and then apply it to both without recomputing.' },
+
+{ id:'D7-28', module:'M7', type:'full', src:'Final Q4',
+  stem:'A signal $x(t)$ is band-limited to $|\\omega|<600\\pi$ and is sampled at $\\omega_s=2000\\pi$ rad/s to give the sequence $x[n]=x(nT)$. Every second sample is then discarded, giving $v[n]=x[2n]$.',
+  parts:['Give the effective sampling rate after the samples are discarded.',
+         'State whether $x(t)$ can still be recovered from $v[n]$, with reasons.',
+         'Give the largest bandwidth a signal could have and still survive the same treatment.'],
+  sol:'<b>Given.</b> A signal sampled comfortably above its Nyquist rate, then decimated by two.<br>'
+     +'<b>Find.</b> The new rate, whether recovery survives it, and the limiting bandwidth.<br>'
+     +'<b>Method.</b> Discarding every second sample halves the sampling rate. The Nyquist condition is then re-tested against the same signal bandwidth.<br>'
+     +'<b>Solution — part (a).</b> Keeping one sample in two doubles the spacing, so$$\\omega_s^{\\prime}=\\frac{\\omega_s}{2}=1000\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> <b>No.</b> The condition to test is $\\omega_s^{\\prime}>2\\omega_M$, that is $1000\\pi>1200\\pi$, and it fails. After decimation the rate is below the Nyquist rate of $1200\\pi$, so the spectral copies overlap and $x(t)$ cannot be recovered from $v[n]$. The original sampling was adequate; the decimation destroyed that.<br>'
+     +'<b>Solution — part (c).</b> Recovery after decimation needs $1000\\pi>2\\omega_M$, so$$\\omega_M<500\\pi\\;\\text{rad/s}.$$A signal band-limited to anything below $500\\pi$ survives; this one, at $600\\pi$, does not.<br>'
+     +'<b>Check.</b> The numbers are consistent from both directions. The original rate $2000\\pi$ exceeds $2\\omega_M=1200\\pi$ with $800\\pi$ to spare, which is why the first sampling was safe. Halving leaves $1000\\pi$, short of $1200\\pi$ by $200\\pi$, which is exactly how much aliasing the copies now suffer. To make it safe, either keep the original rate or filter $x(t)$ to $500\\pi$ before discarding samples.',
+  err:'Concluding that decimation is harmless because the original sampling satisfied the Nyquist condition. The condition has to be re-tested against the new rate: throwing away samples is itself a sampling operation, and it can alias a sequence that was previously clean.',
+  teach:'The reflex to catch here is "it was fine before, so it is fine now". Ask for the inequality to be written down and evaluated before any answer is given; the arithmetic settles it in one line, and no amount of reasoning about the original sampling does.' },
+
+{ id:'D7-29', module:'M7', type:'full', src:'Final Q4',
+  stem:'Determine the Nyquist sampling rate for each of the following signals, where $\\omega_g=0$ (no guard band is required).',
+  parts:['$y(t)=x_1(t)x_2(t)$, where $x_1$ is band-limited to $200\\pi$ and $x_2$ to $500\\pi$.',
+         '$y(t)=x_1(t)+x_2(t)$, with the same two signals.',
+         '$y(t)=x_1(t)*x_2(t)$, with the same two signals.'],
+  sol:'<b>Given.</b> Two band-limited signals combined in three ways.<br>'
+     +'<b>Find.</b> The Nyquist rate for each combination.<br>'
+     +'<b>Method.</b> A product in time convolves the spectra and adds the bandwidths; a sum takes the larger; a convolution in time multiplies the spectra and takes the smaller.<br>'
+     +'<b>Solution — part (a).</b> Convolving the two spectra gives a support running to $200\\pi+500\\pi=700\\pi$, so$$\\omega_M=700\\pi,\\qquad\\omega_s=1400\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (b).</b> Adding leaves whichever spectrum reaches further, so $\\omega_M=500\\pi$ and$$\\omega_s=1000\\pi\\;\\text{rad/s}.$$'
+     +'<b>Solution — part (c).</b> Convolution in time multiplies the spectra, and the product is zero wherever either factor is. So $\\omega_M=200\\pi$ and$$\\omega_s=400\\pi\\;\\text{rad/s}.$$'
+     +'<b>Check.</b> The three answers order themselves as they must: the product needs the highest rate, the sum an intermediate one, the convolution the lowest. In each case $\\omega_M$ can be written down without knowing anything about the two signals beyond their bandwidths — sum, maximum and minimum respectively — which is what makes this a rule and not a calculation.',
+  err:'Using the same rule for the product and the convolution because both are written with two signals and one operator. They are opposite operations: one adds bandwidths, the other intersects them, and mixing them up changes the answer here by a factor of three and a half.',
+  teach:'This question is the summary of the module in three lines. Ask students to write the three rules from memory before attempting it, then to check them against the answers; whatever they got wrong is what to revise.' },
+
+{ id:'D7-30', module:'M7', type:'full', src:'Final Q4',
+  stem:'A signal $x(t)=\\dfrac{\\sin(400\\pi t)}{\\pi t}$ is sampled at $\\omega_s=1000\\pi$ rad/s, and the samples are passed through an ideal reconstruction filter of gain $T$ and cut-off $\\omega_c=500\\pi$.',
+  parts:['Give $X(j\\omega)$ and the Nyquist rate of $x(t)$.',
+         'Describe the spectrum after sampling and say whether the copies overlap.',
+         'Give the output of the reconstruction filter, and repeat the three parts for $\\omega_s=600\\pi$.'],
+  sol:'<b>Given.</b> An ideal low-pass signal, sampled first above and then below its Nyquist rate.<br>'
+     +'<b>Find.</b> The spectrum at each stage, and what the filter returns in the two cases.<br>'
+     +'<b>Method.</b> Sampling replicates the spectrum at multiples of $\\omega_s$. Whether the copies overlap decides whether the filter output is $x$ or something else.<br>'
+     +'<b>Solution — part (a).</b> The sinc gives$$X(j\\omega)=\\begin{cases}1,&|\\omega|<400\\pi\\\\0,&\\text{otherwise,}\\end{cases}$$so $\\omega_M=400\\pi$ and the Nyquist rate is $800\\pi$ rad/s.<br>'
+     +'<b>Solution — part (b).</b> At $\\omega_s=1000\\pi>800\\pi$ the condition holds. The copies sit at $0,\\pm1000\\pi,\\dots$, each of width $800\\pi$, and the gap between neighbours is $1000\\pi-800\\pi=200\\pi$. They do not overlap.<br>'
+     +'<b>Solution — part (c).</b> With $\\omega_c=500\\pi$, the filter keeps exactly the copy at the origin — the cut-off lies inside the gap, since $400\\pi<500\\pi<600\\pi$ — and its gain $T$ undoes the factor $\\tfrac1T$. The output is $x(t)$ exactly.<br>'
+     +'At $\\omega_s=600\\pi$, however, $600\\pi<800\\pi$ and the condition fails. Neighbouring copies, centred $600\\pi$ apart and $800\\pi$ wide, overlap on $200\\pi<|\\omega|<400\\pi$, where the spectrum sums to $2$ instead of $1$. The filter cannot separate the overlapped part, and its output is a signal whose spectrum is $1$ on $|\\omega|<200\\pi$ and $2$ on $200\\pi<|\\omega|<400\\pi$ — not $x(t)$, and no choice of $\\omega_c$ repairs it.<br>'
+     +'<b>Check.</b> The overlap width in the second case is $2\\omega_M-\\omega_s=800\\pi-600\\pi=200\\pi$, which matches the interval found. In the first case the same expression is negative, $800\\pi-1000\\pi=-200\\pi$, and its magnitude is the gap — one formula covering both, with the sign saying which situation applies.',
+  figSol:()=>pair(
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1400,1400],yr:[-0.2,1.5],xlabel:'\\omega/\\pi',ylabel:'X_p(j\\omega)\\;\\text{at}\\;1000\\pi',
+      pad:{l:70,r:26,t:28,b:38},xstep:500,ystep:0.5});
+      const box=c=>[[c-400,0],[c-400,1],[c+400,1],[c+400,0]];
+      a.poly([[-1400,0]].concat(box(-1000)).concat(box(0)).concat(box(1000)).concat([[1400,0]]),{color:C.in});
+      return a.svg();})(),
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1000,1000],yr:[-0.3,2.6],xlabel:'\\omega/\\pi',ylabel:'X_p(j\\omega)\\;\\text{at}\\;600\\pi',
+      pad:{l:70,r:26,t:28,b:38},xstep:400,ystep:1});
+      a.curve(w=>{let s=0; for(let k=-3;k<=3;k++) if(Math.abs(w-600*k)<400) s+=1; return s;},{color:C.err});
+      return a.svg();})()),
+  err:'Choosing $\\omega_c$ to fix the second case. Once the copies have overlapped, the sum in the overlapped band is a single function with no record of which copy contributed what; a filter selects bands, and there is no band here that holds only the original.',
+  teach:'The signed quantity $2\\omega_M-\\omega_s$ is worth naming. Negative means a gap and a free choice of cut-off; positive means an overlap of that width and no cut-off that works. One number answers both halves of this question.' }
 
 ]);
 
@@ -458,11 +650,11 @@ window.DRILLMAP_M7 = [
 
 { id:'m7-drill-map', module:'M7', nav:'Module 7 · question types',
   title:'Module 7 — what a question looks like', src:'pp. 80–88',
-  objective:'Name the five recurring question shapes before the module is read.',
+  objective:'Name the six recurring question shapes before the module is read.',
   keywords:'practice questions module 7 question types Nyquist rate bandwidth aliasing guard band reconstruction taxonomy practice',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 7 · Question types', src:'pp. 80–88'},
-  {t:'title', text:'Five shapes, and the method each one wants'},
+  {t:'title', text:'Six shapes, and the method each one wants'},
   {t:'lede', text:'Questions on sampling come in five shapes, and three of them reduce to the same task: find the highest frequency present. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M7'},
@@ -478,10 +670,10 @@ window.DRILL_M7 = [
 
 { id:'m7-drill', module:'M7', nav:'Module 7 · practice questions',
   title:'Module 7 — practice questions', src:'pp. 80–88',
-  objective:'Twenty open-ended questions with worked solutions, in the form they are asked in.',
+  objective:'Thirty open-ended questions with worked solutions, in the form they are asked in.',
   keywords:'practice questions module 7 practice Nyquist rate sampling aliasing bandwidth guard band reconstruction zero order hold',
   steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Practice D7-01 … D7-20', src:'pp. 80–88'},
+  {t:'eyebrow', text:'Module 7 · Practice D7-01 … D7-30', src:'pp. 80–88'},
   {t:'title', text:'Practice questions'},
   {t:'small', html:'Work each question on paper before opening its solution. Give $\\omega_M$ before the rate every time, so the factor of two is visible, and state the units — a rate in rad/s and a rate in hertz differ by $2\\pi$. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
   {t:'rule', short:true},
