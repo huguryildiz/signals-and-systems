@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signals and Systems — EE 311</title>
+<meta name="description" content="An undergraduate signals and systems course: an interactive artifact in 235 scenes, lecture notes, a student workbook and a formula reference.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta property="og:title" content="Signals and Systems — EE 311">
+<meta property="og:description" content="An interactive lecture artifact in 235 scenes, with lecture notes, a workbook and a formula reference.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --paper:#FAF8F4; --paper-2:#FFFFFF; --paper-3:#F2EFE8;
+  --ink:#232B33; --graphite:#3B4650; --muted:#616B76; --faint:#939BA4;
+  --rule:#DCD7CC; --rule-strong:#C2BCB0;
+  --coral:#A0451C; --slate:#28567E;
+  --sig-in:#14707F; --sig-h:#C08422; --sig-out:#4A7A46; --sig-mid:#6A5A92;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","Hoefler Text",Georgia,"Times New Roman",serif;
+  --sans:"Inter","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","IBM Plex Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --radius:3px; --dur:260ms; --ease:cubic-bezier(.22,.61,.36,1);
+}
+html[data-theme=dark]{
+  --paper:#0E1621; --paper-2:#1A2634; --paper-3:#141F2C;
+  --ink:#E6E2D9; --graphite:#C8C3B8; --muted:#9AA3AC; --faint:#6F7A85;
+  --rule:#27333F; --rule-strong:#3A4854;
+  --coral:#E09A6A; --slate:#8FB8DC;
+  --sig-in:#3FA3B2; --sig-h:#D9A648; --sig-out:#7BAE74; --sig-mid:#9A8AC0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--sans);
+  line-height:1.55; min-height:100vh; position:relative;
+  transition:background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+/* ---- flow-field backdrop ------------------------------------------------
+   Particles follow a simplex flow field and leave trails, so the page opens
+   on a signal moving through a medium. It sits behind everything, is faded
+   out under the reading column, and stops completely under reduced motion. */
+#flow{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none}
+#veil{
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% 0%, transparent 0%, var(--paper) 78%),
+    linear-gradient(180deg, transparent 0%, transparent 42%, var(--paper) 88%);
+}
+.wrap{position:relative; z-index:2; max-width:1080px; margin:0 auto; padding:0 32px 96px}
+
+/* ---- header ---- */
+header{display:flex; align-items:center; gap:16px; padding:28px 0 0}
+.brand{display:flex; align-items:center; gap:12px; font-family:var(--mono);
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--slate)}
+.brand svg{width:22px; height:22px; display:block}
+.spacer{flex:1}
+button.ghost{
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); background:transparent; border:1px solid var(--rule);
+  border-radius:var(--radius); padding:6px 12px; cursor:pointer;
+  transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+button.ghost:hover{color:var(--ink); border-color:var(--rule-strong)}
+button.ghost:focus-visible{outline:2px solid var(--slate); outline-offset:2px}
+
+/* ---- hero ---- */
+.hero{padding:120px 0 88px; max-width:760px}
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:22px}
+h1{font-family:var(--serif); font-weight:400; font-size:clamp(44px,7vw,78px);
+  line-height:1.04; letter-spacing:-.015em; margin-bottom:26px}
+h1 .em{color:var(--coral)}
+.lede{font-size:clamp(17px,2vw,20px); color:var(--graphite); max-width:62ch}
+.lede + .lede{margin-top:14px; font-size:16px; color:var(--muted)}
+
+/* ---- document cards ---- */
+h2.sec{
+  font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--faint); font-weight:500; padding-bottom:12px;
+  border-bottom:1px solid var(--rule); margin-bottom:0;
+}
+/* The artifact is the course; the other three are ways of reading it. The
+   grid says so: one full-width card, then three of equal weight below it. */
+.docs{display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--rule); border-bottom:1px solid var(--rule)}
+.doc.lead{grid-column:1 / -1; padding:36px 30px 30px}
+.doc.lead h3{font-size:33px; margin-bottom:12px}
+.doc.lead p{font-size:16px; max-width:62ch}
+.doc{
+  background:var(--paper); padding:30px 26px 26px; display:flex; flex-direction:column;
+  color:inherit; position:relative;
+  transition:background var(--dur) var(--ease);
+}
+.doc:hover{background:var(--paper-2)}
+.doc .rail{position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent)}
+.doc .kind{font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); margin-bottom:14px}
+.doc h3{font-family:var(--serif); font-weight:400; font-size:25px; line-height:1.2; margin-bottom:10px}
+.doc h3 a{color:inherit; text-decoration:none}
+/* The card is one target: the title's link is stretched over the whole of it,
+   so the markup stays a heading link and no anchor is nested in another. */
+.doc h3 a::after{content:""; position:absolute; inset:0; z-index:1}
+.doc h3 a:focus-visible::after{outline:2px solid var(--slate); outline-offset:-2px}
+.doc p{font-size:14.5px; color:var(--muted); flex:1}
+.doc .meta{
+  margin-top:20px; padding-top:14px; border-top:1px solid var(--rule);
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+  color:var(--faint); display:flex; gap:14px; align-items:center;
+}
+.doc .go{margin-left:auto; color:var(--accent)}
+.alt{
+  position:relative; z-index:2; align-self:flex-start;
+  margin-top:10px; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.08em; color:var(--slate); text-decoration:none;
+  border-bottom:1px solid var(--rule); padding-bottom:1px;
+}
+.alt:hover{border-color:var(--slate)}
+
+/* ---- course outline ---- */
+.about{display:grid; grid-template-columns:1fr 1fr; gap:56px; padding:72px 0 0}
+.about h2{font-family:var(--serif); font-weight:400; font-size:27px; margin-bottom:16px}
+.about p{font-size:15.5px; color:var(--graphite); margin-bottom:12px}
+.modules{list-style:none; font-size:14.5px}
+.modules li{display:flex; gap:14px; padding:9px 0; border-bottom:1px solid var(--rule)}
+.modules li:last-child{border-bottom:0}
+.modules .n{font-family:var(--mono); font-size:11px; color:var(--faint); padding-top:3px; min-width:26px}
+.modules .t{color:var(--graphite)}
+
+/* ---- footer ---- */
+footer{
+  margin-top:80px; padding-top:22px; border-top:1px solid var(--rule);
+  display:flex; flex-wrap:wrap; gap:18px; align-items:baseline;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:var(--faint);
+}
+footer a{color:var(--slate); text-decoration:none; border-bottom:1px solid transparent}
+footer a:hover{border-color:var(--slate)}
+footer .spacer{flex:1; min-width:20px}
+
+@media (max-width:900px){
+  .docs{grid-template-columns:1fr}
+  .doc.lead{padding:30px 26px 26px}
+  .doc.lead h3{font-size:27px}
+  .doc.lead p{font-size:15px}
+}
+@media (max-width:760px){
+  .wrap{padding:0 20px 64px}
+  .hero{padding:72px 0 56px}
+  .about{grid-template-columns:1fr; gap:36px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="flow" aria-hidden="true"></canvas>
+<div id="veil" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header>
+    <span class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <path d="M1 12c2.5 0 2.5-8 5-8s2.5 16 5 16 2.5-8 5-8 2.5 4 5 4" stroke-linecap="round"/>
+      </svg>
+      EE 311 · Signals and Systems
+    </span>
+    <span class="spacer"></span>
+    <button class="ghost" id="btn-theme" type="button" aria-label="Switch between light and dark">Dark</button>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Undergraduate course · Modules 0–7</div>
+    <h1>A signals course that <span class="em">builds itself</span>, one idea at a time.</h1>
+    <p class="lede">Everything the course teaches — what a signal is, energy and power, system
+      properties, convolution, Fourier series, both Fourier transforms, sampling and aliasing —
+      written as teaching material and stepped through scene by scene.</p>
+    <p class="lede">Every document below is a single file. Nothing installs, nothing signs in,
+      and no page makes a network request once it has loaded.</p>
+  </section>
+
+  <h2 class="sec">The four documents</h2>
+  <div class="docs">
+
+    <div class="doc lead" style="--accent:var(--sig-in)">
+      <span class="rail"></span>
+      <span class="kind">Interactive · start here</span>
+      <h3><a href="Signals_and_Systems.html">The lecture artifact</a></h3>
+      <p>235 scenes, ten laboratories and 210 practice questions with worked solutions.
+        Press the right arrow and the mathematics assembles itself; every worked solution
+        stays hidden until you ask for it.</p>
+      <span class="meta">HTML · 2.1 MB · works offline <span class="go">Open →</span></span>
+    </div>
+
+    <div class="doc" style="--accent:var(--sig-h)">
+      <span class="rail"></span>
+      <span class="kind">Reading · A4</span>
+      <h3><a href="Lecture_Notes.html">Lecture notes</a></h3>
+      <p>The same course as a continuous document: eight chapters and three appendices,
+        with worked examples in Given, Find, Method, Solution, Check form.</p>
+      <span class="meta">HTML · 80 pages <span class="go">Open →</span></span>
+      <a class="alt" href="Lecture_Notes.pdf">PDF edition ↓</a>
+    </div>
+
+    <div class="doc" style="--accent:var(--sig-out)">
+      <span class="rail"></span>
+      <span class="kind">Practice</span>
+      <h3><a href="Student_Workbook.html">Student workbook</a></h3>
+      <p>The 210 practice questions on their own, thirty to a module, in the form the
+        papers use. Question types first, then the questions.</p>
+      <span class="meta">HTML · 83 pages <span class="go">Open →</span></span>
+    </div>
+
+    <div class="doc" style="--accent:var(--sig-mid)">
+      <span class="rail"></span>
+      <span class="kind">Reference</span>
+      <h3><a href="Formula_Reference.html">Formula and notation</a></h3>
+      <p>The conventions, both transform pairs, every property table the course
+        establishes, and a definition for every symbol it uses.</p>
+      <span class="meta">HTML · 11 pages <span class="go">Open →</span></span>
+    </div>
+
+  </div>
+
+  <section class="about">
+    <div>
+      <h2>What the course covers</h2>
+      <p>The material runs from the definition of a signal to the sampling theorem. Continuous
+        time and discrete time are developed side by side and kept visibly separate, and every
+        result states the conditions it depends on.</p>
+      <p>Energy and power are normalised at one ohm, the imaginary unit is <em>j</em>, and sinc
+        is unnormalised. Each convention is restated where it is used, so no page assumes you
+        remember a choice made three chapters earlier.</p>
+    </div>
+    <div>
+      <ul class="modules">
+        <li><span class="n">M0</span><span class="t">What a signal is, and how to read the course</span></li>
+        <li><span class="n">M1</span><span class="t">Signals: energy, power, transformations, periodicity</span></li>
+        <li><span class="n">M2</span><span class="t">System properties and their counterexamples</span></li>
+        <li><span class="n">M3</span><span class="t">Linear time-invariant systems and convolution</span></li>
+        <li><span class="n">M4</span><span class="t">Fourier series in continuous and discrete time</span></li>
+        <li><span class="n">M5</span><span class="t">The continuous-time Fourier transform</span></li>
+        <li><span class="n">M6</span><span class="t">The discrete-time Fourier transform</span></li>
+        <li><span class="n">M7</span><span class="t">Sampling, reconstruction and aliasing</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span id="ver">Artifact v1.7</span>
+    <span>Progress is stored on your own device and nowhere else.</span>
+    <span class="spacer"></span>
+    <a href="https://github.com/huguryildiz/signals-and-systems">Source and build pipeline →</a>
+  </footer>
+</div>
+
+<script>
+/* ── theme ────────────────────────────────────────────────────────────── */
+(function(){
+  var root=document.documentElement, btn=document.getElementById('btn-theme');
+  var saved=null;
+  try{ saved=localStorage.getItem('ss-cover-theme'); }catch(e){}
+  var dark = saved ? saved==='dark'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function apply(){
+    root.setAttribute('data-theme', dark?'dark':'light');
+    btn.textContent = dark?'Light':'Dark';
+    if(window.__flowTheme) window.__flowTheme(dark);
+  }
+  btn.addEventListener('click', function(){
+    dark=!dark;
+    try{ localStorage.setItem('ss-cover-theme', dark?'dark':'light'); }catch(e){}
+    apply();
+  });
+  apply();
+})();
+
+/* ── flow field ───────────────────────────────────────────────────────────
+   Adapted from Radiant Shaders #01, "Flow Field with Particle Trails" (MIT).
+   The palette is the course's own signal semantics: cyan for the input,
+   amber for the system, green for the output, violet for an intermediate
+   step. Particles ride a simplex field, so what the page draws is a signal
+   carried through a medium rather than decoration.
+   ───────────────────────────────────────────────────────────────────── */
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Simplex noise, 3D only — Stefan Gustavson's construction. */
+  var F3=1/3, G3=1/6;
+  var grad3=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
+             [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+  var perm=new Uint8Array(512), permMod12=new Uint8Array(512);
+  (function(seed){
+    var p=new Uint8Array(256), i;
+    for(i=0;i<256;i++) p[i]=i;
+    for(i=255;i>0;i--){ seed=(seed*16807)%2147483647; var j=seed%(i+1), t=p[i]; p[i]=p[j]; p[j]=t; }
+    for(i=0;i<512;i++){ perm[i]=p[i&255]; permMod12[i]=perm[i]%12; }
+  })(311);
+
+  function noise3D(xin,yin,zin){
+    var n0,n1,n2,n3;
+    var s=(xin+yin+zin)*F3;
+    var i=Math.floor(xin+s), j=Math.floor(yin+s), k=Math.floor(zin+s);
+    var t=(i+j+k)*G3;
+    var x0=xin-(i-t), y0=yin-(j-t), z0=zin-(k-t);
+    var i1,j1,k1,i2,j2,k2;
+    if(x0>=y0){
+      if(y0>=z0){ i1=1;j1=0;k1=0;i2=1;j2=1;k2=0; }
+      else if(x0>=z0){ i1=1;j1=0;k1=0;i2=1;j2=0;k2=1; }
+      else { i1=0;j1=0;k1=1;i2=1;j2=0;k2=1; }
+    } else {
+      if(y0<z0){ i1=0;j1=0;k1=1;i2=0;j2=1;k2=1; }
+      else if(x0<z0){ i1=0;j1=1;k1=0;i2=0;j2=1;k2=1; }
+      else { i1=0;j1=1;k1=0;i2=1;j2=1;k2=0; }
+    }
+    var x1=x0-i1+G3, y1=y0-j1+G3, z1=z0-k1+G3;
+    var x2=x0-i2+2*G3, y2=y0-j2+2*G3, z2=z0-k2+2*G3;
+    var x3=x0-1+3*G3, y3=y0-1+3*G3, z3=z0-1+3*G3;
+    var ii=i&255, jj=j&255, kk=k&255, gi, t0,t1,t2,t3;
+    t0=0.6-x0*x0-y0*y0-z0*z0;
+    if(t0<0) n0=0; else { t0*=t0; gi=permMod12[ii+perm[jj+perm[kk]]];
+      n0=t0*t0*(grad3[gi][0]*x0+grad3[gi][1]*y0+grad3[gi][2]*z0); }
+    t1=0.6-x1*x1-y1*y1-z1*z1;
+    if(t1<0) n1=0; else { t1*=t1; gi=permMod12[ii+i1+perm[jj+j1+perm[kk+k1]]];
+      n1=t1*t1*(grad3[gi][0]*x1+grad3[gi][1]*y1+grad3[gi][2]*z1); }
+    t2=0.6-x2*x2-y2*y2-z2*z2;
+    if(t2<0) n2=0; else { t2*=t2; gi=permMod12[ii+i2+perm[jj+j2+perm[kk+k2]]];
+      n2=t2*t2*(grad3[gi][0]*x2+grad3[gi][1]*y2+grad3[gi][2]*z2); }
+    t3=0.6-x3*x3-y3*y3-z3*z3;
+    if(t3<0) n3=0; else { t3*=t3; gi=permMod12[ii+1+perm[jj+1+perm[kk+1]]];
+      n3=t3*t3*(grad3[gi][0]*x3+grad3[gi][1]*y3+grad3[gi][2]*z3); }
+    return 32*(n0+n1+n2+n3);
+  }
+
+  var canvas=document.getElementById('flow'), ctx=canvas.getContext('2d');
+  var dpr=Math.min(window.devicePixelRatio||1, 2);
+  var W=0, H=0, time=0, raf=0;
+
+  /* Two palettes, one per page colour. The signal hues are the artifact's,
+     lifted a little on the dark page so they carry at low alpha. */
+  var THEME={
+    light:{ bg:'250,248,244', fade:0.020, alpha:[0.16,0.44],
+      pal:[[20,112,127],[40,134,140],[192,132,34],[74,122,70],[106,90,146],[160,69,28]] },
+    dark:{ bg:'14,22,33', fade:0.020, alpha:[0.16,0.48],
+      pal:[[63,163,178],[86,186,190],[217,166,72],[123,174,116],[154,138,192],[224,154,106]] }
+  };
+  var T=THEME.light;
+
+  /* DRIFT carries every particle left to right on top of the field, so the
+     picture reads as a signal advancing in time rather than as a vortex. */
+  var COUNT=1100, NOISE_SCALE=0.0013, SPEED=0.85, DRIFT=0.9;
+  var particles=[];
+
+  function spawn(){
+    return { x:Math.random()*W, y:Math.random()*H,
+             speed:0.35+Math.random()*0.95,
+             alpha:T.alpha[0]+Math.random()*(T.alpha[1]-T.alpha[0]),
+             size:0.4+Math.random()*1.3,
+             hue:Math.floor(Math.random()*T.pal.length) };
+  }
+
+  function clear(){
+    ctx.fillStyle='rgb('+T.bg+')';
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function resize(){
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr);
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    clear();
+    particles.length=0;
+    for(var i=0;i<COUNT;i++) particles.push(spawn());
+    if(reduced) still();
+  }
+
+  function step(dt){
+    ctx.fillStyle='rgba('+T.bg+','+T.fade+')';
+    ctx.fillRect(0,0,W,H);
+    time+=dt;
+    for(var i=0;i<COUNT;i++){
+      var p=particles[i];
+      var a=noise3D(p.x*NOISE_SCALE, p.y*NOISE_SCALE, time)*Math.PI*1.7;
+      var px=p.x, py=p.y;
+      p.x+=(Math.cos(a)*p.speed+DRIFT)*SPEED;
+      p.y+=Math.sin(a)*p.speed*SPEED;
+      var c=T.pal[p.hue];
+      ctx.beginPath();
+      ctx.moveTo(px,py); ctx.lineTo(p.x,p.y);
+      ctx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+p.alpha+')';
+      ctx.lineWidth=p.size;
+      ctx.stroke();
+      /* A particle that leaves re-enters from the left, so the drift keeps
+         feeding the field instead of emptying it. */
+      if(p.x>W+20){ p.x=-20; p.y=Math.random()*H; }
+      else if(p.x<-40||p.y<-40||p.y>H+40){ p.x=-20; p.y=Math.random()*H; }
+    }
+  }
+
+  /* Reduced motion gets the same picture, drawn once and left alone. */
+  function still(){
+    clear();
+    for(var k=0;k<240;k++) step(0.0006);
+  }
+
+  function frame(){ step(0.0006); raf=requestAnimationFrame(frame); }
+
+  window.__flowTheme=function(dark){
+    T = dark ? THEME.dark : THEME.light;
+    for(var i=0;i<particles.length;i++)
+      particles[i].alpha = T.alpha[0]+Math.random()*(T.alpha[1]-T.alpha[0]);
+    clear();
+    if(reduced) still();
+  };
+
+  window.addEventListener('resize', resize);
+  resize();
+  window.__flowTheme(document.documentElement.getAttribute('data-theme')==='dark');
+  if(!reduced) raf=requestAnimationFrame(frame);
+
+  /* A hidden page should not burn a core. */
+  document.addEventListener('visibilitychange', function(){
+    if(reduced) return;
+    if(document.hidden){ cancelAnimationFrame(raf); raf=0; }
+    else if(!raf) raf=requestAnimationFrame(frame);
+  });
+})();
+</script>
+</body>
+</html>
