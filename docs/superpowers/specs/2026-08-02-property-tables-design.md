@@ -43,9 +43,14 @@ from the pairs: the unit step, `t e^{-at}u(t)`, `t^{n-1}e^{-at}u(t)/(n-1)!`, and
 square wave.
 
 **Module 6, the discrete-time transform.** `m6-tables` carries eleven properties and eleven
-pairs. Absent from the properties: accumulation, the full conjugate-symmetry set, and the
-even-odd decomposition. Absent from the pairs: the unit step, `\sin\omega_0 n`, and
-`\frac{(n+r-1)!}{n!(r-1)!}a^{n}u[n]`.
+pairs. Absent from the properties: accumulation, the conjugate-symmetry statements for real and
+even and for real and odd sequences, and the even-odd decomposition. Absent from the pairs: the
+unit step, `\sin\omega_0 n`, and `\frac{(n+r-1)!}{n!(r-1)!}a^{n}u[n]`.
+
+**Corrected while building.** Accumulation and the conjugate-symmetry set are *taught* in
+Module 6 — accumulation with its impulse-train term in `m6-props-3`, the symmetry set in
+`m6-props-2`. They are missing only from the summary. Module 6 therefore needs one new teaching
+scene, not two: the even-odd decomposition and the two sharpened symmetry statements.
 
 The Laplace transform and the z-transform are **out of scope**. The course runs from Module 0
 to Module 7 and ends at sampling; neither transform is taught, and the region of convergence —
@@ -71,9 +76,10 @@ consistent with themselves. The two forms state the same correspondences.
 
 ## 4 New scenes
 
-Twelve scenes. The artifact goes from 223 scenes to 235.
+Twelve scenes. The artifact goes from 223 scenes to 235. Eight of them teach; four are
+summaries.
 
-### 4.1 Module 4 — five teaching scenes and a summary
+### 4.1 Module 4 — five teaching scenes and two summaries
 
 | Id | Section | What it establishes |
 | --- | --- | --- |
@@ -82,48 +88,66 @@ Twelve scenes. The artifact goes from 223 scenes to 235.
 | `m4-props-calc` | 4.5 | Differentiation, `dx/dt\leftrightarrow jk\omega_0 a_k`, and integration, `\int_{-\infty}^{t}x\,d\tau\leftrightarrow a_k/(jk\omega_0)`. The integral is finite-valued and periodic **only if `a_0=0`**, and the condition is what the scene is for. |
 | `m4-props-dt-calc` | 4.5 | The discrete-time pair: first difference `x[n]-x[n-1]\leftrightarrow(1-e^{-jk(2\pi/N)})a_k`, running sum `\leftrightarrow a_k/(1-e^{-jk(2\pi/N)})` under the same `a_0=0` condition. |
 | `m4-props-evenodd` | 4.5 | The even-odd decomposition, `\mathrm{Ev}\{x\}\leftrightarrow\operatorname{Re}\{a_k\}` and `\mathrm{Od}\{x\}\leftrightarrow j\operatorname{Im}\{a_k\}`, and the five-statement conjugate-symmetry set for a real signal. |
-| `m4-tables` | **4.7, new** | The summary: continuous-time series properties on the left, discrete-time series properties on the right. |
+| `m4-tables` | **4.7, new** | The summary of the continuous-time series properties. |
+| `m4-tables-dt` | **4.7, new** | The summary of the discrete-time series properties. |
 
 Section 4.7 is added after 4.6. Nothing is renumbered.
+
+The two summaries were written as one scene, side by side. `qa.js` reported it at a scale
+factor of 0.87, below the 0.90 that §7.3 of `CLAUDE.md` sets as the point where a scene is split
+rather than shrunk, so it was split along the obvious line. Each half now spreads its fifteen
+rows over two columns and neither is reported as dense. This is §4.4 working as intended: the
+gate decided, not an estimate.
 
 ### 4.2 Module 5 — two teaching scenes and a split summary
 
 | Id | Section | What it establishes |
 | --- | --- | --- |
 | `m5-props-int` | 5.4 | Integration: `\int_{-\infty}^{t}x(\tau)\,d\tau\leftrightarrow\frac{1}{j\omega}X(j\omega)+\pi X(0)\delta(\omega)`. The impulse term carries the mean value of the signal, and dropping it is the standard error. |
-| `m5-props-evenodd` | 5.4 | Differentiation in frequency, `tx(t)\leftrightarrow j\,dX/d\omega`; the symmetry statements for real-and-even and real-and-odd signals; the even-odd decomposition. |
+| `m5-props-evenodd` | 5.4 | The symmetry statements for real-and-even and real-and-odd signals, the even-odd decomposition, and differentiation in frequency, `tx(t)\leftrightarrow j\,dX/d\omega`. |
 | `m5-pairs` | 5.6 | The transform pairs, moved out of `m5-tables` into a scene of their own and completed. |
 
 `m5-tables` keeps the properties and gains the four missing rows. `m5-pairs` carries the pairs
 and gains the unit step, `t e^{-at}u(t)`, the general `t^{n-1}e^{-at}u(t)/(n-1)!` form and the
 periodic square wave.
 
-### 4.3 Module 6 — two teaching scenes and a split summary
+### 4.3 Module 6 — one teaching scene and a split summary
 
 | Id | Section | What it establishes |
 | --- | --- | --- |
-| `m6-props-accum` | 6.4 | Accumulation: `\sum_{k=-\infty}^{n}x[k]\leftrightarrow\frac{1}{1-e^{-j\omega}}X(e^{j\omega})+\pi X(e^{j0})\sum_k\delta(\omega-2\pi k)`. The impulse train is the discrete-time counterpart of the `\pi X(0)\delta(\omega)` term in Module 5, and the two scenes are written to be read together. |
-| `m6-props-evenodd` | 6.4 | The conjugate-symmetry set, the real-and-even and real-and-odd statements, and the even-odd decomposition. |
+| `m6-props-evenodd` | 6.4 | The real-and-even and real-and-odd statements and the even-odd decomposition, worked on `a^{n}u[n]`. Accumulation needed no new scene: `m6-props-3` already carries it with its impulse-train term. |
 | `m6-pairs` | 6.6 | The transform pairs, split out of `m6-tables` and completed with the unit step, `\sin\omega_0 n` and `\frac{(n+r-1)!}{n!(r-1)!}a^{n}u[n]`. |
 
 ### 4.4 Density
 
 A summary of fifteen or more rows may not hold at a scale factor of 0.90, which §7.3 sets as
-the point where a scene is split rather than shrunk. The split above is the planned one; if
-`qa.js` reports a further scene under `dense`, that scene is split again along the same line —
-properties from pairs, continuous time from discrete time. Density is decided by the gate, not
-by estimate.
+the point where a scene is split rather than shrunk. Density is decided by the gate, not by
+estimate: `qa.js` reports every scene held together below 0.90 under `dense`, and any scene it
+names is split along the obvious line — properties from pairs, continuous time from discrete
+time. One scene was named and one scene was split; see §4.1.
 
 ## 5 Figures
 
-One new figure: the zero-stuffed sequence `x_{(m)}[n]` in `m4-props-freq`, drawn as stems
-beside the original sequence, because zero-stuffing is a shape and not a formula. Every label
-in it is TeX with `tex:true` (R7), axis names sit outside the data area, and the scene is
-checked by `textclash.js` like every other.
+The design assumed the property scenes would be equation-led, with one new figure. That was
+wrong about the artifact: every teaching scene in it is a two-column scene with figures on the
+right, and a scene with an empty right column reads as broken rather than as spare. The eight
+teaching scenes therefore carry figures, and each one earns its place by showing something the
+equation does not:
 
-The other eleven scenes are equation-led. A property is a correspondence between two
-expressions, and a figure that restates it adds nothing; where a property has a visible
-consequence, the consequence goes in a note rather than a plot.
+- `m4-props-freq` — the zero-stuffed sequence `x_{(m)}[n]` beside the original, because
+  zero-stuffing is a shape; and `x(t)` against `x(2t)`, because scaling is one.
+- `m4-props-conv` — the rectangular wave, the triangular wave it convolves into, and the two
+  coefficient sets with `2a_k^{2}` drawn against `a_k`.
+- `m4-props-calc` — the running integral with the mean left in, drifting upward for ever,
+  against the same integral with the mean removed. The condition is the picture.
+- `m4-props-dt-calc` — the two running sums, one repeating and one climbing by `Na_0`.
+- `m4-props-evenodd`, `m5-props-evenodd`, `m6-props-evenodd` — a signal that is neither even
+  nor odd, its two parts, and the real and imaginary parts of its spectrum.
+- `m5-props-int` — a pulse of area one and a pulse of area zero, with their running integrals.
+
+Every label is TeX with `tex:true` (R7), axis names sit outside the data area, and all eight
+are inside the `textclash.js` sweep. The four summary scenes carry no figure, which matches
+`m5-tables` and `m6-tables` as they already were.
 
 ## 6 The lecture notes and the five editions
 
@@ -163,26 +187,63 @@ it, and on a gap or a repeat in the addressing, so both are checked rather than 
 
 ## 8 Verification
 
-The ten gates of §5 of `CLAUDE.md` all run. Their expected shape after the change:
+The gates of §5 of `CLAUDE.md` all ran. What they printed:
 
-- `qa.js` — 235 scenes, 0 errors, 0 overflow. Any scene named under `dense` is split.
-- `mathscan.js` — `SCENES WITH MATH DAMAGE: 0 / 235`.
-- `seccheck.js` — `ADDRESSED` rises by 12, `ANCHORED` by however many of the twelve have a
-  textbook counterpart.
-- `textclash.js` — `TOTAL COLLISIONS: 0`, with the new zero-stuffing figure inside the sweep.
-- `labtest.js`, `labwalk.js` — unchanged; no laboratory is touched.
-- `rule_check.py` — `TOTAL VIOLATIONS: 0` over the new scene files and the notes sources.
-- `notes/mathscan.js` — run after the notes are rebuilt, `LITERAL MATH IN NOTES: 0`.
+| Gate | Result |
+| --- | --- |
+| `node --check` over every scene and drill file | silent |
+| `qa.js` | 235 scenes, 0 errors, 0 overflow; no new scene under `dense` |
+| `labtest.js` | `ERRORS: none`; 210 drill pages, 210 solutions, `options=0` |
+| `textclash.js` | `TOTAL COLLISIONS: 0` |
+| `mathscan.js` | `SCENES WITH MATH DAMAGE: 0 / 235` |
+| `notes/mathscan.js` | `LITERAL MATH IN NOTES: 0`, `KATEX ERRORS: 0` |
+| `labwalk.js` | `STATES WALKED: 1038`, `PROBLEMS: none` |
+| `seccheck.js` | `SCENES: 235`, `ADDRESSED: 234`, `ANCHORED: 208`, `PROBLEMS: none` |
+| `verify_m1_m3.py` | 50 passed, 0 failed |
+| `verify_drills.py` | 913 passed, 0 failed |
+| `verify_m4_m6.py` | 26 passed, 0 failed |
+| `rule_check.py` | `TOTAL VIOLATIONS: 0` |
 
-**The numbers above are expectations, not results.** What is reported is what a run prints.
+**Three things the gates sent back.** `textclash.js` failed on its first run with five collisions, all of them in new figures: two
+labels drawn over the curves they named in `m4-props-evenodd`, two drawn over the stems in
+`m4-props-dt-calc`, and one landing on a tick number in `m5-props-evenodd`. The first and third
+were moved into empty space; the second pair was the wrong figure — two running sums in one
+frame needed in-figure labels to tell them apart, and two frames named by their captions need
+none. That is R7 being enforced rather than remembered.
 
-**An eleventh gate, conditionally.** `verify_m1_m3.py` covers Modules 1 to 3 and no more, so a
-number stated in a Module 4 to 6 teaching scene is checked by nothing today. Where a new scene
-states a numerical result — a worked coefficient, a period, a value of a sum — that result gets
-a check in a new `verify/verify_m4_m6.py`, in the same one-line-per-assertion PASS/FAIL format,
-sharing the `.venv` and `verify/drill_common.py`. If the twelve scenes end up stating no
-numbers beyond the symbolic identities themselves, the file is not created and this section
-records why.
+`qa.js` named the Module 4 summary at 0.87 and it was split in two, as §4.1 records. It then
+named `m5-props-int` at 0.894 once the key column of the summary tables was widened. That scene
+was carrying integration *and* differentiation in frequency, which are two properties and not
+one; differentiation in frequency moved to `m5-props-evenodd`, which the gate reported as
+unscaled and which is where the design had put it in the first place. Both scenes are unscaled
+now and the `dense` list is back to the eleven scenes it held before this work.
+
+Looking at a screenshot caught the third, which no gate measures: the key column of a `wex` row
+was 120 px, and `DIFFERENTIATION` and `MULTIPLICATION` are wider than that in uppercase mono
+with wide tracking, so they broke mid-word — `DIFFERENTIATI / ON`. The column is 136 px now and
+the break is allowed only at a space. This was not introduced by the property tables; the
+`m5-tables` that shipped in v1.5 had it. It is fixed because the tables are what a reader now
+looks at.
+
+**An eleventh gate.** `verify_m1_m3.py` covers Modules 1 to 3 and no more, so a number stated
+in a Module 4 to 6 teaching scene was checked by nothing. The new scenes do state numbers, so
+`verify/verify_m4_m6.py` exists and is the eleventh gate: 26 checks in the same
+one-line-per-assertion PASS/FAIL format, sharing the `.venv`. It re-derives every claim the new
+scenes make — that the rectangular wave convolves with itself into the triangular wave and that
+the result's coefficients are `T_0a_k^{2}`, that the zero-stuffed sequence has period `mN` and
+coefficients `a_k/m`, that the mean-removed integral is bounded by `\pm0.25` while the raw one
+adds the ramp `a_0t`, that the two running sums repeat and climb as stated, that the zero-area
+pulse integrates back to zero, and that the even part of a one-sided exponential transforms to
+the real part of its spectrum in both continuous and discrete time.
+
+**The editions.** All five were rebuilt: Lecture_Notes 78 pages (was 73), Student_Workbook 83,
+Instructor_Solutions 272, Formula_Reference 11 (was 6), each with `katex errors 0` and
+`page errors none`. Every page of all four PDFs was swept with `pdftotext -layout` for a
+`$...$` pair, a bare TeX macro and a page with almost no text: none found. Looking at the pages
+caught what the sweep could not — the `A.7` heading and its opening sentence were left at the
+foot of a page with their table overleaf, because `break-after: avoid` on a heading does not
+survive an intervening paragraph. A page break before `A.7` fixes it, and the page counts did
+not move.
 
 ## 9 Version
 

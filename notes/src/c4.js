@@ -202,17 +202,30 @@ window.C4 = [
  ['Time shift, discrete','$x[n-n_0]$','$a_ke^{-jk\\omega_0n_0}$'],
  ['Time reversal','$x(-t)$ or $x[-n]$','$a_{-k}$'],
  ['Conjugation','$x^{*}(t)$ or $x^{*}[n]$','$a_{-k}^{*}$'],
+ ['Frequency shift, continuous','$e^{jM\\omega_0t}x(t)$','$a_{k-M}$, $M$ an integer'],
+ ['Frequency shift, discrete','$e^{jM(2\\pi/N)n}x[n]$','$a_{k-M}$, $M$ an integer'],
+ ['Time scaling, continuous','$x(\\alpha t)$, $\\alpha>0$','$a_k$, with period $T_0/\\alpha$'],
+ ['Time scaling, discrete','$x_{(m)}[n]$, $m$ a positive integer','$\\frac{1}{m}a_k$, with period $mN$'],
+ ['Periodic convolution, continuous','$\\int_{T_0}x(\\tau)y(t-\\tau)\\d\\tau$','$T_0a_kb_k$'],
+ ['Periodic convolution, discrete','$\\sum_{r=\\langle N\\rangle}x[r]y[n-r]$','$Na_kb_k$'],
  ['Multiplication, continuous','$x(t)y(t)$','$\\sum_{\\ell=-\\infty}^{\\infty}a_\\ell b_{k-\\ell}$'],
- ['Multiplication, discrete','$x[n]y[n]$','$\\sum_{\\ell=\\langle N\\rangle}a_\\ell b_{k-\\ell}$']
+ ['Multiplication, discrete','$x[n]y[n]$','$\\sum_{\\ell=\\langle N\\rangle}a_\\ell b_{k-\\ell}$'],
+ ['Differentiation','$\\d x(t)/\\d t$','$jk\\omega_0a_k$'],
+ ['Integration','$\\int_{-\\infty}^{t}x(\\tau)\\d\\tau$','$a_k/(jk\\omega_0)$, only if $a_0=0$'],
+ ['First difference','$x[n]-x[n-1]$','$\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k$'],
+ ['Running sum','$\\sum_{r=-\\infty}^{n}x[r]$','$a_k/\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)$, only if $a_0=0$']
 ]},
+{t:'p', text:'Three of these deserve a second reading. <b>Time scaling</b> in continuous time leaves the coefficients untouched and moves the frequencies they sit on, because $x(\\alpha t)$ keeps every value of the signal and only changes how fast it is traversed. In discrete time there is nowhere closer to move to, so $x_{(m)}[n]$ inserts $m-1$ zeros after every sample; nothing is discarded and nothing invented, which is why the coefficients survive, and the factor $1/m$ appears because the average is now taken over $m$ times as many samples. <b>Periodic convolution</b> carries the factor $T_0$ or $N$ in front of the product: the analysis equation divides by the period once and the convolution integrates over it once more. Dropping that factor scales every answer by the period, and the error is invisible in a sketch of the shape. <b>Integration</b> and the <b>running sum</b> both divide by a factor that vanishes at $k=0$, which is where their condition comes from: a signal with a non-zero mean integrates to something that grows without bound, so it is neither finite-valued nor periodic. Subtract the mean, apply the rule to the rest, and add the ramp $a_0t$ back at the end.'},
 {t:'p', text:'The time-shift factor has modulus 1, so $|b_k|=|a_k|$ at every $k$: a shift never changes a magnitude, only a phase, and it changes that phase by $-k\\omega_0t_0$, proportionally to the harmonic index. Two signals differing only by a delay have identical magnitude plots, which is why a phase plot is not decoration.'},
 {t:'box', kind:'err', html:'<span class="t">The discrete-time product</span>The multiplication property in discrete time is a <b>periodic</b> convolution: the sum runs over one period of $\\ell$. Discrete-time coefficients repeat, so an infinite sum would add each of the $N$ distinct products over and over and diverge. The product $x[n]y[n]$ is itself periodic with period $N$ and therefore has $N$ coefficients — a number only a sum over one period can deliver.'},
 {t:'h3', text:'Symmetry'},
 {t:'ul', items:[
  '$x$ real gives $a_{-k}=a_k^{*}$, so $|a_k|$ is even in $k$ and $\\angle a_k$ is odd.',
  '$x$ real and even gives $a_k$ real and even.',
- '$x$ real and odd gives $a_k$ purely imaginary and odd.'
+ '$x$ real and odd gives $a_k$ purely imaginary and odd.',
+ 'For real $x$: $\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$ and $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$.'
 ]},
+{t:'p', text:'The last line is the general statement and the two before it are its special cases. $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ has coefficients $\\tfrac12(a_k+a_{-k})$ by linearity and time reversal, and $a_{-k}=a_k^{*}$ for a real signal, so that is $\\operatorname{Re}\\{a_k\\}$. The odd part gives $\\tfrac12(a_k-a_k^{*})=j\\operatorname{Im}\\{a_k\\}$. Splitting a real signal into its even and odd parts splits its coefficients into their real and imaginary parts, and that is what tells you which half of the coefficients you actually have to compute.'},
 {t:'p', text:'The third follows in one line. Real gives $a_{-k}=a_k^{*}$; odd gives $a_{-k}=-a_k$; together $a_k^{*}=-a_k$, so $\\operatorname{Re}\\{a_k\\}=0$. Both sawtooths of this chapter obey it.'},
 {t:'eqbox', cap:'Parseval’s relation',
  tex:['\\frac{1}{T_0}\\int_{T_0}\\bigl|x(t)\\bigr|^{2}\\,\\d t=\\sum_{k=-\\infty}^{\\infty}\\bigl|a_k\\bigr|^{2}',
