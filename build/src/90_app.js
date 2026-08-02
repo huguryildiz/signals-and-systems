@@ -162,6 +162,17 @@ const RENDER = (() => {
     host.className = 'scene is-active' + (sc.dark?' dark':'');
     host.innerHTML = '<div class="scene-inner">' + blocks(sc.blocks) + '</div>';
     host.setAttribute('aria-label', sc.title||sc.id);
+    /* The address of the scene, and where the same material is developed at
+       length in the textbook. Both belong to the scene rather than to any one
+       block, so they are placed once the blocks are built and before the fit
+       is measured. The anchor is student-facing and is deliberately not inside
+       `instr-inline`: showing a reader where to read more is the point of it.
+       It carries the book marker, because a bare `§` would read as this
+       course's own address and the two numbering systems do not agree. */
+    const eb = host.querySelector('.eyebrow');
+    if(eb && sc.sec) eb.insertAdjacentHTML('beforeend',
+      `<span class="ebnum">${sc.sec}</span>`
+      + (sc.book?`<span class="ebbook">${CONTENT.BOOKMARK} &sect;${sc.book}</span>`:''));
     /* mount interactive laboratories */
     host.querySelectorAll('[data-lab]').forEach(el=>{
       const L = LABS[el.dataset.lab];
@@ -252,7 +263,7 @@ const RENDER = (() => {
   function chrome(sc){
     const n = APP.scenes().length;
     document.getElementById('progress').style.width = ((S.i+1)/n*100)+'%';
-    document.getElementById('crumb').textContent = (sc.module||'') + (sc.nav?' · '+sc.nav:'');
+    document.getElementById('crumb').textContent = (sc.sec||sc.module||'') + (sc.nav?' · '+sc.nav:'');
     document.getElementById('counter').textContent = (S.i+1)+' / '+n
       + (sc.steps?('  ·  step '+S.step+'/'+sc.steps):'');
     document.getElementById('srcref').textContent =

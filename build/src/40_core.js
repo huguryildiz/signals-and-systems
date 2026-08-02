@@ -32,14 +32,15 @@ const APP = (() => {
     theme: 'light',     // 'light' | 'dark'
     display: 'normal',  // 'normal' | 'projector'
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
-    drillPage: {}       // module id -> index of the drill question on screen
+    drillPage: {},      // module id -> index of the drill question on screen
+    secOpen: {}         // section number -> the reader's own open/closed choice
   };
 
-  let SCENES = [], MODULES = [], onRender = ()=>{};
+  let SCENES = [], MODULES = [], CHAPTERS = [], onRender = ()=>{};
 
   /* ---------- initialisation ---------- */
-  function init({scenes, modules, render}){
-    SCENES = scenes; MODULES = modules; onRender = render;
+  function init({scenes, modules, chapters, render}){
+    SCENES = scenes; MODULES = modules; CHAPTERS = chapters || []; onRender = render;
     const saved = store.read();
     Object.assign(state, {
       mode: saved.mode || 'study',
@@ -223,6 +224,8 @@ const APP = (() => {
       else if(a==='theme') toggleTheme();
       else if(a==='display') toggleDisplay();
       else if(a==='goto') goId(t.dataset.id, parseInt(t.dataset.step||'0',10));
+      else if(a==='sec'){ const n=t.dataset.sec;
+        state.secOpen[n] = !secIsOpen(n); buildSidebar(); }
       else if(a==='reset'){ store.clear(); state.visited={}; state.quiz={}; persist(); onRender(); buildMap(); buildSidebar(); }
     });
     document.querySelectorAll('.overlay').forEach(ov=>{
@@ -230,15 +233,59 @@ const APP = (() => {
     });
   }
 
-  /* ---------- module map ---------- */
+  /* ---------- contents, shared by the rail and the map ----------
+     Both surfaces list the same thing in the same order, so they are built
+     from one pair of helpers. A scene title is typeset rather than
+     interpolated: several of them carry mathematics, and a raw field would
+     print the dollar signs (R8).
+
+     The textbook anchor is deliberately absent here. It belongs on the scene
+     itself, in the eyebrow band, where a reader who wants the long treatment is
+     actually working. In a contents rail it competed with the titles for a
+     narrow column and pushed half of them onto a second line. */
+  function label(s){
+    return `<span class="cnum">${s.sec||''}</span>`
+         + `<span class="ctitle">${RENDER.md(s.nav||s.title||s.id)}</span>`;
+  }
+
+  /* A section is open when the reader has said so, and otherwise when the scene
+     on screen is inside it. That keeps the rail short enough to scan while never
+     hiding where the reader currently stands. */
+  function secIsOpen(n){
+    if(n in state.secOpen) return state.secOpen[n];
+    const cur = SCENES[state.i];
+    return !!(cur && cur.sec && cur.sec.indexOf(n+'.') === 0);
+  }
+  /* The question scenes bracket a chapter: the taxonomy of question types is
+     read before the teaching scenes, the questions themselves are worked after
+     them. `row` is given the scene, not a position, so both surfaces place
+     them the same way. */
+  function chapterRows(ch, row, head, collapse){
+    const out = [];
+    if(ch.q.map) out.push(row(ch.q.map));
+    ch.sections.forEach(sec=>{
+      const titled = !ch.flat && sec.title;
+      const open = !collapse || !titled || secIsOpen(sec.n);
+      if(titled) out.push(head(sec, open));
+      if(open) sec.scenes.forEach(s=>out.push(row(s, titled)));
+    });
+    if(ch.q.drill) out.push(row(ch.q.drill));
+    return out.join('');
+  }
+
+  /* ---------- course map ---------- */
   function buildMap(){
     const host = document.getElementById('mapgrid'); if(!host) return;
-    host.innerHTML = MODULES.map(m=>{
-      const items = SCENES.map((s,i)=>({s,i})).filter(o=>o.s.module===m.id);
+    host.innerHTML = CHAPTERS.map(ch=>{
+      const rows = chapterRows(ch,
+        s => `<li><a data-act="goto" data-id="${s.id}"
+                class="${state.visited[s.id]?'done':''}" tabindex="0">${label(s)}</a></li>`,
+        sec => `<li class="csec"><span class="cnum">${sec.n}</span>${RENDER.md(sec.title)}</li>`,
+        false);
+      if(!rows) return '';
       return `<div class="mapmod">
-        <h4>${m.id}</h4><p class="mt">${m.title}</p>
-        <ol>${items.map(o=>`<li><a data-act="goto" data-id="${o.s.id}"
-          class="${state.visited[o.s.id]?'done':''}" tabindex="0">${o.s.nav||o.s.title||o.s.id}</a></li>`).join('')}</ol>
+        <h4>${ch.n}</h4><p class="mt">${RENDER.md(ch.title)}</p>
+        <ol>${rows}</ol>
       </div>`;
     }).join('');
   }
@@ -248,14 +295,22 @@ const APP = (() => {
     const host = document.getElementById('sidenav');
     if(!host || state.sidebar!=='on') return;
     const cur = SCENES[state.i] || {};
-    host.innerHTML = MODULES.map(m=>{
-      const items = SCENES.map((s,i)=>({s,i})).filter(o=>o.s.module===m.id);
-      if(!items.length) return '';
+    host.innerHTML = CHAPTERS.map(ch=>{
+      const rows = chapterRows(ch,
+        /* A scene inside an open section is marked, so the rail can draw a
+           rule down the left of the run and show where the section ends. */
+        (s, inSec) => `<li class="${inSec?'insec':''}"><a data-act="goto" data-id="${s.id}" tabindex="0"
+                class="${s.id===cur.id?'on':''}${state.visited[s.id]?' seen':''}"
+                >${label(s)}</a></li>`,
+        (sec, open) => `<li class="csec"><button type="button" data-act="sec" data-sec="${sec.n}"
+                aria-expanded="${open}" class="${open?'open':''}"
+                ><span class="cnum">${sec.n}</span><span class="ctitle">${RENDER.md(sec.title)}</span
+                ><span class="ccaret" aria-hidden="true"></span></button></li>`,
+        true);
+      if(!rows) return '';
       return `<div class="sgroup">
-        <div class="sgh"><span class="sid">${m.id}</span>${m.title}</div>
-        <ol>${items.map(o=>`<li><a data-act="goto" data-id="${o.s.id}" tabindex="0"
-          class="${o.s.id===cur.id?'on':''}${state.visited[o.s.id]?' seen':''}"
-          >${o.s.nav||o.s.title||o.s.id}</a></li>`).join('')}</ol></div>`;
+        <div class="sgh"><span class="sid">${ch.n}</span>${RENDER.md(ch.title)}</div>
+        <ol>${rows}</ol></div>`;
     }).join('');
     const on = host.querySelector('a.on');
     if(on) on.scrollIntoView({block:'nearest'});

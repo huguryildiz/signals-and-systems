@@ -220,6 +220,39 @@ body[data-sidebar=off] #sidebar{ display:none; }
   background:var(--paper-2); border-left-color:var(--coral);
   color:var(--ink); font-weight:600;
 }
+/* A contents entry is two columns: the address and the title. The address
+   column is fixed so the titles line up down the rail. The textbook anchor is
+   not here — it lives on the scene, in the eyebrow band. */
+#sidenav a{ display:grid; grid-template-columns:44px 1fr; gap:8px; align-items:baseline; }
+/* A section heading is a control: it opens and closes the scenes under it, so
+   a chapter can be scanned at section level and drilled into one at a time. */
+#sidenav .csec{ margin:9px 0 1px; }
+#sidenav .csec:first-child{ margin-top:2px; }
+#sidenav .csec button{
+  display:grid; grid-template-columns:44px 1fr 12px; gap:8px; align-items:baseline;
+  width:100%; text-align:left; background:none; border:0; cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); padding:4px 8px 4px 10px; border-radius:2px;
+}
+#sidenav .csec button:hover{ background:var(--paper-2); color:var(--ink); }
+#sidenav .csec button.open{ color:var(--ink); }
+.ccaret{ justify-self:end; align-self:center; width:0; height:0;
+  border-left:3.5px solid transparent; border-right:3.5px solid transparent;
+  border-top:4px solid currentColor; opacity:.6;
+  transition:transform var(--dur) var(--ease); transform:rotate(-90deg); }
+#sidenav .csec button.open .ccaret{ transform:rotate(0deg); }
+/* An open section draws a rule down the left of the scenes it holds, so the
+   run is visibly one group and its end is visible without counting. The rule
+   is the entry's own left border, so it is continuous between rows and turns
+   coral on the scene the reader is standing in. */
+#sidenav li.insec{ margin-left:7px; }
+#sidenav li.insec a{ border-left-color:var(--rule-strong); }
+#sidenav li.insec a.on{ border-left-color:var(--coral); }
+.cnum{ font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--slate); }
+#sidenav a.on .cnum{ color:var(--coral); }
+/* The label frame is uppercase mono with wide tracking, and both properties
+   are inherited. A typeset title must not be rewritten by either (R8). */
+.cnum .katex, .cbook .katex, #sidenav .csec .katex{ text-transform:none; letter-spacing:normal; }
 #sidebar .sfoot{ padding:10px 14px 14px; border-top:1px solid var(--rule); }
 #sidebar .sfoot .btn{ font-size:12px; padding:6px 10px; width:100%; }
 
@@ -270,6 +303,9 @@ body[data-sidebar=off] #sidebar{ display:none; }
   display:flex; align-items:center; gap:12px; margin:0 0 18px;
 }
 .eyebrow .tick{ width:26px; height:1px; background:currentColor; opacity:.55; }
+.eyebrow .ebnum{ color:var(--coral); letter-spacing:.1em; }
+.eyebrow .ebnum::before{ content:'·'; color:var(--faint); margin-right:8px; }
+.eyebrow .ebbook{ color:var(--faint); letter-spacing:.06em; text-transform:none; white-space:nowrap; }
 .eyebrow .src{ color:var(--faint); letter-spacing:.1em; text-transform:none;
   font-size:13px; margin-left:auto; }
 
@@ -647,6 +683,18 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
   border-bottom:1px solid transparent; cursor:pointer; line-height:1.35; }
 .mapmod a:hover{ color:var(--coral); border-bottom-color:var(--coral); }
 .mapmod a.done::after{ content:" ✓"; color:var(--sig-out); }
+/* The map lists the same two columns as the rail, at the map's larger size,
+   and shows every section open: it is the whole-course view. The chapter
+   number replaces the module badge in the heading. */
+.mapmod a{ display:grid; grid-template-columns:46px 1fr; gap:8px; align-items:baseline; }
+.mapmod .csec{
+  display:grid; grid-template-columns:46px 1fr; gap:8px; align-items:baseline;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); margin-top:9px;
+}
+.mapmod .csec:first-child{ margin-top:0; }
+.mapmod .cnum{ font-size:11.5px; }
+.mapmod .cbook{ font-size:10px; }
 
 #searchbox{ width:100%; font-size:24px; font-family:var(--serif); padding:14px 4px;
   border:0; border-bottom:2px solid var(--rule-strong); background:transparent;

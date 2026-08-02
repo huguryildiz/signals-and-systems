@@ -105,7 +105,7 @@ window.C5 = [
  ['Find','$X(j\\omega)$.'],
  ['Method','$|t|$ means two formulas, so split at $t=0$. On the left half the exponent is $+at$.'],
  ['Solution','$X(j\\omega)=\\dfrac{1}{a-j\\omega}+\\dfrac{1}{a+j\\omega}=\\dfrac{2a}{a^{2}+\\omega^{2}}$. The imaginary parts cancelled when the fractions were added.'],
- ['Check','$X(j0)=2/a$ gives 4, 2 and 0.4 for $a=0.5,1,5$. The signal is real and even and the transform came out real and even, which is the general rule proved in §5.6. Note also that the transform is never zero: at $a=1$ and $\\omega=10^{6}$ it is still $2\\times10^{-12}$.']
+ ['Check','$X(j0)=2/a$ gives 4, 2 and 0.4 for $a=0.5,1,5$. The signal is real and even and the transform came out real and even, which is the general rule proved in Section 5.6. Note also that the transform is never zero: at $a=1$ and $\\omega=10^{6}$ it is still $2\\times10^{-12}$.']
 ]},
 
 {t:'h2', num:'5.4', text:'The rectangular pulse, the sinc, and the inverse relation'},
@@ -133,7 +133,7 @@ window.C5 = [
  ['Solution','$x(t)=\\dfrac{1}{2\\pi}\\displaystyle\\int_{-W}^{W}e^{j\\omega t}\\d\\omega=\\dfrac{e^{jWt}-e^{-jWt}}{2\\pi jt}=\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)$.'],
  ['Check','$x(0)=W/\\pi$ by l’Hôpital: 0.5, 1 and 2 for $W=0.5\\pi,\\pi,2\\pi$. Zeros at $t=\\pm k\\pi/W$, $k=1,2,\\dots$, again with the origin excluded. This signal is not a pulse: it rings on both sides for ever, alternating in sign.']
 ]},
-{t:'p', text:'The two examples are one statement seen twice: a rectangle in either domain is a sinc in the other. §5.7 gives that symmetry a name and a proof.'},
+{t:'p', text:'The two examples are one statement seen twice: a rectangle in either domain is a sinc in the other. Section 5.7 gives that symmetry a name and a proof.'},
 
 {t:'h3', text:'Narrow in time, wide in frequency'},
 {t:'p', text:'The pulse of half-width $T_1$ has its first zero at $\\omega=\\pi/T_1$. Halve $T_1$ and that zero doubles. Taking the duration as the full width $T=2T_1$ and the bandwidth as the distance to the first null,'},
@@ -146,7 +146,7 @@ window.C5 = [
 {t:'eqbox', cap:'Transform of a periodic signal',
  tex:['x(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}\\;\\longleftrightarrow\\;X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}2\\pi a_k\\,\\delta(\\omega-k\\omega_0)'],
  after:'The spectrum is a train of impulses at the harmonics, and the impulse at $k\\omega_0$ carries weight $2\\pi a_k$. The coefficient and the weight are different objects: $a_k$ multiplies a unit exponential, while $2\\pi a_k$ is an area under a spectrum. Reporting the coefficients as the transform loses a factor of $2\\pi$ at every harmonic.'},
-{t:'p', text:'For the rectangular wave of Chapter 4 with $T_1=1$, the weights are $2\\pi a_k=2\\sin(k\\omega_0T_1)/k$ and the impulse at the origin carries $2\\pi a_0=4\\pi T_1/T$. Three periods make the sequence visible: $T=8T_1$ gives $\\omega_0=\\pi/4=0.392699$ and weight $1.5708$; $T=16T_1$ gives $\\omega_0=\\pi/8=0.196350$ and weight $0.7854$; $T=32T_1$ gives $\\omega_0=\\pi/16=0.098175$ and weight $0.3927$. Each doubling of the period halves the spacing and halves every weight, while the envelope does not move at all — which is the derivation of §5.1, carried out three steps at a time.'},
+{t:'p', text:'For the rectangular wave of Chapter 4 with $T_1=1$, the weights are $2\\pi a_k=2\\sin(k\\omega_0T_1)/k$ and the impulse at the origin carries $2\\pi a_0=4\\pi T_1/T$. Three periods make the sequence visible: $T=8T_1$ gives $\\omega_0=\\pi/4=0.392699$ and weight $1.5708$; $T=16T_1$ gives $\\omega_0=\\pi/8=0.196350$ and weight $0.7854$; $T=32T_1$ gives $\\omega_0=\\pi/16=0.098175$ and weight $0.3927$. Each doubling of the period halves the spacing and halves every weight, while the envelope does not move at all — which is the derivation of Section 5.1, carried out three steps at a time.'},
 {t:'fig', svg:()=>{
   const a=ax({w:700,h:200,xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',xtarget:7,yticksOverride:[0,0.5,1,1.5]});
   const w0=2*PI/8;
