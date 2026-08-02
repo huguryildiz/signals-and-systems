@@ -55,13 +55,13 @@ window.C6 = [
 {t:'page'},
 
 {t:'h1', num:'CHAPTER 6', text:'The discrete-time Fourier transform'},
-{t:'p', lead:true, text:'A sequence that is not periodic still has a spectrum. Finding it takes one construction: make the sequence periodic by replication, apply the series of Chapter 4, and let the period grow without bound. What comes out is a continuous function of frequency that repeats every $2\\pi$, and that repetition is the one property separating this transform from the continuous-time one. Every figure in this chapter is drawn over more than one period for that reason.'},
+{t:'p', lead:true, text:'The discrete-time Fourier transform describes the frequency content of a sequence that is not periodic. We derive it in three steps: replicate a finite sequence to make it periodic, apply the series from Chapter 4, and let the period grow without bound. The result is a continuous function of frequency that repeats every $2\\pi$. Every figure shows more than one period so that this defining property remains visible.'},
 
 {t:'h2', num:'6.1', text:'From a periodic sequence to an aperiodic one'},
 {t:'p', text:'Let $x[n]$ have finite support: $x[n]=0$ for $|n|>N_1$. The discrete-time Fourier series applies to periodic sequences only, so build a periodic sequence out of $x$ by laying the same finite sequence down again every $N$ samples.'},
 {t:'eqbox', cap:'Periodic replication',
  tex:['\\tilde{x}[n]=\\sum_{r=-\\infty}^{\\infty}x[n-rN]'],
- after:'This is replication, not padding. Nothing is inserted between the samples; whole copies of $x$ are placed side by side.'},
+ after:'Periodic replication places a copy of the complete sequence every $N$ samples. It does not insert samples within a copy.'},
 {t:'box', kind:'warn', hd:'The condition the construction needs',
  html:'The copies must not overlap, so the period must be longer than the support: $N>2N_1$. Only then is $\\tilde{x}[n]=x[n]$ for $-N_1\\le n\\le N_1$, a band of $2N_1+1$ samples centred on the origin. With $N\\le 2N_1$ the tails of neighbouring copies add and no period of $\\tilde{x}$ equals $x$ any more. Both ends of the interval point the same way; reversing the second relation would leave an interval with nothing in it.'},
 {t:'figrow', n:3, items:[
@@ -83,9 +83,9 @@ window.C6 = [
  tex:['\\tilde{x}[n]=\\sum_{k=\\langle N\\rangle}a_k e^{jk\\omega_0 n},\\qquad \\omega_0=\\frac{2\\pi}{N}',
       'a_k=\\frac{1}{N}\\sum_{n=\\langle N\\rangle}\\tilde{x}[n]\\,e^{-jk\\omega_0 n}'],
  after:'The analysis exponent is negative. Synthesis builds the sequence up out of exponentials and carries $e^{+jk\\omega_0n}$; analysis takes it apart and carries the conjugate. A plus sign in both places breaks the identity derived immediately below.'},
-{t:'p', text:'Over one period $\\tilde{x}[n]=x[n]$, and $x$ vanishes outside $-N_1\\le n\\le N_1$, so the sum may as well run over all $n$:'},
+{t:'p', text:'Over one period, $\\tilde{x}[n]=x[n]$. Because $x$ is zero outside $-N_1\\le n\\le N_1$, extending the sum to all $n$ adds only zero terms:'},
 {t:'eq', tex:'a_k=\\frac{1}{N}\\sum_{n=-N_1}^{N_1}x[n]e^{-jk\\omega_0 n}=\\frac{1}{N}\\sum_{n=-\\infty}^{\\infty}x[n]e^{-jk\\omega_0 n}.'},
-{t:'p', text:'The last sum is one function of a continuous frequency, evaluated at $\\omega=k\\omega_0$. Give it a name.'},
+{t:'p', text:'The last sum has the same form for every $k$. Define it as a function of the continuous variable $\\omega$, and then evaluate it at $\\omega=k\\omega_0$.'},
 {t:'eqbox', cap:'The envelope',
  tex:['X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}\\qquad\\Longrightarrow\\qquad a_k=\\frac{1}{N}X(e^{jk\\omega_0})'],
  after:'The series coefficients are samples of the envelope, spaced $\\omega_0=2\\pi/N$ apart and scaled by $1/N$. The identity holds only because the two exponents match, which is the check on the sign.'},
@@ -105,7 +105,7 @@ window.C6 = [
 {t:'h3', text:'Letting the period grow'},
 {t:'p', text:'Put $a_k=\\frac{1}{N}X(e^{jk\\omega_0})$ back into the synthesis equation and write $\\frac1N$ as $\\frac{\\omega_0}{2\\pi}$:'},
 {t:'eq', tex:'\\tilde{x}[n]=\\sum_{k=\\langle N\\rangle}\\frac{1}{N}X(e^{jk\\omega_0})e^{jk\\omega_0 n}=\\frac{1}{2\\pi}\\sum_{k=\\langle N\\rangle}X(e^{jk\\omega_0})e^{jk\\omega_0 n}\\,\\omega_0.'},
-{t:'p', text:'Read the right-hand side as a sum of rectangles: each term is a value of $X(e^{j\\omega})e^{j\\omega n}$ multiplied by the width $\\omega_0$, and the $N$ terms of one period span an interval of length $N\\omega_0=2\\pi$. Two things happen as $N$ grows without bound. The replication stops disturbing the middle period, so $\\tilde{x}[n]$ becomes $x[n]$; and the spacing $\\omega_0=2\\pi/N$ goes to zero, so the sum of rectangles becomes an integral over an interval of length $2\\pi$.'},
+{t:'p', text:'Interpret the right-hand side as a sum of rectangles. Each rectangle has height $X(e^{j\\omega})e^{j\\omega n}$ at a sampled frequency and width $\\omega_0$. The $N$ rectangles cover an interval of length $N\\omega_0=2\\pi$. As $N$ grows without bound, the replicated copies separate and $\\tilde{x}[n]$ approaches $x[n]$. At the same time, $\\omega_0=2\\pi/N$ approaches zero, so the rectangle sum approaches an integral over an interval of length $2\\pi$.'},
 {t:'eqbox', cap:'The discrete-time Fourier transform pair',
  tex:['X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]\\,e^{-j\\omega n}\\qquad\\text{(analysis)}',
       'x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,e^{j\\omega n}\\,\\d\\omega\\qquad\\text{(synthesis)}'],
@@ -133,7 +133,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.1 — a shifted unit sample', rows:[
  ['Given','$x[n]=\\delta[n-n_0]$.'],
  ['Find','$X(e^{j\\omega})$, its magnitude and its phase.'],
- ['Method','Put the sequence into the analysis sum. Every term with $n\\neq n_0$ carries a factor zero.'],
+ ['Method','Use the analysis sum because the sequence is given in time. The unit sample makes every term with $n\\neq n_0$ equal to zero, so only one term remains.'],
  ['Solution','$$X(e^{j\\omega})=\\sum_{n}\\delta[n-n_0]e^{-j\\omega n}=e^{-j\\omega n_0}.$$So $|X(e^{j\\omega})|=1$ at every frequency and $\\angle X(e^{j\\omega})=-n_0\\omega$, a straight line of slope $-n_0$.'],
  ['Check','At $n_0=0$ the sequence is $\\delta[n]$ and the transform is the constant 1, which is what the sum gives directly.'],
  ['Reading','A straight line is not periodic, and yet the transform is. What is drawn is the principal value of the phase, which jumps by $2\\pi$ whenever the line leaves $(-\\pi,\\pi]$. The sawtooth is that wrapping, and its period is $2\\pi/|n_0|$.']
@@ -148,7 +148,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.2 — the one-sided exponential', rows:[
  ['Given','$x[n]=a^{n}u[n]$ with $|a|<1$.'],
  ['Find','$X(e^{j\\omega})$, and the extremes of its magnitude and phase.'],
- ['Method','Collect the exponentials into one ratio and sum the geometric series.'],
+ ['Method','Use the geometric-series formula because the one-sided sequence produces powers of the same ratio $ae^{-j\\omega}$. The stated condition makes the infinite sum converge.'],
  ['Solution','$$X(e^{j\\omega})=\\sum_{n=0}^{\\infty}(ae^{-j\\omega})^{n}=\\frac{1}{1-ae^{-j\\omega}},$$which converges because $|ae^{-j\\omega}|=|a|\\,|e^{-j\\omega}|=|a|<1$. Then $$|X(e^{j\\omega})|=\\frac{1}{\\sqrt{1-2a\\cos\\omega+a^{2}}},\\qquad \\angle X(e^{j\\omega})=-\\arctan\\frac{a\\sin\\omega}{1-a\\cos\\omega}.$$'],
  ['Extremes','Write the denominator as $1+ae^{j(\\pi-\\omega)}$: a circle of radius $|a|$ about the point 1. Its nearest point to the origin gives $|X|_{\\max}=1/(1-|a|)$, its furthest gives $|X|_{\\min}=1/(1+|a|)$, and the tangent from the origin gives $\\max|\\angle X|=\\arcsin|a|$, reached where $\\cos\\omega=a$. For positive $a$ the largest magnitude is at $\\omega=0$ and the smallest at $\\omega=\\pm\\pi$; for negative $a$ the two ends swap.'],
  ['Numbers','$a=\\tfrac12$: magnitude between $\\tfrac23$ and 2, and $\\max|\\angle X|=\\arcsin\\tfrac12=\\pi/6=0.5236$ rad exactly. $a=\\tfrac18$: magnitude between $\\tfrac89=0.8889$ and $\\tfrac87=1.1429$, and $\\max|\\angle X|=0.1253$ rad.'],
@@ -172,7 +172,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.3 — the two-sided exponential', rows:[
  ['Given','$x[n]=a^{|n|}$ with $|a|<1$.'],
  ['Find','$X(e^{j\\omega})$ and its extremes.'],
- ['Method','Split the sum at $n=0$ and sum each side as a geometric series.'],
+ ['Method','Split the analysis sum at $n=0$ because the absolute value gives different exponents on the two sides. Each remaining sum is geometric and converges under the stated condition.'],
  ['Solution','$$X(e^{j\\omega})=\\frac{1}{1-ae^{-j\\omega}}+\\frac{ae^{j\\omega}}{1-ae^{j\\omega}}=\\frac{1-a^{2}}{1-2a\\cos\\omega+a^{2}}.$$'],
  ['Extremes','At $\\omega=0$ the value is $(1+a)/(1-a)$; at $\\omega=\\pm\\pi$ it is $(1-a)/(1+a)$. For $a=\\tfrac12$ these are 3 and $\\tfrac13$; for $a=\\tfrac14$ they are $1.6667$ and $0.6$.'],
  ['Reading','The denominator is $|1-ae^{-j\\omega}|^{2}$, which is positive, and the numerator is positive for $|a|<1$. So this spectrum is real and strictly positive, and here $|X|=X$ with $\\angle X=0$ throughout. That is a property of this example, not of real spectra in general.']
@@ -181,7 +181,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.4 — the rectangular pulse', rows:[
  ['Given','$x[n]=1$ for $-N_1\\le n\\le N_1$ and zero elsewhere.'],
  ['Find','$X(e^{j\\omega})$ in closed form and its value at $\\omega=0$.'],
- ['Method','Sum the finite geometric series, then balance the exponents so both ends become sines.'],
+ ['Method','Use the finite geometric-series formula because the pulse has consecutive non-zero samples. Then balance the endpoint exponents so each difference can be written as a sine.'],
  ['Solution','$$X(e^{j\\omega})=\\sum_{n=-N_1}^{N_1}e^{-j\\omega n}=\\frac{e^{j\\omega N_1}-e^{-j\\omega(N_1+1)}}{1-e^{-j\\omega}}.$$Multiplying numerator and denominator by $e^{j\\omega/2}$ turns each into a difference of conjugate exponentials, $2j\\sin(\\omega(N_1+\\tfrac12))$ over $2j\\sin(\\omega/2)$: $$X(e^{j\\omega})=\\frac{\\sin\\bigl(\\omega(N_1+\\tfrac12)\\bigr)}{\\sin(\\omega/2)}.$$The minus in each bracket is what makes a sine; a plus would give a cosine and a different function.'],
  ['Excluded points','$r=e^{-j\\omega}=1$ at $\\omega=0,\\pm2\\pi,\\dots$, which is exactly where $\\sin(\\omega/2)$ vanishes. There every term of the sum is 1, so $X=2N_1+1$: five for $N_1=2$, nine for $N_1=4$.'],
  ['Check','This is not a sinc. The denominator is $\\sin(\\omega/2)$, not $\\omega/2$, and that is what makes the function periodic: a ratio of two sines repeats, while a sine over a straight line decays.']
@@ -205,7 +205,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.5 — the ideal low-pass sequence', rows:[
  ['Given','$X(e^{j\\omega})=1$ for $|\\omega|\\le W$ and 0 for $W<|\\omega|\\le\\pi$, repeated with period $2\\pi$.'],
  ['Find','$x[n]$.'],
- ['Method','Integrate over the period $-\\pi\\le\\omega\\le\\pi$, where the spectrum is 1 on a single band.'],
+ ['Method','Use the synthesis integral because the spectrum is given and the sequence is required. Choose $-\\pi\\le\\omega\\le\\pi$ so the band where the spectrum is 1 appears once within the integration period.'],
  ['Solution','$$x[n]=\\frac{1}{2\\pi}\\int_{-W}^{W}e^{j\\omega n}\\,\\d\\omega=\\frac{\\sin(Wn)}{\\pi n},\\qquad x[0]=\\frac{W}{\\pi}.$$At $n=0$ the integrand is 1 and the integral is $2W$, which is also the limit of the ratio.'],
  ['Numbers','$W=\\pi/4$: $0.25$, $0.225079$, $0.159155$, $0.075026$ at $n=0,1,2,3$. $W=\\pi/2$: $0.5$, $0.318310$, $0$, $-0.106103$.'],
  ['Check','$x[0]$ must be the fraction $W/\\pi$ of the period that the band occupies. That single number catches both a lost $2\\pi$ and a wrong prefactor.']
@@ -247,7 +247,7 @@ window.C6 = [
   mark(a,3.62); return a.svg();},
  cap:'The square wave with $N=10$, $N_1=2$. The dashed line is the envelope; the red arrows are the harmonics whose weight is negative.'},
 {t:'ex', hd:'Example 6.6 — the impulse train', rows:[
- ['Given','$x[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-kN]$: a unit sample every $N$ indices. The free variable is $n$; the index running over the copies is $k$, and the two must be different letters.'],
+ ['Given','$x[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-kN]$: a unit sample every $N$ indices. Here $n$ is the sequence index and $k$ labels the copies, so the two roles use different letters.'],
  ['Find','The coefficients and the transform.'],
  ['Solution','One period holds a single sample, at $n=0$, so $a_k=\\frac1N$ for every $k$, and $$X(e^{j\\omega})=\\frac{2\\pi}{N}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{N}\\right).$$'],
  ['Numbers','Weights $2\\pi/5=1.2566$, $2\\pi/10=0.6283$, $2\\pi/15=0.4189$ for $N=5,10,15$.'],
@@ -258,7 +258,7 @@ window.C6 = [
 {t:'ex', hd:'Example 6.7 — two cosines', rows:[
  ['Given','$x[n]=2\\cos\\left(\\frac{5\\pi}{3}n\\right)+\\cos\\left(\\frac{7\\pi}{4}n\\right)$.'],
  ['Find','The spectrum, and the fundamental period of the sequence.'],
- ['Method','Bring each frequency into $-\\pi<\\omega\\le\\pi$ first, then transform each term.'],
+ ['Method','First reduce each frequency to $-\\pi<\\omega\\le\\pi$ because equivalent discrete-time frequencies describe the same sequence. Then transform each cosine separately and add the results by linearity.'],
  ['Reduction','$\\frac{5\\pi}{3}=2\\pi-\\frac{\\pi}{3}$, and $2\\pi n$ is a whole number of turns at every integer $n$, so $\\cos\\left(\\frac{5\\pi}{3}n\\right)=\\cos\\left(\\frac{\\pi}{3}n\\right)$. Likewise $\\cos\\left(\\frac{7\\pi}{4}n\\right)=\\cos\\left(\\frac{\\pi}{4}n\\right)$. These are not merely similar sequences; they take the same value at every $n$.'],
  ['Solution','Inside one period there are four impulses: weight $2\\pi$ at $\\pm\\pi/3$ and weight $\\pi$ at $\\pm\\pi/4$. The amplitude 2 doubles the first pair from $\\pi$ to $2\\pi$. Outside the period the same impulses reappear every $2\\pi$: weight $2\\pi$ at $\\pm5\\pi/3$ and $\\pm7\\pi/3$, weight $\\pi$ at $\\pm7\\pi/4$ and $\\pm9\\pi/4$.'],
  ['Order','On the positive axis $\\pi/4<\\pi/3<5\\pi/3<7\\pi/4<2\\pi<9\\pi/4<7\\pi/3$: the two trains interleave, and the order flips either side of $2\\pi$.'],
@@ -317,7 +317,7 @@ window.C6 = [
 ]},
 
 {t:'h3', text:'Parseval'},
-{t:'p', text:'The quantity $|X(e^{j\\omega})|^{2}$ is the energy-density spectrum. Integrating it over one period and dividing by $2\\pi$ gives the total energy; integrating over part of a period gives the energy carried by that band. Both the single period and the $\\frac{1}{2\\pi}$ are load-bearing, and neither shows up in the shape of a plot. Two checks: for $a^{n}u[n]$ with $a=\\tfrac12$ the time side gives $\\sum_{n\\ge0}(\\tfrac14)^{n}=\\tfrac43$ and the frequency side gives $1/(1-a^{2})=\\tfrac43$; for the rectangular pulse with $N_1=2$ both sides give 5, the number of samples.'},
+{t:'p', text:'The quantity $|X(e^{j\\omega})|^{2}$ is the energy-density spectrum. Integrating it over one period and dividing by $2\\pi$ gives the total energy. Integrating over part of a period gives the energy in that frequency band. Both the single-period range and the factor $\\frac{1}{2\\pi}$ are required, although neither is visible from the plot shape. Check them numerically: for $a^{n}u[n]$ with $a=\\tfrac12$, the time side gives $\\sum_{n\\ge0}(\\tfrac14)^{n}=\\tfrac43$ and the frequency side gives $1/(1-a^{2})=\\tfrac43$; for the rectangular pulse with $N_1=2$, both sides give 5, the number of samples.'},
 
 {t:'h2', num:'6.7', text:'Convolution and multiplication'},
 {t:'eqbox', cap:'Convolution',
@@ -325,7 +325,7 @@ window.C6 = [
  after:'Both pairs $x\\leftrightarrow X$ and $h\\leftrightarrow H$ are declared before the conclusion is written, and $y$ names the output and nothing else. A product of complex numbers gives two separate statements, $|Y|=|X|\\cdot|H|$ and $\\angle Y=\\angle X+\\angle H$. Putting modulus bars around a whole equation is not an operation on anything.'},
 {t:'ex', hd:'Example 6.9 — convolving two exponentials', rows:[
  ['Given','$x[n]=a^{n}u[n]$ and $h[n]=b^{n}u[n]$, with $|a|<1$, $|b|<1$ and $a\\neq b$. Every one-sided exponential carries its $u[n]$: without it the sequence is defined for negative $n$ too, where it grows without bound.'],
- ['Method','Multiply the transforms and split into partial fractions. Write $z=e^{-j\\omega}$ as a named algebraic variable; then $Y=1/((1-az)(1-bz))$ is an ordinary rational function of $z$, and substituting $z=1/a$ is a step of algebra in $z$, not a claim that $e^{-j\\omega}$ ever takes that value.'],
+ ['Method','Use the convolution property because the required output is a time convolution. Multiply the transforms, then use partial fractions so each term matches the known one-sided exponential pair. Write $z=e^{-j\\omega}$ as an algebraic variable; then $Y=1/((1-az)(1-bz))$ is a rational function of $z$, and substituting $z=1/a$ is algebra in $z$, not a claim that $e^{-j\\omega}$ takes that value.'],
  ['Solution','Cover-up gives $A=a/(a-b)$ and $B=-b/(a-b)$, so $$y[n]=\\frac{1}{a-b}\\left[a^{\\,n+1}-b^{\\,n+1}\\right]u[n].$$'],
  ['Condition','Both coefficients divide by $a-b$, so the route requires $a\\neq b$. At $a=b$ the two poles merge and the answer takes a different form, worked out in Section 6.8.'],
  ['Check','$a=\\tfrac12$, $b=\\tfrac14$: $y[0]=1$, $y[1]=0.75$, $y[2]=0.4375$, $y[3]=0.234375$. Direct convolution gives $y[0]=x[0]h[0]=1$ and $y[1]=\\tfrac14+\\tfrac12=0.75$; the first value must be $x[0]h[0]$ for any two causal sequences. The magnitude $|Y|$ runs between $0.5333$ and $2.6667$.']
@@ -342,7 +342,7 @@ window.C6 = [
 {t:'eqbox', cap:'Multiplication',
  tex:['z[n]=x[n]y[n]\\;\\longleftrightarrow\\;Z(e^{j\\omega})=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})\\,Y\\bigl(e^{j(\\omega-\\theta)}\\bigr)\\,\\d\\theta'],
  after:'The integral runs over one period and both factors are $2\\pi$-periodic. That operation is a periodic convolution, and it differs from the ordinary convolution of two functions on the line whenever the result is wider than one period.'},
-{t:'p', text:'Take $X=1$ on $|\\omega|\\le3\\pi/4$ and $Y=1$ on $|\\omega|\\le\\pi/2$, both repeated every $2\\pi$. Convolving the two rectangles on the line gives a trapezoid of height $\\frac{1}{2\\pi}\\cdot2\\cdot\\frac{\\pi}{2}=\\frac12$, flat on $|\\omega|\\le\\pi/4$ and reaching zero at $|\\omega|=5\\pi/4$. Since $5\\pi/4>\\pi$ the trapezoid runs past the edge of a period, so near $\\omega=\\pm\\pi$ a second copy arrives from the other side and the two add.'},
+{t:'p', text:'Take $X=1$ on $|\\omega|\\le3\\pi/4$ and $Y=1$ on $|\\omega|\\le\\pi/2$, both repeated every $2\\pi$. First convolve the rectangles on the line. This gives a trapezoid of height $\\frac{1}{2\\pi}\\cdot2\\cdot\\frac{\\pi}{2}=\\frac12$, flat on $|\\omega|\\le\\pi/4$ and reaching zero at $|\\omega|=5\\pi/4$. Since $5\\pi/4>\\pi$, the result extends beyond one period. A periodic copy therefore overlaps it near $\\omega=\\pm\\pi$, and the two values add.'},
 {t:'figrow', n:2, items:[
  {svg:()=>{const a=wax({w:640,h:220,yr:[-0.16,0.78],xlabel:'\\omega',ylabel:'Z(e^{j\\omega})',
     xticksOverride:wTicks(-3*PI,3*PI,PI/2),yticksOverride:[0,0.125,0.25,0.5],ytickfmt:v=>v.toFixed(4)});
@@ -352,7 +352,7 @@ window.C6 = [
  {svg:()=>{const a=wax({w:640,h:220,yr:[-0.16,0.78],xlabel:'\\omega',ylabel:'Z(e^{j\\omega})',
     xticksOverride:wTicks(-3*PI,3*PI,PI/2),yticksOverride:[0,0.25,0.5],ytickfmt:v=>v.toFixed(4)});
    a.curve(w=>perConv(w,PI/2,PI/2),{color:C.mid,n:6000}); mark(a,0.665); return a.svg();},
-  cap:'Two equal bands of half-width $\\pi/2$: the triangle fills exactly one period, so nothing wraps.'}
+  cap:'Two equal bands of half-width $\\pi/2$: the triangle fills one period and reaches zero at both boundaries, so repeated copies do not overlap.'}
 ]},
 {t:'p', text:'The values are $Z(e^{j0})=Z(e^{j\\pi/4})=0.5$ on the flat top, $Z(e^{j3\\pi/4})=0.25$ on the slope, and $Z(e^{j\\pi})=\\tfrac18+\\tfrac18=0.25$ at the edge. The check is the synthesis equation: $\\frac{1}{2\\pi}\\int_{2\\pi}Z\\,\\d\\omega$ must equal $z[0]=x[0]y[0]=\\tfrac34\\cdot\\tfrac12=0.375$, and it does.'},
 {t:'ex', hd:'Example 6.11 — multiplying by a cosine', rows:[
@@ -362,7 +362,7 @@ window.C6 = [
  ['Band edges','The band moves to $\\omega_0\\mp\\pi/4$, so with $\\omega_0=\\pi/3$ the edges are $\\pi/12$ and $7\\pi/12$, and the mirror image occupies $-7\\pi/12\\le\\omega\\le-\\pi/12$. Both numbers are computed from $\\omega_0$ and the bandwidth, so they cannot drift apart from the drawn figure; with $\\omega_0$ below $\\pi/4$ the two bands would overlap through the origin instead.']
 ]},
 {t:'box', kind:'warn', hd:'This overlap is not aliasing',
- html:'What folds back here are copies of a spectrum inside a frequency-domain convolution, and it happens because the spectrum is periodic. Chapter 7 has a different overlap, between replicas produced by sampling, and only that one is aliasing.'},
+ html:'This overlap occurs between periodic copies during frequency-domain convolution. Chapter 7 studies a different overlap between replicas produced by sampling. Only the sampling overlap is called aliasing.'},
 
 {t:'h2', num:'6.8', text:'Difference equations'},
 {t:'p', text:'Transform both sides of a linear constant-coefficient difference equation. Linearity acts term by term and each shift brings out one factor $e^{-j\\omega k}$:'},
@@ -378,14 +378,14 @@ window.C6 = [
 ]},
 
 {t:'h3', text:'The repeated-pole pair'},
-{t:'p', text:'Example 6.9 excluded $a=b$. That case has its own pair, and it is worth deriving rather than quoting. Start from the geometric pair and differentiate both sides with respect to $a$, holding $\\omega$ fixed:'},
+{t:'p', text:'Example 6.9 excluded $a=b$ because its partial fractions divide by $a-b$. When $a=b$, the poles coincide and require a separate pair. Derive it from the geometric pair by differentiating both sides with respect to $a$ while holding $\\omega$ fixed:'},
 {t:'eq', tex:'\\sum_{n=1}^{\\infty}n\\,a^{\\,n-1}e^{-j\\omega n}=\\frac{e^{-j\\omega}}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}}.'},
 {t:'eqbox', cap:'Repeated pole',
  tex:['(n+1)a^{n}u[n]\\;\\longleftrightarrow\\;\\frac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}},\\qquad |a|<1'],
  after:'Putting $m=n-1$ and cancelling one factor $e^{-j\\omega}$ gives the pair. The exponent 2 comes from the differentiation and the minus sign is inherited unchanged, so neither has to be remembered. One number settles any doubt: at $\\omega=0$ with $a=\\tfrac14$ the value is $(1-\\tfrac14)^{-2}=\\tfrac{16}{9}=1.7778$, while a plus sign would give $(\\tfrac54)^{-2}=0.6400$.'},
 {t:'ex', hd:'Example 6.13 — the output of that system', rows:[
  ['Given','The system of Example 6.12 driven by $x[n]=\\left(\\tfrac14\\right)^{n}u[n]$.'],
- ['Method','The input pole coincides with one of the system poles, so the expansion needs both a simple and a squared term for it: $$Y=\\frac{2}{\\bigl(1-\\tfrac12z\\bigr)\\bigl(1-\\tfrac14z\\bigr)^{2}}=\\frac{A}{1-\\tfrac14z}+\\frac{B}{\\bigl(1-\\tfrac14z\\bigr)^{2}}+\\frac{C}{1-\\tfrac12z}.$$'],
+ ['Method','Use partial fractions because the output transform is rational and each fraction can be inverted with a known pair. The input pole coincides with one system pole, so the expansion must include both a simple and a squared term for that pole: $$Y=\\frac{2}{\\bigl(1-\\tfrac12z\\bigr)\\bigl(1-\\tfrac14z\\bigr)^{2}}=\\frac{A}{1-\\tfrac14z}+\\frac{B}{\\bigl(1-\\tfrac14z\\bigr)^{2}}+\\frac{C}{1-\\tfrac12z}.$$'],
  ['Coefficients','Cover-up at $z=2$ gives $C=2/(1-\\tfrac12)^{2}=8$; at $z=4$ it gives $B=2/(1-2)=-2$; setting $z=0$ in the identity gives $2=A+B+C$, so $A=-4$.'],
  ['Solution','$$y[n]=-4\\left(\\tfrac14\\right)^{n}u[n]-2(n+1)\\left(\\tfrac14\\right)^{n}u[n]+8\\left(\\tfrac12\\right)^{n}u[n].$$'],
  ['Check','$y[0]=2$, $y[1]=2$, $y[2]=1.375$, $y[3]=0.8125$, and $y[0]$ must equal $h[0]x[0]=2$ for two causal sequences. Direct convolution of $h$ and $x$ reproduces the whole sequence. Without the repeated-pole pair the middle term could not be inverted at all.']
@@ -408,7 +408,7 @@ window.C6 = [
  'The unnormalised sinc, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, restated at every point of use.',
  'Discrete time has a difference, not a derivative; the derivative in this chapter is in frequency.'
 ]},
-{t:'p', text:'A sequence usually comes from somewhere: a continuous-time signal, read at regular instants. The next chapter asks what that reading costs. The answer is written in copies of a spectrum, spaced by the sampling frequency, and this chapter has already shown what happens when copies of a spectrum are allowed to meet.'},
+{t:'p', text:'A sequence can be formed by reading a continuous-time signal at regular instants. The next chapter studies how this sampling operation changes the spectrum. Sampling produces repeated spectral copies separated by the sampling frequency, so the periodic-overlap ideas from this chapter will be used again.'},
 
 {t:'h3', text:'Exercises'},
 {t:'q', n:'6.1', text:'Prove that $X(e^{j\\omega})$ is $2\\pi$-periodic, and say precisely where the same argument fails for $X(j\\omega)$.',
