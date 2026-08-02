@@ -80,8 +80,8 @@ const SC = [
 { id:'m7-open', module:'M7', nav:'Module 7 opening', title:'Sampling and Aliasing', src:'pp. 80–88',
   dark:true, keywords:'module 7 sampling aliasing nyquist replication reconstruction overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 7 · Sampling and Aliasing', src:'pp. 80–88'},
-  {t:'title', level:1, text:'A signal measured at instants,<br>and the question of what was missed.'},
-  {t:'lede', text:'Keep only the value of a signal every $T$ seconds and everything between the instants is gone. This module says exactly when nothing was lost, and exactly what is lost when something was.'},
+  {t:'title', level:1, text:'Sampling a continuous-time signal'},
+  {t:'lede', text:'Sampling keeps the value of a signal every $T$ seconds and discards the values between those instants. This module gives the condition for exact recovery and shows how a signal changes when that condition fails.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
@@ -119,7 +119,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'How an impulse is drawn', html:'An impulse is drawn as an arrow whose <b>height is its weight</b>. So in the picture of {{sym:xp|$x_p(t)$}} the arrow at $t=nT$ reaches the value $x(nT)$, and the outline traced by the arrowheads is the signal itself. The arrows are not values of a function; they are weights.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'The sequence behind the impulses', html:'The numbers $x(nT)$ are all that survives. Written as a sequence they are $x_p[n]=x(nT)$, and this is where a discrete-time signal comes from in practice. Everything between two instants has been discarded, and the whole module is about when that loss is reversible.'}]}
+      {t:'note', kind:'ok', head:'The sequence of sample values', html:'The sampler keeps only the numbers $x(nT)$. Written as a sequence, they are $x_p[n]=x(nT)$. The rest of the module determines when these numbers are enough to recover the continuous-time signal.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:175,xr:[-3.4,3.4],yr:[-0.2,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'x(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:3});
@@ -398,7 +398,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Why the inequality has to be strict', html:'Put $\\omega_s=2\\omega_M$ into the cutoff condition. It becomes $\\omega_M<\\omega_c<\\omega_M$, an interval with nothing in it. There is no admissible cutoff at the Nyquist rate, so the theorem cannot be satisfied at its own boundary. Writing $\\omega_s\\ge2\\omega_M$ promises a filter that the same sentence then rules out.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Read it as a design rule', html:'Choose the rate first: fix $\\omega_s$ comfortably above $2\\omega_M$, so that the guard band is wide enough for a real filter, whose transition from pass to stop is not vertical. Then place $\\omega_c$ in the middle of that gap.'}]}
+      {t:'note', kind:'ok', head:'Use the theorem as a design rule', html:'First choose $\\omega_s$ above $2\\omega_M$ with enough guard band for a real filter. A real filter needs a non-zero transition interval between its passband and stopband. Then choose $\\omega_c$ inside that interval.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const ws=6*PI, pk=3, Tv=2/6;
@@ -726,7 +726,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'The sinc convention, restated', html:'Throughout this course $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$, <b>unnormalised</b>. With the choice $\\omega_c=\\pi/T$ the kernel becomes $h_{LP}(t)=\\dfrac{\\sin(\\pi t/T)}{\\pi t/T}=\\operatorname{sinc}(\\pi t/T)$. Any expression written as $\\operatorname{sinc}(t/T)$ belongs to the other convention and does not equal this one.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'The $\\pi$ inside the sine is load-bearing', html:'The kernel must be 1 at $t=0$ and exactly 0 at every other sample instant, so that each sample controls its own instant and no other. Drop the $\\pi$ from the numerator and that property is lost at once: with $T=1$, the correct kernel at $t=1$ is $\\sin(\\pi)/\\pi=0$, while $\\sin(1)/\\pi=0.267849$. A kernel that does not vanish at the neighbouring instants is not an interpolation at all.'}]},
+      {t:'note', kind:'err', head:'Keep the $\\pi$ inside the sine', html:'The kernel must equal 1 at $t=0$ and 0 at every other sample instant. Then each sample sets its own value without changing the others. If the $\\pi$ is removed, this property fails: with $T=1$, the correct kernel at $t=1$ is $\\sin(\\pi)/\\pi=0$, while $\\sin(1)/\\pi=0.267849$.'}]},
     {t:'reveal', at:4, items:[
       {t:'note', kind:'warn', head:'What $\\omega_c=\\pi/T$ costs', html:'That choice is exactly half the sampling rate, $\\omega_c=\\omega_s/2$, which is the end of the admissible interval rather than a point inside it. It is convenient because the kernel is then a single sinc, and it is safe only when $\\omega_M$ is strictly below $\\omega_s/2$. Say which cutoff is being used; it is a choice, not a definition.'}]}
   ], right:[
@@ -762,7 +762,7 @@ const SC = [
 ]},
 
 /* ------------------------------------------------------- the zero-order hold */
-{ id:'m7-zoh', module:'M7', nav:'The zero-order hold', title:'The circuit that actually gets built', src:'pp. 83–84',
+{ id:'m7-zoh', module:'M7', nav:'The zero-order hold', title:'A practical circuit that holds each sample', src:'pp. 83–84',
   objective:'Derive the zero-order-hold response and show why it is not ideal reconstruction.',
   keywords:'zero order hold staircase H_0 transfer function compensator approximation practical', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Practical reconstruction', src:'pp. 83–84'},
@@ -815,7 +815,7 @@ const SC = [
   objective:'Build the first-order-hold response as a convolution of two rectangles and read its transform.',
   keywords:'first order hold triangle linear interpolation convolution rectangles H_1 squared response', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Practical reconstruction', src:'p. 84'},
-  {t:'title', text:'One step better than a staircase'},
+  {t:'title', text:'Join consecutive samples with straight lines'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The first-order hold joins consecutive samples by a straight line. Its impulse response is a triangle, and the triangle is built from the rectangle of the zero-order hold:'},
     {t:'eq', key:true, tex:'h_1(t)=\\frac{1}{T}\\bigl[g*g\\bigr](t),\\qquad g(t)=\\begin{cases}1,&|t|\\le T/2\\\\[2pt]0,&\\text{otherwise}\\end{cases}',
@@ -826,9 +826,9 @@ const SC = [
         note:'{{sym:foh|$H_1$}} is real and non-negative, because a symmetric triangle has no phase. $H_1(0)=T$, the same gain as the zero-order hold.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
-        ['Better','The response falls off as $1/\\omega^{2}$ instead of $1/\\omega$, so far less of the neighbouring copies survives and the output has no jumps.'],
-        ['Worse','The sag inside the band is steeper, so the wanted part of the spectrum is shaped more heavily than by the zero-order hold.'],
-        ['Not causal as drawn','The triangle is centred on $t=0$, so producing it needs the next sample as well as the present one. In practice the whole output is delayed by $T$.']
+        ['Outside the band','The response falls off as $1/\\omega^{2}$ instead of $1/\\omega$, so less of each neighbouring copy remains and the output has no jumps.'],
+        ['Inside the band','The magnitude decreases faster, so it changes the wanted spectrum more than the zero-order hold does.'],
+        ['Timing','The triangle is centred on $t=0$, so producing it needs both the present and next samples. A practical system delays the output by $T$.']
       ]}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'ok', head:'Where the holds sit', html:'Both holds are filters with a real, non-flat, non-band-limited response. They approximate the ideal reconstruction and they are what a converter actually contains. The distance between a hold output and the ideal interpolation is a number that can be computed, and it is what the laboratory of this module reports.'}]}
@@ -882,7 +882,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'What is done instead', html:'A real signal is made band-limited before it is sampled, by a filter that removes what lies above the intended $\\omega_M$. What is then reconstructed exactly is the filtered signal, not the original, and the difference between them is a design decision rather than an accident.'}]},
     {t:'reveal', at:3, items:[
-      {t:'small', html:'Two signals are worth keeping in mind as the extreme cases. A pure sinusoid is band-limited to a single frequency and is the easiest possible case, provided the rate is strictly above twice that frequency. A rectangular pulse is the hardest: it is exactly time-limited, and therefore never exactly band-limited.'}]}
+      {t:'small', html:'Compare two limiting cases. A pure sinusoid is band-limited to one frequency and can be recovered when the rate is strictly above twice that frequency. A rectangular pulse is exactly time-limited and is therefore never exactly band-limited.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:190,xr:[-1.6,1.6],yr:[-0.2,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'x(t)',
@@ -1015,7 +1015,7 @@ const SC = [
       ['Find','$x_r(t)$.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'First the verdict: $5\\pi<6\\pi$, so the rate is below the Nyquist rate of <b>this</b> signal and aliasing is expected. Note that $6\\pi$ is the Nyquist rate here and $4\\pi$ was the Nyquist rate of the single cosine in the previous scene. The two signals have different bandwidths and their tests are not interchangeable.'},
+      {t:'body', html:'Since $5\\pi<6\\pi$, this signal is sampled below its Nyquist rate, so aliasing occurs. Its Nyquist rate is $6\\pi$; the single cosine in the previous scene had rate $4\\pi$. Use the bandwidth of the signal in the current question.'},
       {t:'wex', rows:[
         ['Baseband lines','$\\pi$ is inside $2.5\\pi$ and survives. $3\\pi$ is outside and is discarded.'],
         ['Copy lines','$\\omega_s-3\\pi=2\\pi$ is inside and survives. $\\omega_s-\\pi=4\\pi$ is outside and is discarded.']
@@ -1025,14 +1025,14 @@ const SC = [
         label:'Recovered spectrum'},
       {t:'eq', key:true, tex:'X_r(j\\omega)\\;\\xrightarrow{\\ \\mathcal{F}^{-1}\\ }\\;x_r(t)=\\cos(\\pi t)+\\cos(2\\pi t)',
         label:'Recovered signal',
-        note:'The arrow is the <b>inverse</b> transform. Going from a spectrum back to a signal is $\\mathcal{F}^{-1}$; the forward $\\mathcal{F}$ points the other way and would leave the answer in the wrong domain.'}]},
+        note:'The arrow is the <b>inverse</b> transform, $\\mathcal{F}^{-1}$, because it maps the spectrum back to a signal. The forward transform maps in the opposite direction.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
-        ['Reading','The low component came through untouched. The high one left at $3\\pi$ and came back at $2\\pi$, which is $\\omega_s-3\\pi$.'],
+        ['Interpretation','The low component remains at its original frequency. The high component at $3\\pi$ appears at $2\\pi$, which is $\\omega_s-3\\pi$.'],
         ['Check','$\\cos(3\\pi nT)=\\cos(6\\pi n/5)$ and $\\cos(2\\pi nT)=\\cos(4\\pi n/5)$. Since $6\\pi n/5=2\\pi n-4\\pi n/5$, the two sequences are identical.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'Aliasing is not all-or-nothing', html:'A signal can be sampled too slowly for one of its components and fast enough for another. The output is then part signal and part impostor, and the impostor sits at a frequency the original never contained. Reporting "the signal was aliased" without saying which component moved where is not an answer.'}]}
+      {t:'note', kind:'err', head:'Identify each aliased component', html:'One sampling rate can preserve one component and alias another. State which component stays at its original frequency and which component moves to a new frequency. A general statement that aliasing occurred does not identify the recovered signal.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const ws=5*PI, wc=2.5*PI, span=6.5*PI;
@@ -1064,11 +1064,11 @@ const SC = [
   objective:'Place the anti-aliasing filter before the sampler and compare the two error energies.',
   keywords:'anti aliasing filter before sampler order chain error energy comparison guard band design', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Design', src:'p. 88'},
-  {t:'title', text:'Remove it before it can fold'},
+  {t:'title', text:'Filter high frequencies before sampling'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A real signal is not band-limited, and a sampler at a fixed rate cannot be helped after the fact. The repair is a lowpass filter placed <b>before</b> the sampler, which removes everything above $\\omega_s/2$ while it can still be removed cleanly.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The order of the stages is the whole point', html:'Put the same filter after the sampler and it does nothing useful: by then the high frequencies have already folded into the band and been added to the wanted content. A filter cannot separate two numbers that were added before it saw them. Anti-aliasing filtering is only anti-aliasing while it is upstream of the sampler.'}]},
+      {t:'note', kind:'err', head:'Place the filter before the sampler', html:'After sampling, aliased high-frequency content has already been added to wanted content at the same frequency. A later filter cannot separate those contributions. The anti-aliasing filter must remove the high frequencies before sampling.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
         ['Without the filter','$x(t)=\\cos(\\pi t)+\\cos(3\\pi t)$ at $T=2/5$ s gives $x_r(t)=\\cos(\\pi t)+\\cos(2\\pi t)$. The error is $e(t)=\\cos(3\\pi t)-\\cos(2\\pi t)$.'],

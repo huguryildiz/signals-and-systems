@@ -23,7 +23,7 @@ window.C7 = [
 {t:'page'},
 
 {t:'h1', num:'CHAPTER 7', text:'Sampling and aliasing'},
-{t:'p', lead:true, text:'Keep the value of a signal only every $T$ seconds and everything between the instants is thrown away. This chapter says exactly when that loss can be reversed, exactly what is lost when it cannot, and exactly which filter does the reversing. Two words carry the chapter and are not interchangeable: sampling always <b>replicates</b> the spectrum, and only overlapping copies are <b>aliasing</b>.'},
+{t:'p', lead:true, text:'Sampling keeps the value of a signal every $T$ seconds and discards the values between those instants. This chapter gives the condition for exact recovery, derives the required reconstruction filter, and shows what changes when the condition fails. Sampling always <b>replicates</b> the spectrum. <b>Aliasing</b> occurs only when those copies overlap.'},
 
 {t:'h2', num:'7.1', text:'Impulse-train sampling'},
 {t:'p', text:'Sampling is modelled as a multiplication. The sampling function is an impulse train of period $T$, and the sampled signal is the product of the signal with it.'},
@@ -32,7 +32,7 @@ window.C7 = [
       'x_p(t)=\\sum_{n=-\\infty}^{\\infty}x(nT)\\,\\delta(t-nT)'],
  after:'The second line follows from the sifting property $x(t)\\delta(t-nT)=x(nT)\\delta(t-nT)$: an impulse is zero everywhere except at its own instant, so only the value there survives.'},
 {t:'box', hd:'How an impulse is drawn', html:'An impulse is drawn as an arrow whose <b>height is its weight</b>. In a picture of $x_p(t)$ the arrow at $t=nT$ therefore reaches $x(nT)$, and the outline traced by the arrowheads is the signal itself. The arrows are weights, not values of a function.'},
-{t:'p', text:'The numbers $x(nT)$ are all that survives the sampler. Written as a sequence they are $x_p[n]=x(nT)$, and this is where a discrete-time signal comes from in practice.'},
+{t:'p', text:'The sampler keeps only the numbers $x(nT)$. Written as a sequence, they are $x_p[n]=x(nT)$. These sample values form the discrete-time representation of the signal.'},
 {t:'figrow', n:2, items:[
  {svg:()=>{ const a=ax({w:520,h:190,xr:[-3.4,3.4],yr:[-0.2,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'x(t)',xtarget:6});
    a.curve(xB,{color:C.in,n:2000}); return a.svg(); },
@@ -45,7 +45,7 @@ window.C7 = [
 ]},
 
 {t:'h2', num:'7.2', text:'The rate, in radians per second and in hertz'},
-{t:'p', text:'One sampler, one period, two ways of naming how fast it runs. Both appear in this chapter, so both are defined here and kept apart afterwards.'},
+{t:'p', text:'A sampling rate can be stated as an angular frequency or in hertz. Define both forms before using them so that their units remain distinct.'},
 {t:'eqbox', cap:'Sampling rate, both readings',
  tex:['\\omega_s=\\frac{2\\pi}{T}\\ \\left[\\frac{\\text{rad}}{\\text{s}}\\right],\\qquad f_s=\\frac{1}{T}\\ [\\text{Hz}],\\qquad \\omega_s=2\\pi f_s'],
  after:'$\\omega_s$ is the sampling <b>angular</b> frequency. $f_s$ is the sampling frequency in hertz, the number of samples taken per second. Every spectrum in this chapter is drawn against $\\omega$ in rad/s, so $\\omega_s$ is the working symbol; the hertz reading appears only where a physical rate is quoted.'},
@@ -110,7 +110,7 @@ window.C7 = [
 {t:'ex', hd:'Example 7.1 — a signal the Nyquist rate throws away', rows:[
  ['Given','$x(t)=1+\\cos(2000\\pi t)+\\sin(4000\\pi t)$, sampled at exactly $\\omega_s=2\\omega_M=8000\\pi$ rad/s.'],
  ['Find','What happens to the term $\\sin(4000\\pi t)$.'],
- ['Method','Locate the contributions to $X_p$ at the single frequency $\\omega=+4000\\pi$, then check the answer in the time domain.'],
+ ['Method','Use the sampled-spectrum sum because cancellation can occur between the baseband and a copy. Locate every contribution to $X_p$ at $\\omega=+4000\\pi$, then verify the result from the sample values in time.'],
  ['Solution','The bandwidth is $\\omega_M=4000\\pi$ rad/s, so $T=2\\pi/\\omega_s=1/4000$ s $=0.25$ ms. The sine transforms to $\\frac{\\pi}{j}[\\delta(\\omega-4000\\pi)-\\delta(\\omega+4000\\pi)]$. At $\\omega=+4000\\pi$ two terms of the sum contribute: the baseband gives $\\frac{1}{T}\\cdot\\frac{\\pi}{j}=+\\frac{4000\\pi}{j}$, and the $k=1$ copy carries the impulse from $-4000\\pi$ up by $\\omega_s$ and gives $-\\frac{4000\\pi}{j}$. Their sum is exactly zero, and the same happens at $-4000\\pi$. In time, $$\\sin(4000\\pi\\,nT)=\\sin(\\pi n)=0\\quad\\text{for every integer }n.$$'],
  ['Check','Every sample of the sine term is taken at a zero crossing, so the sampler never sees it. The component is absent, not merely marginal.'],
  ['Repair','Add a guard band. With $\\omega_g=1000\\pi$ rad/s the rate becomes $\\omega_s=9000\\pi$ rad/s, so $T=1/4500$ s, about $222.2\\ \\mu$s, and the admissible cutoff interval $4000\\pi<\\omega_c<5000\\pi$ rad/s is no longer empty.']
@@ -133,14 +133,14 @@ window.C7 = [
 {t:'ex', hd:'Example 7.2 — one signal at three rates', rows:[
  ['Given','$x(t)=(\\sin\\pi t/\\pi t)^{2}$, whose transform is a triangle of peak 1 reaching zero at $\\pm2\\pi$. So $\\omega_M=2\\pi$ rad/s and the Nyquist rate is $4\\pi$ rad/s.'],
  ['Find','For $T_1=0.40$ s, $T_2=0.50$ s and $T_3=2/3$ s: the rate, the guard band and the height of each copy.'],
- ['Method','$\\omega_s=2\\pi/T$, guard band $\\omega_s-2\\omega_M$, copy height $1/T$ times the original peak.'],
+ ['Method','Use the sampling definitions because the question asks for the rate, separation, and scale of the copies: $\\omega_s=2\\pi/T$, guard band $\\omega_s-2\\omega_M$, and copy height $1/T$ times the original peak.'],
  ['Solution','$$\\begin{aligned}T_1=0.40:&\\quad\\omega_s=5\\pi,\\quad 5\\pi>4\\pi,\\quad\\text{guard}=+\\pi,\\quad 1/T_1=2.5\\\\T_2=0.50:&\\quad\\omega_s=4\\pi,\\quad 4\\pi=4\\pi,\\quad\\text{guard}=0,\\quad 1/T_2=2.0\\\\T_3=2/3:&\\quad\\omega_s=3\\pi,\\quad 3\\pi<4\\pi,\\quad\\text{guard}=-\\pi,\\quad 1/T_3=1.5\\end{aligned}$$'],
  ['Check','$\\omega_sT=2\\pi$ in each row: $5\\pi\\times0.4=2\\pi$, $4\\pi\\times0.5=2\\pi$, $3\\pi\\times2/3=2\\pi$. Only the first row is safe; the second sits on the boundary and the third overlaps by $\\pi$ rad/s on each side.']
 ]},
 {t:'ex', hd:'Example 7.3 — a line spectrum, and its sampling period', rows:[
  ['Given','$x(t)=1+\\cos(2000\\pi t)+\\sin(4000\\pi t)$.'],
  ['Find','$X(j\\omega)$, the bandwidth, and the sampling period at the Nyquist rate.'],
- ['Method','Transform each term separately, then convert the rate to a period and check it three ways.'],
+ ['Method','Use linearity because the signal is a sum of standard terms. Transform each term separately, identify the largest frequency, convert the resulting rate to a period, and check the units three ways.'],
  ['Solution','$$X(j\\omega)=2\\pi\\delta(\\omega)+\\pi\\delta(\\omega-2000\\pi)+\\pi\\delta(\\omega+2000\\pi)+\\frac{\\pi}{j}\\delta(\\omega-4000\\pi)-\\frac{\\pi}{j}\\delta(\\omega+4000\\pi).$$ Five impulses, each written as a function of $\\omega$ so that its position can be read. The furthest is at $4000\\pi$, so $\\omega_M=4000\\pi$ rad/s, that is $f_M=2000$ Hz, and the Nyquist rate is $8000\\pi$ rad/s, that is $4000$ Hz. Then $$T=\\frac{2\\pi}{8000\\pi}=\\frac{1}{4000}\\ \\text{s}=2.5\\times10^{-4}\\ \\text{s}=0.25\\ \\text{ms}.$$'],
  ['Check','Three independent tests. $\\omega_sT=8000\\pi\\times2.5\\times10^{-4}=2\\pi$. The copies are scaled by $1/T=4000$. And doubling the rate must halve the period: at $\\omega_s=16000\\pi$ the period is $125\\ \\mu$s, and $0.25$ ms divided by $125\\ \\mu$s is exactly 2.'],
  ['Warning','The answer is a quarter of a millisecond. Cancelling the $\\pi$ but not the thousand gives $0.25$ s, and every later number in the problem is then wrong by a factor of 1000. A quarter of a second between samples would be four samples per second for a signal carrying 2000 Hz.']
@@ -148,7 +148,7 @@ window.C7 = [
 {t:'ex', hd:'Example 7.4 — area, peak, and the height of a copy', rows:[
  ['Given','$x(t)=\\bigl(\\sin(4000\\pi t)/\\pi t\\bigr)^{2}$, the square of a signal whose transform is a rectangle of height 1 on $|\\omega|\\le4000\\pi$.'],
  ['Find','The peak of $X(j\\omega)$, the bandwidth, the Nyquist period, and the height of one copy after sampling.'],
- ['Method','Squaring in time convolves in frequency and divides by $2\\pi$.'],
+ ['Method','Use the multiplication property because the signal is squared in time. The spectrum therefore convolves with itself and divides by $2\\pi$.'],
  ['Solution','$$A=\\bigl[R*R\\bigr](0)=\\int_{-4000\\pi}^{4000\\pi}(1)(1)\\,\\d\\tau=8000\\pi,\\qquad X_{\\max}=X(0)=\\frac{A}{2\\pi}=4000.$$ The triangle reaches zero at twice the rectangle half-width, so $\\omega_M=8000\\pi$ rad/s and $T=2\\pi/16000\\pi=1.25\\times10^{-4}$ s, that is $125\\ \\mu$s. The copy height is $X_{\\max}/T=4000\\times8000=3.2\\times10^{7}$.'],
  ['Check','This bandwidth is twice the one in Example 7.3, so this period is half of it. And $\\omega_sT=16000\\pi\\times1.25\\times10^{-4}=2\\pi$.'],
  ['Warning','$A$ is an area and $X_{\\max}$ is the peak of a spectrum. They differ by $2\\pi$, so substituting one where the other belongs inflates every later height by that factor. Give the peak its own symbol.']
@@ -165,7 +165,7 @@ window.C7 = [
  tex:['h_{LP}(t)=\\frac{1}{2\\pi}\\int_{-\\omega_c}^{\\omega_c}T\\,e^{j\\omega t}\\,\\d\\omega=\\frac{T\\sin(\\omega_ct)}{\\pi t}',
       'x_r(t)=\\sum_{n=-\\infty}^{\\infty}x(nT)\\,\\frac{T}{\\pi}\\cdot\\frac{\\sin\\bigl(\\omega_c(t-nT)\\bigr)}{t-nT}'],
  after:'Throughout this course $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, <b>unnormalised</b>. With the choice $\\omega_c=\\pi/T$ the kernel is $h_{LP}(t)=\\sin(\\pi t/T)/(\\pi t/T)=\\operatorname{sinc}(\\pi t/T)$. Anything written as $\\operatorname{sinc}(t/T)$ belongs to the other convention and is a different function.'},
-{t:'box', kind:'err', hd:'The factor of $\\pi$ inside the sine is load-bearing', html:'The kernel must be 1 at $t=0$ and exactly 0 at every other sample instant, so that each sample controls its own instant and no other. Drop the $\\pi$ from the numerator and the property is lost at once: with $T=1$ the correct kernel at $t=1$ is $\\sin(\\pi)/\\pi=0$, while $\\sin(1)/\\pi=0.267849$. A kernel that does not vanish at the neighbouring instants is not an interpolation at all. Note also that $\\omega_c=\\pi/T$ is exactly $\\omega_s/2$, the end of the admissible interval rather than a point inside it. It is a choice, and it should be stated as one.'},
+{t:'box', kind:'err', hd:'Keep the factor of $\\pi$ inside the sine', html:'The kernel must equal 1 at $t=0$ and 0 at every other sample instant. Then each sample sets its own value without changing the others. Removing $\\pi$ breaks this condition: with $T=1$ the correct kernel at $t=1$ is $\\sin(\\pi)/\\pi=0$, while $\\sin(1)/\\pi=0.267849$. Also, $\\omega_c=\\pi/T$ equals $\\omega_s/2$, which is an endpoint of the admissible interval rather than an interior point. State this cutoff as a choice.'},
 {t:'figrow', n:2, items:[
  {svg:()=>{ const a=ax({w:520,h:190,xr:[-4.4,4.4],yr:[-0.42,1.28],xlabel:'t/T',ylabel:'h_{LP}(t)',xtarget:6});
    a.curve(u=>hLP(u,1),{color:C.h,n:2000});
@@ -188,7 +188,7 @@ window.C7 = [
  tex:['h_0(t)=\\begin{cases}1,&0\\le t<T\\\\0,&\\text{otherwise}\\end{cases}',
       'H_0(j\\omega)=\\int_0^Te^{-j\\omega t}\\,\\d t=\\frac{1-e^{-j\\omega T}}{j\\omega}=e^{-j\\omega T/2}\\,\\frac{2\\sin(\\omega T/2)}{\\omega}'],
  after:'The magnitude is $|2\\sin(\\omega T/2)/\\omega|$ and the phase is $-\\omega T/2$, a delay of half a sampling period. At the origin $H_0(0)=T$, so the hold already supplies the gain the ideal filter needed.'},
-{t:'p', text:'Three differences from the ideal filter. The magnitude sags below $T$ as $\\omega$ grows, so the recovered signal is shaped as well as reconstructed. It is not zero beyond the cutoff, so parts of the neighbouring copies survive as the staircase edge. And it carries a delay. Making the hold exact needs the compensator'},
+{t:'p', text:'The zero-order hold differs from the ideal filter in three ways. Its magnitude decreases below $T$ as $\\omega$ grows, so it changes the wanted spectrum. Its response is non-zero beyond the cutoff, so parts of neighbouring copies remain. Its phase also adds a delay. Correcting these effects would require the compensator'},
 {t:'eq', tex:'H_r(j\\omega)=\\frac{H(j\\omega)}{H_0(j\\omega)}=e^{j\\omega T/2}H(j\\omega)\\,\\frac{\\omega}{2\\sin(\\omega T/2)},'},
 {t:'p', text:'which has to advance in time and to grow without bound where $\\sin(\\omega T/2)$ vanishes. It is approximated in practice, not built.'},
 {t:'eqbox', cap:'First-order hold',
@@ -223,7 +223,7 @@ window.C7 = [
 {t:'ex', hd:'Example 7.5 — three periods for one cosine', rows:[
  ['Given','$x(t)=\\cos(2\\pi t)$, so $\\omega_M=2\\pi$ rad/s and the Nyquist rate is $4\\pi$ rad/s. Take $\\omega_c=\\omega_s/2$.'],
  ['Find','Whether $T_1=1/4$ s, $T_2=1/3$ s and $T_3=2/3$ s recover the signal, and what is recovered when one does not.'],
- ['Method','Compute $\\omega_s=2\\pi/T$, compare with $4\\pi$, then list the line positions and keep those inside the cutoff.'],
+ ['Method','Use the sampled line spectrum because the filter selects individual lines. Compute $\\omega_s=2\\pi/T$, compare it with $4\\pi$, list all line positions, and keep only those inside the cutoff.'],
  ['Solution','$$\\begin{aligned}T_1=1/4:&\\quad\\omega_s=8\\pi>4\\pi,\\quad\\omega_c=4\\pi,\\quad x_r(t)=\\cos(2\\pi t)\\\\T_2=1/3:&\\quad\\omega_s=6\\pi>4\\pi,\\quad\\omega_c=3\\pi,\\quad x_r(t)=\\cos(2\\pi t)\\\\T_3=2/3:&\\quad\\omega_s=3\\pi<4\\pi,\\quad\\omega_c=1.5\\pi,\\quad x_r(t)=\\cos(\\pi t)\\end{aligned}$$'],
  ['Check','$\\cos(2\\pi nT_3)=\\cos(4\\pi n/3)$ and $\\cos(\\pi nT_3)=\\cos(2\\pi n/3)$. Since $4\\pi n/3=2\\pi n-2\\pi n/3$ and the cosine is even, the two sample sequences are identical, so no reconstruction could prefer one over the other.'],
  ['Warning','The whole verdict rests on the number the rate is compared with, and for this signal that number is $2\\omega_M=4\\pi$. Comparing against a neighbouring problem’s bandwidth of $6\\pi$ makes the middle row read $6\\pi\\ge6\\pi$, an equality, so a comfortable margin is turned into the boundary case the theorem excludes.']
@@ -231,10 +231,10 @@ window.C7 = [
 {t:'ex', hd:'Example 7.6 — two components, one rate', rows:[
  ['Given','$x(t)=\\cos(\\pi t)+\\cos(3\\pi t)$, sampled with $T=2/5$ s.'],
  ['Find','$x_r(t)$, with $\\omega_c=\\omega_s/2$.'],
- ['Method','Test the rate against this signal’s own Nyquist rate, then take the components one at a time.'],
+ ['Method','Treat the components separately because one can alias while the other remains unchanged. First test the rate against this signal’s Nyquist rate, then track each baseband and copy line through the filter.'],
  ['Solution','$\\omega_M=3\\pi$, so the Nyquist rate is $6\\pi$ rad/s, while $\\omega_s=2\\pi/T=5\\pi$ rad/s and $\\omega_c=2.5\\pi$ rad/s. Since $5\\pi<6\\pi$, aliasing is expected. From the component at $\\pi$: the baseband line at $\\pi$ is inside and survives, the copy line at $4\\pi$ is outside. From the component at $3\\pi$: the baseband line is outside, the copy line at $5\\pi-3\\pi=2\\pi$ is inside. Hence $$X_r(j\\omega)=\\pi\\bigl[\\delta(\\omega-\\pi)+\\delta(\\omega+\\pi)\\bigr]+\\pi\\bigl[\\delta(\\omega-2\\pi)+\\delta(\\omega+2\\pi)\\bigr]$$ and $x_r(t)=\\cos(\\pi t)+\\cos(2\\pi t)$.'],
  ['Check','$\\cos(3\\pi nT)=\\cos(6\\pi n/5)$ and $\\cos(2\\pi nT)=\\cos(4\\pi n/5)$, and $6\\pi n/5=2\\pi n-4\\pi n/5$, so the two sequences agree.'],
- ['Reading','Aliasing is not all-or-nothing. One component came through untouched and the other left at $3\\pi$ and returned at $2\\pi$, a frequency the signal never contained.']
+ ['Interpretation','The component at $\\pi$ remains unchanged. The component at $3\\pi$ appears at $2\\pi$, a frequency that was not present in the original signal.']
 ]},
 {t:'fig', svg:()=>{
   const a=ax({w:700,h:200,xr:[-0.3,4.3],yr:[-2.4,2.4],xlabel:'t\\;[\\text{s}]',ylabel:'x(t),\\;x_r(t)',xtarget:6});
@@ -259,7 +259,7 @@ window.C7 = [
   {t:'text',x:515,y:64,label:'x_p(t)',tex:true,fs:14,color:C.mid},
   {t:'text',x:735,y:64,label:'x_r(t)',tex:true,fs:14,color:C.out}
 ]}), cap:'The chain in the only order that works. The sampler output is $x_p(t)$; the name $x_r(t)$ belongs to the output of the reconstruction filter and to nothing before it.'},
-{t:'box', kind:'err', hd:'The order of the stages is the whole point', html:'Put the same filter after the sampler and it does nothing useful: by then the high frequencies have folded into the band and been added to the wanted content, and a filter cannot separate two numbers that were summed before it saw them. Anti-aliasing filtering is only anti-aliasing while it is upstream of the sampler.'},
+{t:'box', kind:'err', hd:'Place the filter before the sampler', html:'After sampling, aliased high-frequency content has already been added to wanted content at the same frequency. A later filter cannot separate those contributions. The anti-aliasing filter must remove the high frequencies before the sampler.'},
 {t:'p', text:'The comparison is quantitative. Take $x(t)=\\cos(\\pi t)+\\cos(3\\pi t)$ at $T=2/5$ s, as in Example 7.6. Without the filter, $x_r(t)=\\cos(\\pi t)+\\cos(2\\pi t)$ and the error is $e(t)=\\cos(3\\pi t)-\\cos(2\\pi t)$. With a lowpass at $\\omega_c=2.5\\pi$ ahead of the sampler, the component at $3\\pi$ is removed first, what is sampled is $\\cos(\\pi t)$ alone, it is recovered exactly, and the error is $e(t)=\\cos(3\\pi t)$.'},
 {t:'eqbox', cap:'Mean-square error, averaged over one period of 2 s',
  tex:['\\overline{e^{2}}\\Big|_{\\text{no filter}}=\\tfrac12+\\tfrac12=1,\\qquad \\overline{e^{2}}\\Big|_{\\text{filtered}}=\\tfrac12'],
@@ -271,7 +271,7 @@ window.C7 = [
 {t:'ex', hd:'Example 7.7 — a wheel that turns backwards', rows:[
  ['Given','A marked spoke turns at 9 revolutions per second. A camera records 10 frames per second.'],
  ['Find','The rotation the recording appears to show.'],
- ['Method','The angle is a signal at $\\omega_0=18\\pi$ rad/s and the camera samples it at $\\omega_s=20\\pi$ rad/s.'],
+ ['Method','Model the spoke angle as a sinusoid because the camera records it at regular time instants. The angle has $\\omega_0=18\\pi$ rad/s and the camera has $\\omega_s=20\\pi$ rad/s, so compare these rates and locate the surviving line.'],
  ['Solution','$\\omega_s=20\\pi<2\\omega_0=36\\pi$, so the rate is below the Nyquist rate and the surviving line sits at $|\\omega_s-\\omega_0|=2\\pi$ rad/s, that is 1 revolution per second. The surviving contribution comes from the copy of the negative-frequency component, so the apparent rotation is in the opposite direction.'],
  ['Check','$\\cos(18\\pi n/10)=\\cos(2\\pi n-2\\pi n/10)=\\cos(2\\pi n/10)$: the frames are exactly those a 1 Hz rotation would produce. Between frames the spoke advances $9/10$ of a turn, which the eye reads as $1/10$ of a turn backwards. At 20 frames per second, $40\\pi>36\\pi$ and the recording is correct.']
 ]},
@@ -302,7 +302,7 @@ window.C7 = [
  'If the copies overlap, say which line came from which copy and give the alias frequency $|\\omega_s-\\omega_0|$ for each component that moved.'
 ]},
 {t:'box', kind:'err', hd:'The four traps, in one place', html:'Saying the copies disappear below the Nyquist rate — they never do, they overlap. Treating $\\omega_s=2\\omega_M$ as safe — the admissible cutoff interval is empty there. Reading $2\\pi/T$ in hertz — that is rad/s, and the error is a factor of $2\\pi$. Calling a hold output the reconstructed signal — a hold is an approximation with a measurable error.'},
-{t:'p', text:'A continuous signal and a sequence of numbers are now the same object, provided one strict inequality holds. That equivalence is what lets every result of the earlier chapters be carried out on a machine.'},
+{t:'p', text:'When the signal is band-limited and the sampling rate satisfies the strict condition, its samples determine it uniquely. This result allows the earlier continuous-time operations to be represented and processed with discrete samples.'},
 
 {t:'h2', num:'7.13', text:'Exercises'},
 {t:'q', n:'7.1', text:'A signal is sampled at $\\omega_s=8000\\pi$ rad/s. Give $T$ and $f_s$, and verify the period with a unit check.', ans:'$T=2\\pi/\\omega_s=1/4000$ s $=0.25$ ms and $f_s=1/T=4000$ Hz. Check: $\\omega_sT=8000\\pi\\times2.5\\times10^{-4}=2\\pi$. Note that $0.25$ s fails the same check by a factor of 1000.'},
