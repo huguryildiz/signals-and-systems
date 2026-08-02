@@ -305,7 +305,15 @@ body[data-sidebar=off] #sidebar{ display:none; }
 .eyebrow .tick{ width:26px; height:1px; background:currentColor; opacity:.55; }
 .eyebrow .ebnum{ color:var(--coral); letter-spacing:.1em; }
 .eyebrow .ebnum::before{ content:'·'; color:var(--faint); margin-right:8px; }
-.eyebrow .ebbook{ color:var(--faint); letter-spacing:.06em; text-transform:none; white-space:nowrap; }
+/* The anchor is a chip, not another word in the eyebrow. It points outside the
+   course — into the textbook — and the frame says so at a glance, without the
+   reader having to parse the string first. Every token it uses is overridden by
+   `.scene.dark`, so it follows the navy pages by itself. */
+.eyebrow .ebbook{
+  display:inline-block; color:var(--faint); letter-spacing:.06em; text-transform:none;
+  white-space:nowrap; border:1px solid var(--rule); background:var(--paper-2);
+  border-radius:3px; padding:.15em .55em; font-size:.82em; line-height:1.5;
+}
 .eyebrow .src{ color:var(--faint); letter-spacing:.1em; text-transform:none;
   font-size:13px; margin-left:auto; }
 
