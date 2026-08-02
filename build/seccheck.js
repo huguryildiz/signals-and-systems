@@ -95,18 +95,32 @@ const path = require('path');
     if(!/^\d+(\.\d+){0,2}(, \d+(\.\d+){0,2})*$/.test(s.book))
       say(`scene "${s.id}" has a malformed anchor: ${s.book}`);
   }
-  const bare = await page.evaluate(mark=>{
-    const out = [];
+  /* On screen the anchor is the open-book icon followed by `CH1.1.2`, inside
+     the chip. Outside that chip a `CH` reference, or a section mark of any
+     kind, reads as this course's own numbering — the two systems do not agree,
+     so either one is a factual error on the page rather than a style slip. */
+  const anchors = await page.evaluate(()=>{
+    const bad = [];
     document.querySelectorAll('#sidenav, #mapgrid, #scene-host').forEach(host=>{
       host.querySelectorAll('*').forEach(e=>{
         if(e.children.length) return;
-        const t = (e.textContent||'');
-        if(t.includes('§') && !t.includes(mark)) out.push(t.trim().slice(0,60));
+        const t = (e.textContent||'').trim();
+        if(/§/.test(t))
+          bad.push(`section mark on the page: "${t.slice(0,60)}"`);
+        if(/\bCH\s?\d/.test(t) && !e.closest('.ebbook'))
+          bad.push(`textbook reference outside the chip: "${t.slice(0,60)}"`);
+      });
+      host.querySelectorAll('.ebbook').forEach(c=>{
+        const t = (c.textContent||'').trim();
+        if(!c.querySelector('svg'))
+          bad.push(`chip without the book icon: "${t.slice(0,40)}"`);
+        if(!/^CH\d/.test(t))
+          bad.push(`chip address not written CH…: "${t.slice(0,40)}"`);
       });
     });
-    return [...new Set(out)];
-  }, data.mark);
-  bare.forEach(t=>say(`bare section mark on the page: "${t}"`));
+    return [...new Set(bad)];
+  });
+  anchors.forEach(say);
 
   console.log('SCENES: '+data.scenes.length);
   console.log('ADDRESSED: '+seen.size);
