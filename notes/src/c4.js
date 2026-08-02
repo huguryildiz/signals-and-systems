@@ -15,7 +15,7 @@ window.C4 = [
 {t:'page'},
 
 {t:'h1', num:'CHAPTER 4', text:'Fourier series'},
-{t:'p', lead:true, text:'Convolution answers every question about a linear time-invariant system, and answers it slowly. This chapter finds the one family of input signals a system cannot reshape, and shows that almost every periodic signal is a sum of them. What was an integral becomes one multiplication per frequency.'},
+{t:'p', lead:true, text:'Fourier series are used to calculate the response of a linear time-invariant system to a periodic signal. Complex exponentials are eigenfunctions of every LTI system, and periodic signals can be represented as sums of these exponentials. This representation replaces convolution by one multiplication at each harmonic frequency.'},
 
 {t:'h2', num:'4.1', text:'Eigenfunctions of a linear time-invariant system'},
 {t:'box', html:'<span class="t">Definition</span>A signal is an <b>eigenfunction</b> of a system when the output is that same signal multiplied by a constant. The constant is the <b>eigenvalue</b>.'},
@@ -41,11 +41,11 @@ window.C4 = [
 {t:'ex', hd:'Example 4.1 — a pure delay', rows:[
  ['Given','An LTI system with $y(t)=x(t-3)$.'],
  ['Find','The output for $x(t)=e^{j2t}$, and for $x(t)=\\cos(4t)+\\cos(7t)$, using eigenfunctions only.'],
- ['Method','Read $h$ off the definition, integrate to get $H(s)$, then apply the eigenfunction property to each exponential.'],
+ ['Method','The inputs are complex exponentials, so the eigenfunction method applies. Write $h$ from the delay definition, integrate to obtain $H(s)$, and multiply each exponential by the corresponding value of $H$.'],
  ['Solution','$h(t)=\\delta(t-3)$, so by sifting $H(s)=\\int_{-\\infty}^{\\infty}\\delta(\\tau-3)e^{-s\\tau}\\d\\tau=e^{-3s}$. Then $e^{j2t}\\to e^{-6j}e^{j2t}=e^{j2(t-3)}$. Expanding each cosine into two exponentials and repeating the step gives $$y(t)=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr).$$'],
  ['Check','Apply $y(t)=x(t-3)$ directly to both inputs. The answers agree. Note also that $|H(j\\omega)|=1$ and $\\angle H(j\\omega)=-3\\omega$: a delay changes no amplitude and adds a phase proportional to frequency.']
 ]},
-{t:'p', text:'The point of the chapter is now in view. If $x=\\sum_k a_ke^{s_kt}$, then $y=\\sum_k a_kH(s_k)e^{s_kt}$, and no convolution is needed. Everything depends on being able to write $x$ that way.'},
+{t:'p', text:'This result gives the method used in the rest of the chapter. If $x=\\sum_k a_ke^{s_kt}$, multiply each term by its eigenvalue to obtain $y=\\sum_k a_kH(s_k)e^{s_kt}$. The next sections show how to write periodic signals in this form.'},
 
 {t:'h2', num:'4.2', text:'Existence: the Dirichlet conditions'},
 {t:'p', text:'Not every signal can be decomposed into complex exponentials. Periodic signals can, provided they satisfy three conditions. Let $x(t)=x(t+T)$ for every $t$.'},
@@ -69,7 +69,7 @@ window.C4 = [
 {t:'eqbox', cap:'Orthogonality of complex exponentials',
  tex:['\\int_{T_0}e^{j(k-n)\\omega_0t}\\,\\d t=\\begin{cases}T_0,&k=n\\\\0,&k\\neq n\\end{cases}'],
  after:'Only the term with $k=n$ survives, leaving $\\int_{T_0}x(t)e^{-jn\\omega_0t}\\d t=T_0a_n$.'},
-{t:'box', html:'<span class="t">The DC term</span>Setting $k=0$ makes the exponential 1, so $$a_0=\\frac{1}{T_0}\\int_{T_0}x(t)\\,\\d t,$$ the average value of the signal over one period. It is the fastest available check on any coefficient calculation, because the average of a drawn signal can be estimated by eye.'},
+{t:'box', html:'<span class="t">The DC term</span>Setting $k=0$ makes the exponential 1, so $$a_0=\\frac{1}{T_0}\\int_{T_0}x(t)\\,\\d t,$$ the average value of the signal over one period. Use this fact to check a coefficient calculation: calculate or estimate the mean directly from the signal and compare it with $a_0$.'},
 
 {t:'h3', text:'Fundamental period of a sum'},
 {t:'p', text:'A sum of periodic signals is periodic when the ratio of every pair of component periods is rational. The fundamental period of the sum is the smallest positive number that is a whole multiple of each component period. Write each period as a fraction in lowest terms:'},
@@ -101,7 +101,7 @@ window.C4 = [
  ['Find','Every coefficient.'],
  ['Method','Apply the analysis equation over $-T_0/2$ to $T_0/2$. The signal is 1 only on $[-T_1,T_1]$, so those become the limits. The case $k=0$ is separate, because the antiderivative divides by $k$.'],
  ['Solution','For $k\\neq0$, $$a_k=\\frac{1}{T_0}\\int_{-T_1}^{T_1}e^{-jk\\omega_0t}\\d t=\\frac{2\\sin(k\\omega_0T_1)}{k\\omega_0T_0}=\\frac{\\sin\\!\\left(2\\pi kT_1/T_0\\right)}{\\pi k},$$ and for $k=0$, $a_0=2T_1/T_0$.'],
- ['Check','As $k\\to0$ the second branch tends to $2T_1/T_0$, because $\\sin\\theta/\\theta\\to1$: the two branches meet, so the split is bookkeeping and not a discontinuity. The signal is real and even, so the coefficients are real and even — and they are, since $\\sin$ and $k$ are both odd. The zeros fall where $k$ is a non-zero multiple of $T_0/(2T_1)$.']
+ ['Check','As $k\\to0$ the second branch tends to $2T_1/T_0$, because $\\sin\\theta/\\theta\\to1$. It therefore agrees with the branch for $k=0$. The signal is real and even, so the coefficients must be real and even. The formula has this property because $\\sin$ and $k$ are both odd. The zeros occur when $k$ is a non-zero multiple of $T_0/(2T_1)$.']
 ]},
 {t:'h3', text:'The envelope, and the samples taken from it'},
 {t:'p', text:'These coefficients are values of one continuous function of $\\omega$, read at equally spaced points. Write the function first:'},
@@ -110,7 +110,7 @@ window.C4 = [
       'a_k=\\frac{1}{T_0}E(k\\omega_0)=\\frac{\\sin\\!\\left(2\\pi kT_1/T_0\\right)}{\\pi k}'],
  after:'$E$ depends on the shape of one pulse and not on how often it repeats. In the unnormalised convention $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, it is $E(\\omega)=2T_1\\operatorname{sinc}(\\omega T_1)$.'},
 {t:'box', kind:'err', html:'<span class="t">Two objects, not one</span>$E(\\omega)$ is a function of a continuous variable; $a_k$ is a sequence indexed by an integer. Evaluating the envelope at the single point $\\omega=\\omega_0$ gives $T_0a_1$, the first harmonic only. As a function of the harmonic index the coefficient is $T_0a_k=T_0\\sin(2\\pi kT_1/T_0)/(\\pi k)$, with $k$ present in both places. Never join the tops of coefficient stems with a line: it claims the signal contains frequencies between the harmonics, which a periodic signal does not.'},
-{t:'p', text:'Lengthen $T_0$ and keep the pulse fixed. The envelope stays where it is; only the sample spacing $\\omega_0=2\\pi/T_0$ shrinks, and every coefficient falls as $1/T_0$. That observation is what produces the Fourier transform in the next chapter.'},
+{t:'p', text:'Increase $T_0$ while keeping the pulse fixed. The envelope remains the same. The spacing $\\omega_0=2\\pi/T_0$ decreases, and every coefficient decreases as $1/T_0$. The next chapter uses this limiting process to define the Fourier transform.'},
 {t:'figrow', n:3, items:[
  {svg:()=>{const a=ax({w:225,h:150,xr:[-16,16],yr:[-0.16,0.58],xlabel:'k',ylabel:'a_k',xtarget:3,ytarget:3});
    a.stem(D(k=>k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k),-16,16),{color:C.in,r:2.2,showZero:true}); return a.svg();}, cap:'$T_0=4T_1$.'},
@@ -123,7 +123,7 @@ window.C4 = [
 {t:'ex', hd:'Example 4.4 — the sawtooth wave', rows:[
  ['Given','$x(t)=t$ for $-T_0/2<t<T_0/2$, repeated with period $T_0$.'],
  ['Find','Every coefficient.'],
- ['Method','The DC term first, then integration by parts, $\\int_b^{c}te^{at}\\d t=\\frac{1}{a^{2}}\\bigl[(at-1)e^{at}\\bigr]_b^{c}$.'],
+ ['Method','The signal is odd, so its DC term is zero. For $k\\neq0$, the integrand contains $t$ times an exponential, so use integration by parts: $\\int_b^{c}te^{at}\\d t=\\frac{1}{a^{2}}\\bigl[(at-1)e^{at}\\bigr]_b^{c}$.'],
  ['Solution','$a_0=\\frac{1}{T_0}\\int_{-T_0/2}^{T_0/2}t\\,\\d t=0$. For $k\\neq0$, using $\\omega_0T_0/2=\\pi$ and $\\sin(k\\pi)=0$, $$a_k=\\frac{jT_0}{2k\\pi}\\cos(k\\pi)=\\frac{jT_0(-1)^{k}}{2k\\pi}.$$'],
  ['Check','The signal is real and odd, so the coefficients must be purely imaginary — and they are. For $T_0=1$ the largest is $|a_{\\pm1}|=1/(2\\pi)\\approx0.159$. Every phase is $+\\pi/2$ or $-\\pi/2$, with the sign alternating in $k$ and flipping again with the sign of $k$.']
 ]},
@@ -132,7 +132,7 @@ window.C4 = [
  ['Find','Every coefficient.'],
  ['Method','Take the period from $-T_0/2$ to $+T_0/2$. Exactly one impulse lies inside it, so sifting finishes the integral.'],
  ['Solution','$a_k=\\frac{1}{T_0}\\int_{-T_0/2}^{+T_0/2}\\delta(t)e^{-jk\\omega_0t}\\d t=\\frac{1}{T_0}$ for every $k$.'],
- ['Check','Both limits must be written and they must differ. An interval whose two ends are the same number has zero length, and every integral over it is zero, impulse or not. The answer is real, positive and the same at every harmonic: at $t=0$ all harmonics add in step, and everywhere else they cancel.']
+ ['Check','Both limits must be written and must differ. An interval with equal endpoints has zero length, so every integral over it is zero. The result is real, positive, and equal at every harmonic. At $t=0$, every harmonic has value 1 and their contributions add. At other times, the positive and negative contributions cancel.']
 ]},
 
 {t:'h2', num:'4.5', text:'How many harmonics are enough'},
@@ -215,7 +215,7 @@ window.C4 = [
  ['First difference','$x[n]-x[n-1]$','$\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k$'],
  ['Running sum','$\\sum_{r=-\\infty}^{n}x[r]$','$a_k/\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)$, only if $a_0=0$']
 ]},
-{t:'p', text:'Three of these deserve a second reading. <b>Time scaling</b> in continuous time leaves the coefficients untouched and moves the frequencies they sit on, because $x(\\alpha t)$ keeps every value of the signal and only changes how fast it is traversed. In discrete time there is nowhere closer to move to, so $x_{(m)}[n]$ inserts $m-1$ zeros after every sample; nothing is discarded and nothing invented, which is why the coefficients survive, and the factor $1/m$ appears because the average is now taken over $m$ times as many samples. <b>Periodic convolution</b> carries the factor $T_0$ or $N$ in front of the product: the analysis equation divides by the period once and the convolution integrates over it once more. Dropping that factor scales every answer by the period, and the error is invisible in a sketch of the shape. <b>Integration</b> and the <b>running sum</b> both divide by a factor that vanishes at $k=0$, which is where their condition comes from: a signal with a non-zero mean integrates to something that grows without bound, so it is neither finite-valued nor periodic. Subtract the mean, apply the rule to the rest, and add the ramp $a_0t$ back at the end.'},
+{t:'p', text:'Three properties need further explanation. <b>Time scaling</b> in continuous time does not change the coefficient values, but it changes their frequencies. In discrete time, $x_{(m)}[n]$ places the original samples $m$ indices apart and inserts $m-1$ zeros after each sample. The factor $1/m$ appears because the average is taken over $m$ times as many samples. <b>Periodic convolution</b> includes the factor $T_0$ or $N$ before the coefficient product. The analysis equation divides by the period, and the convolution adds an operation over one period. Omitting this factor gives the wrong amplitude. <b>Integration</b> and the <b>running sum</b> divide by a factor that is zero at $k=0$. A signal with non-zero mean therefore produces a non-periodic term. Subtract the mean, apply the rule to the zero-mean part, and then add the term $a_0t$.'},
 {t:'p', text:'The time-shift factor has modulus 1, so $|b_k|=|a_k|$ at every $k$: a shift never changes a magnitude, only a phase, and it changes that phase by $-k\\omega_0t_0$, proportionally to the harmonic index. Two signals differing only by a delay have identical magnitude plots, which is why a phase plot is not decoration.'},
 {t:'box', kind:'err', html:'<span class="t">The discrete-time product</span>The multiplication property in discrete time is a <b>periodic</b> convolution: the sum runs over one period of $\\ell$. Discrete-time coefficients repeat, so an infinite sum would add each of the $N$ distinct products over and over and diverge. The product $x[n]y[n]$ is itself periodic with period $N$ and therefore has $N$ coefficients — a number only a sum over one period can deliver.'},
 {t:'h3', text:'Symmetry'},
@@ -236,7 +236,7 @@ window.C4 = [
 {t:'eqbox', cap:'One multiplication per harmonic',
  tex:['x(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}\\;\\longrightarrow\\;y(t)=\\sum_{k=-\\infty}^{\\infty}\\underbrace{a_kH(jk\\omega_0)}_{b_k}e^{jk\\omega_0t}',
       'x[n]=\\sum_{k=\\langle N\\rangle}a_ke^{jk\\omega_0n}\\;\\longrightarrow\\;y[n]=\\sum_{k=\\langle N\\rangle}a_kH(e^{jk\\omega_0})e^{jk\\omega_0n}'],
- after:'No flipping, no shifting, no case boundaries. The whole system is the single function $H$.'},
+ after:'The frequency response $H$ describes the system. For a periodic input, calculate one product at each harmonic instead of evaluating a convolution.'},
 {t:'h3', text:'Putting the output back together'},
 {t:'p', text:'The result above is a sum of complex terms. For real $x$ and real $h$, $a_{-k}=a_k^{*}$ and $H(-j\\omega)=H^{*}(j\\omega)$, so $b_{-k}=b_k^{*}$. Pair each $k$ with $-k$:'},
 {t:'eqbox', cap:'Conjugate-pair reassembly',
@@ -248,23 +248,23 @@ window.C4 = [
 {t:'ex', hd:'Example 4.9 — low-pass filtering', rows:[
  ['Given','$x(t)=1+\\cos(\\pi t)+\\sin(2\\pi t)+\\cos\\!\\left(3\\pi t+\\frac{\\pi}{3}\\right)$ into a system with $h(t)=e^{-t}u(t)$.'],
  ['Find','The output signal.'],
- ['Method','$H(j\\omega)$ from $h$; $T_0$ and the $a_k$ from $x$; then $b_k=a_kH(jk\\omega_0)$ and the pairing.'],
+ ['Method','The input is periodic and the system is LTI, so harmonic multiplication applies. Calculate $H(j\\omega)$ from $h$, find $T_0$ and $a_k$ from $x$, form $b_k=a_kH(jk\\omega_0)$, and combine each conjugate pair.'],
  ['Solution','$H(j\\omega)=1/(1+j\\omega)$, so $|H|=1/\\sqrt{1+\\omega^{2}}$ and $\\angle H=-\\arctan\\omega$. The component periods $2$, $1$ and $2/3$ s give $T_0=2$ s and $\\omega_0=\\pi$. With $a_0=1$, $a_{\\pm1}=\\frac12$, $a_2=\\frac{1}{2j}$, $a_3=\\frac12e^{j\\pi/3}$: $$b_0=1,\\quad b_1=0.1517e^{-j1.2626},\\quad b_2=0.0786e^{-j2.9838},\\quad b_3=0.0528e^{-j0.4178},$$ and therefore $$y(t)=1+0.303\\cos(\\pi t-1.263)+0.157\\cos(2\\pi t-2.984)+0.106\\cos(3\\pi t-0.418).$$'],
- ['Check','Each amplitude is $2|b_k|$: $0.303$, $0.157$, $0.106$. The output swings from about $0.615$ to $1.417$; halved amplitudes would give only $0.81$ to $1.21$, a visibly flatter signal. The average is untouched because $|H(0)|=1$, and the third harmonic is cut to about a tenth.']
+ ['Check','Each amplitude is $2|b_k|$: $0.303$, $0.157$, $0.106$. The output ranges from about $0.615$ to $1.417$; using half the required amplitudes would give only $0.81$ to $1.21$. The average is unchanged because $|H(0)|=1$, and the third-harmonic amplitude is reduced to about one tenth of its input value.']
 ]},
 {t:'ex', hd:'Example 4.10 — high-pass filtering', rows:[
  ['Given','The same $x(t)$, now into a system with $H(j\\omega)=\\dfrac{j\\omega}{1+j\\omega}$.'],
  ['Find','The output signal.'],
- ['Method','Unchanged. Only $H$ is different.'],
+ ['Method','The input is periodic and the system is LTI, so use the same harmonic-multiplication method as in Example 4.9. Replace the low-pass response by the given $H$, calculate each $b_k$, and combine the conjugate pairs.'],
  ['Solution','$H(j0)=0$, so $b_0=0$ and the output has zero average. Then $b_1=0.4764e^{+j0.3082}$, $b_2=0.4938e^{-j1.4130}$, $b_3=0.4972e^{+j1.1530}$, and $$y(t)=0.953\\cos(\\pi t+0.308)+0.988\\cos(2\\pi t-1.413)+0.994\\cos(3\\pi t+1.153).$$'],
- ['Check','$|H(jk\\pi)|$ is $0.953$, $0.988$, $0.994$ for $k=1,2,3$: nearly unity, so harmonics of unit amplitude must come out with amplitudes near 1. Values near $0.5$ would mean the factor of two was lost. The phases come from positive $k$: $+0.308$, $-1.413$, $+1.153$. Reading them off $b_{-k}$ reverses the first and third while leaving the second looking plausible, which is what makes that error hard to see.']
+ ['Check','$|H(jk\\pi)|$ is $0.953$, $0.988$, $0.994$ for $k=1,2,3$. These values are close to one, so unit-amplitude input harmonics must produce output amplitudes close to one. Values close to $0.5$ would show that the factor of two is missing. Use the phases for positive $k$: $+0.308$, $-1.413$, $+1.153$. Using $b_{-k}$ instead changes the signs of the first and third phases.']
 ]},
 {t:'ex', hd:'Example 4.11 — filtering a discrete impulse train', rows:[
  ['Given','$x[n]=\\sum_{m=-\\infty}^{\\infty}\\delta[n-4m]$, and the systems $h_1[n]=0.5\\delta[n]-0.5\\delta[n-1]$ and $h_2[n]=0.5\\delta[n]+0.5\\delta[n-1]$.'],
  ['Find','Both output signals.'],
- ['Method','$a_k$ for the impulse train, then $b_k=a_kH(e^{jk\\omega_0})$ with $\\omega_0=\\pi/2$, then the pairing.'],
+ ['Method','The input is periodic and both systems are LTI, so discrete-time harmonic multiplication applies. Find $a_k$ for the impulse train, calculate $b_k=a_kH(e^{jk\\omega_0})$ with $\\omega_0=\\pi/2$, and then combine the conjugate pairs.'],
  ['Solution','$a_k=\\frac14$ for every $k$. For $h_1$, $H_1(e^{j\\omega})=0.5(1-e^{-j\\omega})$, giving $b_0=0$, $b_1=0.1768e^{j\\pi/4}$ and $b_2=0.25$, so $$y[n]=0.36\\cos\\!\\left(\\frac{\\pi}{2}n+\\frac{\\pi}{4}\\right)+0.25(-1)^{n}.$$ For $h_2$, $H_2(e^{j\\omega})=0.5(1+e^{-j\\omega})$, giving $b_0=0.25$, $b_1=0.1768e^{-j\\pi/4}$ and $b_2=0$, so $$y[n]=0.25+0.36\\cos\\!\\left(\\frac{\\pi}{2}n-\\frac{\\pi}{4}\\right).$$'],
- ['Check','Apply the two systems directly: $0.5x[n]\\mp0.5x[n-1]$ reproduces both answers sample for sample. The $k=2$ term sits at the edge of the period and has no distinct partner inside it, so it stands alone as $b_2(-1)^{n}$ and carries no factor of two. The high-pass system removes the average and keeps $b_2$; the low-pass system does the opposite.']
+ ['Check','Apply the two systems directly: $0.5x[n]\\mp0.5x[n-1]$ reproduces both answers sample by sample. Within one coefficient period, the $k=2$ term has no separate conjugate partner. It therefore appears alone as $b_2(-1)^{n}$ and has no factor of two. The high-pass system removes the average and retains $b_2$; the low-pass system retains the average and gives $b_2=0$.']
 ]},
 {t:'figrow', n:2, items:[
  {svg:()=>{const a=ax({w:340,h:170,xr:[-13,13],yr:[-0.75,0.75],xlabel:'n',ylabel:'y[n]',xtarget:4,ytarget:3});
@@ -272,7 +272,7 @@ window.C4 = [
   cap:'First difference: zero average.'},
  {svg:()=>{const a=ax({w:340,h:170,xr:[-13,13],yr:[-0.2,0.75],xlabel:'n',ylabel:'y[n]',xtarget:4,ytarget:3});
    a.stem(D(n=>0.25+0.353553*Math.cos(Math.PI*n/2-Math.PI/4),-13,13),{color:C.out,r:2.6,showZero:true}); return a.svg();},
-  cap:'Two-point average: the average survives.'}
+  cap:'Two-point average: the average remains.'}
 ]},
 
 {t:'h2', num:'4.9', text:'Checklist, and what comes next'},
@@ -280,7 +280,7 @@ window.C4 = [
  'Confirm the signal is periodic and find $T_0$ or $N$ before anything else.',
  'Set $\\omega_0=2\\pi/T_0$ or $2\\pi/N$ and write every component frequency as a multiple of it. That multiple is $k$.',
  'If the signal is already a sum of sinusoids, read the coefficients off with Euler’s relations. Otherwise integrate or sum, treating $k=0$ separately.',
- 'Check $a_0$ against the average of the signal by eye, and check the symmetry: real gives $a_{-k}=a_k^{*}$.',
+ 'Compare $a_0$ with the average calculated from the signal, and check the symmetry: a real signal gives $a_{-k}=a_k^{*}$.',
  'Through an LTI system, $b_k=a_kH(jk\\omega_0)$ — one product per harmonic.',
  'To return to a real signal, pair $k$ with $-k$: amplitude $2|b_k|$, phase $\\angle b_k$. The term $b_0$ stands alone.'
 ]},

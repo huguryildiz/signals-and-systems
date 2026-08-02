@@ -21,7 +21,7 @@ CONTENT.DRILLTYPES.M4 = [
     method:['Find $T_0$ first, then $\\omega_0=2\\pi/T_0$. Every index is counted against that $\\omega_0$.',
             'If the signal is already a sum of sinusoids, read the coefficients off Euler\'s formulas. Do not integrate.',
             'Otherwise use the analysis equation over any one full period.',
-            'Check $a_{-k}=a_k^{*}$ for a real signal, and check $a_0$ against the mean by eye.'],
+            'For a real signal, verify $a_{-k}=a_k^{*}$. Also calculate the mean from the signal definition and compare it with $a_0$.'],
     go:'m4-fs-coef' },
   { k:'fs-power', name:'Average power over one period',
     asks:'Compute the average power of a periodic signal, in the time domain or from its coefficients.',
@@ -34,7 +34,7 @@ CONTENT.DRILLTYPES.M4 = [
     asks:'A periodic input meets a system with a known impulse response. Find the frequency response and the output coefficients.',
     method:['Complex exponentials are eigenfunctions: $e^{jk\\omega_0t}$ comes out as $H(jk\\omega_0)e^{jk\\omega_0t}$.',
             'Compute $H$ once as a function, then evaluate it at each harmonic that is present.',
-            'The output coefficients are $b_k=a_k\\,H(jk\\omega_0)$ — a multiplication, never a convolution.',
+            'Calculate each output coefficient from $b_k=a_k\\,H(jk\\omega_0)$. This operation is multiplication, not convolution.',
             'A harmonic where $H$ vanishes is absent from the output. Say so explicitly.'],
     go:'m4-lti' },
   { k:'fs-dt', name:'The discrete-time series',
@@ -56,7 +56,7 @@ CONTENT.DRILLTYPES.M4 = [
     method:['Find the fundamental period first and fix $\\omega_0$ from it. Every index in the answer is counted against that one $\\omega_0$, and a wrong period misplaces all of them.',
             'Where a signal is a sum of sinusoids, expand each into complex exponentials and read the coefficients off; do not integrate what can be recognised.',
             'Where a system is present, the coefficients pass through it one harmonic at a time: $b_k=a_kH(jk\\omega_0)$ in continuous time and $b_k=a_kH(e^{jk\\omega_0})$ in discrete time.',
-            'Check the power with Parseval. The average power is $\\sum_k|a_k|^{2}$, and it must agree with the value read straight off the amplitudes in the time domain.'] }
+            'Check the power with Parseval. The average power is $\\sum_k|a_k|^{2}$, and it must agree with the value calculated from the time-domain amplitudes.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -72,7 +72,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> $T_1=1$ and $T_2=3$, so$$T_0=\\operatorname{lcm}(1,3)=3\\;\\text{s},\\qquad\\omega_0=\\frac{2\\pi}{3}\\;\\text{rad/s}.$$The cosine sits at $2\\pi=3\\omega_0$: the third harmonic. The sine sits at $2\\pi/3=\\omega_0$: the first harmonic.<br>'
      +'<b>Solution — part (b).</b> Using $\\cos\\theta=\\tfrac12(e^{j\\theta}+e^{-j\\theta})$ and $\\sin\\theta=\\tfrac{1}{2j}(e^{j\\theta}-e^{-j\\theta})$,$$2\\cos(3\\omega_0t)=e^{j3\\omega_0t}+e^{-j3\\omega_0t},\\qquad 6\\sin(\\omega_0t)=-3j\\,e^{j\\omega_0t}+3j\\,e^{-j\\omega_0t}.$$Hence$$a_0=4,\\qquad a_{1}=-3j,\\qquad a_{-1}=3j,\\qquad a_{3}=a_{-3}=1,$$and every other coefficient is zero. Magnitudes: $|a_0|=4$, $|a_{\\pm1}|=3$, $|a_{\\pm3}|=1$.<br>'
      +'<b>Solution — part (c).</b> Phases: $\\angle a_0=0$, $\\angle a_1=-\\tfrac{\\pi}{2}$, $\\angle a_{-1}=\\tfrac{\\pi}{2}$, $\\angle a_3=\\angle a_{-3}=0$.<br>'
-     +'<b>Check.</b> The signal is real, and $a_{-k}=a_k^{*}$ holds at every $k$: $\\overline{-3j}=3j$ and $1$ is its own conjugate. Reading the signal by eye, its mean over one period is $4$ — the height of the constant term — which matches $a_0$ without any integration at all.',
+     +'<b>Check.</b> The signal is real, and $a_{-k}=a_k^{*}$ holds at every $k$: $\\overline{-3j}=3j$ and $1$ is its own conjugate. The sinusoidal terms have zero mean, so the mean over one period is the constant term $4$. This agrees with $a_0$.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-0.5,5],xlabel:'k',ylabel:'|a_k|',
       pad:{l:50,r:26,t:32,b:34},xstep:1,ystep:1});
@@ -121,13 +121,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> One period is a triangle of base $2$ and height $1$, area $1$, so $a_0=1/T_0=1/2$.<br>'
      +'<b>Solution — part (b).</b> Because $x$ is even,$$a_k=\\frac{1}{2}\\int_{-1}^{1}(1-|t|)\\cos(k\\pi t)\\,\\d t=\\int_0^1(1-t)\\cos(k\\pi t)\\,\\d t.$$With $u=1-t$, $\\d v=\\cos(k\\pi t)\\,\\d t$, the boundary term vanishes at both ends, leaving$$a_k=\\frac{1}{k\\pi}\\int_0^1\\sin(k\\pi t)\\,\\d t=\\frac{1-\\cos(k\\pi)}{(k\\pi)^{2}}=\\frac{1-(-1)^{k}}{(k\\pi)^{2}}.$$'
      +'<b>Solution — part (c).</b> $a_k=0$ for every even $k$, and $a_k=\\dfrac{2}{(k\\pi)^{2}}$ for odd $k$:$$a_1=\\frac{2}{\\pi^{2}}\\approx0.2026,\\qquad a_3=\\frac{2}{9\\pi^{2}}\\approx0.0225,\\qquad a_5=\\frac{2}{25\\pi^{2}}\\approx0.0081.$$The envelope decays as $1/k^{2}$, because the signal has no jump — only a change of slope at each corner.<br>'
-     +'<b>Check.</b> As $k\\to0$, $1-\\cos(k\\pi)\\approx(k\\pi)^{2}/2$, so $a_k\\to\\tfrac12$, matching $a_0$ from part (a) without repeating the integral. A signal with an actual jump — the rectangular pulse of a nearby question — has coefficients that decay only as $1/k$; this signal has no jump anywhere, and its coefficients fall off a full power of $k$ faster, exactly the trade the corner buys.',
+     +'<b>Check.</b> As $k\\to0$, $1-\\cos(k\\pi)\\approx(k\\pi)^{2}/2$, so $a_k\\to\\tfrac12$, matching $a_0$ from part (a) without repeating the integral. A rectangular pulse has a jump and coefficients that decay as $1/k$. This signal has no jump, and its coefficients decay as $1/k^{2}$.',
   figSol:()=>{const ak=k=>k===0?0.5:(k%2===0?0:2/((k*Math.PI)**2));
     const a=P.Axes({w:1080,h:280,xr:[-7.8,7.8],yr:[-0.05,0.62],xlabel:'k',ylabel:'|a_k|',
       pad:{l:56,r:28,t:32,b:34},xstep:1,ystep:0.2});
     a.stem(disc(k=>Math.abs(ak(k)),-7,7),{color:C.in,showZero:true}); return a.svg();},
   err:'Stopping after the first integration by parts and reporting $a_k=\\dfrac{1-\\cos(k\\pi)}{k\\pi}$, missing that the remaining integral $\\int_0^1\\sin(k\\pi t)\\,\\d t$ still needs to be evaluated, which brings in the second factor of $k\\pi$ and is what produces the $1/k^{2}$ envelope.',
-  teach:'Ask what happens to the envelope if the triangle were replaced by a rectangle of the same width. The jump that appears changes the decay from $1/k^2$ to $1/k$, and naming that trade is the point of the question.' },
+  teach:'Ask what happens to the envelope if the triangle is replaced by a rectangle of the same width. The new jump changes the decay from $1/k^2$ to $1/k$. This comparison connects smoothness in time with coefficient decay.' },
 
 { id:'D4-04', module:'M4', type:'fs-coef',
   stem:'A real periodic signal $x(t)$ has fundamental angular frequency $\\omega_0=2$ rad/s. Its only non-zero Fourier series coefficients are $$a_0=-1,\\qquad a_2=3j,\\quad a_{-2}=-3j,\\qquad a_5=2e^{j\\pi/4},\\quad a_{-5}=2e^{-j\\pi/4}.$$',
@@ -140,7 +140,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b>$$x(0)=-1+6\\cos\\!\\left(\\frac{\\pi}{2}\\right)+4\\cos\\!\\left(\\frac{\\pi}{4}\\right)=-1+0+4\\cdot\\frac{\\sqrt2}{2}=-1+2\\sqrt2\\approx1.8284.$$'
      +'<b>Check.</b> Evaluate $x(\\pi/8)$ two ways. Directly from the five coefficients, with $2\\omega_0(\\pi/8)=\\pi/2$ and $5\\omega_0(\\pi/8)=5\\pi/4$: $a_2e^{j\\pi/2}+a_{-2}e^{-j\\pi/2}=3j\\cdot j+(-3j)(-j)=-3-3=-6$, and $a_5e^{j5\\pi/4}+a_{-5}e^{-j5\\pi/4}=2e^{j3\\pi/2}+2e^{-j3\\pi/2}=-2j+2j=0$; total $-1-6+0=-7$. From the real form: $-1+6\\cos(\\pi)+4\\cos(3\\pi/2)=-1-6+0=-7$. The two routes agree exactly.',
   err:'Writing the amplitude of the $k=2$ term as $|a_2|=3$ but the phase as $\\angle a_{-2}=-\\pi/2$ instead of $\\angle a_2=+\\pi/2$, which reverses the sign of the cosine\'s phase and moves the whole term by half a period at the harmonic frequency.',
-  teach:'Ask for $x(0)$ computed the slow way — summing all five raw coefficients directly — before the real form is trusted. Two different routes to the same number is the whole point of this question.' },
+  teach:'Ask the student to calculate $x(0)$ directly by summing all five coefficients. Then compare that result with the value from the real form. Agreement checks the conjugate-pair conversion.' },
 
 { id:'D4-05', module:'M4', type:'fs-power', src:'MT2 Q1',
   stem:'Let $$x(t)=-3+4\\cos(5t)-2\\sin(15t).$$',
@@ -155,7 +155,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> $A_0=-3$, $A_1=4$, $A_3=2$, so$$P=A_0^{2}+\\frac{A_1^{2}}{2}+\\frac{A_3^{2}}{2}=9+\\frac{16}{2}+\\frac{4}{2}=9+8+2=19\\;\\text{W}.$$'
      +'<b>Check.</b> The two routes agree at $19$ W. Conjugate symmetry holds: $\\overline{j}=-j$ and $2$ is real, matching $a_{-1}=a_1^{*}$ and $a_{-3}=a_3^{*}$. The DC term alone carries $9$ W of the $19$, which is more than the two harmonics combined — consistent with $|a_0|=3$ being the largest single coefficient.',
   err:'Applying $A^2/2$ to the DC term as well as to the two sinusoids, which gives $4.5+8+2=14.5$ instead of $19$. A constant has no oscillation to average over, and it keeps its full square.',
-  teach:'Ask which single coefficient carries the most power before either sum is evaluated. Seeing that $|a_0|^2=9$ dominates here builds the habit of sanity-checking a Parseval total by eye.' },
+  teach:'Before evaluating either sum, ask which coefficient contributes the most power. Here $|a_0|^2=9$ is the largest contribution. This gives a scale check for the Parseval total.' },
 
 { id:'D4-06', module:'M4', type:'fs-power', src:'MT2 Q1',
   stem:'A periodic signal has $T_0=4$ and equals $x(t)=3$ for $0<t<1$ and $x(t)=-1$ for $1<t<4$ inside one period.',
@@ -170,7 +170,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Method.</b> $P=\\dfrac{1}{T_0}\\displaystyle\\int_{T_0}|x(t)|^{2}\\,\\d t$ over any one full period; the integrand is periodic, so the choice of window cannot change the answer.<br>'
      +'<b>Solution — part (a).</b> Over $[0,4)$, $x^2$ equals $9$ on $(0,1)$ and $1$ on $(1,4)$:$$P=\\frac14\\left[\\int_0^19\\,\\d t+\\int_1^41\\,\\d t\\right]=\\frac14\\bigl[9+3\\bigr]=3\\;\\text{W}.$$'
      +'<b>Solution — part (b).</b> Over $[-2,2)$ the same signal reads: $x=-1$ on $(-2,0)$, $x=3$ on $(0,1)$, $x=-1$ on $(1,2)$. So $x^2$ is $1$ on an interval of length $2$ and $9$ on an interval of length $1$:$$P=\\frac14\\left[\\int_{-2}^{0}1\\,\\d t+\\int_0^19\\,\\d t+\\int_1^21\\,\\d t\\right]=\\frac14\\bigl[2+9+1\\bigr]=3\\;\\text{W}.$$'
-     +'<b>Check.</b> Both windows give $P=3$ W, as they must: shifting the window only relabels which part of the same repeating pattern is integrated first, and every point of the signal is covered exactly once in either case. The value also sits between the two possible levels of $|x|^2$, $1$ and $9$, as an average must.',
+     +'<b>Check.</b> Both windows give $P=3$ W. Each window covers every part of one period exactly once, although the parts occur in a different order. The result also lies between the two possible values of $|x|^2$, $1$ and $9$, as an average must.',
   err:'Reusing the window $[0,4)$ for part (b) instead of re-deriving where each level of $x(t)$ falls inside $[-2,2)$, which silently repeats part (a) rather than providing an independent check.',
   teach:'Insist that part (b) is worked from a fresh sketch of the signal on $[-2,2)$, not by relabelling the integral of part (a). The check is only worth something if the second computation could have disagreed.' },
 
@@ -559,7 +559,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     return a.svg();},
   sol:'<b>Given.</b> A period-four sequence with samples $2,0,-2,0$, driving a three-tap moving sum centred on $n$.<br>'
      +'<b>Find.</b> The input coefficients, the frequency response, and the output coefficients.<br>'
-     +'<b>Method.</b> Recognise the input as a single sinusoid before analysing it. Read $h$ off its step form, then apply $b_k=a_kH\\!\\left(e^{jk\\omega_0}\\right)$.<br>'
+     +'<b>Method.</b> The input is a single sinusoid, so its coefficients can be obtained without the analysis sum. Rewrite the step difference as its three non-zero samples, calculate $H$, and then apply $b_k=a_kH\\!\\left(e^{jk\\omega_0}\\right)$.<br>'
      +'<b>Solution — part (a).</b> The samples $2,0,-2,0$ are $x[n]=2\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$, so with $N=4$ and $\\omega_0=\\tfrac{\\pi}{2}$,$$x[n]=e^{j\\omega_0n}+e^{-j\\omega_0n},$$giving $a_1=a_{-1}=a_3=1$ and $a_0=a_2=0$.<br>'
      +'<b>Solution — part (b).</b> The step difference gives $h[n]=1$ for $-1\\le n\\le1$, so$$H\\!\\left(e^{j\\omega}\\right)=\\sum_{n=-1}^{1}e^{-j\\omega n}=e^{j\\omega}+1+e^{-j\\omega}=1+2\\cos\\omega,$$real and even, as a symmetric impulse response must be.<br>'
      +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
@@ -572,7 +572,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
       a.stem([[0,0],[1,1],[2,0],[3,1]],{color:C.out}); return a.svg();})()),
   err:'Reporting a gain of $3$ on the output because the filter has three taps of unit height. The gain of $3$ is the value of $H$ at $\\omega=0$ only; at the frequency this input actually occupies the gain is $1$.',
-  teach:'This question makes the point that a filter does nothing to a signal whose frequencies it passes at unit gain. Ask which input would be amplified by three — a constant — and which would be inverted — the alternating sequence at $\\omega=\\pi$.' },
+  teach:'Use this question to show that a filter leaves a harmonic unchanged when its gain at that frequency is one. Then ask which input has gain three and which input has gain negative one. The answers are a constant and the alternating sequence at $\\omega=\\pi$.' },
 
 { id:'D4-27', module:'M4', type:'full', src:'Final Q2',
   stem:'Let $$a_k=\\begin{cases}2,&k\\text{ even}\\\\1,&k\\text{ odd}\\\\0,&|k|\\ge3\\end{cases}$$be the Fourier series coefficients of a continuous-time signal $x(t)$ which is periodic with $6$ seconds.',
@@ -634,7 +634,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     const pts=[]; for(let k=-6;k<=6;k++) pts.push([k, k===0?0.5:Math.sin(k*Math.PI/2)/(k*Math.PI)]);
     a.stem(pts,{color:C.in}); return a.svg();},
   err:'Reporting $a_0=\\tfrac{\\sin(0)}{0}$ as undefined, or as $1$. The formula for $a_k$ is derived by dividing by $k$ and is valid only for $k\\ne0$; the coefficient at $k=0$ is the average value, and it has to be integrated separately.',
-  teach:'The vanishing even harmonics are worth connecting to the duty cycle. Ask what the coefficients look like for an on-interval of length $1$ in a period of $4$ — the zeros move to every fourth index, and the student sees that the pattern of zeros reads the duty cycle straight off the spectrum.' },
+  teach:'Connect the zero even harmonics to the duty cycle. Ask for the coefficient zeros when the on-interval has length $1$ in a period of $4$. The zeros then occur at every fourth index, so their spacing gives information about the duty cycle.' },
 
 { id:'D4-30', module:'M4', type:'full', src:'MT2 Q2',
   stem:'Let $$x(t)=3+2\\cos(2t)+\\cos(4t)$$be the input to an LTI system with impulse response $h(t)=e^{-t}u(t)$, and let $y(t)$ be the output.',
@@ -657,7 +657,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.stem([[-2,1/(2*Math.sqrt(17))],[-1,1/Math.sqrt(5)],[0,3],[1,1/Math.sqrt(5)],[2,1/(2*Math.sqrt(17))]],{color:C.out});
       return a.svg();})()),
   err:'Taking $\\omega_0=4$ from the higher frequency and calling $\\cos(2t)$ a half-harmonic. The fundamental is the largest frequency that divides every frequency present, which is $2$ here, not the largest frequency present.',
-  teach:'Set this beside the high-pass question with the same shape of input. The two produce opposite orderings of $|b_k|$, and running both makes the point that the coefficient list of the output is the coefficient list of the input read through the shape of $|H|$.' }
+  teach:'Compare this result with the high-pass question that uses the same input form. The two systems give opposite orderings of $|b_k|$. In each case, $|b_k|$ equals the input coefficient magnitude multiplied by the gain at that harmonic.' }
 
 ]);
 
@@ -670,7 +670,7 @@ window.DRILLMAP_M4 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 4 · Question types', src:'pp. 22–41'},
   {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on Fourier series come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
+  {t:'lede', text:'Questions on Fourier series come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M4'}
 ]}
@@ -689,7 +689,7 @@ window.DRILL_M4 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 4 · Practice D4-01 … D4-30', src:'pp. 22–41'},
   {t:'title', text:'Practice questions'},
-  {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: $a_0$ must equal the mean of one period, a real signal must satisfy $a_{-k}=a_k^{*}$, and the average power computed from the coefficients must match the power computed in time.'},
+  {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. Use three checks in this module: $a_0$ must equal the mean of one period; a real signal must satisfy $a_{-k}=a_k^{*}$; and average power computed from the coefficients must equal average power computed in time.'},
   {t:'rule', short:true},
   {t:'drill', module:'M4'}
 ]}

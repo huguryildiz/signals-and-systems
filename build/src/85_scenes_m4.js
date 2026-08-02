@@ -39,14 +39,14 @@ const SC = [
 { id:'m4-open', module:'M4', nav:'Module 4 opening', title:'Fourier Series', src:'pp. 22–41',
   dark:true, keywords:'module 4 fourier series harmonics eigenfunction overview periodic', steps:0, blocks:[
   {t:'eyebrow', text:'Module 4 · Fourier Series', src:'pp. 22–41'},
-  {t:'title', level:1, text:'One family of signals<br>that every system leaves alone.'},
-  {t:'lede', text:'A linear time-invariant system returns a complex exponential unchanged in shape, scaled by a single number. Write a periodic signal as a sum of complex exponentials and the hardest operation in Module 3 becomes multiplication.'},
+  {t:'title', level:1, text:'Complex exponentials simplify<br>the response of an LTI system.'},
+  {t:'lede', text:'Fourier series are used to find the response of an LTI system to a periodic signal. An LTI system returns each complex exponential with the same form and multiplies it by one complex number. After a periodic signal is written as a sum of these exponentials, convolution becomes one multiplication for each harmonic.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0 t}', label:'Synthesis'},
     {t:'eq', tex:'a_k=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jk\\omega_0 t}\\,\\d t', label:'Analysis'},
-    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:var(--graphite)">Convolution with the impulse response becomes one multiplication per harmonic. The system is described by how it treats each frequency, and nothing else.</span>'}
+    {t:'note', kind:'ok', head:'Purpose of the representation', html:'<span style="color:var(--graphite)">The frequency response states how the system changes each frequency. Multiply each input coefficient by the corresponding value of the frequency response to obtain the output coefficient.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:430,xr:[-4,4],yr:[-0.35,4.1],grid:false,zeroAxes:false,arrows:false,
@@ -63,7 +63,7 @@ const SC = [
   objective:'Derive the eigenfunction property in continuous time and name the eigenvalue.',
   keywords:'eigenfunction eigenvalue complex exponential transfer function H(s) laplace continuous', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Foundation', src:'p. 22'},
-  {t:'title', text:'One input shape the system cannot change'},
+  {t:'title', text:'An eigenfunction keeps its form'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Definition', html:'A signal is an <b>{{sym:eigen|eigenfunction}}</b> of a system when the output is the same signal multiplied by a constant. That constant is the <b>eigenvalue</b>.'},
     {t:'body', html:'Put $x(t)=e^{st}$, with $s$ any complex number, into the convolution integral of Module 3:'},
@@ -73,7 +73,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'eq', key:true, size:'lg', tex:'e^{st}\\;\\to\\;h(t)\\;\\to\\;H(s)\\,e^{st},\\qquad H(s)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau',
         label:'Eigenfunction property, continuous time',
-        note:'{{sym:Hs|$H(s)$}} is the <b>transfer function</b> of the system. The shape of the input survives; only its size and phase change.'}]},
+        note:'{{sym:Hs|$H(s)$}} is the <b>transfer function</b> of the system. The output has the same exponential form as the input. Only its magnitude and phase can change.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'warn', head:'Write the limits', html:'Both integrals run over all time, $-\\infty$ to $\\infty$. A convolution or transform integral written with a bare $\\int$ leaves the reader to guess, and the guess is wrong as soon as a one-sided signal appears.'},
       {t:'note', kind:'ok', head:'The case that matters most', html:'Take $s=j\\omega$ with $\\omega$ real. Then $x(t)=e^{j\\omega t}$ is a periodic complex exponential and<br>$H(j\\omega)=\\int_{-\\infty}^{\\infty}h(\\tau)e^{-j\\omega\\tau}\\d\\tau$ is the <b>frequency response</b>.'}]}
@@ -86,7 +86,7 @@ const SC = [
       {t:'text',x:200,y:130,label:'eigenfunction',fs:12},
       {t:'text',x:605,y:78,label:'H(s)\\,e^{st}',tex:true,fs:18,color:'#4A7A46'},
       {t:'text',x:605,y:130,label:'same shape',fs:12}
-    ]}), caption:'The system multiplies by a complex constant. It does not reshape, delay differently or spread the signal.'},
+    ]}), caption:'The system multiplies the input by a complex constant. The exponential form and its value of $s$ do not change.'},
     {t:'reveal', at:2, items:[
       {t:'grid', cols:2, gap:'16px', items:[
         [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:420,h:210,xr:[0,8],yr:[-1.4,1.4],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:46,r:20,t:22,b:34},xtarget:5,ytarget:3});
@@ -139,15 +139,15 @@ const SC = [
   objective:'Show that a linear combination of eigenfunctions needs no convolution.',
   keywords:'linear combination superposition eigenvalue transfer function no convolution', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Motivation', src:'p. 24'},
-  {t:'title', text:'No convolution, only bookkeeping'},
+  {t:'title', text:'Use one multiplication for each exponential'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'body', html:'Suppose the input is a sum of complex exponentials, $x(t)=a_1e^{s_1t}+a_2e^{s_2t}+a_3e^{s_3t}$. Each term is an eigenfunction, so linearity finishes the problem at once:'},
+    {t:'body', html:'This property is useful because it replaces a convolution by separate multiplications. Suppose the input is $x(t)=a_1e^{s_1t}+a_2e^{s_2t}+a_3e^{s_3t}$. Apply the eigenfunction property to each term. Then use linearity to add the three outputs:'},
     {t:'eq', tex:'y(t)=a_1H(s_1)e^{s_1t}+a_2H(s_2)e^{s_2t}+a_3H(s_3)e^{s_3t}'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k e^{s_kt}\\;\\longrightarrow\\;y(t)=\\sum_{k=-\\infty}^{\\infty}a_k H(s_k)\\,e^{s_kt}',
         note:'The same statement in discrete time is $x[n]=\\sum_k a_k z_k^{\\,n}\\to y[n]=\\sum_k a_k H(z_k)z_k^{\\,n}$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The one question left', html:'Everything now depends on writing $x$ as a linear combination of complex exponentials. That is what the rest of this module does, for periodic signals.'}]}
+      {t:'note', kind:'ok', head:'Next task', html:'To use this method, first write $x$ as a linear combination of complex exponentials. The rest of this module develops that representation for periodic signals.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:840,h:260,items:[
       {t:'text',x:50,y:44,label:'a_1e^{s_1t}',anchor:'start',tex:true,fs:16,color:'#14707F'},
@@ -162,7 +162,7 @@ const SC = [
       {t:'arrow',x1:170,y1:218,x2:330,y2:218},{t:'box',x:330,y:196,w:120,h:44,label:'H(s)',tex:true},
       {t:'arrow',x1:450,y1:218,x2:590,y2:218},
       {t:'text',x:640,y:224,label:'a_3H(s_3)e^{s_3t}',anchor:'start',tex:true,fs:16,color:'#4A7A46'}
-    ]}), caption:'Every rung is settled by one multiplication. Superposition then adds the rungs.'}
+    ]}), caption:'Multiply each exponential by its eigenvalue. Then add the resulting terms by superposition.'}
   ]}
 ]},
 
@@ -170,12 +170,12 @@ const SC = [
   objective:'Work the delay example through the eigenfunction route and verify it directly.',
   keywords:'worked example delay y(t)=x(t-3) sifting transfer function cosine expansion verify', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 24–25'},
-  {t:'title', text:'A delay, settled without convolving'},
+  {t:'title', text:'Find the output of a delay without convolution'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','An LTI system with $y(t)=x(t-3)$: a pure delay of three seconds.'],
       ['Find','The output for $x(t)=e^{j2t}$, and then for $x(t)=\\cos(4t)+\\cos(7t)$, using eigenfunctions only.'],
-      ['Method','Get $h$ from the definition, get $H(s)$ from $h$, then read the output off the eigenfunction property.']
+      ['Method','The input is a sum of complex exponentials, so the eigenfunction method applies. Write $h$ from the delay definition, calculate $H(s)$ from $h$, and multiply each exponential by the corresponding value of $H$.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'h(t)=\\delta(t-3),\\qquad H(s)=\\int_{-\\infty}^{\\infty}\\delta(\\tau-3)e^{-s\\tau}\\,\\d\\tau=e^{-3s}',
@@ -205,7 +205,7 @@ const SC = [
         a.note(8.8,2.62,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true});
         a.note(8.8,-2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
         return a.svg(); },
-        caption:'The output is the input moved three seconds to the right. Every harmonic is delayed by the same three seconds, which is why the shape survives.'}]}
+        caption:'The output equals the input delayed by three seconds. Each harmonic has the same delay, so their sum has the same form as the input.'}]}
   ]}
 ]},
 
@@ -224,7 +224,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'The conditions are independent', html:'The second signal below satisfies Condition 1 and fails Condition 2. The third satisfies Conditions 1 and 2 and fails Condition 3. No one of them implies another.'}]},
     {t:'reveal', at:3, items:[
-      {t:'small', html:'Every signal used in the rest of this module — square waves, sawtooths, impulse trains, sums of sinusoids — meets all three. The counterexamples are here so that the conditions are read as statements about signals rather than as ritual.'}]}
+      {t:'small', html:'Every signal used in the rest of this module — square waves, sawtooths, impulse trains, sums of sinusoids — meets all three conditions. The counterexamples show what each condition tests.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:800,h:190,xr:[0,4],yr:[-4,42],xlabel:'t',pad:{l:56,r:24,t:22,b:34},xtarget:5,ytarget:3});
@@ -321,7 +321,7 @@ const SC = [
   objective:'Work three period examples and show the failure the rule prevents.',
   keywords:'period examples LCM GCD 24/5 8/3 check by division common period smallest', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Technique', src:'pp. 26–27, 38'},
-  {t:'title', text:'Three answers, and one wrong turn'},
+  {t:'title', text:'Apply the period rule in three examples'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Example 1','Periods $1$ and $2/3$. Numerators $1,2$; denominators $1,3$. $T_0=\\operatorname{LCM}(1,2)/\\operatorname{GCD}(1,3)=2$ s, so $\\omega_0=\\pi$ rad/s.'],
@@ -420,7 +420,7 @@ const SC = [
     {t:'eq', key:true, size:'lg', tex:'a_0=\\frac{1}{T_0}\\int_{T_0}x(t)\\,\\d t', label:'DC term',
       note:'The average value of $x$ over one period. It is the only coefficient that is always real when $x$ is real.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Use it as a check', html:'Before computing any other coefficient, look at the signal and estimate its average by eye. A signal that spends half its period at 1 and half at 0 has $a_0=1/2$. A signal symmetric about the time axis has $a_0=0$. If the formula disagrees with the picture, the formula was applied wrongly.'}]},
+      {t:'note', kind:'ok', head:'Check the mean', html:'Before computing any other coefficient, determine the average value from the signal definition or graph. A signal that spends half its period at 1 and half at 0 has $a_0=1/2$. A signal symmetric about the time axis has $a_0=0$. If the calculated formula gives a different value, check the period and integration limits.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Zero frequency is still a harmonic', html:'The $k=0$ term is $a_0e^{j0\\omega_0t}=a_0$, a constant. It is a legitimate member of the family, not something outside the series, and dropping it shifts the whole reconstruction off the signal by exactly the average value.'}]}
   ], right:[
@@ -464,7 +464,7 @@ const SC = [
       {t:'eq', key:true, size:'sm', tex:'a_k=\\begin{cases}\\dfrac{2T_1}{T_0},&k=0\\\\[10pt]\\dfrac{\\sin\\!\\left(2\\pi k\\,T_1/T_0\\right)}{\\pi k},&k\\neq0\\end{cases}', label:'Solution',
         note:'The $k=0$ branch is $a_0=\\frac{1}{T_0}\\int_{-T_1}^{T_1}1\\,\\d t=2T_1/T_0$: the fraction of each period that the pulse occupies, which is the average value.'}]},
     {t:'reveal', at:4, items:[
-      {t:'small', html:'<b>Check the join.</b> As $k\\to0$ the second branch tends to $2T_1/T_0$, because $\\sin\\theta/\\theta\\to1$, so the split is bookkeeping and not a discontinuity. <b>Check reality.</b> $x$ is real and even, so every $a_k$ is real and even in $k$ — and it is, because $\\sin$ and $k$ are both odd. The zeros fall wherever $k$ is a non-zero multiple of $T_0/(2T_1)$.'}]}
+      {t:'small', html:'<b>Check the two branches.</b> As $k\\to0$ the second branch tends to $2T_1/T_0$, because $\\sin\\theta/\\theta\\to1$. It therefore agrees with the branch for $k=0$. <b>Check symmetry.</b> $x$ is real and even, so every $a_k$ must be real and even in $k$. The formula has this property because $\\sin$ and $k$ are both odd. The zeros occur when $k$ is a non-zero multiple of $T_0/(2T_1)$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:166,xr:[-5,5],yr:[-0.3,1.85],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:24,t:24,b:32},xtarget:7,ytarget:2});
@@ -490,15 +490,15 @@ const SC = [
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The coefficients of the rectangular wave are values of one continuous function, taken at equally spaced points. Write that function first, in the continuous variable $\\omega$:'},
     {t:'eq', key:true, tex:'E(\\omega)=\\int_{-T_1}^{T_1}e^{-j\\omega t}\\,\\d t=\\frac{2\\sin(\\omega T_1)}{\\omega}',
-      label:'Envelope', note:'It depends on the shape of one pulse, and not at all on how often the pulse repeats.'},
+      label:'Envelope', note:'The envelope depends on one pulse. Its formula does not contain the repetition period.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'Now sample it. The harmonics sit at $\\omega=k\\omega_0$, so'},
+      {t:'body', html:'Next, evaluate the envelope at the harmonic frequencies $\\omega=k\\omega_0$:'},
       {t:'eq', key:true, tex:'a_k=\\frac{1}{T_0}\\,E(k\\omega_0)=\\frac{1}{T_0}\\cdot\\frac{2\\sin(k\\omega_0T_1)}{k\\omega_0}=\\frac{\\sin\\!\\left(2\\pi k\\,T_1/T_0\\right)}{\\pi k}',
         label:'Sampling the envelope'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Do not collapse the two steps', html:'$E(\\omega)$ is a function of a continuous variable; $a_k$ is a sequence. Evaluating the envelope at the single point $\\omega=\\omega_0$ gives $T_0\\sin(2\\pi T_1/T_0)/\\pi$, which is $T_0a_1$ — the first harmonic only. As a function of the harmonic index the coefficient is $T_0a_k=T_0\\sin(2\\pi kT_1/T_0)/(\\pi k)$, with the $k$ present in both places.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What changes when $T_0$ grows', html:'Widen the period and keep the pulse fixed. The envelope does not move. Only the sample spacing $\\omega_0=2\\pi/T_0$ shrinks, so the same curve is read at more, closer points, and every coefficient falls as $1/T_0$. That observation is the whole idea behind the Fourier transform of the next module.'}]},
+      {t:'note', kind:'ok', head:'Effect of increasing $T_0$', html:'Increase the period while keeping the pulse fixed. The envelope remains the same. The spacing $\\omega_0=2\\pi/T_0$ decreases, so the coefficients sample the envelope at more closely spaced frequencies. Every coefficient also decreases as $1/T_0$. The next module uses this limiting process to define the Fourier transform.'}]},
     {t:'reveal', at:4, items:[
       {t:'small', html:'The sinc convention used here is the <b>unnormalised</b> one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. In that notation $E(\\omega)=2T_1\\operatorname{sinc}(\\omega T_1)$.'}]}
   ], right:[
@@ -608,7 +608,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'The symmetry, read off the answer', html:'$x$ is real and odd. Real forces $a_{-k}=a_k^{*}$; odd forces $a_{-k}=-a_k$. Together they give $a_k^{*}=-a_k$, so $a_k$ has no real part. The formula shows exactly that, and it is worth checking this way round before trusting any long integration.'}]},
     {t:'reveal', at:3, items:[
-      {t:'small', html:'The mean-square error of the truncated sawtooth falls from about $0.0144$ at $N=3$ to $0.0006$ at $N=81$, and a Gibbs spike sits beside every jump. Compare the rectangular wave, whose coefficients decay at the same $1/k$ rate: both are signals with a discontinuity, and both pay for it in the same way.'}]}
+      {t:'small', html:'The mean-square error of the truncated sawtooth decreases from about $0.0144$ at $N=3$ to $0.0006$ at $N=81$. A Gibbs overshoot remains beside every jump. The rectangular wave also has a discontinuity, and its coefficients have the same $1/k$ decay rate.'}]}
   ], right:[
     {t:'reveal', at:1, items:[
       {t:'grid', cols:2, gap:'16px', items:[
@@ -642,7 +642,7 @@ const SC = [
       {t:'eq', key:true, size:'lg', tex:'a_k=\\frac{1}{T_0}\\quad\\text{for every }k', label:'Solution',
         note:'Real, positive, and the same at every harmonic.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What a flat spectrum means', html:'Every harmonic is present with the same weight, and the phases are all zero. At $t=0$ they all add in step, which is the impulse; everywhere else they cancel. Concentrating a signal in time spreads it across frequency, and this is the extreme case of that trade.'},
+      {t:'note', kind:'ok', head:'Meaning of a flat spectrum', html:'Every harmonic has the same coefficient and zero phase. At $t=0$ the harmonic values are all equal to 1, so their sum forms the impulse. At other times their positive and negative contributions cancel. Thus an impulse at one time requires all harmonic frequencies.'},
       {t:'small', html:'This pair — an impulse train in time, an impulse train in frequency — returns in Module 7 as the mathematical core of sampling.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -809,7 +809,7 @@ const SC = [
         ['Reading a plot','A peak of $0.5$ cannot be read off an axis whose highest label is $0.4$. Every plot here is scaled so that its largest value falls inside the labelled range.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The shape, in one sentence', html:'The numerator counts the $2N_1+1$ ones and the denominator spreads them, so the coefficients trace a ratio of two sines that peaks wherever $k$ is a multiple of $N$ and decays between the peaks. Widening the pulse ($N_1$ up) narrows the central lobe; lengthening the period ($N$ up) puts more coefficients under the same lobe.'}]},
+      {t:'note', kind:'ok', head:'How the parameters change the coefficients', html:'The numerator contains the number $2N_1+1$ of non-zero samples. The denominator gives a ratio of two sines. This ratio reaches its largest values when $k$ is a multiple of $N$ and decreases between them. Increasing $N_1$ narrows the central lobe. Increasing $N$ places more coefficient indices within the same lobe.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', size:'sm', tex:'x[n]=\\frac{2N_1+1}{N}+\\sum_{\\substack{k=\\langle N\\rangle\\\\ k\\neq0}}\\frac{1}{N}\\,\\frac{\\sin\\!\\left(\\dfrac{2\\pi k}{N}\\left(N_1+\\tfrac12\\right)\\right)}{\\sin\\!\\left(\\dfrac{\\pi k}{N}\\right)}\\,e^{jk(2\\pi/N)n}',
         label:'The reconstruction'},
@@ -896,7 +896,7 @@ const SC = [
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Write $x(t)\\leftrightarrow a_k$ to mean that $a_k$ are the coefficients of the periodic signal $x$. Both signals below share one period $T_0$, so both series share one $\\omega_0$.'},
     {t:'eq', key:true, tex:'A\\,x_1(t)+B\\,x_2(t)\\;\\longleftrightarrow\\;A\\,a_k+B\\,b_k', label:'(1) Linearity',
-      note:'The same statement holds sample for sample in discrete time: $Ax_1[n]+Bx_2[n]\\leftrightarrow Aa_k+Bb_k$. It follows at once, because the analysis equation is an integral or a sum, and both are linear.'},
+      note:'The same statement holds in discrete time: $Ax_1[n]+Bx_2[n]\\leftrightarrow Aa_k+Bb_k$. The analysis equation is linear because both integration and summation are linear operations.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'x(t-t_0)\\;\\longleftrightarrow\\;a_k\\,e^{-jk\\omega_0t_0},\\qquad x[n-n_0]\\;\\longleftrightarrow\\;a_k\\,e^{-jk\\omega_0n_0}',
         label:'(2) Time shift', note:'With $\\omega_0=2\\pi/T_0$ in continuous time and $\\omega_0=2\\pi/N$ in discrete time.'}]},
@@ -1024,13 +1024,13 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'eq', key:true, tex:'x(\\alpha t),\\;\\alpha>0\\;\\longleftrightarrow\\;a_k\\quad\\text{with period }T_0/\\alpha',
         label:'Time scaling, continuous time',
-        note:'Scaling changes nothing in the list of coefficients. What it changes is where they sit: the fundamental frequency becomes $\\alpha\\omega_0$, so the same numbers are placed on a spectrum stretched by $\\alpha$.'}]},
+        note:'Scaling does not change the coefficient values. It changes their frequencies: the fundamental frequency becomes $\\alpha\\omega_0$, so each coefficient is assigned to the corresponding scaled frequency.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', tex:'x_{(m)}[n]=\\begin{cases}x[n/m], & n\\text{ a multiple of }m\\\\[2pt] 0, & \\text{otherwise}\\end{cases}\\;\\longleftrightarrow\\;\\frac{1}{m}a_k',
         label:'Time scaling, discrete time',
         note:'Here $m$ must be a positive integer, because $n/m$ has to be an integer for the sequence to be defined at all. The stretched sequence has period $mN$, and its coefficients are the old ones divided by $m$, read as a sequence of period $mN$.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'Discrete-time scaling is not the continuous-time one', html:'In continuous time $x(\\alpha t)$ keeps every value of the signal and moves them closer together. In discrete time there is nowhere closer to move to, so $x_{(m)}[n]$ spreads the samples out and fills the gaps with zeros. Nothing is discarded and nothing is invented, which is why the coefficients survive; the factor $1/m$ is there because the average is now taken over $m$ times as many samples.'}]}
+      {t:'note', kind:'warn', head:'Discrete-time scaling differs from continuous-time scaling', html:'In continuous time, $x(\\alpha t)$ changes the time assigned to each signal value. In discrete time, $x_{(m)}[n]$ places the original samples $m$ indices apart and inserts $m-1$ zeros after each sample. All original samples remain. The factor $1/m$ appears because the average is taken over $m$ times as many samples.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:210,xr:[-2.2,2.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:3});
@@ -1066,7 +1066,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'\\sum_{r=\\langle N\\rangle}x[r]\\,y[n-r]\\;\\longleftrightarrow\\;N\\,a_k\\,b_k', label:'Discrete time'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The factor is not decoration', html:'The coefficient of the result is $T_0a_kb_k$, not $a_kb_k$. It appears because the analysis equation divides by $T_0$ once, while the convolution integrates over a period once more. Dropping it scales every answer by the period, and the error is invisible in a sketch of the shape: the picture is right and the height is wrong.'}]},
+      {t:'note', kind:'err', head:'Include the period factor', html:'The coefficient of the result is $T_0a_kb_k$, not $a_kb_k$. The analysis equation divides by $T_0$, and periodic convolution adds an integration over one period. Omitting the factor gives the correct waveform form but the wrong amplitude.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['This is the dual of the product','A product in time convolves the coefficients; a periodic convolution in time multiplies them. The two statements are one correspondence read in its two directions.'],
@@ -1113,7 +1113,7 @@ const SC = [
       {t:'note', kind:'err', head:'Why the discrete range must be one period', html:'A discrete-time coefficient sequence repeats, $a_k=a_{k+N}$, so an infinite sum over $\\ell$ would add each of the $N$ distinct products over and over and diverge. Restricting $\\ell$ to one period counts each product once — and the product $x[n]y[n]$ is itself periodic with period $N$, so it has $N$ coefficients and no more. Carrying the continuous-time range across is the standard slip here, and the result it gives is not merely inelegant but infinite.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
-        ['Read the shape of the answer','The two indices $\\ell$ and $k-\\ell$ add to $k$. That is what makes the operation a convolution; a sum of $a_\\ell b_{\\ell-k}$ would be a correlation instead.'],
+        ['Identify the operation','The two indices $\\ell$ and $k-\\ell$ add to $k$. This index relation defines convolution. A sum of $a_\\ell b_{\\ell-k}$ would instead define correlation.'],
         ['The other half of the pair','Convolving two signals in time multiplies their coefficients. The two statements are the two directions of one correspondence.']
       ]}]}
   ], right:[
@@ -1147,7 +1147,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{jk\\omega_0}a_k=\\frac{1}{jk(2\\pi/T_0)}a_k',
         label:'Integration, valid only if $a_0=0$',
-        note:'The rule divides by $k$, and at $k=0$ that division is undefined. The statement is therefore conditional, and the condition is the whole point.'}]},
+        note:'The rule divides by $k$, so it is undefined at $k=0$. The condition $a_0=0$ removes that term and is therefore required.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'What goes wrong when $a_0\\neq0$', html:'The coefficient $a_0$ is the mean of the signal over one period. Integrating a constant gives a ramp, so a signal with a non-zero mean integrates to something that grows without bound: finite-valued and periodic it is not. The formula above then describes only the part of the answer that repeats, and the ramp it has dropped is the part that eventually dominates.'}]},
     {t:'reveal', at:3, items:[
@@ -1156,7 +1156,7 @@ const SC = [
         ['The same wave with its mean removed','$x(t)-0.5$ has $a_0=0$, and its running integral is the triangular wave alone, periodic and bounded by $\\pm0.25$.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'How to use it in practice', html:'Subtract the mean, integrate the rest with the formula, and add back the ramp $a_0t$ at the end. Nothing is lost that way, and the two parts of the answer stay visibly separate.'}]}
+      {t:'note', kind:'ok', head:'Method when the mean is non-zero', html:'First subtract the mean. Integrate the remaining zero-mean signal with the formula. Then add the term $a_0t$ to the result. This separates the periodic part from the non-periodic ramp.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:220,xr:[-0.2,4.2],yr:[-0.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:24,t:26,b:34},xtarget:6,ytarget:3});
@@ -1199,7 +1199,7 @@ const SC = [
         ['Mean one half','$x[n]=1,1,1,-1$ repeating. The running sum is $1,2,3,2$, then $3,4,5,4$: the same shape climbing by $Na_0=2$ each period.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'Difference and sum undo each other', html:'Take the first difference of a running sum and the original sequence comes back, which the two factors confirm at once: $\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)\\cdot\\dfrac{1}{1-e^{-jk(2\\pi/N)}}=1$ for every $k$ except $k=0$, and $k=0$ is the index the condition removes.'}]}
+      {t:'note', kind:'ok', head:'Check with the inverse operation', html:'Take the first difference of the running sum. This operation must recover the original sequence. The coefficient factors confirm the result: $\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)\\cdot\\dfrac{1}{1-e^{-jk(2\\pi/N)}}=1$ for every $k$ except $k=0$. The condition removes the term at $k=0$.'}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-0.6,8.6],yr:[-1.45,1.45],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
@@ -1231,7 +1231,7 @@ const SC = [
   objective:'State Parseval’s relation in both domains and use it as an accounting identity.',
   keywords:'parseval relation average power per harmonic energy accounting square summable', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
-  {t:'title', text:'Nothing is lost in the decomposition'},
+  {t:'title', text:'Parseval assigns power to the harmonics'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'eq', key:true, size:'lg', tex:'\\frac{1}{T_0}\\int_{T_0}\\bigl|x(t)\\bigr|^{2}\\,\\d t=\\sum_{k=-\\infty}^{\\infty}\\bigl|a_k\\bigr|^{2}',
       label:'Parseval’s relation, continuous time'},
@@ -1276,7 +1276,7 @@ const SC = [
     {t:'eq', tex:'x[n]=\\sum_{k=\\langle N\\rangle}a_ke^{jk\\omega_0n}\\;\\longrightarrow\\;y[n]=\\sum_{k=\\langle N\\rangle}a_kH(e^{jk\\omega_0})e^{jk\\omega_0n}',
       label:'Discrete time'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The whole of Module 3, replaced', html:'No flipping, no shifting, no case boundaries. The system is described by the single function $H$, and the calculation is one product per harmonic.'}]},
+      {t:'note', kind:'ok', head:'Why this method is useful', html:'The frequency response $H$ describes the system. For a periodic input, calculate one product for each harmonic instead of evaluating a convolution integral or sum.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'What is being multiplied', html:'$a_k$ and $H(jk\\omega_0)$ are both complex. Magnitudes multiply and phases add: $|b_k|=|a_k||H(jk\\omega_0)|$ and $\\angle b_k=\\angle a_k+\\angle H(jk\\omega_0)$. A filter therefore reshapes a signal in two independent ways, and a magnitude plot alone shows only one of them.'}]}
   ], right:[
@@ -1312,7 +1312,7 @@ const SC = [
       {t:'eq', key:true, tex:'y(t)=b_0+\\sum_{k=1}^{\\infty}2\\bigl|b_k\\bigr|\\cos\\bigl(k\\omega_0t+\\angle b_k\\bigr)', label:'Real form of the output',
         note:'$b_0=a_0H(0)$ is real and stands alone: it has no partner to pair with, so it carries no factor of two.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The factor of two, and whose phase to use', html:'The amplitude of the $k$-th cosine is $2|b_k|$, not $|b_k|$: both members of the pair contribute. And the phase is $\\angle b_k$, the one belonging to <b>positive</b> $k$; using $\\angle b_{-k}$ flips the sign of that cosine’s phase. Writing $|b_k|\\cos(k\\omega_0t+\\angle b_{-k})$ makes both errors at once, and the result has half the right swing and the wrong shape.'}]},
+      {t:'note', kind:'err', head:'Use both terms and the positive-index phase', html:'The amplitude of the $k$-th cosine is $2|b_k|$, not $|b_k|$, because both members of the conjugate pair contribute. Use $\\angle b_k$ for positive $k$. Using $\\angle b_{-k}$ changes the sign of the phase. The expression $|b_k|\\cos(k\\omega_0t+\\angle b_{-k})$ therefore has half the required amplitude and the opposite phase.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Check','Set $H=1$, the identity system. The formula must return $x$ itself. It does, and any version missing the factor of two returns half of $x$ plus its full average — which is visibly not $x$.'],
@@ -1348,7 +1348,7 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x(t)=1+\\cos(\\pi t)+\\sin(2\\pi t)+\\cos\\!\\left(3\\pi t+\\dfrac{\\pi}{3}\\right)$ into a system with $h(t)=e^{-t}u(t)$.'],
       ['Find','The output signal and its Fourier series coefficients.'],
-      ['Method','Get $H(j\\omega)$ from $h$. Get $T_0$ and the $a_k$ from $x$. Multiply, then reassemble in conjugate pairs.']
+      ['Method','The periodic input enters an LTI system, so use harmonic multiplication. Find $H(j\\omega)$, $T_0$, and $a_k$; form $b_k=a_kH(jk\\omega_0)$; then combine conjugate pairs.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'H(j\\omega)=\\int_{0}^{\\infty}e^{-t}e^{-j\\omega t}\\,\\d t=\\frac{1}{1+j\\omega},\\qquad \\bigl|H(j\\omega)\\bigr|=\\frac{1}{\\sqrt{1+\\omega^{2}}},\\qquad \\angle H(j\\omega)=-\\arctan\\omega'},
@@ -1368,7 +1368,7 @@ const SC = [
         label:'Solution', note:'Each cosine amplitude is $2|b_k|$, and each phase is $\\angle b_k$ with $k$ positive. The constant term is $b_0$ on its own.'},
       {t:'wex', rows:[
         ['Check the amplitudes','$2\\times0.1517=0.303$, $2\\times0.0786=0.157$, $2\\times0.0528=0.106$. Reporting $0.15$, $0.08$ and $0.05$ instead means the pairing step was skipped.'],
-        ['Check the shape','$y$ swings roughly from $0.62$ to $1.42$; halved amplitudes would give only $0.81$ to $1.21$. The average is untouched because $|H(0)|=1$, and the third harmonic is cut to about a tenth.']
+        ['Check the result','$y$ ranges roughly from $0.62$ to $1.42$; using half the required amplitudes would give only $0.81$ to $1.21$. The average is unchanged because $|H(0)|=1$, and the third-harmonic amplitude is reduced to about one tenth of its input value.']
       ]}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
@@ -1384,7 +1384,7 @@ const SC = [
         [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:168,xr:[-4,4],yr:[-0.1,1.2],xlabel:'k',ylabel:'|b_k|',pad:{l:56,r:18,t:24,b:32},xtarget:5,ytarget:3});
           const B=[0.0528,0.0786,0.1517,1,0.1517,0.0786,0.0528];
           a.stem(D(k=>Math.abs(k)<=3?B[k+3]:0,-4,4),{color:C.out,r:3,showZero:true}); return a.svg(); },
-          caption:'The higher harmonics are cut hardest.'}]
+          caption:'The gain decreases as the harmonic frequency increases.'}]
       ]}]},
     {t:'reveal', at:4, items:[
       {t:'fig', frame:true, svg:()=>{
@@ -1394,7 +1394,7 @@ const SC = [
         a.note(3.9,3.3,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true});
         a.note(3.9,-1.2,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
         return a.svg(); },
-        caption:'Input and output on one axis. The output keeps the same period and the same average, with its faster detail smoothed away.'}]}
+        caption:'The input and output have the same period and average. Reducing the higher harmonics removes rapid variation.'}]}
   ]}
 ]},
 
@@ -1448,7 +1448,7 @@ const SC = [
         a.note(3.9,3.3,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true});
         a.note(3.9,-2.4,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
         return a.svg(); },
-        caption:'Input and output. The shape survives almost unchanged; what has gone is the constant level of 1.'}]}
+        caption:'The non-zero harmonics change little, while the constant term of 1 is removed.'}]}
   ]}
 ]},
 
@@ -1523,7 +1523,7 @@ const SC = [
       {t:'eq', key:true, tex:'y[n]=0.25+0.36\\cos\\!\\left(\\frac{\\pi}{2}n-\\frac{\\pi}{4}\\right)', label:'Solution, low-pass'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
-        ['Compare','The high-pass system kills $b_0$ and keeps $b_2$; the low-pass system keeps $b_0$ and kills $b_2$. Both amplitudes still carry the factor of two from the pairing, which is why $0.1768$ appears in the table and $0.36$ in the answer.'],
+        ['Compare','The high-pass system gives $b_0=0$ and retains $b_2$; the low-pass system retains $b_0$ and gives $b_2=0$. Both cosine amplitudes include the factor of two from the conjugate pair. This is why $0.1768$ appears in the coefficient table and $0.36$ appears in the real-form answer.'],
         ['Check both directly','Applying $0.5x[n]\\pm0.5x[n-1]$ to the impulse train reproduces each answer sample for sample.'],
         ['Both responses repeat','$H(e^{j\\omega})$ is periodic in $\\omega$ with period $2\\pi$, so only $-\\pi<\\omega\\le\\pi$ has to be plotted. There is no such repetition in continuous time.']
       ]}]}
@@ -1544,7 +1544,7 @@ const SC = [
 ]},
 
 { id:'m4-lab-f', module:'M4', nav:'Laboratory F · Reconstruction', title:'Laboratory F — Fourier-Series Reconstruction Studio', src:'pp. 29–35',
-  objective:'Watch a partial sum approach a waveform, and watch the Gibbs overshoot refuse to.',
+  objective:'Compare a partial sum with the waveform and measure the Gibbs overshoot.',
   keywords:'laboratory F reconstruction partial sum harmonics MSE gibbs overshoot square sawtooth triangle', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory F', src:'pp. 29–35'},
   {t:'title', text:'Adding harmonics, one at a time'},
@@ -1628,7 +1628,7 @@ const SC = [
   {t:'reveal', at:1, items:[
     {t:'note', kind:'warn', head:'Three places this list is not the continuous-time one', html:'The coefficients themselves repeat, $a_k=a_{k+N}$, and that single fact produces all three differences. <b>Multiplication</b> sums over one period rather than over all integers. <b>Scaling</b> carries a factor $1/m$, because the average is now taken over $m$ times as many samples. And a sequence has a <b>first difference</b> where a signal has a derivative, because $n$ moves in steps.'}]},
   {t:'reveal', at:2, items:[
-    {t:'note', kind:'ok', head:'The condition survives the crossing', html:'The running sum divides by $1-e^{-jk(2\\pi/N)}$, which is zero at $k=0$. As in continuous time, the rule holds only when $a_0=0$; otherwise the running total climbs by $Na_0$ every period and never repeats.'}]}
+    {t:'note', kind:'ok', head:'The same condition is required', html:'The running sum divides by $1-e^{-jk(2\\pi/N)}$, which is zero at $k=0$. As in continuous time, the rule holds only when $a_0=0$. If $a_0$ is not zero, the running total increases by $Na_0$ every period and is not periodic.'}]}
 ]},
 ];
 window.SCENES_M4 = SC;
