@@ -325,7 +325,8 @@ reproduced, quoted or redistributed in any form.
 
 ## Current State
 
-**v1.6 — complete.** Modules 0–7 in 235 scenes, laboratories A–J, and thirty open-ended practice
+**v1.7 — complete, and published at
+[signals-and-systems-tedu.vercel.app](https://signals-and-systems-tedu.vercel.app).** Modules 0–7 in 235 scenes, laboratories A–J, and thirty open-ended practice
 questions in every module from 1 to 7 — 210 questions, each with a worked solution that ends by testing
 its own answer a second way. A module opens with a map of the question types it will ask and closes
 with the questions themselves. Every Fourier property the course needs is now both taught and collected
