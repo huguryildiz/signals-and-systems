@@ -52,10 +52,10 @@ CONTENT.DRILLTYPES.M1 = [
             'The impulse and the step are related by $\\delta=\\d u/\\d t$ in continuous time and $\\delta[n]=u[n]-u[n-1]$ in discrete time; running the relation the other way turns a train of impulses into a staircase.'],
     go:'m1-ct-impulse' },
   { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several parts under one statement, each part usually resting on the part before it.',
-    method:['Read all the parts before starting. A later part almost always uses the signal a earlier part produced, so an error early on travels.',
+    asks:'Several parts under one statement. A later part may use a result from an earlier part.',
+    method:['Read all the parts before starting. Mark every later part that uses a signal or result from an earlier part.',
             'Name the type of each part before working it, and use the method for that type unchanged.',
-            'Carry exact values between parts. A rounded intermediate result is the usual reason a final number is close but wrong.',
+            'Carry exact values between parts. Rounding an intermediate result can change the final answer.',
             'Check each part against the one before: a transformation must preserve the width of the support up to the scale factor, and the even and odd parts must add back to the signal they came from.'] }
 ];
 
@@ -72,9 +72,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — (i).</b> $\\omega_0=\\tfrac{5\\pi}{8}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{5}{16}$, rational. Then $N=\\dfrac{2\\pi}{\\omega_0}k=\\dfrac{16}{5}k$ is an integer first at $k=5$, giving $N_0=16$. <b>Periodic.</b><br>'
      +'<b>Solution — (ii).</b> $\\omega_0=3$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{3}{2\\pi}$, irrational because $\\pi$ is irrational. No integer $N$ works. <b>Not periodic.</b><br>'
      +'<b>Solution — (iii).</b> $\\omega_0=\\tfrac{\\pi}{6}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{1}{12}$, rational. $N=\\dfrac{2\\pi}{\\omega_0}k=12k$ is an integer already at $k=1$, so $N_0=12$. <b>Periodic.</b><br>'
-     +'<b>Check.</b> For (i), $\\cos\\!\\left(\\tfrac{5\\pi}{8}(n+16)-\\tfrac{\\pi}{6}\\right)=\\cos\\!\\left(\\tfrac{5\\pi}{8}n-\\tfrac{\\pi}{6}+10\\pi\\right)$, and $10\\pi$ is a whole number of turns, so $N=16$ does return the sequence to itself; no smaller positive integer does, because $\\tfrac{16}{5}k$ is an integer only when $5\\mid k$. The continuous-time signals $\\cos(5t/8-\\pi/6)$ and $\\sin(t/6)$ are perfectly periodic — it is sampling on the integers that removes the repetition in (ii).',
+     +'<b>Check.</b> For (i), $\\cos\\!\\left(\\tfrac{5\\pi}{8}(n+16)-\\tfrac{\\pi}{6}\\right)=\\cos\\!\\left(\\tfrac{5\\pi}{8}n-\\tfrac{\\pi}{6}+10\\pi\\right)$, so $N=16$ returns the sequence to itself. No smaller positive integer works because $\\tfrac{16}{5}k$ is an integer only when $5\\mid k$. In (ii), sampling at integer values removes the repetition that the corresponding continuous-time signal has.',
   err:'Transferring the continuous-time rule and reporting a non-integer period such as $2\\pi/3$ for (ii). A period that is not an integer is not a period of a sequence.',
-  teach:'Ask for the ratio $\\omega_0/2\\pi$ to be written down for all three before any of them is answered. A student who computes $2\\pi/\\omega_0$ instead has skipped the decisive step.' },
+  teach:'Ask the student to write $\\omega_0/2\\pi$ for all three signals before deciding whether they are periodic. This ratio must be rational for a discrete-time sinusoid to repeat.' },
 
 { id:'D1-02', module:'M1', type:'period', src:'MT1 Q1',
   stem:'Let $$x[n]=\\cos\\!\\left(\\tfrac{\\pi}{5}n\\right)+\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right).$$',
@@ -82,11 +82,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Determine the fundamental period $N_0$ of $x[n]$ and the fundamental frequency.'],
   sol:'<b>Given.</b> A sum of two discrete-time sinusoids.<br>'
      +'<b>Find.</b> The fundamental period of the sum.<br>'
-     +'<b>Method.</b> A sum repeats only when every term repeats. The period of the sum is then the least common multiple of the individual periods, which is the smallest length holding a whole number of each.<br>'
+     +'<b>Method.</b> Test each term first because the sum can repeat only when both terms repeat. Then take the least common multiple of their periods. It is the smallest integer period shared by both terms.<br>'
      +'<b>Solution — part (a).</b> For the first term $\\omega_1=\\tfrac{\\pi}{5}$, so $\\dfrac{\\omega_1}{2\\pi}=\\dfrac{1}{10}$ and $N_1=10$. For the second $\\omega_2=\\tfrac{\\pi}{3}$, so $\\dfrac{\\omega_2}{2\\pi}=\\dfrac16$ and $N_2=6$. Both are rational, so both terms repeat.<br>'
      +'<b>Solution — part (b).</b>$$N_0=\\operatorname{lcm}(10,6)=30,$$and the fundamental frequency is $\\omega_0=\\dfrac{2\\pi}{30}=\\dfrac{\\pi}{15}$ rad/sample.<br>'
      +'<b>Check.</b> $30$ contains $3$ whole periods of the first term and $5$ of the second, so both return to their starting values together. Nothing smaller does: $15$ holds one and a half periods of the first term, which is not a whole number. In terms of harmonics, the two terms are the $3$rd and the $5$th harmonic of $\\pi/15$, consistent with $\\tfrac{\\pi}{5}=3\\cdot\\tfrac{\\pi}{15}$ and $\\tfrac{\\pi}{3}=5\\cdot\\tfrac{\\pi}{15}$.',
-  err:'Multiplying the two periods to get $60$. The product is always a period, but it is the fundamental one only when the two are coprime — here $10$ and $6$ share the factor $2$.',
+  err:'Multiplying the two periods to get $60$. The product is a period, but it is fundamental only when the periods are coprime. Here $10$ and $6$ share the factor $2$.',
   teach:'Have the student verify $N_0$ by checking that $N_0/N_1$ and $N_0/N_2$ are both integers and that no smaller candidate has that property.' },
 
 { id:'D1-03', module:'M1', type:'period', src:'MT1 Q1',
@@ -102,19 +102,19 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Check.</b> In (i) the two terms are the $3$rd and $5$th harmonic of $\\omega_0=1$: $3=3\\cdot1$ and $5=5\\cdot1$, and $\\gcd(3,5)=1$ already fixes $\\omega_0$ at its largest possible value, so $T_0=2\\pi$ cannot be reduced. In (ii) no $\\omega_0$ makes both $1$ and $\\sqrt2$ integer multiples, which is the same statement as $\\sqrt2$ being irrational.<br>'
      +'<b>Contrast with discrete time.</b> In continuous time it is the <em>ratio</em> of two frequencies that must be rational. In discrete time each frequency has to satisfy its own rationality condition against $2\\pi$ first.',
   err:'Concluding from $T_1/T_2$ rational that $T_0=T_1T_2$. In (i) that would give $4\\pi^2/15$, which is not a period of either term.',
-  teach:'Case (ii) is the useful one. It shows that a sum of two perfectly periodic signals need not be periodic, which students find surprising and rarely forget afterwards.' },
+  teach:'Use case (ii) to show that two periodic signals can have a sum that is not periodic. Their periods must also have a rational ratio.' },
 
 { id:'D1-04', module:'M1', type:'period',
-  stem:'Let $$x(t)=2e^{-0.3t}\\cos(4t),\\qquad t\\in\\mathbb{R},$$a sinusoid carried inside the growing/decaying envelope $\\pm2e^{-0.3t}$.',
+  stem:'Let $$x(t)=2e^{-0.3t}\\cos(4t),\\qquad t\\in\\mathbb{R},$$a sinusoid whose envelope is $\\pm2e^{-0.3t}$.',
   parts:['State the period $T_0$ of the pure oscillation $y(t)=2\\cos(4t)$, the case $r=0$.',
          'Prove that $x(t)$ itself is not periodic, by testing the necessary condition $x(0)=x(T)$ for a candidate period $T>0$.',
-         'In one sentence, say why no signal whose envelope is strictly monotonic can be periodic.'],
+         'Explain why no signal whose envelope is strictly monotonic can be periodic.'],
   sol:'<b>Given.</b> A damped sinusoid, envelope $2e^{-0.3t}$, angular frequency $4$ rad/s.<br>'
      +'<b>Find.</b> Whether the damped signal repeats.<br>'
      +'<b>Method.</b> If $x(t)$ were periodic with period $T>0$, then $x(t)=x(t+T)$ would hold for <em>every</em> $t$, in particular at $t=0$. Testing that one instant is enough to rule periodicity out.<br>'
      +'<b>Solution — part (a).</b> $\\omega_0=4$, so $T_0=\\dfrac{2\\pi}{4}=\\dfrac{\\pi}{2}$ s.<br>'
      +'<b>Solution — part (b).</b> $x(0)=2e^{0}\\cos(0)=2$. A period $T>0$ would require$$x(T)=2e^{-0.3T}\\cos(4T)=2\\;\\Longrightarrow\\;\\cos(4T)=e^{0.3T}.$$For every $T>0$, $e^{0.3T}>1$, while $\\cos(4T)\\le1$ always. The two sides can never meet, so no positive $T$ satisfies even this one necessary condition. <b>$x(t)$ is not periodic.</b><br>'
-     +'<b>Solution — part (c).</b> A periodic signal must return to its starting value after every period, forever. A strictly monotonic envelope makes the peak amplitude smaller (or larger) at every later cycle, so the signal can never return exactly to where it started; the definition of periodicity fails at the very first candidate period.<br>'
+     +'<b>Solution — part (c).</b> A periodic signal must return to the same value after each period. A strictly monotonic envelope changes between any two distinct times, so the full signal cannot repeat exactly.<br>'
      +'<b>Check.</b> The same argument holds without picking $t=0$: comparing the envelope at any two points a candidate period apart, $2e^{-0.3t}\\neq2e^{-0.3(t+T)}$ for $T\\neq0$, because $e^{-0.3t}$ is strictly decreasing and therefore injective. Injectivity of the envelope alone is already enough to block periodicity, independently of the oscillation inside it.',
   err:'Reporting $T_0=\\pi/2$ for $x(t)$ itself, by testing periodicity of the cosine factor only and ignoring that the full signal must return to the same value, not just the same phase.',
   teach:'Ask why the argument in part (b) only needs one instant, $t=0$, rather than checking all $t$. It is because periodicity is a universal claim, and a universal claim is refuted by a single counterexample.' },
@@ -131,7 +131,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Method.</b> Square first, then integrate over the whole axis. Outside the support the integrand is zero, so only three pieces contribute.<br>'
      +'<b>Solution — part (a).</b>$$E_\\infty=\\int_{0}^{2}t^{2}\\,\\d t+\\int_{2}^{3}4\\,\\d t+\\int_{3}^{5}(5-t)^{2}\\,\\d t=\\frac83+4+\\frac83=\\frac{28}{3}\\;\\text{J}\\approx9.333\\;\\text{J}.$$'
      +'<b>Solution — part (b).</b> The energy is finite, so$$P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t=\\lim_{T\\to\\infty}\\frac{28/3}{2T}=0\\;\\text{W}.$$The signal is an <b>energy signal</b>.<br>'
-     +'<b>Check.</b> The two sloping halves are mirror images of each other about $t=2.5$, so their contributions must be equal — and they are, $\\tfrac83$ each. A bound: the pulse never exceeds $2$ and lasts $5$ seconds, so $E_\\infty\\le4\\cdot5=20$, and $\\tfrac{28}{3}\\approx9.33$ sits well inside that. Classification needs both numbers: $E_\\infty<\\infty$ <em>and</em> $P_\\infty=0$.',
+     +'<b>Check.</b> The two sloping parts are reflections about $t=2.5$, so each must contribute $\\tfrac83$. Also, the pulse never exceeds $2$ and lasts $5$ seconds, so $E_\\infty\\le4\\cdot5=20$. The result $\\tfrac{28}{3}\\approx9.33$ satisfies this bound. The classification uses both results: $E_\\infty<\\infty$ and $P_\\infty=0$.',
   err:'Reporting $P_\\infty=(28/3)/5$ by averaging over the support instead of over $[-T,T]$ with $T\\to\\infty$. The averaging window is the whole axis, not the part where the signal is non-zero.',
   teach:'Ask for both numbers every time. A student who writes only $E_\\infty$ has not distinguished the energy class from the power class.' },
 
@@ -146,9 +146,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$E_\\infty=\\sum_{n=0}^{\\infty}\\left(\\tfrac25\\right)^{\\!2n}=\\sum_{n=0}^{\\infty}\\left(\\tfrac{4}{25}\\right)^{\\!n}=\\frac{1}{1-\\tfrac{4}{25}}=\\frac{25}{21},$$which is finite, so $P_\\infty=0$.<br>'
      +'<b>Solution — part (b).</b> $|x_2[n]|^{2}=9\\,u[n]$, so the energy sum diverges: $E_\\infty=\\infty$. For the power, the window $-N\\le n\\le N$ contains $N+1$ non-zero samples out of $2N+1$, each contributing $9$, so$$P_\\infty=\\lim_{N\\to\\infty}\\frac{9(N+1)}{2N+1}=\\frac92=4.5.$$'
      +'<b>Solution — part (c).</b> $x_1$ is an <b>energy signal</b>; $x_2$ is a <b>power signal</b>.<br>'
-     +'<b>Check.</b> A constant sequence of amplitude $A$ switched on at $n=0$ must have $P_\\infty=A^{2}/2$ by the same counting argument, and $A=3$ gives $9/2$ directly, matching part (b) without repeating the limit. For part (a), the geometric sum is bounded above by $1/(1-4/25)$ evaluated exactly, and $25/21\\approx1.19$, a sensible size for a sequence that starts at $1$ and shrinks.',
+     +'<b>Check.</b> The counting argument gives $P_\\infty=A^{2}/2$ for a constant sequence of amplitude $A$ that begins at $n=0$. With $A=3$, this gives $9/2$, as in part (b). In part (a), the first term is $1$ and all later terms are positive and smaller, so $25/21\\approx1.19$ is consistent with the sequence.',
   err:'Writing $P_\\infty=9$ for $x_2$ by evaluating the sum only over $n\\ge0$ and dividing by $N+1$ instead of $2N+1$. The window is symmetric about the origin, and the zeros on the negative side count in the denominator.',
-  teach:'The counting argument $(N+1)/(2N+1)$ is worth demanding in writing. Students who quote $1/2$ from memory usually cannot produce it for $3u[n-4]$, where the same limit still gives $9/2$.' },
+  teach:'Require the counting ratio $(N+1)/(2N+1)$. It explains the factor $1/2$ and also applies to $3u[n-4]$, where the limit is still $9/2$.' },
 
 { id:'D1-07', module:'M1', type:'energy', src:'MT1 Q1',
   stem:'With the normalised convention $R=1\\,\\Omega$, consider $$x_1(t)=e^{-5t}u(t)\\;\\text{V},\\qquad x_2(t)=4\\cos(3t)\\;\\text{V}.$$',
@@ -161,9 +161,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$E_\\infty=\\int_{0}^{\\infty}e^{-10t}\\,\\d t=\\left[-\\tfrac{1}{10}e^{-10t}\\right]_{0}^{\\infty}=\\tfrac{1}{10}\\;\\text{J},$$finite, so $P_\\infty=0$.<br>'
      +'<b>Solution — part (b).</b> The signal has period $T_0=\\dfrac{2\\pi}{3}$, so$$P_\\infty=\\frac{1}{T_0}\\int_{0}^{T_0}16\\cos^{2}(3t)\\,\\d t=\\frac{16}{2}=8\\;\\text{W},$$using $\\overline{\\cos^{2}}=\\tfrac12$. Since $P_\\infty\\neq0$, the energy is infinite.<br>'
      +'<b>Solution — part (c).</b> For any finite $T$,$$P_T=\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\le\\frac{1}{2T}\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t=\\frac{E_\\infty}{2T},$$because the integrand is non-negative and $[-T,T]$ is only part of the whole axis. If $E_\\infty<\\infty$, the right-hand side $\\to0$ as $T\\to\\infty$, and since $P_T\\ge0$ throughout, $P_\\infty=\\lim_{T\\to\\infty}P_T=0$ by the squeeze.<br>'
-     +'<b>Check.</b> Applying the bound of part (c) to $x_1$: $E_\\infty=1/10$, so $P_T\\le1/(20T)\\to0$, consistent with the direct answer $P_\\infty=0$. The familiar result $P=A^{2}/2$ for a sinusoid of amplitude $A$ gives $16/2=8$ for $x_2$ directly, matching part (b) by a route that never mentions $T_0$.',
+     +'<b>Check.</b> Apply the bound in part (c) to $x_1$. Since $E_\\infty=1/10$, $P_T\\le1/(20T)\\to0$, which confirms $P_\\infty=0$. For $x_2$, the sinusoidal power formula $P=A^{2}/2$ gives $16/2=8$, which confirms part (b).',
   err:'Reporting $P_\\infty=16$ for the sinusoid by forgetting the factor $\\tfrac12$ from the time average of $\\cos^{2}$.',
-  teach:'Part (c) is the general result behind D1-05 and D1-06. Insist on the inequality $P_T\\le E_\\infty/2T$ written out, not a slogan about the two classes being disjoint.' },
+  teach:'Part (c) proves the result used in D1-05 and D1-06. Require the inequality $P_T\\le E_\\infty/2T$, because it explains why finite energy gives zero average power.' },
 
 { id:'D1-08', module:'M1', type:'energy',
   stem:'Let $$x[n]=\\begin{cases}2^{\\,n}, & n\\le-1,\\\\[2pt] 3, & n=0,\\\\[2pt] \\left(\\tfrac12\\right)^{\\!n}, & n\\ge1.\\end{cases}$$',
@@ -176,7 +176,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> $x[-3]=\\tfrac18$, $x[-2]=\\tfrac14$, $x[-1]=\\tfrac12$, $x[0]=3$, $x[1]=\\tfrac12$, $x[2]=\\tfrac14$, $x[3]=\\tfrac18$.<br>'
      +'<b>Solution — part (b).</b>$$E_\\infty=\\sum_{n=-\\infty}^{-1}4^{\\,n}+3^{2}+\\sum_{n=1}^{\\infty}4^{-n}.$$Substituting $m=-n$ in the first sum gives $\\sum_{m=1}^{\\infty}4^{-m}=\\tfrac13$, and the third sum is the same series, also $\\tfrac13$. So$$E_\\infty=\\tfrac13+9+\\tfrac13=\\frac{29}{3}\\;\\text{J}\\approx9.667\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> $E_\\infty$ is finite, so $P_\\infty=0$. The signal is an <b>energy signal</b>.<br>'
-     +'<b>Check.</b> The two tails are mirror images in shape — $2^{\\,n}$ for $n\\le-1$ and $(1/2)^{\\,n}$ for $n\\ge1$ are reflections of each other about $n=0$ — so their energy contributions must match, and both come out to $\\tfrac13$. A bound: every sample has magnitude at most $3$, and the two tails are each dominated termwise by $4^{-|n|}$ for $|n|\\ge1$ summing to less than $1$, so $E_\\infty<9+2=11$, and $\\tfrac{29}{3}\\approx9.67$ sits inside that bound.',
+     +'<b>Check.</b> The two tails are reflections about $n=0$, so their energy contributions must be equal. Both give $\\tfrac13$. Also, each tail contributes less than $1$, so $E_\\infty<9+2=11$. The result $\\tfrac{29}{3}\\approx9.67$ satisfies this bound.',
   err:'Treating the piecewise definition as three separate signals to classify, and reporting three different answers instead of one $E_\\infty$ for the single sequence $x[n]$ they together define.',
   teach:'Ask for the table in part (a) before the sum is attempted. A student who cannot list seven values correctly will not get the two geometric series right either.' },
 
@@ -189,11 +189,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3,0],[-2,0],[0,2],[1,2],[1,0],[2.2,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> $x(t)=t+2$ on $-2\\le t\\le0$, $x(t)=2$ on $0\\le t\\le1$, zero elsewhere.<br>'
      +'<b>Find.</b> $y(t)=x(2t+2)$.<br>'
-     +'<b>Method.</b> Write the argument in the standard form $x(at-b)$: here $a=2$ and $b=-2$. Shift first, then scale. Doing the two in the other order changes the sign of the shift, and that is where the marks go.<br>'
+     +'<b>Method.</b> Write the argument in the standard form $x(at-b)$: here $a=2$ and $b=-2$. Shift first and then scale, because reversing these operations produces a different argument.<br>'
      +'<b>Solution — step 1, shift.</b> $v(t)=x(t-b)=x(t+2)$ moves the support two seconds to the left, to $-4\\le t\\le-1$.<br>'
      +'<b>Solution — step 2, scale.</b> $y(t)=v(2t)$ compresses by $2$, so the support $-4\\le t\\le-1$ maps to $-2\\le t\\le-0.5$.<br>'
      +'<b>Solution — the formula.</b> Substituting directly,$$y(t)=\\begin{cases}2t+4,&-2\\le t\\le-1,\\\\[2pt] 2,&-1\\le t\\le-0.5,\\\\[2pt] 0,&\\text{otherwise,}\\end{cases}$$because $2t+2$ lies in $[-2,0]$ for $t\\in[-2,-1]$, where $x$ equals its argument plus $2$, and in $[0,1]$ for $t\\in[-1,-0.5]$, where $x$ is the constant $2$.<br>'
-     +'<b>Check.</b> Width: $x$ occupies $3$ seconds ($-2$ to $1$), and compression by $|a|=2$ must give $1.5$ seconds — and $-0.5-(-2)=1.5$, which matches. Two sample points: $y(-2)=x(-2)=0$ and $y(-0.5)=x(1)=2$, both matching the endpoints of the plot.',
+     +'<b>Check.</b> The support of $x$ has width $3$ seconds. Compression by $|a|=2$ must give width $1.5$ seconds, and $-0.5-(-2)=1.5$. Also, $y(-2)=x(-2)=0$ and $y(-0.5)=x(1)=2$, so the endpoint values agree.',
   figSol:()=>{const y=t=>(t>=-2&&t<=-1)?2*t+4:(t>-1&&t<=-0.5)?2:0;
     const a=P.Axes({w:1080,h:270,xr:[-3,0.4],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',
       pad:{l:52,r:28,t:32,b:38},xstep:1,ystep:0.5});
@@ -201,7 +201,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     [-2,-1,-0.5].forEach(t=>a.vline(t,{color:C.muted,opacity:.5}));
     return a.svg();},
   err:'Scaling first and then shifting by $-2$, which produces $x(2(t-2))=x(2t-4)$ and places the result on the wrong part of the axis.',
-  teach:'Ask for the intermediate signal $v(t)$ to be drawn. A student who goes straight to the answer cannot be corrected, because there is nothing to inspect.' },
+  teach:'Ask the student to draw the intermediate signal $v(t)$. It separates the shift from the scaling and makes an incorrect operation visible.' },
 
 { id:'D1-10', module:'M1', type:'transform', src:'MT1 Q1',
   stem:'The sequence $x[n]$ is plotted below.',
@@ -215,7 +215,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Method.</b> For $y[n]=x[2-n]$, the sample originally at index $m$ moves to $n=2-m$. Map the four non-zero indices one at a time. For $z[n]=x[n+1]$, every sample moves one place to the left.<br>'
      +'<b>Solution — part (a).</b>$$m=-1\\to n=3,\\quad m=0\\to n=2,\\quad m=1\\to n=1,\\quad m=2\\to n=0,$$so $y[0]=-2$, $y[1]=3$, $y[2]=-1$, $y[3]=2$, and zero elsewhere.<br>'
      +'<b>Solution — part (b).</b> $z[-2]=2$, $z[-1]=-1$, $z[0]=3$, $z[1]=-2$. The advance moves the pattern without disturbing it; only the reflection reverses the order of the samples.<br>'
-     +'<b>Check.</b> Both operations preserve the number of non-zero samples, four, and the shape of the pattern. For (a), one direct substitution: $y[3]=x[2-3]=x[-1]=2$, as listed. Reading the samples in order of increasing index, $x$ gives $2,-1,3,-2$ and $y$ gives $-2,3,-1,2$ — exactly the reverse — while $z$ gives $2,-1,3,-2$, the same order as $x$, just relocated.',
+     +'<b>Check.</b> Both operations preserve the four non-zero samples. For (a), $y[3]=x[2-3]=x[-1]=2$, as listed. In increasing index order, $x$ gives $2,-1,3,-2$ and $y$ gives $-2,3,-1,2$, so the reflection reverses the order. The shifted signal $z$ keeps the order $2,-1,3,-2$.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,4.6],yr:[-3.6,4.6],xlabel:'n',ylabel:'y[n]',
       pad:{l:46,r:26,t:30,b:34},xstep:1,ystep:1});
@@ -224,7 +224,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:46,r:26,t:30,b:34},xstep:1,ystep:1});
       a.stem([[-2,2],[-1,-1],[0,3],[1,-2]],{color:C.mid}); return a.svg();})()),
   err:'Reading $x[2-n]$ as "reflect, then shift left by two", which gives $x(-(n+2))=x(-n-2)$ and puts the pattern in the wrong place.',
-  teach:'The index-mapping table is the reliable method and it takes four lines. Discourage the shortcut of redrawing by eye.' },
+  teach:'Require the index-mapping table. It shows where every non-zero sample moves and makes the reflection explicit.' },
 
 { id:'D1-11', module:'M1', type:'transform', src:'MT1 Q1',
   stem:'The signal $x(t)$ sketched below is a symmetric triangular pulse of height $1$, zero outside $-1\\le t\\le1$.',
@@ -247,22 +247,22 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.curve(y,{color:C.out});
     [0,3,6].forEach(t=>a.vline(t,{color:C.muted,opacity:.5}));
     return a.svg();},
-  err:'Applying the expansion factor $3$ but forgetting the sign of $a$, which draws $y$ rising from $t=0$ to $t=3$ and falling after — the mirror image of the correct shape.',
-  teach:'Ask the student to name the sign of $a$ out loud before drawing anything. A negative $a$ always means a reflection is part of the answer, whatever its magnitude.' },
+  err:'Applying the expansion factor $3$ but forgetting the sign of $a$. This omits the reflection and gives the wrong order of the two halves.',
+  teach:'Ask the student to state the sign of $a$ before drawing. A negative value of $a$ means that the transformation includes a reflection.' },
 
 { id:'D1-12', module:'M1', type:'transform',
   stem:'A signal $x(t)$ is known only to satisfy $x(t)=0$ outside $2\\le t\\le8$, with a single, unique maximum at $t=5$. No other property of $x(t)$ is given. Let $y(t)=x(-3t+6)$.',
   parts:['Find the support of $y(t)$ as an interval, using inequalities on the argument of $x$.',
          'Find the value of $t$ at which $y(t)$ reaches its maximum.',
-         'A second transformation is applied, $z(t)=y(t-4)$. Give the support of $z(t)$ directly in terms of the support of $y(t)$, and again directly in terms of the support of $x(t)$, and check the two routes agree.'],
+         'A second transformation is applied, $z(t)=y(t-4)$. Find the support of $z(t)$ from the support of $y(t)$. Then find it again from the support of $x(t)$ and compare the results.'],
   sol:'<b>Given.</b> Only the support and the location of the maximum of $x(t)$; its shape is unknown.<br>'
      +'<b>Find.</b> The support and the peak location of two signals built from $x$ by transformations of the argument, without ever needing the formula for $x$.<br>'
      +'<b>Method.</b> A transformation of the independent variable moves the support and the maximum together, by mapping the argument through the same rule that produced $y$ or $z$ from $x$. No value of $x$ itself is needed.<br>'
      +'<b>Solution — part (a).</b> $y(t)\\neq0$ exactly where $-3t+6\\in[2,8]$. Solving, $-3t\\in[-4,2]$, and dividing by $-3$ reverses the inequalities: $t\\in\\left[-\\tfrac23,\\tfrac43\\right]$.<br>'
      +'<b>Solution — part (b).</b> $x$ peaks where its argument equals $5$. Setting $-3t+6=5$ gives $t=\\tfrac13$, which lies inside $\\left[-\\tfrac23,\\tfrac43\\right]$ as it must.<br>'
      +'<b>Solution — part (c).</b> A shift by $4$ moves every point of the support of $y$ to the right by $4$, so directly from $y$: $$t\\in\\left[-\\tfrac23+4,\\;\\tfrac43+4\\right]=\\left[\\tfrac{10}{3},\\tfrac{16}{3}\\right].$$Directly from $x$: $z(t)=x(-3(t-4)+6)=x(-3t+18)$, so $-3t+18\\in[2,8]$ gives $-3t\\in[-16,-10]$, hence $t\\in\\left[\\tfrac{10}{3},\\tfrac{16}{3}\\right]$, the same interval.<br>'
-     +'<b>Check.</b> The width of $x$\'s support is $8-2=6$. Compression by $|a|=3$ must give width $6/3=2$ for both $y$ and $z$, and indeed $\\tfrac43-\\left(-\\tfrac23\\right)=2$ and $\\tfrac{16}{3}-\\tfrac{10}{3}=2$. That the two routes to the support of $z$ in part (c) agree is itself an independent check on the whole chain of reasoning, since one route never used the formula for $y$ and the other never used $x$ directly.',
-  err:'Solving $-3t+6\\in[2,8]$ without reversing the inequalities after dividing by the negative coefficient, which gives the interval $\\left[-\\tfrac43,\\tfrac23\\right]$ — the correct numbers, in the wrong order, silently reporting an empty or backwards interval when the arithmetic is written carelessly.',
+     +'<b>Check.</b> The support of $x$ has width $8-2=6$. Compression by $|a|=3$ must give width $6/3=2$ for both $y$ and $z$. The intervals give $\\tfrac43-\\left(-\\tfrac23\\right)=2$ and $\\tfrac{16}{3}-\\tfrac{10}{3}=2$. The two calculations in part (c) also give the same support for $z$.',
+  err:'Solving $-3t+6\\in[2,8]$ without reversing the inequalities after division by the negative coefficient. This gives the wrong interval $\\left[-\\tfrac43,\\tfrac23\\right]$.',
   teach:'This question cannot be answered by drawing a picture, because no picture of $x$ exists. It isolates whether a student understands the transformation as a mapping on the argument, independent of the signal\'s shape.' },
 
 { id:'D1-13', module:'M1', type:'evenodd', src:'MT1 Q1',
@@ -273,7 +273,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   sol:'<b>Given.</b> A causal decaying exponential.<br>'
      +'<b>Find.</b> Its even and odd parts, and the three energies.<br>'
      +'<b>Method.</b> Build $x(-t)=3e^{4t}u(-t)$ first, then$$\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)],\\qquad\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)].$$'
-     +'<b>Solution — part (a).</b> The two pieces sit on opposite half-lines and never overlap, so$$\\Ev\\{x(t)\\}=\\tfrac32e^{-4|t|},\\qquad\\Od\\{x(t)\\}=\\tfrac32e^{-4t}u(t)-\\tfrac32e^{4t}u(-t).$$The even part is a two-sided decaying exponential of height $\\tfrac32$; the odd part has the same shape with its left half turned upside down, jumping from $-\\tfrac32$ to $\\tfrac32$ at the origin.<br>'
+     +'<b>Solution — part (a).</b> The two pieces occupy opposite half-lines and do not overlap, so$$\\Ev\\{x(t)\\}=\\tfrac32e^{-4|t|},\\qquad\\Od\\{x(t)\\}=\\tfrac32e^{-4t}u(t)-\\tfrac32e^{4t}u(-t).$$The even part is a two-sided decaying exponential of height $\\tfrac32$. The odd part is positive for $t>0$, negative for $t<0$, and jumps from $-\\tfrac32$ to $\\tfrac32$ at the origin.<br>'
      +'<b>Solution — part (b).</b>$$E_x=\\int_{0}^{\\infty}9e^{-8t}\\,\\d t=\\tfrac98,$$$$E_{\\Ev}=\\int_{-\\infty}^{\\infty}\\tfrac94e^{-8|t|}\\,\\d t=\\tfrac94\\cdot2\\cdot\\tfrac18=\\tfrac{9}{16},$$and by the same computation $E_{\\Od}=\\tfrac{9}{16}$.<br>'
      +'<b>Solution — part (c).</b> $E_{\\Ev}+E_{\\Od}=\\tfrac{9}{16}+\\tfrac{9}{16}=\\tfrac98=E_x$. The energies add because the even and odd parts are orthogonal: the cross term $\\int\\Ev\\{x\\}\\Od\\{x\\}\\,\\d t$ is the integral of an odd function over a symmetric interval, and is therefore zero.<br>'
      +'<b>Check.</b> The two parts add back to $x$: for $t>0$ they give $\\tfrac32e^{-4t}+\\tfrac32e^{-4t}=3e^{-4t}$, and for $t<0$ they give $\\tfrac32e^{4t}-\\tfrac32e^{4t}=0$, both as required. Scaling the amplitude by a factor of $3$ instead of $1$ has scaled every energy by $3^{2}=9$ compared with a unit-amplitude version, which is the expected quadratic dependence for a squared quantity.',
@@ -325,7 +325,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> Replacing $t$ by $-t$: $-2\\le-t<0$ becomes $0<t\\le2$, where $x(-t)=-1$; and $0\\le-t\\le3$ becomes $-3\\le t\\le0$, where $x(-t)=2$. So$$x(-t)=\\begin{cases}2,&-3\\le t\\le0,\\\\[2pt] -1,&0<t\\le2,\\\\[2pt] 0,&\\text{otherwise.}\\end{cases}$$'
      +'<b>Solution — part (b).</b> Adding and subtracting $x(t)$ and $x(-t)$ on each of the four regions where either is non-zero,$$\\Ev\\{x(t)\\}=\\begin{cases}1,&-3\\le t<-2,\\\\ 0.5,&-2\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}\\qquad\\Od\\{x(t)\\}=\\begin{cases}-1,&-3\\le t<-2,\\\\ -1.5,&-2\\le t<0,\\\\ 1.5,&0\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}$$both zero outside $[-3,3]$.<br>'
      +'<b>Solution — part (c).</b>$$E_x=\\int_{-2}^{0}1\\,\\d t+\\int_{0}^{3}4\\,\\d t=2+12=14.$$$$E_{\\Ev}=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{2}0.25\\,\\d t+\\int_{2}^{3}1\\,\\d t=1+1+1=3.$$$$E_{\\Od}=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{0}2.25\\,\\d t+\\int_{0}^{2}2.25\\,\\d t+\\int_{2}^{3}1\\,\\d t=1+4.5+4.5+1=11.$$Then $E_{\\Ev}+E_{\\Od}=3+11=14=E_x$.<br>'
-     +'<b>Check.</b> The two parts must add back to $x$ on every region: on $(0,2]$, $0.5+1.5=2=x(t)$; on $[-3,-2)$, $1+(-1)=0=x(t)$, both correct. As an independent bound, $E_{\\Ev}\\le E_x$ always, because $\\Ev\\{x\\}$ is built by averaging $x(t)$ with a reflected copy of itself and the energy of an average of two signals of comparable size cannot exceed the larger contribution; here $3<14$, consistent with that bound.',
+     +'<b>Check.</b> The two parts add back to $x$ on every region. On $(0,2]$, $0.5+1.5=2=x(t)$; on $[-3,-2)$, $1+(-1)=0=x(t)$. Also, orthogonality gives $E_x=E_{\\Ev}+E_{\\Od}$ with both terms non-negative, so $E_{\\Ev}\\le E_x$. Here $3<14$, as required.',
   err:'Computing $\\Ev\\{x\\}$ and $\\Od\\{x\\}$ only on the region where $x(t)$ itself is non-zero, $[-2,3]$, and missing that $x(-t)$ is non-zero on $[-3,2]$ — a different interval — so the even and odd parts extend over $[-3,3]$, wider than $x$ itself.',
   teach:'Ask for $x(-t)$ to be written out fully, as in part (a), before either part (b) is attempted. The commonest failure is reusing the support of $x(t)$ for $x(-t)$ instead of reflecting it.' },
 
@@ -338,9 +338,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> A general identity at $n=0$, and its two consequences.<br>'
      +'<b>Method.</b> Substitute $n=0$ into the definition of the odd part; the two terms it produces are identical, for any sequence whatsoever.<br>'
      +'<b>Solution — part (a).</b> $\\Od\\{x\\}[0]=\\tfrac12\\bigl(x[0]-x[-0]\\bigr)=\\tfrac12\\bigl(x[0]-x[0]\\bigr)=0$, because $-0=0$. This holds for every real sequence $x[n]$, whatever its values are.<br>'
-     +'<b>Solution — part (b).</b> $w[-n]$ equals $5,0,-5$ at $n=-1,0,1$. Then $\\Ev\\{w\\}[n]=\\tfrac12(w[n]+w[-n])$: at $n=-1$, $\\tfrac12(-5+5)=0$; at $n=0$, $0$; at $n=1$, $\\tfrac12(5-5)=0$ — zero everywhere, as claimed. And $\\Od\\{w\\}[n]=\\tfrac12(w[n]-w[-n])$: at $n=-1$, $\\tfrac12(-5-5)=-5=w[-1]$; at $n=1$, $\\tfrac12(5-(-5))=5=w[1]$; at $n=0$, $0=w[0]$ — so $\\Od\\{w\\}=w$ at every listed index. <b>The claim is correct</b>, because $w[n]$ is already odd: $w[-n]=-w[n]$ holds at every index.<br>'
+     +'<b>Solution — part (b).</b> $w[-n]$ equals $5,0,-5$ at $n=-1,0,1$. For the even part, the values are $\\tfrac12(-5+5)=0$, $0$, and $\\tfrac12(5-5)=0$. For the odd part, the values are $\\tfrac12(-5-5)=-5$, $0$, and $\\tfrac12(5-(-5))=5$. Thus $\\Ev\\{w\\}=0$ and $\\Od\\{w\\}=w$. <b>The claim is correct</b> because $w[-n]=-w[n]$ at every index.<br>'
      +'<b>Solution — part (c).</b> If $y[n]$ were odd, it would equal its own odd part: $y[n]=\\Od\\{y\\}[n]$ for every $n$, in particular at $n=0$. But part (a) shows $\\Od\\{y\\}[0]=0$ for <em>any</em> sequence, so an odd $y$ would need $y[0]=0$. Since $y[0]=4\\neq0$, $y[n]$ cannot be odd.<br>'
-     +'<b>Check.</b> Part (b) gives a worked instance of the general fact used in part (c): $w[0]=0$ is exactly what let $w$ be odd in the first place. Reversing the logic, changing only $w[0]$ from $0$ to any non-zero number would immediately break oddness by the same argument, without touching $w[1]$ or $w[-1]$ at all — a one-sample edit with a predictable consequence, which is a fast way to check the general claim on a second example.',
+     +'<b>Check.</b> In part (b), $w[0]=0$, as every odd sequence requires. If only this value were changed to a non-zero number, the sequence would no longer be odd. This confirms the general result in part (c).',
   err:'Trying to verify the claim in part (b) by checking only $\\Od\\{w\\}[1]=w[1]$ and stopping there, without also checking $n=-1$ and confirming $\\Ev\\{w\\}$ is zero at every index, not only at the one checked.',
   teach:'Part (c) is the point of the question: a property proved once, in general, replaces a computation that would otherwise have to be redone for every new signal. Ask which other single-sample facts about $x[n]$ can be read off the definitions the same way.' },
 
@@ -358,7 +358,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — (ii).</b> $e^{-3}\\sin(1.5\\pi)=e^{-3}\\cdot(-1)=-e^{-3}\\approx-0.0498$.<br>'
      +'<b>Solution — (iii).</b> Rewrite $\\delta(4t-8)=\\tfrac14\\delta(t-2)$, then sift:$$\\int t^{2}\\cdot\\tfrac14\\delta(t-2)\\,\\d t=\\tfrac14\\cdot4=1.$$'
      +'<b>Solution — part (b).</b> All three use sifting. The result is a number because the integral runs over $t$ and removes every $t$-dependence. The <b>sampling</b> property is the other statement, $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$, and it returns a signal: an impulse at $t_0$ carrying the weight $x(t_0)$.<br>'
-     +'<b>Check.</b> Units confirm the split: if $x$ is in volts then $\\delta$ carries $\\mathrm{s}^{-1}$, so the product is a signal in $\\mathrm{V\\,s^{-1}}$ and the integral is a number in volts. In (iii), dropping the factor $\\tfrac14$ would quadruple the answer, and the area of $\\delta(4t-8)$ measured directly is $\\tfrac14$, not $1$; and $\\sin(1.5\\pi)=-1$ exactly, since $1.5\\pi$ is three-quarters of a full turn past zero, which fixes the sign in (ii) independently of the exponential factor.',
+     +'<b>Check.</b> If $x$ is in volts, $\\delta$ has units $\\mathrm{s}^{-1}$, so integration returns volts. In (iii), $\\delta(4t-8)$ has area $\\tfrac14$, which confirms the scale factor. In (ii), $\\sin(1.5\\pi)=-1$, which confirms the sign.',
   err:'Treating $\\delta(4t-8)$ as $\\delta(t-8)$, or as $\\delta(t-2)$ without the factor $\\tfrac14$. Compressing the argument compresses the impulse, and its area must be restored.',
   teach:'Part (b) separates the two properties. A student who writes $x(t)\\delta(t-t_0)=x(t_0)$ has silently turned a signal into a number and will make the same slip in Module 3.' },
 
@@ -390,11 +390,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
          'Using the representation property $x[n]=\\displaystyle\\sum_{k=-\\infty}^{\\infty}x[k]\\delta[n-k]$, write out its four non-zero terms for this $x[n]$, and confirm the sum reproduces $x[0]$.'],
   sol:'<b>Given.</b> A four-sample sequence and the index $n_0=1$.<br>'
      +'<b>Find.</b> The two impulse properties applied at $n_0=1$, and the representation property evaluated at $n=0$.<br>'
-     +'<b>Method.</b> Sampling multiplies $x[n]$ by a shifted impulse and returns a sequence with one surviving sample. Sifting sums that sequence and returns a number. The representation property is sifting run in reverse: it rebuilds $x[n]$ from weighted, shifted impulses, one for every non-zero sample.<br>'
-     +'<b>Solution — part (a).</b> $x[n]\\delta[n-1]=x[1]\\delta[n-1]=2\\delta[n-1]$ — the sequence equal to $2$ at $n=1$ and zero everywhere else.<br>'
+     +'<b>Method.</b> Sampling multiplies $x[n]$ by a shifted impulse and leaves one non-zero sample. Sifting sums that product and returns a number. The representation property rebuilds $x[n]$ by placing one weighted impulse at each non-zero sample.<br>'
+     +'<b>Solution — part (a).</b> $x[n]\\delta[n-1]=x[1]\\delta[n-1]=2\\delta[n-1]$. This sequence equals $2$ at $n=1$ and zero elsewhere.<br>'
      +'<b>Solution — part (b).</b> $\\displaystyle\\sum_{n}x[n]\\delta[n-1]=x[1]=2$, since only the $n=1$ term of the sum survives, and $x[1]=2$ as given.<br>'
      +'<b>Solution — part (c).</b>$$x[n]=5\\delta[n+1]-3\\delta[n]+2\\delta[n-1]+7\\delta[n-2].$$At $n=0$: $5\\delta[1]-3\\delta[0]+2\\delta[-1]+7\\delta[-2]=5\\cdot0-3\\cdot1+2\\cdot0+7\\cdot0=-3=x[0]$.<br>'
-     +'<b>Check.</b> Evaluating the same sum at $n=-1$ instead: $5\\delta[0]-3\\delta[-1]+2\\delta[-2]+7\\delta[-3]=5\\cdot1-3\\cdot0+2\\cdot0+7\\cdot0=5=x[-1]$, a second, independent index where the representation reproduces the given sequence, confirming part (c) was not a coincidence at $n=0$ alone.',
+     +'<b>Check.</b> At $n=-1$, the same representation gives $5\\delta[0]-3\\delta[-1]+2\\delta[-2]+7\\delta[-3]=5\\cdot1-3\\cdot0+2\\cdot0+7\\cdot0=5=x[-1]$. This confirms the formula at a second index.',
   err:'Writing the sampling result in part (a) as the number $2$ instead of the sequence $2\\delta[n-1]$. Sampling produces a signal that happens to have only one non-zero sample; it does not collapse to a number until it is summed.',
   teach:'Ask for the check at a second index, as in the Check step, before accepting part (c). A single matching index is a weak test; the representation property has to hold everywhere.' },
 
@@ -409,7 +409,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> Accumulating one impulse at a time as $n$ increases past each location:$$y[n]=0,0,1,1,3,3,2,2,2\\quad\\text{for}\\quad n=-2,-1,0,1,2,3,4,5,6.$$'
      +'<b>Solution — part (b).</b>$$y[n]=u[n]+2u[n-2]-u[n-4].$$Checking against part (a) at $n=4$: $u[4]+2u[2]-u[0]=1+2-1=2$, matching the table.<br>'
      +'<b>Solution — part (c).</b> The running sum replaced each $\\delta[n-k]$ by $u[n-k]$ with its weight unchanged; the running integral does the same with $\\delta(t-t_0)\\to u(t-t_0)$, so by the identical argument$$q(t)=u(t)+2u(t-2)-u(t-4),$$a staircase with the same three levels as $y[n]$, at $t=0,2,4$ instead of $n=0,2,4$.<br>'
-     +'<b>Check.</b> The final level of $y[n]$, once every impulse has been passed, must equal the sum of the weights, $1+2-1=2$, and the table settles at $2$ for $n\\ge4$. The same sum, $2$, is also the final level $q(t)$ settles at for $t\\ge4$, so the discrete and continuous constructions agree on the one number that does not depend on where the impulses sit, only on how much weight they carry in total.',
+     +'<b>Check.</b> After all impulses, the running sum must equal the sum of their weights, $1+2-1=2$. The table gives $y[n]=2$ for $n\\ge4$, and the continuous-time result gives $q(t)=2$ for $t\\ge4$.',
   figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-3,7],yr:[-0.5,3.8],xlabel:'n',ylabel:'y[n]',
       pad:{l:52,r:28,t:30,b:34},xstep:1,ystep:1});
     a.stem([[-2,0],[-1,0],[0,1],[1,1],[2,3],[3,3],[4,2],[5,2],[6,2]],{color:C.mid});
@@ -434,7 +434,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-1.4,0],[0,0],[1,2],[3,0],[4.6,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A discrete-time cosine, and a triangular pulse $x(t)=2t$ on $0\\le t\\le1$, $x(t)=3-t$ on $1\\le t\\le3$, zero elsewhere.<br>'
      +'<b>Find.</b> A period, an energy, two plots, and one integral against a pair of impulses.<br>'
-     +'<b>Method.</b> Each part uses the method of its own type. The order matters: part (d) needs the $y(t)$ of part (c), and part (e) needs the $z(t)$ of part (d).<br>'
+     +'<b>Method.</b> Test the discrete-time frequency ratio in part (a). Integrate the squared pieces in part (b). Map the argument of $x$ in part (c), form the even part of that result in part (d), and use sifting on the resulting $z(t)$ in part (e). This order is required because parts (d) and (e) use earlier results.<br>'
      +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{4\\pi}{9}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{2}{9}$, which is rational and the sequence repeats. Then $N=\\dfrac{2\\pi}{\\omega_0}k=\\dfrac92k$ is an integer first at $k=2$, so $N_0=9$. The phase $-2$ plays no part in the test.<br>'
      +'<b>Solution — part (b).</b>$$E_\\infty=\\int_{0}^{1}(2t)^{2}\\,\\d t+\\int_{1}^{3}(3-t)^{2}\\,\\d t=\\frac43+\\frac83=4\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> Write the argument as $3-\\tfrac t2$: the signal is reflected and stretched by $2$. The support $0\\le3-\\tfrac t2\\le3$ gives $0\\le t\\le6$, twice the original width. The peak sits where $3-\\tfrac t2=1$, at $t=4$, and keeps its height $2$. On $0\\le t\\le4$, $y(t)=3-(3-\\tfrac t2)=\\tfrac t2$; on $4\\le t\\le6$, $y(t)=2(3-\\tfrac t2)=6-t$. The pulse is a triangle on $[0,6]$ peaking at $(4,2)$.<br>'
@@ -463,7 +463,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3.2,0],[-2,0],[-2,-1],[2,3],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A continuous-time complex exponential, a decaying sequence, and a ramp $y(t)=t+1$ on $-2\\le t\\le2$, zero elsewhere.<br>'
      +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
-     +'<b>Method.</b> Every continuous-time complex exponential repeats; only the discrete-time case needs a rationality test. The energy of a geometric sequence is a geometric series. A scaled impulse argument carries a factor $1/|a|$.<br>'
+     +'<b>Method.</b> Use the continuous-time exponential period formula in part (a) and a geometric series for the energy in part (b). In part (c), map the support through the new argument. In part (d), add the signal to its reflection. In part (e), scale the impulse before applying sifting.<br>'
      +'<b>Solution — part (a).</b> $x(t)=2je^{j5t}$ has $\\omega_0=5$ rad/s. Every continuous-time complex exponential is periodic, with$$T_0=\\frac{2\\pi}{|\\omega_0|}=\\frac{2\\pi}{5}\\;\\text{s}\\approx1.257\\;\\text{s}.$$The constant $2j$ scales and rotates the phasor but does not change how often it returns.<br>'
      +'<b>Solution — part (b).</b> The sequence is non-zero only for $n\\ge0$, where $|x[n]|^{2}=9^{-n}$:$$E_\\infty=\\sum_{n=0}^{\\infty}9^{-n}=\\frac{1}{1-\\tfrac19}=\\frac98=1.125\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> The support $-2\\le-3t+2\\le2$ gives $0\\le t\\le\\tfrac43$, one third of the original width, and the reflection reverses the order. On that interval $y(-3t+2)=(-3t+2)+1=3-3t$, running from $3$ at $t=0$ down to $-1$ at $t=\\tfrac43$.<br>'
@@ -478,7 +478,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
       a.poly([[-3.2,0],[-2,0],[-2,1],[2,1],[2,0],[3.2,0]],{color:C.mid}); return a.svg();})()),
   err:'Writing $\\delta(2t-4)=\\delta(t-2)$ in part (e) and losing the factor $\\tfrac12$. The scaling rule $\\delta(at-b)=\\tfrac{1}{|a|}\\delta\\!\\left(t-\\tfrac ba\\right)$ applies to the impulse exactly as it does to any other signal, and the weight is what changes.',
-  teach:'Part (d) is worth dwelling on. The ramp is odd about $t=0$ and the constant is even, so the even part is the constant alone. A student who sees that can write the answer without any algebra.' },
+  teach:'In part (d), separate the ramp from the constant. The ramp is odd about $t=0$, and the constant is even, so only the constant remains in the even part.' },
 
 { id:'D1-23', module:'M1', type:'full', src:'MT1 Q1',
   stem:'Work the following parts in order. Parts (b) and (c) use the sequence $x_1[n]$ of part (a); parts (d) and (e) use the signal $x_3(t)$ plotted below.',
@@ -492,7 +492,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3.2,0],[-2,0],[-2,2],[0,0],[2,2],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A difference of two impulse trains, and a V-shaped pulse $x_3(t)=|t|$ on $|t|\\le2$, zero elsewhere.<br>'
      +'<b>Find.</b> A sketch, a period, an odd part, an energy, and one sifting integral.<br>'
-     +'<b>Method.</b> Read each train separately, then add them sample by sample. Two trains of periods $N_1$ and $N_2$ produce a sequence of period $\\operatorname{lcm}(N_1,N_2)$.<br>'
+     +'<b>Method.</b> Locate the samples from each impulse train and add their weights at shared indices. Use the least common multiple of the train periods in part (b). Apply the odd-part definition to the windowed sequence in part (c), square and integrate the pulse in part (d), and use sifting in part (e).<br>'
      +'<b>Solution — part (a).</b> The first train places $+1$ wherever $n=3k$, that is at every $n\\equiv0\\pmod 3$. The second places $-1$ wherever $n=-1-4k$, that is at every $n\\equiv3\\pmod 4$. Over one stretch $0\\le n\\le11$ that gives $+1$ at $n=0,3,6,9$ and $-1$ at $n=3,7,11$. The index $n=3$ receives both, and the two cancel:$$x_1[0]=1,\\;x_1[3]=0,\\;x_1[6]=1,\\;x_1[7]=-1,\\;x_1[9]=1,\\;x_1[11]=-1,$$and zero at every other index of the stretch.<br>'
      +'<b>Solution — part (b).</b> The first train repeats every $3$ samples and the second every $4$, so the sum repeats every$$N_0=\\operatorname{lcm}(3,4)=12.$$Nothing shorter works: a shift of $3$ leaves the first train alone but moves the second.<br>'
      +'<b>Solution — part (c).</b> Windowing to $-3\\le n\\le3$ keeps $x_2[-3]=1$, $x_2[-1]=-1$, $x_2[0]=1$, $x_2[3]=0$, and zero elsewhere. Then $\\Od\\{x_2\\}[n]=\\tfrac12(x_2[n]-x_2[-n])$ gives$$\\Od\\{x_2\\}[-3]=\\tfrac12,\\quad\\Od\\{x_2\\}[-1]=-\\tfrac12,\\quad\\Od\\{x_2\\}[1]=\\tfrac12,\\quad\\Od\\{x_2\\}[3]=-\\tfrac12,$$and zero everywhere else, including $n=0$.<br>'
@@ -530,7 +530,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
       a.poly([[-4.2,0],[-3,0],[-3,-3],[3,3],[3,0],[4.2,0]],{color:C.out}); return a.svg();})()),
   err:'Taking the even part to be $3$ on the whole window $|t|<3$. Outside $|t|=2$ the constant is no longer there, so only the ramp survives, and a ramp has no even part.',
-  teach:'The additivity of the energies is the check worth insisting on. It holds because the even and odd parts are orthogonal, and a student who verifies $36+18=54$ against a direct integration has confirmed both parts at once.' },
+  teach:'Use energy additivity as the check. Orthogonality requires $36+18=54$, and direct integration gives the same total.' },
 
 { id:'D1-25', module:'M1', type:'full', src:'Final Q1',
   stem:'Two discrete-time complex exponentials differ only in whether $\\pi$ appears in the frequency:$$x_1[n]=e^{j\\frac{4}{7}n},\\qquad x_2[n]=e^{j\\frac{4\\pi}{7}n}.$$',
@@ -543,7 +543,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b>$$\\frac{\\omega_2}{2\\pi}=\\frac{4\\pi/7}{2\\pi}=\\frac{2}{7},$$which is rational, so $x_2[n]$ <b>is periodic</b>. Then $N=\\dfrac{2\\pi}{\\omega_2}k=\\dfrac72k$ is an integer first at $k=2$, giving $N_0=7$. What separates the two is the factor $\\pi$ in the frequency: it is exactly what cancels against the $2\\pi$ in the test and leaves a ratio of two integers.<br>'
      +'<b>Check.</b> For $x_2$, $e^{j\\frac{4\\pi}{7}(n+7)}=e^{j\\frac{4\\pi}{7}n}e^{j4\\pi}$, and $e^{j4\\pi}=1$, so $N=7$ does return the sequence to itself; no smaller positive integer does, because $\\tfrac72k$ is an integer only when $k$ is even. For $x_1$, the continuous-time signal $e^{j4t/7}$ is perfectly periodic with $T_0=\\tfrac{7\\pi}{2}$ — it is sampling on the integers that destroys the repetition, because $\\tfrac{7\\pi}{2}$ is not an integer.',
   err:'Reporting $N_0=\\tfrac{7\\pi}{2}$ for $x_1[n]$ by transferring the continuous-time formula $T_0=2\\pi/\\omega_0$. A period of a sequence has to be an integer, and no non-integer answer can be one.',
-  teach:'These two are worth showing side by side. Students learn the rule as "check whether $\\omega_0/2\\pi$ is rational" and then apply it without noticing that a missing $\\pi$ decides the case. Ask which of the two a sampled continuous-time cosine would give.' },
+  teach:'Compare the two frequencies directly. The factor $\\pi$ determines whether $\\omega_0/2\\pi$ is rational, so it determines periodicity in discrete time.' },
 
 { id:'D1-26', module:'M1', type:'full', src:'MT1 Q1',
   stem:'Work the following parts in order. Parts (b) to (e) all use the signal $x(t)$ plotted below.',
@@ -557,7 +557,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-1.4,0],[0,0],[1,3],[2,3],[4,0],[5.6,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A discrete-time sine, and a trapezoid $x(t)=3t$ on $0\\le t\\le1$, $x(t)=3$ on $1\\le t\\le2$, $x(t)=\\tfrac32(4-t)$ on $2\\le t\\le4$, zero elsewhere.<br>'
      +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
-     +'<b>Method.</b> As before, each part uses the method of its own type, and parts (d) and (e) rest on the plot built in (c).<br>'
+     +'<b>Method.</b> Test the discrete-time frequency ratio in part (a). Integrate the squared pieces in part (b). Map the argument of $x$ in part (c), form the odd part of that result in part (d), and scale the impulse before sifting in part (e). Parts (d) and (e) use the plot from part (c).<br>'
      +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{6\\pi}{7}$, so $\\dfrac{\\omega_0}{2\\pi}=\\dfrac37$, rational. Then $N=\\dfrac{2\\pi}{\\omega_0}k=\\dfrac73k$ is an integer first at $k=3$, so $N_0=7$.<br>'
      +'<b>Solution — part (b).</b>$$E_\\infty=\\int_{0}^{1}9t^{2}\\,\\d t+\\int_{1}^{2}9\\,\\d t+\\int_{2}^{4}\\tfrac94(4-t)^{2}\\,\\d t=3+9+6=18\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> Write the argument as $2(t+2)$: the signal is advanced by $2$ and compressed by $2$. The support $0\\le2t+4\\le4$ gives $-2\\le t\\le0$, half the original width. The flat top, at $1\\le2t+4\\le2$, sits on $-\\tfrac32\\le t\\le-1$ and keeps its height $3$.<br>'
@@ -572,7 +572,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
       a.poly([[-2.8,0],[-2,0],[-1.5,1.5],[-1,1.5],[0,0],[1,-1.5],[1.5,-1.5],[2,0],[2.8,0]],{color:C.mid}); return a.svg();})()),
   err:'Reading $x(2t+4)$ as a delay of $4$ followed by a compression, and reporting a support of $[2,4]$ or $[4,8]$. Factor the argument as $2(t+2)$ first: the shift that acts is $2$, not $4$, and it moves the signal to the left.',
-  teach:'Part (e) rewards a student who notices that only one value of $z$ is ever needed. Reading $z(-1)$ off the plot of $y$ is faster than writing $z$ out as a formula, and it is the habit worth building.' },
+  teach:'Part (e) needs only $z(-1)$. Read this value from the plot of $y$ instead of deriving a full formula for $z$.' },
 
 { id:'D1-27', module:'M1', type:'full', src:'MT1 Q1',
   stem:'Work the following parts in order. Parts (c) to (e) use the signal $y(t)$ plotted below.',
@@ -586,7 +586,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3.2,0],[0,0],[0,1],[2,-1],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A continuous-time complex exponential, a delayed geometric sequence, and a falling ramp $y(t)=1-t$ on $0\\le t\\le2$, zero elsewhere.<br>'
      +'<b>Find.</b> A period, an energy, two plots, and one integral against a scaled impulse.<br>'
-     +'<b>Method.</b> Take the parts in order; (c) and (d) both work from the given plot, and (e) needs only one value of it.<br>'
+     +'<b>Method.</b> Use the continuous-time exponential period formula in part (a) and a geometric series beginning at the first non-zero index in part (b). Map the argument in part (c), form the even part from the given plot in part (d), and scale the impulse before sifting in part (e).<br>'
      +'<b>Solution — part (a).</b> $\\omega_0=\\tfrac{3\\pi}{4}$ rad/s, and every continuous-time complex exponential is periodic:$$T_0=\\frac{2\\pi}{|\\omega_0|}=\\frac{2\\pi}{3\\pi/4}=\\frac83\\;\\text{s}\\approx2.667\\;\\text{s}.$$'
      +'<b>Solution — part (b).</b> The step $u[n-2]$ starts the sum at $n=2$, where $|x[n]|^{2}=\\left(\\tfrac14\\right)^{n}$:$$E_\\infty=\\sum_{n=2}^{\\infty}\\left(\\tfrac14\\right)^{n}=\\frac{(1/4)^{2}}{1-\\tfrac14}=\\frac{1/16}{3/4}=\\frac{1}{12}\\approx0.0833\\;\\text{J}.$$'
      +'<b>Solution — part (c).</b> Write the argument as $2\\!\\left(t-\\tfrac12\\right)$: the signal is delayed by $\\tfrac12$ and compressed by $2$. The support $0\\le2t-1\\le2$ gives $\\tfrac12\\le t\\le\\tfrac32$, half the original width, and on it $y(2t-1)=1-(2t-1)=2-2t$, running from $1$ down to $-1$.<br>'
@@ -615,7 +615,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3.2,0],[-2,0],[-2,1],[-1,1],[-1,2],[1,2],[1,1],[2,1],[2,0],[3.2,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A difference of two impulse trains, and a stepped pulse $x_3(t)=2$ on $|t|\\le1$, $x_3(t)=1$ on $1<|t|\\le2$, zero elsewhere.<br>'
      +'<b>Find.</b> A sketch, a period, an odd part, an energy, and one sifting integral.<br>'
-     +'<b>Method.</b> Read each train separately, then add them index by index.<br>'
+     +'<b>Method.</b> Locate the samples from each impulse train and add their weights index by index. Use the least common multiple of the train periods in part (b). Apply the odd-part definition to the windowed sequence in part (c), integrate the squared levels in part (d), and use sifting in part (e).<br>'
      +'<b>Solution — part (a).</b> The first train places $+1$ at every $n\\equiv0\\pmod 4$, the second $-1$ at every $n=-1-6k$, that is at every $n\\equiv5\\pmod 6$. Over one stretch $0\\le n\\le11$ that gives $+1$ at $n=0,4,8$ and $-1$ at $n=5,11$. No index receives both, so nothing cancels here.<br>'
      +'<b>Solution — part (b).</b> The trains repeat every $4$ and every $6$ samples, so$$N_0=\\operatorname{lcm}(4,6)=12,$$not $24$: the two periods share the factor $2$, so the product overshoots.<br>'
      +'<b>Solution — part (c).</b> Windowing to $-4\\le n\\le4$ keeps $x_2[-4]=1$, $x_2[-1]=-1$, $x_2[0]=1$, $x_2[4]=1$, and zero elsewhere. Then $\\Od\\{x_2\\}[n]=\\tfrac12(x_2[n]-x_2[-n])$ gives$$\\Od\\{x_2\\}[-1]=-\\tfrac12,\\qquad\\Od\\{x_2\\}[1]=\\tfrac12,$$and zero everywhere else. At $n=\\pm4$ the two samples are equal, so they contribute nothing to the odd part; at $n=0$ the odd part always vanishes.<br>'
@@ -693,7 +693,7 @@ window.DRILLMAP_M1 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Question types', src:'pp. 2–10'},
   {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on signal foundations come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
+  {t:'lede', text:'Questions on signal foundations come in five shapes. Use this map to identify the method that each question needs.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M1'}
 ]}
@@ -712,7 +712,7 @@ window.DRILL_M1 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Practice D1-01 … D1-30', src:'pp. 2–10'},
   {t:'title', text:'Practice questions'},
-  {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. In this module the cheap checks are: a period must divide into every term a whole number of times, a transformation must preserve the width of the support up to the scale factor, the even and odd parts must add back to the signal, and a running sum or integral must settle at the total weight of the impulses that built it.'},
+  {t:'small', html:'Work each question on paper before opening its solution. Every solution ends with a <b>Check</b> step. Check that a period contains a whole number of every term, a transformed support has the required width, even and odd parts add back to the signal, and a running sum or integral ends at the total impulse weight.'},
   {t:'rule', short:true},
   {t:'drill', module:'M1'}
 ]}
