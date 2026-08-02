@@ -64,7 +64,7 @@ const SC = [
         const a=P.Axes({w:820,h:230,xr:[0,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]=\\cos(n)',
           pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
         a.stem(disc(n=>Math.cos(n),0,20),{color:C.mid}); return a.svg();
-      }, caption:'The dots are the discrete-time signal values. A curve through the dots is a separate continuous-time signal. Module 7 explains when that curve can be reconstructed from the samples.'}]
+      }, caption:'The dots are the discrete-time signal values. A curve through the dots is a separate continuous-time signal. Module 7 gives the conditions under which the samples determine that curve uniquely.'}]
     ]}
   ]}
 ]},
