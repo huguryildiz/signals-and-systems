@@ -100,9 +100,9 @@ const LABS = (() => {
                 <span class="seg"><button data-seg="stage" data-val="0">x only</button><button data-seg="stage" data-val="1">+ shift</button><button data-seg="stage" data-val="2">+ scale</button></span></label></div>
             </div>
             <dl class="readout ro"></dl>
-            <div class="note warn"><span class="note-h">Order matters</span>
-              Scaling first and shifting afterwards gives x(at − ab), not x(at − b). The middle panel shows the
-              intermediate signal v(t) = x(t − b) that the shift-then-scale method needs.</div>
+            <div class="note warn"><span class="note-h">Shift before scaling</span>
+              Scaling first gives x(at − ab), not x(at − b). Use the middle panel to build the
+              intermediate signal v(t) = x(t − b). Then scale that signal.</div>
           </div></div>`;
       root.addEventListener('input', e=>{ const k=e.target.dataset.v; if(!k) return;
         st[k]=parseFloat(e.target.value); draw(root); });
@@ -146,7 +146,7 @@ const LABS = (() => {
       { id:'b6', tex:'x(t)=t\\,u(t)', kind:'neither',
         E:'E_\\infty=\\int_0^{\\infty}t^2\\,dt\\to\\infty',
         P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^{T}t^2\\,dt=\\lim_{T\\to\\infty}\\frac{T^2}{6}\\to\\infty',
-        why:'Both quantities diverge, so the signal is neither an energy nor a power signal. Unbounded signals are the usual source of this third case.',
+        why:'Both quantities diverge, so the signal is neither an energy signal nor a power signal.',
         src:'editorial (consistent with pp. 2–3)', dt:false, f:t=>t>=0?t:0, yr:[-0.4,4.4], xr:[-2,4] }
     ];
     let cur=0, picked=null, revealed=false;
@@ -162,7 +162,7 @@ const LABS = (() => {
         b.className='opt'+(picked? (b.dataset.cls===it.kind?' correct':(b.dataset.cls===picked?' wrong':'')) +' locked':'');
         b.disabled = !!picked; });
       root.querySelector('.verdict').innerHTML = picked ?
-        M(`<div class="fb ${picked===it.kind?'good':'bad'}">${picked===it.kind?'Correct — ':'Not correct. '}
+        M(`<div class="fb ${picked===it.kind?'good':'bad'}">${picked===it.kind?'Correct: ':'Not correct. '}
           this is ${it.kind==='neither'?'<b>neither</b> an energy nor a power signal'
           :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>`) : '';
       root.querySelector('.work').innerHTML = revealed ? M(`
@@ -242,12 +242,12 @@ const LABS = (() => {
       root.querySelector('.derive').innerHTML = M(st.dt ? `
         <div class="eq sm">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
         <div class="note ${'ok'}"><span class="note-h">Rationality test</span>
-          ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}, which is always rational here, so a
-          discrete-time <em>cosine of this form</em> is periodic. The smallest integer $N$ occurs at
-          ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
+          ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}. The control values make this ratio rational, so the
+          discrete-time cosine is periodic. Choose the smallest $k$ that makes $N$ an integer.
+          Here ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
         : `<div class="eq sm">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
-           <div class="note ok"><span class="note-h">Continuous time is unconditional</span>
-             Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. No rationality condition applies.</div>`);
+           <div class="note ok"><span class="note-h">Continuous time has no rationality test</span>
+             Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. Calculate its period directly from $T_0=2\\pi/\\omega_0$.</div>`);
       root.querySelector('.ro').innerHTML = st.dt ? `
         <div><dt>ω₀ (rad/sample)</dt><dd>${F(w0,4)}</dd></div>
         <div><dt>ω₀ / 2π</dt><dd>${(()=>{const g2=gcd(st.p,2*st.q);return (st.p/g2)+' / '+((2*st.q)/g2);})()}</dd></div>
@@ -260,11 +260,10 @@ const LABS = (() => {
       root.querySelectorAll('[data-out]').forEach(o=>{ o.textContent = String(st[o.dataset.out]); });
       root.querySelectorAll('[data-seg=dom]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.val==='dt')===st.dt)));
       root.querySelector('.aper').innerHTML = st.dt ? M(`<div class="note warn">
-        <span class="note-h">Counterexample worth seeing</span>
-        Take an <em>irrational</em> normalised frequency, for instance $\\omega_0=1$ rad/sample, so that
-        $\\omega_0/2\\pi=1/(2\\pi)\\notin\\mathbb{Q}$. Then no integer $N$ satisfies $\\omega_0N=2\\pi k$, and the sequence
-        never repeats. The rational control above cannot reach that case, and that is the point.
-        Periodicity in discrete time is a property of the <em>number</em> $\\omega_0/2\\pi$, not of the shape of the waveform.</div>`):'';
+        <span class="note-h">Irrational-frequency counterexample</span>
+        Take $\\omega_0=1$ rad/sample. Then $\\omega_0/2\\pi=1/(2\\pi)\\notin\\mathbb{Q}$, so no integer $N$ satisfies
+        $\\omega_0N=2\\pi k$. The sequence never repeats. The controls use only rational multiples of $\\pi$ and therefore
+        cannot produce this case. Discrete-time periodicity depends on the number $\\omega_0/2\\pi$, not on the plotted shape.</div>`):'';
     }
     return { mount(root){
       root.innerHTML=`
