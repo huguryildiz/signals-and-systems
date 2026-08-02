@@ -316,7 +316,17 @@ body[data-sidebar=off] #sidebar{ display:none; }
 .eyebrow .tick{ width:26px; height:1px; background:currentColor; opacity:.55; }
 .eyebrow .ebnum{ color:var(--coral); letter-spacing:.1em; }
 .eyebrow .ebnum::before{ content:'·'; color:var(--faint); margin-right:8px; }
-.eyebrow .ebbook{ color:var(--faint); letter-spacing:.06em; text-transform:none; white-space:nowrap; }
+/* The anchor is a chip, not another word in the eyebrow. It points outside the
+   course — into the textbook — and the frame says so at a glance, without the
+   reader having to parse the string first. Every token it uses is overridden by
+   `.scene.dark`, so it follows the navy pages by itself. */
+.eyebrow .ebbook{
+  display:inline-flex; align-items:center; gap:.4em;
+  color:var(--faint); letter-spacing:.06em; text-transform:none;
+  white-space:nowrap; border:1px solid var(--rule); background:var(--paper-2);
+  border-radius:3px; padding:.15em .55em; font-size:.82em; line-height:1.5;
+}
+.eyebrow .ebicon{ flex:none; opacity:.85; }
 .eyebrow .src{ color:var(--faint); letter-spacing:.1em; text-transform:none;
   font-size:13px; margin-left:auto; }
 
@@ -441,11 +451,14 @@ h3.sub{
 
 /* worked-example ladder */
 .wex{ display:flex; flex-direction:column; gap:9px; }
-.wex-row{ display:grid; grid-template-columns:calc(120px * var(--ts)) 1fr;
+.wex-row{ display:grid; grid-template-columns:calc(136px * var(--ts)) 1fr;
   gap:calc(20px * var(--ts)); align-items:start; }
+/* The key is uppercase mono with wide tracking, so a single long word — DIFFERENTIATION,
+   MULTIPLICATION — is wider than it looks. The column is cut to hold one, and the break
+   is allowed only at a space, so a key never splits mid-word. */
 .wex-k{
   font-family:var(--mono); font-size:calc(12.5px * var(--ts)); letter-spacing:.1em;
-  word-break:break-word;
+  overflow-wrap:normal; word-break:normal; hyphens:none;
   text-transform:uppercase; color:var(--slate); padding-top:6px;
   border-top:1px solid var(--rule);
 }
@@ -470,6 +483,10 @@ figure.fig svg{ display:block; width:100%; height:auto; }
 /* an axis name is typeset mathematics inside the figure; the small svg pieces a
    formula uses for roots and stretched brackets keep their own intrinsic size */
 figure.fig .katex svg, #scene-host .katex svg{ display:inline; width:auto; height:auto; }
+/* The rule above makes every svg in a scene a full-width figure. The book icon
+   in the eyebrow is not a figure and has to opt out by the same id, or it fills
+   the column. */
+#scene-host .eyebrow .ebicon{ display:inline-block; width:12.5px; height:12.5px; }
 figcaption{ font-size:calc(14px * var(--ts)); color:var(--muted); line-height:1.42; }
 figcaption b{ color:var(--graphite); font-weight:600; }
 .fig-frame{
@@ -1347,7 +1364,7 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.5 · Modules 0–7 numbered as chapters 1–7, laboratories A–J, practice questions D1–D7, thirty a module',
+    version:'v1.6 · Modules 0–7 numbered as chapters 1–7, laboratories A–J, practice questions D1–D7, thirty a module, with the Fourier property tables complete',
     date:'2026-08-02',
     language:'Academic English',
     conventions:{
@@ -2539,7 +2556,8 @@ const RENDER = (() => {
     const eb = host.querySelector('.eyebrow');
     if(eb && sc.sec) eb.insertAdjacentHTML('beforeend',
       `<span class="ebnum">${sc.sec}</span>`
-      + (sc.book?`<span class="ebbook">${CONTENT.BOOKMARK} &sect;${sc.book}</span>`:''));
+      + (sc.book?`<span class="ebbook" title="${CONTENT.BOOKREF.replace(/<[^>]+>/g,'')}"
+           >${CONTENT.BOOKICON}CH${sc.book}</span>`:''));
     /* mount interactive laboratories */
     host.querySelectorAll('[data-lab]').forEach(el=>{
       const L = LABS[el.dataset.lab];
@@ -4079,7 +4097,7 @@ const SC = [
     {t:'raw', html:`<div style="display:flex;gap:56px;align-items:flex-start;font-size:16px;color:var(--muted);
         border-top:1px solid var(--rule);padding-top:20px;max-width:1360px">
       <div><b style="color:var(--graphite)">Course</b><br>Signals and Systems</div>
-      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate, second year</div>
+      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate</div>
       <div><b style="color:var(--graphite)">Covers</b><br>Modules 1–3: signals, systems, LTI systems</div>
       <div><b style="color:var(--graphite)">Conventions</b><br>Normalised energy (R = 1 Ω); j is the imaginary unit</div>
       <div><b style="color:var(--graphite)">Navigate</b><br><kbd>→</kbd> advance · <kbd>M</kbd> map · <kbd>/</kbd> search · <kbd>?</kbd> help</div>
@@ -4193,11 +4211,12 @@ const SC = [
         visually. It is then defined, written as an equation, and derived one step at a time. After that it is used in a
         worked example and tested with a short check. Worked examples always use the same five headings:
         Given, Find, Method, Solution, Check.</p>
-        <p>Every scene carries its address in this course: chapter, section, scene. Many also carry an
-        anchor such as <b>OW &sect;1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
+        <p>Every scene carries its address in this course: chapter, section, scene. It sits in the band
+        above the title. Many scenes carry a second mark there, an open book with a number beside it,
+        such as <b>CH1.1.2</b>. That points into the course textbook, Oppenheim and Willsky,
         <em>Signals and Systems</em>, second edition, where the same material is developed at length.
-        The two numbering systems are not the same, so the anchor always carries the <b>OW</b> marker.
-        This course reaches the continuous-time Fourier transform in chapter 5; the textbook reaches it
+        The book is what tells the two apart, because the two numbering systems are not the same: this
+        course reaches the continuous-time Fourier transform in chapter 5, and the textbook reaches it
         in chapter 4.</p>`}
     ]}],
     [{t:'card', head:'Conventions fixed for the whole artifact', items:[
@@ -6948,6 +6967,139 @@ const SC = [
   ]}
 ]},
 
+{ id:'m4-props-evenodd', module:'M4', nav:'Properties · even and odd parts', title:'The even part is the real part', src:'p. 36',
+  objective:'State the full conjugate-symmetry set for a real signal and the even-odd decomposition of its coefficients.',
+  keywords:'conjugate symmetry even odd decomposition real part imaginary part magnitude phase Ev Od', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'What a real signal forces on its coefficients'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A real signal satisfies $x=x^{*}$, and the conjugation property then gives $a_k=a_{-k}^{*}$. Everything below is that one line, read five ways.'},
+    {t:'wex', rows:[
+      ['Coefficients','$a_k=a_{-k}^{*}$'],
+      ['Real part','$\\operatorname{Re}\\{a_k\\}=\\operatorname{Re}\\{a_{-k}\\}$, an even sequence'],
+      ['Imaginary part','$\\operatorname{Im}\\{a_k\\}=-\\operatorname{Im}\\{a_{-k}\\}$, an odd sequence'],
+      ['Magnitude','$|a_k|=|a_{-k}|$, even'],
+      ['Phase','$\\angle a_k=-\\angle a_{-k}$, odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{a_k\\},\\qquad \\Od\\{x\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{a_k\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'The same statement holds sample for sample in discrete time. It says that splitting a real signal into its even and odd parts splits its coefficients into their real and imaginary parts.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$. By linearity and time reversal its coefficients are $\\tfrac12(a_k+a_{-k})$, and for a real signal $a_{-k}=a_k^{*}$, so that is $\\tfrac12(a_k+a_k^{*})=\\operatorname{Re}\\{a_k\\}$. The odd part follows the same way with a minus sign, and $\\tfrac12(a_k-a_k^{*})=j\\operatorname{Im}\\{a_k\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'Why this is worth having', html:'It tells you which half of the coefficients to compute. For a real signal the negative-index coefficients carry no new information, and a real and even signal has no imaginary part to compute at all. It also explains the two special cases already met: real and even means the odd part is absent, so the coefficients are real; real and odd means the even part is absent, so they are purely imaginary.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:250,xr:[-2.2,2.2],yr:[-0.35,1.9],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:4});
+      a.curve(t=>rectWave(t-0.4,2,0.5),{color:C.in,n:3000});
+      a.curve(t=>0.5*(rectWave(t-0.4,2,0.5)+rectWave(-t-0.4,2,0.5)),{color:C.mid,n:3000,dash:'6 4'});
+      a.note(2.1,1.74,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true});
+      a.note(2.1,1.36,'\\Ev\\{x(t)\\}',{anchor:'end',color:C.mid,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A real signal that is neither even nor odd: the rectangular wave delayed by $0.4$ s. Its even part is the average of the signal and its reflection.'},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-8,8],yr:[-0.35,0.62],xlabel:'k',ylabel:'\\operatorname{Re}\\{a_k\\}',pad:{l:64,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.stem(D(k=>{ const b=k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k); return b*Math.cos(0.4*Math.PI*k); },-8,8),{color:C.mid,r:3,showZero:true});
+          return a.svg(); },
+          caption:'Even in $k$, and these are the coefficients of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-8,8],yr:[-0.35,0.35],xlabel:'k',ylabel:'\\operatorname{Im}\\{a_k\\}',pad:{l:64,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.stem(D(k=>{ const b=k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k); return -b*Math.sin(0.4*Math.PI*k); },-8,8),{color:C.err,r:3,showZero:true});
+          return a.svg(); },
+          caption:'Odd in $k$, and these carry the odd part.'}]
+      ]}]}
+  ]}
+]},
+
+{ id:'m4-props-freq', module:'M4', nav:'Properties · frequency shift, scaling', title:'Shifting in frequency, scaling in time', src:'p. 36',
+  objective:'State the frequency-shift and time-scaling properties, and separate what scaling changes from what it leaves alone.',
+  keywords:'frequency shift modulation index shift time scaling period changes coefficients unchanged zero stuffing expansion', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'One property moves the index, the other moves the frequencies'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, tex:'e^{jM\\omega_0t}x(t)\\;\\longleftrightarrow\\;a_{k-M},\\qquad e^{jM(2\\pi/N)n}x[n]\\;\\longleftrightarrow\\;a_{k-M}',
+      label:'Frequency shift',
+      note:'$M$ is an integer, so the multiplying exponential is itself periodic with the period of $x$, and the product still has that period. The whole coefficient sequence slides $M$ places to the right.'},
+    {t:'reveal', at:1, items:[
+      {t:'body', html:'<b>Proof.</b> Write the synthesis equation for $x$ and multiply: $e^{jM\\omega_0t}\\sum_\\ell a_\\ell e^{j\\ell\\omega_0t}=\\sum_\\ell a_\\ell e^{j(\\ell+M)\\omega_0t}$. Set $k=\\ell+M$; the coefficient standing on $e^{jk\\omega_0t}$ is $a_{k-M}$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(\\alpha t),\\;\\alpha>0\\;\\longleftrightarrow\\;a_k\\quad\\text{with period }T_0/\\alpha',
+        label:'Time scaling, continuous time',
+        note:'Scaling changes nothing in the list of coefficients. What it changes is where they sit: the fundamental frequency becomes $\\alpha\\omega_0$, so the same numbers are placed on a spectrum stretched by $\\alpha$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', tex:'x_{(m)}[n]=\\begin{cases}x[n/m], & n\\text{ a multiple of }m\\\\[2pt] 0, & \\text{otherwise}\\end{cases}\\;\\longleftrightarrow\\;\\frac{1}{m}a_k',
+        label:'Time scaling, discrete time',
+        note:'Here $m$ must be a positive integer, because $n/m$ has to be an integer for the sequence to be defined at all. The stretched sequence has period $mN$, and its coefficients are the old ones divided by $m$, read as a sequence of period $mN$.'}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'warn', head:'Discrete-time scaling is not the continuous-time one', html:'In continuous time $x(\\alpha t)$ keeps every value of the signal and moves them closer together. In discrete time there is nowhere closer to move to, so $x_{(m)}[n]$ spreads the samples out and fills the gaps with zeros. Nothing is discarded and nothing is invented, which is why the coefficients survive; the factor $1/m$ is there because the average is now taken over $m$ times as many samples.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:210,xr:[-2.2,2.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      a.curve(t=>rectWave(2*t,2,0.5),{color:C.out,n:3000,dash:'6 4'});
+      a.note(2.1,1.18,'x(t)\\;\\text{and}\\;x(2t)',{anchor:'end',color:C.muted,fs:15,tex:true});
+      return a.svg(); },
+      caption:'Scaling by $\\alpha=2$ halves the period. The coefficients of the two waves are the same numbers.'},
+    {t:'reveal', at:3, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:210,xr:[-1,13],yr:[-0.15,1.25],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.stem(D(n=>[1,0.5,0,0.5][((n%4)+4)%4],-1,13),{color:C.in,r:3.4,showZero:true});
+        return a.svg(); },
+        caption:'A sequence of period $N=4$.'},
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:210,xr:[-1,13],yr:[-0.15,1.25],xlabel:'n',ylabel:'x_{(3)}[n]',pad:{l:66,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.stem(D(n=>{ const m=((n%3)+3)%3; return m===0 ? [1,0.5,0,0.5][((Math.round(n/3)%4)+4)%4] : 0; },-1,13),{color:C.out,r:3.4,showZero:true});
+        return a.svg(); },
+        caption:'The same sequence stretched by $m=3$: every sample kept, two zeros inserted after each. The period is $12$ and every coefficient is divided by $3$.'}]}
+  ]}
+]},
+
+{ id:'m4-props-conv', module:'M4', nav:'Properties · periodic convolution', title:'Convolving two periodic signals', src:'p. 36',
+  objective:'State periodic convolution and get the factor T or N in front of the coefficient product right.',
+  keywords:'periodic convolution one period integral T a_k b_k N a_k b_k factor triangular wave', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'Convolution over one period multiplies the coefficients'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'Two periodic signals cannot be convolved over all time: the integral does not converge. The operation that does work runs over one period, and it is called periodic convolution.'},
+    {t:'eq', key:true, tex:'\\int_{T_0}x(\\tau)\\,y(t-\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;T_0\\,a_k\\,b_k',
+      label:'Continuous time',
+      note:'Both signals share the period $T_0$, and the result is periodic with that period too.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\sum_{r=\\langle N\\rangle}x[r]\\,y[n-r]\\;\\longleftrightarrow\\;N\\,a_k\\,b_k', label:'Discrete time'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The factor is not decoration', html:'The coefficient of the result is $T_0a_kb_k$, not $a_kb_k$. It appears because the analysis equation divides by $T_0$ once, while the convolution integrates over a period once more. Dropping it scales every answer by the period, and the error is invisible in a sketch of the shape: the picture is right and the height is wrong.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['This is the dual of the product','A product in time convolves the coefficients; a periodic convolution in time multiplies them. The two statements are one correspondence read in its two directions.'],
+        ['Where the factor comes from in discrete time','The same accounting with $N$ in place of $T_0$: the analysis sum divides by $N$, and the convolution sums over a period.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'A check that costs nothing', html:'Evaluate at $k=0$. The coefficient $a_0$ is the mean of $x$ over a period, so the result should have mean $T_0a_0b_0$. For the wave on the right, $a_0=0.5$ and the mean of the triangular wave is $2\\times0.5\\times0.5=0.5$, which is what the figure shows.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:200,xr:[-2.2,2.2],yr:[-0.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      return a.svg(); },
+      caption:'The rectangular wave, $T_0=2$ and $T_1=0.5$, convolved with itself over one period.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:220,xr:[-2.2,2.2],yr:[-0.25,1.25],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.curve(t=>{ let u=t-2*Math.round(t/2); return 1-Math.abs(u); },{color:C.out,n:3000});
+        return a.svg(); },
+        caption:'The result: a triangular wave of the same period, peak $1$, zero at $t=\\pm1$.'},
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:220,xr:[-8,8],yr:[-0.1,0.62],xlabel:'k',ylabel:'\\text{coefficient}',pad:{l:66,r:24,t:26,b:34},xtarget:5,ytarget:3});
+        const ak=k=>k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k);
+        a.stem(D(k=>ak(k),-8,8),{color:C.in,r:3,showZero:true});
+        a.stem(D(k=>2*ak(k)*ak(k),-8,8),{color:C.out,r:3,showZero:true});
+        a.note(7.8,0.55,'a_k',{anchor:'end',color:C.in,fs:15,tex:true});
+        a.note(7.8,0.40,'2a_k^{2}',{anchor:'end',color:C.out,fs:15,tex:true});
+        return a.svg(); },
+        caption:'The coefficients of the two waves. Every coefficient of the result is $T_0a_k^{2}=2a_k^{2}$, and the even-index coefficients vanish in both.'}]}
+  ]}
+]},
+
 { id:'m4-props-mult', module:'M4', nav:'Properties · multiplication', title:'Multiplying two signals', src:'pp. 36–37',
   objective:'State the multiplication property and get the discrete-time summation range right.',
   keywords:'multiplication property convolution of coefficients periodic convolution summation range diverge', steps:3, blocks:[
@@ -6983,6 +7135,97 @@ const SC = [
         a.span(0.5,5.5,0.66,'\\text{one period}',{color:C.coral,fs:13,tex:true});
         return a.svg(); },
         caption:'A discrete-time coefficient sequence, here with $N=5$. Everything outside the marked window is a copy of what is inside it, so summing over all $\\ell$ adds each product without end.'}]}
+  ]}
+]},
+
+{ id:'m4-props-calc', module:'M4', nav:'Properties · differentiation, integration', title:'Differentiating and integrating a series', src:'p. 37',
+  objective:'State the differentiation and integration properties and the condition under which the integral is itself periodic.',
+  keywords:'differentiation jk omega0 integration divide by jk omega0 a0 zero mean condition ramp drift', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
+  {t:'title', text:'Differentiation multiplies, integration divides — with one condition'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, tex:'\\frac{\\d x(t)}{\\d t}\\;\\longleftrightarrow\\;jk\\omega_0a_k=jk\\frac{2\\pi}{T_0}a_k', label:'Differentiation',
+      note:'Differentiate the synthesis equation term by term. Each term $a_ke^{jk\\omega_0t}$ contributes a factor $jk\\omega_0$, and the factor grows with the harmonic index: differentiation emphasises the high harmonics, which is why the derivative of a smooth signal can be rough.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{jk\\omega_0}a_k=\\frac{1}{jk(2\\pi/T_0)}a_k',
+        label:'Integration, valid only if $a_0=0$',
+        note:'The rule divides by $k$, and at $k=0$ that division is undefined. The statement is therefore conditional, and the condition is the whole point.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'What goes wrong when $a_0\\neq0$', html:'The coefficient $a_0$ is the mean of the signal over one period. Integrating a constant gives a ramp, so a signal with a non-zero mean integrates to something that grows without bound: finite-valued and periodic it is not. The formula above then describes only the part of the answer that repeats, and the ramp it has dropped is the part that eventually dominates.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['The rectangular wave, $T_0=2$, $T_1=0.5$','$a_0=2T_1/T_0=0.5$. Its running integral is a triangular wave riding on the ramp $0.5t$, drawn opposite.'],
+        ['The same wave with its mean removed','$x(t)-0.5$ has $a_0=0$, and its running integral is the triangular wave alone, periodic and bounded by $\\pm0.25$.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'How to use it in practice', html:'Subtract the mean, integrate the rest with the formula, and add back the ramp $a_0t$ at the end. Nothing is lost that way, and the two parts of the answer stay visibly separate.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:220,xr:[-0.2,4.2],yr:[-0.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:24,t:26,b:34},xtarget:6,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      a.hline(0.5,{color:C.coral,dash:'4 5'});
+      a.note(4.1,0.68,'a_0=0.5',{anchor:'end',color:C.coral,fs:15,tex:true});
+      return a.svg(); },
+      caption:'The rectangular wave and its mean.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:230,xr:[-0.2,4.2],yr:[-0.35,2.4],xlabel:'t',pad:{l:56,r:24,t:26,b:34},xtarget:6,ytarget:4});
+        const tri=t=>{ let u=t-2*Math.round(t/2); return Math.abs(u)<0.5 ? 0.5*u : (u>0 ? 0.25-0.5*(u-0.5) : -0.25-0.5*(u+0.5)); };
+        a.curve(t=>tri(t)+0.5*t,{color:C.err,n:3000});
+        a.curve(t=>tri(t),{color:C.out,n:3000});
+        a.note(4.1,2.2,'\\int_0^{t}x\\,\\d\\tau',{anchor:'end',color:C.err,fs:15,tex:true});
+        a.note(4.1,0.62,'\\int_0^{t}\\bigl(x-a_0\\bigr)\\d\\tau',{anchor:'end',color:C.out,fs:15,tex:true});
+        return a.svg(); },
+        caption:'With the mean left in, the integral drifts upward for ever. With the mean removed, it is the periodic triangular wave the formula predicts.'}]}
+  ]}
+]},
+
+{ id:'m4-props-dt-calc', module:'M4', nav:'Properties · difference, running sum', title:'The discrete-time pair: difference and running sum', src:'p. 37',
+  objective:'State the first-difference and running-sum properties and carry the same zero-mean condition across.',
+  keywords:'first difference running sum accumulation discrete time a0 zero condition drift periodic', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
+  {t:'title', text:'The same two statements, one index at a time'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A sequence has no derivative, because $n$ moves in steps. What takes its place is the difference between neighbouring samples, and the sum takes the place of the integral.'},
+    {t:'eq', key:true, tex:'x[n]-x[n-1]\\;\\longleftrightarrow\\;\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k', label:'First difference',
+      note:'It follows from linearity and the time shift: the coefficients of $x[n-1]$ are $a_ke^{-jk(2\\pi/N)}$, and subtracting leaves the factor above.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\sum_{k=-\\infty}^{n}x[k]\\;\\longleftrightarrow\\;\\frac{1}{1-e^{-jk(2\\pi/N)}}\\,a_k',
+        label:'Running sum, valid only if $a_0=0$',
+        note:'At $k=0$ the factor $1-e^{-jk(2\\pi/N)}$ is zero, so the division fails there, exactly as it did in continuous time.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The condition again, and for the same reason', html:'If the mean $a_0$ is not zero, each period adds the same non-zero amount to the running total, so the sum climbs by $Na_0$ every period and never repeats. The running sum is finite-valued and periodic only when $a_0=0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['Zero mean','$x[n]=1,1,-1,-1$ repeating. The running sum from $n=0$ is $1,2,1,0$ and then repeats: bounded, and periodic with $N=4$.'],
+        ['Mean one half','$x[n]=1,1,1,-1$ repeating. The running sum is $1,2,3,2$, then $3,4,5,4$: the same shape climbing by $Na_0=2$ each period.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'Difference and sum undo each other', html:'Take the first difference of a running sum and the original sequence comes back, which the two factors confirm at once: $\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)\\cdot\\dfrac{1}{1-e^{-jk(2\\pi/N)}}=1$ for every $k$ except $k=0$, and $k=0$ is the index the condition removes.'}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-0.6,8.6],yr:[-1.45,1.45],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>[1,1,-1,-1][((n%4)+4)%4],0,8),{color:C.in,r:3.4,showZero:true}); return a.svg(); },
+        caption:'Mean zero.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-0.6,8.6],yr:[-1.45,1.45],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>[1,1,1,-1][((n%4)+4)%4],0,8),{color:C.err,r:3.4,showZero:true}); return a.svg(); },
+        caption:'Mean $0.5$.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:410,h:230,xr:[-0.6,12.6],yr:[-0.6,7.8],xlabel:'n',ylabel:'\\textstyle\\sum_{r\\le n}x[r]',pad:{l:70,r:20,t:26,b:34},xtarget:5,ytarget:4});
+          const run=(v)=>D(n=>{ let s=0; for(let k=0;k<=n;k++) s+=v[((k%4)+4)%4]; return s; },0,12);
+          a.stem(run([1,1,-1,-1]),{color:C.out,r:3.4,showZero:true});
+          return a.svg(); },
+          caption:'Mean zero: the running sum repeats every four samples.'}],
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:410,h:230,xr:[-0.6,12.6],yr:[-0.6,7.8],xlabel:'n',ylabel:'\\textstyle\\sum_{r\\le n}x[r]',pad:{l:70,r:20,t:26,b:34},xtarget:5,ytarget:4});
+          const run=(v)=>D(n=>{ let s=0; for(let k=0;k<=n;k++) s+=v[((k%4)+4)%4]; return s; },0,12);
+          a.stem(run([1,1,1,-1]),{color:C.err,r:3.4,showZero:true});
+          return a.svg(); },
+          caption:'Mean $0.5$: the same shape, climbing by $Na_0=2$ each period.'}]
+      ]}]}
   ]}
 ]},
 
@@ -7318,7 +7561,77 @@ const SC = [
   {t:'title', text:'From coefficients to output, one step at a time'},
   {t:'lede', text:'Pick a system and a cutoff. The four panels follow the same signal through the whole chain, and the last step can be shown with or without the factor of two, so the size of that error is visible rather than described.'},
   {t:'lab', id:'G'}
-]}
+]},
+
+/* ============================================================ property summary */
+{ id:'m4-tables', module:'M4', nav:'Property summary · continuous time', title:'The continuous-time series properties', src:'pp. 35–37',
+  objective:'Collect every property of the continuous-time Fourier series for reference.',
+  keywords:'summary table properties reference continuous time series coefficients linearity shift scaling convolution integration parseval', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
+  {t:'title', text:'A periodic signal of period $T_0$, with $\\omega_0=2\\pi/T_0$'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Operations on the signal'},
+    {t:'wex', rows:[
+      ['Linearity','$Ax(t)+By(t)\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
+      ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;a_ke^{-jk\\omega_0t_0}$'],
+      ['Frequency shift','$e^{jM\\omega_0t}x(t)\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],
+      ['Conjugation','$x^{*}(t)\\;\\leftrightarrow\\;a_{-k}^{*}$'],
+      ['Time reversal','$x(-t)\\;\\leftrightarrow\\;a_{-k}$'],
+      ['Time scaling','$x(\\alpha t)$, $\\alpha>0\\;\\leftrightarrow\\;a_k$, with period $T_0/\\alpha$'],
+      ['Periodic convolution','$\\displaystyle\\int_{T_0}x(\\tau)y(t-\\tau)\\d\\tau\\;\\leftrightarrow\\;T_0a_kb_k$'],
+      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\displaystyle\\sum_{\\ell=-\\infty}^{\\infty}a_\\ell b_{k-\\ell}$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Calculus, symmetry and power'},
+    {t:'wex', rows:[
+      ['Differentiation','$\\dfrac{\\d x(t)}{\\d t}\\;\\leftrightarrow\\;jk\\omega_0a_k$'],
+      ['Integration','$\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau\\;\\leftrightarrow\\;\\dfrac{a_k}{jk\\omega_0}$, only if $a_0=0$'],
+      ['Real signal','$a_k=a_{-k}^{*}$, so $|a_k|$ is even and $\\angle a_k$ is odd'],
+      ['Real and even','$a_k$ real and even'],
+      ['Real and odd','$a_k$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$'],
+      ['Parseval','$\\dfrac{1}{T_0}\\displaystyle\\int_{T_0}|x(t)|^{2}\\d t=\\sum_{k=-\\infty}^{\\infty}|a_k|^{2}$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'The one row with a condition', html:'Integration divides by $jk\\omega_0$, which is zero at $k=0$. The rule therefore holds only when the mean $a_0$ is zero; otherwise the running integral carries a ramp $a_0t$ that no coefficient describes.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'How to use it', html:'Recognise the signal as a known one operated on, look up the coefficients of the known one, then apply these properties in the order the operations were applied. Check the answer at $k=0$: $a_0$ is the mean over one period, and a mean is usually easier to read off the signal than to compute from a series.'}]}
+]},
+{ id:'m4-tables-dt', module:'M4', nav:'Property summary · discrete time', title:'The discrete-time series properties', src:'pp. 35–37',
+  objective:'Collect every property of the discrete-time Fourier series and mark the three places it differs from continuous time.',
+  keywords:'summary table properties reference discrete time series coefficients first difference running sum expansion periodic coefficients', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
+  {t:'title', text:'A periodic sequence of period $N$, with $\\omega_0=2\\pi/N$'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Operations on the sequence'},
+    {t:'wex', rows:[
+      ['Linearity','$Ax[n]+By[n]\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
+      ['Time shift','$x[n-n_0]\\;\\leftrightarrow\\;a_ke^{-jk(2\\pi/N)n_0}$'],
+      ['Frequency shift','$e^{jM(2\\pi/N)n}x[n]\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],
+      ['Conjugation','$x^{*}[n]\\;\\leftrightarrow\\;a_{-k}^{*}$'],
+      ['Time reversal','$x[-n]\\;\\leftrightarrow\\;a_{-k}$'],
+      ['Time scaling','$x_{(m)}[n]\\;\\leftrightarrow\\;\\dfrac{1}{m}a_k$, with period $mN$'],
+      ['Periodic convolution','$\\displaystyle\\sum_{r=\\langle N\\rangle}x[r]y[n-r]\\;\\leftrightarrow\\;Na_kb_k$'],
+      ['Multiplication','$x[n]y[n]\\;\\leftrightarrow\\;\\displaystyle\\sum_{\\ell=\\langle N\\rangle}a_\\ell b_{k-\\ell}$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Difference, sum, symmetry and power'},
+    {t:'wex', rows:[
+      ['First difference','$x[n]-x[n-1]\\;\\leftrightarrow\\;\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k$'],
+      ['Running sum','$\\displaystyle\\sum_{r=-\\infty}^{n}x[r]\\;\\leftrightarrow\\;\\dfrac{a_k}{1-e^{-jk(2\\pi/N)}}$, only if $a_0=0$'],
+      ['Real signal','$a_k=a_{-k}^{*}$, so $|a_k|$ is even and $\\angle a_k$ is odd'],
+      ['Real and even','$a_k$ real and even'],
+      ['Real and odd','$a_k$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$'],
+      ['Parseval','$\\dfrac{1}{N}\\displaystyle\\sum_{n=\\langle N\\rangle}|x[n]|^{2}=\\sum_{k=\\langle N\\rangle}|a_k|^{2}$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'Three places this list is not the continuous-time one', html:'The coefficients themselves repeat, $a_k=a_{k+N}$, and that single fact produces all three differences. <b>Multiplication</b> sums over one period rather than over all integers. <b>Scaling</b> carries a factor $1/m$, because the average is now taken over $m$ times as many samples. And a sequence has a <b>first difference</b> where a signal has a derivative, because $n$ moves in steps.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'The condition survives the crossing', html:'The running sum divides by $1-e^{-jk(2\\pi/N)}$, which is zero at $k=0$. As in continuous time, the rule holds only when $a_0=0$; otherwise the running total climbs by $Na_0$ every period and never repeats.'}]}
+]},
 ];
 window.SCENES_M4 = SC;
 })();
@@ -8416,6 +8729,51 @@ const SC = [
 ]}
 ,
 
+{ id:'m5-props-evenodd', module:'M5', nav:'Properties · even and odd parts', title:'Even and odd parts, real and imaginary parts', src:'p. 53',
+  objective:'State the symmetry of the transform for real and even and for real and odd signals, and the even-odd decomposition.',
+  keywords:'symmetry real even transform real odd purely imaginary even odd decomposition Ev Od real part imaginary part differentiation in frequency', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Where the real part of a spectrum comes from'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$, proved with conjugation. Add a symmetry in time and the statement sharpens.'},
+    {t:'wex', rows:[
+      ['Real and even','$X(j\\omega)$ real and even'],
+      ['Real and odd','$X(j\\omega)$ purely imaginary and odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x(t)\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(j\\omega)\\},\\qquad \\Od\\{x(t)\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(j\\omega)\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'Every real signal splits into an even part and an odd part, and the split appears in the spectrum as the split into real and imaginary parts. The two statements above are the special cases in which one of the two parts is absent.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$. By linearity and time reversal its transform is $\\tfrac12[X(j\\omega)+X(-j\\omega)]$, and for a real signal $X(-j\\omega)=X^{*}(j\\omega)$, so that is $\\tfrac12[X+X^{*}]=\\operatorname{Re}\\{X\\}$. The odd part gives $\\tfrac12[X-X^{*}]=j\\operatorname{Im}\\{X\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'t\\,x(t)\\;\\longleftrightarrow\\;j\\frac{\\d}{\\d\\omega}X(j\\omega)', label:'Differentiation in frequency',
+        note:'Differentiate the analysis integral with respect to $\\omega$: each term picks up a factor $-jt$, so $\\d X/\\d\\omega$ is the transform of $-jt\\,x(t)$. Multiplying through by $j$ gives the statement. It is the mirror of differentiation in time, and it is what turns $e^{-at}u(t)$ into $te^{-at}u(t)$ in the table of pairs.'}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'A worked case, opposite', html:'The one-sided exponential $e^{-at}u(t)$ is neither even nor odd. Its even part is $\\tfrac12e^{-a|t|}$, whose transform is $a/(a^{2}+\\omega^{2})$ — real and even, and equal to $\\operatorname{Re}\\{1/(a+j\\omega)\\}$. Its odd part is $\\tfrac12\\operatorname{sgn}(t)e^{-a|t|}$, whose transform is $-j\\omega/(a^{2}+\\omega^{2})$ — purely imaginary and odd, and equal to $j\\operatorname{Im}\\{1/(a+j\\omega)\\}$.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:220,xr:[-3.2,3.2],yr:[-0.65,1.25],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:4});
+      a.curve(t=>t>0?Math.exp(-t):0,{color:C.in,n:3000});
+      a.curve(t=>0.5*Math.exp(-Math.abs(t)),{color:C.mid,n:3000,dash:'6 4'});
+      a.curve(t=>0.5*Math.sign(t)*Math.exp(-Math.abs(t)),{color:C.err,n:3000,dash:'2 4'});
+      a.note(3.1,1.10,'x(t)=e^{-t}u(t)',{anchor:'end',color:C.in,fs:15,tex:true});
+      a.note(-3.1,0.78,'\\Ev\\{x\\}',{anchor:'start',color:C.mid,fs:15,tex:true});
+      a.note(-3.1,0.45,'\\Od\\{x\\}',{anchor:'start',color:C.err,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A one-sided exponential with $a=1$, and the two halves it splits into.'},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.15,1.15],xlabel:'\\omega',ylabel:'\\operatorname{Re}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(w=>1/(1+w*w),{color:C.mid,n:2000}); return a.svg(); },
+          caption:'Real and even, and the transform of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.65,0.65],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(w=>-w/(1+w*w),{color:C.err,n:2000}); return a.svg(); },
+          caption:'Odd, and $j$ times it is the transform of the odd part.'}]
+      ]}]}
+  ]}
+]},
+
 { id:'m5-props-diff', module:'M5', nav:'Properties · differentiation', title:'Differentiation, done under the integral sign', src:'p. 53',
   objective:'Prove the differentiation property correctly and expose the step students reproduce.',
   keywords:'differentiation property jw X integration variable false step under the integral', steps:4, blocks:[
@@ -8457,6 +8815,48 @@ const SC = [
         a.note(5.7,-1.18,'\\operatorname{Im}\\{j\\omega X(j\\omega)\\}',{anchor:'end',color:C.out,fs:14,tex:true});
         return a.svg(); },
         caption:'The spectrum, and the spectrum of the derivative. Multiplying by $j\\omega$ suppresses low frequencies and lifts high ones.'}]}
+  ]}
+]},
+
+{ id:'m5-props-int', module:'M5', nav:'Properties · integration', title:'Integration, and the impulse it leaves behind', src:'p. 53',
+  objective:'State the integration property with its impulse term and show where the term comes from.',
+  keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Dividing by $j\\omega$ is only half the answer'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, size:'lg', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{j\\omega}X(j\\omega)+\\pi X(0)\\,\\delta(\\omega)',
+      label:'Integration',
+      note:'Differentiation multiplies by $j\\omega$, so integration divides by it. The impulse at the origin is the part that has no counterpart in the differentiation property, and it is the part that gets dropped.'},
+    {t:'reveal', at:1, items:[
+      {t:'body', html:'<b>Proof.</b> The running integral is a convolution with the unit step, $\\int_{-\\infty}^{t}x(\\tau)\\d\\tau=x(t)*u(t)$. The step has the transform $u(t)\\leftrightarrow\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$, and by the convolution property the transforms multiply:'},
+      {t:'eq', size:'sm', tex:'X(j\\omega)\\left[\\frac{1}{j\\omega}+\\pi\\delta(\\omega)\\right]=\\frac{X(j\\omega)}{j\\omega}+\\pi X(j\\omega)\\delta(\\omega)=\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)',
+        note:'The last step uses the sampling property of the impulse: multiplying by $\\delta(\\omega)$ keeps only the value at $\\omega=0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'What the impulse term is', html:'$X(0)=\\int x(t)\\d t$ is the total area of the signal. If the area is not zero, the running integral settles at a non-zero constant instead of returning to zero, and a constant has an impulse at $\\omega=0$ in its spectrum. Drop the term and the spectrum you write down belongs to a signal that decays, which is a different signal.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['Area one','A pulse of unit area integrates to a step of height $1$. Its spectrum needs the impulse, and $\\pi X(0)\\delta(\\omega)=\\pi\\delta(\\omega)$ supplies it.'],
+        ['Area zero','A pulse of zero area integrates to something that comes back down to zero. Then $X(0)=0$, the impulse term vanishes on its own, and dividing by $j\\omega$ is the whole answer.'],
+        ['What to do first','Compute the area. It is one integral, and it decides half the result.']
+      ]}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.curve(t=>(t>0&&t<1)?1:0,{color:C.in,n:2600}); return a.svg(); },
+        caption:'Area $1$, so $X(0)=1$.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.curve(t=>(t>0&&t<1)?1:((t>=1&&t<2)?-1:0),{color:C.err,n:2600}); return a.svg(); },
+        caption:'Area $0$, so $X(0)=0$.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(t=>t<=0?0:(t<1?t:1),{color:C.out,n:2600}); return a.svg(); },
+          caption:'Its running integral settles at $1$. The impulse term is needed.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.curve(t=>t<=0?0:(t<1?t:(t<2?2-t:0)),{color:C.out,n:2600}); return a.svg(); },
+          caption:'This one returns to zero. No impulse term.'}]
+      ]}]},
   ]}
 ]},
 
@@ -9097,47 +9497,76 @@ const SC = [
 ]},
 
 { id:'m5-tables', module:'M5', nav:'Property summary', title:'The properties, in one place', src:'p. 62',
-  objective:'Collect the properties and pairs of this module for reference.',
-  keywords:'summary table properties pairs reference list transform pairs sinc convention', steps:2, blocks:[
+  objective:'Collect every property of the continuous-time Fourier transform for reference.',
+  keywords:'summary table properties reference list linearity shift scaling convolution integration symmetry parseval duality', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
-  {t:'title', text:'Everything derived so far, on one page'},
+  {t:'title', text:'Everything the transform obeys, on one page'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Properties'},
+    {t:'sub', text:'Operations on the signal'},
     {t:'wex', rows:[
-      ['Linearity','$a x_1+b x_2\\;\\leftrightarrow\\;a X_1+b X_2$'],
+      ['Linearity','$ax_1(t)+bx_2(t)\\;\\leftrightarrow\\;aX_1(j\\omega)+bX_2(j\\omega)$'],
       ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}X(j\\omega)$'],
       ['Frequency shift','$e^{j\\omega_0t}x(t)\\;\\leftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)$'],
       ['Conjugation','$x^{*}(t)\\;\\leftrightarrow\\;X^{*}(-j\\omega)$'],
-      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$'],
       ['Time reversal','$x(-t)\\;\\leftrightarrow\\;X(-j\\omega)$'],
-      ['Time scaling','$x(at)\\;\\leftrightarrow\\;\\dfrac{1}{|a|}X\\bigl(j\\omega/a\\bigr)$'],
-      ['Differentiation','$\\dfrac{\\d^{n}x}{\\d t^{n}}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
-      ['Duality','$X(t)\\;\\leftrightarrow\\;2\\pi x(-\\omega)$'],
-      ['Convolution','$x*h\\;\\leftrightarrow\\;X\\,H$'],
-      ['Multiplication','$x\\,y\\;\\leftrightarrow\\;\\dfrac{1}{2\\pi}X*Y$'],
-      ['Parseval','$\\displaystyle\\int|x|^{2}\\d t=\\frac{1}{2\\pi}\\int|X|^{2}\\d\\omega$']
+      ['Time and frequency scaling','$x(at)\\;\\leftrightarrow\\;\\dfrac{1}{|a|}X\\bigl(j\\omega/a\\bigr)$'],
+      ['Convolution','$x(t)*h(t)\\;\\leftrightarrow\\;X(j\\omega)H(j\\omega)$'],
+      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\dfrac{1}{2\\pi}X(j\\omega)*Y(j\\omega)$'],
+      ['Duality','$X(t)\\;\\leftrightarrow\\;2\\pi x(-\\omega)$']
     ]}
   ], right:[
-    {t:'sub', text:'Transform pairs'},
+    {t:'sub', text:'Calculus, symmetry and energy'},
+    {t:'wex', rows:[
+      ['Differentiation in time','$\\dfrac{\\d^{n}x(t)}{\\d t^{n}}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
+      ['Integration','$\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau\\;\\leftrightarrow\\;\\dfrac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)$'],
+      ['Differentiation in frequency','$t\\,x(t)\\;\\leftrightarrow\\;j\\dfrac{\\d}{\\d\\omega}X(j\\omega)$'],
+      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Real and even','$X(j\\omega)$ real and even'],
+      ['Real and odd','$X(j\\omega)$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\d\\omega$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'The two rows that carry a condition', html:'<b>Integration</b> is not simply a division by $j\\omega$: the impulse $\\pi X(0)\\delta(\\omega)$ is part of the result whenever the signal has non-zero area, and it is the term that gets dropped. <b>Scaling</b> carries $1/|a|$, with the modulus, so a reversal counts once and not twice.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'How to use it', html:'Almost every problem in this module is one standard pair plus one or two properties. Recognise the shape, look up the pair, apply the properties in the order the signal was built, and check the answer at $\\omega=0$ against the area of the signal.'}]}
+]},
+
+{ id:'m5-pairs', module:'M5', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 62',
+  objective:'Collect every standard continuous-time transform pair the course uses.',
+  keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
+  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Aperiodic signals'},
     {t:'wex', rows:[
       ['Impulse','$\\delta(t)\\;\\leftrightarrow\\;1$'],
       ['Shifted impulse','$\\delta(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}$'],
+      ['Unit step','$u(t)\\;\\leftrightarrow\\;\\dfrac{1}{j\\omega}+\\pi\\delta(\\omega)$'],
+      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{a+j\\omega}$, $a>0$'],
+      ['With a factor $t$','$te^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{2}}$, $a>0$'],
+      ['Repeated pole','$\\dfrac{t^{n-1}}{(n-1)!}e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{n}}$, $a>0$'],
+      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\dfrac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
+      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\dfrac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
+      ['Ideal low-pass band','$\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)\\;\\leftrightarrow\\;1$ on $|\\omega|<W$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Periodic signals and impulse trains'},
+    {t:'wex', rows:[
       ['Constant','$1\\;\\leftrightarrow\\;2\\pi\\delta(\\omega)$'],
       ['Complex exponential','$e^{j\\omega_0t}\\;\\leftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0)$'],
       ['Cosine','$\\cos(\\omega_0t)\\;\\leftrightarrow\\;\\pi\\delta(\\omega-\\omega_0)+\\pi\\delta(\\omega+\\omega_0)$'],
       ['Sine','$\\sin(\\omega_0t)\\;\\leftrightarrow\\;\\dfrac{\\pi}{j}\\delta(\\omega-\\omega_0)-\\dfrac{\\pi}{j}\\delta(\\omega+\\omega_0)$'],
-      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{a+j\\omega}$, $a>0$'],
-      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\dfrac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
-      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\dfrac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)\\;\\leftrightarrow\\;1$ on $|\\omega|<W$'],
-      ['Impulse train','$\\displaystyle\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)$'],
-      ['Periodic signal','$\\displaystyle\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$']
+      ['Any periodic signal','$\\displaystyle\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$'],
+      ['Periodic square wave','$1$ on $|t|<T_1$, $0$ on $T_1<|t|\\le T/2\\;\\leftrightarrow\\;\\displaystyle\\sum_k\\frac{2\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0)$'],
+      ['Impulse train','$\\displaystyle\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)$']
     ]}
   ]},
   {t:'reveal', at:1, items:[
     {t:'note', kind:'warn', head:'Two things to carry with the table', html:'Every sinc above is the <b>unnormalised</b> one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. A table written in the normalised convention divides the argument by $\\pi$, so the two look different while saying the same thing, and copying an argument between them is the commonest way to lose a factor of $\\pi$. The exponential pairs hold only for $a>0$, and the condition belongs on the same line as the result.'}]},
   {t:'reveal', at:2, items:[
-    {t:'note', kind:'ok', head:'How to use a table like this', html:'Almost every problem in this module is one pair from the right-hand column plus one or two properties from the left. Recognise the shape, look up the pair, apply the properties in the order the signal was built, and check the answer at $\\omega=0$ against the area of the signal.'}]}
+    {t:'note', kind:'def', head:'Why the right-hand column is all impulses', html:'A periodic signal is a sum of harmonics, and a single harmonic has all its energy at one frequency. Its transform can therefore only be an impulse there. Every entry on the right is that one fact applied to a different sum, and the $k=0$ entry of the square wave is the mean value $2T_1/T$ scaled by $2\\pi$ in the usual way.'}]}
 ]},
 
 { id:'m5-diffeq', module:'M5', nav:'Systems from a differential equation', title:'From a differential equation to a frequency response', src:'p. 62',
@@ -10476,6 +10905,53 @@ const SC = [
 ]},
 
 /* ============================================================ time expansion */
+{ id:'m6-props-evenodd', module:'M6', nav:'Properties · even and odd parts', title:'Even and odd parts of a sequence', src:'p. 73',
+  objective:'State the symmetry of the transform for real and even and for real and odd sequences, and the even-odd decomposition.',
+  keywords:'even odd decomposition real even sequence real transform real odd purely imaginary Ev Od real part imaginary part', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Properties', src:'p. 73'},
+  {t:'title', text:'The even part carries the real part'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'The previous scene proved that a real sequence has $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$. Add a symmetry in $n$ and the statement sharpens to a single word each.'},
+    {t:'wex', rows:[
+      ['Real and even','$X(e^{j\\omega})$ real and even'],
+      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x[n]\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(e^{j\\omega})\\},\\qquad \\Od\\{x[n]\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(e^{j\\omega})\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'Both sides of each statement are read sample by sample and frequency by frequency. The two rows above are the special cases in which one of the two parts is missing.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x[n]\\}=\\tfrac12(x[n]+x[-n])$. By linearity and time reversal its transform is $\\tfrac12[X(e^{j\\omega})+X(e^{-j\\omega})]$, and for a real sequence $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so that is $\\operatorname{Re}\\{X\\}$. The odd part gives $\\tfrac12[X-X^{*}]=j\\operatorname{Im}\\{X\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'The worked case opposite', html:'Take $x[n]=a^{n}u[n]$ with $0<a<1$, whose transform is $1/(1-ae^{-j\\omega})$. Its even part is $\\tfrac12a^{|n|}+\\tfrac12\\delta[n]$, because the two halves overlap at $n=0$. Transforming term by term gives $\\dfrac{1-a\\cos\\omega}{1-2a\\cos\\omega+a^{2}}$, which is exactly $\\operatorname{Re}\\{X(e^{j\\omega})\\}$.'}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-8,8],yr:[-0.2,1.2],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>n>=0?Math.pow(0.6,n):0,-8,8),{color:C.in,r:3.2,showZero:true}); return a.svg(); },
+        caption:'$x[n]=(0.6)^{n}u[n]$, neither even nor odd.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-8,8],yr:[-0.6,1.2],xlabel:'n',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        const f=n=>n>=0?Math.pow(0.6,n):0;
+        a.stem(D(n=>0.5*(f(n)+f(-n)),-8,8),{color:C.mid,r:3.2,showZero:true});
+        a.stem(D(n=>0.5*(f(n)-f(-n)),-8,8),{color:C.err,r:3.2,showZero:true});
+        a.note(7.8,1.05,'\\Ev\\{x\\}',{anchor:'end',color:C.mid,fs:14,tex:true});
+        a.note(7.8,-0.42,'\\Od\\{x\\}',{anchor:'end',color:C.err,fs:14,tex:true});
+        return a.svg(); },
+        caption:'Its even and odd parts. They agree at $n=0$ only for the even one.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:215,xr:[-PI,PI],yr:[-0.3,2.8],xlabel:'\\omega',ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',
+            pad:{l:74,r:22,t:28,b:36},xticksOverride:wTicks(-PI,PI,PI/2),xtickfmt:piTick,ytarget:3});
+          a.curve(w=>(1-0.6*Math.cos(w))/(1-1.2*Math.cos(w)+0.36),{color:C.mid,n:2400}); return a.svg(); },
+          caption:'Even in $\\omega$, and the transform of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:215,xr:[-PI,PI],yr:[-1.1,1.1],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(e^{j\\omega})\\}',
+            pad:{l:74,r:22,t:28,b:36},xticksOverride:wTicks(-PI,PI,PI/2),xtickfmt:piTick,ytarget:3});
+          a.curve(w=>-0.6*Math.sin(w)/(1-1.2*Math.cos(w)+0.36),{color:C.err,n:2400}); return a.svg(); },
+          caption:'Odd in $\\omega$, and $j$ times it is the transform of the odd part.'}]
+      ]}]}
+  ]}
+]},
+
 { id:'m6-expansion', module:'M6', nav:'Properties · time expansion', title:'Time expansion compresses the frequency axis', src:'p. 72',
   objective:'State the expansion property, prove it by an index change, and read the halved period off the picture.',
   keywords:'time expansion x_(k)[n] zero insertion X(e^{jk omega}) compression period pi proof index change', steps:2, blocks:[
@@ -10972,12 +11448,12 @@ const SC = [
 
 /* ============================================================ summary */
 { id:'m6-tables', module:'M6', nav:'Property summary', title:'The properties in one place', src:'p. 76',
-  objective:'Collect the properties and the transform pairs derived in this module.',
-  keywords:'summary table properties pairs list reference linearity shift expansion convolution multiplication parseval', steps:2, blocks:[
+  objective:'Collect every property of the discrete-time Fourier transform for reference.',
+  keywords:'summary table properties list reference linearity shift expansion convolution multiplication accumulation symmetry parseval', steps:2, blocks:[
   {t:'eyebrow', text:'Module 6 · Summary', src:'p. 76'},
   {t:'title', text:'Everything this module proved'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Properties'},
+    {t:'sub', text:'Operations on the sequence'},
     {t:'wex', rows:[
       ['Linearity','$a\\,x_1[n]+b\\,x_2[n]\\leftrightarrow a\\,X_1+b\\,X_2$'],
       ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
@@ -10985,34 +11461,61 @@ const SC = [
       ['Conjugation','$x^{*}[n]\\leftrightarrow X^{*}(e^{-j\\omega})$'],
       ['Time reversal','$x[-n]\\leftrightarrow X(e^{-j\\omega})$'],
       ['Time expansion','$x_{(k)}[n]\\leftrightarrow X(e^{jk\\omega})$'],
-      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
-      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
       ['Convolution','$x[n]*h[n]\\leftrightarrow X(e^{j\\omega})H(e^{j\\omega})$'],
-      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$'],
-      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
+      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$']
     ]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Two names that must not be exchanged', html:'<b>Differencing</b> is the time-domain operation $x[n]-x[n-1]$; <b>differentiation</b> is the frequency-domain derivative $\\d X/\\d\\omega$. The first is a difference because $n$ is an integer; the second is a genuine derivative because $\\omega$ is not.'}]}
   ], right:[
-    {t:'sub', text:'Transform pairs'},
+    {t:'sub', text:'Difference, sum, symmetry and energy'},
+    {t:'wex', rows:[
+      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
+      ['Accumulation','$\\displaystyle\\sum_{m=-\\infty}^{n}x[m]\\leftrightarrow\\frac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\sum_k\\delta(\\omega-2\\pi k)$'],
+      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
+      ['Real sequence','$X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Real and even','$X(e^{j\\omega})$ real and even'],
+      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'The one row with a condition', html:'Accumulation carries an impulse train, and the weight $\\pi X(e^{j0})=\\pi\\sum_n x[n]$ is the total of the sequence. Differencing destroys any constant offset in a running sum, so the impulse train is what puts the offset back. Where the sequence sums to zero the term vanishes on its own.'}]}
+  ]}
+]},
+
+{ id:'m6-pairs', module:'M6', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 76',
+  objective:'Collect every standard discrete-time transform pair the course uses.',
+  keywords:'transform pairs table reference unit sample step exponential rectangular sinc impulse train cosine sine sinc convention', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Reference', src:'p. 76'},
+  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Aperiodic sequences'},
     {t:'wex', rows:[
       ['Unit sample','$\\delta[n]\\leftrightarrow1$'],
       ['Shifted sample','$\\delta[n-n_0]\\leftrightarrow e^{-j\\omega n_0}$'],
+      ['Unit step','$u[n]\\leftrightarrow\\dfrac{1}{1-e^{-j\\omega}}+\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
       ['One-sided exponential','$a^{n}u[n]\\leftrightarrow\\dfrac{1}{1-ae^{-j\\omega}}$, $|a|<1$'],
       ['Repeated pole','$(n+1)a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}}$, $|a|<1$'],
+      ['Pole of order $r$','$\\dfrac{(n+r-1)!}{n!\\,(r-1)!}a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{r}}$, $|a|<1$'],
       ['Two-sided exponential','$a^{|n|}\\leftrightarrow\\dfrac{1-a^{2}}{1-2a\\cos\\omega+a^{2}}$, $|a|<1$'],
       ['Rectangular pulse','$x[n]=1$ on $|n|\\le N_1$ $\\leftrightarrow\\dfrac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$'],
+      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Periodic sequences and impulse trains'},
+    {t:'wex', rows:[
       ['Constant','$1\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
       ['Complex exponential','$e^{j\\omega_0n}\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-\\omega_0-2\\pi k)$'],
       ['Cosine','$\\cos\\omega_0n\\leftrightarrow\\pi\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)+\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Sine','$\\sin\\omega_0n\\leftrightarrow\\dfrac{\\pi}{j}\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)-\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Any periodic sequence','$\\displaystyle\\sum_{k=\\langle N\\rangle}a_ke^{jk(2\\pi/N)n}\\leftrightarrow2\\pi\\sum_k a_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$'],
       ['Impulse train','$\\sum_k\\delta[n-kN]\\leftrightarrow\\dfrac{2\\pi}{N}\\sum_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$']
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]}
-  ]}
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]}
 ]},
 
 /* ============================================================ duality */
@@ -12490,6 +12993,20 @@ window.SCENES_M7 = SC;
 CONTENT.BOOKMARK = 'OW';
 CONTENT.BOOKREF  = 'Oppenheim and Willsky, <i>Signals and Systems</i>, 2nd edition';
 
+/* On screen the marker is an open book rather than the letters. It is drawn
+   here, once, as inline SVG in `currentColor`: the artifact is one offline file,
+   so an icon cannot be fetched, and a glyph from a font cannot be relied on to
+   exist. In the printed notes the letters stay, because a rule in a contents
+   column at eight point is read, not looked at. */
+CONTENT.BOOKICON =
+  '<svg class="ebicon" viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">'
++ '<path d="M8 4.4C7.2 3.5 6 3 4.6 3H2v9.1h2.6c1.4 0 2.6.5 3.4 1.4" '
++ 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
++ '<path d="M8 4.4C8.8 3.5 10 3 11.4 3H14v9.1h-2.6c-1.4 0-2.6.5-3.4 1.4" '
++ 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
++ '<path d="M8 4.4v9.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
++ '</svg>';
+
 /* ---- chapters ----------------------------------------------------------
    `flat:true` marks a chapter with no section level: its scenes are numbered
    two-part. Chapter 0 is the course opening and chapter A is the closing
@@ -12577,10 +13094,12 @@ CONTENT.SECTIONS = {
     { n:'4.4', title:'The discrete-time series',                 ids:[
         'm4-dtfs','m4-dtfs-ex','m4-dt-square','m4-dt-square-b','m4-dt-saw'] },
     { n:'4.5', title:'Properties',                               ids:[
-        'm4-props-1','m4-props-2','m4-props-mult','m4-parseval'] },
+        'm4-props-1','m4-props-2','m4-props-evenodd','m4-props-freq','m4-props-conv',
+        'm4-props-mult','m4-props-calc','m4-props-dt-calc','m4-parseval'] },
     { n:'4.6', title:'A periodic input through an LTI system',   ids:[
         'm4-lti','m4-pairing','m4-lpf','m4-hpf','m4-dt-filt','m4-dt-filt-b',
-        'm4-lab-f','m4-lab-g'] }
+        'm4-lab-f','m4-lab-g'] },
+    { n:'4.7', title:'Property summary',                         ids:['m4-tables','m4-tables-dt'] }
   ],
 
   M5: [
@@ -12593,13 +13112,13 @@ CONTENT.SECTIONS = {
     { n:'5.3', title:'Periodic signals',                         ids:[
         'm5-periodic','m5-ex-square','m5-ex-sinus','m5-ex-sinus-b','m5-ex-imptrain'] },
     { n:'5.4', title:'Properties',                               ids:[
-        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-diff',
+        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-evenodd','m5-props-diff','m5-props-int',
         'm5-props-scale','m5-props-scale-ex','m5-duality','m5-duality-ex',
         'm5-parseval','m5-parseval-ex'] },
     { n:'5.5', title:'Convolution and multiplication',           ids:[
         'm5-conv','m5-conv-ex','m5-conv-lpf','m5-mult','m5-am','m5-am-sinc',
         'm5-am-overlap','m5-sinc2'] },
-    { n:'5.6', title:'Property summary',                         ids:['m5-tables'] },
+    { n:'5.6', title:'Property summary',                         ids:['m5-tables','m5-pairs'] },
     { n:'5.7', title:'Systems from a differential equation',     ids:[
         'm5-diffeq','m5-diffeq-ex','m5-partial','m5-diffeq-b','m5-diffeq-b2','m5-lab-h'] }
   ],
@@ -12614,10 +13133,10 @@ CONTENT.SECTIONS = {
     { n:'6.3', title:'Periodic sequences',                       ids:[
         'm6-cexp','m6-dt-periodic','m6-sqwave','m6-ex-imptrain','m6-ex-cos','m6-ex-cos-b'] },
     { n:'6.4', title:'Properties',                               ids:[
-        'm6-props-1','m6-props-2','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval'] },
+        'm6-props-1','m6-props-2','m6-props-evenodd','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval'] },
     { n:'6.5', title:'Convolution and multiplication',           ids:[
         'm6-conv','m6-conv-ex','m6-conv-lpf','m6-conv-lpf-b','m6-mult','m6-mult-b','m6-mult-ex'] },
-    { n:'6.6', title:'Property summary and duality',             ids:['m6-tables','m6-duality'] },
+    { n:'6.6', title:'Property summary and duality',             ids:['m6-tables','m6-pairs','m6-duality'] },
     { n:'6.7', title:'Difference equations',                     ids:[
         'm6-freqresp','m6-ex-diff','m6-ex-pair','m6-ex-diff-b','m6-lab-i'] }
   ],
@@ -12683,7 +13202,10 @@ CONTENT.BOOK = {
   'm4-dtfs':'3.6.1', 'm4-dtfs-ex':'3.6.2', 'm4-dt-square':'3.6.2',
   'm4-dt-square-b':'3.6.2', 'm4-dt-saw':'3.6.2',
   'm4-props-1':'3.5, 3.7', 'm4-props-2':'3.5, 3.7',
-  'm4-props-mult':'3.5.5, 3.7.1', 'm4-parseval':'3.5.7, 3.7.3',
+  'm4-props-evenodd':'3.5.6, 3.7', 'm4-props-freq':'3.5.4, 3.7',
+  'm4-props-conv':'3.5, 3.7',
+  'm4-props-mult':'3.5.5, 3.7.1', 'm4-props-calc':'3.5', 'm4-props-dt-calc':'3.7.2',
+  'm4-parseval':'3.5.7, 3.7.3', 'm4-tables':'3.5.8', 'm4-tables-dt':'3.7',
   'm4-lti':'3.8', 'm4-pairing':'3.8', 'm4-lpf':'3.9.2', 'm4-hpf':'3.10.2',
   'm4-dt-filt':'3.11.1', 'm4-dt-filt-b':'3.11.1',
   'm4-lab-f':'3.4', 'm4-lab-g':'3.9',
@@ -12697,12 +13219,13 @@ CONTENT.BOOK = {
   'm5-periodic':'4.2', 'm5-ex-square':'4.2', 'm5-ex-sinus':'4.2',
   'm5-ex-sinus-b':'4.2', 'm5-ex-imptrain':'4.2',
   'm5-props-1':'4.3.1, 4.3.2', 'm5-props-shift-ex':'4.3.2', 'm5-props-freq':'4.3.2',
-  'm5-props-conj':'4.3.3', 'm5-props-diff':'4.3.4', 'm5-props-scale':'4.3.5',
+  'm5-props-conj':'4.3.3', 'm5-props-evenodd':'4.3.3', 'm5-props-int':'4.3.4',
+  'm5-props-diff':'4.3.4', 'm5-props-scale':'4.3.5',
   'm5-props-scale-ex':'4.3.5', 'm5-duality':'4.3.6', 'm5-duality-ex':'4.3.6',
   'm5-parseval':'4.3.7', 'm5-parseval-ex':'4.3.7',
   'm5-conv':'4.4', 'm5-conv-ex':'4.4.1', 'm5-conv-lpf':'4.4.1', 'm5-mult':'4.5',
   'm5-am':'4.5.1', 'm5-am-sinc':'4.5.1', 'm5-am-overlap':'4.5.1', 'm5-sinc2':'4.4.1',
-  'm5-tables':'4.6',
+  'm5-tables':'4.6', 'm5-pairs':'4.6',
   'm5-diffeq':'4.7', 'm5-diffeq-ex':'4.7', 'm5-partial':'4.7',
   'm5-diffeq-b':'4.7', 'm5-diffeq-b2':'4.7', 'm5-lab-h':'4.3.5',
 
@@ -12713,11 +13236,11 @@ CONTENT.BOOK = {
   'm6-real-phase':'5.3.4', 'm6-ex-lpf':'5.1.3',
   'm6-cexp':'5.2', 'm6-dt-periodic':'5.2', 'm6-sqwave':'5.2',
   'm6-ex-imptrain':'5.2', 'm6-ex-cos':'5.2', 'm6-ex-cos-b':'5.2',
-  'm6-props-1':'5.3.3', 'm6-props-2':'5.3.4', 'm6-expansion':'5.3.7',
+  'm6-props-1':'5.3.3', 'm6-props-2':'5.3.4', 'm6-props-evenodd':'5.3.4', 'm6-expansion':'5.3.7',
   'm6-expansion-b':'5.3.7', 'm6-props-3':'5.3.5', 'm6-parseval':'5.3.9',
   'm6-conv':'5.4', 'm6-conv-ex':'5.4.1', 'm6-conv-lpf':'5.4.1',
   'm6-conv-lpf-b':'5.4.1', 'm6-mult':'5.5', 'm6-mult-b':'5.5', 'm6-mult-ex':'5.5',
-  'm6-tables':'5.6', 'm6-duality':'5.7',
+  'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-duality':'5.7',
   'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-pair':'5.8',
   'm6-ex-diff-b':'5.8', 'm6-lab-i':'5.3.1',
 
@@ -12880,7 +13403,7 @@ const SC = [
     {t:'eq', size:'sm', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n},\\qquad x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})e^{j\\omega n}\\,\\d\\omega'},
     {t:'note', kind:'def', head:'sinc', html:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. The convention is restated wherever sinc appears.'},
     {t:'note', kind:'def', head:'Sampling', html:'A rate is angular unless it is named in hertz: $\\omega_s=2\\pi/T$ rad/s and $f_s=1/T$ Hz. The sampling theorem is stated with a strict inequality, $\\omega_s>2\\omega_M$.'},
-    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.5 — Modules 0–7 in 223 scenes, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook for the 196 scenes that have a counterpart there; both are declared once in 89_sections.js and checked by seccheck.js. Each module opens with a taxonomy of the question types that keep coming back and closes with the questions themselves, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills and 50 over the module content. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
+    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.6 — Modules 0–7 in 235 scenes, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook for the 208 scenes that have a counterpart there; both are declared once in 89_sections.js and checked by seccheck.js. Each module opens with a taxonomy of the question types that keep coming back and closes with the questions themselves, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills, 50 over Modules 1 to 3 and 26 over the Fourier properties of Modules 4 to 6. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
   ]}
 ]}
 

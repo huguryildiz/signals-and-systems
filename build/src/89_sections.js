@@ -130,10 +130,12 @@ CONTENT.SECTIONS = {
     { n:'4.4', title:'The discrete-time series',                 ids:[
         'm4-dtfs','m4-dtfs-ex','m4-dt-square','m4-dt-square-b','m4-dt-saw'] },
     { n:'4.5', title:'Properties',                               ids:[
-        'm4-props-1','m4-props-2','m4-props-mult','m4-parseval'] },
+        'm4-props-1','m4-props-2','m4-props-evenodd','m4-props-freq','m4-props-conv',
+        'm4-props-mult','m4-props-calc','m4-props-dt-calc','m4-parseval'] },
     { n:'4.6', title:'A periodic input through an LTI system',   ids:[
         'm4-lti','m4-pairing','m4-lpf','m4-hpf','m4-dt-filt','m4-dt-filt-b',
-        'm4-lab-f','m4-lab-g'] }
+        'm4-lab-f','m4-lab-g'] },
+    { n:'4.7', title:'Property summary',                         ids:['m4-tables','m4-tables-dt'] }
   ],
 
   M5: [
@@ -146,13 +148,13 @@ CONTENT.SECTIONS = {
     { n:'5.3', title:'Periodic signals',                         ids:[
         'm5-periodic','m5-ex-square','m5-ex-sinus','m5-ex-sinus-b','m5-ex-imptrain'] },
     { n:'5.4', title:'Properties',                               ids:[
-        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-diff',
+        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-evenodd','m5-props-diff','m5-props-int',
         'm5-props-scale','m5-props-scale-ex','m5-duality','m5-duality-ex',
         'm5-parseval','m5-parseval-ex'] },
     { n:'5.5', title:'Convolution and multiplication',           ids:[
         'm5-conv','m5-conv-ex','m5-conv-lpf','m5-mult','m5-am','m5-am-sinc',
         'm5-am-overlap','m5-sinc2'] },
-    { n:'5.6', title:'Property summary',                         ids:['m5-tables'] },
+    { n:'5.6', title:'Property summary',                         ids:['m5-tables','m5-pairs'] },
     { n:'5.7', title:'Systems from a differential equation',     ids:[
         'm5-diffeq','m5-diffeq-ex','m5-partial','m5-diffeq-b','m5-diffeq-b2','m5-lab-h'] }
   ],
@@ -167,10 +169,10 @@ CONTENT.SECTIONS = {
     { n:'6.3', title:'Periodic sequences',                       ids:[
         'm6-cexp','m6-dt-periodic','m6-sqwave','m6-ex-imptrain','m6-ex-cos','m6-ex-cos-b'] },
     { n:'6.4', title:'Properties',                               ids:[
-        'm6-props-1','m6-props-2','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval'] },
+        'm6-props-1','m6-props-2','m6-props-evenodd','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval'] },
     { n:'6.5', title:'Convolution and multiplication',           ids:[
         'm6-conv','m6-conv-ex','m6-conv-lpf','m6-conv-lpf-b','m6-mult','m6-mult-b','m6-mult-ex'] },
-    { n:'6.6', title:'Property summary and duality',             ids:['m6-tables','m6-duality'] },
+    { n:'6.6', title:'Property summary and duality',             ids:['m6-tables','m6-pairs','m6-duality'] },
     { n:'6.7', title:'Difference equations',                     ids:[
         'm6-freqresp','m6-ex-diff','m6-ex-pair','m6-ex-diff-b','m6-lab-i'] }
   ],
@@ -236,7 +238,10 @@ CONTENT.BOOK = {
   'm4-dtfs':'3.6.1', 'm4-dtfs-ex':'3.6.2', 'm4-dt-square':'3.6.2',
   'm4-dt-square-b':'3.6.2', 'm4-dt-saw':'3.6.2',
   'm4-props-1':'3.5, 3.7', 'm4-props-2':'3.5, 3.7',
-  'm4-props-mult':'3.5.5, 3.7.1', 'm4-parseval':'3.5.7, 3.7.3',
+  'm4-props-evenodd':'3.5.6, 3.7', 'm4-props-freq':'3.5.4, 3.7',
+  'm4-props-conv':'3.5, 3.7',
+  'm4-props-mult':'3.5.5, 3.7.1', 'm4-props-calc':'3.5', 'm4-props-dt-calc':'3.7.2',
+  'm4-parseval':'3.5.7, 3.7.3', 'm4-tables':'3.5.8', 'm4-tables-dt':'3.7',
   'm4-lti':'3.8', 'm4-pairing':'3.8', 'm4-lpf':'3.9.2', 'm4-hpf':'3.10.2',
   'm4-dt-filt':'3.11.1', 'm4-dt-filt-b':'3.11.1',
   'm4-lab-f':'3.4', 'm4-lab-g':'3.9',
@@ -250,12 +255,13 @@ CONTENT.BOOK = {
   'm5-periodic':'4.2', 'm5-ex-square':'4.2', 'm5-ex-sinus':'4.2',
   'm5-ex-sinus-b':'4.2', 'm5-ex-imptrain':'4.2',
   'm5-props-1':'4.3.1, 4.3.2', 'm5-props-shift-ex':'4.3.2', 'm5-props-freq':'4.3.2',
-  'm5-props-conj':'4.3.3', 'm5-props-diff':'4.3.4', 'm5-props-scale':'4.3.5',
+  'm5-props-conj':'4.3.3', 'm5-props-evenodd':'4.3.3', 'm5-props-int':'4.3.4',
+  'm5-props-diff':'4.3.4', 'm5-props-scale':'4.3.5',
   'm5-props-scale-ex':'4.3.5', 'm5-duality':'4.3.6', 'm5-duality-ex':'4.3.6',
   'm5-parseval':'4.3.7', 'm5-parseval-ex':'4.3.7',
   'm5-conv':'4.4', 'm5-conv-ex':'4.4.1', 'm5-conv-lpf':'4.4.1', 'm5-mult':'4.5',
   'm5-am':'4.5.1', 'm5-am-sinc':'4.5.1', 'm5-am-overlap':'4.5.1', 'm5-sinc2':'4.4.1',
-  'm5-tables':'4.6',
+  'm5-tables':'4.6', 'm5-pairs':'4.6',
   'm5-diffeq':'4.7', 'm5-diffeq-ex':'4.7', 'm5-partial':'4.7',
   'm5-diffeq-b':'4.7', 'm5-diffeq-b2':'4.7', 'm5-lab-h':'4.3.5',
 
@@ -266,11 +272,11 @@ CONTENT.BOOK = {
   'm6-real-phase':'5.3.4', 'm6-ex-lpf':'5.1.3',
   'm6-cexp':'5.2', 'm6-dt-periodic':'5.2', 'm6-sqwave':'5.2',
   'm6-ex-imptrain':'5.2', 'm6-ex-cos':'5.2', 'm6-ex-cos-b':'5.2',
-  'm6-props-1':'5.3.3', 'm6-props-2':'5.3.4', 'm6-expansion':'5.3.7',
+  'm6-props-1':'5.3.3', 'm6-props-2':'5.3.4', 'm6-props-evenodd':'5.3.4', 'm6-expansion':'5.3.7',
   'm6-expansion-b':'5.3.7', 'm6-props-3':'5.3.5', 'm6-parseval':'5.3.9',
   'm6-conv':'5.4', 'm6-conv-ex':'5.4.1', 'm6-conv-lpf':'5.4.1',
   'm6-conv-lpf-b':'5.4.1', 'm6-mult':'5.5', 'm6-mult-b':'5.5', 'm6-mult-ex':'5.5',
-  'm6-tables':'5.6', 'm6-duality':'5.7',
+  'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-duality':'5.7',
   'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-pair':'5.8',
   'm6-ex-diff-b':'5.8', 'm6-lab-i':'5.3.1',
 

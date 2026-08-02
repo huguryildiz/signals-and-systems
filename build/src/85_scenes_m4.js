@@ -965,6 +965,139 @@ const SC = [
   ]}
 ]},
 
+{ id:'m4-props-evenodd', module:'M4', nav:'Properties · even and odd parts', title:'The even part is the real part', src:'p. 36',
+  objective:'State the full conjugate-symmetry set for a real signal and the even-odd decomposition of its coefficients.',
+  keywords:'conjugate symmetry even odd decomposition real part imaginary part magnitude phase Ev Od', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'What a real signal forces on its coefficients'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A real signal satisfies $x=x^{*}$, and the conjugation property then gives $a_k=a_{-k}^{*}$. Everything below is that one line, read five ways.'},
+    {t:'wex', rows:[
+      ['Coefficients','$a_k=a_{-k}^{*}$'],
+      ['Real part','$\\operatorname{Re}\\{a_k\\}=\\operatorname{Re}\\{a_{-k}\\}$, an even sequence'],
+      ['Imaginary part','$\\operatorname{Im}\\{a_k\\}=-\\operatorname{Im}\\{a_{-k}\\}$, an odd sequence'],
+      ['Magnitude','$|a_k|=|a_{-k}|$, even'],
+      ['Phase','$\\angle a_k=-\\angle a_{-k}$, odd']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\Ev\\{x\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{a_k\\},\\qquad \\Od\\{x\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{a_k\\}',
+        label:'Even-odd decomposition, for real $x$',
+        note:'The same statement holds sample for sample in discrete time. It says that splitting a real signal into its even and odd parts splits its coefficients into their real and imaginary parts.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$. By linearity and time reversal its coefficients are $\\tfrac12(a_k+a_{-k})$, and for a real signal $a_{-k}=a_k^{*}$, so that is $\\tfrac12(a_k+a_k^{*})=\\operatorname{Re}\\{a_k\\}$. The odd part follows the same way with a minus sign, and $\\tfrac12(a_k-a_k^{*})=j\\operatorname{Im}\\{a_k\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'Why this is worth having', html:'It tells you which half of the coefficients to compute. For a real signal the negative-index coefficients carry no new information, and a real and even signal has no imaginary part to compute at all. It also explains the two special cases already met: real and even means the odd part is absent, so the coefficients are real; real and odd means the even part is absent, so they are purely imaginary.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:250,xr:[-2.2,2.2],yr:[-0.35,1.9],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:4});
+      a.curve(t=>rectWave(t-0.4,2,0.5),{color:C.in,n:3000});
+      a.curve(t=>0.5*(rectWave(t-0.4,2,0.5)+rectWave(-t-0.4,2,0.5)),{color:C.mid,n:3000,dash:'6 4'});
+      a.note(2.1,1.74,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true});
+      a.note(2.1,1.36,'\\Ev\\{x(t)\\}',{anchor:'end',color:C.mid,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A real signal that is neither even nor odd: the rectangular wave delayed by $0.4$ s. Its even part is the average of the signal and its reflection.'},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-8,8],yr:[-0.35,0.62],xlabel:'k',ylabel:'\\operatorname{Re}\\{a_k\\}',pad:{l:64,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.stem(D(k=>{ const b=k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k); return b*Math.cos(0.4*Math.PI*k); },-8,8),{color:C.mid,r:3,showZero:true});
+          return a.svg(); },
+          caption:'Even in $k$, and these are the coefficients of the even part.'}],
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-8,8],yr:[-0.35,0.35],xlabel:'k',ylabel:'\\operatorname{Im}\\{a_k\\}',pad:{l:64,r:18,t:26,b:34},xtarget:5,ytarget:3});
+          a.stem(D(k=>{ const b=k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k); return -b*Math.sin(0.4*Math.PI*k); },-8,8),{color:C.err,r:3,showZero:true});
+          return a.svg(); },
+          caption:'Odd in $k$, and these carry the odd part.'}]
+      ]}]}
+  ]}
+]},
+
+{ id:'m4-props-freq', module:'M4', nav:'Properties · frequency shift, scaling', title:'Shifting in frequency, scaling in time', src:'p. 36',
+  objective:'State the frequency-shift and time-scaling properties, and separate what scaling changes from what it leaves alone.',
+  keywords:'frequency shift modulation index shift time scaling period changes coefficients unchanged zero stuffing expansion', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'One property moves the index, the other moves the frequencies'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, tex:'e^{jM\\omega_0t}x(t)\\;\\longleftrightarrow\\;a_{k-M},\\qquad e^{jM(2\\pi/N)n}x[n]\\;\\longleftrightarrow\\;a_{k-M}',
+      label:'Frequency shift',
+      note:'$M$ is an integer, so the multiplying exponential is itself periodic with the period of $x$, and the product still has that period. The whole coefficient sequence slides $M$ places to the right.'},
+    {t:'reveal', at:1, items:[
+      {t:'body', html:'<b>Proof.</b> Write the synthesis equation for $x$ and multiply: $e^{jM\\omega_0t}\\sum_\\ell a_\\ell e^{j\\ell\\omega_0t}=\\sum_\\ell a_\\ell e^{j(\\ell+M)\\omega_0t}$. Set $k=\\ell+M$; the coefficient standing on $e^{jk\\omega_0t}$ is $a_{k-M}$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(\\alpha t),\\;\\alpha>0\\;\\longleftrightarrow\\;a_k\\quad\\text{with period }T_0/\\alpha',
+        label:'Time scaling, continuous time',
+        note:'Scaling changes nothing in the list of coefficients. What it changes is where they sit: the fundamental frequency becomes $\\alpha\\omega_0$, so the same numbers are placed on a spectrum stretched by $\\alpha$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', tex:'x_{(m)}[n]=\\begin{cases}x[n/m], & n\\text{ a multiple of }m\\\\[2pt] 0, & \\text{otherwise}\\end{cases}\\;\\longleftrightarrow\\;\\frac{1}{m}a_k',
+        label:'Time scaling, discrete time',
+        note:'Here $m$ must be a positive integer, because $n/m$ has to be an integer for the sequence to be defined at all. The stretched sequence has period $mN$, and its coefficients are the old ones divided by $m$, read as a sequence of period $mN$.'}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'warn', head:'Discrete-time scaling is not the continuous-time one', html:'In continuous time $x(\\alpha t)$ keeps every value of the signal and moves them closer together. In discrete time there is nowhere closer to move to, so $x_{(m)}[n]$ spreads the samples out and fills the gaps with zeros. Nothing is discarded and nothing is invented, which is why the coefficients survive; the factor $1/m$ is there because the average is now taken over $m$ times as many samples.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:210,xr:[-2.2,2.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      a.curve(t=>rectWave(2*t,2,0.5),{color:C.out,n:3000,dash:'6 4'});
+      a.note(2.1,1.18,'x(t)\\;\\text{and}\\;x(2t)',{anchor:'end',color:C.muted,fs:15,tex:true});
+      return a.svg(); },
+      caption:'Scaling by $\\alpha=2$ halves the period. The coefficients of the two waves are the same numbers.'},
+    {t:'reveal', at:3, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:210,xr:[-1,13],yr:[-0.15,1.25],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.stem(D(n=>[1,0.5,0,0.5][((n%4)+4)%4],-1,13),{color:C.in,r:3.4,showZero:true});
+        return a.svg(); },
+        caption:'A sequence of period $N=4$.'},
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:210,xr:[-1,13],yr:[-0.15,1.25],xlabel:'n',ylabel:'x_{(3)}[n]',pad:{l:66,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.stem(D(n=>{ const m=((n%3)+3)%3; return m===0 ? [1,0.5,0,0.5][((Math.round(n/3)%4)+4)%4] : 0; },-1,13),{color:C.out,r:3.4,showZero:true});
+        return a.svg(); },
+        caption:'The same sequence stretched by $m=3$: every sample kept, two zeros inserted after each. The period is $12$ and every coefficient is divided by $3$.'}]}
+  ]}
+]},
+
+{ id:'m4-props-conv', module:'M4', nav:'Properties · periodic convolution', title:'Convolving two periodic signals', src:'p. 36',
+  objective:'State periodic convolution and get the factor T or N in front of the coefficient product right.',
+  keywords:'periodic convolution one period integral T a_k b_k N a_k b_k factor triangular wave', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
+  {t:'title', text:'Convolution over one period multiplies the coefficients'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'Two periodic signals cannot be convolved over all time: the integral does not converge. The operation that does work runs over one period, and it is called periodic convolution.'},
+    {t:'eq', key:true, tex:'\\int_{T_0}x(\\tau)\\,y(t-\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;T_0\\,a_k\\,b_k',
+      label:'Continuous time',
+      note:'Both signals share the period $T_0$, and the result is periodic with that period too.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\sum_{r=\\langle N\\rangle}x[r]\\,y[n-r]\\;\\longleftrightarrow\\;N\\,a_k\\,b_k', label:'Discrete time'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The factor is not decoration', html:'The coefficient of the result is $T_0a_kb_k$, not $a_kb_k$. It appears because the analysis equation divides by $T_0$ once, while the convolution integrates over a period once more. Dropping it scales every answer by the period, and the error is invisible in a sketch of the shape: the picture is right and the height is wrong.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['This is the dual of the product','A product in time convolves the coefficients; a periodic convolution in time multiplies them. The two statements are one correspondence read in its two directions.'],
+        ['Where the factor comes from in discrete time','The same accounting with $N$ in place of $T_0$: the analysis sum divides by $N$, and the convolution sums over a period.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'A check that costs nothing', html:'Evaluate at $k=0$. The coefficient $a_0$ is the mean of $x$ over a period, so the result should have mean $T_0a_0b_0$. For the wave on the right, $a_0=0.5$ and the mean of the triangular wave is $2\\times0.5\\times0.5=0.5$, which is what the figure shows.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:200,xr:[-2.2,2.2],yr:[-0.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      return a.svg(); },
+      caption:'The rectangular wave, $T_0=2$ and $T_1=0.5$, convolved with itself over one period.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:220,xr:[-2.2,2.2],yr:[-0.25,1.25],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:24,t:26,b:34},xtarget:7,ytarget:3});
+        a.curve(t=>{ let u=t-2*Math.round(t/2); return 1-Math.abs(u); },{color:C.out,n:3000});
+        return a.svg(); },
+        caption:'The result: a triangular wave of the same period, peak $1$, zero at $t=\\pm1$.'},
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:220,xr:[-8,8],yr:[-0.1,0.62],xlabel:'k',ylabel:'\\text{coefficient}',pad:{l:66,r:24,t:26,b:34},xtarget:5,ytarget:3});
+        const ak=k=>k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k);
+        a.stem(D(k=>ak(k),-8,8),{color:C.in,r:3,showZero:true});
+        a.stem(D(k=>2*ak(k)*ak(k),-8,8),{color:C.out,r:3,showZero:true});
+        a.note(7.8,0.55,'a_k',{anchor:'end',color:C.in,fs:15,tex:true});
+        a.note(7.8,0.40,'2a_k^{2}',{anchor:'end',color:C.out,fs:15,tex:true});
+        return a.svg(); },
+        caption:'The coefficients of the two waves. Every coefficient of the result is $T_0a_k^{2}=2a_k^{2}$, and the even-index coefficients vanish in both.'}]}
+  ]}
+]},
+
 { id:'m4-props-mult', module:'M4', nav:'Properties · multiplication', title:'Multiplying two signals', src:'pp. 36–37',
   objective:'State the multiplication property and get the discrete-time summation range right.',
   keywords:'multiplication property convolution of coefficients periodic convolution summation range diverge', steps:3, blocks:[
@@ -1000,6 +1133,97 @@ const SC = [
         a.span(0.5,5.5,0.66,'\\text{one period}',{color:C.coral,fs:13,tex:true});
         return a.svg(); },
         caption:'A discrete-time coefficient sequence, here with $N=5$. Everything outside the marked window is a copy of what is inside it, so summing over all $\\ell$ adds each product without end.'}]}
+  ]}
+]},
+
+{ id:'m4-props-calc', module:'M4', nav:'Properties · differentiation, integration', title:'Differentiating and integrating a series', src:'p. 37',
+  objective:'State the differentiation and integration properties and the condition under which the integral is itself periodic.',
+  keywords:'differentiation jk omega0 integration divide by jk omega0 a0 zero mean condition ramp drift', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
+  {t:'title', text:'Differentiation multiplies, integration divides — with one condition'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', key:true, tex:'\\frac{\\d x(t)}{\\d t}\\;\\longleftrightarrow\\;jk\\omega_0a_k=jk\\frac{2\\pi}{T_0}a_k', label:'Differentiation',
+      note:'Differentiate the synthesis equation term by term. Each term $a_ke^{jk\\omega_0t}$ contributes a factor $jk\\omega_0$, and the factor grows with the harmonic index: differentiation emphasises the high harmonics, which is why the derivative of a smooth signal can be rough.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{jk\\omega_0}a_k=\\frac{1}{jk(2\\pi/T_0)}a_k',
+        label:'Integration, valid only if $a_0=0$',
+        note:'The rule divides by $k$, and at $k=0$ that division is undefined. The statement is therefore conditional, and the condition is the whole point.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'What goes wrong when $a_0\\neq0$', html:'The coefficient $a_0$ is the mean of the signal over one period. Integrating a constant gives a ramp, so a signal with a non-zero mean integrates to something that grows without bound: finite-valued and periodic it is not. The formula above then describes only the part of the answer that repeats, and the ramp it has dropped is the part that eventually dominates.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['The rectangular wave, $T_0=2$, $T_1=0.5$','$a_0=2T_1/T_0=0.5$. Its running integral is a triangular wave riding on the ramp $0.5t$, drawn opposite.'],
+        ['The same wave with its mean removed','$x(t)-0.5$ has $a_0=0$, and its running integral is the triangular wave alone, periodic and bounded by $\\pm0.25$.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'How to use it in practice', html:'Subtract the mean, integrate the rest with the formula, and add back the ramp $a_0t$ at the end. Nothing is lost that way, and the two parts of the answer stay visibly separate.'}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:820,h:220,xr:[-0.2,4.2],yr:[-0.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:24,t:26,b:34},xtarget:6,ytarget:3});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
+      a.hline(0.5,{color:C.coral,dash:'4 5'});
+      a.note(4.1,0.68,'a_0=0.5',{anchor:'end',color:C.coral,fs:15,tex:true});
+      return a.svg(); },
+      caption:'The rectangular wave and its mean.'},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:820,h:230,xr:[-0.2,4.2],yr:[-0.35,2.4],xlabel:'t',pad:{l:56,r:24,t:26,b:34},xtarget:6,ytarget:4});
+        const tri=t=>{ let u=t-2*Math.round(t/2); return Math.abs(u)<0.5 ? 0.5*u : (u>0 ? 0.25-0.5*(u-0.5) : -0.25-0.5*(u+0.5)); };
+        a.curve(t=>tri(t)+0.5*t,{color:C.err,n:3000});
+        a.curve(t=>tri(t),{color:C.out,n:3000});
+        a.note(4.1,2.2,'\\int_0^{t}x\\,\\d\\tau',{anchor:'end',color:C.err,fs:15,tex:true});
+        a.note(4.1,0.62,'\\int_0^{t}\\bigl(x-a_0\\bigr)\\d\\tau',{anchor:'end',color:C.out,fs:15,tex:true});
+        return a.svg(); },
+        caption:'With the mean left in, the integral drifts upward for ever. With the mean removed, it is the periodic triangular wave the formula predicts.'}]}
+  ]}
+]},
+
+{ id:'m4-props-dt-calc', module:'M4', nav:'Properties · difference, running sum', title:'The discrete-time pair: difference and running sum', src:'p. 37',
+  objective:'State the first-difference and running-sum properties and carry the same zero-mean condition across.',
+  keywords:'first difference running sum accumulation discrete time a0 zero condition drift periodic', steps:4, blocks:[
+  {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
+  {t:'title', text:'The same two statements, one index at a time'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'body', html:'A sequence has no derivative, because $n$ moves in steps. What takes its place is the difference between neighbouring samples, and the sum takes the place of the integral.'},
+    {t:'eq', key:true, tex:'x[n]-x[n-1]\\;\\longleftrightarrow\\;\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k', label:'First difference',
+      note:'It follows from linearity and the time shift: the coefficients of $x[n-1]$ are $a_ke^{-jk(2\\pi/N)}$, and subtracting leaves the factor above.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\sum_{k=-\\infty}^{n}x[k]\\;\\longleftrightarrow\\;\\frac{1}{1-e^{-jk(2\\pi/N)}}\\,a_k',
+        label:'Running sum, valid only if $a_0=0$',
+        note:'At $k=0$ the factor $1-e^{-jk(2\\pi/N)}$ is zero, so the division fails there, exactly as it did in continuous time.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The condition again, and for the same reason', html:'If the mean $a_0$ is not zero, each period adds the same non-zero amount to the running total, so the sum climbs by $Na_0$ every period and never repeats. The running sum is finite-valued and periodic only when $a_0=0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['Zero mean','$x[n]=1,1,-1,-1$ repeating. The running sum from $n=0$ is $1,2,1,0$ and then repeats: bounded, and periodic with $N=4$.'],
+        ['Mean one half','$x[n]=1,1,1,-1$ repeating. The running sum is $1,2,3,2$, then $3,4,5,4$: the same shape climbing by $Na_0=2$ each period.']
+      ]}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'ok', head:'Difference and sum undo each other', html:'Take the first difference of a running sum and the original sequence comes back, which the two factors confirm at once: $\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)\\cdot\\dfrac{1}{1-e^{-jk(2\\pi/N)}}=1$ for every $k$ except $k=0$, and $k=0$ is the index the condition removes.'}]}
+  ], right:[
+    {t:'grid', cols:2, gap:'16px', items:[
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-0.6,8.6],yr:[-1.45,1.45],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>[1,1,-1,-1][((n%4)+4)%4],0,8),{color:C.in,r:3.4,showZero:true}); return a.svg(); },
+        caption:'Mean zero.'}],
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:210,xr:[-0.6,8.6],yr:[-1.45,1.45],xlabel:'n',ylabel:'x[n]',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
+        a.stem(D(n=>[1,1,1,-1][((n%4)+4)%4],0,8),{color:C.err,r:3.4,showZero:true}); return a.svg(); },
+        caption:'Mean $0.5$.'}]
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'grid', cols:2, gap:'16px', items:[
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:410,h:230,xr:[-0.6,12.6],yr:[-0.6,7.8],xlabel:'n',ylabel:'\\textstyle\\sum_{r\\le n}x[r]',pad:{l:70,r:20,t:26,b:34},xtarget:5,ytarget:4});
+          const run=(v)=>D(n=>{ let s=0; for(let k=0;k<=n;k++) s+=v[((k%4)+4)%4]; return s; },0,12);
+          a.stem(run([1,1,-1,-1]),{color:C.out,r:3.4,showZero:true});
+          return a.svg(); },
+          caption:'Mean zero: the running sum repeats every four samples.'}],
+        [{t:'fig', frame:true, svg:()=>{
+          const a=P.Axes({w:410,h:230,xr:[-0.6,12.6],yr:[-0.6,7.8],xlabel:'n',ylabel:'\\textstyle\\sum_{r\\le n}x[r]',pad:{l:70,r:20,t:26,b:34},xtarget:5,ytarget:4});
+          const run=(v)=>D(n=>{ let s=0; for(let k=0;k<=n;k++) s+=v[((k%4)+4)%4]; return s; },0,12);
+          a.stem(run([1,1,1,-1]),{color:C.err,r:3.4,showZero:true});
+          return a.svg(); },
+          caption:'Mean $0.5$: the same shape, climbing by $Na_0=2$ each period.'}]
+      ]}]}
   ]}
 ]},
 
@@ -1335,7 +1559,77 @@ const SC = [
   {t:'title', text:'From coefficients to output, one step at a time'},
   {t:'lede', text:'Pick a system and a cutoff. The four panels follow the same signal through the whole chain, and the last step can be shown with or without the factor of two, so the size of that error is visible rather than described.'},
   {t:'lab', id:'G'}
-]}
+]},
+
+/* ============================================================ property summary */
+{ id:'m4-tables', module:'M4', nav:'Property summary · continuous time', title:'The continuous-time series properties', src:'pp. 35–37',
+  objective:'Collect every property of the continuous-time Fourier series for reference.',
+  keywords:'summary table properties reference continuous time series coefficients linearity shift scaling convolution integration parseval', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
+  {t:'title', text:'A periodic signal of period $T_0$, with $\\omega_0=2\\pi/T_0$'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Operations on the signal'},
+    {t:'wex', rows:[
+      ['Linearity','$Ax(t)+By(t)\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
+      ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;a_ke^{-jk\\omega_0t_0}$'],
+      ['Frequency shift','$e^{jM\\omega_0t}x(t)\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],
+      ['Conjugation','$x^{*}(t)\\;\\leftrightarrow\\;a_{-k}^{*}$'],
+      ['Time reversal','$x(-t)\\;\\leftrightarrow\\;a_{-k}$'],
+      ['Time scaling','$x(\\alpha t)$, $\\alpha>0\\;\\leftrightarrow\\;a_k$, with period $T_0/\\alpha$'],
+      ['Periodic convolution','$\\displaystyle\\int_{T_0}x(\\tau)y(t-\\tau)\\d\\tau\\;\\leftrightarrow\\;T_0a_kb_k$'],
+      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\displaystyle\\sum_{\\ell=-\\infty}^{\\infty}a_\\ell b_{k-\\ell}$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Calculus, symmetry and power'},
+    {t:'wex', rows:[
+      ['Differentiation','$\\dfrac{\\d x(t)}{\\d t}\\;\\leftrightarrow\\;jk\\omega_0a_k$'],
+      ['Integration','$\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau\\;\\leftrightarrow\\;\\dfrac{a_k}{jk\\omega_0}$, only if $a_0=0$'],
+      ['Real signal','$a_k=a_{-k}^{*}$, so $|a_k|$ is even and $\\angle a_k$ is odd'],
+      ['Real and even','$a_k$ real and even'],
+      ['Real and odd','$a_k$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$'],
+      ['Parseval','$\\dfrac{1}{T_0}\\displaystyle\\int_{T_0}|x(t)|^{2}\\d t=\\sum_{k=-\\infty}^{\\infty}|a_k|^{2}$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'The one row with a condition', html:'Integration divides by $jk\\omega_0$, which is zero at $k=0$. The rule therefore holds only when the mean $a_0$ is zero; otherwise the running integral carries a ramp $a_0t$ that no coefficient describes.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'How to use it', html:'Recognise the signal as a known one operated on, look up the coefficients of the known one, then apply these properties in the order the operations were applied. Check the answer at $k=0$: $a_0$ is the mean over one period, and a mean is usually easier to read off the signal than to compute from a series.'}]}
+]},
+{ id:'m4-tables-dt', module:'M4', nav:'Property summary · discrete time', title:'The discrete-time series properties', src:'pp. 35–37',
+  objective:'Collect every property of the discrete-time Fourier series and mark the three places it differs from continuous time.',
+  keywords:'summary table properties reference discrete time series coefficients first difference running sum expansion periodic coefficients', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
+  {t:'title', text:'A periodic sequence of period $N$, with $\\omega_0=2\\pi/N$'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Operations on the sequence'},
+    {t:'wex', rows:[
+      ['Linearity','$Ax[n]+By[n]\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
+      ['Time shift','$x[n-n_0]\\;\\leftrightarrow\\;a_ke^{-jk(2\\pi/N)n_0}$'],
+      ['Frequency shift','$e^{jM(2\\pi/N)n}x[n]\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],
+      ['Conjugation','$x^{*}[n]\\;\\leftrightarrow\\;a_{-k}^{*}$'],
+      ['Time reversal','$x[-n]\\;\\leftrightarrow\\;a_{-k}$'],
+      ['Time scaling','$x_{(m)}[n]\\;\\leftrightarrow\\;\\dfrac{1}{m}a_k$, with period $mN$'],
+      ['Periodic convolution','$\\displaystyle\\sum_{r=\\langle N\\rangle}x[r]y[n-r]\\;\\leftrightarrow\\;Na_kb_k$'],
+      ['Multiplication','$x[n]y[n]\\;\\leftrightarrow\\;\\displaystyle\\sum_{\\ell=\\langle N\\rangle}a_\\ell b_{k-\\ell}$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Difference, sum, symmetry and power'},
+    {t:'wex', rows:[
+      ['First difference','$x[n]-x[n-1]\\;\\leftrightarrow\\;\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k$'],
+      ['Running sum','$\\displaystyle\\sum_{r=-\\infty}^{n}x[r]\\;\\leftrightarrow\\;\\dfrac{a_k}{1-e^{-jk(2\\pi/N)}}$, only if $a_0=0$'],
+      ['Real signal','$a_k=a_{-k}^{*}$, so $|a_k|$ is even and $\\angle a_k$ is odd'],
+      ['Real and even','$a_k$ real and even'],
+      ['Real and odd','$a_k$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$'],
+      ['Parseval','$\\dfrac{1}{N}\\displaystyle\\sum_{n=\\langle N\\rangle}|x[n]|^{2}=\\sum_{k=\\langle N\\rangle}|a_k|^{2}$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'Three places this list is not the continuous-time one', html:'The coefficients themselves repeat, $a_k=a_{k+N}$, and that single fact produces all three differences. <b>Multiplication</b> sums over one period rather than over all integers. <b>Scaling</b> carries a factor $1/m$, because the average is now taken over $m$ times as many samples. And a sequence has a <b>first difference</b> where a signal has a derivative, because $n$ moves in steps.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'The condition survives the crossing', html:'The running sum divides by $1-e^{-jk(2\\pi/N)}$, which is zero at $k=0$. As in continuous time, the rule holds only when $a_0=0$; otherwise the running total climbs by $Na_0$ every period and never repeats.'}]}
+]},
 ];
 window.SCENES_M4 = SC;
 })();
