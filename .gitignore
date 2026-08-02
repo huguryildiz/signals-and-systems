@@ -55,3 +55,6 @@ _to_delete/
 
 # Project operating instructions: local working document, not tracked.
 CLAUDE.md
+
+# Editor settings: a local convenience, not a property of the project.
+.vscode/
