@@ -29,6 +29,20 @@
 CONTENT.BOOKMARK = 'OW';
 CONTENT.BOOKREF  = 'Oppenheim and Willsky, <i>Signals and Systems</i>, 2nd edition';
 
+/* On screen the marker is an open book rather than the letters. It is drawn
+   here, once, as inline SVG in `currentColor`: the artifact is one offline file,
+   so an icon cannot be fetched, and a glyph from a font cannot be relied on to
+   exist. In the printed notes the letters stay, because a rule in a contents
+   column at eight point is read, not looked at. */
+CONTENT.BOOKICON =
+  '<svg class="ebicon" viewBox="0 0 16 16" width="11" height="11" aria-hidden="true" focusable="false">'
++ '<path d="M8 4.4C7.2 3.5 6 3 4.6 3H2v9.1h2.6c1.4 0 2.6.5 3.4 1.4" '
++ 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
++ '<path d="M8 4.4C8.8 3.5 10 3 11.4 3H14v9.1h-2.6c-1.4 0-2.6.5-3.4 1.4" '
++ 'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
++ '<path d="M8 4.4v9.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
++ '</svg>';
+
 /* ---- chapters ----------------------------------------------------------
    `flat:true` marks a chapter with no section level: its scenes are numbered
    two-part. Chapter 0 is the course opening and chapter A is the closing

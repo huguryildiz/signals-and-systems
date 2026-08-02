@@ -310,10 +310,12 @@ body[data-sidebar=off] #sidebar{ display:none; }
    reader having to parse the string first. Every token it uses is overridden by
    `.scene.dark`, so it follows the navy pages by itself. */
 .eyebrow .ebbook{
-  display:inline-block; color:var(--faint); letter-spacing:.06em; text-transform:none;
+  display:inline-flex; align-items:center; gap:.4em;
+  color:var(--faint); letter-spacing:.06em; text-transform:none;
   white-space:nowrap; border:1px solid var(--rule); background:var(--paper-2);
   border-radius:3px; padding:.15em .55em; font-size:.82em; line-height:1.5;
 }
+.eyebrow .ebicon{ flex:none; opacity:.85; }
 .eyebrow .src{ color:var(--faint); letter-spacing:.1em; text-transform:none;
   font-size:13px; margin-left:auto; }
 
@@ -467,6 +469,10 @@ figure.fig svg{ display:block; width:100%; height:auto; }
 /* an axis name is typeset mathematics inside the figure; the small svg pieces a
    formula uses for roots and stretched brackets keep their own intrinsic size */
 figure.fig .katex svg, #scene-host .katex svg{ display:inline; width:auto; height:auto; }
+/* The rule above makes every svg in a scene a full-width figure. The book icon
+   in the eyebrow is not a figure and has to opt out by the same id, or it fills
+   the column. */
+#scene-host .eyebrow .ebicon{ display:inline-block; width:12.5px; height:12.5px; }
 figcaption{ font-size:calc(14px * var(--ts)); color:var(--muted); line-height:1.42; }
 figcaption b{ color:var(--graphite); font-weight:600; }
 .fig-frame{
