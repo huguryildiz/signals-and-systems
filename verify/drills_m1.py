@@ -432,3 +432,259 @@ chk("D1-20 (c) q(t) final level = 2 = sum of weights",
     close(q20_closed(100.0), sum(xk20.values())))
 chk("D1-20 (c) q(t) and y[n] settle at the same final level",
     close(q20_closed(100.0), y20_closed(100)))
+
+
+# ===========================================================================
+# Full-length questions D1-21 ... D1-30.
+#
+# Each number the Check step states is recomputed here by a route that does
+# not reuse the algebra of the solution: brute-force period search, numerical
+# quadrature for every energy, and direct evaluation of the *original*
+# piecewise definition for every transformed signal.
+# ===========================================================================
+
+# --- D1-21 -----------------------------------------------------------------
+chk("D1-21 (a) N0 = 9 for cos(4*pi*n/9 - 2)",
+    dt_min_period(lambda nn: np.cos(4 * np.pi * nn / 9 - 2)) == 9)
+
+def x21(s):
+    """Triangle: 2t on [0,1], 3-t on [1,3], zero elsewhere. The definition
+    given in the question, not the closed form derived from it."""
+    s = np.asarray(s, dtype=float)
+    return np.where((s >= 0) & (s <= 1), 2 * s,
+           np.where((s > 1) & (s <= 3), 3 - s, 0.0))
+
+chk("D1-21 (b) E = 4 J", close(trapz_energy(x21, -2, 5), 4.0),
+    f"{trapz_energy(x21, -2, 5):.6f}")
+
+y21 = lambda s: x21(3 - np.asarray(s, dtype=float) / 2)
+chk("D1-21 (c) support of y is [0,6]",
+    close(y21(-0.01), 0) and close(y21(6.01), 0)
+    and not close(y21(0.5), 0) and not close(y21(5.5), 0))
+chk("D1-21 (c) y peaks at t=4 with height 2", close(y21(4.0), 2.0))
+chk("D1-21 (c) width doubled: 6 = 2 * 3",
+    close(float(np.trapezoid((y21(np.linspace(-2, 8, 400001)) > 1e-9).astype(float),
+                             np.linspace(-2, 8, 400001))), 6.0, tol=1e-3))
+
+z21 = lambda s: 0.5 * (y21(s) + y21(-np.asarray(s, dtype=float)))
+chk("D1-21 (d) z is even", allclose(z21(np.array([0.3, 1.7, 4.0, 5.5])),
+                                    z21(np.array([-0.3, -1.7, -4.0, -5.5]))))
+chk("D1-21 (d) z(0) = 0", close(z21(0.0), 0.0))
+chk("D1-21 (e) z(-4) + z(8) = 1", close(z21(-4.0) + z21(8.0), 1.0),
+    f"z(-4)={float(z21(-4.0)):.6f}, z(8)={float(z21(8.0)):.6f}")
+
+# --- D1-22 -----------------------------------------------------------------
+chk("D1-22 (a) T0 = 2*pi/5", close(2 * np.pi / 5, 1.2566370614), f"{2*np.pi/5:.9f}")
+chk("D1-22 (a) 2j*exp(j*5*t) repeats after 2*pi/5",
+    close(2j * np.exp(1j * 5 * 0.37), 2j * np.exp(1j * 5 * (0.37 + 2 * np.pi / 5))))
+
+chk("D1-22 (b) E = 9/8 for 3^(-n) u[n]",
+    close(sum(abs(3.0 ** (-m)) ** 2 for m in range(0, 400)), 9 / 8))
+
+def y22(s):
+    """Ramp y(t) = t+1 on [-2,2], zero elsewhere."""
+    s = np.asarray(s, dtype=float)
+    return np.where((s >= -2) & (s <= 2), s + 1, 0.0)
+
+y22c = lambda s: y22(-3 * np.asarray(s, dtype=float) + 2)
+chk("D1-22 (c) support of y(-3t+2) is [0, 4/3]",
+    close(y22c(-0.01), 0) and close(y22c(4 / 3 + 0.01), 0)
+    and not close(y22c(0.5), 0))
+chk("D1-22 (c) endpoints 3 and -1",
+    close(y22c(0.0), 3.0) and close(y22c(4 / 3), -1.0))
+chk("D1-22 (c) interior value at t=2/3 is 1", close(y22c(2 / 3), 1.0))
+
+ev22 = lambda s: 0.5 * (y22(s) + y22(-np.asarray(s, dtype=float)))
+chk("D1-22 (d) even part is 1 on |t|<2",
+    allclose(ev22(np.array([-1.9, -0.5, 0.0, 0.5, 1.9])), np.ones(5)))
+chk("D1-22 (d) even part is 0 outside", close(ev22(2.5), 0.0))
+chk("D1-22 (d) even + odd rebuilds y",
+    allclose(ev22(np.array([-1.5, 0.7, 1.9]))
+             + 0.5 * (y22(np.array([-1.5, 0.7, 1.9])) - y22(-np.array([-1.5, 0.7, 1.9]))),
+             y22(np.array([-1.5, 0.7, 1.9]))))
+chk("D1-22 (e) integral = exp(-2)/2",
+    close(float(sp.integrate(sp.exp(-T_SYM) * sp.DiracDelta(2 * T_SYM - 4),
+                             (T_SYM, -sp.oo, sp.oo))), 0.5 * np.exp(-2.0)),
+    f"{0.5*np.exp(-2.0):.6f}")
+
+# --- D1-23 -----------------------------------------------------------------
+def x1_23(nn):
+    """+1 at every n = 3k, -1 at every n = -1-4k, added where they meet."""
+    v = 0
+    if nn % 3 == 0:
+        v += 1
+    if (nn + 1) % 4 == 0:
+        v -= 1
+    return v
+
+chk("D1-23 (a) cancellation at n=3", x1_23(3) == 0)
+chk("D1-23 (a) one period of values",
+    [x1_23(m) for m in range(0, 12)] == [1, 0, 0, 0, 0, 0, 1, -1, 0, 1, 0, -1],
+    f"{[x1_23(m) for m in range(0, 12)]}")
+chk("D1-23 (b) N0 = 12",
+    dt_min_period(lambda a: np.array([x1_23(int(v)) for v in np.atleast_1d(a)]),
+                  Nmax=40) == 12)
+
+x2_23 = lambda m: x1_23(m) if -3 <= m <= 3 else 0
+od23 = {m: 0.5 * (x2_23(m) - x2_23(-m)) for m in range(-6, 7)}
+chk("D1-23 (c) odd part vanishes at n=0", close(od23[0], 0.0))
+chk("D1-23 (c) odd part table",
+    all(close(od23[m], v) for m, v in
+        {-3: 0.5, -1: -0.5, 1: 0.5, 3: -0.5}.items())
+    and all(close(od23[m], 0.0) for m in (-2, 0, 2)),
+    f"{ {m: od23[m] for m in range(-3, 4)} }")
+
+x3_23 = lambda s: np.where(np.abs(np.asarray(s, dtype=float)) <= 2,
+                           np.abs(np.asarray(s, dtype=float)), 0.0)
+chk("D1-23 (d) E = 16/3", close(trapz_energy(x3_23, -3, 3), 16 / 3, tol=1e-4),
+    f"{trapz_energy(x3_23, -3, 3):.6f}")
+chk("D1-23 (e) x3(-0.6) = 0.6", close(float(x3_23(-0.6)), 0.6))
+
+# --- D1-24 -----------------------------------------------------------------
+def x24(s):
+    """[t + 3*(u(t+2)-u(t-2))] * (u(t+3)-u(t-3)), evaluated from the definition."""
+    s = np.asarray(s, dtype=float)
+    inner = s + 3.0 * ((s > -2) & (s < 2))
+    return np.where((s > -3) & (s < 3), inner, 0.0)
+
+ev24 = lambda s: 0.5 * (x24(s) + x24(-np.asarray(s, dtype=float)))
+od24 = lambda s: 0.5 * (x24(s) - x24(-np.asarray(s, dtype=float)))
+chk("D1-24 (a) even part = 3 on |t|<2",
+    allclose(ev24(np.array([-1.9, -0.5, 0.5, 1.9])), 3 * np.ones(4)))
+chk("D1-24 (a) even part = 0 on 2<|t|<3",
+    allclose(ev24(np.array([-2.5, 2.5])), np.zeros(2)))
+chk("D1-24 (b) odd part = t on |t|<3",
+    allclose(od24(np.array([-2.5, -1.0, 1.0, 2.5])), np.array([-2.5, -1.0, 1.0, 2.5])))
+chk("D1-24 (c) E_even = 36", close(trapz_energy(ev24, -4, 4), 36.0, tol=1e-4),
+    f"{trapz_energy(ev24, -4, 4):.5f}")
+chk("D1-24 (c) E_odd = 18", close(trapz_energy(od24, -4, 4), 18.0, tol=1e-4),
+    f"{trapz_energy(od24, -4, 4):.5f}")
+chk("D1-24 (c) E_x = 54 and equals E_even + E_odd",
+    close(trapz_energy(x24, -4, 4), 54.0, tol=1e-4)
+    and close(trapz_energy(x24, -4, 4),
+              trapz_energy(ev24, -4, 4) + trapz_energy(od24, -4, 4), tol=1e-4),
+    f"{trapz_energy(x24, -4, 4):.5f}")
+
+# --- D1-25 -----------------------------------------------------------------
+chk("D1-25 (a) exp(j*4n/7) is not periodic",
+    dt_min_period(lambda nn: np.exp(1j * 4 * nn / 7), Nmax=2000) is None)
+chk("D1-25 (b) exp(j*4*pi*n/7) has N0 = 7",
+    dt_min_period(lambda nn: np.exp(1j * 4 * np.pi * nn / 7)) == 7)
+
+# --- D1-26 -----------------------------------------------------------------
+chk("D1-26 (a) N0 = 7 for sin(6*pi*n/7 + pi/4)",
+    dt_min_period(lambda nn: np.sin(6 * np.pi * nn / 7 + np.pi / 4)) == 7)
+
+def x26(s):
+    """Trapezoid: 3t on [0,1], 3 on [1,2], 1.5*(4-t) on [2,4]."""
+    s = np.asarray(s, dtype=float)
+    return np.where((s >= 0) & (s <= 1), 3 * s,
+           np.where((s > 1) & (s <= 2), 3.0,
+           np.where((s > 2) & (s <= 4), 1.5 * (4 - s), 0.0)))
+
+chk("D1-26 (b) E = 18 J", close(trapz_energy(x26, -2, 6), 18.0),
+    f"{trapz_energy(x26, -2, 6):.6f}")
+
+y26 = lambda s: x26(2 * np.asarray(s, dtype=float) + 4)
+chk("D1-26 (c) support of x(2t+4) is [-2,0]",
+    close(y26(-2.01), 0) and close(y26(0.01), 0) and not close(y26(-1.0), 0))
+chk("D1-26 (c) flat top at height 3 on [-1.5,-1]",
+    allclose(y26(np.array([-1.5, -1.25, -1.0])), 3 * np.ones(3)))
+z26 = lambda s: 0.5 * (y26(s) - y26(-np.asarray(s, dtype=float)))
+chk("D1-26 (d) z is odd and z(0)=0",
+    close(z26(0.0), 0.0) and close(z26(1.3), -z26(-1.3)))
+chk("D1-26 (e) integral = 1/2",
+    close(z26(-1.0) / 3.0, 0.5), f"z(-1)={float(z26(-1.0)):.6f}")
+
+# --- D1-27 -----------------------------------------------------------------
+chk("D1-27 (a) T0 = 8/3", close(2 * np.pi / (3 * np.pi / 4), 8 / 3))
+chk("D1-27 (b) E = 1/12 for (1/2)^n u[n-2]",
+    close(sum((0.5 ** m) ** 2 for m in range(2, 400)), 1 / 12))
+
+def y27(s):
+    """Falling ramp y(t) = 1-t on [0,2], zero elsewhere."""
+    s = np.asarray(s, dtype=float)
+    return np.where((s >= 0) & (s <= 2), 1 - s, 0.0)
+
+y27c = lambda s: y27(2 * np.asarray(s, dtype=float) - 1)
+chk("D1-27 (c) support of y(2t-1) is [0.5,1.5]",
+    close(y27c(0.49), 0) and close(y27c(1.51), 0) and not close(y27c(0.6), 0))
+chk("D1-27 (c) endpoints 1 and -1",
+    close(y27c(0.5), 1.0) and close(y27c(1.5), -1.0))
+ev27 = lambda s: 0.5 * (y27(s) + y27(-np.asarray(s, dtype=float)))
+_p27 = np.array([-1.9, -1.5, -0.5, -0.1, 0.1, 0.5, 1.5, 1.9])
+chk("D1-27 (d) even part = (1-|t|)/2 on 0<|t|<2",
+    allclose(ev27(_p27), 0.5 * (1 - np.abs(_p27))))
+chk("D1-27 (d) even + odd rebuilds y",
+    allclose(ev27(_p27) + 0.5 * (y27(_p27) - y27(-_p27)), y27(_p27)))
+chk("D1-27 (e) integral = 1/4", close(0.5 * float(y27(0.5)), 0.25))
+
+# --- D1-28 -----------------------------------------------------------------
+def x1_28(nn):
+    v = 0
+    if nn % 4 == 0:
+        v += 1
+    if (nn + 1) % 6 == 0:
+        v -= 1
+    return v
+
+chk("D1-28 (a) no cancellation in one period",
+    all(abs(x1_28(m)) <= 1 for m in range(0, 12))
+    and [m for m in range(0, 12) if x1_28(m) == 1] == [0, 4, 8]
+    and [m for m in range(0, 12) if x1_28(m) == -1] == [5, 11])
+chk("D1-28 (b) N0 = 12, not 24",
+    dt_min_period(lambda a: np.array([x1_28(int(v)) for v in np.atleast_1d(a)]),
+                  Nmax=40) == 12)
+
+x2_28 = lambda m: x1_28(m) if -4 <= m <= 4 else 0
+od28 = {m: 0.5 * (x2_28(m) - x2_28(-m)) for m in range(-8, 9)}
+chk("D1-28 (c) odd part non-zero only at n = -1, 1",
+    [m for m in od28 if not close(od28[m], 0.0)] == [-1, 1],
+    f"{ {m: od28[m] for m in range(-4, 5)} }")
+chk("D1-28 (c) equal samples at n=+-4 cancel in the odd part",
+    close(od28[4], 0.0) and close(od28[-4], 0.0))
+
+x3_28 = lambda s: np.where(np.abs(np.asarray(s, dtype=float)) <= 1, 2.0,
+                  np.where(np.abs(np.asarray(s, dtype=float)) <= 2, 1.0, 0.0))
+chk("D1-28 (d) E = 10", close(trapz_energy(x3_28, -3, 3), 10.0, tol=1e-4),
+    f"{trapz_energy(x3_28, -3, 3):.6f}")
+chk("D1-28 (e) x3(1.5) = 1", close(float(x3_28(1.5)), 1.0))
+
+# --- D1-29 -----------------------------------------------------------------
+def x29(s):
+    s = np.asarray(s, dtype=float)
+    inner = 2 * s + 1.0 * ((s > -1) & (s < 1))
+    return np.where((s > -2) & (s < 2), inner, 0.0)
+
+ev29 = lambda s: 0.5 * (x29(s) + x29(-np.asarray(s, dtype=float)))
+od29 = lambda s: 0.5 * (x29(s) - x29(-np.asarray(s, dtype=float)))
+chk("D1-29 (a) even part = 1 on |t|<1 and 0 on 1<|t|<2",
+    allclose(ev29(np.array([-0.9, 0.0, 0.9])), np.ones(3))
+    and allclose(ev29(np.array([-1.5, 1.5])), np.zeros(2)))
+chk("D1-29 (b) odd part = 2t on |t|<2",
+    allclose(od29(np.array([-1.5, -0.5, 0.5, 1.5])),
+             2 * np.array([-1.5, -0.5, 0.5, 1.5])))
+chk("D1-29 (c) E_even = 2", close(trapz_energy(ev29, -3, 3), 2.0, tol=1e-4),
+    f"{trapz_energy(ev29, -3, 3):.6f}")
+chk("D1-29 (c) E_odd = 64/3", close(trapz_energy(od29, -3, 3), 64 / 3, tol=1e-4),
+    f"{trapz_energy(od29, -3, 3):.6f}")
+chk("D1-29 (c) E_x = 70/3 and the split is additive",
+    close(trapz_energy(x29, -3, 3), 70 / 3, tol=1e-4)
+    and close(trapz_energy(x29, -3, 3),
+              trapz_energy(ev29, -3, 3) + trapz_energy(od29, -3, 3), tol=1e-4),
+    f"{trapz_energy(x29, -3, 3):.6f}")
+
+# --- D1-30 -----------------------------------------------------------------
+x30 = lambda s: (np.asarray(s, dtype=float) > -2).astype(float) \
+              - 2 * (np.asarray(s, dtype=float) > 0).astype(float) \
+              + (np.asarray(s, dtype=float) > 2).astype(float)
+chk("D1-30 (a) piecewise levels 1, -1, 0",
+    allclose(x30(np.array([-1.0, 1.0, 3.0, -3.0])), np.array([1.0, -1.0, 0.0, 0.0])))
+w30 = {-2: 1.0, 0: -2.0, 2: 1.0}
+chk("D1-30 (b) impulse weights sum to zero", close(sum(w30.values()), 0.0))
+chk("D1-30 (c) x(1) = -1", close(float(x30(1.0)), -1.0))
+chk("D1-30 (d) integral of t^2 against dx/dt = 8",
+    close(sum(wt * loc ** 2 for loc, wt in w30.items()), 8.0),
+    f"{sum(wt * loc ** 2 for loc, wt in w30.items())}")
+chk("D1-30 (e) E = 4", close(trapz_energy(x30, -4, 4), 4.0),
+    f"{trapz_energy(x30, -4, 4):.6f}")

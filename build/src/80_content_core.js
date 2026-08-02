@@ -9,7 +9,7 @@ const CONTENT = {
   META: {
     course:'Signals and Systems',
     source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.4 · Modules 0–7 numbered as chapters 1–7, laboratories A–J, practice questions D1–D7, twenty a module',
+    version:'v1.5 · Modules 0–7 numbered as chapters 1–7, laboratories A–J, practice questions D1–D7, thirty a module',
     date:'2026-08-02',
     language:'Academic English',
     conventions:{

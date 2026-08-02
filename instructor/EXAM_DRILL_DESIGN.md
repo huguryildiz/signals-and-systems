@@ -1,7 +1,7 @@
 # The exam drills
 
 Instructor record. Rewritten 2026-08-01, when the drills and the question banks were folded into one
-section and taken to twenty questions a module. Artifact v1.3.
+section and taken to thirty questions a module. Artifact v1.5.
 
 The design is recorded in full in `docs/superpowers/specs/2026-08-01-exam-drill-20-design.md`. This
 file is the teaching-side summary: what the sections are for, how to use them in a course, and what
@@ -19,7 +19,8 @@ link to the scene where that method is taught. The reader is told plainly that t
 to be able to answer anything yet. It is a map, read once, and returned to when a question will not
 start.
 
-**The questions, at the end.** Twenty of them. One question fills the screen; the reader moves with
+**The questions, at the end.** Thirty of them: twenty single-skill questions, then ten full-length
+ones with three to five lettered parts under one statement. One question fills the screen; the reader moves with
 **Previous** and **Next**, and the pager says `Question 7 of 20`. Each question has a statement, often
 a figure, and two to five lettered parts. Nothing is multiple choice and there are no hints: the
 question is worked on paper, and then `Show worked solution` opens a solution that ends by testing its
@@ -45,7 +46,7 @@ and the difficulty, and nothing else. **No question in the artifact is one of th
 none is a renumbered variant of one.** What was taken is the skill a question measures; every setup,
 signal, coefficient and figure is written fresh.
 
-Roughly twelve of a module's twenty are built on skills those papers measure. The other eight reach
+Roughly twelve of a module's first twenty are built on skills those papers measure. The other eight reach
 the parts of the module the papers have not examined, so a reader who works all twenty has met the
 whole module and not only the part that has been examined before.
 
@@ -80,9 +81,37 @@ before an answer is accepted.
   compute the answer rather than to assert it.
 - Figure mathematics is TeX, marked `tex:true`, with backslashes doubled in the JavaScript string.
   A bare `;` inside a typeset label is a lost `\;`.
-- The count is twenty. If a question is retired, another is written.
+- The count is thirty: twenty single-skill questions and ten full-length ones. If a question is
+  retired, another of the same kind is written.
 
 All nine gates in `CLAUDE.md` §5 must pass before an edit is delivered. Three of them reach into the
-drills: `labtest.js` walks the pager through all twenty of every module, and `mathscan.js` and
-`textclash.js` each page through the twenty and open every solution, because a question left unpaged
+drills: `labtest.js` walks the pager through all thirty of every module, and `mathscan.js` and
+`textclash.js` each page through the thirty and open every solution, because a question left unpaged
 is a question no gate has ever rendered.
+
+
+---
+
+## The last ten of each module — 2026-08-02 (v1.5)
+
+The first twenty questions of a module ask one skill each. The last ten are written in the form the
+examination papers use: one statement, three to five lettered parts, and a single worked solution that
+covers all of them. A later part almost always rests on the signal an earlier part built, so an error
+early in the question travels — which is the property that makes the form worth practising and is
+absent from a single-skill question.
+
+Every one of the thirty-six questions in the three papers is represented. Twenty-eight of them are
+carried whole; the two that mix modules, Final Q1 and Q2, are split part by part, so 2019 Q1(a) sits in
+Module 1 while Q1(b) and Q1(c) stay together in Module 3. The remaining thirty-two questions are further
+variants of the same paper questions, written to the same form and the same difficulty.
+
+**What is kept and what is replaced.** The shape is kept: the same number of parts, in the same order,
+asking the same things. The arithmetic is replaced entirely — every coefficient, frequency, phase,
+support interval, decay rate, impulse location and figure is new. A replacement leaves the character of
+the answer intact: a periodic signal stays periodic, an unstable system stays unstable, and where a part
+exists to show a failure the failure is kept.
+
+**Teaching note.** The two halves are meant to be worked in order. A student who can do all twenty
+single-skill questions and then stalls on a full-length one is not missing a method; they are missing
+the habit of carrying an exact intermediate result from one part to the next. That is what the last ten
+are there to build, and it is worth saying so out loud when setting them.
