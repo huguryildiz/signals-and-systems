@@ -9,11 +9,11 @@ window.C23 = [
 
 /* ================= CHAPTER 2 ================= */
 {t:'h1', num:'CHAPTER 2', text:'Systems and their properties'},
-{t:'p', lead:true, text:'A system is judged by what it does to signals, not by what it is made of. Six properties decide almost everything that follows, and two of them are the whole of Chapter 3.'},
+{t:'p', lead:true, text:'This chapter gives tests for memory, invertibility, causality, stability, time invariance and linearity. Each test describes a system through its input and output signals.'},
 
 {t:'h2', num:'2.1', text:'What a system is'},
-{t:'p', text:'A system is a rule that turns an input signal into an output signal. The rule is deterministic: the same input, applied twice, must give the same output. Without that, none of the tests below would even make sense.'},
-{t:'p', text:'Write it as an operator, $y=S\\{x\\}$. The argument is a whole function, not a number. That is why questions about memory, causality and time shifts can be asked at all.'},
+{t:'p', text:'A system is a rule that turns an input signal into an output signal. The rule is deterministic: the same input always gives the same output.'},
+{t:'p', text:'Write the rule as an operator, $y=S\\{x\\}$. The operator acts on the whole input signal. This form lets us test which input times affect an output and how the system responds to a time shift.'},
 {t:'fig', svg:()=>P.blocks({w:700,h:190,items:[
   {t:'arrow',x1:60,y1:60,x2:230,y2:60},{t:'box',x:230,y:34,w:170,h:52,label:'continuous-time system',fs:13},
   {t:'arrow',x1:400,y1:60,x2:570,y2:60},
@@ -21,7 +21,7 @@ window.C23 = [
   {t:'arrow',x1:60,y1:140,x2:230,y2:140},{t:'box',x:230,y:114,w:170,h:52,label:'discrete-time system',fs:13},
   {t:'arrow',x1:400,y1:140,x2:570,y2:140},
   {t:'text',x:140,y:128,label:'x[n]',tex:true,fs:15},{t:'text',x:490,y:128,label:'y[n]',tex:true,fs:15}
-]}), cap:'The same picture in both domains. An amplifier, a numerical filter and a pencil-and-paper integrator can all be the same system.'},
+]}), cap:'The operator description applies in continuous time and discrete time.'},
 
 {t:'h2', num:'2.2', text:'Memory'},
 {t:'box', html:'<span class="t">Criterion</span>A system is <b>memoryless</b> if the output at time $t$ (or $n$) depends only on the input at that same time.'},
@@ -31,24 +31,26 @@ window.C23 = [
  ['$y[n]=x[n-1]$','has memory','The output at $n$ uses the sample at $n-1$.'],
  ['$y[n]=x[n]+y[n-1]$','has memory','See the derivation below.']
 ]},
-{t:'p', text:'The last one is worth doing carefully, because the memory is hidden in the feedback. Substitute repeatedly:'},
+{t:'p', text:'For the last system, expose the memory by substituting the feedback relation repeatedly:'},
 {t:'eq', tex:'y[n-1]=x[n-1]+y[n-2],\\qquad y[n-2]=x[n-2]+y[n-3],\\qquad\\dots'},
 {t:'eq', tex:'\\Longrightarrow\\quad y[n]=x[n]+x[n-1]+x[n-2]+\\cdots=\\sum_{k=0}^{\\infty}x[n-k].'},
-{t:'p', text:'The output depends on the whole past of the input. Feedback on the output is memory just as surely as an explicit delay on the input.'},
-{t:'box', kind:'ok', html:'<span class="t">Circuit reading</span>A resistor, $v(t)=R\\,i(t)$, is memoryless. A capacitor, $v(t)=\\frac{1}{C}\\int_{-\\infty}^{t}i(\\tau)\\,\\d\\tau$, is not. Memory is stored energy.'},
+{t:'p', text:'The result uses $x[n-k]$ for every $k\\ge0$, so the output depends on the whole input history. Output feedback can therefore give a system memory.'},
+{t:'box', kind:'ok', html:'<span class="t">Circuit examples</span>A resistor, $v(t)=R\\,i(t)$, is memoryless because the voltage at $t$ uses only the current at $t$. A capacitor is not memoryless because $v(t)=\\frac{1}{C}\\int_{-\\infty}^{t}i(\\tau)\\,\\d\\tau$ uses the current history.'},
 
 {t:'h2', num:'2.3', text:'Invertibility'},
 {t:'box', html:'<span class="t">Criterion</span>A system is <b>invertible</b> if distinct inputs always produce distinct outputs. The map must be one-to-one.'},
-{t:'p', text:'There are two ways to settle it, and they cost very different amounts of work. To prove invertibility, find an inversion formula that works for every input. To disprove it, find one pair of inputs that collide.'},
+{t:'p', text:'To prove invertibility, find a formula that recovers every input from its output. To disprove invertibility, find two distinct inputs that give the same output.'},
 {t:'ex', hd:'Example 2.1', rows:[
  ['Given','$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$.'],
  ['Find','Is the system invertible?'],
+ ['Method','Solve the system rule for $x(t)$ and verify that the divisor never vanishes.'],
  ['Solution','Yes. The gain satisfies $1\\le\\cos(t)+2\\le3$, so it never vanishes and $$x(t)=\\frac{y(t)}{\\cos(t)+2}.$$'],
  ['Check','Substituting back gives $\\bigl[\\cos t+2\\bigr]\\dfrac{y(t)}{\\cos t+2}=y(t)$. Had the gain been $\\cos(t)$ alone, the system would fail at every zero of the cosine.']
 ]},
 {t:'ex', hd:'Example 2.2', rows:[
  ['Given','$y(t)=x^{2}(t)$.'],
  ['Find','Is the system invertible?'],
+ ['Method','Search for two distinct inputs that lose the same information under squaring.'],
  ['Solution','No. Take $x_1(t)=1$ and $x_2(t)=-1$ for all $t$. These are different inputs, but $y_1(t)=y_2(t)=1$.'],
  ['Check','One counterexample is enough. The sign information is destroyed and cannot be recovered from $y$ alone.']
 ]},
@@ -70,12 +72,12 @@ window.C23 = [
   a.note(2.5,0.52,'forbidden: the future',{anchor:'middle',color:C.err,fs:13});
   a.note(0,1.1,'now',{anchor:'middle',color:C.err,fs:12}); return a.svg();},
  cap:'Causality restricts which part of the input axis the output is allowed to consult.'},
-{t:'p', text:'A system that must run in real time has to be causal, because the future has not happened yet. Non-causal systems are perfectly useful whenever the whole record already exists, as in offline audio or image processing.'},
+{t:'p', text:'A real-time system must be causal because future input values are not available. A non-causal system can be used when the complete signal has already been stored, as in offline audio or image processing.'},
 
 {t:'h2', num:'2.5', text:'Stability'},
 {t:'p', text:'A signal is <b>bounded</b> if there is a constant $B<\\infty$ with $|x(t)|<B$ for all $t$.'},
 {t:'box', html:'<span class="t">Criterion</span>A system is <b>BIBO stable</b> if every bounded input produces a bounded output. Bounded Input, Bounded Output.'},
-{t:'box', kind:'warn', html:'<span class="t">The two directions cost differently</span>To prove stability you must bound the output for <b>every</b> bounded input. To disprove it you need <b>one</b> bounded input whose output is unbounded. Testing a single well-behaved input and concluding "stable" proves nothing.'},
+{t:'box', kind:'warn', html:'<span class="t">Proof and counterexample</span>To prove stability, derive an output bound for every bounded input. To disprove stability, find one bounded input that produces an unbounded output. One bounded example cannot prove stability.'},
 {t:'ex', hd:'Example 2.3', rows:[
  ['Given','$y(t)=2x^{2}(t-1)+x(3t)$.'],
  ['Find','Is the system stable?'],
@@ -111,17 +113,18 @@ window.C23 = [
 {t:'ex', hd:'Example 2.5', rows:[
  ['Given','$y(t)=\\sin\\bigl(x(t)\\bigr)$.'],
  ['Find','Is the system time invariant?'],
+ ['Method','Compute the response to a shifted input and compare it with the shifted response.'],
  ['Solution','Path 1: with $x_2(t)=x_1(t-t_0)$ we get $y_2(t)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.<br>Path 2: $y_1(t)=\\sin\\bigl(x_1(t)\\bigr)$, so $y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.<br>They agree for every $t_0$, so the system is time invariant.'],
- ['Check','The rule contains no explicit $t$. That is usually a reliable sign.']
+ ['Check','Both paths give the same expression for every input and every $t_0$.']
 ]},
 {t:'ex', hd:'Example 2.6', rows:[
  ['Given','$y[n]=n\\,x[n]$.'],
  ['Find','Is the system time invariant?'],
  ['Method','Look for a counterexample using an impulse.'],
  ['Solution','Take $x_1[n]=\\delta[n]$. Then $y_1[n]=n\\,\\delta[n]=0$ for every $n$.<br>Now delay by one: $x_2[n]=\\delta[n-1]$ gives $y_2[n]=n\\,\\delta[n-1]=\\delta[n-1]$, which equals 1 at $n=1$.<br>Time invariance would require $y_2[n]=y_1[n-1]=0$. It does not. The system is <b>not</b> time invariant.'],
- ['Check','One counterexample settles it. Note that the impulse is the cheapest test signal available, because it isolates a single index.']
+ ['Check','The impulse isolates one index, so the unequal outputs form a complete counterexample.']
 ]},
-{t:'box', kind:'ok', html:'<span class="t">The pattern behind every failure</span>A system fails time invariance exactly when its rule contains the time variable explicitly: a coefficient $n$, a gain $\\cos(t)$, or a scaled argument $x(3t)$. If $t$ or $n$ appears anywhere outside the input, be suspicious at once.'},
+{t:'box', kind:'ok', html:'<span class="t">When to apply the test first</span>An explicit time-dependent coefficient such as $n$ or $\\cos(t)$ usually breaks time invariance. A scaled input argument such as $x(3t)$ also changes input shifts. In either case, use the two-path test.'},
 
 {t:'h2', num:'2.7', text:'Linearity'},
 {t:'eqbox', cap:'Criterion', tex:'a\\,x_1+b\\,x_2\\;\\longrightarrow\\;a\\,y_1+b\\,y_2\\qquad\\text{for all }a,b\\in\\mathbb{C}',
@@ -129,25 +132,27 @@ window.C23 = [
 {t:'ex', hd:'Example 2.7', rows:[
  ['Given','$y(t)=2\\pi\\,x(t)$.'],
  ['Find','Is the system linear?'],
+ ['Method','Apply the system to a weighted sum and compare the result with the same weighted sum of the two outputs.'],
  ['Solution','With $x_3=ax_1+bx_2$: $$y_3=2\\pi(ax_1+bx_2)=a\\underbrace{2\\pi x_1}_{y_1}+b\\underbrace{2\\pi x_2}_{y_2}=ay_1+by_2.$$ The system is linear. It is also time invariant, so it is the simplest possible LTI system.']
 ]},
 {t:'ex', hd:'Example 2.8', rows:[
  ['Given','$y[n]=\\bigl(x[2n]\\bigr)^{2}$.'],
  ['Find','Is the system linear?'],
+ ['Method','Apply superposition and compare the powers and cross term with the required linear result.'],
  ['Solution','With $x_3[n]=ax_1[n]+bx_2[n]$: $$y_3[n]=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^{2}=a^{2}x_1^{2}[2n]+2ab\\,x_1[2n]x_2[2n]+b^{2}x_2^{2}[2n],$$ while $ay_1[n]+by_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n]$. The powers of $a$ and $b$ differ and a cross term appears, so the system is <b>not</b> linear.'],
- ['Check','A quicker route: scaling the input by $a$ scales this output by $a^{2}$. Homogeneity alone already fails.']
+ ['Check','Scaling the input by $a$ scales this output by $a^{2}$, so homogeneity also fails.']
 ]},
-{t:'box', kind:'err', html:'<span class="t">Linear does not mean straight line</span>$y(t)=x(t)+5$ is not linear, because the zero input does not give the zero output. Any linear system must satisfy $S\\{0\\}=0$. That is a five-second first test.'},
+{t:'box', kind:'err', html:'<span class="t">Zero-input test</span>$y(t)=x(t)+5$ is not linear because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$.'},
 
 {t:'h2', num:'2.8', text:'How to classify an unfamiliar system'},
 {t:'ol', items:[
- '<b>Look for an explicit $t$ or $n$.</b> A coefficient like $n$, a gain like $\\cos t$, or a scaled argument like $x(3t)$ makes time invariance the first thing to test, and usually the first thing to fail.',
- '<b>Look for nonlinearity.</b> Squares, products of the input with itself, $\\sin(x)$, absolute values, saturation. Test homogeneity with a single scalar; it is the cheapest disproof available.',
- '<b>Read the arguments.</b> Anything other than $x$ evaluated exactly at $t$ or $n$ breaks memorylessness. Future arguments break causality.',
- '<b>Try to bound the output.</b> Assume $|x|\\le B$ and look for a finite bound. If the attempt fails, the failure usually shows you the counterexample.',
- '<b>Leave invertibility to last.</b> It is needed least often and argued badly most often.'
+ '<b>Test time invariance.</b> Apply the two-path test when the rule contains an explicit $t$ or $n$, a time-dependent gain, or a scaled argument.',
+ '<b>Test linearity.</b> Look for squares, products, $\\sin(x)$, absolute values or saturation. Test homogeneity with one scalar first.',
+ '<b>Inspect every input argument.</b> An argument different from $t$ or $n$ gives memory. An argument later than the output time gives non-causality.',
+ '<b>Test stability.</b> Assume $|x|\\le B$ and derive a finite output bound. To disprove stability, choose a bounded input that makes the output unbounded.',
+ '<b>Test invertibility.</b> Find an inverse formula or two distinct inputs with the same output.'
 ]},
-{t:'box', kind:'ok', html:'<span class="t">The only free implication</span><b>Memoryless implies causal.</b> Everything else must be established on its own. In particular, causal does not imply stable, linear does not imply time invariant, and stable does not imply memoryless.'},
+{t:'box', kind:'ok', html:'<span class="t">One general implication</span><b>Memoryless implies causal.</b> Establish the other properties independently. A causal system need not be stable, a linear system need not be time invariant, and a stable system need not be memoryless.'},
 {t:'table', head:['System','Memoryless','Invertible','Causal','Stable','Time inv.','Linear'], rows:[
  ['$y(t)=2\\pi x(t)$','yes','yes','yes','yes','yes','yes'],
  ['$y[n]=x[n-1]$','no','yes','yes','yes','yes','yes'],
@@ -157,7 +162,7 @@ window.C23 = [
  ['$y[n]=x[-n]$','no','yes','no','yes','no','yes'],
  ['$y[n]=(x[2n])^{2}$','no','no','no','yes','no','no']
 ]},
-{t:'p', text:'Read this table down the columns, not across the rows. No column is determined by another, which is why six separate tests are needed.'},
+{t:'p', text:'Read each property down its column. The examples show why the six properties require separate tests.'},
 
 {t:'h3', text:'Exercises'},
 {t:'q', n:'2.1', text:'Classify $y(t)=x(t)\\,u(t)$ against all six properties.', ans:'Memoryless, not invertible, causal, stable, not time invariant, linear.'},

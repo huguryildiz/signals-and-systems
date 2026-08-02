@@ -10,8 +10,8 @@ const SC = [
 { id:'m2-open', module:'M2', nav:'Module 2 opening', title:'Systems and Their Properties', src:'pp. 11–14',
   dark:true, keywords:'module 2 systems properties overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Systems and Their Properties', src:'pp. 11–14'},
-  {t:'title', level:1, text:'Six questions,<br>asked in a fixed order'},
-  {t:'lede', text:'A system is described by what it does to signals, not by what it is made of. Six properties decide almost everything that follows. Two of them, taken together, are the whole content of Module 3.'},
+  {t:'title', level:1, text:'Six properties<br>of a system'},
+  {t:'lede', text:'This module gives tests for memory, invertibility, causality, stability, time invariance and linearity. These tests describe a system by its input and output signals.'},
   {t:'raw', html:`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin:auto 0;max-width:1500px">
     ${['Memoryless','Invertible','Causal','BIBO stable','Time invariant','Linear'].map((n,i)=>
       `<div style="border-top:2px solid ${i>=4?'var(--coral)':'rgba(233,236,242,.35)'};padding-top:14px">
@@ -21,7 +21,7 @@ const SC = [
       </div>`).join('')}
   </div>`},
   {t:'raw', html:'<div style="margin-top:auto"></div>'},
-  {t:'note', kind:'warn', head:'Method, not intuition', html:'<span style="color:var(--graphite)">Each property is settled either by a proof that holds for <em>every</em> input, or by a single explicit counterexample. Nothing in this module is decided by inspecting a block diagram.</span>'}
+  {t:'note', kind:'warn', head:'How to decide a property', html:'<span style="color:var(--graphite)">To establish a property, give a proof that holds for every input. To disprove a property, give one explicit counterexample.</span>'}
 ]},
 
 { id:'m2-abstraction', module:'M2', nav:'Input–output abstraction', title:'The input–output abstraction', src:'p. 11',
@@ -30,11 +30,11 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'A system is a map between signals'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b> that turns input signals into output signals. Treated as a mathematical object, it is a “black box” that performs this map <b>deterministically</b>.'},
+    {t:'note', kind:'def', head:'Definition', html:'A system is a rule that turns an input signal into an output signal. The rule is <b>deterministic</b>: the same input always gives the same output.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'Write it as an operator. {{sym:S|$S$}} maps a whole signal to a whole signal, $y=S\\{x\\}$. It does not map a number to a number. The argument is the entire function. That is why memory, causality and time invariance can be expressed at all.'}]},
+      {t:'body', html:'Write the rule as an operator: $y=S\\{x\\}$. The operator {{sym:S|$S$}} maps the whole input signal to the whole output signal. This form lets us ask whether the output uses other input times or changes when the input is shifted.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Two systems are equal when they act identically', html:'An RC circuit, a numerical filter and a pencil-and-paper integrator can be the <em>same</em> system. How a system is built does not affect any property in this module. That is what makes the theory portable.'}]}
+      {t:'note', kind:'warn', head:'Equality of systems', html:'Two systems are equal when they give the same output for every input. Their physical construction may differ, but their input-output rule is the same.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:300,items:[
       {t:'arrow',x1:70,y1:100,x2:250,y2:100},{t:'box',x:250,y:60,w:200,h:80,label:'S',tex:true},
@@ -64,10 +64,10 @@ const SC = [
       {t:'wex', rows:[
         ['(d)','$y[n]=x[n]+y[n-1]$ — <b>not memoryless</b>.'],
         ['Proof','Substituting repeatedly: $y[n-1]=x[n-1]+y[n-2]$, $y[n-2]=x[n-2]+y[n-3]$, … so<br>$y[n]=x[n]+x[n-1]+x[n-2]+\\cdots=\\displaystyle\\sum_{k=0}^{\\infty}x[n-k]$.'],
-        ['Conclusion','$y[n]$ depends on $x[n-k]$ for every $k\\ge0$, that is on the whole past. Feedback on the <em>output</em> is memory, just as much as a delay on the input.']
+        ['Conclusion','$y[n]$ depends on $x[n-k]$ for every $k\\ge0$, so it depends on the whole past. Output feedback can therefore give a system memory.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'The circuit reading', html:'A resistor, $v(t)=R\\,i(t)$, is memoryless: the voltage now depends only on the current now. A capacitor, $v(t)=\\frac1C\\int_{-\\infty}^{t}i(\\tau)\\d\\tau$, is not: the voltage now encodes the entire current history. Memory is stored energy.'}]}
+      {t:'note', kind:'def', head:'Circuit examples', html:'A resistor, $v(t)=R\\,i(t)$, is memoryless because its voltage at $t$ uses only its current at $t$. A capacitor is not memoryless because $v(t)=\\frac1C\\int_{-\\infty}^{t}i(\\tau)\\d\\tau$ uses the current history.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:150,items:[
       {t:'line',d:'M60 75 h60 l12 -22 l24 44 l24 -44 l24 44 l24 -44 l12 22 h60'},
@@ -98,8 +98,8 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
   {t:'title', text:'Invertible'},
   {t:'cols', ratio:'c-5-7', left:[
-    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>invertible</b> if <b>distinct input signals produce distinct output signals</b> — the map is one-to-one.'},
-    {t:'note', kind:'warn', head:'Two ways to settle it', html:'<b>(1)</b> Find an inversion formula. <b>(2)</b> Find a counterexample showing the system is not invertible.<br>The two are not equally cheap. One formula proves invertibility for all inputs. One counterexample destroys it.'},
+    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>invertible</b> if distinct input signals produce distinct output signals. This property is also called a <b>one-to-one</b> map.'},
+    {t:'note', kind:'warn', head:'Two methods', html:'To prove invertibility, find a formula that recovers every input from its output. To disprove invertibility, find two distinct inputs that give the same output.'},
     {t:'reveal', at:1, items:[
       {t:'wex', rows:[
         ['(a)','$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$ — <b>invertible</b>.'],
@@ -114,7 +114,7 @@ const SC = [
         ['Conclusion','Two inputs, one output ⇒ the map is not one-to-one. The sign information is destroyed and cannot be recovered from $y$ alone.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'A trap worth naming', html:'“$x(t)=\\sqrt{y(t)}$” is <b>not</b> an inversion formula. It picks one of two pre-images by convention. It does not recover the input. An inversion formula must return the actual input, for every input the system accepts.'}]}
+      {t:'note', kind:'err', head:'Not an inverse', html:'$x(t)=\\sqrt{y(t)}$ does not invert $y=x^{2}$. It selects only one of the two possible inputs. An inversion formula must recover the actual input for every allowed input.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:800,h:230,items:[
       {t:'line',d:'M120 115 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
@@ -152,9 +152,9 @@ const SC = [
         ['(e)','$y(t)=x(t)\\cos(t+1)$ — <b>causal</b>: $y(t)$ uses only $x(t)$; $\\cos(t+1)$ is a known deterministic function of $t$, not a future input.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A wording correction', html:'It is tempting to justify (e) by saying that $\\cos(t+1)$ “is constant”. It is not constant. It is a <em>known function of $t$</em>, fixed in advance, and it needs no knowledge of the input. That is what keeps the system causal.'}]},
+      {t:'note', kind:'warn', head:'Why example (e) is causal', html:'$\\cos(t+1)$ is not constant. It is a known function fixed before the input is applied. The system remains causal because it uses no input value after time $t$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why engineers care', html:'A system that runs in real time <b>must</b> be causal, because the future has not happened yet. Non-causal systems are fine and useful whenever the record already exists: offline audio, image processing, and any smoothing filter that looks both ways along a stored signal.'}]}
+      {t:'note', kind:'def', head:'Use of causality', html:'A real-time system must be causal because future input values are not available. A non-causal system can be used when the complete signal has already been stored, as in offline audio and image processing.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:300,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
@@ -204,7 +204,7 @@ const SC = [
         ['Conclusion','One bounded input with unbounded output is enough. The accumulator is unstable.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'The asymmetry that catches people out', html:'To <em>prove</em> stability you must bound the output for <b>every</b> bounded input. To <em>disprove</em> it you need <b>one</b>. Testing a single well-behaved input and concluding “stable” is the most common false positive in this module.'}]},
+      {t:'note', kind:'err', head:'Proof and counterexample', html:'To prove stability, find an output bound for every bounded input. To disprove stability, find one bounded input that produces an unbounded output. One bounded example cannot prove stability.'}]},
     {t:'reveal', at:4, items:[
       {t:'note', kind:'warn', head:'Causal ≠ stable', html:'The accumulator is causal and unstable. $y[n]=x[-n]$ is stable and non-causal. The six properties are logically independent, except where a proof connects them. Memoryless ⇒ causal is the one implication that always holds.'}]}
   ], right:[
@@ -230,7 +230,7 @@ const SC = [
   {t:'title', text:'Time invariant'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>time invariant</b> if a time shift of the input produces the <b>same</b> time shift of the output:<br>if $x(t)\\to y(t)$ then $x(t-t_0)\\to y(t-t_0)$ for every $t_0\\in\\mathbb{R}$.'},
-    {t:'note', kind:'warn', head:'The test, stated procedurally', html:'Compute two things and compare them.<br><b>Path 1.</b> Shift the input, then run the system: $y_2 = S\\{x(t-t_0)\\}$.<br><b>Path 2.</b> Run the system, then shift the output: $y_1(t-t_0)$.<br>Time invariant ⟺ the two agree for every input and every $t_0$.'},
+    {t:'note', kind:'warn', head:'Method', html:'Compute two signals.<br><b>Path 1.</b> Shift the input and apply the system: $y_2 = S\\{x(t-t_0)\\}$.<br><b>Path 2.</b> Apply the system and shift its output: $y_1(t-t_0)$.<br>The system is time invariant only if the results agree for every input and every $t_0$.'},
     {t:'reveal', at:1, items:[
       {t:'wex', rows:[
         ['(a)','$y(t)=\\sin\\bigl(x(t)\\bigr)$ — <b>time invariant</b>.'],
@@ -239,7 +239,7 @@ const SC = [
         ['Compare','Identical for every $t_0$ ⇒ time invariant.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'One shift is not a proof', html:'The comparison has to hold for <em>every</em> $t_0$. A rule such as $y[n]=(-1)^{n}x[n]$ passes a shift of two and fails a shift of one, so a single test that agrees proves nothing. A single test that disagrees, on the other hand, settles the question at once.'}]}
+      {t:'note', kind:'warn', head:'One shift cannot prove the property', html:'The comparison must hold for every $t_0$. The rule $y[n]=(-1)^{n}x[n]$ passes a shift of two and fails a shift of one. Agreement for one shift is not a proof, but disagreement for one shift is a valid counterexample.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:300,items:[
       {t:'arrow',x1:60,y1:80,x2:200,y2:80},{t:'box',x:200,y:48,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
@@ -269,7 +269,7 @@ const SC = [
       ['Compare','$y_1[n-1]=0$ but $y_2[n]=\\delta[n-1]\\neq0$. One counterexample settles it.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'The pattern behind every failure', html:'A system fails time invariance exactly when its rule contains the time variable <em>explicitly</em>: a coefficient $n$, a gain $\\cos(t)$, or a scaled argument $x(3t)$. If $t$ or $n$ appears anywhere except inside the input, test time invariance first.'}]},
+      {t:'note', kind:'def', head:'When to test first', html:'An explicit time-dependent coefficient such as $n$ or $\\cos(t)$ usually breaks time invariance. A scaled input argument such as $x(3t)$ also changes input shifts. In either case, apply the two-path test.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Not the same as linearity', html:'$y[n]=n\\,x[n]$ is linear and <em>not</em> time invariant. $y(t)=x^{2}(t)$ is time invariant and <em>not</em> linear. The two properties are independent, and Module 3 needs both.'}]}
   ], right:[
@@ -320,9 +320,9 @@ const SC = [
         ['Compare','$a y_1[n]+b y_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n]$. The powers of $a,b$ differ <em>and</em> a cross term appears ⇒ not linear.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'A quicker disproof, when you want one', html:'Homogeneity alone often fails. Scaling the input by $a$ scales this output by $a^{2}$. Testing $a=2$, $b=0$ settles it in one line. Additivity and homogeneity are each <em>necessary</em>. If either one fails, the system is not linear.'}]},
+      {t:'note', kind:'warn', head:'A shorter disproof', html:'Test homogeneity first. Scaling the input by $a$ scales this output by $a^{2}$, not by $a$. Setting $a=2$ and $b=0$ disproves linearity. A failure of either homogeneity or additivity is enough.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'“Linear” does not mean “straight line”', html:'$y(t)=x(t)+5$ is <b>not</b> linear, because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$. That is a five-second first test, and it rules out any constant offset.'}]}
+      {t:'note', kind:'err', head:'Zero-input test', html:'$y(t)=x(t)+5$ is not linear because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$, so this test rules out any non-zero constant offset.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:330,items:[
       {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
@@ -337,7 +337,7 @@ const SC = [
       {t:'text',x:520,y:228,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
       {t:'text',x:660,y:170,label:'equal?',fs:16,color:C.coral},
       {t:'line',d:'M640 90 h40 v150 h-40',color:C.coral}
-    ]}), caption:'Linearity is the statement that these two routes always agree. Every proof in this module is a comparison of the two.'}
+    ]}), caption:'A linear system gives the same result when signals are combined before or after the system.'}
   ]}
 ]},
 
@@ -345,15 +345,15 @@ const SC = [
   objective:'Give a repeatable order of attack for classifying an unfamiliar system.',
   keywords:'workflow classification order strategy checklist', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Method', src:'pp. 11–14'},
-  {t:'title', text:'The order in which to attack an unfamiliar system'},
+  {t:'title', text:'A method for classifying a system'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p><b>Step 1 — Look for an explicit $t$ or $n$.</b> A coefficient like $n$, a gain like $\\cos t$, or a scaled argument like $x(3t)$ makes time invariance the first thing to test, and usually the first thing to fail.</p>
-      <p><b>Step 2 — Look for nonlinearity.</b> Squares, products of the input with itself, $\\sin(x)$, absolute values, saturation. Test homogeneity with a single scalar $a$; it is the cheapest disproof available.</p>
-      <p><b>Step 3 — Read the arguments.</b> $x(t+1)$, $x[n+1]$, $x[-n]$, $x(3t)$ for $t>0$ break causality. Anything other than $x$ evaluated exactly at $t$ (or $n$) breaks memorylessness.</p>
-      <p><b>Step 4 — Bound the output.</b> Assume $|x|\\le B$ and try to produce a finite bound. If the attempt fails, the failure usually shows you the counterexample: accumulate a step, integrate a constant, multiply by an unbounded coefficient.</p>
-      <p><b>Step 5 — Invertibility last.</b> It is the property least often needed and the one most often argued badly.</p>`},
+    {t:'body', html:`<p><b>Step 1: test time invariance.</b> Apply the two-path test when the rule contains an explicit $t$ or $n$, a time-dependent gain, or a scaled argument.</p>
+      <p><b>Step 2: test linearity.</b> Look for squares, products, $\\sin(x)$, absolute values or saturation. Test homogeneity with one scalar first.</p>
+      <p><b>Step 3: inspect every input argument.</b> An argument different from $t$ or $n$ gives memory. An argument later than the output time gives non-causality.</p>
+      <p><b>Step 4: test stability.</b> Assume $|x|\\le B$ and derive a finite output bound. To disprove stability, choose a bounded input that makes the output grow without bound.</p>
+      <p><b>Step 5: test invertibility.</b> Find an inverse formula or two distinct inputs with the same output.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The only implication that is always free', html:'<b>Memoryless ⇒ causal.</b> Everything else must be established independently. In particular: causal does not imply stable, linear does not imply time invariant, and stable does not imply memoryless.'}]}
+      {t:'note', kind:'ok', head:'One general implication', html:'<b>Memoryless ⇒ causal.</b> Establish the other properties independently. A causal system need not be stable, a linear system need not be time invariant, and a stable system need not be memoryless.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const rows=[
@@ -377,7 +377,7 @@ const SC = [
           fill="${v?'#4A7A46':'#A63B2A'}">${v?'✓':'✗'}</text>`));
       });
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
-    }, caption:'The systems used in this module, with all six verdicts. Read the columns, not the rows. No column determines another, and that is why six separate tests are needed.'}
+    }, caption:'The examples show that the six properties require separate tests. Read each property down its column.'}
   ]}
 ]},
 
@@ -386,7 +386,7 @@ const SC = [
   keywords:'laboratory system property checker criterion counterexample', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory D', src:'pp. 11–14, 21'},
   {t:'title', text:'Thirteen systems, six tests each'},
-  {t:'lede', text:'Every verdict below rests on an argument or on an explicit counterexample, never on inspection. Predict the six answers before you open them.'},
+  {t:'lede', text:'Classify each system with a proof or an explicit counterexample. Predict all six results before opening the explanation.'},
   {t:'lab', id:'D'}
 ]},
 
@@ -394,14 +394,14 @@ const SC = [
   dark:true, objective:'Consolidate and motivate the LTI restriction.',
   keywords:'synthesis summary module 2 LTI motivation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Synthesis', src:'pp. 11–14'},
-  {t:'title', text:'Why two of the six matter more than the rest'},
+  {t:'title', text:'Why linearity and time invariance are used together'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)">Four of the six properties describe what a system is <em>allowed</em> to do: use memory, look ahead, amplify without bound, discard information. They constrain implementation.</p>
-      <p style="color:var(--graphite)">Two of them, <b>linearity</b> and <b>time invariance</b>, do something different. Together they make the system <em>completely determined by a single test</em>.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)">Memory, causality, stability and invertibility describe limits on a system.</p>
+      <p style="color:var(--graphite)">Linearity and time invariance give an additional result: one impulse response determines the output for every input.</p>`},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:var(--graphite)">If a system is linear and time invariant, then its response to <b>one</b> input, the unit impulse, determines its response to <b>every</b> input. The system reduces from an infinite-dimensional map to one function $h$.</span>'}]},
     {t:'reveal', at:2, items:[
-      {t:'body', html:`<p style="color:var(--graphite)">The argument is three lines long and uses only what you already have: the representation property from Module 1 ($x$ is a sum of weighted, shifted impulses), time invariance (a shifted impulse gives a shifted impulse response), and linearity (weights and sums pass through).</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">Module 3 proves this result in three steps. Represent the input as weighted shifted impulses. Use time invariance to shift the impulse response. Then use linearity to pass the weights and sum through the system.</p>`}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
     {t:'lede', text:'A saturating amplifier is time invariant but not linear. A fading radio channel is linear but not time invariant. Both are very common, and neither one has an impulse response. What does that cost you in practice? What do engineers do about it?'},
