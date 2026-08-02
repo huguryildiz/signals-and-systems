@@ -1,26 +1,23 @@
 /* ==========================================================================
-   EE 311 · Signals and Systems — the page in front of the course.
+   EE 413 · Digital Communications — the page in front of the course.
 
-   Dark, because both things that move on it are instruments and an instrument
-   is read off a dark screen. The three accent colours are the three the course
-   itself uses and never reassigns: cyan is an input, amber is a system, green
-   is an output. Red appears once, where a reconstruction has gone wrong, which
-   is the one other thing the course gives a colour to.
+   Dark, because the two things on it that move are instruments and an
+   instrument is read off a dark screen. The three accent colours are the three
+   stops of the gradient in the mark: green for a signal, blue for a clock or a
+   sample, amber for a channel. Nothing else is coloured.
    ========================================================================== */
 
 :root{
-  --bg:      #080D14;
-  --bg-2:    #0E1621;
-  --bg-3:    #141F2C;
-  --ink:     #EDEAE2;
-  --muted:   #A0A9B4;
-  --faint:   #6B7684;
-  --rule:    rgba(150,175,205,.15);
-
-  --cyan:    #4FBECE;   /* input, continuous-time signal */
-  --amber:   #E0AE55;   /* system, impulse response      */
-  --green:   #82C27B;   /* output                        */
-  --red:     #E2705C;   /* aliasing, the failure case    */
+  --bg:      #04050f;
+  --bg-2:    #080b1a;
+  --bg-3:    #0d1122;
+  --ink:     #e9edf7;
+  --muted:   #9aa4be;
+  --faint:   #626d8a;
+  --rule:    rgba(146,164,214,.15);
+  --green:   #39ff85;
+  --blue:    #5b8cff;
+  --amber:   #ff9f45;
 
   --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",
            "Hoefler Text",Georgia,"Times New Roman",serif;
@@ -50,7 +47,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 
 .eyebrow{
   font-family:var(--mono); font-size:11.5px; letter-spacing:.17em;
-  text-transform:uppercase; color:var(--cyan); margin-bottom:14px;
+  text-transform:uppercase; color:var(--blue); margin-bottom:14px;
 }
 
 .note{
@@ -65,7 +62,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
   position:sticky; top:0; z-index:40;
   display:flex; align-items:center; justify-content:space-between; gap:24px;
   padding:14px clamp(18px,4vw,44px);
-  background:rgba(8,13,20,.72); backdrop-filter:blur(14px);
+  background:rgba(4,5,15,.72); backdrop-filter:blur(14px);
   border-bottom:1px solid var(--rule);
 }
 .brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
@@ -83,17 +80,17 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 /* ----------------------------------------------------------------- button -- */
 .btn{
   display:inline-block; padding:11px 21px; border-radius:9px;
-  border:1px solid var(--rule); background:rgba(150,175,205,.06);
+  border:1px solid var(--rule); background:rgba(146,164,214,.06);
   color:var(--ink); font-size:14.5px; font-weight:500; text-decoration:none;
   transition:border-color .18s var(--ease), background .18s var(--ease),
              transform .18s var(--ease);
 }
-.btn:hover{ border-color:rgba(150,175,205,.4); background:rgba(150,175,205,.12);
+.btn:hover{ border-color:rgba(146,164,214,.4); background:rgba(146,164,214,.12);
   transform:translateY(-1px); }
 .btn--primary{
-  background:var(--cyan); border-color:var(--cyan); color:#04171B; font-weight:600;
+  background:var(--green); border-color:var(--green); color:#04120a; font-weight:600;
 }
-.btn--primary:hover{ background:#6FD3E1; border-color:#6FD3E1; }
+.btn--primary:hover{ background:#6effa6; border-color:#6effa6; }
 .btn--sm{ padding:7px 15px; font-size:13.5px; }
 
 /* ------------------------------------------------------------------- hero -- */
@@ -112,15 +109,17 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .hero__title{
   font-size:clamp(46px,8.4vw,92px); letter-spacing:-.028em; margin-bottom:22px;
 }
-/* The ramp runs input to output, cyan through the system's amber to green,
-   which is the sentence the whole course makes. */
+/* The mark's gradient runs green → blue → amber, but blue and amber meet
+   through grey in sRGB and the word goes muddy in the middle. Here the ramp
+   stops at blue and stays saturated across the whole word; the amber is spent
+   on the instrument below instead, where it means a channel. */
 .hero__title-em{
-  background:linear-gradient(96deg,var(--cyan) 0%,#8FC9AE 46%,var(--green) 100%);
+  background:linear-gradient(96deg,var(--green) 0%,#3ad9c8 34%,#46a8ff 68%,var(--blue) 100%);
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 .hero__lead{
-  max-width:640px; font-size:clamp(16.5px,1.6vw,19px); color:var(--muted);
-  text-shadow:0 1px 20px rgba(8,13,20,.9);
+  max-width:620px; font-size:clamp(16.5px,1.6vw,19px); color:var(--muted);
+  text-shadow:0 1px 20px rgba(4,5,15,.9);
 }
 .hero__cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
 
@@ -156,7 +155,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 
 .band__copy p{ color:var(--muted); margin-bottom:16px; }
 .band__copy .eq{
-  font-family:var(--serif); font-size:22px; color:var(--cyan);
+  font-family:var(--serif); font-size:22px; color:var(--green);
   text-align:center; padding:16px 0; margin:6px 0 18px;
   border-block:1px solid var(--rule);
 }
@@ -165,8 +164,11 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .scope{
   position:relative; border:1px solid var(--rule); border-radius:14px;
   background:var(--bg); overflow:hidden;
-  box-shadow:0 26px 70px -32px rgba(79,190,206,.28), 0 2px 0 rgba(255,255,255,.03) inset;
+  box-shadow:0 26px 70px -32px rgba(57,255,133,.28), 0 2px 0 rgba(255,255,255,.03) inset;
 }
+/* The readout is pinned to the screen, not to the figure — the caption below
+   it is paper, and a reading that sits on the caption is a reading that has
+   left the instrument. */
 .scope__frame{ position:relative; }
 .scope__screen{ display:block; width:100%; aspect-ratio:16/10; }
 @media (max-width:520px){ .scope__screen{ aspect-ratio:4/3; } }
@@ -180,27 +182,18 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .hud b{ color:var(--ink); font-weight:600; }
 .hud__tl{ top:14px; left:16px; display:flex; flex-direction:column; gap:5px; }
 .hud__tr{ top:14px; right:16px; text-align:right; }
-/* The two readings sit above the time axis the canvas draws, not on it. */
-.hud__bl{ bottom:34px; left:16px; color:var(--amber); }
+.hud__bl{ bottom:14px; left:16px; color:var(--amber); }
 .hud__bl b{ color:var(--amber); }
-.hud__br{ bottom:34px; right:16px; color:var(--green); }
-.hud__br b{ color:var(--green); }
-/* The one place the page turns red is the one place the course does: a
-   reconstruction that is no longer the signal that was sampled. */
-.hud__br.is-aliased{ color:var(--red); }
-.hud__br.is-aliased b{ color:var(--red); }
-.hud__live{ color:var(--cyan); display:flex; align-items:center; gap:8px; }
+.hud__br{ bottom:14px; right:16px; color:var(--amber); }
+.hud__br b{ color:var(--amber); }
+.hud__live{ color:var(--green); display:flex; align-items:center; gap:8px; }
 .hud__live i{
-  width:8px; height:8px; border-radius:50%; background:#FF4F6A;
+  width:8px; height:8px; border-radius:50%; background:#ff4f6a;
   animation:blink 2.4s var(--ease) infinite;
 }
 @keyframes blink{ 0%,45%{ opacity:1 } 55%,100%{ opacity:.25 } }
 @media (prefers-reduced-motion:reduce){ .hud__live i{ animation:none; } }
-.hud__key{ color:var(--faint); letter-spacing:.14em; }
-.hud__key i{ font-style:normal; }
-.hud__key .k-in{ color:var(--cyan); }
-.hud__key .k-sm{ color:var(--amber); }
-.hud__key .k-out{ color:var(--green); }
+.hud__bits{ color:var(--faint); letter-spacing:.22em; }
 
 .scope figcaption{
   padding:13px 17px; font-size:13px; color:var(--faint);
@@ -208,6 +201,9 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 }
 
 /* ------------------------------------------------------------- the modules -- */
+/* Seven cards into a four-column grid leaves a hole, so each card carries its
+   own border and the hole is simply empty page rather than a phantom eighth
+   module. */
 .mods{
   list-style:none; margin-top:44px;
   display:grid; grid-template-columns:repeat(auto-fit,minmax(258px,1fr)); gap:14px;
@@ -219,7 +215,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .mods__n{
   display:inline-flex; align-items:center; justify-content:center;
   width:28px; height:28px; border-radius:50%;
-  border:1px solid rgba(79,190,206,.45); color:var(--cyan);
+  border:1px solid rgba(91,140,255,.45); color:var(--blue);
   font-family:var(--mono); font-size:12.5px; margin-bottom:14px;
 }
 .mods h3{ font-size:19px; margin-bottom:8px; }
@@ -237,7 +233,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
   transition:border-color .2s var(--ease), transform .2s var(--ease),
              background .2s var(--ease);
 }
-.doc:hover{ border-color:rgba(79,190,206,.45); background:var(--bg-3);
+.doc:hover{ border-color:rgba(57,255,133,.45); background:var(--bg-3);
   transform:translateY(-2px); }
 .doc__kind{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
@@ -245,10 +241,7 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 }
 .doc h3{ font-size:20px; }
 .doc p{ color:var(--muted); font-size:14.5px; flex:1; }
-.doc__go{ color:var(--cyan); font-size:14px; font-weight:500; }
-.doc__alt{ font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
-  color:var(--faint); }
-.doc__alt:hover{ color:var(--ink); }
+.doc__go{ color:var(--green); font-size:14px; font-weight:500; }
 
 /* ----------------------------------------------------------------- footer -- */
 .foot{
@@ -260,3 +253,17 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .foot__fine{ margin-top:8px; }
 .foot a{ color:var(--muted); text-decoration:underline; text-underline-offset:2px; }
 .foot a:hover{ color:var(--ink); }
+
+/* ---------------------------------------------- this course's instrument -- */
+/* The sampler needs a key for its three traces and one state the sibling
+   course has no use for: a reconstruction that is no longer the signal that
+   was sampled. Nothing above this line is changed. */
+.hud__key{ color:var(--faint); letter-spacing:.14em; }
+.hud__key i{ font-style:normal; }
+.hud__key .k-in{ color:var(--green); }
+.hud__key .k-sm{ color:var(--blue); }
+.hud__key .k-out{ color:var(--amber); }
+.hud__br.is-aliased,
+.hud__br.is-aliased b{ color:#ff4f6a; }
+.doc__alt{ font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
+  color:var(--faint); }

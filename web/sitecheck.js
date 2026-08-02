@@ -151,7 +151,7 @@ const note = m => console.log('  ' + m);
 
     /* Both instruments have to have painted something. A canvas that stayed
        blank is the failure this page can have without erroring. */
-    for (const id of ['flow', 'scope']) {
+    for (const id of ['grid', 'scope']) {
       const ink = await page.evaluate(cid => {
         const c = document.getElementById(cid);
         if (!c || !c.width || !c.height) return -1;
