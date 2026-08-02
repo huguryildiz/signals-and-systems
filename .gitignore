@@ -63,3 +63,5 @@ AGENTS.md
 # --- Public site build (web/build-site.js) ---
 # Assembled from dist/ on every deploy; nothing in it is authored by hand.
 site/
+.vercel
+.env*

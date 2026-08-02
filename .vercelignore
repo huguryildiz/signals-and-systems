@@ -1,0 +1,12 @@
+# Nothing here is needed to build the site, and the first entry must never
+# leave this machine: `source/` holds the textbook, the handwritten scan and
+# the examination papers. The deploy is a build from `build/src` and
+# `notes/src`, so excluding these costs nothing.
+source/
+.venv/
+.claude/
+shots/
+pages/
+site/
+textclash.json
+*.tmp
