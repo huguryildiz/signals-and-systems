@@ -21,9 +21,9 @@ const aSq = (k,T,T1)=> k===0 ? 2*T1/T : Math.sin(2*PI*k*T1/T)/(PI*k);
 const lpfTime = (t,W)=> (W/PI)*sincU(W*t);
 
 Object.assign(CONTENT.GLOSS, {
-  Xjw:{ s:'X(j\\omega)', d:'Continuous-time Fourier transform of x(t). It is a complex function of the real angular frequency ω, in rad/s. The letter X is reserved for a signal; H is reserved for a system.', go:'m5-pair' },
-  sincf:{ s:'\\operatorname{sinc}(\\theta)', d:'Unnormalised sinc: sinc(θ) = sin θ / θ, with sinc(0) = 1 and zeros at θ = ±π, ±2π, … This course uses no other convention.', go:'m5-rect-sinc' },
-  Wband:{ s:'W', d:'Band edge of an ideal low-pass band, in rad/s: the transform is 1 for |ω| < W and 0 beyond it.', go:'m5-sinc-rect' },
+  Xjw:{ s:'X(j\\omega)', d:'Continuous-time Fourier transform of $x(t)$. It is a complex function of the real angular frequency $\\omega$, in rad/s. The letter $X$ is reserved for a signal; $H$ is reserved for a system.', go:'m5-pair' },
+  sincf:{ s:'\\operatorname{sinc}(\\theta)', d:'Unnormalised sinc: $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, with $\\operatorname{sinc}(0)=1$ and zeros at $\\theta=\\pm\\pi,\\;\\pm2\\pi,\\;\\ldots$ This course uses no other convention.', go:'m5-rect-sinc' },
+  Wband:{ s:'W', d:'Band edge of an ideal low-pass band, in rad/s: the transform is $1$ for $|\\omega|<W$ and $0$ beyond it.', go:'m5-sinc-rect' },
   wc:{ s:'\\omega_c', d:'Carrier angular frequency of an amplitude-modulated signal, in rad/s.', go:'m5-am' }
 });
 

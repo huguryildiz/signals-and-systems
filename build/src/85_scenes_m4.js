@@ -24,12 +24,12 @@ const dtRect = (k,N,N1)=>{ const r = k/N;
   return Math.sin(2*Math.PI*k*(N1+0.5)/N)/(N*Math.sin(Math.PI*k/N)); };
 
 Object.assign(CONTENT.GLOSS, {
-  ak:{ s:'a_k', d:'Fourier series coefficient of harmonic index k. It is a complex number: |a_k| is the amplitude of the k-th harmonic and ∠a_k is its phase.', go:'m4-fs-synth' },
-  bk:{ s:'b_k', d:'Fourier series coefficient of the output of a linear time-invariant system, b_k = a_k H(jkω₀).', go:'m4-lti' },
-  Hs:{ s:'H(s)', d:'Transfer function of a continuous-time linear time-invariant system: the eigenvalue attached to the eigenfunction e^{st}.', go:'m4-eigen-ct' },
-  Hz:{ s:'H(z)', d:'Transfer function of a discrete-time linear time-invariant system: the eigenvalue attached to the eigenfunction zⁿ.', go:'m4-eigen-dt' },
-  Hjw:{ s:'H(j\\omega)', d:'Frequency response of a continuous-time system, H(s) evaluated at s = jω. It reports what the system does to the complex exponential of angular frequency ω rad/s.', go:'m4-lti' },
-  Hejw:{ s:'H(e^{j\\omega})', d:'Frequency response of a discrete-time system, H(z) evaluated at z = e^{jω}. It is periodic in ω with period 2π.', go:'m4-dt-filt' },
+  ak:{ s:'a_k', d:'Fourier series coefficient of harmonic index $k$. It is a complex number: $|a_k|$ is the amplitude of the $k$-th harmonic and $\\angle a_k$ is its phase.', go:'m4-fs-synth' },
+  bk:{ s:'b_k', d:'Fourier series coefficient of the output of a linear time-invariant system, $b_k=a_kH(jk\\omega_0)$.', go:'m4-lti' },
+  Hs:{ s:'H(s)', d:'Transfer function of a continuous-time linear time-invariant system: the eigenvalue attached to the eigenfunction $e^{st}$.', go:'m4-eigen-ct' },
+  Hz:{ s:'H(z)', d:'Transfer function of a discrete-time linear time-invariant system: the eigenvalue attached to the eigenfunction $z^{n}$.', go:'m4-eigen-dt' },
+  Hjw:{ s:'H(j\\omega)', d:'Frequency response of a continuous-time system, $H(s)$ evaluated at $s=j\\omega$. It reports what the system does to the complex exponential of angular frequency $\\omega$ rad/s.', go:'m4-lti' },
+  Hejw:{ s:'H(e^{j\\omega})', d:'Frequency response of a discrete-time system, $H(z)$ evaluated at $z=e^{j\\omega}$. It is periodic in $\\omega$ with period $2\\pi$.', go:'m4-dt-filt' },
   eigen:{ s:'\\text{eigenfunction}', d:'A signal that a system returns unchanged in shape, scaled by a constant. For every linear time-invariant system the complex exponentials are the eigenfunctions.', go:'m4-eigen-ct' },
   mse:{ s:'\\text{MSE}', d:'Mean-square error between a signal and a truncated Fourier series, averaged over one period.', go:'m4-howmany' }
 });
