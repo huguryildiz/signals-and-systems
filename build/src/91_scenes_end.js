@@ -7,10 +7,10 @@ const P = PLOT, C = P.COL;
 const SC = [
 
 { id:'end-synth', module:'Synthesis', nav:'Closing synthesis', title:'One chain of reasoning', src:'pp. 2–88',
-  objective:'Carry the whole course as a single argument, from a signal to a sampled signal.',
+  objective:'Summarise how signals, LTI systems, transforms, and sampling connect.',
   keywords:'closing synthesis unified through-line convolution fourier transform sampling', steps:2, blocks:[
   {t:'eyebrow', text:'Synthesis · Modules 0–7', src:'pp. 2–88'},
-  {t:'title', text:'One chain of reasoning'},
+  {t:'title', text:'How the main ideas connect'},
   {t:'cols', ratio:'c-7-5', left:[
     {t:'fig', svg:()=>{
       const W=1080,H=545,g=[];
@@ -38,12 +38,12 @@ const SC = [
     }}
   ], right:[
     {t:'sub', text:'Choosing a domain'},
-    {t:'body', html:`<p>Work in the <b>time domain</b> when the input is short and piecewise, when you need the output at a particular instant, or when the system is not LTI and convolution is unavailable anyway.</p>
-      <p>Work in the <b>frequency domain</b> when the input is periodic or long, when the question is which components survive, or when a convolution would need more than about three cases. The transform is chosen by the signal: a series for a periodic one, a transform for an aperiodic one, and square brackets throughout if time is discrete.</p>`},
+    {t:'body', html:`<p>Use the <b>time domain</b> when the input is short or piecewise, when one output value is required, or when the system is not LTI and convolution does not apply.</p>
+      <p>Use the <b>frequency domain</b> when the input is periodic or long, when the question asks which frequency components remain, or when time-domain convolution would require more than about three cases. Use a Fourier series for a periodic signal and a Fourier transform for an aperiodic signal. Use square brackets when time is discrete.</p>`},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'warn', head:'Misconceptions to guard against', html:'Confusing energy with power · applying shift and scale in the wrong order · assuming every discrete-time sinusoid is periodic · classifying a system without a formal test · forgetting the flip in convolution · naming the forward transform “synthesis” · dropping the $2\\pi$ from an impulse weight · drawing a discrete-time spectrum over one period only · reading replication and aliasing as one event.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The one sentence to keep', html:'A linear time-invariant system is completely described by one function, and the whole of this course is two ways of using it: convolve with $h$ in time, or multiply by $H$ in frequency. Everything else — the series, the two transforms, the sampling theorem — is about which of the two is easier and what it costs to move between them.'}]}
+      {t:'note', kind:'ok', head:'Central result', html:'One impulse response completely describes a linear time-invariant system. Compute its output by convolving with $h$ in time or by multiplying by $H$ in frequency. Fourier series and transforms provide the frequency representation, while the sampling theorem states when discrete samples preserve it.'}]}
   ]}
 ]},
 
@@ -54,9 +54,9 @@ const SC = [
   {t:'title', text:'Eight modules, eight additions'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
-      ['Module 0','What a course on signals and systems is for, and the map of it.'],
+        ['Module 0','The purpose, structure, and notation of the course.'],
       ['Module 1','A signal is a function. Energy against power, transformations of the independent variable, impulses, and the complex exponential family.'],
-      ['Module 2','A system is a map on signals. Six properties, each settled by a proof or by one counterexample.'],
+        ['Module 2','A system maps input signals to output signals. Each property is established by a proof or disproved by one counterexample.'],
       ['Module 3','Linear and time invariant together give $y=x*h$. One function describes the system; one operation computes the output.']
     ]},
     {t:'reveal', at:1, items:[
@@ -68,10 +68,10 @@ const SC = [
       ]}]}
   ], right:[
     {t:'sub', text:'Where the practice sits'},
-    {t:'body', html:`<p>Ten laboratories run beside the modules, A to J. Each one is a single question made adjustable: what a transformation does to a support, what a filter keeps, how many harmonics a waveform needs, where a spectrum lands after modulation, what a rate too low destroys.</p>
-      <p>Every module from 1 to 7 opens with a map of the question types it will ask and closes with thirty questions of that kind, the last ten of them full-length questions with several parts under one statement. Nothing is multiple choice: a question is stated, worked on paper, and then checked against a full solution that ends by testing its own answer a second way.</p>`},
+    {t:'body', html:`<p>Laboratories A to J let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
+      <p>Each module from 1 to 7 begins with its recurring question types and ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'How to use what is left', html:'Work a laboratory until its readout stops surprising you, then work its module\'s questions with the solutions closed. The two are built to be used in that order: the laboratory makes a behaviour visible, and the questions ask whether you can predict it before you look.'}]}
+      {t:'note', kind:'def', head:'How to practise', html:'Use a laboratory first to connect each control with its plotted effect. Then close the solution panels and answer the module questions. The laboratory shows the behaviour; the questions test whether you can predict it.'}]}
   ]}
 ]},
 

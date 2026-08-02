@@ -50,7 +50,7 @@ window.CA = [
 ]},
 {t:'eqbox', cap:'Convolution',
  tex:['y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]h[n-k]','y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)h(t-\\tau)\\,\\d\\tau'],
- after:'Commutative, distributive and associative. Supports add. Total areas or total sums multiply.'},
+ after:'Convolution is commutative, distributive, and associative. The output support is the sum of the input supports. The total areas, or the total sums in discrete time, multiply.'},
 {t:'page'},
 {t:'h2', num:'A.7', text:'Fourier series properties'},
 {t:'p', text:'A periodic signal of period $T_0$ with $\\omega_0=2\\pi/T_0$, or a periodic sequence of period $N$ with $\\omega_0=2\\pi/N$. In both columns $x\\leftrightarrow a_k$ and $y\\leftrightarrow b_k$.'},
@@ -71,7 +71,7 @@ window.CA = [
  ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$','same'],
  ['Parseval','$\\frac{1}{T_0}\\int_{T_0}|x|^{2}\\d t=\\sum_{k}|a_k|^{2}$','$\\frac{1}{N}\\sum_{n=\\langle N\\rangle}|x|^{2}=\\sum_{k=\\langle N\\rangle}|a_k|^{2}$']
 ]},
-{t:'p', text:'Three rows differ between the columns, and all three follow from one fact: discrete-time coefficients repeat, $a_k=a_{k+N}$. Multiplication therefore sums over one period rather than over all integers; scaling carries a factor $\\frac{1}{m}$, because the average is taken over $m$ times as many samples; and a sequence has a first difference where a signal has a derivative. The two conditional rows fail at $k=0$ for the same reason in both columns: a non-zero mean integrates or accumulates without bound.'},
+{t:'p', text:'The two columns differ in three rows because discrete-time coefficients repeat, $a_k=a_{k+N}$. For multiplication, the discrete-time sum therefore covers one period instead of all integers. Time expansion carries the factor $\\frac{1}{m}$ because the average uses $m$ times as many samples. Discrete time also uses a first difference where continuous time uses a derivative. At $k=0$, integration or accumulation requires zero mean; otherwise the result grows without bound.'},
 
 {t:'h2', num:'A.8', text:'Continuous-time Fourier transform'},
 {t:'table', head:['Property','Statement'], rows:[
@@ -111,7 +111,7 @@ window.CA = [
  ['Square wave: $1$ on $|t|<T_1$, $0$ on $T_1<|t|\\le T/2$','$\\sum_k\\frac{2\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0)$'],
  ['$\\sum_k\\delta(t-kT)$','$\\frac{2\\pi}{T}\\sum_k\\delta(\\omega-\\frac{2\\pi k}{T})$']
 ]},
-{t:'p', text:'Every sinc here is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. A table written in the normalised convention divides the argument by $\\pi$, so the two look different while saying the same thing, and copying an argument between them loses a factor of $\\pi$. The exponential pairs hold only for $a>0$.'},
+{t:'p', text:'This table uses the unnormalised definition $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. The normalised convention divides the argument by $\\pi$. Convert the argument when moving between conventions; otherwise the result loses a factor of $\\pi$. The exponential pairs require $a>0$.'},
 
 {t:'h2', num:'A.9', text:'Discrete-time Fourier transform'},
 {t:'table', head:['Property','Statement'], rows:[
@@ -149,7 +149,7 @@ window.CA = [
  ['$\\sum_{k=\\langle N\\rangle}a_ke^{jk(2\\pi/N)n}$','$2\\pi\\sum_k a_k\\delta(\\omega-\\frac{2\\pi k}{N})$'],
  ['$\\sum_k\\delta[n-kN]$','$\\frac{2\\pi}{N}\\sum_k\\delta(\\omega-\\frac{2\\pi k}{N})$']
 ]},
-{t:'p', text:'Every transform in this section is periodic in $\\omega$ with period $2\\pi$, because time is discrete. A periodic sequence has a discrete set of coefficients and an aperiodic one a continuous spectrum: discreteness in one domain is periodicity in the other, and that single sentence organises both tables.'},
+{t:'p', text:'Every transform in this section is periodic in $\\omega$ with period $2\\pi$ because the time index is discrete. A periodic sequence has discrete spectral coefficients, while an aperiodic sequence has a continuous spectrum. In each case, discreteness in one domain produces periodicity in the other.'},
 
 {t:'h2', num:'A.10', text:'Symbols'},
 {t:'table', head:['Symbol','Meaning'], rows:[
