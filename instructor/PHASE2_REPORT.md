@@ -673,3 +673,42 @@ ANCHORED 196, PROBLEMS none; `verify_m1_m3.py` 50 passed; `verify_drills.py` 913
 **One repair during the work.** `textclash.js` found a collision in D6-22: the impulse weight labels of
 a spectrum plotted at half width ran into the neighbouring impulse. The two answer figures of that
 question were moved from a side-by-side pair to full width, and the sweep came back clean.
+
+---
+
+## 16. Maintenance record — 2026-08-02, the five PDF editions rendered (v1.5)
+
+**What was open.** `notes/editions.js` had been rewritten against the drill data on 2026-08-01, when
+the question banks went open-ended, but it had never been run. `dist/Student_Workbook.html` and
+`dist/Instructor_Solutions.html` still dated from 27 July and still carried 140 questions. The PDFs
+built from them were therefore two content revisions behind.
+
+**What running it exposed.** An R8 failure that no gate could reach, because no gate reads the editions.
+A question-type name may carry mathematics — `Inverse transform from a rational $X(j\omega)$` in Module
+5 and `Sinusoids, impulses, and the $2\pi$ periodicity` in Module 6 are the two — and `editions.js`
+interpolated `t.name` raw into the question header. The page printed the dollar signs and the backslash,
+and because `.qcard .qh` is uppercase mono the result read `$X(J\OMEGA)$`. The name now goes through
+`renderInline`, which is the same `md()` the running text uses, and `.qcard .qh .katex` resets
+`text-transform` and `letter-spacing` so the typeset name keeps its own case and spacing.
+
+**A second failure the render exposed.** Seven parts of the new full-length questions in Module 1
+pointed at a figure with *below* — `Calculate the energy of the x(t) signal plotted below` — but the
+schema draws `figure` between the stem and the parts, so the figure is above them. The parts no longer
+point at it at all; the stem already does. Two stems also named the wrong range of parts, `(c) to (e)`
+where the figure is used from `(b)`.
+
+**A third gap the render exposed.** D5-27 was carried over from Final 2018 Q2 with its three signals
+described in prose rather than drawn. It now carries the three figures the paper had: an impulse train
+of period 3 with its areas labelled, a triangle, and a trapezoid.
+
+**How the editions are checked now.** `pdftotext -layout` over every page of all four PDFs, failing on
+a `$...$` pair or a bare TeX macro that reached the page and on any page with almost no text, then a
+look at rendered pages. This is not a gate — it is a sweep, and it is what found all three failures
+above. Current state: Lecture_Notes 73 pages, Student_Workbook 83, Instructor_Solutions 272,
+Formula_Reference 6, every one with `katex errors 0`, `page errors none`, no source text and no empty
+page.
+
+**Gates after the repair.** node --check silent; qa 0 errors 0 overflow; labtest pages=210
+solutions=210 parts=621 options=0, ERRORS none; textclash TOTAL COLLISIONS 0 over 778 figures;
+mathscan 0/223; notes/mathscan LITERAL MATH 0, KATEX ERRORS 0; seccheck ADDRESSED 222 ANCHORED 196;
+verify_m1_m3 50 passed; verify_drills 913 passed; rule_check 0 violations.

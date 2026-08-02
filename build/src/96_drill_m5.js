@@ -591,10 +591,21 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   teach:'Note that $X$ is not conjugate-symmetric, so $x(t)$ is complex, and the filter here is one-sided as a result. Ask what the answer would be with $\\cos(12t)$ in place of $e^{j12t}$: three triangles, symmetric, and a real signal.' },
 
 { id:'D5-27', module:'M5', type:'full', src:'Final Q2',
-  stem:'Consider the following signals, where $x_1(t)$ is a periodic signal whose plot shows the areas under its impulses, while $x_2(t)$ and $x_3(t)$ are aperiodic.$$x_1(t)=\\sum_{k=-\\infty}^{\\infty}2\\,\\delta(t-3k)$$$x_2(t)$ is a triangle of height $2$ on $|t|<2$, and $x_3(t)$ is a trapezoid of height $2$, flat on $|t|\\le1$ and reaching zero at $|t|=3$.',
+  stem:'Consider the three signals plotted below, where $x_1(t)$ is periodic and its plot shows the areas under its impulses, while $x_2(t)$ and $x_3(t)$ are aperiodic.',
   parts:['Determine the Fourier transform of $x_1(t)$.',
          'Determine the Fourier transform of $x_2(t)$.',
          'Determine the Fourier transform of $x_3(t)$. <em>Hint: consider building it from rectangles.</em>'],
+  figure:()=>
+    (()=>{const a=P.Axes({w:1080,h:210,xr:[-7.2,7.2],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_1(t)',
+      pad:{l:52,r:28,t:26,b:36},xstep:3,ystep:1});
+      for(let k=-2;k<=2;k++) a.impulse(3*k,2,{color:C.in});
+      return a.svg();})()
+    +(()=>{const a=P.Axes({w:1080,h:210,xr:[-3.4,3.4],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_2(t)',
+      pad:{l:52,r:28,t:26,b:36},xstep:1,ystep:1});
+      a.poly([[-3.4,0],[-2,0],[0,2],[2,0],[3.4,0]],{color:C.in}); return a.svg();})()
+    +(()=>{const a=P.Axes({w:1080,h:210,xr:[-4.4,4.4],yr:[-0.4,2.6],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',
+      pad:{l:52,r:28,t:26,b:36},xstep:1,ystep:1});
+      a.poly([[-4.4,0],[-3,0],[-1,2],[1,2],[3,0],[4.4,0]],{color:C.in}); return a.svg();})(),
   sol:'<b>Given.</b> An impulse train of period $3$ and weight $2$, a triangle, and a trapezoid.<br>'
      +'<b>Find.</b> Three transforms.<br>'
      +'<b>Method.</b> An impulse train transforms to an impulse train. A triangle is a rectangle convolved with itself; a trapezoid is a convolution of two rectangles of different widths.<br>'
