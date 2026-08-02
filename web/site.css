@@ -1,0 +1,262 @@
+/* ==========================================================================
+   EE 311 · Signals and Systems — the page in front of the course.
+
+   Dark, because both things that move on it are instruments and an instrument
+   is read off a dark screen. The three accent colours are the three the course
+   itself uses and never reassigns: cyan is an input, amber is a system, green
+   is an output. Red appears once, where a reconstruction has gone wrong, which
+   is the one other thing the course gives a colour to.
+   ========================================================================== */
+
+:root{
+  --bg:      #080D14;
+  --bg-2:    #0E1621;
+  --bg-3:    #141F2C;
+  --ink:     #EDEAE2;
+  --muted:   #A0A9B4;
+  --faint:   #6B7684;
+  --rule:    rgba(150,175,205,.15);
+
+  --cyan:    #4FBECE;   /* input, continuous-time signal */
+  --amber:   #E0AE55;   /* system, impulse response      */
+  --green:   #82C27B;   /* output                        */
+  --red:     #E2705C;   /* aliasing, the failure case    */
+
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",
+           "Hoefler Text",Georgia,"Times New Roman",serif;
+  --sans:  "Inter","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",
+           Roboto,Helvetica,Arial,sans-serif;
+  --mono:  "SF Mono","JetBrains Mono","Fira Code",ui-monospace,Menlo,Consolas,monospace;
+
+  --wide: 1180px;
+  --ease: cubic-bezier(.32,.72,.28,1);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16.5px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{ color:inherit; }
+
+h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
+  letter-spacing:-.012em; }
+
+.eyebrow{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.17em;
+  text-transform:uppercase; color:var(--cyan); margin-bottom:14px;
+}
+
+.note{
+  border-left:2px solid var(--amber);
+  padding:2px 0 2px 16px; color:var(--muted); font-size:15px;
+}
+.note--wide{ max-width:var(--wide); margin:44px auto 0; }
+.note b{ color:var(--ink); font-weight:600; }
+
+/* ---------------------------------------------------------------- header -- */
+.bar{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+  padding:14px clamp(18px,4vw,44px);
+  background:rgba(8,13,20,.72); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--rule);
+}
+.brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
+.brand__name{ font-family:var(--mono); font-size:14px; letter-spacing:.1em; font-weight:600; }
+.brand__sub{ color:var(--faint); font-size:13px; }
+.bar__nav{ display:flex; align-items:center; gap:26px; font-size:14px; }
+.bar__nav a{ color:var(--muted); text-decoration:none; transition:color .18s var(--ease); }
+.bar__nav a:hover{ color:var(--ink); }
+
+@media (max-width:760px){
+  .brand__sub{ display:none; }
+  .bar__nav a:not(.btn){ display:none; }
+}
+
+/* ----------------------------------------------------------------- button -- */
+.btn{
+  display:inline-block; padding:11px 21px; border-radius:9px;
+  border:1px solid var(--rule); background:rgba(150,175,205,.06);
+  color:var(--ink); font-size:14.5px; font-weight:500; text-decoration:none;
+  transition:border-color .18s var(--ease), background .18s var(--ease),
+             transform .18s var(--ease);
+}
+.btn:hover{ border-color:rgba(150,175,205,.4); background:rgba(150,175,205,.12);
+  transform:translateY(-1px); }
+.btn--primary{
+  background:var(--cyan); border-color:var(--cyan); color:#04171B; font-weight:600;
+}
+.btn--primary:hover{ background:#6FD3E1; border-color:#6FD3E1; }
+.btn--sm{ padding:7px 15px; font-size:13.5px; }
+
+/* ------------------------------------------------------------------- hero -- */
+.hero{ position:relative; overflow:hidden; border-bottom:1px solid var(--rule); }
+.hero__grid{
+  position:absolute; inset:0; width:100%; height:100%; display:block;
+  touch-action:manipulation;
+}
+.hero__inner{
+  position:relative; z-index:2; pointer-events:none;
+  max-width:var(--wide); margin:0 auto;
+  padding:clamp(72px,13vh,132px) clamp(20px,5vw,44px) clamp(56px,10vh,104px);
+}
+.hero__inner a{ pointer-events:auto; }
+
+.hero__title{
+  font-size:clamp(46px,8.4vw,92px); letter-spacing:-.028em; margin-bottom:22px;
+}
+/* The ramp runs input to output, cyan through the system's amber to green,
+   which is the sentence the whole course makes. */
+.hero__title-em{
+  background:linear-gradient(96deg,var(--cyan) 0%,#8FC9AE 46%,var(--green) 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero__lead{
+  max-width:640px; font-size:clamp(16.5px,1.6vw,19px); color:var(--muted);
+  text-shadow:0 1px 20px rgba(8,13,20,.9);
+}
+.hero__cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+
+.facts{
+  list-style:none; display:flex; flex-wrap:wrap; gap:clamp(24px,4vw,52px);
+  margin-top:clamp(40px,7vh,68px); padding-top:26px;
+  border-top:1px solid var(--rule); max-width:660px;
+}
+.facts li{ display:flex; flex-direction:column; }
+.facts b{ font-family:var(--serif); font-size:30px; font-weight:600; line-height:1; }
+.facts span{ font-family:var(--mono); font-size:11px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--faint); margin-top:7px; }
+
+/* ------------------------------------------------------------------ bands -- */
+.band{
+  max-width:var(--wide); margin:0 auto;
+  padding:clamp(64px,10vh,110px) clamp(20px,5vw,44px);
+}
+.band--alt{
+  max-width:none; background:var(--bg-2);
+  border-block:1px solid var(--rule);
+}
+.band__in{ max-width:var(--wide); margin-inline:auto; }
+
+.band h2{ font-size:clamp(28px,3.4vw,40px); margin-bottom:20px; }
+.band__lead{ max-width:720px; color:var(--muted); }
+
+.band__grid{
+  display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+  gap:clamp(32px,4vw,60px); align-items:center;
+}
+@media (max-width:940px){ .band__grid{ grid-template-columns:1fr; } }
+
+.band__copy p{ color:var(--muted); margin-bottom:16px; }
+.band__copy .eq{
+  font-family:var(--serif); font-size:22px; color:var(--cyan);
+  text-align:center; padding:16px 0; margin:6px 0 18px;
+  border-block:1px solid var(--rule);
+}
+
+/* -------------------------------------------------------------- the scope -- */
+.scope{
+  position:relative; border:1px solid var(--rule); border-radius:14px;
+  background:var(--bg); overflow:hidden;
+  box-shadow:0 26px 70px -32px rgba(79,190,206,.28), 0 2px 0 rgba(255,255,255,.03) inset;
+}
+.scope__frame{ position:relative; }
+.scope__screen{ display:block; width:100%; aspect-ratio:16/10; }
+@media (max-width:520px){ .scope__screen{ aspect-ratio:4/3; } }
+
+.hud{
+  position:absolute; inset:0; pointer-events:none;
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.06em;
+  color:var(--faint);
+}
+.hud > span{ position:absolute; }
+.hud b{ color:var(--ink); font-weight:600; }
+.hud__tl{ top:14px; left:16px; display:flex; flex-direction:column; gap:5px; }
+.hud__tr{ top:14px; right:16px; text-align:right; }
+/* The two readings sit above the time axis the canvas draws, not on it. */
+.hud__bl{ bottom:34px; left:16px; color:var(--amber); }
+.hud__bl b{ color:var(--amber); }
+.hud__br{ bottom:34px; right:16px; color:var(--green); }
+.hud__br b{ color:var(--green); }
+/* The one place the page turns red is the one place the course does: a
+   reconstruction that is no longer the signal that was sampled. */
+.hud__br.is-aliased{ color:var(--red); }
+.hud__br.is-aliased b{ color:var(--red); }
+.hud__live{ color:var(--cyan); display:flex; align-items:center; gap:8px; }
+.hud__live i{
+  width:8px; height:8px; border-radius:50%; background:#FF4F6A;
+  animation:blink 2.4s var(--ease) infinite;
+}
+@keyframes blink{ 0%,45%{ opacity:1 } 55%,100%{ opacity:.25 } }
+@media (prefers-reduced-motion:reduce){ .hud__live i{ animation:none; } }
+.hud__key{ color:var(--faint); letter-spacing:.14em; }
+.hud__key i{ font-style:normal; }
+.hud__key .k-in{ color:var(--cyan); }
+.hud__key .k-sm{ color:var(--amber); }
+.hud__key .k-out{ color:var(--green); }
+
+.scope figcaption{
+  padding:13px 17px; font-size:13px; color:var(--faint);
+  border-top:1px solid var(--rule); background:var(--bg-2);
+}
+
+/* ------------------------------------------------------------- the modules -- */
+.mods{
+  list-style:none; margin-top:44px;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(258px,1fr)); gap:14px;
+}
+.mods li{
+  background:var(--bg-3); border:1px solid var(--rule); border-radius:12px;
+  padding:24px 22px 26px;
+}
+.mods__n{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:50%;
+  border:1px solid rgba(79,190,206,.45); color:var(--cyan);
+  font-family:var(--mono); font-size:12.5px; margin-bottom:14px;
+}
+.mods h3{ font-size:19px; margin-bottom:8px; }
+.mods p{ color:var(--muted); font-size:14.5px; }
+
+/* ----------------------------------------------------------- the documents -- */
+.docs{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
+  gap:16px; margin-top:40px;
+}
+.doc{
+  display:flex; flex-direction:column; gap:9px;
+  padding:24px 22px 22px; border:1px solid var(--rule); border-radius:12px;
+  background:var(--bg-2); text-decoration:none;
+  transition:border-color .2s var(--ease), transform .2s var(--ease),
+             background .2s var(--ease);
+}
+.doc:hover{ border-color:rgba(79,190,206,.45); background:var(--bg-3);
+  transform:translateY(-2px); }
+.doc__kind{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--faint);
+}
+.doc h3{ font-size:20px; }
+.doc p{ color:var(--muted); font-size:14.5px; flex:1; }
+.doc__go{ color:var(--cyan); font-size:14px; font-weight:500; }
+.doc__alt{ font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
+  color:var(--faint); }
+.doc__alt:hover{ color:var(--ink); }
+
+/* ----------------------------------------------------------------- footer -- */
+.foot{
+  border-top:1px solid var(--rule); background:var(--bg-2);
+  padding:38px clamp(20px,5vw,44px) 52px;
+  font-size:13.5px; color:var(--faint);
+}
+.foot > *{ max-width:var(--wide); margin-inline:auto; }
+.foot__fine{ margin-top:8px; }
+.foot a{ color:var(--muted); text-decoration:underline; text-underline-offset:2px; }
+.foot a:hover{ color:var(--ink); }

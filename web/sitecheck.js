@@ -132,31 +132,75 @@ const note = m => console.log('  ' + m);
     await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-light.png') });
 
-    await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-light-full.png'),
-                            fullPage: true });
-
-    await page.click('#btn-theme');
-    await page.waitForTimeout(2500);
-    await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-dark.png') });
-    await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-dark-full.png'),
+    await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-full.png'),
                             fullPage: true });
 
     /* Every link on the cover resolves to a file that was published. */
     const hrefs = await page.evaluate(() =>
       [...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')));
-    const local = hrefs.filter(h => !/^https?:/.test(h));
-    const missing = local.filter(h => !fs.existsSync(path.join(SITE, h)));
-    note('cover links ' + local.length + ' local, missing ' + missing.length
-         + (missing.length ? ' → ' + missing.join(', ') : ''));
+    const files = hrefs.filter(h => !/^https?:/.test(h) && !h.startsWith('#') && h !== '/');
+    const anchors = hrefs.filter(h => h.startsWith('#'));
+    const missing = files.filter(h => !fs.existsSync(path.join(SITE, h)));
+    const dangling = [];
+    for (const a of anchors)
+      if (!(await page.$(a))) dangling.push(a);
+    note('cover links ' + files.length + ' files (missing ' + missing.length + '), '
+         + anchors.length + ' anchors (dangling ' + dangling.length + ')');
     if (missing.length) problems.push('cover links to files that were not published: ' + missing.join(', '));
+    if (dangling.length) problems.push('cover links to sections that do not exist: ' + dangling.join(', '));
 
-    const drawn = await page.evaluate(() => {
-      const c = document.getElementById('flow');
-      const x = c.getContext('2d').getImageData(c.width / 2, c.height / 3, 1, 1).data;
-      return c.width > 0 && c.height > 0 && (x[3] > 0);
-    });
-    if (!drawn) problems.push('the flow field drew nothing');
-    note('flow field painted ' + drawn);
+    /* Both instruments have to have painted something. A canvas that stayed
+       blank is the failure this page can have without erroring. */
+    for (const id of ['flow', 'scope']) {
+      const ink = await page.evaluate(cid => {
+        const c = document.getElementById(cid);
+        if (!c || !c.width || !c.height) return -1;
+        const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let lit = 0;
+        for (let i = 0; i < d.length; i += 4 * 97)
+          if (d[i] > 40 || d[i + 1] > 40 || d[i + 2] > 40) lit++;
+        return lit;
+      }, id);
+      note('canvas #' + id + ' lit samples ' + ink);
+      if (ink <= 0) problems.push('the #' + id + ' canvas drew nothing');
+    }
+
+    /* The readout is computed from the same model that draws the trace, so it
+       has to move with the sweep and it has to call aliasing when the rate is
+       below the Nyquist rate of the 1 kHz cosine. */
+    const read = () => page.evaluate(() => ({
+      fs: parseFloat(document.getElementById('hud-fs').textContent),
+      fr: parseFloat(document.getElementById('hud-fr').textContent),
+      aliased: document.getElementById('hud-out').classList.contains('is-aliased')
+    }));
+    const a = await read();
+    await page.waitForTimeout(2200);
+    const b = await read();
+    note('sampler ' + a.fs.toFixed(2) + ' → ' + b.fs.toFixed(2) + ' kHz · rebuilt '
+         + b.fr.toFixed(2) + ' kHz · aliased ' + b.aliased);
+    if (a.fs === b.fs) problems.push('the sampling rate did not move');
+    for (const s of [a, b]) {
+      const shouldAlias = s.fs < 2 - 1e-9;
+      if (s.aliased !== shouldAlias)
+        problems.push('at fs=' + s.fs + ' kHz the readout says aliased=' + s.aliased);
+      if (!shouldAlias && Math.abs(s.fr - 1) > 1e-6)
+        problems.push('above the Nyquist rate the rebuilt frequency is ' + s.fr + ' kHz, not 1');
+      if (s.fr > s.fs / 2 + 1e-6)
+        problems.push('the rebuilt frequency ' + s.fr + ' is above fs/2');
+    }
+
+    /* The sweep starts at the bottom of its range, which is below the Nyquist
+       rate, so a fresh load is where the aliased branch can be caught. */
+    await page.reload();
+    await page.waitForTimeout(250);
+    const first = await read();
+    note('first frame ' + first.fs.toFixed(2) + ' kHz · rebuilt ' + first.fr.toFixed(2)
+         + ' kHz · aliased ' + first.aliased);
+    if (!first.aliased)
+      problems.push('the sweep does not start below the Nyquist rate, so aliasing is never shown');
+    if (Math.abs(first.fr - Math.abs(1 - Math.round(1 / first.fs) * first.fs)) > 1e-6)
+      problems.push('the rebuilt frequency does not match the folding of 1 kHz at fs='
+                    + first.fs + ' kHz');
 
     if (errors.length) problems.push('cover console error(s): ' + errors[0]);
     note('cover console errors ' + errors.length);
