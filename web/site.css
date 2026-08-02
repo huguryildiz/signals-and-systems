@@ -267,3 +267,29 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .hud__br.is-aliased b{ color:#ff4f6a; }
 .doc__alt{ font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
   color:var(--faint); }
+
+/* ------------------------------------------------ this course's backdrop -- */
+/* The scope is behind the whole page here, not behind the hero alone, so it
+   is fixed to the viewport and every surface above it gives up some of its
+   opacity. The values are the theme's own colours at reduced alpha: nothing
+   new is introduced, the page is simply let through. */
+.page-bg{
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:0; pointer-events:none; display:block;
+}
+body > *:not(.page-bg){ position:relative; z-index:1; }
+
+.hero{ background:transparent; }
+.band--alt{ background:rgba(8,11,26,.78); }
+.mods li{ background:rgba(13,17,34,.72); backdrop-filter:blur(2px); }
+.doc{ background:rgba(8,11,26,.72); backdrop-filter:blur(2px); }
+.doc:hover{ background:rgba(13,17,34,.86); }
+.scope{ background:rgba(4,5,15,.94); backdrop-filter:blur(3px); }
+.scope figcaption{ background:rgba(8,11,26,.86); }
+.foot{ background:rgba(8,11,26,.86); }
+/* A ground behind each reading column read as a visible box however soft its
+   edges were. The backdrop is turned down instead — once at the canvas, so
+   every band gets the same treatment and no element carries a panel it does
+   not otherwise have. */
+.page-bg{ opacity:.52; }
+.hero__lead, .hero__title, .eyebrow, .facts{ text-shadow:0 1px 22px rgba(4,5,15,.95); }

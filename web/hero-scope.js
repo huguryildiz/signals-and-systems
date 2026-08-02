@@ -13,11 +13,14 @@
    the picture this course keeps coming back to: a signal is a sum of
    sinusoids, and what you see depends on their relative frequency and phase.
 
-   Changed from the original: it paints the hero box rather than the window,
-   its colours are the page's own — green the fundamental, blue its shimmer
-   and the sub-harmonic, amber the overtones, the graticule in the hairline
-   colour — and the figure is pushed right so the reading column keeps the
-   left. The standalone page's postMessage parameter channel is gone.
+   It is the backdrop of the whole page, fixed to the viewport, so it stays
+   put while the page scrolls over it. Changed from the original: its colours
+   are the page's own — green the fundamental, blue its shimmer and the
+   sub-harmonic, amber the overtones, the graticule in the hairline colour —
+   every trace is turned down until it reads as ground rather than as
+   subject, and the figure is pushed right of centre so the reading column
+   keeps the left. The standalone page's postMessage parameter channel is
+   gone.
    ========================================================================== */
 (function() {
   var canvas = document.getElementById('hero-scope');
@@ -47,11 +50,11 @@
   var TRAIL_LENGTH = 1.0;
   // Normalized figure center + scale — exposed so the article hero can
   // push the scope off-center without affecting the standalone shader.
-  var CENTER_X = 0.76;
+  var CENTER_X = 0.75;
   var CENTER_Y = 0.5;
-  /* The figure keeps to the right of the reading column: at this scale its
-     left edge clears the lead paragraph at every width the hero takes. */
-  var SCALE = 0.74;
+  /* Behind the whole page rather than behind the hero, so it is centred on
+     the viewport and kept off the reading column by CENTER_X alone. */
+  var SCALE = 0.78;
 
   // ── Mouse tracking ──
   var mouse = { x: -1, y: -1, active: false };
@@ -313,7 +316,7 @@
       currentDelta + time * 0.15,
       0.32,
       'rgba(255, 159, 69, 0.7)',
-      0.12,
+      0.085,
       0.8, 0, 2000
     );
 
@@ -323,7 +326,7 @@
       currentDelta * 1.5 + time * 0.08,
       0.28,
       'rgba(255, 159, 69, 0.5)',
-      0.08,
+      0.055,
       0.6, 0, 2000
     );
 
@@ -345,8 +348,8 @@
       currentDelta,
       0.35,
       'rgba(57, 255, 133, 1.0)',
-      0.7,
-      1.5, 8, 3000
+      0.40,
+      1.3, 6, 3000
     );
 
     // Bright cyan accent trace (slightly offset phase for shimmer)
@@ -355,8 +358,8 @@
       currentDelta + 0.01,
       0.35,
       'rgba(91, 140, 255, 1.0)',
-      0.35,
-      1.0, 12, 3000
+      0.20,
+      0.9, 9, 3000
     );
 
     // ── Bright phosphor dots at key points ──
@@ -384,7 +387,7 @@
 
     // Draw bright core dots (white-hot center)
     ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(233, 237, 247, 0.35)';
+    ctx.fillStyle = 'rgba(233, 237, 247, 0.22)';
     ctx.beginPath();
     for (var i = 0; i < dotCount; i++) {
       var t = (i / dotCount) * coverage;
