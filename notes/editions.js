@@ -73,7 +73,7 @@ const B = [
  {t:'title', kicker:'Signals and Systems', text:'Student Workbook',
   sub:'Every question in the course, with no answer and no solution. Work each one on the page, then check it against the artifact or against the instructor edition.',
   meta:[['Contains', CONTENT.DRILL.length + ' questions across ' + MODS.length + ' modules'],
-        ['Level','Undergraduate, second year'],
+        ['Level','Undergraduate'],
         ['Answers','Not printed in this edition']]},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'h3', text:'How to use it'},
