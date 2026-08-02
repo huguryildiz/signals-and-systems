@@ -11,9 +11,8 @@ const SC = [
   dark:true, keywords:'module 1 overview signals', steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal Foundations', src:'pp. 2–10'},
   {t:'title', level:1, text:'What a signal is,<br>and what it carries'},
-  {t:'lede', text:'Before any system acts on a signal, four questions need answers. How much energy or power does it carry? How does it move under shifting and scaling? Does it repeat? What happens when it is built out of exponentials?'},
+  {t:'lede', text:'This module gives the signal descriptions needed before we study systems. It defines energy and power, explains changes to the time axis, tests periodicity and introduces complex exponential signals.'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'body', html:`<p style="color:var(--graphite)">This module runs from the first definitions to the discrete-time periodicity condition. Two results here cause most of the later mistakes:</p>`},
     {t:'note', kind:'warn', head:'Result 1', html:'<span style="color:var(--graphite)">A signal is <em>energy-type</em>, <em>power-type</em>, or <em>neither</em>. These are not opposites and the third case is real.</span>'},
     {t:'note', kind:'warn', head:'Result 2', html:'<span style="color:var(--graphite)">A discrete-time sinusoid is periodic only when $\\omega_0/2\\pi$ is rational. Continuous-time sinusoids carry no such condition.</span>'}
   ], right:[
@@ -44,16 +43,16 @@ const SC = [
   objective:'Fix the CT/DT notation and the meaning of the independent variable.',
   keywords:'x(t) x[n] notation integer time index continuous discrete stem', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
-  {t:'title', text:'Two notations, held apart on purpose'},
+  {t:'title', text:'Use separate notation for continuous and discrete time'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x(t),\\qquad \\forall t\\in\\mathbb{R}', label:'Continuous time',
       note:'Round brackets. The signal is defined at every real instant.'},
     {t:'eq', tex:'x[n],\\qquad \\forall n\\in\\mathbb{Z}', label:'Discrete time',
       note:'Square brackets. {{sym:xn|The index $n$}} is an <b>integer time index</b> — not a time in seconds. Plotted with <code>stem(·)</code>.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Notation is not decoration', html:'Writing $x[t]$ or $x(n)$ is not just a typing slip. It states the wrong domain. Every later statement about periodicity, convolution limits and transform periodicity then breaks.'}]},
+      {t:'note', kind:'err', head:'The brackets state the domain', html:'Writing $x[t]$ or $x(n)$ states the wrong domain. The domain determines the periodicity test, the convolution limits and the transform properties.'}]},
     {t:'reveal', at:2, items:[
-      {t:'body', html:'A signal need not be a function of time. An image is a signal of two space variables. The same algebra applies, so <em>spatial</em> aliasing appears in Module 7 next to the time-domain kind.'}]}
+      {t:'body', html:'A signal does not have to use time as its independent variable. An image uses two space variables. The same signal operations apply to those variables. Module 7 therefore studies <em>spatial aliasing</em> as well as time-domain aliasing.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'10px', items:[
       [{t:'fig', frame:true, svg:()=>{
@@ -65,7 +64,7 @@ const SC = [
         const a=P.Axes({w:820,h:230,xr:[0,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]=\\cos(n)',
           pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
         a.stem(disc(n=>Math.cos(n),0,20),{color:C.mid}); return a.svg();
-      }, caption:'The discrete signal is <b>only</b> the dots. A curve drawn through them is a separate object, and it has to be justified. Module 7 does that.'}]
+      }, caption:'The dots are the discrete-time signal values. A curve through the dots is a separate continuous-time signal. Module 7 explains when that curve can be reconstructed from the samples.'}]
     ]}
   ]}
 ]},
@@ -76,14 +75,14 @@ const SC = [
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Where $|x|^2$ comes from'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Start from a resistor, not from an abstraction. For a voltage $v(t)$ across a resistance $R$:'},
+    {t:'body', html:'Signal energy and power come from circuit power. For a voltage $v(t)$ across a resistance $R$, first use Ohm\'s law to replace the current:'},
     {t:'eq', tex:'p(t)=v(t)\\,i(t)=v(t)\\left(\\frac{v(t)}{R}\\right)=\\frac{1}{R}\\,v^{2}(t)',
       label:'Instantaneous power', note:'Units: watts. The square of the voltage signal is what carries the power.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'E=\\int_{t_1}^{t_2}p(t)\\,\\d t=\\int_{t_1}^{t_2}\\frac{1}{R}v^{2}(t)\\,\\d t',
         label:'Energy over a finite window', note:'Energy = power × time, integrated because the power varies.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The convention used from here on', html:'From here on the factor $1/R$ is dropped and the power is written $|x(t)|^{2}$. This is the <b>normalised</b> convention, $R=1\\ \\Omega$. It is standard, and it is why energies are quoted in joules with no resistance named. Put the $1/R$ back whenever you need a physical number.'}]},
+      {t:'note', kind:'warn', head:'Normalised convention', html:'From this point onward, set $R=1\\ \\Omega$ and write power as $|x(t)|^{2}$. This is the <b>normalised</b> convention. Restore the factor $1/R$ when a physical calculation uses a different resistance.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Why the modulus', html:'Signals may be complex-valued, and $|x(t)|^{2}=x(t)\\,x^{*}(t)$ is the quantity that is real and non-negative. Writing $x^{2}(t)$ instead is correct only for real signals.'}]}
   ], right:[
@@ -99,7 +98,7 @@ const SC = [
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'Energy is the area under the instantaneous-power curve. Everything that follows asks one question: does that area stay finite as the window grows?'}
+      caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
   ]}
 ]},
 
@@ -107,7 +106,7 @@ const SC = [
   objective:'State E∞ in both domains and flag non-convergence.',
   keywords:'E infinity total energy integral summation converge', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
-  {t:'title', text:'Opening the window'},
+  {t:'title', text:'Let the energy interval grow'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg',
       tex:'E_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\;=\\;\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t',
@@ -116,9 +115,9 @@ const SC = [
       tex:'E_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\sum_{n=-N}^{N}|x[n]|^{2}\\;=\\;\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}',
       label:'Discrete time'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Two warnings belong here', html:'<b>The integral may not converge. The summation may not converge.</b> $E_\\infty$ is defined as a limit. A limit that does not exist is not a large number. It is the absence of an answer. That failure is useful information: it is what makes a signal power-type.'}]},
+      {t:'note', kind:'err', head:'Check convergence', html:'The integral or sum may not converge. Because $E_\\infty$ is a limit, non-convergence means that the signal has no finite total energy. You must then calculate average power before classifying the signal.'}]},
     {t:'reveal', at:2, items:[
-      {t:'body', html:'The symmetric limit $\\lim_{T\\to\\infty}\\int_{-T}^{T}$ matters. It is what lets a two-sided signal be treated at all. The same symmetric limit returns in the definition of average power.'}]}
+      {t:'body', html:'Use a symmetric interval from $-T$ to $T$ so that the limit includes both sides of a two-sided signal. The average-power definition uses the same interval.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:780,h:300,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
@@ -134,7 +133,7 @@ const SC = [
       a.curve(t=>Math.cos(2*t),{color:C.err});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
       return a.svg(); },
-      caption:'<b>Diverging.</b> Every new period adds the same area, so $E_\\infty\\to\\infty$. The useful question is now the <em>rate</em> at which area builds up. That rate is average power.'}
+      caption:'<b>Diverging.</b> Each new period adds the same area, so $E_\\infty\\to\\infty$. Average power measures the energy added per unit time.'}
   ]}
 ]},
 
@@ -151,7 +150,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Why the count is 2N + 1', html:'$2N+1$ is the <b>number of samples</b> from $-N$ to $+N$, with both ends included. Using $2N$ gives the same limit, but the wrong value at finite $N$. That difference shows up at once in estimates from short records.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Reading the definition correctly', html:'$P_\\infty$ is <em>not</em> "the energy divided by infinity". It is the limit of a ratio. That ratio can settle at any value greater than or equal to zero. Zero is what happens for every energy-type signal.'}]}
+      {t:'note', kind:'warn', head:'Take the limit of the ratio', html:'For each finite interval, divide its energy by its duration. Then let the interval grow. The ratio may approach any non-negative value. It approaches zero for every energy signal.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:780,h:340,xr:[0,40],yr:[-0.06,0.62],xlabel:'T\\;(\\text{half-window})',
@@ -165,7 +164,7 @@ const SC = [
       a.note(38,0.545,'u(t):\\;P_\\infty=1/2',{anchor:'end',color:C.in,fs:14,tex:true});
       a.note(38,0.09,'\\text{rectangular pulse}:\\;P_\\infty=0',{anchor:'end',color:C.out,fs:14,tex:true});
       return a.svg(); },
-      caption:'The two limits, as functions of the window half-width $T$. A power signal settles on a non-zero value. An energy signal is driven to zero by the $1/2T$ factor, however large its energy is.'}
+      caption:'These curves show the average over a window with half-width $T$. The power signal approaches a non-zero value. The energy signal approaches zero because its finite energy is divided by $2T$.'}
   ]}
 ]},
 
@@ -173,13 +172,13 @@ const SC = [
   objective:'State the two classifications and the third case that neither of them covers.',
   keywords:'energy signal power signal neither classification finite infinite', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'Three outcomes, not two'},
+  {t:'title', text:'Classify a signal using energy and power'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'ok', head:'Energy signals', html:'Finite energy $\\bigl(E_\\infty<\\infty\\bigr)$ <b>and</b> zero average power $\\bigl(P_\\infty=0\\bigr)$.'},
     {t:'note', kind:'warn', head:'Power signals', html:'Finite power $\\bigl(P_\\infty<\\infty\\bigr)$ <b>and</b> infinite energy $\\bigl(E_\\infty\\to\\infty\\bigr)$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Neither: the case the two lines above miss', html:'If a signal grows without bound, <em>both</em> quantities diverge. $x(t)=t\\,u(t)$ has $E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$. It is neither an energy signal nor a power signal.'},
-      {t:'small', html:'So the question "energy or power?" has three answers, and the third one is not a failure of the calculation. Some signals belong to neither class.'}]}
+      {t:'note', kind:'err', head:'Neither class', html:'If a signal grows without bound, both quantities may diverge. For $x(t)=t\\,u(t)$, $E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$. The signal is neither an energy signal nor a power signal.'},
+      {t:'small', html:'Always allow three possible classifications: energy, power or neither.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:250,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
@@ -199,15 +198,15 @@ const SC = [
   objective:'Show that finite energy forces zero average power, and give the engineering reading of the three classes.',
   keywords:'energy forces zero power averaging window transient steady state neither ramp', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'One condition, not two'},
+  {t:'title', text:'Finite energy implies zero average power'},
   {t:'cols', ratio:'c-5-7', left:[
-    {t:'body', html:'Look at the logic of the first definition. Its two conditions are <b>not independent</b>. Finite energy forces $P_\\infty=0$, because a finite numerator divided by $2T\\to\\infty$ goes to zero. The second condition follows from the first. It is not an extra test.'},
+    {t:'body', html:'The energy-signal conditions are not independent. If total energy is finite, the energy in every finite window is at most $E_\\infty$. Dividing that bound by $2T$ makes the average power approach zero.'},
     {t:'eq', size:'sm', tex:'E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0',
       note:'The averaging window grows without bound while the numerator stops growing, so the ratio is squeezed to zero.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The third class, drawn', html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power: the numerator now grows faster than the window. Neither class applies.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Engineering reading', html:'Energy-type signals are transients: pulses, decaying responses, anything that ends. Power-type signals are steady states: sinusoids, constants, noise that runs on without end. The class tells you which quantity is worth measuring.'}]}
+      {t:'note', kind:'def', head:'What to measure', html:'Use energy for a transient signal such as a pulse or a decaying response. Use average power for a continuing signal such as a sinusoid or a constant. The classification selects the finite quantity.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:840,h:250,xr:[0,12],yr:[-0.05,0.6],xlabel:'T',ylabel:'E_\\infty/2T',pad:{l:64,r:24,t:24,b:36},xtarget:6,ytarget:3});
@@ -229,7 +228,7 @@ const SC = [
   objective:'Reproduce both source examples with full method and sanity checks.',
   keywords:'example rectangular pulse constant sequence energy power worked', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
-  {t:'title', text:'Two examples, worked in full'},
+  {t:'title', text:'Classify a pulse and a constant sequence'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given', '$x(t)=\\begin{cases}1,&0\\le t\\le 1\\\\ 0,&\\text{otherwise}\\end{cases}$'],
@@ -240,26 +239,25 @@ const SC = [
       {t:'eq', size:'sm', tex:'E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\int_{0}^{1}|1|^{2}\\d t = 1<\\infty'},
       {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}=\\lim_{T\\to\\infty}\\frac{1}{2T}=0'},
       {t:'wex', rows:[
-        ['Solution','$E_\\infty=1$ J, $P_\\infty=0$ W ⇒ <b>energy-type signal</b>.'],
-        ['Interpretation','A finite pulse delivers a fixed amount of energy and then stops. Averaged over all time it delivers no power.'],
-        ['Sanity check','Halving the amplitude must divide the energy by four, and $\\int_0^1(1/2)^2\\d t=1/4$. The dependence is quadratic, as it must be for a squared quantity.']
+        ['Solution','$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an <b>energy signal</b>. The pulse delivers a fixed amount of energy and is zero outside its finite support.'],
+        ['Check','Halving the amplitude must divide the energy by four. Direct calculation gives $\\int_0^1(1/2)^2\\d t=1/4$, so the result has the required quadratic dependence on amplitude.']
       ]}]}
   ], right:[
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
         ['Given','$x[n]=4,\\quad \\forall n\\in\\mathbb{Z}$'],
         ['Find','Is $x[n]$ an energy signal or a power signal?'],
-        ['Method','$E_\\infty$ clearly diverges, so go straight to $P_\\infty$ and use the count $2N+1$.']
+        ['Method','Each sample contributes the same positive energy, so $E_\\infty$ diverges. Calculate $P_\\infty$ next and use the exact count $2N+1$.']
       ]}]},
     {t:'reveal', at:3, items:[
       {t:'eq', size:'sm', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
       {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty'},
       {t:'wex', rows:[
-        ['Solution','$E_\\infty\\to\\infty$, $P_\\infty=16$ ⇒ <b>power-type signal</b>.'],
-        ['Sanity check','A constant of amplitude $A$ must have $P_\\infty=A^{2}$, and $A=4$ gives 16. The factor $2N+1$ cancels exactly, which confirms that the count was right.']
+        ['Solution','$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a <b>power signal</b>.'],
+        ['Check','A constant sequence of amplitude $A$ has $P_\\infty=A^{2}$. Setting $A=4$ gives 16. The factor $2N+1$ also cancels exactly in the definition.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'Most common error on this pair', html:'Concluding "infinite energy, therefore infinite power". The factor $1/(2N+1)$ does the work here. A diverging sum divided by a diverging count can converge, and here it does.'}]}
+      {t:'note', kind:'err', head:'Do not infer power from energy alone', html:'Infinite energy does not imply infinite average power. For the constant sequence, both the energy sum and the sample count grow at the same rate. Their ratio approaches 16.'}]}
   ]},
   {t:'instr', head:'Presenter cue', html:'Ask the class to predict $P_\\infty$ for $x[n]=4$ <em>before</em> revealing step 3. The common guesses are 4 and ∞. Both are worth discussing.'}
 ]},
@@ -269,7 +267,7 @@ const SC = [
   keywords:'laboratory classifier energy power neither interactive', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory B', src:'pp. 2–3'},
   {t:'title', text:'Classify first, then verify'},
-  {t:'lede', text:'Choose a class before the integral appears. The aim is to learn to read convergence off the shape of a signal.'},
+  {t:'lede', text:'Predict the class from the signal shape. Then use the definitions to test the prediction.'},
   {t:'lab', id:'B'}
 ]},
 
@@ -277,12 +275,12 @@ const SC = [
   objective:'Fix the delay/advance sign convention.',
   keywords:'time shift delay advance t0 x(t-t0)', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
-  {t:'title', text:'Delay is a subtraction'},
+  {t:'title', text:'Use the argument to determine a time shift'},
   {t:'cols', ratio:'c-4-8', vcenter:true, left:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
     {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ ⇒ <b>delay</b> (the signal moves right, later).<br>$t_0<0$ ⇒ <b>advance</b> (the signal moves left, earlier).'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Why it feels backwards', html:'The graph moves right, but the argument is $t-t_0$. Read it as a question about <em>when</em>. The output at time $t$ shows what the input did at the earlier time $t-t_0$. The value has been held back by $t_0$ seconds.'}]},
+      {t:'note', kind:'warn', head:'Read the argument before moving the graph', html:'At time $t$, the shifted signal uses the original value at $t-t_0$. For $t_0>0$, it reaches each original value $t_0$ seconds later. The graph therefore moves right.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Discrete time works the same way', html:'$x[n]\\to x[n-n_0]$ with $n_0\\in\\mathbb{Z}$. A one-sample delay, $x[n-1]$, is the basic memory element in every difference equation in Module 3.'}]}
   ], right:[
@@ -311,12 +309,12 @@ const SC = [
       note:'A reflection about the vertical axis.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling',
-        note:'$a>1$ ⇒ <b>decimation</b> (compressed, sped up). $0<a<1$ ⇒ <b>expansion</b> (stretched, slowed down).'},
+        note:'$a>1$ gives <b>compression</b>: the signal changes faster. $0<a<1$ gives <b>expansion</b>: the signal changes more slowly.'},
       {t:'note', kind:'warn', head:'A notation caution', html:'Scaling is often written “$x(t)=x(at)$”. Read it as the definition of a <em>new</em> signal, $y(t)=x(at)$. Taken literally, that equation would force $a=1$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'What scaling does to the support', html:'If $x$ is supported on $[\\alpha,\\beta]$, then $x(at)$ is supported on $[\\alpha/a,\\beta/a]$. The <em>width</em> scales by $1/a$, so compressing in time by 2 halves the duration. Module 5 shows that the spectrum does the opposite.'}]},
+      {t:'note', kind:'def', head:'Map the support endpoints', html:'If $x$ is non-zero on $[\\alpha,\\beta]$, solve $at\\in[\\alpha,\\beta]$. This gives the support $[\\alpha/a,\\beta/a]$. Its width is the original width divided by $a$. For example, compression by 2 halves the duration.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Discrete time is not symmetric', html:'$x[2n]$ <b>throws away</b> the odd-indexed samples. This is real decimation, and it destroys information. $x[n/2]$ is not even defined at odd $n$ without a rule for interpolation. Continuous-time scaling can be undone. Discrete-time decimation cannot.'}]}
+      {t:'note', kind:'err', head:'Discrete-time scaling needs separate rules', html:'$x[2n]$ keeps only the even-indexed samples and discards the odd-indexed samples. This operation is decimation and may lose information. The expression $x[n/2]$ is undefined at odd $n$ unless an interpolation rule supplies those values. Continuous-time scaling does not have this integer-index restriction.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
@@ -343,9 +341,9 @@ const SC = [
   objective:'Establish the correct two-step order for x(at−b).',
   keywords:'combination shift then scale order x(at-b) intermediate v(t)', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
-  {t:'title', text:'The order is not negotiable'},
+  {t:'title', text:'Build $x(at-b)$ by shifting before scaling'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Given $x(t)$, how do we find $x(at-b)$?'},
+    {t:'body', html:'To construct $x(at-b)$ from $x(t)$, use an intermediate signal so that each operation is explicit.'},
     {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
       label:'Shift, then scale', note:'Shift by $b$ first; scale the <em>result</em> by $a$.'},
     {t:'reveal', at:1, items:[
@@ -359,11 +357,10 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Solution','$v(t)=x(t-5)$ has breakpoints at $3,5,7,9$. Then $y(t)=v(3t)$ has breakpoints at $1,\\;5/3,\\;7/3,\\;3$.'],
-        ['Sanity check','The duration must shrink by exactly $a=3$. The original spans $[-2,4]$, a width of 6. The result spans $[1,3]$, a width of 2. ✓'],
-        ['Interpretation','Neither operation changes the amplitude. Only the time axis is relabelled.']
+        ['Check','The original support has width 6. Compression by $a=3$ must give width 2, and the result has support $[1,3]$. Neither operation changes the signal amplitude.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'def', head:'A one-line check that always works', html:'Whichever route you take, check where the argument vanishes. $y$ takes the value $x(0)$ when $at-b=0$, that is at $t=b/a$. Here $t=5/3$, which is where the level $x(0)=2$ starts in the plotted result.'}]}
+      {t:'note', kind:'def', head:'Check one mapped point', html:'Set the argument equal to zero: $at-b=0$ gives $t=b/a$. At this time, $y(t)$ must equal $x(0)$. Here $t=5/3$, and the plotted result has the value $x(0)=2$ there.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
@@ -392,7 +389,7 @@ const SC = [
   objective:'Explore x(at−b) with live support and critical-point tracking.',
   keywords:'laboratory transformation shift scale reversal support critical points', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory A', src:'pp. 3–4'},
-  {t:'title', text:'Shift, then scale, with the controls in your hands'},
+  {t:'title', text:'Apply the shift and scale in separate steps'},
   {t:'lab', id:'A'}
 ]},
 
@@ -400,19 +397,19 @@ const SC = [
   objective:'Define CT and DT periodicity and the fundamental period.',
   keywords:'periodic aperiodic fundamental period T0 N0 omega0 fundamental frequency', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
-  {t:'title', text:'Repetition, defined carefully'},
+  {t:'title', text:'Test whether a signal repeats'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is <b>periodic</b> if there exists a constant $T>0$ such that $x(t)=x(t+T)$ for all $t\\in\\mathbb{R}$.'},
     {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is <b>periodic</b> if there exists an <b>integer</b> constant $N>0$ such that $x[n]=x[n+N]$ for all $n\\in\\mathbb{Z}$.'},
-    {t:'body', html:'A signal that is not periodic is <b>aperiodic</b>. Watch the two quantifiers. <em>There exists</em> a period, and it must work <em>for all</em> $t$ (or $n$). Both halves are needed.'},
+    {t:'body', html:'A signal that is not periodic is <b>aperiodic</b>. The definition has two requirements. A positive period must exist, and the equality must hold for every $t$ or $n$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'The integer requirement is the whole story', html:'In continuous time $T$ may be any positive real number. In discrete time $N$ must be an <b>integer</b>. There is no such thing as a period of 3.5 samples. Every discrete-time surprise in this course comes back to this one line.'}]},
+      {t:'note', kind:'warn', head:'A discrete-time period is an integer', html:'In continuous time, $T$ may be any positive real number. In discrete time, $N$ must be a positive integer because the sequence exists only at integer indices. A value such as 3.5 samples cannot be a period.'}]},
     {t:'reveal', at:2, items:[
       {t:'eq', key:true, tex:'\\omega_0=\\frac{2\\pi}{T_0}\\qquad\\text{and}\\qquad \\omega_0=\\frac{2\\pi}{N_0}',
         label:'Fundamental frequency',
         note:'{{sym:T0|$T_0$}} is the <b>smallest</b> $T>0$ satisfying the periodicity condition; {{sym:N0|$N_0$}} is the smallest such positive integer.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why "smallest" matters', html:'If $T$ is a period, then so is every $kT$. A signal with period 4 also has periods $8,12,16,\\dots$, and the smallest of them fixes $T_0=4$. Without the word "smallest", $\\omega_0$ would not be well defined, and the harmonic numbering of Module 4 would fail.'}]}
+      {t:'note', kind:'def', head:'Use the smallest positive period', html:'If $T$ is a period, every positive integer multiple $kT$ is also a period. A signal with period 4 therefore also has periods $8,12,16,\\dots$. The smallest positive value defines $T_0$ and gives a unique fundamental frequency $\\omega_0$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const saw=t=>{const u=((t%4)+4)%4; return u/2-1;};
@@ -435,16 +432,16 @@ const SC = [
   objective:'Define even/odd and the unique decomposition.',
   keywords:'even odd decomposition Ev Od symmetry x(0)=0', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
-  {t:'title', text:'Every signal splits, exactly once'},
+  {t:'title', text:'Split a signal into even and odd parts'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'def', head:'Definitions', html:'<b>Even</b>: $x(t)=x(-t)$ (or $x[n]=x[-n]$).<br><b>Odd</b>: $x(t)=-x(-t)$ (or $x[n]=-x[-n]$).'},
-    {t:'note', kind:'warn', head:'An immediate consequence', html:'For an odd signal, setting $t=0$ gives $x(0)=-x(0)$, so $x(0)=0$. A signal with $x(0)\\neq0$ cannot be odd. That is a one-second test.'},
+    {t:'note', kind:'warn', head:'Check the value at the origin', html:'For an odd signal, set $t=0$ in the definition. This gives $x(0)=-x(0)$, so $x(0)=0$. Therefore any signal with $x(0)\\neq0$ is not odd.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)'},
       {t:'eq', key:true, tex:'x(t)=\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}', label:'Decomposition',
         note:'Adding the two definitions returns $x$ exactly. The same construction works without change for $x[n]$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Why this is worth carrying forward', html:'The decomposition is unique, and it works well with the Fourier transform. A real even signal has a purely real transform. A real odd signal has a purely imaginary one. The symmetry work done here pays off in Modules 5 and 6.'}]}
+      {t:'note', kind:'def', head:'Use the parts in transform calculations', html:'The decomposition is unique. In Modules 5 and 6, it separates the real and imaginary parts of a Fourier transform. A real even signal has a real transform. A real odd signal has a purely imaginary transform.'}]}
   ], right:[
     {t:'grid', cols:3, gap:'18px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:420,h:250,xr:[-1,1],yr:[-0.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
@@ -476,7 +473,7 @@ const SC = [
   objective:'Define δ[n], u[n], the first difference and the running sum.',
   keywords:'delta[n] u[n] unit impulse step first difference running sum representation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
-  {t:'title', text:'Two sequences that generate everything else'},
+  {t:'title', text:'Use impulses to build discrete-time signals'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
       note:'An ordinary, well-behaved sequence. Nothing infinite happens here. Compare $\\delta(t)$ on the next scene.'},
@@ -487,10 +484,10 @@ const SC = [
       {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]=\\delta[n]+\\delta[n-1]+\\delta[n-2]+\\cdots',
         label:'Running sum — the discrete integral'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'A duality worth naming', html:'Difference and accumulation are inverse operations, exactly as differentiation and integration are in continuous time. Module 3 shows that the accumulator and the differencer are inverse <em>systems</em>, with $h[n]*g[n]=\\delta[n]$.'}]},
+      {t:'note', kind:'def', head:'Difference and accumulation are inverse operations', html:'A first difference reverses a running sum. A running sum reverses a first difference, subject to the initial condition. These operations are the discrete-time forms of differentiation and integration. Module 3 represents them as inverse systems, with $h[n]*g[n]=\\delta[n]$.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation property',
-        note:'Expanding: $\\;\\underbrace{u[-1]}_{=0}\\delta[n+1]+\\underbrace{u[0]}_{=1}\\delta[n]+\\underbrace{u[1]}_{=1}\\delta[n-1]+\\cdots$ : the sequence is rebuilt from weighted, shifted impulses. This is the template for the convolution sum.'}]}
+        note:'Expand the sum term by term: $\\;\\underbrace{u[-1]}_{=0}\\delta[n+1]+\\underbrace{u[0]}_{=1}\\delta[n]+\\underbrace{u[1]}_{=1}\\delta[n-1]+\\cdots$. Each shifted impulse places one sample value at its index. Module 3 uses this form to derive the convolution sum.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:220,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
       a.stem(disc(n=>n===0?1:0,-3,5),{color:C.in,showZero:false}); a.note(4.6,1.15,'\\delta[n]',{anchor:'end',color:C.in,fs:16,tex:true}); return a.svg(); }},
@@ -510,22 +507,24 @@ const SC = [
   objective:'Distinguish the two properties and verify both on the definition example.',
   keywords:'sampling property sifting property delta n0 x[n0]', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
-  {t:'title', text:'Sampling and sifting are different statements'},
+  {t:'title', text:'Use sampling before sifting'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'x[n]\\,\\delta[n-n_0]=x[n_0]\\,\\delta[n-n_0]', label:'Sampling property',
       note:'Both sides are <b>sequences</b>. Multiplying by a shifted impulse freezes the signal at one index and discards the rest.'},
     {t:'eq', key:true, tex:'x[n_0]=\\sum_{n=-\\infty}^{\\infty}x[n]\\,\\delta[n-n_0]', label:'Sifting property',
       note:'The right-hand side is a <b>number</b>. Summing the sampled sequence extracts the single value $x[n_0]$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The distinction students lose', html:'Sampling gives a signal. Sifting gives a number. Sifting is sampling <em>followed by summation</em>. Writing one where the other belongs is a dimensional error, and it carries silently into convolution.'}]},
+      {t:'note', kind:'err', head:'Check the type of the result', html:'Sampling gives a sequence. Sifting gives one number. The sifting operation first samples and then sums the resulting sequence. Confusing the two operations gives a result of the wrong type.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
-        ['Check','$n_0=2$ and $x[0]=1,\\;x[1]=2,\\;x[2]=3$.'],
-        ['Sampling','$x[n]\\delta[n-2]=x[2]\\delta[n-2]=3\\,\\delta[n-2]$ — a single stem of height 3 at $n=2$.'],
-        ['Sifting','$\\displaystyle\\sum_n x[n]\\delta[n-2]=x[0]\\underbrace{\\delta[-2]}_{0}+x[1]\\underbrace{\\delta[-1]}_{0}+x[2]\\underbrace{\\delta[0]}_{1}=3$.']
+        ['Given','$n_0=2$ and $x[0]=1,\\;x[1]=2,\\;x[2]=3$.'],
+        ['Find','The sampled sequence and the sifted value.'],
+        ['Method','Multiply by $\\delta[n-2]$ to keep the sample at $n=2$. Then sum the sampled sequence to sift out its value.'],
+        ['Solution','Sampling gives $x[n]\\delta[n-2]=x[2]\\delta[n-2]=3\\,\\delta[n-2]$, a single stem of height 3 at $n=2$. Sifting gives $\\displaystyle\\sum_n x[n]\\delta[n-2]=x[0]\\underbrace{\\delta[-2]}_{0}+x[1]\\underbrace{\\delta[-1]}_{0}+x[2]\\underbrace{\\delta[0]}_{1}=3$.'],
+        ['Check','The sampled result is a sequence. The sifted result is the number 3.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why this is the key step of the course', html:'The representation property $x[n]=\\sum_k x[k]\\delta[n-k]$ says that every signal is a sum of impulses. Feed that sum into a linear time-invariant system and the convolution sum follows in three lines. That is what Module 3 does.'}]}
+      {t:'note', kind:'def', head:'Use the representation to derive convolution', html:'The representation $x[n]=\\sum_k x[k]\\delta[n-k]$ writes every sequence as a sum of shifted impulses. Module 3 applies a linear time-invariant system to this sum. Linearity and time invariance then produce the convolution sum.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>[1,2,3][n]!==undefined&&n>=0&&n<=2?[1,2,3][n]:0,-1,5),{color:C.in});
@@ -547,11 +546,11 @@ const SC = [
   {t:'title', text:'$\\delta(t)$ is not a function'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'\\delta(t)=\\begin{cases}\\infty,&t=0\\\\0,&\\text{otherwise}\\end{cases}\\qquad \\int_{-\\infty}^{\\infty}\\delta(t)\\,\\d t=1',
-      label:'The usual definition', note:'The Dirac delta “function”. It is drawn as an arrow whose <b>area</b> is 1, not an arrow of height 1.'},
+      label:'Informal picture', note:'This formula is only a visual aid. The Dirac delta is a distribution, not an ordinary function. Its arrow has weight 1, which represents area rather than height.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Why this definition cannot be taken literally', html:'No ordinary function is zero almost everywhere and still integrates to 1. The Lebesgue integral of such a function is 0. So $\\delta$ is a <b>distribution</b>, also called a generalized function. It is defined by what it <em>does</em> to well-behaved test functions: $\\int x(t)\\delta(t-t_0)\\d t=x(t_0)$.'}]},
+      {t:'note', kind:'err', head:'Define the impulse by its action', html:'An ordinary function that is zero except at one point has integral 0, not 1. The impulse is therefore a <b>distribution</b>, also called a generalized function. A distribution is defined by how it acts inside an integral. Here $\\int x(t)\\delta(t-t_0)\\d t=x(t_0)$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'body', html:'A cleaner construction starts from a rectangle of width $\\varepsilon$ and height $1/\\varepsilon$, so its area is 1 for every $\\varepsilon$, and then lets $\\varepsilon\\to0$. The limit does not exist pointwise. It exists only under an integral sign, and that is exactly the distributional statement.'}]},
+      {t:'body', html:'To picture the impulse, use a rectangle of width $\\varepsilon$ and height $1/\\varepsilon$. Its area is 1. Then let $\\varepsilon\\to0$. The rectangles do not approach an ordinary function at each fixed $t$. Their integrals against a continuous test function do approach the sifting result.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', tex:'\\delta(t)=\\frac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau', label:'Step and impulse',
         note:'The discrete pair $\\delta[n]=u[n]-u[n-1]$ and $u[n]=\\sum\\delta[n-k]$ is the exact analogue.'}]},
@@ -564,14 +563,14 @@ const SC = [
       a.impulse(0,1,{color:C.in,labelText:'1'});
       a.note(1.9,1.2,'\\delta(t)',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
-      caption:'The height of the arrow shows the <b>area</b>, that is the weight. It never shows a value of the function.'},
+      caption:'The arrow label gives the impulse weight. This weight is its area in an integral, not a function value.'},
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:240,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
       [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
         const col=[ '#9BC4CB','#4E9AA6',C.in][i];
         a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
       a.note(1.1,4.1,'\\text{width }\\varepsilon,\\;\\text{height }1/\\varepsilon',{anchor:'end',color:C.muted,fs:13,tex:true});
       return a.svg(); },
-      caption:'The limiting construction. Each rectangle has unit area. Nothing converges pointwise. The family converges only when it is integrated against a continuous test function.'},
+      caption:'Each rectangle has unit area. As the width decreases, its integral against a continuous test function approaches the sifting result.'},
     {t:'reveal', at:4, items:[
       {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
         const x=t=>0.75*Math.cos(1.2*t-0.5);
@@ -589,15 +588,15 @@ const SC = [
   objective:'Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity.',
   keywords:'complex exponential Euler amplitude phase angular frequency growth decay', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
-  {t:'title', text:'One family, three behaviours'},
+  {t:'title', text:'Use the exponent to identify growth and oscillation'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition'},
-    {t:'body', html:'The behaviour is decided entirely by where $a$ sits in the complex plane. Three positions matter: $a$ real, $a$ purely imaginary, and $a$ with both parts non-zero.'},
+    {t:'body', html:'Complex exponentials describe growth, decay and oscillation in one form. The real and imaginary parts of $a$ determine which behaviour occurs.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Case 1 · both parameters real', html:'Both $C$ and $a$ are real. Then $a<0$ gives decay, $a>0$ gives growth, and $a=0$ gives the constant $x(t)=C$. Larger $|a|$ means faster decay or growth.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Case 2 · a purely imaginary', html:'Here $a=j\\omega_0$. With $C=Ae^{j\\theta}$, Euler\'s relation $e^{jx}=\\cos x+j\\sin x$ gives<br>$x(t)=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)$,<br>where $\\omega_0$ is the angular frequency (rad/s), $\\theta$ the phase shift (rad) and $A$ the amplitude.'},
-      {t:'small', html:'Nothing here decays: with $a$ purely imaginary the modulus $|x(t)|=A$ is the same at every $t$. The real part opposite oscillates between $\\pm A$ and stays there.'}]}
+      {t:'small', html:'When $a$ is purely imaginary, $|x(t)|=A$ for every $t$. The signal does not grow or decay. Its real part oscillates between $\\pm A$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
@@ -614,18 +613,21 @@ const SC = [
   objective:'Derive the fundamental period and read the general complex case as a sinusoid in an envelope.',
   keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
-  {t:'title', text:'How long one turn takes, and what an envelope does'},
+  {t:'title', text:'Find the period and then include the envelope'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'A e^{j(\\omega_0 t+\\theta)}=A e^{j(\\omega_0(t+T)+\\theta)}\\;\\Rightarrow\\;1=e^{j\\omega_0 T}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0T\\;\\Rightarrow\\; T=\\frac{2\\pi}{\\omega_0}k',
       label:'Periodicity, derived', note:'$k\\in\\mathbb{Z}$. Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. <b>Every</b> continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
     {t:'reveal', at:1, items:[
       {t:'wex', rows:[
-        ['Example','$x(t)=e^{j0.5\\pi t}\\;\\Rightarrow\\; T_0=\\dfrac{2\\pi}{0.5\\pi}=4$ seconds.'],
-        ['Sanity check','$0.5\\pi\\cdot4=2\\pi$ — one full turn of the phasor. ✓']
+        ['Given','$x(t)=e^{j0.5\\pi t}$.'],
+        ['Find','The fundamental period $T_0$.'],
+        ['Method','Use $T_0=2\\pi/\\omega_0$ because the exponent is purely imaginary and $\\omega_0\\neq0$.'],
+        ['Solution','$T_0=\\dfrac{2\\pi}{0.5\\pi}=4$ seconds.'],
+        ['Check','$0.5\\pi\\cdot4=2\\pi$, so the phase increases by one full turn over the calculated period.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Case 3 · a fully complex', html:'With $a=r+j\\omega_0$, $x(t)=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta)$. This is a sinusoid inside the envelope $\\pm Ae^{rt}$. Here $r<0$ gives damping, $r>0$ growth and $r=0$ a sustained oscillation. This is the natural response of every second-order circuit.'},
-      {t:'small', html:'The two parts of $a$ do separate jobs and do not interact: $\\omega_0$ sets how fast the sinusoid turns, and $r$ sets the envelope it turns inside. The period stays $2\\pi/\\omega_0$ whatever $r$ is, but the signal is no longer periodic once $r\\neq0$, because the envelope never repeats.'}]}
+      {t:'note', kind:'warn', head:'Case 3 · both parts non-zero', html:'With $a=r+j\\omega_0$, $x(t)=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta)$. The curves $\\pm Ae^{rt}$ form the envelope, which bounds the sinusoid. Here $r<0$ gives damping, $r>0$ gives growth and $r=0$ gives a sustained oscillation.'},
+      {t:'small', html:'The angular frequency $\\omega_0$ sets the oscillation rate. The real part $r$ sets the envelope. If $r\\neq0$, the changing envelope prevents the full signal from repeating, even though the sinusoidal factor has period $2\\pi/\\omega_0$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
       a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
@@ -646,7 +648,7 @@ const SC = [
   objective:'Introduce x[n]=Cα^n and the three envelope cases.',
   keywords:'discrete complex exponential alpha beta growing decaying envelope', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
-  {t:'title', text:'From $e^{\\beta n}$ to $\\alpha^{n}$'},
+  {t:'title', text:'Write a discrete-time exponential as a power'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x[n]=C\\,e^{\\beta n},\\qquad C,\\beta\\in\\mathbb{C}'},
     {t:'eq', key:true, tex:'\\alpha=e^{\\beta}\\;\\Longrightarrow\\; x[n]=C\\,\\alpha^{n}',
@@ -681,25 +683,24 @@ const SC = [
   objective:'Derive N = 2πk/ω₀ and the rationality condition; work the definition example.',
   keywords:'discrete periodicity rational multiple 2pi N0 integer condition', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
-  {t:'title', text:'The condition with no continuous-time counterpart'},
+  {t:'title', text:'Test discrete-time periodicity with an integer period'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'x[n]=C e^{j\\omega_0 n}\\;\\text{periodic}\\;\\Longleftrightarrow\\; x[n]=x[n+N]', label:'Requirement'},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'Ce^{j\\omega_0 n}=Ce^{j\\omega_0(n+N)}\\;\\Rightarrow\\;1=e^{j\\omega_0 N}\\;\\Rightarrow\\;\\bigl(e^{j2\\pi}\\bigr)^{k}=e^{j\\omega_0N}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0 N'},
       {t:'eq', key:true, tex:'N=\\frac{2\\pi}{\\omega_0}\\,k,\\qquad k\\in\\mathbb{Z}', label:'Result'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The line the whole course turns on', html:'$N$ must be an <b>integer</b>. That is possible only if $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}$ is a <b>rational number</b>. In other words, $\\omega_0$ must be a rational multiple of $2\\pi$. If the ratio is irrational, no integer $N$ works and the sequence is <b>aperiodic</b>, however sinusoidal it looks when plotted.'}]},
+      {t:'note', kind:'err', head:'Apply the integer condition', html:'$N$ must be an integer. This is possible only if $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}$ is rational. Thus $\\omega_0$ must be a rational multiple of $2\\pi$. If the ratio is irrational, no integer $N$ satisfies the periodicity equation and the sequence is aperiodic.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Given','$x[n]=e^{j\\frac{3\\pi}{5}n}$'],
         ['Find','The fundamental period $N_0$.'],
         ['Method','Apply $N=2\\pi k/\\omega_0$ and take the smallest $k$ that makes $N$ an integer.'],
         ['Solution','$N=\\dfrac{2\\pi}{3\\pi/5}k=\\dfrac{10\\pi}{3\\pi}k=\\dfrac{10}{3}k$. The smallest $k\\in\\mathbb{Z}^{+}$ giving an integer is $k=3$, so $\\boxed{N_0=10}$.'],
-        ['Sanity check','$\\omega_0N_0=\\frac{3\\pi}{5}\\cdot10=6\\pi=2\\pi\\cdot3$ — exactly three full turns of the phasor in ten samples. ✓'],
-        ['Interpretation','$k$ counts how many times the phasor wraps before the samples line up again. $k>1$ means the sequence does <em>not</em> trace one cycle per period.']
+        ['Check','$\\omega_0N_0=\\frac{3\\pi}{5}\\cdot10=6\\pi=2\\pi\\cdot3$. The phase therefore changes by three full turns in ten samples. The integer $k$ counts these turns.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'A second discrete-time surprise, for later', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. So two discrete-time frequencies that differ by $2\\pi$ cannot be told apart. The same fact makes the DTFT $2\\pi$-periodic in Module 6, and makes aliasing unavoidable in Module 7.'}]}
+      {t:'note', kind:'warn', head:'Frequencies separated by $2\\pi$ give the same sequence', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. Therefore discrete-time frequencies that differ by $2\\pi$ produce identical samples. This identity makes the DTFT $2\\pi$-periodic in Module 6 and leads to aliasing in Module 7.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:270,xr:[-20,20],yr:[-1.35,1.5],xlabel:'n',ylabel:'\\operatorname{Re}\\{x[n]\\}',pad:{l:60,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(3*Math.PI*n/5),-20,20),{color:C.in,r:3});
@@ -719,7 +720,7 @@ const SC = [
   keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory C', src:'pp. 5, 8, 10'},
   {t:'title', text:'Periodicity, tested exactly'},
-  {t:'lede', text:'$\\omega_0$ is entered as a rational multiple of $\\pi$, so the discrete-time test is exact and not numerical. Floating-point arithmetic can never decide whether a number is rational.'},
+  {t:'lede', text:'Enter $\\omega_0$ as a rational multiple of $\\pi$. The laboratory can then apply the discrete-time rationality test exactly. A rounded decimal cannot prove that a number is rational.'},
   {t:'lab', id:'C'}
 ]},
 
@@ -727,7 +728,7 @@ const SC = [
   dark:true, objective:'Consolidate the module and connect to Module 2.',
   keywords:'synthesis summary module 1 review', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Synthesis', src:'pp. 2–10'},
-  {t:'title', text:'Five results, and one habit'},
+  {t:'title', text:'Use five results from this module'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> $E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.</p>
       <p style="color:var(--graphite)"><b>2.</b> $x(at-b)$ requires <em>shift, then scale</em>. The other order gives $x(at-ab)$.</p>
@@ -735,10 +736,10 @@ const SC = [
       <p style="color:var(--graphite)"><b>4.</b> $\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.</p>
       <p style="color:var(--graphite)"><b>5.</b> A discrete-time exponential is periodic if and only if $\\omega_0/2\\pi$ is rational. A continuous-time one always is.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The habit', html:'<span style="color:var(--graphite)">Every claim in this module was settled by going back to a definition and evaluating a limit or an integral. None was settled by looking at a picture. Module 2 makes that habit explicit and gives it six names.</span>'}]}
+      {t:'note', kind:'ok', head:'Method', html:'<span style="color:var(--graphite)">Use a definition to test each claim. Evaluate the required limit, integral or sum. Use a plot to understand the result, but do not use its appearance as proof. Module 2 applies this method to six system properties.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
-    {t:'lede', text:'A signal that carries finite energy delivers zero average power, and a signal that delivers finite average power carries infinite energy. Which quantity should you specify for a radio transmitter, and which for a radar pulse? What does that choice say about the measurement you would actually make?'},
+    {t:'lede', text:'Choose average power for a radio transmitter and pulse energy for a radar pulse. Explain why each quantity is finite, and state the time interval required for each measurement.'},
     {t:'reveal', at:1, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
         <span style="color:var(--graphite)">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
