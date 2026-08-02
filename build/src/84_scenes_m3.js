@@ -11,14 +11,14 @@ const SC = [
 { id:'m3-open', module:'M3', nav:'Module 3 opening', title:'Linear Time-Invariant Systems', src:'pp. 14–21',
   dark:true, keywords:'module 3 LTI convolution impulse response overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 3 · Linear Time-Invariant Systems', src:'pp. 14–21'},
-  {t:'title', level:1, text:'One function.<br>One operation.'},
-  {t:'lede', text:'Require linearity and time invariance together, and the whole system is encoded in its response to a single impulse. Every response to every possible input follows from that one function.'},
+  {t:'title', level:1, text:'Describe an LTI system with one response'},
+  {t:'lede', text:'This module develops a direct way to find the output of a linear time-invariant system. Such a system is fully described by its response to one unit impulse. Convolution then uses that response to find the output for any input.'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'raw', html:`<div style="margin-top:20px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,h[n-k]', label:'Convolution sum'},
     {t:'eq', tex:'y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau', label:'Convolution integral'},
-    {t:'note', kind:'err', head:'The precondition is not optional', html:'<span style="color:var(--graphite)">Convolution can only be applied when the system is LTI. Applying it to a system that fails either property produces a confident, meaningless number.</span>'}
+    {t:'note', kind:'err', head:'Check the system before using convolution', html:'<span style="color:var(--graphite)">Convolution gives the system output only when the system is linear and time invariant. If either property fails, the convolution result is not the output of that system.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:760,h:430,xr:[-1,9],yr:[-0.4,2.4],grid:false,zeroAxes:false,arrows:false,
@@ -37,10 +37,10 @@ const SC = [
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
     {t:'note', kind:'def', head:'Definition', html:'The <b>impulse response</b> is the response of the system to a unit impulse:<br>$x[n]=\\delta[n]\\;\\to\\;S\\;\\to\\;y[n]={{sym:ht|h[n]}}$.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'For a general system this is one data point among infinitely many. Knowing the response to $\\delta[n]$ tells you nothing about the response to anything else.'},
-      {t:'note', kind:'ok', head:'For an LTI system it is everything', html:'Time invariance turns one impulse response into a response for <em>every shift</em>. Linearity turns those into a response for <em>every weighted sum</em>. Module 1 showed that every signal <em>is</em> a weighted sum of shifted impulses. The three facts close the loop.'}]},
+      {t:'body', html:'For a general system, this experiment gives only one input-output pair. It does not determine the response to another input.'},
+      {t:'note', kind:'ok', head:'Why one response is enough for an LTI system', html:'Time invariance gives the response to every shifted impulse. Linearity gives the response to every weighted sum of those impulses. Module 1 showed that every discrete-time signal can be written as such a sum. Therefore $h[n]$ determines the response to every input.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A practical caveat worth stating', html:'Real impulses do not exist. In practice $h$ is measured with a short pulse, or with a step whose response is then differentiated, or with a broadband sequence. All three are justified by the same linearity that makes $h$ meaningful in the first place.'}]}
+      {t:'note', kind:'warn', head:'How an impulse response is measured', html:'An ideal impulse cannot be produced physically. In practice, measure $h$ with a short pulse, differentiate a measured step response, or use a broadband test sequence. These methods use linearity to estimate the response that an ideal impulse would produce.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:220,items:[
       {t:'arrow',x1:90,y1:110,x2:300,y2:110},{t:'box',x:300,y:70,w:190,h:80,label:'S',tex:true},
@@ -49,7 +49,7 @@ const SC = [
       {t:'text',x:195,y:132,label:'unit impulse',fs:12},
       {t:'text',x:600,y:92,label:'y[n]=h[n]',tex:true,fs:17,color:'#C08422'},
       {t:'text',x:600,y:132,label:'impulse response',fs:12}
-    ]}), caption:'One impulse in, one function out. For an LTI system that single function is the whole description.'},
+    ]}), caption:'Apply a unit impulse and record the output $h[n]$. For an LTI system, this function determines every other output.'},
     {t:'reveal', at:1, items:[
       {t:'grid', cols:2, gap:'20px', items:[
         [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:520,h:220,xr:[-2,7],yr:[-0.3,1.35],xlabel:'n',pad:{l:46,r:22,t:18,b:32},xtarget:6,ytarget:2});
@@ -64,7 +64,7 @@ const SC = [
   objective:'Derive the representation property from the sampling property.',
   keywords:'representation property weighted shifted impulses sum delta', steps:3, blocks:[
   {t:'eyebrow', text:'Module 3 · Derivation, step 1 of 2', src:'pp. 14–15'},
-  {t:'title', text:'Taking the signal apart'},
+  {t:'title', text:'Write a signal as shifted impulses'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Start from the sampling property of Module 1 and write it out for every shift:'},
     {t:'eq', size:'sm', tex:'\\begin{aligned} x[n]\\delta[n+1]&=x[-1]\\delta[n+1]\\\\ x[n]\\delta[n]&=x[0]\\delta[n]\\\\ x[n]\\delta[n-1]&=x[1]\\delta[n-1]\\\\ x[n]\\delta[n-2]&=x[2]\\delta[n-2] \\end{aligned}',
@@ -76,7 +76,7 @@ const SC = [
       {t:'eq', key:true, size:'lg', tex:'x[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,\\delta[n-k]', label:'Representation property',
         note:'Any $x[n]$ can be expressed as a sum of <b>weighted and shifted impulses</b>. The weights are the sample values themselves.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Read the two indices carefully', html:'$n$ is the free time variable of the resulting signal. $k$ is a dummy summation index that runs over all shifts. Confusing the two is the most common source of sign and limit errors in the convolution sum that follows.'}]}
+      {t:'note', kind:'def', head:'Keep the two indices separate', html:'$n$ is the time index of the resulting signal. $k$ is the summation index that labels each shift. Keep these roles separate when you form the convolution sum, because $k$ changes inside the sum while $n$ selects the output sample.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const x=n=>(n>=0&&n<=3)?[1,2,1,2][n]:0;
@@ -102,7 +102,7 @@ const SC = [
   objective:'Give the three-line LTI derivation and name where each property is used.',
   keywords:'convolution sum derivation linearity time invariance equivalent forms', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Derivation, step 2 of 2', src:'p. 15'},
-  {t:'title', text:'Putting it through the system'},
+  {t:'title', text:'Use the LTI properties to derive convolution'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Start','$x[n]=\\displaystyle\\sum_{k}x[k]\\delta[n-k]\\;\\to\\;S\\;\\to\\;y[n]=\\;?$']
@@ -117,8 +117,8 @@ const SC = [
         label:'Convolution sum', note:'{{sym:conv|$*$}} denotes the convolution operator.'}]},
     {t:'reveal', at:4, items:[
       {t:'eq', size:'sm', tex:'\\sum_{k=-\\infty}^{\\infty}x[k]h[n-k]\\;\\overset{m=n-k}{=}\\;\\sum_{m=-\\infty}^{\\infty}x[n-m]h[m]\\;=\\;\\sum_{k=-\\infty}^{\\infty}x[n-k]h[k]',
-        label:'Equivalent form', note:'A change of dummy variable. This is already the commutative property: it does not matter which signal is flipped.'},
-      {t:'note', kind:'err', head:'The precondition, restated', html:'Convolution can only be applied when the system is <b>LTI</b>. The derivation used time invariance once and linearity twice. Remove either one and no step survives.'}]}
+        label:'Equivalent form', note:'Replace the summation index by $m=n-k$. The two forms show that either factor may be chosen as the shifted and reversed signal.'},
+      {t:'note', kind:'err', head:'Why the LTI condition is required', html:'The derivation uses time invariance to shift $h$ and linearity to scale and add the responses. If either property fails, this derivation does not apply.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:400,items:[
       {t:'text',x:60,y:36,label:'\\delta[n]',anchor:'start',tex:true,fs:16,color:'#14707F'},
@@ -141,7 +141,7 @@ const SC = [
       {t:'text',x:620,y:336,label:'\\sum_k x[k]h[n-k]',anchor:'start',tex:true,fs:16,color:'#4A7A46'},
       {t:'text',x:355,y:298,label:'additivity',fs:12,color:C.slate},
       {t:'line',d:'M40 260 h740',color:C.rule}
-    ]}), caption:'The whole derivation as one diagram. Each rung uses exactly one property, and the properties are used in this order.'}
+    ]}), caption:'The diagram shows the complete derivation. Each row applies one property, in the order shown.'}
   ]}
 ]},
 
@@ -149,13 +149,13 @@ const SC = [
   objective:'Name the procedure and explain the role of the flip.',
   keywords:'flip shift multiply add steps of convolution procedure correlation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Procedure', src:'p. 15'},
-  {t:'title', text:'Flip · Shift · Multiply · Add'},
+  {t:'title', text:'Compute convolution in four named moves'},
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
     {t:'note', kind:'def', head:'Steps of convolution', html:'<b>(1) Flip.</b> Reverse $h[k]$ to obtain $h[-k]$.<br><b>(2) Shift.</b> Displace it by $n$ to obtain $h[n-k]$.<br><b>(3) Multiply and add.</b> Form $x[k]h[n-k]$ and sum over $k$.<br>Repeat for every $n$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Build the shifted response the same way', html:'Build $h[n-k]$ exactly as you built $x(at-b)$. Treat $k$ as the variable: $h[n-k]=h\\bigl(-(k-n)\\bigr)$. Shift $h[k]$ by $n$, then reverse in $k$. This is the “shift, then scale” routine of Module 1 with scale factor $-1$.'}]},
+      {t:'note', kind:'warn', head:'Construct the shifted response in a fixed order', html:'Treat $k$ as the variable in $h[n-k]=h\\bigl(-(k-n)\\bigr)$. First shift $h[k]$ by $n$. Then reverse it in $k$ by using the scale factor $-1$. This is the shift-then-scale procedure from Module 1.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'What happens if you skip the flip', html:'Sliding an unflipped $h$ computes $\\sum_k x[k]h[k-n]$. That is the <b>cross-correlation</b> of $x$ and $h$, not the convolution. For a symmetric $h$ the two agree, which is why the error goes unnoticed until an asymmetric $h$ appears.'}]}
+      {t:'note', kind:'err', head:'Do not omit the reversal', html:'Using an unreversed $h$ gives $\\sum_k x[k]h[k-n]$. This is the <b>cross-correlation</b> of $x$ and $h$, not their convolution. A symmetric $h$ can hide the error because reversal does not change it. Use an asymmetric example to check the construction.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const h=k=>(k>=0&&k<=2)?[1,0.6,0.3][k]:0;
@@ -171,7 +171,7 @@ const SC = [
       const a=P.Axes({w:820,h:200,xr:[-5,7],yr:[-0.25,1.3],xlabel:'k',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:2});
       a.stem(disc(k=>h(3-k),-5,7),{color:C.out}); a.vline(3,{color:C.coral});
       a.note(6.6,1.14,'h[n-k]\\;\\text{at }n=3\\;\\text{— step 2, shift}',{anchor:'end',color:C.out,fs:15,tex:true}); return a.svg(); },
-      caption:'The reversed response is anchored at $k=n$. Its <em>first</em> sample sits at the current instant, and its tail reaches back into the past. That is causality, drawn.'}
+      caption:'The reversed response is positioned so that its first sample is at $k=n$. For a causal $h$, its remaining samples lie at $k<n$.'}
   ]}
 ]},
 
@@ -184,11 +184,11 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x[n]=\\{1,2,1,2\\}$ for $n=0,1,2,3$;  $h[n]=\\{1,1\\}$ for $n=0,1$. Both zero elsewhere.'],
       ['Find','$y[n]=x[n]*h[n]$; determine and plot.'],
-      ['Method','Expand the convolution sum over the four non-zero samples of $x$ and superpose the shifted impulse responses.']
+      ['Method','Because $x$ has four non-zero samples, expand the convolution sum into four terms. Each term is a shifted copy of $h$ weighted by the corresponding sample of $x$.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'y[n]=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]=h[n]+2h[n-1]+h[n-2]+2h[n-3]'},
-      {t:'small', html:'Four copies of $h$, each delayed by one further sample and weighted by the corresponding sample of $x$. The four panels beside this are those copies, drawn one per term. Nothing has been added yet.'}]}
+      {t:'small', html:'The expression contains four copies of $h$. Each copy has the delay and weight set by one sample of $x$. The four panels show these terms before they are added.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'6px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-1,6],yr:[-0.3,2.4],xlabel:'n',pad:{l:46,r:22,t:14,b:28},xtarget:7,ytarget:2});
@@ -217,7 +217,9 @@ const SC = [
   {t:'title', text:'Adding the copies, and checking the answer'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
-      ['Where this stands','$x[n]=\\{1,2,1,2\\}$ on $n=0,\\dots,3$ convolved with $h[n]=\\{1,1\\}$ has been written as $h[n]+2h[n-1]+h[n-2]+2h[n-3]$. Adding those four copies sample by sample is the only step left.']
+      ['Given','$x[n]=\\{1,2,1,2\\}$ on $n=0,\\dots,3$ and $h[n]=\\{1,1\\}$ on $n=0,1$.'],
+      ['Find','$y[n]=x[n]*h[n]$.'],
+      ['Method','The previous step wrote $y[n]$ as $h[n]+2h[n-1]+h[n-2]+2h[n-3]$. Add these four shifted copies at each value of $n$.']
     ]},
     {t:'eq', key:true, tex:'y[n]=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]',
       label:'Solution', note:'That is $y=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$.'},
@@ -225,10 +227,10 @@ const SC = [
       {t:'wex', rows:[
         ['Check 1','<b>Support.</b> $[0,3]+[0,1]=[0,4]$, a length of $4+2-1=5$ samples ✓'],
         ['Check 2','<b>Sum.</b> $\\sum y=12$, and $(\\sum x)(\\sum h)=6\\cdot2=12$ ✓'],
-        ['Interpretation','$h=\\{1,1\\}$ is a two-point moving sum: each output is the total of an adjacent input pair. Reading the input that way gives $1$, $1+2$, $2+1$, $1+2$, $2$, which is the answer again.']
+        ['Interpretation','$h=\\{1,1\\}$ forms a two-point moving sum. Each output sample is the sum of two adjacent input samples. This gives $1$, $1+2$, $2+1$, $1+2$, $2$, which matches the result.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Exercise', html:'Verify the same result with the equivalent form $y[n]=\\sum_k h[k]x[n-k]$, that is, flip $x$ instead of $h$. Commutativity guarantees the same answer, and the check is worth doing once by hand.'}]}
+      {t:'note', kind:'def', head:'Exercise', html:'Verify the result with the equivalent form $y[n]=\\sum_k h[k]x[n-k]$, which reverses $x$ instead of $h$. Commutativity requires both forms to give the same output.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:240,xr:[-1,6],yr:[-0.4,3.8],xlabel:'n',ylabel:'y[n]',pad:{l:54,r:22,t:28,b:32},xtarget:7,ytarget:3});
       a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]:0,-1,6),{color:C.out});
@@ -251,7 +253,7 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x[n]=\\left(\\tfrac12\\right)^{n}u[n]$ and $h[n]=u[n]$.'],
       ['Find','$y[n]=x[n]*h[n]$; determine and plot.'],
-      ['Method','$y[n]=\\sum_k x[k]h[n-k]$. Build $h[n-k]$ by shift-then-flip: it is 1 for $k\\le n$. Split on the sign of $n$.']
+      ['Method','Use $y[n]=\\sum_k x[k]h[n-k]$ because the support conditions give the limits directly. Build $h[n-k]$ by shifting and reversing $h$: it is 1 for $k\\le n$. Then split the calculation according to the sign of $n$.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Case I · n negative', html:'Take $n<0$. Then $x[k]$ lives on $k\\ge0$, $h[n-k]$ on $k\\le n<0$. The two supports do not overlap, so every product is zero:<br>$y[n]=0$ for $n<0$.'}]},
@@ -265,7 +267,7 @@ const SC = [
       {t:'wex', rows:[
         ['Sanity check 1','$y[0]=2-1=1$, and directly $y[0]=x[0]h[0]=1$. ✓'],
         ['Sanity check 2','As $n\\to\\infty$, $y[n]\\to2=\\sum_{k\\ge0}(1/2)^{k}$, so the accumulator has summed the entire input. ✓'],
-        ['Interpretation','$h[n]=u[n]$ is the accumulator of Module 2. Convolving with it gives the running sum. The input is absolutely summable, so this running sum converges. A bounded output from an unstable system is allowed, because BIBO stability requires <em>every</em> bounded input to give a bounded output, not just this one.']
+        ['Interpretation','$h[n]=u[n]$ is the accumulator from Module 2, so convolution with it forms the running sum of the input. This input is absolutely summable, so its running sum converges. The accumulator is still not BIBO stable: stability requires a bounded output for every bounded input, not only for this input.']
       ]}]}
   ], right:[
     {t:'grid', cols:1, gap:'6px', items:[
@@ -290,17 +292,17 @@ const SC = [
   {t:'eyebrow', text:'Module 3 · Continuous time', src:'pp. 17–18'},
   {t:'title', text:'The same argument, with an integral'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The continuous-time route starts from sifting. Writing $x(t_0)=\\int x(t)\\delta(t-t_0)\\d t$ with the roles of the variables exchanged:'},
+    {t:'body', html:'The continuous-time derivation serves the same purpose as the discrete-time derivation: it writes the input as shifted impulses before applying the LTI properties. Start with the sifting property and exchange the variable names:'},
     {t:'eq', size:'sm', tex:'x(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,\\delta(\\tau-t)\\,\\d\\tau=\\int_{-\\infty}^{\\infty}x(\\tau)\\,\\delta(t-\\tau)\\,\\d\\tau',
       note:'The last step uses $\\delta(t)=\\delta(-t)$: the impulse is an even distribution.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'This is the continuous-time representation property. It writes $x$ as a <em>continuum</em> of weighted, shifted impulses. Feed it through an LTI system and repeat the three steps of the discrete case:'},
+      {t:'body', html:'This is the continuous-time representation property. It expresses $x$ as continuously indexed weighted impulses. Apply time invariance, homogeneity, and additivity in the same order as in the discrete-time derivation:'},
       {t:'eq', key:true, size:'lg', tex:'y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau\\;=\\;x(t)*h(t)',
         label:'Convolution integral'},
       {t:'eq', tex:'y(t)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,x(t-\\tau)\\,\\d\\tau', label:'Equivalent form',
-        note:'Commutativity again: flip whichever signal is easier to handle. In practice, flip the one with the simpler shape.'}]},
+        note:'This equivalent form follows by changing the integration variable. Choose the form that makes the support conditions easier to write.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Building the reversed, shifted response', html:'Build $h(t-\\tau)$ by shift, then scale, in the variable $\\tau$. For example, to plot $\\delta(-t+5)$, first form $v(t)=\\delta(t+5)$, then $y(t)=v(-t)=\\delta(-t+5)$. That is an impulse at $t=5$. The same routine builds $h(t-\\tau)$, and this is where sign errors appear if it is done by eye.'}]}
+      {t:'note', kind:'warn', head:'Build the reversed and shifted response explicitly', html:'Use $\\tau$ as the variable in $h(t-\\tau)$. Apply the shift first and the reversal second. For example, first form $v(t)=\\delta(t+5)$ and then form $y(t)=v(-t)=\\delta(-t+5)$. The result is an impulse at $t=5$. Writing these two moves prevents a sign error in the integration limits.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:230,xr:[-8,8],yr:[-0.25,1.35],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
@@ -334,7 +336,7 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.'],
       ['Find','$y(t)=x(t)*h(t)$; determine and plot.'],
-      ['Method','$y(t)=\\int x(\\tau)h(t-\\tau)\\d\\tau$. Note $x(\\tau)$ is non-zero for $\\tau\\le0$ and $h(t-\\tau)=u(t-\\tau-3)$ is non-zero for $\\tau\\le t-3$. The overlap therefore ends at $\\min(0,\\,t-3)$, and that is what creates the two cases.']
+      ['Method','Use $y(t)=\\int x(\\tau)h(t-\\tau)\\d\\tau$ because the two support conditions give the integration limit. Here $x(\\tau)$ is non-zero for $\\tau\\le0$, and $h(t-\\tau)=u(t-\\tau-3)$ is non-zero for $\\tau\\le t-3$. Their overlap ends at $\\min(0,\\,t-3)$, so the active upper limit changes at $t=3$.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Case I · before 3 seconds', html:'Here $t<3$, so $t-3<0$ and the binding limit is $t-3$:<br>$y(t)=\\displaystyle\\int_{-\\infty}^{t-3}e^{2\\tau}\\,\\d\\tau=\\left[\\tfrac12 e^{2\\tau}\\right]_{-\\infty}^{t-3}=\\tfrac12 e^{2(t-3)}$.'}]},
@@ -378,8 +380,10 @@ const SC = [
   {t:'title', text:'One answer, three checks'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
-      ['Where this stands','The two cases of $x(t)=e^{2t}u(-t)$ convolved with $h(t)=u(t-3)$ have been integrated separately. The binding limit was $t-3$ below three seconds and $0$ above it.'],
-      ['Where the flip shows','$h(t-\\tau)$ is non-zero for $\\tau\\le t-3$, so it extends to the <em>left</em>. Forgetting the reversal would put the limits on the wrong side and produce a growing exponential instead of a saturating one.']
+      ['Given','$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.'],
+      ['Find','Combine the two convolution cases into one expression for $y(t)$.'],
+      ['Method','The overlap ends at $t-3$ for $t<3$ and at $0$ for $t>3$. Use the two integrals already evaluated, then check their common boundary and final value.'],
+      ['Role of the reversal','$h(t-\\tau)$ is non-zero for $\\tau\\le t-3$, so its support extends to the left. This condition fixes the side on which the integration interval lies.']
     ]},
     {t:'eq', key:true, tex:'y(t)=\\begin{cases}0.5\\,e^{2(t-3)},& t<3\\\\[2pt] 0.5,& t>3\\end{cases}', label:'Solution'},
     {t:'reveal', at:1, items:[
@@ -389,7 +393,7 @@ const SC = [
         ['Check 3','<b>Growth direction.</b> Below three seconds the answer rises like $e^{2t}$ and above it stays flat. A branch that kept growing after $t=3$ would mean the step was still collecting new area, which it is not. ✓']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'What the system does', html:'$h$ is a step switched on at $t=3$. The output is the running area of $x$ collected up to three seconds ago, so the system is a delayed integrator. Read that way, both branches are obvious before any integration: the area is still growing while the step edge sits to the left of the origin, and it is complete once the edge has passed it.'}]}
+      {t:'note', kind:'ok', head:'Interpret the result', html:'Because $h$ is a step delayed to $t=3$, the system integrates the input up to time $t-3$. Before $t=3$, that upper limit moves through the support of $x$, so the output grows. After $t=3$, the integral contains the full support of $x$, so the output remains constant.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:230,xr:[-1,7],yr:[-0.05,0.6],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:22,t:26,b:32},xtarget:8,ytarget:3});
       a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out});
@@ -415,10 +419,10 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x(t)=1$ on $0<t<1$ (zero elsewhere);  $h(t)=t$ on $0<t<2$ (zero elsewhere).'],
       ['Find','$y(t)=x(t)*h(t)$; determine and plot.'],
-      ['Method','Use $y(t)=\\int h(\\tau)x(t-\\tau)\\d\\tau$ and flip the <em>rectangle</em>, because it is the simpler shape. Its support becomes $[t-1,\\,t]$, a window of width 1 that slides across the ramp on $[0,2]$.']
+      ['Method','Use $y(t)=\\int h(\\tau)x(t-\\tau)\\d\\tau$. This form reverses the rectangle, whose constant height makes the overlap limits easy to identify. Its support becomes $[t-1,\\,t]$, a window of width 1 that moves across the ramp on $[0,2]$.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Boundaries come from the window edges meeting the ramp edges', html:'The window edges are $t-1$ and $t$. The ramp edges are $0$ and $2$. Equating them gives $t=0,\\,1,\\,2,\\,3$. Those are the four boundaries, so there are five cases. Once this list is written down, no case can be missed or invented.'}]},
+      {t:'note', kind:'def', head:'Find every case boundary before integrating', html:'The moving window has edges $t-1$ and $t$. The fixed ramp has edges $0$ and $2$. Set each moving edge equal to each fixed edge. This gives $t=0,\\,1,\\,2,\\,3$, which divides the calculation into five cases.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
         ['Case I','For $t<0$ there is no overlap, so $y(t)=0$.'],
@@ -430,7 +434,7 @@ const SC = [
     {t:'reveal', at:4, items:[
       {t:'wex', rows:[
         ['Checks','<b>Continuity:</b> $t=1\\to0.5$, $t=2\\to1.5$, $t=3\\to0$, from both sides ✓ &nbsp;·&nbsp; <b>Support:</b> $[0,1]+[0,2]=[0,3]$ ✓ &nbsp;·&nbsp; <b>Area:</b> $\\tfrac16+1+\\tfrac56=2=(\\int x)(\\int h)$ ✓'],
-        ['Interpretation','A unit-width rectangle is an unnormalised one-second moving average: the output rises quadratically while the window fills, linearly while it is full, and falls as it leaves the ramp.']
+        ['Interpretation','A unit-width rectangle forms a one-second moving integral without normalisation. The output rises quadratically while the overlap grows, changes linearly while the full window lies on the ramp, and falls while the overlap shrinks.']
       ]},
       {t:'instr', head:'Exercise', html:'Repeat with $x(t)=1$ on $0<t<3$ and the same $h$. The window is now <em>wider</em> than the ramp, which changes the middle case. That tests whether the boundary list was understood rather than memorised.'}]}
   ], right:[
@@ -470,7 +474,7 @@ const SC = [
   keywords:'laboratory convolution explorer flip shift multiply overlap', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory E', src:'pp. 15–20'},
   {t:'title', text:'Convolution, one shift at a time'},
-  {t:'lede', text:'All four cases are the worked examples of this module. Drag the shift and watch the overlap create the case boundaries you derived by hand, and then destroy them again.'},
+  {t:'lede', text:'This laboratory shows the four convolution examples from the module. Move the shift control. At each position, compare the overlap, the product, and the accumulated output. Note the positions where an overlap edge changes; these are the case boundaries used in the calculation.'},
   {t:'lab', id:'E'}
 ]},
 
@@ -478,10 +482,10 @@ const SC = [
   objective:'State commutativity, distributivity and associativity with their interconnection meanings.',
   keywords:'commutative distributive associative parallel cascade interconnection', steps:3, blocks:[
   {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'p. 20'},
-  {t:'title', text:'Three algebraic properties, three circuit facts'},
+  {t:'title', text:'Use convolution properties to combine LTI systems'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x[n]*h[n]=h[n]*x[n],\\qquad x(t)*h(t)=h(t)*x(t)', label:'(1) Commutative',
-      note:'Flip whichever signal is easier. In the algebra the input and the impulse response play symmetric roles, even though physically they are quite different objects.'},
+      note:'The two forms are equal, so choose the factor whose reversal gives simpler support conditions. The input and impulse response have different physical roles, but convolution treats them symmetrically.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'x*(h_1+h_2)=x*h_1+x*h_2', label:'(2) Distributive',
         note:'Two systems in <b>parallel</b>, outputs summed, are equivalent to one system with impulse response $h_1+h_2$.'}]},
@@ -489,7 +493,7 @@ const SC = [
       {t:'eq', tex:'x*(h_1*h_2)=(x*h_1)*h_2', label:'(3) Associative',
         note:'Two systems in <b>cascade</b> are equivalent to one system with impulse response $h_1*h_2$. Together with commutativity, this means the order of the cascade does not matter. It holds for LTI systems only.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Order matters again outside LTI', html:'A saturating amplifier followed by a filter is <em>not</em> the same system as the filter followed by the amplifier. The freedom to reorder is bought with linearity and time invariance, and it disappears the moment either is lost.'}]}
+      {t:'note', kind:'err', head:'Do not reorder systems that are not LTI', html:'For example, a saturating amplifier followed by a filter is not generally equivalent to the filter followed by the amplifier. The convolution properties justify reordering only when both systems are linear and time invariant.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:860,h:210,items:[
       {t:'arrow',x1:40,y1:105,x2:140,y2:105},
@@ -521,11 +525,11 @@ const SC = [
   objective:'Give the impulse-response criterion for each system property.',
   keywords:'LTI memoryless invertible causal stable absolutely summable integrable criteria', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'p. 21'},
-  {t:'title', text:'Every Module 2 test becomes a statement about one function'},
+  {t:'title', text:'Test an LTI system by examining its impulse response'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'h(t)=a\\,\\delta(t)\\quad\\text{or}\\quad h[n]=a\\,\\delta[n],\\qquad a\\in\\mathbb{C}',
       label:'(4) Memoryless ⟺',
-      note:'Proof: $y[n]=\\sum_k x[k]\\,a\\,\\delta[n-k]=a\\,x[n]$, which is a pure gain. Any $h$ with a non-zero sample away from the origin introduces memory.'},
+        note:'Substitution gives $y[n]=\\sum_k x[k]\\,a\\,\\delta[n-k]=a\\,x[n]$, so the output depends only on the current input. A non-zero value of $h$ away from the origin introduces dependence on another time.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'h(t)*g(t)=\\delta(t)\\quad\\text{or}\\quad h[n]*g[n]=\\delta[n]', label:'(5) Invertible ⟺',
         note:'$g$ is the impulse response of the <b>inverse system</b>, and $\\delta$ is the identity system. The cascade $x\\to h\\to g$ returns $x$ exactly.'}]},
@@ -538,7 +542,7 @@ const SC = [
       {t:'eq', size:'sm', tex:'\\bigl|y[n]\\bigr|=\\Bigl|\\sum_k h[k]x[n-k]\\Bigr|\\;\\le\\;\\sum_k\\bigl|h[k]\\bigr|\\,\\bigl|x[n-k]\\bigr|\\;\\le\\;B\\sum_k\\bigl|h[k]\\bigr|<\\infty',
         label:'Proof of sufficiency', note:'Triangle inequality, then the bound $|x|\\le B$.'}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'What is proved, and what is asserted', html:'The proof above establishes <b>sufficiency</b>: absolute summability ⇒ BIBO stability. Necessity is a standard result (it follows from the bounded input $x[n]=\\operatorname{sgn}h[-n]$, which forces $y[0]=\\sum_k|h[k]|$) and is stated here without proof.'}]}
+      {t:'note', kind:'warn', head:'Separate the two directions of the stability result', html:'The inequality above proves sufficiency: absolute summability implies BIBO stability. For necessity, choose the bounded input $x[n]=\\operatorname{sgn}h[-n]$. It gives $y[0]=\\sum_k|h[k]|$, so BIBO stability requires this sum to be finite.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:150,items:[
       {t:'arrow',x1:40,y1:75,x2:150,y2:75},{t:'box',x:150,y:53,w:120,h:44,label:'h[n]',tex:true},
@@ -564,7 +568,7 @@ const SC = [
   dark:true, objective:'Consolidate and open the door to the frequency domain.',
   keywords:'synthesis summary module 3 eigenfunction preview convolution checklist', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Synthesis', src:'pp. 14–21'},
-  {t:'title', text:'A convolution checklist, and a question it cannot answer'},
+  {t:'title', text:'Use one complete convolution procedure'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the system is LTI. Nothing below is valid otherwise.</p>
       <p style="color:var(--graphite)"><b>2.</b> Choose which signal to flip — the simpler one.</p>
@@ -573,14 +577,14 @@ const SC = [
       <p style="color:var(--graphite)"><b>5.</b> Integrate or sum case by case.</p>
       <p style="color:var(--graphite)"><b>6.</b> Check continuity at each boundary, check that supports add, and check that total area (or total sum) multiplies.</p>`},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'The three checks in step 6 catch nearly every error', html:'<span style="color:var(--graphite)">A discontinuity at a case boundary means a limit is wrong. A support that is too wide or too narrow means a flip or a shift is wrong. A total area that does not multiply means an integrand is wrong.</span>'}]}
+      {t:'note', kind:'ok', head:'Use each final check for a specific purpose', html:'<span style="color:var(--graphite)">A mismatch at a case boundary indicates an incorrect limit. An incorrect output support indicates an error in a shift, reversal, or support condition. An incorrect total area or sum indicates an error in the integrand or summand.</span>'}]}
   ], right:[
     {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 4 begins</p>'},
-    {t:'lede', text:'Convolution is complete and general, but it is hard work. Five cases for two simple shapes is not a method that scales. So is there a class of input signals for which an LTI system does something simpler than convolve?'},
+    {t:'lede', text:'Convolution applies to every input of an LTI system, but piecewise calculations become long. Module 4 therefore asks whether some inputs pass through an LTI system without changing form.'},
     {t:'reveal', at:2, items:[
       {t:'body', html:`<p style="color:var(--graphite)">There is. Put $x(t)=e^{st}$ into the convolution integral:</p>`},
       {t:'eq', plain:true, tex:'y(t)=\\int h(\\tau)e^{s(t-\\tau)}\\d\\tau=e^{st}\\underbrace{\\int h(\\tau)e^{-s\\tau}\\d\\tau}_{\\text{a number, }H(s)}'},
-      {t:'body', html:`<p style="color:var(--graphite)">The signal comes out with its shape unchanged, scaled by a constant. Complex exponentials are the <b>eigenfunctions</b> of LTI systems. That single fact is the whole of Modules 4 to 7.</p>`}]}
+      {t:'body', html:`<p style="color:var(--graphite)">The output has the same form as the input and differs only by the constant $H(s)$. A function with this property is called an <b>eigenfunction</b> of the system. Complex exponentials are eigenfunctions of LTI systems, and Modules 4 to 7 develop the consequences of this result.</p>`}]}
   ]}
 ]}
 ];

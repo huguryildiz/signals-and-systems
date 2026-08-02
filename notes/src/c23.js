@@ -174,21 +174,21 @@ window.C23 = [
 
 /* ================= CHAPTER 3 ================= */
 {t:'h1', num:'CHAPTER 3', text:'Linear time-invariant systems'},
-{t:'p', lead:true, text:'Impose linearity and time invariance together, and a whole system is described by its response to a single impulse. This chapter derives that result and shows how to use it.'},
+{t:'p', lead:true, text:'This chapter develops a direct way to find the output of a linear time-invariant system. Its impulse response describes the system, and convolution uses that response to find the output for any input.'},
 
 {t:'h2', num:'3.1', text:'The impulse response'},
 {t:'box', html:'<span class="t">Definition</span>The <b>impulse response</b> is the output when the input is a unit impulse: $x[n]=\\delta[n]$ gives $y[n]=h[n]$. In continuous time, $x(t)=\\delta(t)$ gives $y(t)=h(t)$.'},
-{t:'p', text:'For a general system this is one measurement among infinitely many. Knowing the response to $\\delta[n]$ says nothing about the response to anything else.'},
-{t:'p', text:'For a linear time-invariant system it is everything. Time invariance turns one impulse response into a response for every shift. Linearity turns those into a response for every weighted sum. And Chapter 1 showed that every signal <b>is</b> a weighted sum of shifted impulses. Those three facts close the loop.'},
+{t:'p', text:'For a general system, this experiment gives only one input-output pair. It does not determine the response to another input.'},
+{t:'p', text:'For a linear time-invariant system, one impulse response is enough. Time invariance gives the response to every shifted impulse. Linearity gives the response to every weighted sum of those impulses. Chapter 1 showed that every discrete-time signal can be written as such a sum. Therefore $h[n]$ determines the response to every input.'},
 {t:'fig', svg:()=>P.blocks({w:700,h:110,items:[
   {t:'arrow',x1:80,y1:56,x2:260,y2:56},{t:'box',x:260,y:32,w:150,h:48,label:'S',tex:true,fs:16},
   {t:'arrow',x1:410,y1:56,x2:600,y2:56},
   {t:'text',x:170,y:44,label:'\\delta[n]',tex:true,fs:15,color:'#14707F'},
   {t:'text',x:505,y:44,label:'h[n]',tex:true,fs:15,color:'#A9741C'}
-]}), cap:'One experiment defines the whole system, provided the system is linear and time invariant.'},
+]}), cap:'For an LTI system, one impulse experiment determines the response to every input.'},
 
 {t:'h2', num:'3.2', text:'Deriving the convolution sum'},
-{t:'p', text:'Start from the representation property of Chapter 1 and push it through the system.'},
+{t:'p', text:'The purpose of this derivation is to obtain the output from $h[n]$. Start with the representation property from Chapter 1, then apply the system to both sides.'},
 {t:'eq', tex:'x[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,\\delta[n-k]\\quad\\longrightarrow\\quad S\\quad\\longrightarrow\\quad y[n]=\\;?'},
 {t:'ol', items:[
  '<b>Time invariance.</b> Since $\\delta[n]\\to h[n]$, we also have $\\delta[n-k]\\to h[n-k]$.',
@@ -196,9 +196,9 @@ window.C23 = [
  '<b>Additivity.</b> The response to the sum is the sum of the responses.'
 ]},
 {t:'eqbox', cap:'Convolution sum', big:true, tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,h[n-k]\\;=\\;x[n]*h[n]'},
-{t:'p', text:'Substituting $m=n-k$ gives an equivalent form, which is already the statement that convolution is commutative:'},
+{t:'p', text:'Next, replace the summation index by $m=n-k$. This gives an equivalent form and shows that convolution is commutative:'},
 {t:'eq', tex:'\\sum_{k=-\\infty}^{\\infty}x[k]h[n-k]=\\sum_{m=-\\infty}^{\\infty}x[n-m]h[m].'},
-{t:'box', kind:'err', html:'<span class="t">The precondition is not optional</span>Convolution applies only when the system is linear and time invariant. The derivation used time invariance once and linearity twice. Remove either property and no step survives. Applying convolution anyway produces a confident number that means nothing.'},
+{t:'box', kind:'err', html:'<span class="t">Check the system before using convolution</span>Convolution gives the system output only when the system is linear and time invariant. The derivation uses time invariance to shift $h$ and linearity to scale and add the responses. If either property fails, the convolution result is not the output of that system.'},
 
 {t:'h2', num:'3.3', text:'How to compute a convolution'},
 {t:'ol', items:[
@@ -207,8 +207,8 @@ window.C23 = [
  '<b>Multiply and add.</b> Form $x[k]h[n-k]$ and sum over $k$.',
  'Repeat for every $n$.'
 ]},
-{t:'p', text:'Build $h[n-k]$ the same way you built $x(at-b)$ in Chapter 1. Treat $k$ as the variable: shift $h[k]$ by $n$, then reverse in $k$.'},
-{t:'box', kind:'err', html:'<span class="t">What happens if you skip the flip</span>Sliding an unflipped $h$ computes $\\sum_k x[k]h[k-n]$, which is the cross-correlation of $x$ and $h$, not the convolution. When $h$ is symmetric the two agree, which is why this mistake often survives until an asymmetric $h$ appears in an exam.'},
+{t:'p', text:'Construct $h[n-k]$ in a fixed order. Treat $k$ as the variable, shift $h[k]$ by $n$, and then reverse it in $k$. This is the shift-then-scale procedure from Chapter 1.'},
+{t:'box', kind:'err', html:'<span class="t">Do not omit the reversal</span>Using an unreversed $h$ gives $\\sum_k x[k]h[k-n]$, which is the cross-correlation of $x$ and $h$, not their convolution. A symmetric $h$ can hide this error because reversal does not change it. Use an asymmetric example to check the construction.'},
 {t:'figrow', n:3, items:[
  {svg:()=>{const h=k=>(k>=0&&k<=2)?[1,0.6,0.3][k]:0;
    const a=ax({xr:[-5,7],yr:[-0.2,1.25],xlabel:'k',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
@@ -225,9 +225,9 @@ window.C23 = [
 {t:'ex', hd:'Example 3.1', rows:[
  ['Given','$x[n]=\\{1,2,1,2\\}$ for $n=0,1,2,3$, and $h[n]=\\{1,1\\}$ for $n=0,1$. Both zero elsewhere.'],
  ['Find','$y[n]=x[n]*h[n]$.'],
- ['Method','Expand the sum over the four non-zero samples of $x$ and add the shifted copies of $h$.'],
- ['Solution','$$y[n]=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]=h[n]+2h[n-1]+h[n-2]+2h[n-3]$$ Adding the four copies sample by sample gives $y=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$.'],
- ['Check','Two independent checks. <b>Length:</b> $4+2-1=5$ samples, and the support is $[0,4]$. <b>Sum:</b> $\\sum_n y[n]$ must equal $\\bigl(\\sum_n x[n]\\bigr)\\bigl(\\sum_n h[n]\\bigr)$, and $12=6\\times2$. Also note that $h=\\{1,1\\}$ is a two-point moving sum, so each output is the total of an adjacent input pair, which is what the numbers show.']
+ ['Method','Because $x$ has four non-zero samples, expand the convolution sum into four terms. Each term is a shifted copy of $h$ weighted by the corresponding sample of $x$.'],
+ ['Solution','$$y[n]=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]=h[n]+2h[n-1]+h[n-2]+2h[n-3]$$ Add these four copies at each value of $n$. This gives $y=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$.'],
+ ['Check','The support must contain $4+2-1=5$ samples and run from $0$ to $4$, which the result does. The total must satisfy $\\sum_n y[n]=\\bigl(\\sum_n x[n]\\bigr)\\bigl(\\sum_n h[n]\\bigr)$, and $12=6\\times2$. Also, $h=\\{1,1\\}$ forms a two-point moving sum, so each output is the sum of two adjacent input samples. This gives the same values.']
 ]},
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-1,6],yr:[-0.3,2.4],xlabel:'n',w:340,h:130,pad:{l:36,r:14,t:12,b:26},xtarget:4,ytarget:2});
@@ -239,28 +239,28 @@ window.C23 = [
 {t:'ex', hd:'Example 3.2', rows:[
  ['Given','$x[n]=\\left(\\tfrac12\\right)^{n}u[n]$ and $h[n]=u[n]$.'],
  ['Find','$y[n]=x[n]*h[n]$.'],
- ['Method','$h[n-k]$ equals 1 exactly when $k\\le n$. Split on the sign of $n$.'],
+ ['Method','Use the support of $h[n-k]$ to set the summation limits: it equals 1 exactly when $k\\le n$. The overlap changes when $n$ changes sign, so treat $n<0$ and $n\\ge0$ separately.'],
  ['Solution','<b>Case 1, $n<0$.</b> The supports do not overlap: $x[k]$ needs $k\\ge0$ and $h[n-k]$ needs $k\\le n<0$. So $y[n]=0$.<br><b>Case 2, $n\\ge0$.</b> The overlap is $0\\le k\\le n$, so $$y[n]=\\sum_{k=0}^{n}\\left(\\tfrac12\\right)^{k}=\\frac{1-\\left(\\tfrac12\\right)^{n+1}}{1-\\tfrac12}=2-\\left(\\tfrac12\\right)^{n}.$$ Together, $y[n]=\\left(2-\\left(\\tfrac12\\right)^{n}\\right)u[n]$.'],
- ['Check','$y[0]=1$, and directly $y[0]=x[0]h[0]=1$. As $n\\to\\infty$, $y[n]\\to2$, which is the total sum of the input. That is what an accumulator should do.']
+ ['Check','At $n=0$, the formula gives $y[0]=1$, and direct substitution gives $x[0]h[0]=1$. As $n\\to\\infty$, $y[n]\\to2$, which equals the total sum of the input. This agrees with the interpretation of $h[n]=u[n]$ as an accumulator.']
 ]},
 {t:'box', html:'<span class="t">Geometric sum</span>$\\displaystyle\\sum_{k=m}^{n}a\\,r^{k}=\\frac{a\\bigl(r^{m}-r^{n+1}\\bigr)}{1-r}$. The finite sum needs only $r\\neq1$. The condition $|r|<1$ is needed only when the sum runs to infinity.'},
 
 {t:'h2', num:'3.4', text:'The convolution integral'},
-{t:'p', text:'The continuous-time version follows the same three steps. Sifting gives the representation of $x$ as a continuum of weighted impulses,'},
+{t:'p', text:'The continuous-time derivation has the same purpose and uses the same three LTI moves. First, the sifting property represents $x$ as continuously indexed weighted impulses:'},
 {t:'eq', tex:'x(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,\\delta(t-\\tau)\\,\\d\\tau,'},
-{t:'p', text:'using $\\delta(t)=\\delta(-t)$. Pushing this through a linear time-invariant system gives:'},
+{t:'p', text:'The equality uses $\\delta(t)=\\delta(-t)$. Now apply time invariance, homogeneity, and additivity to obtain:'},
 {t:'eqbox', cap:'Convolution integral', big:true,
  tex:['y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau\\;=\\;x(t)*h(t)',
       'y(t)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,x(t-\\tau)\\,\\d\\tau'],
- after:'The two forms are equal. Flip whichever signal has the simpler shape.'},
-{t:'box', kind:'warn', html:'<span class="t">Building the flipped, shifted h</span>Do it by shift, then scale, in the variable $\\tau$. For example, to plot $\\delta(-t+5)$: first $v(t)=\\delta(t+5)$, then $y(t)=v(-t)=\\delta(-t+5)$, an impulse at $t=+5$, not at $t=-5$. Sign errors here are the main source of wrong integration limits.'},
+ after:'The two forms are equal. Choose the form that makes the support conditions easier to write.'},
+{t:'box', kind:'warn', html:'<span class="t">Build the reversed and shifted response explicitly</span>Use $\\tau$ as the variable and apply the shift before the reversal. For $\\delta(-t+5)$, first form $v(t)=\\delta(t+5)$ and then form $y(t)=v(-t)=\\delta(-t+5)$. The result is an impulse at $t=+5$. Writing both moves prevents a sign error in the integration limits.'},
 
 {t:'ex', hd:'Example 3.3', rows:[
  ['Given','$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.'],
  ['Find','$y(t)=x(t)*h(t)$.'],
- ['Method','$x(\\tau)$ is non-zero for $\\tau\\le0$. And $h(t-\\tau)=u(t-\\tau-3)$ is non-zero for $\\tau\\le t-3$. So the overlap ends at $\\min(0,\\,t-3)$, and that is what creates two cases.'],
+ ['Method','Use the two support conditions to set the integration limit. $x(\\tau)$ is non-zero for $\\tau\\le0$, and $h(t-\\tau)=u(t-\\tau-3)$ is non-zero for $\\tau\\le t-3$. The overlap ends at $\\min(0,\\,t-3)$, so the active upper limit changes at $t=3$.'],
  ['Solution','<b>Case 1, $t<3$.</b> The binding limit is $t-3$: $$y(t)=\\int_{-\\infty}^{t-3}e^{2\\tau}\\,\\d\\tau=\\tfrac12 e^{2(t-3)}.$$ <b>Case 2, $t>3$.</b> The binding limit is 0, so the whole of $x$ is covered: $$y(t)=\\int_{-\\infty}^{0}e^{2\\tau}\\,\\d\\tau=\\tfrac12.$$'],
- ['Check','Both branches give $0.5$ at $t=3$, so $y$ is continuous. And $y(\\infty)$ equals the total area of $x$, which is $1/2$. The system is a delayed integrator: it collects the area of $x$ up to three seconds ago.']
+ ['Check','Both branches give $0.5$ at $t=3$, so they join continuously. Also, $y(\\infty)$ equals the total area of $x$, which is $1/2$. This agrees with the system interpretation: the delayed step makes the output the area of $x$ collected up to three seconds earlier.']
 ]},
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-6,8],yr:[-0.1,1.2],xlabel:'\\tau',w:340,h:130,pad:{l:36,r:14,t:12,b:26},xtarget:4,ytarget:2});
@@ -275,11 +275,11 @@ window.C23 = [
 {t:'ex', hd:'Example 3.4', rows:[
  ['Given','$x(t)=1$ on $0<t<1$ and zero elsewhere. $h(t)=t$ on $0<t<2$ and zero elsewhere.'],
  ['Find','$y(t)=x(t)*h(t)$.'],
- ['Method','Use $y(t)=\\int h(\\tau)x(t-\\tau)\\,\\d\\tau$ and flip the rectangle, which is the simpler shape. Its support becomes $[t-1,\\,t]$: a window of width 1 sliding across the ramp on $[0,2]$.'],
- ['Solution','The window edges are $t-1$ and $t$. The ramp edges are $0$ and $2$. Setting them equal gives $t=0,1,2,3$: four boundaries, so five cases.<br><br>$t<0$: no overlap, $y=0$.<br>$0<t<1$: $y=\\int_{0}^{t}\\tau\\,\\d\\tau=\\tfrac12 t^{2}$.<br>$1<t<2$: $y=\\int_{t-1}^{t}\\tau\\,\\d\\tau=t-\\tfrac12$.<br>$2<t<3$: $y=\\int_{t-1}^{2}\\tau\\,\\d\\tau=-\\tfrac12 t^{2}+t+\\tfrac32$.<br>$t>3$: no overlap, $y=0$.'],
+ ['Method','Use $y(t)=\\int h(\\tau)x(t-\\tau)\\,\\d\\tau$. This form reverses the rectangle, whose constant height makes the overlap limits easy to identify. Its support becomes $[t-1,\\,t]$, a window of width 1 moving across the ramp on $[0,2]$.'],
+ ['Solution','The moving window has edges $t-1$ and $t$, and the fixed ramp has edges $0$ and $2$. Set each moving edge equal to each fixed edge. This gives $t=0,1,2,3$, which divides the calculation into five cases.<br><br>$t<0$: there is no overlap, so $y=0$.<br>$0<t<1$: the overlap is $0<\\tau<t$, so $y=\\int_{0}^{t}\\tau\\,\\d\\tau=\\tfrac12 t^{2}$.<br>$1<t<2$: the overlap is $t-1<\\tau<t$, so $y=\\int_{t-1}^{t}\\tau\\,\\d\\tau=t-\\tfrac12$.<br>$2<t<3$: the overlap is $t-1<\\tau<2$, so $y=\\int_{t-1}^{2}\\tau\\,\\d\\tau=-\\tfrac12 t^{2}+t+\\tfrac32$.<br>$t>3$: there is no overlap, so $y=0$.'],
  ['Check','Three checks. <b>Continuity:</b> at $t=1$ both branches give $0.5$; at $t=2$ both give $1.5$; at $t=3$ both give 0. <b>Support:</b> $[0,1]$ and $[0,2]$ give $[0,3]$, because supports add. <b>Area:</b> $\\int y=\\bigl(\\int x\\bigr)\\bigl(\\int h\\bigr)=1\\times2=2$, and $\\tfrac16+1+\\tfrac56=2$.']
 ]},
-{t:'box', kind:'ok', html:'<span class="t">Find the boundaries before integrating</span>List the moving edges and the fixed edges, then set them equal. That produces the complete list of cases in one line, and no case can be lost by accident.'},
+{t:'box', kind:'ok', html:'<span class="t">Find the boundaries before integrating</span>List the moving edges and the fixed edges, then set each moving edge equal to each fixed edge. The resulting values divide the calculation into all required cases.'},
 {t:'figrow', n:3, items:[
  [0.6,'0<t<1'],[1.5,'1<t<2'],[2.5,'2<t<3']
 ].map(([tv,lab])=>({svg:()=>{
@@ -299,19 +299,19 @@ window.C23 = [
  ['Distributive','$x*(h_1+h_2)=x*h_1+x*h_2$','Two systems in <b>parallel</b>, outputs added, equal one system with impulse response $h_1+h_2$.'],
  ['Associative','$x*(h_1*h_2)=(x*h_1)*h_2$','Two systems in <b>cascade</b> equal one system with impulse response $h_1*h_2$.']
 ]},
-{t:'p', text:'Combining the last two with commutativity means the order of cascaded systems does not matter. That freedom is bought with linearity and time invariance, and it disappears the moment either is lost. A saturating amplifier followed by a filter is not the same system as the filter followed by the amplifier.'},
+{t:'p', text:'Associativity and commutativity show that the order of cascaded LTI systems does not change their combined impulse response. This conclusion requires both systems to be linear and time invariant. For example, a saturating amplifier followed by a filter is not generally equivalent to the filter followed by the amplifier.'},
 
 {t:'h2', num:'3.6', text:'System properties in terms of $h$'},
-{t:'p', text:'Every test of Chapter 2 becomes a statement about the single function $h$.'},
+{t:'p', text:'For an LTI system, each property test from Chapter 2 can be applied directly to the impulse response $h$.'},
 {t:'table', head:['Property','Criterion','Reason'], rows:[
  ['Memoryless','$h(t)=a\\,\\delta(t)$, or $h[n]=a\\,\\delta[n]$','Then $y[n]=a\\sum_k x[k]\\delta[n-k]=a\\,x[n]$, a pure gain.'],
  ['Invertible','$h*g=\\delta$ for some $g$','$g$ is the impulse response of the inverse system, and $\\delta$ is the identity system.'],
  ['Causal','$h(t)=0$ for $t<0$, or $h[n]=0$ for $n<0$','The sum collapses to $y[n]=h[0]x[n]+h[1]x[n-1]+\\cdots$, which uses only present and past inputs.'],
  ['BIBO stable','$\\sum_k|h[k]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$','See the proof below.']
 ]},
-{t:'p', text:'The stability condition is worth proving in one line. Assume $|x[n]|\\le B$ for all $n$. Then'},
+{t:'p', text:'To show why absolute summability is sufficient for stability, assume $|x[n]|\\le B$ for all $n$. Then apply the triangle inequality:'},
 {t:'eq', tex:'\\bigl|y[n]\\bigr|=\\left|\\sum_{k}h[k]x[n-k]\\right|\\;\\le\\;\\sum_{k}\\bigl|h[k]\\bigr|\\,\\bigl|x[n-k]\\bigr|\\;\\le\\;B\\sum_{k}\\bigl|h[k]\\bigr|<\\infty.'},
-{t:'p', text:'This proves that absolute summability is <b>sufficient</b> for stability. It is also necessary; that direction is stated here without proof.'},
+{t:'p', text:'This proves sufficiency: an absolutely summable $h[n]$ maps every bounded input to a bounded output. Necessity follows by choosing the bounded input $x[n]=\\operatorname{sgn}h[-n]$, which gives $y[0]=\\sum_k|h[k]|$.'},
 {t:'figrow', items:[
  {svg:()=>{const a=ax({xr:[-2,10],yr:[-0.2,1.2],xlabel:'n',w:340,h:125,pad:{l:36,r:14,t:12,b:26},xtarget:4,ytarget:2});
    a.stem(D(n=>n>=0?Math.pow(0.7,n):0,-2,10),{color:C.out,r:2.4}); return a.svg();},
@@ -323,14 +323,14 @@ window.C23 = [
 
 {t:'h2', num:'3.7', text:'A convolution checklist'},
 {t:'ol', items:[
- 'Confirm the system is linear and time invariant. Nothing below is valid otherwise.',
- 'Choose which signal to flip. Pick the simpler one.',
+ 'Confirm that the system is linear and time invariant. Convolution gives the system output only under this condition.',
+ 'Choose the factor whose reversal gives simpler support conditions.',
  'Write the support of each factor as an inequality in the dummy variable.',
  'Set the moving edges equal to the fixed edges to list every case boundary, before integrating anything.',
  'Integrate or sum, case by case.',
  'Check continuity at every boundary, check that the supports add, and check that the total area or total sum multiplies.'
 ]},
-{t:'box', kind:'ok', html:'<span class="t">What the three final checks catch</span>A discontinuity at a boundary means a limit is wrong. A support that is too wide or too narrow means a flip or a shift is wrong. A total area that does not multiply means an integrand is wrong.'},
+{t:'box', kind:'ok', html:'<span class="t">Use each final check for a specific purpose</span>A mismatch at a case boundary indicates an incorrect limit. An incorrect output support indicates an error in a shift, reversal, or support condition. An incorrect total area or sum indicates an error in the integrand or summand.'},
 
 {t:'h3', text:'Exercises'},
 {t:'q', n:'3.1', text:'Compute $\\{1,2,3\\}*\\{1,-1\\}$ with both sequences starting at $n=0$, and check your answer with the sum rule.', ans:'$\\{1,1,1,-3\\}$; the sums are $6\\times0=0$.'},
