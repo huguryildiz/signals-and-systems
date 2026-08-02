@@ -442,9 +442,9 @@ const LABS = (() => {
             <div><p class="eyebrow" style="margin-bottom:8px"><span class="tick"></span>Closed form</p>
               <div class="exact eq sm"></div></div>
             <div class="small srcref instr-inline" data-instr></div>
-            <div class="note warn"><span class="note-h">Do not skip the flip</span>
-              The amber trace is $h$ <em>reversed and then shifted</em>. Sliding an unflipped $h$ is the most
-              common convolution error. It silently computes a correlation instead.</div>
+            <div class="note warn"><span class="note-h">Use the displayed construction in order</span>
+              The amber trace is $h$ reversed and then shifted. If you move an unreversed $h$, the displayed
+              product gives a correlation rather than a convolution.</div>
           </div></div>`);
       root.addEventListener('input',e=>{ if(e.target.dataset.v==='pos'){ pos=parseFloat(e.target.value); draw(root);} });
       root.addEventListener('click',e=>{
