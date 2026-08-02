@@ -32,14 +32,14 @@ const SC = [
 { id:'m5-open', module:'M5', nav:'Module 5 opening', title:'Continuous-Time Fourier Transform', src:'pp. 42–63',
   dark:true, keywords:'module 5 fourier transform aperiodic CTFT overview envelope spectrum', steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Continuous-Time Fourier Transform', src:'pp. 42–63'},
-  {t:'title', level:1, text:'A signal that never repeats<br>still has a spectrum.'},
-  {t:'lede', text:'Module 4 needed the signal to repeat, so that its frequencies could be counted one harmonic at a time. Stretch the period until the copies never come back, and the stems merge into a curve. That curve is the Fourier transform.'},
+  {t:'title', level:1, text:'The Fourier transform describes<br>aperiodic signals in frequency.'},
+  {t:'lede', text:'The Fourier transform is used to represent an aperiodic signal by a continuous function of frequency. Begin with a periodic extension of the signal and increase its period. The harmonic spacing then approaches zero, and the Fourier-series samples approach the transform curve.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Analysis'},
     {t:'eq', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega', label:'Synthesis'},
-    {t:'note', kind:'ok', head:'What this buys', html:'<span style="color:var(--graphite)">Convolution becomes multiplication for every signal, not only for periodic ones. A system is still described by one function of frequency, and the input no longer has to repeat.</span>'}
+    {t:'note', kind:'ok', head:'Purpose of the transform', html:'<span style="color:var(--graphite)">The transform converts convolution into multiplication for periodic and aperiodic signals. The frequency response still describes how an LTI system changes each frequency.</span>'}
   ], right:[
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:430,xr:[-9,9],yr:[-0.6,7.2],grid:false,zeroAxes:false,arrows:false,
@@ -57,7 +57,7 @@ const SC = [
       a.stem(stf,{color:'#8FBF8A',r:1.8,width:1.1,showZero:true});
       a.curve(w=>rectFT(w,1)*0.55,{color:'#8FBF8A',width:2.2,n:1600});
       return a.svg(); },
-      caption:'One envelope, sampled at $\\omega_0=2\\pi/T$. As the period grows the samples crowd together until only the envelope is left.'}
+      caption:'The same envelope is sampled at $\\omega_0=2\\pi/T$. Increasing the period decreases the spacing between samples.'}
   ]}
 ]},
 
@@ -65,16 +65,16 @@ const SC = [
   objective:'Build the periodic extension of a pulse and state the condition the construction needs.',
   keywords:'aperiodic periodic extension support T > 2T1 limit period grows derivation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Derivation, step 1', src:'pp. 42–43'},
-  {t:'title', text:'Borrow a period the signal does not have'},
+  {t:'title', text:'Construct a periodic extension'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Take a signal that lives on a finite stretch of time and is zero outside it. Write $x(t)=0$ for $|t|>T_1$. The number $T_1$ is the <b>half-width of the support</b>: it belongs to the signal itself and to nothing else.'},
+    {t:'body', html:'This construction connects a finite-duration signal to its Fourier transform. Let $x(t)=0$ for $|t|>T_1$. The <b>support</b> is the interval where the signal can be non-zero, and $T_1$ is its half-width.'},
     {t:'reveal', at:1, items:[
       {t:'body', html:'Now build a periodic signal $\\tilde{x}(t)$ by repeating that pulse every $T$ seconds. Inside one period $\\tilde{x}$ is the original signal, so Module 4 applies to it.'},
       {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\sum_{m=-\\infty}^{\\infty}x(t-mT),\\qquad \\tilde{x}(t)=\\tilde{x}(t+T)'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The condition the construction needs', html:'The copies must not touch, or $\\tilde{x}$ is no longer the pulse repeated. That needs $T>2T_1$. Two symbols are in play and they are not the same: $T_1$ is fixed by the signal, $T$ is chosen by us, and only $T$ is going to move.'}]},
+      {t:'note', kind:'warn', head:'Required condition', html:'The copies must not overlap, which requires $T>2T_1$. The signal fixes $T_1$. We choose $T$ and vary only this period.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'The limit to come', html:'Let $T$ grow. The pulse in the middle never changes; the copies beside it slide away. In the limit $T\\to\\infty$ there is one pulse and no copies, and $\\tilde{x}(t)\\to x(t)$ for every $t$. Everything true of $\\tilde{x}$ can then be pushed to the limit.'}]}
+      {t:'note', kind:'ok', head:'Limit of the construction', html:'Increase $T$ while keeping the central pulse fixed. The neighbouring copies move to larger values of $|t|$. As $T\\to\\infty$, $\\tilde{x}(t)\\to x(t)$ for every $t$. The following steps take this limit in the Fourier-series equations.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
@@ -94,7 +94,7 @@ const SC = [
         const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\tilde{x}(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
         a.curve(t=>rectPer(t,14,1),{color:C.out,n:3000});
         return a.svg(); },
-        caption:'The same construction with $T=14T_1$. The neighbours have left the picture; the pulse has not moved.'}]}
+        caption:'With $T=14T_1$, the neighbouring copies lie outside the plotted interval. The central pulse is unchanged.'}]}
   ]}
 ]},
 
@@ -102,12 +102,12 @@ const SC = [
   objective:'Show that T·a_k is one function of ω, sampled at multiples of ω₀.',
   keywords:'envelope samples T a_k spacing omega_0 derivation coefficients curve', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Derivation, step 2', src:'p. 43'},
-  {t:'title', text:'One curve, read off at the harmonics'},
+  {t:'title', text:'The coefficients sample one continuous curve'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Apply the analysis equation of Module 4 to $\\tilde{x}$. Integrate over the period $-T/2$ to $T/2$. Inside that range $\\tilde{x}(t)=x(t)$, and outside $|t|<T_1$ the integrand is zero anyway, so the limits may be opened to all of time:'},
     {t:'eq', size:'sm', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\tilde{x}(t)e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\int_{-\\infty}^{\\infty}x(t)e^{-jk\\omega_0t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T}'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'The right-hand integral is the same expression at every $k$; only the number $k\\omega_0$ changes. Give that expression a name and a free variable:'},
+      {t:'body', html:'The right-hand integral has the same form for every $k$; only its frequency $k\\omega_0$ changes. Replace that sampled frequency by the continuous variable $\\omega$ and define:'},
       {t:'eq', key:true, tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t',
         note:'{{sym:Xjw|$X(j\\omega)$}} is defined for every real $\\omega$, not only at the harmonics.'}]},
     {t:'reveal', at:2, items:[
@@ -115,7 +115,7 @@ const SC = [
         label:'The coefficients are samples',
         note:'Every coefficient of the periodic extension is one point of the curve $X$, scaled by $1/T$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What moves and what does not', html:'The curve $X$ was built from the pulse alone, so lengthening $T$ cannot move it. What lengthening $T$ does is shrink the spacing $\\omega_0=2\\pi/T$ between the samples, and shrink each coefficient by the same $1/T$.'}]}
+      {t:'note', kind:'ok', head:'Effect of increasing $T$', html:'The definition of $X$ contains the pulse but not the repetition period, so changing $T$ does not change the curve. Increasing $T$ decreases the sample spacing $\\omega_0=2\\pi/T$ and multiplies each coefficient by the smaller factor $1/T$.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'10px', items:[
       [{t:'fig', frame:true, svg:()=>{
@@ -149,12 +149,12 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'body', html:'Replace $1/T$ using $\\omega_0=2\\pi/T$, which gives $1/T=\\omega_0/2\\pi$. Nothing has been approximated yet; this is an exact rewriting.'},
       {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\frac{1}{2\\pi}\\sum_{k=-\\infty}^{\\infty}X(jk\\omega_0)\\,e^{jk\\omega_0t}\\,\\omega_0',
-        note:'Each term now carries the spacing $\\omega_0$ as a factor. That is the shape of a Riemann sum for an integral in $\\omega$.'}]},
+        note:'Each term now includes the frequency spacing $\\omega_0$. The expression is therefore a Riemann sum for an integral with respect to $\\omega$.'}]},
     {t:'reveal', at:2, items:[
       {t:'body', html:'Let $T\\to\\infty$. On the left $\\tilde{x}(t)\\to x(t)$. On the right the spacing $\\omega_0$ shrinks to the differential $\\d\\omega$, the sample points $k\\omega_0$ fill the whole $\\omega$ axis, and the sum becomes an integral:'},
       {t:'eq', key:true, size:'lg', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega',
         label:'Synthesis equation',
-        note:'The $1/2\\pi$ is not a convention chosen for tidiness. It arrived as $\\omega_0/2\\pi$ when the spacing was substituted, and it stays on this side of the pair for the whole module.'}]},
+        note:'The factor $1/2\\pi$ follows from substituting $1/T=\\omega_0/2\\pi$. This course therefore places it on the synthesis side of the transform pair.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'err', head:'The factor has one home', html:'Drop the $1/2\\pi$ and the reconstructed signal comes back $2\\pi$ times too large. Put it on the analysis side instead and every transform in the module changes by the same factor. Write it once, on the synthesis side, and check it there.'}]}
   ], right:[
@@ -167,7 +167,7 @@ const SC = [
       }
       a.curve(w=>rectFT(w,1),{color:C.coral,width:2.2,n:1400});
       return a.svg(); },
-      caption:'Each term of the sum is one rectangle of height $X(jk\\omega_0)$ and width $\\omega_0$. Shrinking the width turns the staircase into the area under the curve.'},
+      caption:'Each rectangle has height $X(jk\\omega_0)$ and width $\\omega_0$. As the width approaches zero, their sum approaches the integral under the curve.'},
     {t:'reveal', at:2, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:820,h:200,xr:[-9,9],yr:[-0.85,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:28,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
@@ -191,11 +191,11 @@ const SC = [
       label:'Synthesis equation · the inverse Fourier transform',
       note:'A spectrum goes in and a signal comes out. <b>Synthesis</b> puts the signal back together from its frequencies. The exponent is positive, and the $1/2\\pi$ sits here.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'A test that settles the direction every time', html:'Look at what the integration variable is. Integrating over $t$ removes time, so what is left is a function of $\\omega$: that is analysis. Integrating over $\\omega$ removes frequency, so what is left is a function of $t$: that is synthesis. The names cannot be swapped once this question is asked.'}]},
+      {t:'note', kind:'warn', head:'Identify the direction from the variable', html:'In the analysis equation, integration over $t$ produces a function of $\\omega$. In the synthesis equation, integration over $\\omega$ produces a function of $t$. Use the integration variable to identify the two equations.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Notation', html:'The pair is written $x(t)\\;\\longleftrightarrow\\;X(j\\omega)$. The argument is $j\\omega$, never $\\omega$ alone, because the transform is the two-sided Laplace transform evaluated on the imaginary axis. The capital letter is the transform of the small letter, and the case is never decorative: $X$ is a signal spectrum, $H$ is a system response.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Only the sign separates them', html:'Apart from the $1/2\\pi$ and the variable of integration, the two equations differ by one minus sign in the exponent. That is why the pair is easy to write and easy to write backwards.'}]}
+      {t:'note', kind:'ok', head:'Compare the two equations', html:'Analysis uses the negative exponent. Synthesis uses the positive exponent and the factor $1/2\\pi$. Each equation also integrates over the variable that it removes.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:270,items:[
       {t:'box',x:70,y:40,w:210,h:74,label:'x(t)',tex:true,fs:20,color:'#14707F'},
@@ -344,12 +344,12 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'What an impulse of weight 1 would give', html:'Repeat the calculation with $X(j\\omega)=\\delta(\\omega-\\omega_0)$ and the answer is $\\tfrac{1}{2\\pi}e^{j\\omega_0t}$, which is not a unit-amplitude exponential. The factor is not decoration: it decides the amplitude of the signal that comes back.'},
       {t:'eq', key:true, tex:'e^{j\\omega_0t}\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0),\\qquad 1\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega)',
-        label:'The pair to remember',
+        label:'Complex-exponential transform pair',
         note:'The second statement is the first at $\\omega_0=0$.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Check','$|x(t)|=|e^{j\\omega_0t}|=1$ for every $t$, and $\\angle x(t)=\\omega_0t$ is a straight line of slope $\\omega_0$. At $\\omega_0=1$ the phase reaches $\\pi/4\\approx0.79$ at $t=\\pi/4$ and $\\pi/2\\approx1.57$ at $t=\\pi/2$.'],
-        ['Reading','A signal built from one frequency has all its spectrum at that one frequency. Nothing is spread anywhere else, which is exactly what an impulse says.']
+        ['Reading','A complex exponential contains one frequency. Its transform is therefore an impulse at that frequency and is zero at all other frequencies.']
       ]}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:200,xr:[-3,3],yr:[-0.4,8.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:5,ytarget:3});
@@ -376,7 +376,7 @@ const SC = [
     {t:'wex', rows:[
       ['Given','$x(t)=e^{-at}u(t)$, with $a$ a real constant.'],
       ['Find','$X(j\\omega)$, the values of $a$ for which it exists, and the magnitude spectrum.'],
-      ['Method','Integrate the analysis equation from $0$ to $\\infty$, because $u(t)$ kills the rest.']
+      ['Method','The unit step makes the signal zero for negative time. Apply the analysis equation over $0$ to $\\infty$.']
     ]},
     {t:'reveal', at:1, items:[
       {t:'eq', size:'sm', tex:'X(j\\omega)=\\int_{0}^{\\infty}e^{-at}e^{-j\\omega t}\\,\\d t=\\left[\\frac{-1}{a+j\\omega}e^{-(a+j\\omega)t}\\right]_{0}^{\\infty}',
@@ -389,7 +389,7 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Check','At $a=0.1,\\,1,\\,5$ the peak $1/a$ is $10$, $1$ and $0.2$. Those are the three heights in the panels beside this text.'],
-        ['Reading','A slow decay in time, small $a$, gives a tall narrow spectrum. A fast decay gives a low wide one. The same trade-off appears again for every signal in this module.']
+        ['Reading','A smaller $a$ gives slower time decay and a taller, narrower spectrum. A larger $a$ gives faster time decay and a lower, wider spectrum.']
       ]}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -426,7 +426,7 @@ const SC = [
         label:'Solution',
         note:'The minus sign is not optional and it is not a convention. It is what the subtraction left behind after $\\angle1=0$ was written down.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'How the sign gets lost', html:'The numerator has angle zero, so it is tempting to skip that term and copy $\\tan^{-1}(\\omega/a)$ straight out of the denominator. What is then reported is the angle of $a+j\\omega$, which is the angle of the reciprocal of the answer.'},
+      {t:'note', kind:'err', head:'Subtract the denominator phase', html:'The numerator has phase zero. The phase of a quotient is the numerator phase minus the denominator phase. Writing only $\\tan^{-1}(\\omega/a)$ gives the phase of $a+j\\omega$, not the phase of its reciprocal.'},
       {t:'wex', rows:[
         ['One number settles it','At $a=1$, $\\omega=1$: $1/(1+j)$ has angle $-0.785398$ rad, that is $-\\pi/4$. The positive value $+\\pi/4$ belongs to $1+j$ itself.'],
         ['Two more','$1/(0.1+3j)$ has angle $-1.537475$; $1/(5+2j)$ has angle $-0.380506$. Every one of them is negative.']
@@ -553,7 +553,7 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['For $T_1=1$','The first zeros are at $\\omega=\\pm\\pi\\approx\\pm3.141593$, the second at $\\pm2\\pi$, and so on.'],
-        ['First side lobe','It sits between $\\pi$ and $2\\pi$, reaching about $-0.4344$ near $\\omega=4.4934$. It is negative, so a magnitude plot and a plot of $X$ itself are not the same picture.'],
+        ['First side lobe','It lies between $\\pi$ and $2\\pi$ and reaches about $-0.4344$ near $\\omega=4.4934$. Because it is negative, a magnitude plot differs from a plot of $X$ itself.'],
         ['Same rule everywhere','The pattern "zero at every multiple of $\\pi/T_1$ except the origin" repeats for every sinc in this module.']
       ]}]}
   ], right:[
@@ -634,7 +634,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'The product is not a universal constant', html:'It is invariant <b>within one shape</b>, because scaling moves the two factors in opposite directions by the same amount. Change the shape and the number changes: a triangular pulse of the same total duration has its first null at $2\\pi/T_1$, so its product is $4\\pi$, not $2\\pi$. Written without the word "for this signal", the statement is false.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What is always true', html:'Whatever measure is chosen, narrowing a signal in time widens its spectrum and widening it narrows the spectrum. In general the product of the two has a lower bound and no upper one, so it cannot be made small in both domains at once. That is the useful half of the statement, and it holds for every signal.'}]}
+      {t:'note', kind:'ok', head:'General conclusion', html:'For any fixed measure, narrowing a signal in time widens its spectrum, and widening it in time narrows its spectrum. Their product has a lower bound and no upper bound, so both widths cannot be made arbitrarily small.'}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
@@ -667,17 +667,17 @@ const SC = [
       {t:'note', kind:'err', head:'The converse is false', html:'"Infinite duration $\\Rightarrow$ finite bandwidth" is not a theorem, and one signal already met in this module disproves it. $e^{-a|t|}$ lasts for ever, and its transform $2a/(a^{2}+\\omega^{2})$ is strictly positive at every finite frequency. At $a=1$ and $\\omega=10^{6}$ it is $2\\times10^{-12}$: small, and not zero.'}]},
     {t:'reveal', at:2, items:[
       {t:'wex', rows:[
-        ['What lasting for ever buys','Nothing on its own. It is the price of being band-limited, not a guarantee of it.'],
+        ['What infinite duration implies','Infinite duration alone does not imply finite bandwidth. Band-limited signals require infinite duration, but many other signals also have infinite duration.'],
         ['Where the two meet','$\\dfrac{\\sin(Wt)}{\\pi t}$ is band-limited and does have infinite duration, which is consistent with both statements. It is an example, not a proof of the converse.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Why this is worth the care', html:'Module 7 asks whether a signal can be sampled without loss, and the answer depends on band limitation alone. A rule that hands out band limitation for free would make every finite-length recording safe to sample, which it is not.'}]}
+      {t:'note', kind:'ok', head:'Why the distinction matters', html:'Module 7 uses band limitation to decide whether sampling can preserve a signal. Finite duration does not establish band limitation, so it cannot by itself justify a sampling rate.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:200,xr:[-40,40],yr:[-0.75,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
       a.curve(w=>rectFT(w,1),{color:C.in,width:2,n:4000});
       return a.svg(); },
-      caption:'The pulse of duration $2$ seconds: its spectrum keeps returning at every frequency shown, and at every frequency beyond.'},
+      caption:'The pulse has duration $2$ seconds. Its spectrum remains non-zero in intervals at arbitrarily large frequencies.'},
     {t:'reveal', at:1, items:[
       {t:'fig', frame:true, svg:()=>{
         const a=P.Axes({w:820,h:200,xr:[0,40],yr:[-0.35,2.35],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:66,r:26,t:34,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
@@ -698,11 +698,11 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, size:'lg', tex:'X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}2\\pi a_k\\,\\delta(\\omega-k\\omega_0),\\qquad \\omega_0=\\frac{2\\pi}{T_0}',
         label:'Transform of a periodic signal',
-        note:'The spectrum is a train of impulses. They sit at the harmonic frequencies $k\\omega_0$, and the impulse at $k\\omega_0$ carries weight $2\\pi a_k$.'}]},
+        note:'The spectrum is a train of impulses at the harmonic frequencies $k\\omega_0$. The impulse at $k\\omega_0$ has weight $2\\pi a_k$.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'The weight is $2\\pi a_k$, not $a_k$', html:'The Fourier series coefficient and the transform are different objects. $a_k$ is a dimensionless complex number attached to one harmonic; $2\\pi a_k$ is the <b>area</b> of the impulse the transform puts at that harmonic. Reporting the coefficients themselves as the transform loses a factor of $2\\pi$ on every line.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Both pictures now live in one place', html:'A periodic signal has a spectrum made of isolated impulses; an aperiodic finite-energy signal has a continuous one. Module 4 is the special case of this module in which the spectrum happens to be discrete.'}]}
+      {t:'note', kind:'ok', head:'Periodic and aperiodic spectra', html:'A periodic signal has a spectrum made of isolated impulses. An aperiodic finite-energy signal has a continuous spectrum. The Fourier series is therefore the discrete-spectrum case of the Fourier transform.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:190,xr:[-9,9],yr:[-0.3,1.45],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
@@ -744,7 +744,7 @@ const SC = [
         ['$T=32T_1$','$\\omega_0=2\\pi/32=\\pi/16=0.098175$. $a_0=0.0625$, weight $0.3927$.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Read the sequence, not the individual case', html:'Each doubling of the period halves the spacing and halves every weight. The envelope $2\\sin(\\omega T_1)/\\omega$ does not move at all, because it was built from the pulse and the pulse never changed. Carried on for ever, this is the derivation the module opened with.'},
+      {t:'note', kind:'ok', head:'Compare the three periods', html:'Each doubling of the period halves the frequency spacing and every impulse weight. The envelope $2\\sin(\\omega T_1)/\\omega$ does not change because the pulse is fixed. Continuing this process gives the transform limit derived at the start of the module.'},
       {t:'note', kind:'warn', head:'The coefficients are signed', html:'For $T=8T_1$ the impulses at $k=\\pm5,\\pm6,\\pm7$ point downwards and those at $k=\\pm4,\\pm8$ vanish, because $\\sin(k\\pi/4)$ is negative and zero there. A plot of $|a_k|$ hides both facts.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'10px', items:[
@@ -792,7 +792,7 @@ const SC = [
         label:'Solution, sine',
         note:'$6\\pi/j=-6\\pi j$, an <b>imaginary</b> weight of modulus $6\\pi=18.849556$. The cosine gave real weights; the sine gives imaginary ones, and the sign flips between the two sides.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'The check that catches the missing half', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$. For the cosine that means equal real weights at $\\pm3\\pi$; for the sine it means opposite imaginary weights at $\\pm4\\pi$. A spectrum with only the positive-frequency impulse fails this test at once, and the signal it describes is complex, not real.'}]}
+      {t:'note', kind:'err', head:'Check both frequency signs', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$. The cosine therefore has equal real weights at $\\pm3\\pi$, and the sine has opposite imaginary weights at $\\pm4\\pi$. A spectrum with only the positive-frequency impulse violates this condition and represents a complex signal.'}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-2.2,2.2],yr:[-4.6,4.6],xlabel:'t',ylabel:'4\\cos(3\\pi t)',pad:{l:56,r:18,t:32,b:34},xtarget:5,ytarget:3});
@@ -830,7 +830,7 @@ const SC = [
         label:'Solution',
         note:'The constant $5$ contributes $5\\cdot2\\pi\\delta(\\omega)=10\\pi\\delta(\\omega)$, of weight $31.415927$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A complex spectrum needs two panels, not one', html:'Three of these weights are real and two are imaginary. Drawing an imaginary weight as a downward arrow on the same axis as a real one uses the vertical direction for two different meanings at once, and the picture can no longer be read. Draw <b>magnitude and phase</b>, or draw <b>real part and imaginary part</b>, and say in the caption which pair is shown.'},
+      {t:'note', kind:'warn', head:'Use two panels for a complex spectrum', html:'Three weights are real and two are imaginary. A single vertical axis cannot represent both signed real values and signed imaginary values. Plot <b>magnitude and phase</b>, or plot <b>real part and imaginary part</b>, and identify the chosen pair.'},
       {t:'wex', rows:[
         ['Magnitudes','$10\\pi=31.4159$ at $\\omega=0$; $4\\pi=12.5664$ at $\\pm3\\pi$; $6\\pi=18.8496$ at $\\pm4\\pi$.'],
         ['Phases','$0$ at $\\omega=0$ and at $\\pm3\\pi$; $-\\pi/2$ at $+4\\pi$ and $+\\pi/2$ at $-4\\pi$, because $1/j=-j$.']
@@ -916,7 +916,7 @@ const SC = [
   objective:'State and prove the two properties that need no new machinery.',
   keywords:'properties linearity time shift linear phase proof magnitude unchanged', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 51'},
-  {t:'title', text:'Two rules that follow straight from the integral'},
+  {t:'title', text:'Derive linearity and time shift from the integral'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longleftrightarrow\\;a\\,X_1(j\\omega)+b\\,X_2(j\\omega)',
       label:'Linearity',
@@ -946,7 +946,7 @@ const SC = [
         a.curve(w=>0,{color:C.in,width:2.4});
         a.curve(w=>-3*w,{color:C.out,width:2.4});
         return a.svg(); },
-        caption:'The phase before the shift, in cyan, and after it, in green. The delay is read straight off the slope, which is $-t_0$.'}]}
+        caption:'The phase is shown before and after the shift. The delayed signal has phase slope $-t_0$.'}]}
   ]}
 ]},
 
@@ -972,8 +972,8 @@ const SC = [
         note:'$X_1(j0)=4$ and $X_2(j0)=2$, so the answer is $2\\times4+2=10$.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
-        ['Second route','Read the area off the picture. $x_3$ is $3$ on $2<t<4$ and $2$ on $4<t<6$, so the area is $3\\times2+2\\times2=10$. The two routes agree.'],
-        ['Why bother','This one number checks the whole calculation in a second, and it catches a dropped coefficient, a wrong pulse width and a lost factor of two alike.']
+        ['Second route','Calculate the area from the graph. $x_3$ is $3$ on $2<t<4$ and $2$ on $4<t<6$, so the area is $3\\times2+2\\times2=10$. The two routes agree.'],
+        ['Purpose of the check','The value at the origin checks the coefficients, pulse widths, and scale factors in the complete expression.']
       ]}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -1017,7 +1017,7 @@ const SC = [
         ['Given','$y(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, whose transform is $Y(j\\omega)=1$ on $|\\omega|<2\\pi$ and $y(0)=2$.'],
         ['Multiply by $e^{j2\\pi t}$','The band moves to $0\\le\\omega\\le4\\pi$.'],
         ['Multiply by $e^{-j2\\pi t}$','The band moves to $-4\\pi\\le\\omega\\le0$.'],
-        ['Note','Neither product is a real signal, so neither spectrum is symmetric. Real signals are handled by the modulation scenes later in this module, which use a cosine and get two copies instead of one.']
+        ['Result type','Neither product is real, so neither spectrum is conjugate-symmetric. Later modulation examples multiply by a cosine and produce two shifted copies for a real signal.']
       ]}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
@@ -1046,7 +1046,7 @@ const SC = [
   objective:'Derive the conjugate symmetry of a real signal and its even and odd consequences.',
   keywords:'conjugation conjugate symmetry real signal even odd hermitian magnitude phase', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'pp. 52–53'},
-  {t:'title', text:'Half of a real spectrum is free'},
+  {t:'title', text:'One half of a real signal spectrum determines the other'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'x^{*}(t)\\;\\longleftrightarrow\\;X^{*}(-j\\omega)',
       label:'Conjugation',
@@ -1063,7 +1063,7 @@ const SC = [
         ['Phase','$\\angle X$ is odd.']
       ]}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Two special cases worth naming', html:'If $x$ is real <b>and even</b>, then $X$ is real and even: the imaginary part is odd and even at once, so it is zero. If $x$ is real <b>and odd</b>, then $X$ is purely imaginary and odd, by the same argument applied to the real part.'}]},
+      {t:'note', kind:'ok', head:'Two special cases', html:'If $x$ is real and even, then $X$ is real and even. Its imaginary part would have to be both odd and even, so it is zero. If $x$ is real and odd, the same argument shows that $X$ is purely imaginary and odd.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'warn', head:'Real does not mean zero phase', html:'A real transform can be negative. Where $X(j\\omega)<0$ the magnitude is $|X|=-X$ and the phase is $\\pi$, not $0$. Only a real <b>and non-negative</b> transform has zero phase everywhere. The sinc of the rectangular pulse is the standing counterexample: it is real, and its side lobes are negative.'}]}
   ], right:[
@@ -1147,14 +1147,14 @@ const SC = [
         label:'Differentiation',
         note:'The factor $j\\omega$ never leaves the integral. It multiplies the spectrum, which is a function of $\\omega$, and it is meaningless outside that integral.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The step to avoid', html:'It is tempting to pull $j\\omega$ out and write $\\dfrac{\\d x}{\\d t}=j\\omega\\,x(t)$, then take transforms of both sides. That line is false. $\\omega$ is the variable being integrated away, so it is not a constant and it is not available outside the integral. The expression $j\\omega x(t)$ is not a signal at all: it depends on two variables, one of which no longer exists.'}]},
+      {t:'note', kind:'err', head:'Do not mix the two domains', html:'The equation $\\dfrac{\\d x}{\\d t}=j\\omega\\,x(t)$ is false. In the transform integral, $\\omega$ labels the output frequency; it is not a constant in the time-domain signal. The expression $j\\omega x(t)$ depends on both $t$ and $\\omega$ and is not the time derivative of a general signal.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
-        ['One number kills it','Take $x(t)=e^{-t^{2}}$. Then $\\d x/\\d t$ at $t=1$ is $-0.735759$, a real number. The false expression $j\\omega x(t)$ at $t=1$, $\\omega=3$ is $1.103638j$, which is imaginary. They are not the same object, let alone the same value.'],
-        ['Why the result is still right','The boxed answer $(j\\omega)^{n}X(j\\omega)$ is correct. Only the route matters here, and it matters because the wrong route is reused later on integration and on the differential-equation examples, where it does change the answer.']
+        ['Numerical counterexample','Take $x(t)=e^{-t^{2}}$. Then $\\d x/\\d t$ at $t=1$ is $-0.735759$, while $j\\omega x(t)$ at $t=1$, $\\omega=3$ is $1.103638j$. The values are different.'],
+        ['Correct result and derivation','The result $(j\\omega)^{n}X(j\\omega)$ is correct when it is derived by integration by parts. The false time-domain equation cannot be reused to derive integration or differential-equation results.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'What the property is worth', html:'Differentiation in time becomes multiplication by $j\\omega$. A linear differential equation with constant coefficients therefore turns into an algebraic equation in $\\omega$, which is how systems are solved at the end of this module.'}]}
+      {t:'note', kind:'ok', head:'Purpose of the property', html:'Differentiation in time becomes multiplication by $j\\omega$. Therefore, the Fourier transform converts a linear differential equation with constant coefficients into an algebraic equation in $\\omega$.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
       const a=P.Axes({w:820,h:200,xr:[-3,3],yr:[-1.05,1.25],xlabel:'t',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:3});
@@ -1306,7 +1306,7 @@ const SC = [
   objective:'State and prove duality with the correct argument on the right-hand side.',
   keywords:'duality X(t) 2 pi x(-w) proof renaming variables symmetry of the pair', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 54'},
-  {t:'title', text:'Every pair comes with a second pair, free'},
+  {t:'title', text:'Duality produces a second transform pair'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The two equations of the pair differ only by a sign and a factor. That near-symmetry means any transform pair can be read a second time with the roles of the domains exchanged.'},
     {t:'eq', key:true, size:'lg', tex:'\\text{if}\\quad x(t)\\;\\longleftrightarrow\\;X(j\\omega)\\qquad\\text{then}\\qquad X(t)\\;\\longleftrightarrow\\;2\\pi\\,x(-\\omega)',
@@ -1333,7 +1333,7 @@ const SC = [
       {t:'line',d:'M670,96 L670,152',color:C.slate},
       {t:'text',x:250,y:130,anchor:'start',label:'\\text{read as a signal}',tex:true,fs:12,color:C.slate},
       {t:'text',x:580,y:130,anchor:'end',label:'\\text{reversed, times }2\\pi',tex:true,fs:12,color:C.slate}
-    ]}), caption:'The second row is free once the first has been computed.'},
+    ]}), caption:'Apply duality to the first row to obtain the second row.'},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Time shift','$x(t-t_0)\\leftrightarrow e^{-j\\omega t_0}X(j\\omega)$ becomes the frequency shift under duality.'],
@@ -1447,7 +1447,7 @@ const SC = [
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['Time-domain route','Synthesis gives $x_3(t)=\\dfrac{\\sin(2\\pi t)+\\sin(4\\pi t)}{\\pi t}$, and integrating $x_3^{2}(t)$ over all time returns $10$ J as well.'],
-        ['Which route to take','The frequency route was three rectangles; the time route needed the inverse transform and an integral of a squared sinc sum. The point of Parseval is that either is allowed and one of them is usually much shorter.'],
+        ['Choose the simpler domain','The frequency-domain calculation uses three rectangles. The time-domain calculation requires an inverse transform and an integral of a squared sinc sum. Parseval allows either route, so use the one with the simpler integrand.'],
         ['Peak check','$x_3(0)=\\frac{1}{2\\pi}\\int X_3\\,\\d\\omega=\\frac{1}{2\\pi}[8\\pi+4\\pi]=6$, which is the peak drawn below.']
       ]}]}
   ], right:[
@@ -1543,7 +1543,7 @@ const SC = [
         ['Check the DC values','$|X(j0)|=1/a=1$, $|H(j0)|=1/b=0.5$, and $|Y(j0)|=1/(ab)=0.5$. The product of the first two is the third, which is the property itself at one frequency.']
       ]}]},
     {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'The same answer by convolution', html:'Doing it in the time domain means $\\int_{0}^{t}e^{-a\\tau}e^{-b(t-\\tau)}\\d\\tau$, which returns the same expression. The transform route replaced that integral with one multiplication and one lookup.'}]}
+      {t:'note', kind:'ok', head:'Check by convolution', html:'Direct time-domain convolution gives $\\int_{0}^{t}e^{-a\\tau}e^{-b(t-\\tau)}\\d\\tau$ and the same result. The transform method replaces this convolution integral by multiplication followed by an inverse-transform pair.'}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-0.5,6],yr:[-0.2,1.25],xlabel:'t',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3});
@@ -1593,7 +1593,7 @@ const SC = [
       {t:'wex', rows:[
         ['Peaks','$x(0)=2\\cdot\\dfrac{2\\cdot4\\pi}{2\\pi}=8$, $h(0)=6$ and $y(0)=12$. Each one is the area of its own band divided by $2\\pi$.'],
         ['Why the output peak is the largest','The output band is shorter than the input band but taller, and the peak counts area, not height. $6\\times4\\pi$ beats $2\\times8\\pi$.'],
-        ['A question worth asking','What does this cascade do to a signal that was already inside $|\\omega|\\le2\\pi$? Nothing but a gain of 6. Ideal filters do not remove what is not there.']
+        ['Input already inside the final band','If the input is already confined to $|\\omega|\\le2\\pi$, the cascade multiplies it by 6 and does not remove any of its frequency components.']
       ]}]}
   ], right:[
     {t:'grid', cols:1, gap:'8px', items:[
@@ -1629,7 +1629,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The $1/2\\pi$ belongs to this one and not to the other', html:'Convolution in time carries no factor; convolution in frequency carries $1/2\\pi$. Copying the convolution property without the factor makes every product of two signals come out $2\\pi$ times too large, and the error is invisible in the shape of the answer — only the height is wrong.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Why this property matters', html:'Every real measurement multiplies a signal by something: a switch that turns it on for a finite time, a carrier that moves it to a usable frequency, a window applied before analysis. Each of those is a multiplication in time, and this property says what each does to the spectrum.'}]},
+      {t:'note', kind:'ok', head:'Purpose of the property', html:'Time-domain multiplication models switching, modulation by a carrier, and windowing before analysis. The multiplication property gives the spectrum produced by each operation.'}]},
     {t:'reveal', at:3, items:[
       {t:'wex', rows:[
         ['One consequence, immediately','Multiplying by an impulse in frequency shifts the spectrum, because convolving with $\\delta(\\omega-\\omega_0)$ moves whatever it meets to $\\omega_0$.'],
@@ -1704,7 +1704,7 @@ const SC = [
   objective:'Move a sinc-shaped band to a carrier and read the band edges.',
   keywords:'modulation band limited sinc copies band edges 2 pi 6 pi half height', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Application', src:'p. 60'},
-  {t:'title', text:'The copies keep their shape and their width'},
+  {t:'title', text:'Modulation shifts two scaled copies of the spectrum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, whose transform is $X(j\\omega)=1$ on $|\\omega|<2\\pi$ and zero beyond. The carrier is $\\cos(4\\pi t)$.'],
@@ -1896,7 +1896,7 @@ const SC = [
   objective:'Collect every standard continuous-time transform pair the course uses.',
   keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
-  {t:'title', text:'Every pair worth knowing by sight'},
+  {t:'title', text:'Transform pairs used in this module'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Aperiodic signals'},
     {t:'wex', rows:[
@@ -1941,11 +1941,11 @@ const SC = [
       {t:'eq', size:'sm', tex:'\\left[\\sum_{k=0}^{N}a_k(j\\omega)^{k}\\right]Y(j\\omega)=\\left[\\sum_{k=0}^{M}b_k(j\\omega)^{k}\\right]X(j\\omega)'},
       {t:'eq', key:true, size:'lg', tex:'H(j\\omega)=\\frac{Y(j\\omega)}{X(j\\omega)}=\\frac{\\displaystyle\\sum_{k=0}^{M}b_k(j\\omega)^{k}}{\\displaystyle\\sum_{k=0}^{N}a_k(j\\omega)^{k}}',
         label:'Frequency response of the system',
-        note:'The frequency response is a ratio of two polynomials in $j\\omega$, read straight off the coefficients of the differential equation. No integration is needed.'}]},
+        note:'The differential-equation coefficients form two polynomials in $j\\omega$. Their ratio is the frequency response, so no transform integral is needed.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'When $H(j\\omega)$ exists', html:'The frequency response is the transform of $h$, so it exists when $h$ is absolutely integrable: $\\int|h(t)|\\,\\d t<\\infty$. For an LTI system that condition is <b>exactly</b> bounded-input bounded-output stability, proved in Module 3. So the statement is about the system, not about the signal $h$: an unstable system has no frequency response to plot.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'The three-step recipe', html:'<b>1.</b> Read $H(j\\omega)$ off the coefficients. <b>2.</b> Multiply by $X(j\\omega)$ to get $Y(j\\omega)$. <b>3.</b> Split the result into simple fractions and invert each one with the table. The whole of Module 3’s convolution has been replaced by algebra plus a lookup.'}]}
+      {t:'note', kind:'ok', head:'Three-step method', html:'<b>1.</b> Form $H(j\\omega)$ from the differential-equation coefficients. <b>2.</b> Calculate $Y(j\\omega)=X(j\\omega)H(j\\omega)$. <b>3.</b> Expand $Y$ into simple fractions and invert each term with the transform table.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:230,items:[
       {t:'box',x:50,y:26,w:250,h:64,label:'\\text{differential equation}',tex:true,fs:15},
@@ -2048,7 +2048,7 @@ const SC = [
       return a.svg(); },
       caption:'A simple pole and a double pole at the same place. The double pole rises from zero, peaks at $t=1/a$, and decays more slowly.'},
     {t:'reveal', at:2, items:[
-      {t:'small', html:'The two behaviours are worth telling apart at a glance: a simple pole gives a signal that is largest at $t=0$; a repeated pole gives one that starts at zero and grows before decaying. A worked answer that starts at the wrong height has usually lost a coefficient rather than a pole.'}]}
+      {t:'small', html:'A simple pole gives an exponential that is largest at $t=0$. A double pole gives a term that starts at zero, increases, and then decays. Evaluate the result at $t=0$ to check whether a coefficient is missing.'}]}
   ]}
 ]},
 
@@ -2127,11 +2127,11 @@ const SC = [
 ]},
 
 { id:'m5-lab-h', module:'M5', nav:'Laboratory H · Time and frequency', title:'Laboratory H — CTFT Time–Frequency Explorer', src:'pp. 45–61',
-  objective:'Move one signal in time and watch its transform answer, with and without a carrier.',
+  objective:'Change a signal in time and observe the corresponding transform, with and without a carrier.',
   keywords:'laboratory H CTFT explorer time frequency width bandwidth modulation carrier sidebands overlap', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory H', src:'pp. 45–61'},
   {t:'title', text:'One control in time, two panels in frequency'},
-  {t:'small', html:'Change a width or a rate and watch the transform answer. Then switch the carrier on: the spectrum becomes two half-height copies, and lowering the carrier brings them together until they meet.'},
+  {t:'small', html:'Change the signal width or decay rate and compare the resulting transform. Then enable the carrier. Modulation creates two half-height spectral copies, and decreasing the carrier frequency moves them toward overlap.'},
   {t:'lab', id:'H'}
 ]}
 ];

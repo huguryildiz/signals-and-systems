@@ -20,7 +20,7 @@ CONTENT.DRILLTYPES.M5 = [
     method:['Write the analysis integral and cut it down to the support of the signal.',
             'A one-sided exponential integrates directly; a rectangular pulse gives a sinc; a periodic signal gives a line spectrum built from its Fourier series coefficients.',
             'State the convergence condition wherever the integral needs one.',
-            'Check $X(0)=\\int x(t)\\,\\d t$, the total area, as a free test.'],
+            'Check $X(0)=\\int x(t)\\,\\d t$ by calculating the total signal area independently.'],
     go:'m5-pair' },
   { k:'ft-inv', name:'Inverse transform from a rational $X(j\\omega)$',
     asks:'A rational $X(j\\omega)$ — or a frequency response read off a differential equation — is given. Recover $x(t)$.',
@@ -48,14 +48,14 @@ CONTENT.DRILLTYPES.M5 = [
     method:['Multiplication in time is convolution in frequency, with a factor $1/2\\pi$. For a cosine carrier the convolution is two shifted half-height copies.',
             'Draw the shifted copies and check whether they overlap. Overlap is where information is lost.',
             'An ideal filter multiplies the spectrum by $1$ inside its band and by $0$ outside it.',
-            'A chain is done one stage at a time, never all at once, and the final spectrum is checked against the original at one frequency.'],
+            'Process a chain one stage at a time. After the last stage, check the spectrum at one frequency against an independent calculation.'],
     go:'m5-am' },
   { k:'full', name:'A full-length question that combines several of the types above',
     asks:'Several transforms under one statement, or one signal carried through a whole chain.',
     method:['Name the standard pair each part is built on before transforming anything. Almost every part is a table entry plus one property.',
-            'Where several transforms are asked for, do the simplest first and use it for the others: a duality, a shift or a modulation usually turns one answer into the next.',
+            'When several transforms are required, calculate the simplest one first. Then use duality, shifting, or modulation to obtain the others.',
             'In a chain, take one stage at a time and draw the spectrum after each. Overlap between shifted copies is where information is lost, and it is visible only in the drawing.',
-            'Check at one frequency. $X(j0)$ is the area under $x(t)$, and Parseval turns an energy in time into an energy in frequency.'] }
+            'Check at one frequency: $X(j0)$ is the area under $x(t)$. For an energy result, use Parseval to compare the time and frequency domains.'] }
 ];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
@@ -97,7 +97,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.point(0,1/9,{color:C.coral});
     return a.svg();},
   err:'Reporting $X(j\\omega)=1/(3+j\\omega)$, the transform of $e^{-3t}u(t)$ alone, by forgetting the extra factor of $t$ changes both the power on the denominator and the numerator.',
-  teach:'Point out that $|X(j\\omega)|$ here equals $|1/(3+j\\omega)|^{2}$ exactly, not $|1/(3+j\\omega)|$. Squaring the whole complex number before taking its modulus is the same as squaring the modulus, and this pair is the cleanest place to see why.' },
+  teach:'Compare $|X(j\\omega)|$ with $|1/(3+j\\omega)|^{2}$, not with $|1/(3+j\\omega)|$. Taking the magnitude after squaring a complex number gives the square of its magnitude.' },
 
 { id:'D5-03', module:'M5', type:'ft-basic',
   stem:'A rectangular pulse of height $3$ is defined by $$x(t)=\\begin{cases}3,&|t|<2,\\\\0,&|t|>2.\\end{cases}$$',
@@ -169,8 +169,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> Writing $s=j\\omega$,$$\\frac{s+6}{(s+1)(s+4)}=\\frac{A}{s+1}+\\frac{B}{s+4}.$$Clearing, $A(s+4)+B(s+1)=s+6$, so $A+B=1$ and $4A+B=6$. Subtracting, $3A=5$, hence $A=\\tfrac53$, $B=-\\tfrac23$.<br>'
      +'<b>Solution — part (b).</b>$$x(t)=\\frac53e^{-t}u(t)-\\frac23e^{-4t}u(t).$$'
      +'<b>Check.</b> $X(0)=\\dfrac64=1.5$, and directly $\\displaystyle\\int_{0}^{\\infty}x(t)\\,\\d t=\\frac53-\\frac23\\cdot\\frac14=\\frac53-\\frac16=\\frac32=1.5$. They agree. Independently, the numerator degree is exactly one below the denominator\u2019s, so $x(0^{+})=\\lim_{j\\omega\\to\\infty}j\\omega X(j\\omega)=\\lim_{s\\to\\infty}\\dfrac{s^{2}+6s}{s^{2}+5s+4}=1$, and directly from the answer $x(0^{+})=\\tfrac53-\\tfrac23=1$ as well — a second, independent number that has to come out right.',
-  err:'Swapping $A$ and $B$ in the assembly, reporting $x(t)=-\\tfrac23e^{-t}u(t)+\\tfrac53e^{-4t}u(t)$, which gives $X(0)=-\\tfrac23+\\tfrac{5}{12}=-\\tfrac14\\neq1.5$ and fails the check at once.',
-  teach:'The high-frequency limit $x(0^{+})=\\lim j\\omega X(j\\omega)$ is worth teaching as a second, independent check whenever the numerator degree is one below the denominator\u2019s — it needs no integration at all.' },
+  err:'Swapping $A$ and $B$ in the assembly gives $x(t)=-\\tfrac23e^{-t}u(t)+\\tfrac53e^{-4t}u(t)$. Its area is $X(0)=-\\tfrac23+\\tfrac{5}{12}=-\\tfrac14\\neq1.5$, so it fails the required area check.',
+  teach:'When the numerator degree is one below the denominator degree, also check $x(0^{+})=\\lim j\\omega X(j\\omega)$. This check is independent of the area calculation.' },
 
 { id:'D5-07', module:'M5', type:'ft-inv', src:'MT2 Q3',
   stem:'Find $x(t)$ given $$X(j\\omega)=\\frac{j\\omega+3}{(j\\omega+1)^{2}(j\\omega+2)}.$$',
@@ -184,7 +184,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b>$$x(t)=\\left[-e^{-t}+2t\\,e^{-t}+e^{-2t}\\right]u(t).$$'
      +'<b>Check.</b> $X(0)=\\dfrac{3}{1\\cdot2}=1.5$. Directly, $\\displaystyle\\int_{0}^{\\infty}\\left(-e^{-t}+2t\\,e^{-t}+e^{-2t}\\right)\\d t=-1+2+0.5=1.5$, using $\\int_0^\\infty t e^{-t}\\d t=1$. They agree. At $t=0^{+}$: from the answer, $-1+0+1=0$. Independently, the numerator degree is two below the denominator\u2019s, so $\\lim_{s\\to\\infty}sX(s)\\to0$, consistent with $x(0^{+})=0$ by a route that never used the three coefficients.',
   err:'Applying the cover-up rule to the double pole directly, reporting $A=\\left.\\dfrac{s+3}{(s+1)(s+2)}\\right|_{s=-1}$, which divides by zero. Cover-up finds only the coefficient of the <em>highest</em> power of a repeated factor; the rest need differentiation.',
-  teach:'Ask which of the three coefficients could have been found by cover-up alone, and which needed the derivative. Only $B$ and $C$ come free; $A$ is the one that tests whether the repeated-pole rule was actually understood.' },
+  teach:'Ask which coefficients can be found by the cover-up rule and which require differentiation. Here the cover-up rule gives $B$ and $C$, while the repeated-pole derivative gives $A$.' },
 
 { id:'D5-08', module:'M5', type:'ft-inv',
   stem:'A system is described by $$\\frac{\\d^{2}y}{\\d t^{2}}+6\\frac{\\d y}{\\d t}+8y=2x(t).$$',
@@ -271,7 +271,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     a.poly([[-3,0],[3-Math.PI,0],[3-Math.PI,1],[3+Math.PI,1],[3+Math.PI,0],[9,0]],{color:C.out});
     a.vline(0,{color:C.muted}); return a.svg();},
   err:'Writing $Z(j\\omega)=X(j\\omega)-3$, shifting the frequency <em>axis label</em> instead of the argument of $X$, which is not a transform of anything and does not answer the question.',
-  teach:'The band edges $3\\pm\\pi$ are worth computing explicitly rather than sketched by eye — the left edge lands just below zero here, and a student who does not compute it will draw the whole band on the positive axis.' },
+  teach:'Calculate the band edges $3\\pm\\pi$ explicitly. The left edge is below zero, so placing the full band on the positive-frequency axis is incorrect.' },
 
 { id:'D5-13', module:'M5', type:'ft-parseval', src:'MT2 Q3',
   stem:'Let $x(t)=3e^{-2t}u(t)$.',
@@ -284,7 +284,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> $X(j\\omega)=\\dfrac{3}{2+j\\omega}$, so $|X(j\\omega)|^{2}=\\dfrac{9}{4+\\omega^{2}}$, and$$E=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\frac{9}{4+\\omega^{2}}\\,\\d\\omega=\\frac{9}{2\\pi}\\cdot\\frac{\\pi}{2}=\\frac94=2.25\\;\\text{J},$$using $\\int_{-\\infty}^{\\infty}\\d\\omega/(a^{2}+\\omega^{2})=\\pi/a$ with $a=2$.<br>'
      +'<b>Check.</b> The two routes agree at $2.25$ J. Both are positive and real, as an energy must be. Here the time integral was the shorter of the two; the value of Parseval is greatest when a signal is given by its spectrum and the time route is not available at all.',
   err:'Omitting the factor $1/2\\pi$ on the frequency side, giving $E=9\\pi/2\\approx14.14$ J, which disagrees with the time-domain answer by a factor of $2\\pi$.',
-  teach:'Ask which side would be shorter before either is computed. The choice of route is the examinable skill; both integrals are routine once chosen.' },
+  teach:'Before calculating, compare the time-domain and frequency-domain integrands. Use the domain that gives the simpler integral.' },
 
 { id:'D5-14', module:'M5', type:'ft-parseval', src:'MT2 Q3',
   stem:'Let $y(t)=e^{-4|t|}$, whose transform is $Y(j\\omega)=\\dfrac{8}{16+\\omega^{2}}$.',
@@ -391,7 +391,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:46,r:16,t:28,b:32},xstep:10,ystep:0.5});
       a.poly([[-26,0],[-3,0],[-3,1],[3,1],[3,0],[26,0]],{color:C.out}); return a.svg();})()),
   err:'Applying the filter to $Z(j\\omega)$ instead of $W(j\\omega)$, skipping the second multiplication entirely. The filter is the last stage of the chain, not a replacement for the receiver\u2019s second multiply.',
-  teach:'Walk the three panels of the solution figure left to right and ask, at each one, which bands survive into the next stage and which do not. The chain is easiest to lose track of algebraically; it is not easy to lose track of on the picture.' },
+  teach:'Read the three solution panels from left to right. At each stage, identify which bands enter the next stage and which bands the filter removes.' },
 
 { id:'D5-19', module:'M5', type:'ft-mod',
   stem:'A signal has $X(j\\omega)=3$ for $|\\omega|<6$, $0$ elsewhere. It is passed through an ideal low-pass filter, $H(j\\omega)=1$ for $|\\omega|<2$, $0$ elsewhere.',
@@ -421,7 +421,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.curve(t=>Math.abs(t)<1e-9?18/Math.PI:3*Math.sin(6*t)/(Math.PI*t),{color:C.in,width:1.6,dash:'5 5',n:1600});
       a.curve(t=>Math.abs(t)<1e-9?6/Math.PI:3*Math.sin(2*t)/(Math.PI*t),{color:C.out,n:1600});
       return a.svg();})()),
-  err:'Reporting $Y(j\\omega)=3$ for $|\\omega|<6$, forgetting that the filter removes everything past its own cut-off regardless of how wide the input band is. An ideal filter is a gate, not a pass-through.',
+  err:'Reporting $Y(j\\omega)=3$ for $|\\omega|<6$ ignores the filter cut-off. The output is zero wherever the ideal filter response is zero, even if the input spectrum is non-zero there.',
   teach:'Part (c) is the one worth dwelling on: the filter changed the bandwidth and the peak by the same factor, because it left the height alone. Ask what would change if $H$\u2019s passband gain were $2$ instead of $1$.' },
 
 { id:'D5-20', module:'M5', type:'ft-mod', src:'MT2 Q4',
@@ -473,7 +473,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:38},xstep:10,ystep:0.25});
       a.curve(w=>1/Math.sqrt(4+Math.pow(w+10*Math.PI,2)),{color:C.mid}); return a.svg();})()),
   err:'Dropping the impulses in part (a) and reporting only $\\dfrac{j\\omega}{4-\\omega^{2}}$. The step has a non-zero average, so its transform carries an impulse at the origin, and shifting that impulse to $\\pm2$ is what the two carriers do to it.',
-  teach:'Part (c) is the one to slow down on. Ask students to read the exponent before they reach for a formula: separating $-2t$ from $-j10\\pi t$ turns an unfamiliar expression into a table entry and a shift, and no integration is needed at all.' },
+  teach:'For part (c), separate $-2t$ from $-j10\\pi t$ before selecting a formula. This identifies a standard exponential pair followed by a frequency shift, so direct integration is unnecessary.' },
 
 { id:'D5-22', module:'M5', type:'full', src:'MT2 Q3',
   stem:'Please solve the following problems. <em>Hint: if $x(t)\\xrightarrow{\\mathcal{F}}X(j\\omega)=X(\\omega)$, then $X(t)\\xrightarrow{\\mathcal{F}}2\\pi x(-\\omega)$.</em>',
@@ -495,7 +495,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:38},xstep:1,ystep:2});
       a.curve(w=>2*Math.PI*Math.exp(-3*Math.abs(w)),{color:C.out}); return a.svg();})()),
   err:'Answering (b) with $e^{-3|\\omega|}$ and losing the factor $2\\pi$. Duality is not a symmetry of the transform pair: going from $X(t)$ back to a signal costs a factor of $2\\pi$, and it shows up in the energy as a factor of $4\\pi^{2}$.',
-  teach:'Ask why the reflection $x(-\\omega)$ in the duality statement does nothing here. Because $x$ is even, and it is worth saying so explicitly — a student who never meets an odd example will assume the reflection is decoration.' },
+  teach:'Ask why the reflection $x(-\\omega)$ in the duality statement does not change this result. It does not change the result because $x$ is even.' },
 
 { id:'D5-23', module:'M5', type:'full', src:'MT2 Q3',
   stem:'Please solve the following problems.',
@@ -543,7 +543,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
         .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
       return a.svg();})()),
   err:'Taking $H$ to be the product of the two rectangles, giving a rectangle on $|\\omega|<2$. The signals are multiplied in time, so their transforms are convolved, and the result is wider than either rectangle, not narrower.',
-  teach:'The width rule for a convolution of two rectangles is worth stating once and reusing: the flat top has the width of the narrower one and the total support is the sum. It saves the integral every time this shape appears.' },
+  teach:'State the width rule for convolving two rectangles: the flat region is set by the narrower rectangle, and the total support is the sum of the supports. Apply this rule before evaluating an integral.' },
 
 { id:'D5-25', module:'M5', type:'full', src:'MT2 Q4',
   stem:'Let $$x(t)=\\frac{1-e^{-j8\\pi t}}{j2\\pi t}$$be an input to the following communication chain, where $\\times$ shows the multiplication operator and the LTI system has the impulse response $h(t)=e^{-j3\\pi t}\\dfrac{\\sin(2\\pi t)}{\\pi t}$. The input is multiplied by $\\cos(6\\pi t)$ to give $y(t)$, and $y(t)$ is filtered by $h(t)$ to give $z(t)$.',
@@ -621,7 +621,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
       a.curve(w=>Math.abs(w)<1e-6?8:4*Math.sin(2*w)*Math.sin(w)/(w*w),{color:C.out}); return a.svg();})()),
   err:'Building the trapezoid from rectangles of half-widths $3$ and $1$, reading the two numbers straight off the plot. The half-widths add to give the total and subtract to give the flat top, so they are $2$ and $1$, not $3$ and $1$.',
-  teach:'The three parts are three different reasons a transform is easy: a train because of the train pair, a triangle because it is a self-convolution, a trapezoid because it is a convolution of two unequal rectangles. Ask which of the three could also be done by direct integration, and how much longer it would take.' },
+  teach:'Each part uses a different known structure: the impulse-train pair, a rectangle convolved with itself, and two unequal rectangles convolved together. Ask which parts could also be calculated by direct integration and compare the required steps.' },
 
 { id:'D5-28', module:'M5', type:'full', src:'Final Q2',
   stem:'Let $x(t)=1+3\\cos(2\\pi t)$ be a periodic signal, and let $s(t)=x(t)c(t)$ where $c(t)=\\cos(10\\pi t)$.',
@@ -672,7 +672,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\begin{cases}1,&|\\omega|<4\\\\0,&\\text{otherwise.}\\end{cases}$$By Parseval,$$E_x=\\frac{1}{2\\pi}\\int_{-4}^{4}1^{2}\\,\\d\\omega=\\frac{8}{2\\pi}=\\frac{4}{\\pi}\\approx1.273\\;\\text{J}.$$'
      +'<b>Solution — part (b).</b> Multiplying by $\\cos(6t)$ gives two half-height copies:$$Y(j\\omega)=\\tfrac12X(j(\\omega-6))+\\tfrac12X(j(\\omega+6)),$$so $Y=\\tfrac12$ on $2<\\omega<10$ and on $-10<\\omega<-2$, and zero elsewhere. The two bands do not overlap, because the carrier $6$ exceeds the bandwidth $4$.<br>'
      +'<b>Solution — part (c).</b>$$E_y=\\frac{1}{2\\pi}\\left[\\int_{2}^{10}\\tfrac14\\,\\d\\omega+\\int_{-10}^{-2}\\tfrac14\\,\\d\\omega\\right]=\\frac{1}{2\\pi}\\cdot\\frac{16}{4}=\\frac{2}{\\pi}\\approx0.637\\;\\text{J},$$exactly half of $E_x$.<br>'
-     +'<b>Check.</b> The halving is what modulation by a cosine always does when the copies do not overlap: the amplitude is halved, so the squared magnitude is quartered, but there are two copies, giving $\\tfrac24=\\tfrac12$. It can be read in the time domain too:$$y^{2}(t)=x^{2}(t)\\cos^{2}(6t)=\\tfrac12x^{2}(t)\\left[1+\\cos(12t)\\right],$$and the fast term integrates to almost nothing against the slowly varying $x^{2}$, leaving half the energy. Had the carrier been below $4$ the copies would have overlapped and this argument would fail.',
+     +'<b>Check.</b> When the two copies do not overlap, each has half the original amplitude and therefore one quarter of its energy density. Two copies give $\\tfrac24=\\tfrac12$ of the original energy. In time,$$y^{2}(t)=x^{2}(t)\\cos^{2}(6t)=\\tfrac12x^{2}(t)\\left[1+\\cos(12t)\\right].$$The integral of the second term is zero because the spectrum of $x^{2}$ does not reach the frequency $12$. Thus the time-domain calculation also gives half the energy. If the carrier were below $4$, the spectral copies would overlap and this conclusion would not apply.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.5});
@@ -695,7 +695,7 @@ window.DRILLMAP_M5 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Question types', src:'pp. 42–63'},
   {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
+  {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
   {t:'raw', html:'<div style="height:10px"></div>'},
   {t:'drilltypes', module:'M5'}
 ]}
@@ -714,7 +714,7 @@ window.DRILL_M5 = [
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Practice D5-01 … D5-30', src:'pp. 42–63'},
   {t:'title', text:'Practice questions'},
-  {t:'small', html:'Work each question on paper before opening its solution. The cheapest check in this module is the area test, $X(0)=\\int x(t)\\,\\d t$, and it catches most factor errors. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
+  {t:'small', html:'Work each question on paper before opening its solution. Use the area test $X(0)=\\int x(t)\\,\\d t$ to check scale factors. The sinc convention used throughout is the unnormalised one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
   {t:'rule', short:true},
   {t:'drill', module:'M5'}
 ]}
