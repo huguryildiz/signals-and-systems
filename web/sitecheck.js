@@ -149,20 +149,46 @@ const note = m => console.log('  ' + m);
     if (missing.length) problems.push('cover links to files that were not published: ' + missing.join(', '));
     if (dangling.length) problems.push('cover links to sections that do not exist: ' + dangling.join(', '));
 
-    /* Both instruments have to have painted something. A canvas that stayed
-       blank is the failure this page can have without erroring. */
-    for (const id of ['hero-scope', 'scope']) {
-      const ink = await page.evaluate(cid => {
-        const c = document.getElementById(cid);
+    /* Both canvases have to have painted something. A canvas that stayed
+       blank is the failure this page can have without erroring. The backdrop
+       is a WebGL context and the instrument a 2D one, so each is read the way
+       its own context allows — a 2D read of a WebGL canvas returns null and
+       would report the blank it was meant to catch. */
+    /* The backdrop is WebGL and asks for no preserved drawing buffer, so its
+       pixels cannot be read back outside the frame that drew them — a
+       readPixels here returns zeros however well it is painting. What is
+       checkable is that the context exists, the program linked and is the one
+       currently bound, and the viewport has a size: a shader that failed to
+       compile leaves no current program, which is the failure this catches. */
+    const bg = await page.evaluate(() => {
+      const c = document.getElementById('backdrop');
+      if (!c) return { ok: false, why: 'no canvas' };
+      const gl = c.getContext('webgl') || c.getContext('webgl2');
+      if (!gl) return { ok: false, why: 'no webgl context' };
+      const prog = gl.getParameter(gl.CURRENT_PROGRAM);
+      if (!prog) return { ok: false, why: 'no program bound' };
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+        return { ok: false, why: 'program did not link' };
+      const vp = gl.getParameter(gl.VIEWPORT);
+      return { ok: vp[2] > 0 && vp[3] > 0, why: 'viewport ' + vp[2] + '×' + vp[3],
+               w: c.width, h: c.height };
+    });
+    note('backdrop shader ' + (bg.ok ? 'live · ' : 'FAILED · ') + bg.why
+         + (bg.w ? ' · canvas ' + bg.w + '×' + bg.h : ''));
+    if (!bg.ok) problems.push('the backdrop shader is not running: ' + bg.why);
+
+    {
+      const ink = await page.evaluate(() => {
+        const c = document.getElementById('scope');
         if (!c || !c.width || !c.height) return -1;
         const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
         let lit = 0;
         for (let i = 0; i < d.length; i += 4 * 97)
           if (d[i] > 40 || d[i + 1] > 40 || d[i + 2] > 40) lit++;
         return lit;
-      }, id);
-      note('canvas #' + id + ' lit samples ' + ink);
-      if (ink <= 0) problems.push('the #' + id + ' canvas drew nothing');
+      });
+      note('canvas #scope lit samples ' + ink);
+      if (ink <= 0) problems.push('the #scope canvas drew nothing');
     }
 
     /* The readout is computed from the same model that draws the trace, so it
