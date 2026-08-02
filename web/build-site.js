@@ -294,7 +294,7 @@ if (fs.existsSync(notesPdf)) copy(notesPdf, 'Lecture_Notes.pdf');
 else log('  · Lecture_Notes.pdf missing — the cover will link to the HTML edition only');
 
 /* The cover page and the two instruments on it. */
-for (const f of ['index.html', 'site.css', 'grid.js', 'sampler.js'])
+for (const f of ['index.html', 'site.css', 'hero-scope.js', 'sampler.js'])
   copy(path.join(__dirname, f), f);
 copy(path.join(ROOT, 'assets', 'icon.svg'), 'icon.svg');
 
