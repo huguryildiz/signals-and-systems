@@ -180,11 +180,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m0-signal', module:'M0', nav:'What a signal represents', title:'What a signal represents', src:'p. 2',
+{ id:'m0-signal', module:'M0', nav:'Signal representation', title:'Signal representation', src:'p. 2',
   objective:'Establish the physical meaning of a signal before any formalism.',
   keywords:'signal definition independent variable information', steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
-  {t:'title', text:'A signal is information written as a function'},
+  {t:'title', text:'Signal Representation'},
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
     {t:'body', html:'We use a signal to represent information in a form that we can calculate with. The physical and mathematical definitions describe the same signal in two ways.'},
     {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. A signal is a <b>function of one or more independent variables</b>.'},
@@ -206,11 +206,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m0-system', module:'M0', nav:'What a system does', title:'What a system does', src:'p. 11',
+{ id:'m0-system', module:'M0', nav:'System representation', title:'System representation', src:'p. 11',
   objective:'Introduce the input–output abstraction that Module 2 formalises.',
   keywords:'system black box transformation input output', steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 11'},
-  {t:'title', text:'A system is a rule, not a box'},
+  {t:'title', text:'System Representation'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b>. It applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always produces the same output.'},
     {t:'reveal', at:1, items:[{t:'body', html:'The deterministic rule lets us test the system. We can apply an input, calculate the output and compare that output with the requirements for the six properties in Module 2.'}]},
@@ -233,7 +233,7 @@ const SC = [
   objective:'Fix the CT/DT notational split that persists through the whole course.',
   keywords:'continuous discrete time stem MATLAB integer index', steps:1, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
-  {t:'title', text:'Continuous time and discrete time'},
+  {t:'title', text:'Continuous and Discrete Time'},
   {t:'lede', text:'We need separate models for signals defined at every time and signals defined only at integer times. Most continuous-time results use integrals. The matching discrete-time results use sums.'},
   {t:'grid', cols:2, gap:'52px', items:[
     [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
@@ -248,7 +248,7 @@ const SC = [
   objective:'Give a single mental picture of the dependency structure.',
   keywords:'map overview dependencies modules', steps:1, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
-  {t:'title', text:'The shape of the course'},
+  {t:'title', text:'Course Structure'},
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
     {t:'fig', svg:conceptMap}
   ], right:[
@@ -263,11 +263,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m0-howto', module:'M0', nav:'Using this artifact', title:'How to use this artifact', src:'—',
+{ id:'m0-howto', module:'M0', nav:'Using the course artifact', title:'Using the course artifact', src:'—',
   objective:'Explain modes, controls and the definition-citation policy.',
   keywords:'help navigation modes instructor student reduced motion privacy', steps:0, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
-  {t:'title', text:'How to use this artifact'},
+  {t:'title', text:'Using the Course Artifact'},
   {t:'grid', cols:2, gap:'24px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
     [{t:'card', head:'Navigation', items:[
       {t:'body', html:`<p>Use <kbd>→</kbd> or <kbd>space</kbd> for the next reveal state, then the next scene. Use <kbd>←</kbd> to go back one state. <kbd>↑</kbd> and <kbd>↓</kbd> move by a whole scene. <kbd>Home</kbd> returns to the title.</p>

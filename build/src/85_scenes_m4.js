@@ -39,7 +39,7 @@ const SC = [
 { id:'m4-open', module:'M4', nav:'Module 4 opening', title:'Fourier Series', src:'pp. 22–41',
   dark:true, keywords:'module 4 fourier series harmonics eigenfunction overview periodic', steps:0, blocks:[
   {t:'eyebrow', text:'Module 4 · Fourier Series', src:'pp. 22–41'},
-  {t:'title', level:1, text:'Complex exponentials simplify<br>the response of an LTI system.'},
+  {t:'title', level:1, text:'Fourier Series'},
   {t:'lede', text:'Fourier series are used to find the response of an LTI system to a periodic signal. An LTI system returns each complex exponential with the same form and multiplies it by one complex number. After a periodic signal is written as a sum of these exponentials, convolution becomes one multiplication for each harmonic.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
@@ -63,7 +63,7 @@ const SC = [
   objective:'Derive the eigenfunction property in continuous time and name the eigenvalue.',
   keywords:'eigenfunction eigenvalue complex exponential transfer function H(s) laplace continuous', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Foundation', src:'p. 22'},
-  {t:'title', text:'An eigenfunction keeps its form'},
+  {t:'title', text:'Continuous-Time Eigenfunctions'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Definition', html:'A signal is an <b>{{sym:eigen|eigenfunction}}</b> of a system when the output is the same signal multiplied by a constant. That constant is the <b>eigenvalue</b>.'},
     {t:'body', html:'Put $x(t)=e^{st}$, with $s$ any complex number, into the convolution integral of Module 3:'},
@@ -103,7 +103,7 @@ const SC = [
   objective:'Derive the discrete-time eigenfunction property and keep it separate from the continuous-time one.',
   keywords:'discrete eigenfunction z^n transfer function H(z) DTFT frequency response', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Foundation', src:'p. 23'},
-  {t:'title', text:'The same argument, with a sum'},
+  {t:'title', text:'Discrete-Time Eigenfunctions'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'In discrete time the eigenfunction is a geometric sequence, $x[n]=z^{n}$, with $z$ any complex number. Put it into the convolution sum:'},
     {t:'eq', size:'sm', tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{\\,n-k}=z^{n}\\underbrace{\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}}_{\\text{a number}}'},
@@ -135,11 +135,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m4-eigen-why', module:'M4', nav:'Why eigenfunctions matter', title:'Why this one property is worth a whole module', src:'p. 24',
+{ id:'m4-eigen-why', module:'M4', nav:'Eigenfunctions in LTI analysis', title:'Eigenfunctions in LTI analysis', src:'p. 24',
   objective:'Show that a linear combination of eigenfunctions needs no convolution.',
   keywords:'linear combination superposition eigenvalue transfer function no convolution', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Motivation', src:'p. 24'},
-  {t:'title', text:'Use one multiplication for each exponential'},
+  {t:'title', text:'Eigenfunctions in LTI Analysis'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'body', html:'This property is useful because it replaces a convolution by separate multiplications. Suppose the input is $x(t)=a_1e^{s_1t}+a_2e^{s_2t}+a_3e^{s_3t}$. Apply the eigenfunction property to each term. Then use linearity to add the three outputs:'},
     {t:'eq', tex:'y(t)=a_1H(s_1)e^{s_1t}+a_2H(s_2)e^{s_2t}+a_3H(s_3)e^{s_3t}'},
@@ -170,7 +170,7 @@ const SC = [
   objective:'Work the delay example through the eigenfunction route and verify it directly.',
   keywords:'worked example delay y(t)=x(t-3) sifting transfer function cosine expansion verify', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 24–25'},
-  {t:'title', text:'Find the output of a delay without convolution'},
+  {t:'title', text:'Pure Delay as an Eigenfunction Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','An LTI system with $y(t)=x(t-3)$: a pure delay of three seconds.'],
@@ -209,11 +209,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m4-fs-exist', module:'M4', nav:'When a series exists', title:'Which signals can be written this way', src:'pp. 25–26',
+{ id:'m4-fs-exist', module:'M4', nav:'Conditions for series representation', title:'Conditions for Fourier-series representation', src:'pp. 25–26',
   objective:'State the three Dirichlet conditions and show one signal violating each.',
   keywords:'dirichlet conditions absolutely integrable bounded variation discontinuities pathological existence', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Existence', src:'pp. 25–26'},
-  {t:'title', text:'Three conditions, three counterexamples'},
+  {t:'title', text:'Conditions for Fourier-Series Representation'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'Not every signal can be decomposed into complex exponentials. Periodic signals can, provided they meet three conditions. Let $x(t)=x(t+T)$ for every $t$.'},
     {t:'note', kind:'def', head:'Condition 1 — absolutely integrable', html:'Over one period, $\\displaystyle\\int_{T}|x(t)|\\,\\d t<\\infty$.'},
@@ -251,7 +251,7 @@ const SC = [
   objective:'State the synthesis equation and read the coefficients off a sum of sinusoids.',
   keywords:'synthesis equation harmonic component a_k euler worked example DC term average', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · The representation', src:'pp. 26–27'},
-  {t:'title', text:'Every harmonic gets one number'},
+  {t:'title', text:'Fourier-Series Synthesis'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0 t},\\qquad \\omega_0=\\frac{2\\pi}{T_0}',
       label:'Synthesis equation',
@@ -292,7 +292,7 @@ const SC = [
   objective:'Give the general rule for the fundamental period of a sum and show where the shortcut fails.',
   keywords:'fundamental period least common multiple LCM GCD rational periods common denominator', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Technique', src:'pp. 26–27, 38'},
-  {t:'title', text:'A least common multiple of fractions'},
+  {t:'title', text:'Fundamental Period of a Signal Sum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A sum of periodic signals is periodic when every component period is a rational multiple of every other. The fundamental period of the sum is the smallest positive $T_0$ that is an integer multiple of each component period.'},
     {t:'eq', key:true, tex:'T_0=\\operatorname{LCM}\\!\\left(\\frac{p_1}{q_1},\\ \\frac{p_2}{q_2},\\dots\\right)=\\frac{\\operatorname{LCM}(p_1,p_2,\\dots)}{\\operatorname{GCD}(q_1,q_2,\\dots)}',
@@ -321,7 +321,7 @@ const SC = [
   objective:'Work three period examples and show the failure the rule prevents.',
   keywords:'period examples LCM GCD 24/5 8/3 check by division common period smallest', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Technique', src:'pp. 26–27, 38'},
-  {t:'title', text:'Apply the period rule in three examples'},
+  {t:'title', text:'Fundamental-Period Examples'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Example 1','Periods $1$ and $2/3$. Numerators $1,2$; denominators $1,3$. $T_0=\\operatorname{LCM}(1,2)/\\operatorname{GCD}(1,3)=2$ s, so $\\omega_0=\\pi$ rad/s.'],
@@ -352,7 +352,7 @@ const SC = [
   objective:'State and prove the analysis equation through the orthogonality of complex exponentials.',
   keywords:'analysis equation orthogonality complex exponentials spectral coefficients pair', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · The theorem', src:'p. 28'},
-  {t:'title', text:'One integral per coefficient'},
+  {t:'title', text:'Fourier-Series Analysis'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Reading coefficients off a sum of sinusoids works only when the signal is already written as one. For every other periodic signal there is a formula.'},
     {t:'eq', key:true, size:'lg', tex:'a_k=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jk\\omega_0 t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T_0}',
@@ -378,7 +378,7 @@ const SC = [
   objective:'Prove the analysis equation through the orthogonality of complex exponentials.',
   keywords:'proof orthogonality complex exponentials integral over one period l hopital derivation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Proof', src:'p. 28'},
-  {t:'title', text:'One probe per harmonic'},
+  {t:'title', text:'Orthogonality of Complex Exponentials'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Start from the synthesis equation, multiply both sides by $e^{-jn\\omega_0t}$ and integrate over one period:'},
     {t:'eq', size:'sm', tex:'\\int_{T_0}x(t)e^{-jn\\omega_0t}\\,\\d t=\\sum_{k=-\\infty}^{\\infty}a_k\\int_{T_0}e^{j(k-n)\\omega_0t}\\,\\d t'},
@@ -414,7 +414,7 @@ const SC = [
   objective:'Interpret a₀ as the average value over one period.',
   keywords:'DC term a_0 average value zero frequency mean over one period', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Reading a coefficient', src:'p. 29'},
-  {t:'title', text:'What $a_0$ always means'},
+  {t:'title', text:'The DC Coefficient'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'body', html:'Put $k=0$ in the analysis equation. The exponential becomes $e^{0}=1$ and the integral collapses:'},
     {t:'eq', key:true, size:'lg', tex:'a_0=\\frac{1}{T_0}\\int_{T_0}x(t)\\,\\d t', label:'DC term',
@@ -446,7 +446,7 @@ const SC = [
   objective:'Derive the coefficients of the periodic rectangular wave, both branches.',
   keywords:'periodic rectangular wave square pulse train coefficients sin(2 pi k T1/T)/(pi k) duty cycle', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 29'},
-  {t:'title', text:'One integral, two branches'},
+  {t:'title', text:'Rectangular-Wave Coefficients'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1$ for $|t|<T_1$ and $x(t)=0$ for $T_1<|t|<T_0/2$, repeated with period $T_0$.'],
@@ -486,7 +486,7 @@ const SC = [
   objective:'Separate the continuous envelope from the discrete samples that are the coefficients.',
   keywords:'envelope function sampling harmonic spacing 2 pi / T sinc duty cycle wide narrow', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Structure', src:'p. 29'},
-  {t:'title', text:'A curve in $\\omega$, read at the harmonics'},
+  {t:'title', text:'Rectangular-Wave Spectral Envelope'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The coefficients of the rectangular wave are values of one continuous function, taken at equally spaced points. Write that function first, in the continuous variable $\\omega$:'},
     {t:'eq', key:true, tex:'E(\\omega)=\\int_{-T_1}^{T_1}e^{-j\\omega t}\\,\\d t=\\frac{2\\sin(\\omega T_1)}{\\omega}',
@@ -521,11 +521,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m4-howmany', module:'M4', nav:'How many harmonics', title:'How many coefficients are enough', src:'p. 30',
+{ id:'m4-howmany', module:'M4', nav:'Harmonic truncation', title:'Truncation error and harmonic count', src:'p. 30',
   objective:'Define the truncated series and the mean-square error, and describe the Gibbs phenomenon.',
   keywords:'truncation partial sum mean square error MSE convergence Gibbs phenomenon overshoot ringing', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Convergence', src:'p. 30'},
-  {t:'title', text:'The error, measured'},
+  {t:'title', text:'Truncation Error and Harmonic Count'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x_N(t)=\\sum_{k=-N}^{N}a_k\\,e^{jk\\omega_0t}', label:'Truncated series',
       note:'Keep the $2N+1$ coefficients nearest to zero frequency and discard the rest.'},
@@ -567,7 +567,7 @@ const SC = [
   objective:'Derive the sawtooth coefficients and read their purely imaginary structure.',
   keywords:'sawtooth wave coefficients integration by parts odd signal derivation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 30–31'},
-  {t:'title', text:'An odd signal has imaginary coefficients'},
+  {t:'title', text:'Fourier Series of a Sawtooth Wave'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=t$ for $-T_0/2<t<T_0/2$, repeated with period $T_0$.'],
@@ -597,7 +597,7 @@ const SC = [
   objective:'State the sawtooth result and read the odd-signal symmetry off it.',
   keywords:'sawtooth result purely imaginary magnitude 0.159 phase alternating symmetry real odd', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 31'},
-  {t:'title', text:'Reading the answer'},
+  {t:'title', text:'Sawtooth Coefficients and Symmetry'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'a_k=\\begin{cases}0,&k=0\\\\[6pt]\\dfrac{jT_0}{2k\\pi}\\cos(k\\pi)=\\dfrac{jT_0(-1)^{k}}{2k\\pi},&k\\neq0\\end{cases}', label:'Solution'},
     {t:'reveal', at:1, items:[
@@ -627,7 +627,7 @@ const SC = [
   objective:'Compute the coefficients of the impulse train and read the flat spectrum.',
   keywords:'periodic impulse train delta comb sifting property flat spectrum a_k = 1/T', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 31'},
-  {t:'title', text:'Every harmonic, in equal measure'},
+  {t:'title', text:'Fourier Series of an Impulse Train'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\displaystyle\\sum_{m=-\\infty}^{\\infty}\\delta(t-mT_0)$.'],
@@ -664,7 +664,7 @@ const SC = [
   objective:'State the DTFS pair and prove that the coefficients repeat with period N.',
   keywords:'DTFS discrete time fourier series finite sum periodic coefficients a_k = a_{k+N} proof', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Discrete time', src:'p. 32'},
-  {t:'title', text:'A finite sum, and a spectrum that repeats'},
+  {t:'title', text:'Discrete-Time Fourier Series'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Let $x[n]=x[n+N]$ for every $n$, with $N$ the period. Set $\\omega_0=2\\pi/N$ rad/sample.'},
     {t:'eq', key:true, tex:'x[n]=\\sum_{k=\\langle N\\rangle}a_k\\,e^{jk(2\\pi/N)n}', label:'Synthesis'},
@@ -704,7 +704,7 @@ const SC = [
   objective:'Find the period and the DTFS coefficients of a sum of a sine and a cosine sequence.',
   keywords:'discrete example period LCM 24 coefficients euler stem plot magnitude phase', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 32'},
-  {t:'title', text:'Finding $N$ first, then the coefficients'},
+  {t:'title', text:'Discrete-Time Fourier-Series Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=\\sin\\!\\left(\\dfrac{5\\pi}{6}n\\right)+\\cos\\!\\left(\\dfrac{3\\pi}{4}n+\\dfrac{\\pi}{5}\\right)$.'],
@@ -754,7 +754,7 @@ const SC = [
   objective:'Evaluate the finite geometric sum and state the condition it actually needs.',
   keywords:'discrete rectangular wave geometric sum finite r != 1 condition sign of exponent branches', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 33'},
-  {t:'title', text:'A finite geometric sum, done carefully'},
+  {t:'title', text:'Discrete-Time Square-Wave Coefficients'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=1$ for $|n|\\le N_1$ and $x[n]=0$ for $N_1<|n|\\le N/2$, repeated with period $N$.'],
@@ -798,7 +798,7 @@ const SC = [
   objective:'State both branches of the discrete-time square-wave coefficients and reconstruct exactly.',
   keywords:'discrete square wave coefficients both branches (2N1+1)/N periodic in k no Gibbs exact', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 33–34'},
-  {t:'title', text:'Two branches, and no convergence problem'},
+  {t:'title', text:'Discrete-Time Square-Wave Spectrum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'sm', tex:'a_k=\\begin{cases}\\dfrac{2N_1+1}{N},&k=0,\\pm N,\\pm 2N,\\dots\\\\[12pt]\\dfrac{1}{N}\\,\\dfrac{\\sin\\!\\left(\\dfrac{2\\pi k}{N}\\left(N_1+\\tfrac12\\right)\\right)}{\\sin\\!\\left(\\dfrac{\\pi k}{N}\\right)},&\\text{otherwise}\\end{cases}',
       label:'Solution'},
@@ -842,7 +842,7 @@ const SC = [
   objective:'Compute the coefficients of an odd period-11 sequence by pairing terms.',
   keywords:'discrete sawtooth N=11 odd sequence purely imaginary pairing sine sum peak 1.7747', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 34–35'},
-  {t:'title', text:'Pairing $n$ with $-n$'},
+  {t:'title', text:'Discrete-Time Sawtooth Series'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=n$ for $-5\\le n\\le5$, repeated with period $N=11$.'],
@@ -892,7 +892,7 @@ const SC = [
   objective:'State and prove linearity and the time-shift property, and read what a shift does to magnitude.',
   keywords:'linearity property time shift proof magnitude unchanged phase ramp change of variable', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 35'},
-  {t:'title', text:'Two properties that do most of the work'},
+  {t:'title', text:'Linearity and Time Shift'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Write $x(t)\\leftrightarrow a_k$ to mean that $a_k$ are the coefficients of the periodic signal $x$. Both signals below share one period $T_0$, so both series share one $\\omega_0$.'},
     {t:'eq', key:true, tex:'A\\,x_1(t)+B\\,x_2(t)\\;\\longleftrightarrow\\;A\\,a_k+B\\,b_k', label:'(1) Linearity',
@@ -936,7 +936,7 @@ const SC = [
   objective:'State the remaining properties and get the summation range of the discrete-time product right.',
   keywords:'time reversal conjugation real even odd purely imaginary symmetry', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
-  {t:'title', text:'What symmetry does to the coefficients'},
+  {t:'title', text:'Reversal, Conjugation, and Multiplication'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'x(-t)\\;\\longleftrightarrow\\;a_{-k},\\qquad x[-n]\\;\\longleftrightarrow\\;a_{-k}', label:'(3) Time reversal',
       note:'Reversing the signal reverses the index. So an even signal has even coefficients, $a_k=a_{-k}$, and an odd signal has $a_k=-a_{-k}$.'},
@@ -969,7 +969,7 @@ const SC = [
   objective:'State the full conjugate-symmetry set for a real signal and the even-odd decomposition of its coefficients.',
   keywords:'conjugate symmetry even odd decomposition real part imaginary part magnitude phase Ev Od', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
-  {t:'title', text:'What a real signal forces on its coefficients'},
+  {t:'title', text:'Even and Odd Parts of Real Signals'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A real signal satisfies $x=x^{*}$, and the conjugation property then gives $a_k=a_{-k}^{*}$. Everything below is that one line, read five ways.'},
     {t:'wex', rows:[
@@ -1014,7 +1014,7 @@ const SC = [
   objective:'State the frequency-shift and time-scaling properties, and separate what scaling changes from what it leaves alone.',
   keywords:'frequency shift modulation index shift time scaling period changes coefficients unchanged zero stuffing expansion', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
-  {t:'title', text:'One property moves the index, the other moves the frequencies'},
+  {t:'title', text:'Frequency Shift and Time Scaling'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'e^{jM\\omega_0t}x(t)\\;\\longleftrightarrow\\;a_{k-M},\\qquad e^{jM(2\\pi/N)n}x[n]\\;\\longleftrightarrow\\;a_{k-M}',
       label:'Frequency shift',
@@ -1057,7 +1057,7 @@ const SC = [
   objective:'State periodic convolution and get the factor T or N in front of the coefficient product right.',
   keywords:'periodic convolution one period integral T a_k b_k N a_k b_k factor triangular wave', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 36'},
-  {t:'title', text:'Convolution over one period multiplies the coefficients'},
+  {t:'title', text:'Periodic Convolution'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Two periodic signals cannot be convolved over all time: the integral does not converge. The operation that does work runs over one period, and it is called periodic convolution.'},
     {t:'eq', key:true, tex:'\\int_{T_0}x(\\tau)\\,y(t-\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;T_0\\,a_k\\,b_k',
@@ -1102,7 +1102,7 @@ const SC = [
   objective:'State the multiplication property and get the discrete-time summation range right.',
   keywords:'multiplication property convolution of coefficients periodic convolution summation range diverge', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'pp. 36–37'},
-  {t:'title', text:'A product in time is a convolution in frequency'},
+  {t:'title', text:'Time-Domain Multiplication'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'x(t)\\,y(t)\\;\\longleftrightarrow\\;\\sum_{\\ell=-\\infty}^{\\infty}a_\\ell\\,b_{k-\\ell}', label:'Continuous time',
       note:'The sum runs over all integers, because a continuous-time series has infinitely many distinct coefficients.'},
@@ -1140,7 +1140,7 @@ const SC = [
   objective:'State the differentiation and integration properties and the condition under which the integral is itself periodic.',
   keywords:'differentiation jk omega0 integration divide by jk omega0 a0 zero mean condition ramp drift', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
-  {t:'title', text:'Differentiation multiplies, integration divides — with one condition'},
+  {t:'title', text:'Differentiation and Integration Properties'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'\\frac{\\d x(t)}{\\d t}\\;\\longleftrightarrow\\;jk\\omega_0a_k=jk\\frac{2\\pi}{T_0}a_k', label:'Differentiation',
       note:'Differentiate the synthesis equation term by term. Each term $a_ke^{jk\\omega_0t}$ contributes a factor $jk\\omega_0$, and the factor grows with the harmonic index: differentiation emphasises the high harmonics, which is why the derivative of a smooth signal can be rough.'},
@@ -1182,7 +1182,7 @@ const SC = [
   objective:'State the first-difference and running-sum properties and carry the same zero-mean condition across.',
   keywords:'first difference running sum accumulation discrete time a0 zero condition drift periodic', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
-  {t:'title', text:'The same two statements, one index at a time'},
+  {t:'title', text:'First Difference and Running Sum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A sequence has no derivative, because $n$ moves in steps. What takes its place is the difference between neighbouring samples, and the sum takes the place of the integral.'},
     {t:'eq', key:true, tex:'x[n]-x[n-1]\\;\\longleftrightarrow\\;\\bigl(1-e^{-jk(2\\pi/N)}\\bigr)a_k', label:'First difference',
@@ -1231,7 +1231,7 @@ const SC = [
   objective:'State Parseval’s relation in both domains and use it as an accounting identity.',
   keywords:'parseval relation average power per harmonic energy accounting square summable', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Properties', src:'p. 37'},
-  {t:'title', text:'Parseval assigns power to the harmonics'},
+  {t:'title', text:'Parseval’s Relation for Fourier Series'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'eq', key:true, size:'lg', tex:'\\frac{1}{T_0}\\int_{T_0}\\bigl|x(t)\\bigr|^{2}\\,\\d t=\\sum_{k=-\\infty}^{\\infty}\\bigl|a_k\\bigr|^{2}',
       label:'Parseval’s relation, continuous time'},
@@ -1268,7 +1268,7 @@ const SC = [
   objective:'Derive b_k = a_k H(jkω₀) and give the conjugate-pair reassembly explicitly.',
   keywords:'frequency response b_k = a_k H(jk omega0) one product per harmonic', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · The payoff', src:'pp. 37–38'},
-  {t:'title', text:'One multiplication per harmonic'},
+  {t:'title', text:'Periodic Inputs to LTI Systems'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Feed a periodic signal into an LTI system. Every harmonic is an eigenfunction, so each one comes out scaled by the frequency response evaluated at that harmonic’s frequency.'},
     {t:'eq', key:true, size:'lg', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}\\;\\longrightarrow\\;y(t)=\\sum_{k=-\\infty}^{\\infty}\\underbrace{a_kH(jk\\omega_0)}_{b_k}e^{jk\\omega_0t}',
@@ -1299,11 +1299,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m4-pairing', module:'M4', nav:'Putting the output together', title:'Putting a real output back together', src:'p. 38',
+{ id:'m4-pairing', module:'M4', nav:'Real-output synthesis', title:'Synthesis of a real output', src:'p. 38',
   objective:'Derive the conjugate-pair reassembly and name the factor of two and the phase convention.',
   keywords:'conjugate pair reassembly factor of two phase convention real output positive index', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · The step that is easy to skip', src:'p. 38'},
-  {t:'title', text:'Two terms make one cosine'},
+  {t:'title', text:'Synthesis of a Real Output'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The output above is a sum of complex terms, and a real system driven by a real signal gives a real output. For real $x$ and real $h$ both $a_{-k}=a_k^{*}$ and $H(-j\\omega)=H^{*}(j\\omega)$, so $b_{-k}=b_k^{*}$. Pair each $k$ with $-k$:'},
     {t:'eq', key:true, size:'lg', tex:'b_ke^{jk\\omega_0t}+b_{-k}e^{-jk\\omega_0t}=\\bigl|b_k\\bigr|e^{j(k\\omega_0t+\\angle b_k)}+\\bigl|b_k\\bigr|e^{-j(k\\omega_0t+\\angle b_k)}=2\\bigl|b_k\\bigr|\\cos\\bigl(k\\omega_0t+\\angle b_k\\bigr)',
@@ -1343,7 +1343,7 @@ const SC = [
   objective:'Filter a four-term periodic signal and assemble the real output correctly.',
   keywords:'low pass filtering example e^{-t}u(t) H = 1/(1+j omega) coefficients output amplitudes phases', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 38–39'},
-  {t:'title', text:'A first-order low-pass filter'},
+  {t:'title', text:'First-Order Low-Pass Filtering'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1+\\cos(\\pi t)+\\sin(2\\pi t)+\\cos\\!\\left(3\\pi t+\\dfrac{\\pi}{3}\\right)$ into a system with $h(t)=e^{-t}u(t)$.'],
@@ -1402,7 +1402,7 @@ const SC = [
   objective:'Repeat the calculation for a high-pass response and get every phase from the positive index.',
   keywords:'high pass filtering j omega/(1+j omega) DC removed phase convention positive index worked', steps:4, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 39–40'},
-  {t:'title', text:'The same input, the opposite filter'},
+  {t:'title', text:'First-Order High-Pass Filtering'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','The same $x(t)=1+\\cos(\\pi t)+\\sin(2\\pi t)+\\cos\\!\\left(3\\pi t+\\dfrac{\\pi}{3}\\right)$, now into a system with $H(j\\omega)=\\dfrac{j\\omega}{1+j\\omega}$.'],
@@ -1456,7 +1456,7 @@ const SC = [
   objective:'Filter a period-4 impulse train with a two-tap high-pass system.',
   keywords:'discrete filtering two tap first difference impulse train period 4 frequency response high pass', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 40–41'},
-  {t:'title', text:'Two taps, and the average removed'},
+  {t:'title', text:'Discrete-Time High-Pass Filtering'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=\\displaystyle\\sum_{m=-\\infty}^{\\infty}\\delta[n-4m]$, an impulse train of period $N=4$, into $h_1[n]=0.5\\delta[n]-0.5\\delta[n-1]$.'],
@@ -1504,7 +1504,7 @@ const SC = [
   objective:'Repeat the discrete filtering calculation for the low-pass system and compare the two.',
   keywords:'discrete low pass two point average impulse train comparison DC term kept nyquist term', steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 41'},
-  {t:'title', text:'The same input, the other two-tap system'},
+  {t:'title', text:'Discrete-Time Low-Pass Filtering'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','The same impulse train of period $N=4$, now into $h_2[n]=0.5\\delta[n]+0.5\\delta[n-1]$.'],
@@ -1547,7 +1547,7 @@ const SC = [
   objective:'Compare a partial sum with the waveform and measure the Gibbs overshoot.',
   keywords:'laboratory F reconstruction partial sum harmonics MSE gibbs overshoot square sawtooth triangle', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory F', src:'pp. 29–35'},
-  {t:'title', text:'Adding harmonics, one at a time'},
+  {t:'title', text:'Laboratory F · Fourier-Series Reconstruction'},
   {t:'lede', text:'Choose a waveform and a number of harmonics. The panels show the partial sum against the true signal, the coefficients as stems, and the two numbers that decide whether the approximation is good: the mean-square error, and the overshoot beside the jump.'},
   {t:'lab', id:'F'}
 ]},
@@ -1556,7 +1556,7 @@ const SC = [
   objective:'Follow one signal through the chain a_k → H → b_k → y and expose the pairing step.',
   keywords:'laboratory G frequency response filtering chain b_k = a_k H cutoff low pass high pass reassembly', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory G', src:'pp. 37–41'},
-  {t:'title', text:'From coefficients to output, one step at a time'},
+  {t:'title', text:'Laboratory G · LTI Frequency Response'},
   {t:'lede', text:'Pick a system and a cutoff. The four panels follow the same signal through the whole chain, and the last step can be shown with or without the factor of two, so the size of that error is visible rather than described.'},
   {t:'lab', id:'G'}
 ]},
@@ -1566,7 +1566,7 @@ const SC = [
   objective:'Collect every property of the continuous-time Fourier series for reference.',
   keywords:'summary table properties reference continuous time series coefficients linearity shift scaling convolution integration parseval', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
-  {t:'title', text:'A periodic signal of period $T_0$, with $\\omega_0=2\\pi/T_0$'},
+  {t:'title', text:'Continuous-Time Fourier-Series Properties'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Operations on the signal'},
     {t:'wex', rows:[
@@ -1600,7 +1600,7 @@ const SC = [
   objective:'Collect every property of the discrete-time Fourier series and mark the three places it differs from continuous time.',
   keywords:'summary table properties reference discrete time series coefficients first difference running sum expansion periodic coefficients', steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Reference', src:'pp. 35–37'},
-  {t:'title', text:'A periodic sequence of period $N$, with $\\omega_0=2\\pi/N$'},
+  {t:'title', text:'Discrete-Time Fourier-Series Properties'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Operations on the sequence'},
     {t:'wex', rows:[
