@@ -10,7 +10,7 @@ const SC = [
   objective:'Summarise how signals, LTI systems, transforms, and sampling connect.',
   keywords:'closing synthesis unified through-line convolution fourier transform sampling', steps:2, blocks:[
   {t:'eyebrow', text:'Synthesis · Modules 0–7', src:'pp. 2–88'},
-  {t:'title', text:'How the main ideas connect'},
+  {t:'title', text:'Connections among the Main Ideas'},
   {t:'cols', ratio:'c-7-5', left:[
     {t:'fig', svg:()=>{
       const W=1080,H=545,g=[];
@@ -47,11 +47,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'end-map', module:'Synthesis', nav:'What each module added', title:'What each module added', src:'pp. 2–88',
+{ id:'end-map', module:'Synthesis', nav:'Contributions of each module', title:'Contributions of each module', src:'pp. 2–88',
   objective:'Name the one thing each module contributes and the equation that carries it.',
   keywords:'course map modules summary equations laboratories practice questions', steps:1, blocks:[
   {t:'eyebrow', text:'Synthesis · Modules 0–7', src:'pp. 2–88'},
-  {t:'title', text:'Eight modules, eight additions'},
+  {t:'title', text:'Contributions of Each Module'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
         ['Module 0','The purpose, structure, and notation of the course.'],
@@ -79,7 +79,7 @@ const SC = [
   objective:'Collect the conventions a reader needs in one place.',
   keywords:'conventions notation sinc transform normalised energy imaginary unit', steps:0, blocks:[
   {t:'eyebrow', text:'Reference'},
-  {t:'title', text:'Conventions used throughout'},
+  {t:'title', text:'Course Conventions and Symbols'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Energy and power','Normalised: the resistance is taken as $1\\ \\Omega$, so power is $|x|^{2}$ and energy is its integral or sum.'],

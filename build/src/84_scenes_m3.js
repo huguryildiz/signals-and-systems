@@ -11,7 +11,7 @@ const SC = [
 { id:'m3-open', module:'M3', nav:'Module 3 opening', title:'Linear Time-Invariant Systems', src:'pp. 14–21',
   dark:true, keywords:'module 3 LTI convolution impulse response overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 3 · Linear Time-Invariant Systems', src:'pp. 14–21'},
-  {t:'title', level:1, text:'Describe an LTI system with one response'},
+  {t:'title', level:1, text:'Linear Time-Invariant Systems'},
   {t:'lede', text:'This module develops a direct way to find the output of a linear time-invariant system. Such a system is fully described by its response to one unit impulse. Convolution then uses that response to find the output for any input.'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'raw', html:`<div style="margin-top:20px">
@@ -33,7 +33,7 @@ const SC = [
   objective:'Define h and explain why one experiment can characterise a whole system.',
   keywords:'impulse response h[n] h(t) unit impulse characterisation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Foundation', src:'p. 14'},
-  {t:'title', text:'One experiment, one function'},
+  {t:'title', text:'Impulse Response'},
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
     {t:'note', kind:'def', head:'Definition', html:'The <b>impulse response</b> is the response of the system to a unit impulse:<br>$x[n]=\\delta[n]\\;\\to\\;S\\;\\to\\;y[n]={{sym:ht|h[n]}}$.'},
     {t:'reveal', at:1, items:[
@@ -64,7 +64,7 @@ const SC = [
   objective:'Derive the representation property from the sampling property.',
   keywords:'representation property weighted shifted impulses sum delta', steps:3, blocks:[
   {t:'eyebrow', text:'Module 3 · Derivation, step 1 of 2', src:'pp. 14–15'},
-  {t:'title', text:'Write a signal as shifted impulses'},
+  {t:'title', text:'Impulse Representation of a Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Start from the sampling property of Module 1 and write it out for every shift:'},
     {t:'eq', size:'sm', tex:'\\begin{aligned} x[n]\\delta[n+1]&=x[-1]\\delta[n+1]\\\\ x[n]\\delta[n]&=x[0]\\delta[n]\\\\ x[n]\\delta[n-1]&=x[1]\\delta[n-1]\\\\ x[n]\\delta[n-2]&=x[2]\\delta[n-2] \\end{aligned}',
@@ -102,7 +102,7 @@ const SC = [
   objective:'Give the three-line LTI derivation and name where each property is used.',
   keywords:'convolution sum derivation linearity time invariance equivalent forms', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Derivation, step 2 of 2', src:'p. 15'},
-  {t:'title', text:'Use the LTI properties to derive convolution'},
+  {t:'title', text:'Derivation of the Convolution Sum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Start','$x[n]=\\displaystyle\\sum_{k}x[k]\\delta[n-k]\\;\\to\\;S\\;\\to\\;y[n]=\\;?$']
@@ -149,7 +149,7 @@ const SC = [
   objective:'Name the procedure and explain the role of the flip.',
   keywords:'flip shift multiply add steps of convolution procedure correlation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Procedure', src:'p. 15'},
-  {t:'title', text:'Compute convolution in four named moves'},
+  {t:'title', text:'Four-Step Convolution Procedure'},
   {t:'cols', ratio:'c-5-7', vcenter:true, left:[
     {t:'note', kind:'def', head:'Steps of convolution', html:'<b>(1) Flip.</b> Reverse $h[k]$ to obtain $h[-k]$.<br><b>(2) Shift.</b> Displace it by $n$ to obtain $h[n-k]$.<br><b>(3) Multiply and add.</b> Form $x[k]h[n-k]$ and sum over $k$.<br>Repeat for every $n$.'},
     {t:'reveal', at:1, items:[
@@ -179,7 +179,7 @@ const SC = [
   objective:'Reproduce the definition example with the superposition method and verify.',
   keywords:'example convolution finite sequences superposition shifted impulse responses', steps:1, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 15–16'},
-  {t:'title', text:'Convolution as superposition'},
+  {t:'title', text:'Convolution as Superposition'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=\\{1,2,1,2\\}$ for $n=0,1,2,3$;  $h[n]=\\{1,1\\}$ for $n=0,1$. Both zero elsewhere.'],
@@ -214,7 +214,7 @@ const SC = [
   objective:'Add the shifted impulse responses and check the result two ways.',
   keywords:'convolution superposition sum support length moving sum commutativity', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 15–16'},
-  {t:'title', text:'Adding the copies, and checking the answer'},
+  {t:'title', text:'Summation and Verification of Convolution'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=\\{1,2,1,2\\}$ on $n=0,\\dots,3$ and $h[n]=\\{1,1\\}$ on $n=0,1$.'],
@@ -248,7 +248,7 @@ const SC = [
   objective:'Work the geometric example, including the case split and the series condition.',
   keywords:'geometric series convolution u[n] (1/2)^n case split limit', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 16–17'},
-  {t:'title', text:'When the overlap never ends'},
+  {t:'title', text:'Convolution of Infinite-Duration Sequences'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x[n]=\\left(\\tfrac12\\right)^{n}u[n]$ and $h[n]=u[n]$.'],
@@ -290,7 +290,7 @@ const SC = [
   objective:'Transfer the derivation to continuous time.',
   keywords:'convolution integral continuous time sifting delta even', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Continuous time', src:'pp. 17–18'},
-  {t:'title', text:'The same argument, with an integral'},
+  {t:'title', text:'Derivation of the Convolution Integral'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The continuous-time derivation serves the same purpose as the discrete-time derivation: it writes the input as shifted impulses before applying the LTI properties. Start with the sifting property and exchange the variable names:'},
     {t:'eq', size:'sm', tex:'x(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,\\delta(\\tau-t)\\,\\d\\tau=\\int_{-\\infty}^{\\infty}x(\\tau)\\,\\delta(t-\\tau)\\,\\d\\tau',
@@ -331,7 +331,7 @@ const SC = [
   objective:'Set up the exponential/step example and read the limits of both cases off the overlap.',
   keywords:'continuous convolution example e^{2t}u(-t) u(t-3) cases limits', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 18–19'},
-  {t:'title', text:'Reading the limits off the overlap'},
+  {t:'title', text:'Convolution Limits from Signal Overlap'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.'],
@@ -377,7 +377,7 @@ const SC = [
   objective:'Assemble the two cases into one answer and check it three ways.',
   keywords:'continuous convolution example solution continuity final value delayed integrator', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 18–19'},
-  {t:'title', text:'One answer, three checks'},
+  {t:'title', text:'Verification of Continuous-Time Convolution'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.'],
@@ -414,7 +414,7 @@ const SC = [
   objective:'Work the rect ∗ ramp example, listing every case boundary and verifying continuity.',
   keywords:'piecewise convolution five cases rectangular ramp boundaries continuity', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 19–20'},
-  {t:'title', text:'Where the case boundaries come from'},
+  {t:'title', text:'Piecewise Convolution Boundaries'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1$ on $0<t<1$ (zero elsewhere);  $h(t)=t$ on $0<t<2$ (zero elsewhere).'],
@@ -473,7 +473,7 @@ const SC = [
   objective:'See flip, shift, multiply and accumulate for four source cases.',
   keywords:'laboratory convolution explorer flip shift multiply overlap', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory E', src:'pp. 15–20'},
-  {t:'title', text:'Convolution, one shift at a time'},
+  {t:'title', text:'Laboratory E · Convolution'},
   {t:'lede', text:'This laboratory shows the four convolution examples from the module. Move the shift control. At each position, compare the overlap, the product, and the accumulated output. Note the positions where an overlap edge changes; these are the case boundaries used in the calculation.'},
   {t:'lab', id:'E'}
 ]},
@@ -482,7 +482,7 @@ const SC = [
   objective:'State commutativity, distributivity and associativity with their interconnection meanings.',
   keywords:'commutative distributive associative parallel cascade interconnection', steps:3, blocks:[
   {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'p. 20'},
-  {t:'title', text:'Use convolution properties to combine LTI systems'},
+  {t:'title', text:'Properties of Convolution'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x[n]*h[n]=h[n]*x[n],\\qquad x(t)*h(t)=h(t)*x(t)', label:'(1) Commutative',
       note:'The two forms are equal, so choose the factor whose reversal gives simpler support conditions. The input and impulse response have different physical roles, but convolution treats them symmetrically.'},
@@ -525,7 +525,7 @@ const SC = [
   objective:'Give the impulse-response criterion for each system property.',
   keywords:'LTI memoryless invertible causal stable absolutely summable integrable criteria', steps:4, blocks:[
   {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'p. 21'},
-  {t:'title', text:'Test an LTI system by examining its impulse response'},
+  {t:'title', text:'LTI Properties from the Impulse Response'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'h(t)=a\\,\\delta(t)\\quad\\text{or}\\quad h[n]=a\\,\\delta[n],\\qquad a\\in\\mathbb{C}',
       label:'(4) Memoryless ⟺',
@@ -568,7 +568,7 @@ const SC = [
   dark:true, objective:'Consolidate and open the door to the frequency domain.',
   keywords:'synthesis summary module 3 eigenfunction preview convolution checklist', steps:2, blocks:[
   {t:'eyebrow', text:'Module 3 · Synthesis', src:'pp. 14–21'},
-  {t:'title', text:'Use one complete convolution procedure'},
+  {t:'title', text:'Module 3 Summary'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the system is LTI. Nothing below is valid otherwise.</p>
       <p style="color:var(--graphite)"><b>2.</b> Choose which signal to flip — the simpler one.</p>

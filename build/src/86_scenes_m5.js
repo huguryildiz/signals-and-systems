@@ -32,7 +32,7 @@ const SC = [
 { id:'m5-open', module:'M5', nav:'Module 5 opening', title:'Continuous-Time Fourier Transform', src:'pp. 42–63',
   dark:true, keywords:'module 5 fourier transform aperiodic CTFT overview envelope spectrum', steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Continuous-Time Fourier Transform', src:'pp. 42–63'},
-  {t:'title', level:1, text:'The Fourier transform describes<br>aperiodic signals in frequency.'},
+  {t:'title', level:1, text:'The Continuous-Time Fourier Transform'},
   {t:'lede', text:'The Fourier transform is used to represent an aperiodic signal by a continuous function of frequency. Begin with a periodic extension of the signal and increase its period. The harmonic spacing then approaches zero, and the Fourier-series samples approach the transform curve.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
@@ -61,11 +61,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-derive-1', module:'M5', nav:'From a series to a transform', title:'Making an aperiodic signal periodic on purpose', src:'pp. 42–43',
+{ id:'m5-derive-1', module:'M5', nav:'Series-to-transform limit', title:'From Fourier series to Fourier transform', src:'pp. 42–43',
   objective:'Build the periodic extension of a pulse and state the condition the construction needs.',
   keywords:'aperiodic periodic extension support T > 2T1 limit period grows derivation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Derivation, step 1', src:'pp. 42–43'},
-  {t:'title', text:'Construct a periodic extension'},
+  {t:'title', text:'From Fourier Series to Fourier Transform'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'This construction connects a finite-duration signal to its Fourier transform. Let $x(t)=0$ for $|t|>T_1$. The <b>support</b> is the interval where the signal can be non-zero, and $T_1$ is its half-width.'},
     {t:'reveal', at:1, items:[
@@ -102,7 +102,7 @@ const SC = [
   objective:'Show that T·a_k is one function of ω, sampled at multiples of ω₀.',
   keywords:'envelope samples T a_k spacing omega_0 derivation coefficients curve', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Derivation, step 2', src:'p. 43'},
-  {t:'title', text:'The coefficients sample one continuous curve'},
+  {t:'title', text:'Fourier-Series Coefficients as Samples'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Apply the analysis equation of Module 4 to $\\tilde{x}$. Integrate over the period $-T/2$ to $T/2$. Inside that range $\\tilde{x}(t)=x(t)$, and outside $|t|<T_1$ the integrand is zero anyway, so the limits may be opened to all of time:'},
     {t:'eq', size:'sm', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\tilde{x}(t)e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\int_{-\\infty}^{\\infty}x(t)e^{-jk\\omega_0t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T}'},
@@ -142,7 +142,7 @@ const SC = [
   objective:'Carry the synthesis sum to the limit and produce the 1/2π explicitly.',
   keywords:'limit sum integral d omega 2 pi factor synthesis riemann derivation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Derivation, step 3', src:'pp. 43–44'},
-  {t:'title', text:'A sum of stems, spaced $\\omega_0$ apart'},
+  {t:'title', text:'The Limit from a Sum to an Integral'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Put $a_k=\\tfrac{1}{T}X(jk\\omega_0)$ back into the synthesis equation of Module 4:'},
     {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}=\\sum_{k=-\\infty}^{\\infty}\\frac{1}{T}X(jk\\omega_0)\\,e^{jk\\omega_0t}'},
@@ -182,7 +182,7 @@ const SC = [
   objective:'Name both equations correctly and state what each one does.',
   keywords:'analysis synthesis equation pair forward inverse transform direction naming', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · The pair', src:'p. 44'},
-  {t:'title', text:'Two equations, two directions, two names'},
+  {t:'title', text:'CTFT Analysis and Synthesis'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t',
       label:'Analysis equation · the Fourier transform',
@@ -218,11 +218,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-exist', module:'M5', nav:'When the transform exists', title:'Two conditions, each sufficient, neither necessary', src:'p. 44',
+{ id:'m5-exist', module:'M5', nav:'CTFT existence conditions', title:'Conditions for CTFT existence', src:'p. 44',
   objective:'State the two existence conditions separately and show that neither implies the other.',
   keywords:'existence square integrable dirichlet absolutely integrable sufficient necessary conditions', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Existence', src:'p. 44'},
-  {t:'title', text:'Two different guarantees, not one restated'},
+  {t:'title', text:'Conditions for CTFT Existence'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Condition A — finite energy', html:'If $\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t<\\infty$, then $X(j\\omega)$ exists.'},
     {t:'note', kind:'def', head:'Condition B — the Dirichlet conditions', html:'If $x$ is absolutely integrable, $\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|\\,\\d t<\\infty$, and has finitely many maxima, minima and finite jumps in any finite interval, then $X(j\\omega)$ exists.'},
@@ -255,7 +255,7 @@ const SC = [
   objective:'Explain in what sense a constant or a periodic signal has a transform.',
   keywords:'limiting sense impulse spectrum constant periodic complex exponential generalised', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Existence', src:'pp. 44–45'},
-  {t:'title', text:'An impulse in frequency is still an answer'},
+  {t:'title', text:'Generalized Fourier Transforms'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A constant, a complex exponential and a periodic signal all fail both conditions: none has finite energy and none is absolutely integrable. Yet each one has a spectrum, and the rest of this module uses them constantly.'},
     {t:'reveal', at:1, items:[
@@ -285,7 +285,7 @@ const SC = [
   objective:'Transform δ(t) and δ(t−t₀) and read the magnitude and phase.',
   keywords:'worked example impulse delta sifting flat spectrum linear phase shift', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 44'},
-  {t:'title', text:'The signal with no favourite frequency'},
+  {t:'title', text:'Fourier Transform of an Impulse'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\delta(t)$, and then $x(t)=\\delta(t-t_0)$ with $t_0$ a fixed time.'],
@@ -330,7 +330,7 @@ const SC = [
   objective:'Invert 2πδ(ω−ω₀) and show why the 2π is part of the answer.',
   keywords:'worked example inverse transform impulse in frequency complex exponential 2 pi weight', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
-  {t:'title', text:'One impulse in frequency is one exponential in time'},
+  {t:'title', text:'Fourier Transform of a Complex Exponential'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$X(j\\omega)=2\\pi\\delta(\\omega-\\omega_0)$, a single impulse of weight $2\\pi$ at the frequency $\\omega_0$.'],
@@ -371,7 +371,7 @@ const SC = [
   objective:'Transform the decaying exponential and state where a > 0 is needed.',
   keywords:'worked example one-sided exponential decay 1/(a+jw) convergence condition magnitude', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
-  {t:'title', text:'The transform exists only if the signal decays'},
+  {t:'title', text:'One-Sided Exponential Transform'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=e^{-at}u(t)$, with $a$ a real constant.'],
@@ -417,7 +417,7 @@ const SC = [
   objective:'Derive the phase with its minus sign and check it against the plot.',
   keywords:'phase arctan minus sign angle of a quotient subtraction error worked example', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
-  {t:'title', text:'The angle of a quotient is a subtraction'},
+  {t:'title', text:'Magnitude and Phase of an Exponential Transform'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The transform is a fraction, so its angle is the angle of the numerator minus the angle of the denominator. Write both, even when one of them is zero.'},
     {t:'eq', size:'sm', tex:'\\angle X(j\\omega)=\\angle 1-\\angle(a+j\\omega)=0-\\tan^{-1}\\!\\left(\\frac{\\omega}{a}\\right)'},
@@ -456,7 +456,7 @@ const SC = [
   objective:'Transform the two-sided exponential and connect evenness to a real transform.',
   keywords:'worked example two-sided exponential even signal real transform 2a/(a^2+w^2)', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 46'},
-  {t:'title', text:'Split the integral where the signal changes formula'},
+  {t:'title', text:'Two-Sided Exponential Transform'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=e^{-a|t|}$ with $a>0$.'],
@@ -494,7 +494,7 @@ const SC = [
   objective:'Transform the rectangular pulse and fix the sinc convention used everywhere after this.',
   keywords:'rectangular pulse sinc unnormalised normalised convention 2 T1 sin(wT1)/w', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 46–47'},
-  {t:'title', text:'A pulse in time is a sinc in frequency'},
+  {t:'title', text:'The Rectangular-Pulse and Sinc Pair'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1$ for $|t|<T_1$ and $0$ otherwise.'],
@@ -536,11 +536,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-rect-zeros', module:'M5', nav:'Where the sinc is zero', title:'The zero crossings, and the one point that is not one', src:'pp. 46–47',
+{ id:'m5-rect-zeros', module:'M5', nav:'Zeros of the sinc spectrum', title:'Zeros of the sinc spectrum', src:'pp. 46–47',
   objective:'State the zero set with the origin excluded and justify the exclusion.',
   keywords:'zero crossings k pi over T1 exclude origin lHopital main lobe index set', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Reading the result', src:'pp. 46–47'},
-  {t:'title', text:'Every multiple of $\\pi/T_1$ except the first'},
+  {t:'title', text:'Zeros of the Sinc Spectrum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'$X(j\\omega)=2\\sin(\\omega T_1)/\\omega$ is a quotient, so it vanishes where the numerator does and the denominator does not. Solve $\\sin(\\omega T_1)=0$:'},
     {t:'eq', key:true, tex:'\\omega=\\pm\\frac{\\pi}{T_1}k,\\qquad k=1,2,3,\\dots',
@@ -578,7 +578,7 @@ const SC = [
   objective:'Invert an ideal low-pass band and read its time-domain peak.',
   keywords:'ideal low pass band W sin(Wt)/(pi t) peak W/pi inverse transform pair', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 47–48'},
-  {t:'title', text:'A pulse in frequency is a sinc in time'},
+  {t:'title', text:'The Ideal Low-Pass Transform Pair'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$X(j\\omega)=1$ for $|\\omega|<W$ and $0$ otherwise. This is the <b>ideal low-pass band</b>, and {{sym:Wband|$W$}} is its band edge in rad/s.'],
@@ -623,7 +623,7 @@ const SC = [
   objective:'State the inverse relation as a scaling statement, with the bandwidth measure named.',
   keywords:'inverse relationship duration bandwidth product scaling family first null measure', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Reading the result', src:'p. 48'},
-  {t:'title', text:'One quantity goes up when the other goes down'},
+  {t:'title', text:'Time–Frequency Width Relation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The rectangular pulse of half-width $T_1$ has its first zero at $\\omega=\\pi/T_1$. Halve $T_1$ and that zero doubles. The relation is exact, and it comes from the scaling property proved later in this module: replacing $t$ by $at$ divides the duration by $|a|$ and multiplies every frequency by $|a|$.'},
     {t:'reveal', at:1, items:[
@@ -657,7 +657,7 @@ const SC = [
   objective:'Separate the true statement about finite duration from the false converse.',
   keywords:'band limited finite duration implication counterexample contrapositive false converse', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · A statement to get right', src:'p. 48'},
-  {t:'title', text:'A short signal is never band-limited'},
+  {t:'title', text:'Time Limitation and Band Limitation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Band-limited', html:'A signal is <b>band-limited</b> when $X(j\\omega)=0$ for every $|\\omega|>W$, for some finite $W$. The spectrum is not merely small out there; it is exactly zero.'},
     {t:'eq', key:true, tex:'\\text{finite duration}\\;\\Longrightarrow\\;\\text{not band-limited}',
@@ -687,11 +687,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-periodic', module:'M5', nav:'A periodic signal', title:'The transform of a periodic signal', src:'p. 49',
+{ id:'m5-periodic', module:'M5', nav:'Transform of a periodic signal', title:'Fourier transform of a periodic signal', src:'p. 49',
   objective:'Derive the impulse train in frequency from the Fourier series.',
   keywords:'periodic signal transform impulse train 2 pi a_k harmonics series as transform', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Bridging the two modules', src:'p. 49'},
-  {t:'title', text:'Every harmonic becomes one impulse'},
+  {t:'title', text:'Fourier Transform of a Periodic Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A periodic signal has a Fourier series. Take the transform of that series term by term, using linearity and the pair $e^{j\\omega_0t}\\leftrightarrow2\\pi\\delta(\\omega-\\omega_0)$ from earlier in this module.'},
     {t:'eq', size:'sm', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}\\;\\longrightarrow\\;X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}a_k\\cdot2\\pi\\delta(\\omega-k\\omega_0)'},
@@ -727,7 +727,7 @@ const SC = [
   objective:'Compute the impulse weights for three periods and read the spacing correctly.',
   keywords:'worked example periodic square wave impulse weights spacing three periods envelope', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 49'},
-  {t:'title', text:'Three periods, three spacings, one envelope'},
+  {t:'title', text:'Line Spectrum of a Square Wave'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','The rectangular wave of Module 4: $1$ on $|t|<T_1$ inside each period, with $T_1=1$ and period $T$.'],
@@ -778,7 +778,7 @@ const SC = [
   objective:'Transform a cosine and a sine and keep both halves of each pair.',
   keywords:'worked example cosine sine impulses negative frequency pair euler real signal', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
-  {t:'title', text:'The negative half of a real spectrum'},
+  {t:'title', text:'Line Spectra of Cosine and Sine'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Expand the sinusoid with Euler’s relations and transform each exponential separately. Every term produces its own impulse, and there are always two.'},
     {t:'eq', size:'sm', tex:'4\\cos(3\\pi t)=2e^{j3\\pi t}+2e^{-j3\\pi t}\\;\\longrightarrow\\;2\\cdot2\\pi\\delta(\\omega-3\\pi)+2\\cdot2\\pi\\delta(\\omega+3\\pi)'},
@@ -818,7 +818,7 @@ const SC = [
   objective:'Assemble one spectrum from three terms and show it as magnitude and phase.',
   keywords:'worked example three components constant cosine sine magnitude phase complex spectrum', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
-  {t:'title', text:'Five impulses, and how to draw a complex one'},
+  {t:'title', text:'Line Spectrum of a Mixed Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$.'],
@@ -870,7 +870,7 @@ const SC = [
   objective:'Transform the periodic impulse train and state the reciprocal spacing rule.',
   keywords:'impulse train transform 2 pi over T spacing weight reciprocal sampling preview', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
-  {t:'title', text:'Dense in time, sparse in frequency'},
+  {t:'title', text:'Fourier Transform of an Impulse Train'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\displaystyle\\sum_{k=-\\infty}^{\\infty}\\delta(t-kT)$, one unit impulse every $T$ seconds.'],
@@ -916,7 +916,7 @@ const SC = [
   objective:'State and prove the two properties that need no new machinery.',
   keywords:'properties linearity time shift linear phase proof magnitude unchanged', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 51'},
-  {t:'title', text:'Derive linearity and time shift from the integral'},
+  {t:'title', text:'Linearity and Time Shift'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longleftrightarrow\\;a\\,X_1(j\\omega)+b\\,X_2(j\\omega)',
       label:'Linearity',
@@ -954,7 +954,7 @@ const SC = [
   objective:'Apply linearity and the shift together and check the value at the origin.',
   keywords:'worked example shifted pulses sum linearity X(j0) area check staircase', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 51'},
-  {t:'title', text:'Two rules, one signal'},
+  {t:'title', text:'Time-Shift and Linearity Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x_1(t)=1$ on $|t|<2$, and $x_2(t)=1$ on $|t|<1$. Both are zero elsewhere.'],
@@ -1001,7 +1001,7 @@ const SC = [
   objective:'Prove the frequency-shift property from the expression the property states.',
   keywords:'frequency shift modulation e^{jw0t} band moves proof operand kernel', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 52'},
-  {t:'title', text:'Multiply in time, move in frequency'},
+  {t:'title', text:'Frequency Shift'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The property to prove is this one. Note what is being multiplied: the operand is $e^{+j\\omega_0t}$, a complex exponential in <b>time</b>, with the frequency $\\omega_0$ fixed.'},
     {t:'eq', key:true, size:'lg', tex:'e^{j\\omega_0t}\\,x(t)\\;\\longleftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)',
@@ -1046,7 +1046,7 @@ const SC = [
   objective:'Derive the conjugate symmetry of a real signal and its even and odd consequences.',
   keywords:'conjugation conjugate symmetry real signal even odd hermitian magnitude phase', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'pp. 52–53'},
-  {t:'title', text:'One half of a real signal spectrum determines the other'},
+  {t:'title', text:'Conjugation and Spectral Symmetry'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'x^{*}(t)\\;\\longleftrightarrow\\;X^{*}(-j\\omega)',
       label:'Conjugation',
@@ -1092,7 +1092,7 @@ const SC = [
   objective:'State the symmetry of the transform for real and even and for real and odd signals, and the even-odd decomposition.',
   keywords:'symmetry real even transform real odd purely imaginary even odd decomposition Ev Od real part imaginary part differentiation in frequency', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Where the real part of a spectrum comes from'},
+  {t:'title', text:'Even and Odd Signal Components'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$, proved with conjugation. Add a symmetry in time and the statement sharpens.'},
     {t:'wex', rows:[
@@ -1137,7 +1137,7 @@ const SC = [
   objective:'Prove the differentiation property correctly and expose the step students reproduce.',
   keywords:'differentiation property jw X integration variable false step under the integral', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Differentiate the synthesis equation, not the signal'},
+  {t:'title', text:'Time-Differentiation Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Start from the synthesis equation and differentiate both sides with respect to $t$. On the right the only factor depending on $t$ is $e^{j\\omega t}$, and $\\omega$ is the variable of integration, so it is held fixed:'},
     {t:'eq', size:'sm', tex:'\\frac{\\d}{\\d t}x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,\\frac{\\partial}{\\partial t}e^{j\\omega t}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\bigl[j\\omega X(j\\omega)\\bigr]e^{j\\omega t}\\,\\d\\omega'},
@@ -1181,7 +1181,7 @@ const SC = [
   objective:'State the integration property with its impulse term and show where the term comes from.',
   keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Dividing by $j\\omega$ is only half the answer'},
+  {t:'title', text:'Time-Integration Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{j\\omega}X(j\\omega)+\\pi X(0)\\,\\delta(\\omega)',
       label:'Integration',
@@ -1223,7 +1223,7 @@ const SC = [
   objective:'Prove the scaling property for both signs of a without double-counting the reversal.',
   keywords:'time scaling 1/|a| reversal limits substitution sign bookkeeping proof', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'One substitution, and one careful look at the limits'},
+  {t:'title', text:'Time-Scaling Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg', tex:'x(at)\\;\\longleftrightarrow\\;\\frac{1}{|a|}X\\!\\left(j\\frac{\\omega}{a}\\right),\\qquad a\\neq0',
       label:'Time scaling',
@@ -1263,7 +1263,7 @@ const SC = [
   objective:'Apply the scaling property in both directions and check heights and widths.',
   keywords:'worked example scaling band height width area invariant 2 and 0.5', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 53'},
-  {t:'title', text:'Three spectra of the same signal'},
+  {t:'title', text:'Time-Scaling Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','A signal $x(t)$ whose transform is $X(j\\omega)=1$ on $|\\omega|<2\\pi$ and $0$ elsewhere.'],
@@ -1306,7 +1306,7 @@ const SC = [
   objective:'State and prove duality with the correct argument on the right-hand side.',
   keywords:'duality X(t) 2 pi x(-w) proof renaming variables symmetry of the pair', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 54'},
-  {t:'title', text:'Duality produces a second transform pair'},
+  {t:'title', text:'Duality Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The two equations of the pair differ only by a sign and a factor. That near-symmetry means any transform pair can be read a second time with the roles of the domains exchanged.'},
     {t:'eq', key:true, size:'lg', tex:'\\text{if}\\quad x(t)\\;\\longleftrightarrow\\;X(j\\omega)\\qquad\\text{then}\\qquad X(t)\\;\\longleftrightarrow\\;2\\pi\\,x(-\\omega)',
@@ -1346,7 +1346,7 @@ const SC = [
   objective:'Use duality on the rectangular pulse and confirm the result independently.',
   keywords:'worked example duality rectangle sinc both ways 2 pi band check', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 54–55'},
-  {t:'title', text:'Duality first, then the integral as a check'},
+  {t:'title', text:'Duality Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x_1(t)=1$ on $|t|<W$, so that $X_1(j\\omega)=\\dfrac{2\\sin(W\\omega)}{\\omega}$.'],
@@ -1393,7 +1393,7 @@ const SC = [
   objective:'Prove Parseval and fix the normalisation the energy is measured under.',
   keywords:'parseval energy spectral density R = 1 ohm normalised proof exchange of integrals', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 55'},
-  {t:'title', text:'The same energy, added up two ways'},
+  {t:'title', text:'Parseval’s Relation for the CTFT'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'The normalisation, stated once', html:'Energy and power in this course are <b>normalised</b>: every signal is treated as a voltage across a $1\\,\\Omega$ resistor, so the instantaneous power is $|x(t)|^{2}$ and the energy is its integral. Every number below is in joules under that convention.'},
     {t:'eq', key:true, size:'lg', tex:'E_{\\infty}=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\,\\d\\omega',
@@ -1431,7 +1431,7 @@ const SC = [
   objective:'Compute an energy in the frequency domain and confirm it in the time domain.',
   keywords:'worked example parseval two bands energy 10 joules both routes peak 6', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 55'},
-  {t:'title', text:'When the frequency domain is the easy one'},
+  {t:'title', text:'Parseval’s Relation Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$X_3(j\\omega)=2$ for $|\\omega|<2\\pi$, $1$ for $2\\pi<|\\omega|<4\\pi$, and $0$ beyond $4\\pi$.'],
@@ -1481,7 +1481,7 @@ const SC = [
   objective:'State and prove the convolution property with one consistent set of symbols.',
   keywords:'convolution property multiplication frequency response LTI proof premise symbols', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 56'},
-  {t:'title', text:'The property the whole course was heading for'},
+  {t:'title', text:'Convolution Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'The premise, written out', html:'Let $x(t)\\leftrightarrow X(j\\omega)$ be the input and $h(t)\\leftrightarrow H(j\\omega)$ the impulse response of an LTI system. Both pairs are declared before the property is stated, and the output is given its own letter.'},
     {t:'eq', key:true, size:'lg', tex:'y(t)=x(t)*h(t)\\;\\longleftrightarrow\\;Y(j\\omega)=X(j\\omega)\\,H(j\\omega)',
@@ -1522,7 +1522,7 @@ const SC = [
   objective:'Solve an LTI problem by transform and partial fractions, and check the peak.',
   keywords:'worked example LTI two exponentials partial fractions cover-up peak log 2 quarter', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 57'},
-  {t:'title', text:'Multiply, split, and read the answer off a table'},
+  {t:'title', text:'Convolution of Two Exponentials'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=e^{-at}u(t)$ and $h(t)=e^{-bt}u(t)$, with $a>0$, $b>0$ and $a\\neq b$.'],
@@ -1574,7 +1574,7 @@ const SC = [
   objective:'Multiply two ideal bands and read the three time-domain peaks.',
   keywords:'worked example ideal low pass cascade narrower band wins peaks 8 6 12', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 58'},
-  {t:'title', text:'The narrower band decides the output'},
+  {t:'title', text:'Cascade of Ideal Low-Pass Filters'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','An input with $X(j\\omega)=2$ on $|\\omega|\\le4\\pi$ and zero beyond, into an ideal low-pass system with $H(j\\omega)=3$ on $|\\omega|\\le2\\pi$ and zero beyond.'],
@@ -1620,7 +1620,7 @@ const SC = [
   objective:'State the dual of the convolution property and place its 1/2π.',
   keywords:'multiplication property convolution in frequency 1/2 pi duality windowing', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 58'},
-  {t:'title', text:'The same statement, read through duality'},
+  {t:'title', text:'Multiplication Property'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Convolution in one domain is multiplication in the other. Duality says the reverse must also hold, and it fixes the factor that comes with it.'},
     {t:'eq', key:true, size:'lg', tex:'z(t)=x(t)\\,y(t)\\;\\longleftrightarrow\\;Z(j\\omega)=\\frac{1}{2\\pi}\\,X(j\\omega)*Y(j\\omega)',
@@ -1660,7 +1660,7 @@ const SC = [
   objective:'Derive the DSB-SC spectrum and name the two copies.',
   keywords:'amplitude modulation DSB-SC carrier sidebands two copies half height cosine', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Application', src:'p. 59'},
-  {t:'title', text:'Multiplying by a carrier makes a copy on each side'},
+  {t:'title', text:'Amplitude Modulation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Multiply a signal by a cosine of frequency {{sym:wc|$\\omega_c$}}, the <b>carrier</b>. The cosine has two impulses, so the multiplication property convolves the signal spectrum with two impulses at once.'},
     {t:'eq', size:'sm', tex:'\\cos(\\omega_ct)\\;\\longleftrightarrow\\;\\pi\\delta(\\omega-\\omega_c)+\\pi\\delta(\\omega+\\omega_c)'},
@@ -1704,7 +1704,7 @@ const SC = [
   objective:'Move a sinc-shaped band to a carrier and read the band edges.',
   keywords:'modulation band limited sinc copies band edges 2 pi 6 pi half height', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Application', src:'p. 60'},
-  {t:'title', text:'Modulation shifts two scaled copies of the spectrum'},
+  {t:'title', text:'Modulation of a Band-Limited Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, whose transform is $X(j\\omega)=1$ on $|\\omega|<2\\pi$ and zero beyond. The carrier is $\\cos(4\\pi t)$.'],
@@ -1748,11 +1748,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-am-overlap', module:'M5', nav:'When the copies overlap', title:'Copies always appear; overlap is a separate event', src:'p. 60',
+{ id:'m5-am-overlap', module:'M5', nav:'Spectral overlap in modulation', title:'Spectral overlap in modulation', src:'p. 60',
   objective:'Work the case where the two copies meet, and separate replication from overlap.',
   keywords:'overlap copies collide carrier too low baseband adds 0.5 plus 0.5 sampling preview', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Application', src:'p. 60'},
-  {t:'title', text:'Bring the carrier down and the copies meet'},
+  {t:'title', text:'Spectral Overlap in Modulation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','A signal whose transform is $X_1(j\\omega)=1$ on $|\\omega|\\le\\pi$, already modulated once so that $X(j\\omega)=1$ on $\\pi\\le|\\omega|\\le3\\pi$. The carrier now is $\\cos(2\\pi t)$.'],
@@ -1802,7 +1802,7 @@ const SC = [
   objective:'Convolve two rectangular bands and read the triangle and the trapezoid.',
   keywords:'sinc squared triangle trapezoid convolution of rectangles apex 2 plateau bandwidths', steps:4, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 61'},
-  {t:'title', text:'Two rectangles convolve into a triangle'},
+  {t:'title', text:'Products of Sinc Functions'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'The shape rule', html:'Convolving two rectangles of height $A$ and half-width $\\omega_0$ gives a <b>triangle</b> of apex $2A^{2}\\omega_0$ on $|\\omega|\\le2\\omega_0$. If the half-widths differ, the result is a <b>trapezoid</b>: flat over $|\\omega|\\le|\\omega_1-\\omega_2|$ and zero beyond $\\omega_1+\\omega_2$.'},
     {t:'reveal', at:1, items:[
@@ -1859,7 +1859,7 @@ const SC = [
   objective:'Collect every property of the continuous-time Fourier transform for reference.',
   keywords:'summary table properties reference list linearity shift scaling convolution integration symmetry parseval duality', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
-  {t:'title', text:'Everything the transform obeys, on one page'},
+  {t:'title', text:'CTFT Property Summary'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Operations on the signal'},
     {t:'wex', rows:[
@@ -1896,7 +1896,7 @@ const SC = [
   objective:'Collect every standard continuous-time transform pair the course uses.',
   keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
-  {t:'title', text:'Transform pairs used in this module'},
+  {t:'title', text:'CTFT Pairs'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'sub', text:'Aperiodic signals'},
     {t:'wex', rows:[
@@ -1932,7 +1932,7 @@ const SC = [
   objective:'Turn an LCCDE into H(jω) and state when H exists.',
   keywords:'differential equation LCCDE frequency response H(jw) rational stability absolutely integrable', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Systems', src:'p. 62'},
-  {t:'title', text:'Differentiation becomes multiplication, so the equation becomes algebra'},
+  {t:'title', text:'Frequency Response from a Differential Equation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Many continuous-time systems are described by a linear differential equation with constant coefficients, relating the output to the input:'},
     {t:'eq', size:'sm', tex:'\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y(t)}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x(t)}{\\d t^{k}}'},
@@ -1972,7 +1972,7 @@ const SC = [
   objective:'Invert a rational H with distinct poles and check the result.',
   keywords:'worked example partial fractions simple poles cover-up impulse response half half', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'Two distinct poles, two exponentials'},
+  {t:'title', text:'Partial Fractions with Distinct Poles'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$\\dfrac{\\d^{2}y}{\\d t^{2}}+4\\dfrac{\\d y}{\\d t}+3y=\\dfrac{\\d x}{\\d t}+2x$, with the system initially at rest.'],
@@ -2021,7 +2021,7 @@ const SC = [
   objective:'State the repeated-pole partial-fraction rule and show why the cover-up rule fails there.',
   keywords:'repeated pole multiplicity derivative partial fractions cover-up rule fails formula', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Technique', src:'p. 63'},
-  {t:'title', text:'The cover-up rule stops at a double pole'},
+  {t:'title', text:'Partial Fractions with Repeated Poles'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The cover-up rule of the previous scene assumed every factor of the denominator appeared once. When a factor is repeated, the expansion needs one term per power, and only the highest of them can be found by covering up.'},
     {t:'eq', size:'sm', tex:'F(s)=\\frac{N(s)}{(s-\\lambda)^{m}\\,Q(s)}=\\frac{c_{m}}{(s-\\lambda)^{m}}+\\frac{c_{m-1}}{(s-\\lambda)^{m-1}}+\\dots+\\frac{c_{1}}{s-\\lambda}+\\ (\\text{terms from }Q)'},
@@ -2056,7 +2056,7 @@ const SC = [
   objective:'Solve a full LTI problem with a double pole and use y(0)=0 as the check.',
   keywords:'worked example repeated pole double pole coefficients quarter half minus quarter derivative rule', steps:2, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'Three coefficients, one of them negative'},
+  {t:'title', text:'Repeated-Pole Example'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','The system of the previous example, $H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$, with input $x(t)=e^{-t}u(t)$.'],
@@ -2091,7 +2091,7 @@ const SC = [
   objective:'Assemble the output and use y(0)=0 to catch a lost sign.',
   keywords:'worked example causal convolution starts at zero check sign lost candidates compare', steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'A causal convolution starts at zero'},
+  {t:'title', text:'Verification by Initial Value'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', size:'sm', tex:'Y(s)=\\frac{1/4}{s+1}+\\frac{1/2}{(s+1)^{2}}-\\frac{1/4}{s+3}',
       note:'The three coefficients of the previous scene, written out together. This is the line where a sign is lost.'},
@@ -2130,7 +2130,7 @@ const SC = [
   objective:'Change a signal in time and observe the corresponding transform, with and without a carrier.',
   keywords:'laboratory H CTFT explorer time frequency width bandwidth modulation carrier sidebands overlap', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory H', src:'pp. 45–61'},
-  {t:'title', text:'One control in time, two panels in frequency'},
+  {t:'title', text:'Laboratory H · Time and Frequency'},
   {t:'small', html:'Change the signal width or decay rate and compare the resulting transform. Then enable the carrier. Modulation creates two half-height spectral copies, and decreasing the carrier frequency moves them toward overlap.'},
   {t:'lab', id:'H'}
 ]}

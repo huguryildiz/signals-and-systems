@@ -80,7 +80,7 @@ const SC = [
 { id:'m7-open', module:'M7', nav:'Module 7 opening', title:'Sampling and Aliasing', src:'pp. 80–88',
   dark:true, keywords:'module 7 sampling aliasing nyquist replication reconstruction overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 7 · Sampling and Aliasing', src:'pp. 80–88'},
-  {t:'title', level:1, text:'Sampling a continuous-time signal'},
+  {t:'title', level:1, text:'Sampling and Aliasing'},
   {t:'lede', text:'Sampling keeps the value of a signal every $T$ seconds and discards the values between those instants. This module gives the condition for exact recovery and shows how a signal changes when that condition fails.'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'raw', html:`<div style="margin-top:16px">
@@ -109,7 +109,7 @@ const SC = [
   objective:'Define impulse-train sampling and read the weight of each impulse off the sifting property.',
   keywords:'impulse train sampling p(t) x_p(t) sifting sample weight nT sequence', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · The operation', src:'p. 80'},
-  {t:'title', text:'Multiply by a train of impulses'},
+  {t:'title', text:'Ideal Impulse-Train Sampling'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Sampling is modelled as a multiplication. The sampling function is the <b>{{sym:pt|impulse train}}</b> of period $T$, and the sampled signal is the product:'},
     {t:'eq', key:true, tex:'p(t)=\\sum_{n=-\\infty}^{\\infty}\\delta(t-nT),\\qquad x_p(t)=x(t)\\,p(t)', label:'Impulse-train sampling'},
@@ -146,7 +146,7 @@ const SC = [
   objective:'Separate the sampling angular frequency in rad/s from the sampling frequency in hertz.',
   keywords:'sampling frequency angular rad/s hertz omega_s f_s 2 pi conversion units', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Notation', src:'p. 81'},
-  {t:'title', text:'Radians per second is not hertz'},
+  {t:'title', text:'Sampling Rate in Radians and Hertz'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'One sampler, one period $T$, and two ways of naming how fast it runs. Both are used in this module, so both are defined here and kept apart afterwards.'},
     {t:'eq', key:true, tex:'\\omega_s=\\frac{2\\pi}{T}\\ \\left[\\frac{\\text{rad}}{\\text{s}}\\right],\\qquad f_s=\\frac{1}{T}\\ [\\text{Hz}],\\qquad \\omega_s=2\\pi f_s',
@@ -193,7 +193,7 @@ const SC = [
   objective:'Derive the sampled spectrum and account for the factor 1/T.',
   keywords:'multiplication property convolution impulse train transform 1/T derivation X_p sifting', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Derivation', src:'pp. 80–81'},
-  {t:'title', text:'Three steps to the sampled spectrum'},
+  {t:'title', text:'Spectrum of a Sampled Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Step 1','Multiplication in time is convolution in frequency, with the factor $1/2\\pi$ the transform pair carries: $X_p(j\\omega)=\\tfrac{1}{2\\pi}\\bigl[X(j\\omega)*P(j\\omega)\\bigr]$.']
@@ -244,7 +244,7 @@ const SC = [
   objective:'Establish that replication is unconditional and name the baseband apart from the copies.',
   keywords:'replication replicas copies baseband k index unconditional every rate spectrum', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · The first of two ideas', src:'p. 81'},
-  {t:'title', text:'Replication is unconditional'},
+  {t:'title', text:'Spectral Replication'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The sum $X_p(j\\omega)=\\frac{1}{T}\\sum_kX(j(\\omega-k\\omega_s))$ runs over every integer $k$, for <b>every</b> value of $T$. There is no rate at which the copies fail to appear and no rate at which they disappear.'},
     {t:'note', kind:'def', head:'Naming the pieces', html:'The term $k=0$ is $X(j\\omega)/T$: the spectrum of the signal itself, sitting where it always sat. Call it the <b>baseband</b>. The terms $k=\\pm1,\\pm2,\\dots$ are the <b>{{sym:replica|copies}}</b>, centred at $\\pm\\omega_s,\\pm2\\omega_s,\\dots$'},
@@ -290,11 +290,11 @@ const SC = [
 ]},
 
 /* ----------------------------------------------------------- the three cases */
-{ id:'m7-three', module:'M7', nav:'Three sampling rates', title:'The guard band, and what closes it', src:'p. 81',
+{ id:'m7-three', module:'M7', nav:'Sampling rate and guard band', title:'Sampling rate and guard band', src:'p. 81',
   objective:'Compare the three rates by the width of the gap between neighbouring copies.',
   keywords:'oversampling critical nyquist undersampling guard band gap omega_s 2 omega_M three cases', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Three rates', src:'p. 81'},
-  {t:'title', text:'One number decides everything'},
+  {t:'title', text:'Sampling Rate and Guard Band'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The baseband occupies $|\\omega|\\le\\omega_M$. The copy at $k=1$ occupies $|\\omega-\\omega_s|\\le\\omega_M$, so its lowest point is $\\omega_s-\\omega_M$. The gap between them is'},
     {t:'eq', key:true, tex:'(\\omega_s-\\omega_M)-\\omega_M=\\omega_s-2\\omega_M',
@@ -344,7 +344,7 @@ const SC = [
   objective:'Define aliasing as the overlap of copies and show why no filter can undo it.',
   keywords:'aliasing overlap sum irreversible filter cannot undo replication distinct definition', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · The second of two ideas', src:'pp. 81, 86'},
-  {t:'title', text:'What a filter can and cannot undo'},
+  {t:'title', text:'Aliasing'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Definition', html:'<b>{{sym:alias|Aliasing}}</b> is the overlap of neighbouring copies in $X_p(j\\omega)$. It occurs exactly when $\\omega_s<2\\omega_M$, and at no other time.'},
     {t:'reveal', at:1, items:[
@@ -386,7 +386,7 @@ const SC = [
   objective:'State the theorem with the strict inequality and show that equality empties the cutoff interval.',
   keywords:'sampling theorem nyquist band limited strict inequality cutoff interval gain T recoverable', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · The theorem', src:'p. 82'},
-  {t:'title', text:'Strictly above twice the highest frequency'},
+  {t:'title', text:'The Sampling Theorem'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Sampling theorem', html:'Let $x(t)$ be <b>band-limited</b>: $X(j\\omega)=0$ for $|\\omega|>\\omega_M$. If $\\omega_s>2\\omega_M$, then $x(t)$ is determined uniquely by its samples $x(nT)$, $n=0,\\pm1,\\pm2,\\dots$, and is recovered by passing $x_p(t)$ through an ideal lowpass filter of gain $T$ and cutoff $\\omega_c$ with $\\omega_M<\\omega_c<\\omega_s-\\omega_M$.'},
     {t:'reveal', at:1, items:[
@@ -428,7 +428,7 @@ const SC = [
   objective:'Show quantitatively that a sine at the band edge is annihilated by sampling at exactly the Nyquist rate.',
   keywords:'nyquist boundary counterexample sine cancellation zero samples guard band critical rate', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Counter-example', src:'p. 82'},
-  {t:'title', text:'Two arrows that cancel exactly'},
+  {t:'title', text:'The Nyquist-Rate Boundary'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1+\\cos(2000\\pi t)+\\sin(4000\\pi t)$, so $\\omega_M=4000\\pi$ rad/s.'],
@@ -478,7 +478,7 @@ const SC = [
   objective:'Compute the rate, the guard band and the copy height for three sampling periods of the same signal.',
   keywords:'worked example T1 T2 T3 guard band replica height oversampling undersampling boundary', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 82'},
-  {t:'title', text:'Three periods, three verdicts'},
+  {t:'title', text:'Sampling at Three Rates'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\left(\\dfrac{\\sin\\pi t}{\\pi t}\\right)^{2}$, whose transform is a triangle of peak 1 reaching zero at $\\pm2\\pi$. So $\\omega_M=2\\pi$ rad/s and the Nyquist rate is $4\\pi$ rad/s.'],
@@ -518,7 +518,7 @@ const SC = [
   objective:'Draw the spectrum of a constant plus a cosine plus a sine, with exact impulse locations and weights.',
   keywords:'worked example line spectrum impulse weights cosine sine bandwidth nyquist rate hertz', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 82'},
-  {t:'title', text:'Every impulse, located and weighed'},
+  {t:'title', text:'Sampling of a Line Spectrum'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=1+\\cos(2000\\pi t)+\\sin(4000\\pi t)$.'],
@@ -565,7 +565,7 @@ const SC = [
   objective:'Compute the sampling period from the rate and defend it with three independent checks.',
   keywords:'sampling period milliseconds factor thousand check omega_s T = 2 pi replica height ratio', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 83'},
-  {t:'title', text:'A period is a small number'},
+  {t:'title', text:'Sampling Period Calculations'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','The signal of the previous scene, with $\\omega_M=4000\\pi$ rad/s, sampled at its Nyquist rate $\\omega_s=8000\\pi$ rad/s.'],
@@ -611,7 +611,7 @@ const SC = [
   objective:'Separate the area of a convolution from the peak of the spectrum it produces.',
   keywords:'triangular spectrum convolution rectangles area peak replica height microseconds squaring', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 83'},
-  {t:'title', text:'Two different numbers, both called the size'},
+  {t:'title', text:'Area and Peak of a Spectral Replica'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\left(\\dfrac{\\sin(4000\\pi t)}{\\pi t}\\right)^{2}$, the square of a signal whose transform is a rectangle of height 1 on $|\\omega|\\le4000\\pi$.'],
@@ -660,7 +660,7 @@ const SC = [
   objective:'Specify the reconstruction filter and justify its gain and its cutoff.',
   keywords:'reconstruction ideal lowpass filter gain T cutoff omega_c baseband selection chain', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Reconstruction', src:'p. 83'},
-  {t:'title', text:'One filter, two numbers to choose'},
+  {t:'title', text:'Ideal Reconstruction Filter'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Sampling put a copy of $X(j\\omega)$ at every multiple of $\\omega_s$ and scaled all of them by $1/T$. If the copies are separated, recovering $x(t)$ means keeping the one at the origin and discarding the rest.'},
     {t:'eq', key:true, tex:'H_r(j\\omega)=\\begin{cases}T,&|\\omega|<\\omega_c\\\\[2pt]0,&|\\omega|>\\omega_c\\end{cases}\\qquad \\omega_M<\\omega_c<\\omega_s-\\omega_M',
@@ -713,7 +713,7 @@ const SC = [
   objective:'Derive the interpolation kernel, state the sinc convention, and make the cutoff choice explicit.',
   keywords:'band limited interpolation kernel sinc unnormalised omega_c pi over T sample instants zero', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Interpolation', src:'pp. 85–86'},
-  {t:'title', text:'Every sample carries a curve'},
+  {t:'title', text:'Band-Limited Interpolation'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Filtering is convolution, and $x_p$ is a train of impulses, so the output is a sum of shifted copies of the filter\u2019s impulse response:'},
     {t:'eq', key:true, tex:'x_r(t)=\\sum_{n=-\\infty}^{\\infty}x(nT)\\,h_{LP}(t-nT)',
@@ -766,7 +766,7 @@ const SC = [
   objective:'Derive the zero-order-hold response and show why it is not ideal reconstruction.',
   keywords:'zero order hold staircase H_0 transfer function compensator approximation practical', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Practical reconstruction', src:'pp. 83–84'},
-  {t:'title', text:'Hold each sample until the next one'},
+  {t:'title', text:'Zero-Order Hold'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The ideal filter is not buildable: its impulse response starts before $t=0$ and never ends. What hardware does instead is hold: the output keeps the value $x(nT)$ for the whole interval until the next sample arrives.'},
     {t:'eq', key:true, tex:'h_0(t)=\\begin{cases}1,&0\\le t<T\\\\[2pt]0,&\\text{otherwise}\\end{cases}',
@@ -815,7 +815,7 @@ const SC = [
   objective:'Build the first-order-hold response as a convolution of two rectangles and read its transform.',
   keywords:'first order hold triangle linear interpolation convolution rectangles H_1 squared response', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Practical reconstruction', src:'p. 84'},
-  {t:'title', text:'Join consecutive samples with straight lines'},
+  {t:'title', text:'First-Order Hold'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'The first-order hold joins consecutive samples by a straight line. Its impulse response is a triangle, and the triangle is built from the rectangle of the zero-order hold:'},
     {t:'eq', key:true, tex:'h_1(t)=\\frac{1}{T}\\bigl[g*g\\bigr](t),\\qquad g(t)=\\begin{cases}1,&|t|\\le T/2\\\\[2pt]0,&\\text{otherwise}\\end{cases}',
@@ -865,11 +865,11 @@ const SC = [
 ]},
 
 /* ------------------------------------------------------ perfect reconstruction */
-{ id:'m7-perfect', module:'M7', nav:'When recovery is exact', title:'The hypothesis that carries the whole theorem', src:'p. 85',
+{ id:'m7-perfect', module:'M7', nav:'Conditions for exact reconstruction', title:'Conditions for exact reconstruction', src:'p. 85',
   objective:'Restate the band-limited hypothesis and show what happens when it fails.',
   keywords:'band limited hypothesis perfect reconstruction rectangular pulse not band limited practice', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · The hypothesis', src:'p. 85'},
-  {t:'title', text:'No band limit, no theorem'},
+  {t:'title', text:'Conditions for Exact Reconstruction'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Recovery is exact when three things hold together, and it is the first of them that is usually assumed without being checked.'},
     {t:'wex', rows:[
@@ -909,11 +909,11 @@ const SC = [
 ]},
 
 /* --------------------------------------------------------- aliasing of a cosine */
-{ id:'m7-alias-cos', module:'M7', nav:'A cosine below the rate', title:'A cosine returns as a lower frequency', src:'p. 86',
+{ id:'m7-alias-cos', module:'M7', nav:'Aliasing of a sampled cosine', title:'Aliasing of a sampled cosine', src:'p. 86',
   objective:'Track a single cosine through three rates and identify the surviving line.',
   keywords:'cosine three rates surviving line omega_s minus omega_0 identity lower frequency cutoff assumption', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · The alias frequency', src:'p. 86'},
-  {t:'title', text:'Which line comes out of the filter'},
+  {t:'title', text:'Aliasing of a Sampled Cosine'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\cos(\\omega_0t)$, so $X(j\\omega)=\\pi\\delta(\\omega-\\omega_0)+\\pi\\delta(\\omega+\\omega_0)$ and $\\omega_M=\\omega_0$.'],
@@ -957,7 +957,7 @@ const SC = [
   objective:'Test three sampling periods against the Nyquist rate of the signal actually being sampled.',
   keywords:'worked example cos(2 pi t) three periods verdict comparison bandwidth alias cos(pi t)', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 87'},
-  {t:'title', text:'Three periods, one signal, one bandwidth'},
+  {t:'title', text:'Aliasing at Three Sampling Periods'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\cos(2\\pi t)$. Its only frequency is $2\\pi$ rad/s, so $\\omega_M=2\\pi$ and the Nyquist rate is $2\\omega_M=4\\pi$ rad/s.'],
@@ -1003,11 +1003,11 @@ const SC = [
 ]},
 
 /* ------------------------------------------------------------ two components */
-{ id:'m7-hw-alias', module:'M7', nav:'Two components, one rate', title:'When only part of a signal aliases', src:'p. 87',
+{ id:'m7-hw-alias', module:'M7', nav:'Partial aliasing of a multitone signal', title:'Partial aliasing of a multitone signal', src:'p. 87',
   objective:'Sample a two-component signal below its Nyquist rate and identify both surviving lines.',
   keywords:'two components cos(pi t) cos(3 pi t) alias 2 pi inverse transform separate bandwidths', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Worked example', src:'p. 87'},
-  {t:'title', text:'One component survives, the other changes identity'},
+  {t:'title', text:'Partial Aliasing of a Multitone Signal'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','$x(t)=\\cos(\\pi t)+\\cos(3\\pi t)$. The two component frequencies are $\\pi$ and $3\\pi$ rad/s, so $\\omega_M=3\\pi$ and the Nyquist rate is $6\\pi$ rad/s.'],
@@ -1064,7 +1064,7 @@ const SC = [
   objective:'Place the anti-aliasing filter before the sampler and compare the two error energies.',
   keywords:'anti aliasing filter before sampler order chain error energy comparison guard band design', steps:4, blocks:[
   {t:'eyebrow', text:'Module 7 · Design', src:'p. 88'},
-  {t:'title', text:'Filter high frequencies before sampling'},
+  {t:'title', text:'Anti-Aliasing Filtering'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'A real signal is not band-limited, and a sampler at a fixed rate cannot be helped after the fact. The repair is a lowpass filter placed <b>before</b> the sampler, which removes everything above $\\omega_s/2$ while it can still be removed cleanly.'},
     {t:'reveal', at:1, items:[
@@ -1114,7 +1114,7 @@ const SC = [
   objective:'Apply the alias formula to a rotating object observed frame by frame.',
   keywords:'temporal aliasing stroboscopic wheel frames per second backwards rotation apparent frequency', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Aliasing outside a circuit', src:'p. 88'},
-  {t:'title', text:'The same arithmetic, on a camera'},
+  {t:'title', text:'Temporal Aliasing'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','A marked spoke turns at 9 revolutions per second. A camera records 10 frames per second.'],
@@ -1158,7 +1158,7 @@ const SC = [
   objective:'Apply the alias formula to a spatial pattern sampled on a regular grid.',
   keywords:'spatial aliasing moire grating pixels cycles per millimetre beat pattern sampling grid', steps:3, blocks:[
   {t:'eyebrow', text:'Module 7 · Aliasing outside a circuit', src:'p. 88'},
-  {t:'title', text:'A pattern the grid cannot hold'},
+  {t:'title', text:'Spatial Aliasing'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given','A striped pattern of 9 cycles per millimetre, recorded on a grid of 10 sample points per millimetre.'],
@@ -1198,7 +1198,7 @@ const SC = [
   objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
   keywords:'laboratory J sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory J', src:'pp. 80–88'},
-  {t:'title', text:'One rate control, four linked pictures'},
+  {t:'title', text:'Laboratory J · Sampling and Aliasing'},
   {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
   {t:'lab', id:'J'}
 ]}

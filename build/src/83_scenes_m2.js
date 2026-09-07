@@ -10,7 +10,7 @@ const SC = [
 { id:'m2-open', module:'M2', nav:'Module 2 opening', title:'Systems and Their Properties', src:'pp. 11–14',
   dark:true, keywords:'module 2 systems properties overview', steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Systems and Their Properties', src:'pp. 11–14'},
-  {t:'title', level:1, text:'Six properties<br>of a system'},
+  {t:'title', level:1, text:'Systems and Their Properties'},
   {t:'lede', text:'This module gives tests for memory, invertibility, causality, stability, time invariance and linearity. These tests describe a system by its input and output signals.'},
   {t:'raw', html:`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin:auto 0;max-width:1500px">
     ${['Memoryless','Invertible','Causal','BIBO stable','Time invariant','Linear'].map((n,i)=>
@@ -28,7 +28,7 @@ const SC = [
   objective:'Define a system as a deterministic map between signals.',
   keywords:'system black box deterministic input output CT DT', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
-  {t:'title', text:'A system is a map between signals'},
+  {t:'title', text:'Input–Output Abstraction'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'note', kind:'def', head:'Definition', html:'A system is a rule that turns an input signal into an output signal. The rule is <b>deterministic</b>: the same input always gives the same output.'},
     {t:'reveal', at:1, items:[
@@ -51,7 +51,7 @@ const SC = [
   objective:'Define memorylessness and test it on the definition examples.',
   keywords:'memoryless memory instantaneous resistor capacitor accumulator', steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 1', src:'p. 11'},
-  {t:'title', text:'Memoryless'},
+  {t:'title', text:'Memoryless Systems'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>memoryless</b> if the output at time $t$ (or $n$) depends <b>only</b> on the input at that same time.'},
     {t:'reveal', at:1, items:[
@@ -96,7 +96,7 @@ const SC = [
   objective:'Define invertibility and demonstrate both proof strategies.',
   keywords:'invertible one-to-one inversion formula counterexample distinct inputs', steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
-  {t:'title', text:'Invertible'},
+  {t:'title', text:'Invertibility'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>invertible</b> if distinct input signals produce distinct output signals. This property is also called a <b>one-to-one</b> map.'},
     {t:'note', kind:'warn', head:'Two methods', html:'To prove invertibility, find a formula that recovers every input from its output. To disprove invertibility, find two distinct inputs that give the same output.'},
@@ -140,7 +140,7 @@ const SC = [
   objective:'Define causality and work all five source examples.',
   keywords:'causal non-causal future past present real-time', steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 3', src:'p. 12'},
-  {t:'title', text:'Causal'},
+  {t:'title', text:'Causality'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>causal</b> if the output at time $t$ (or $n$) depends only on inputs at times $\\le t$ — the present and the past.'},
     {t:'reveal', at:1, items:[
@@ -185,7 +185,7 @@ const SC = [
   objective:'Define boundedness and BIBO stability; prove one case, disprove another.',
   keywords:'BIBO bounded input bounded output stability triangle inequality accumulator', steps:4, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 4', src:'pp. 12–13'},
-  {t:'title', text:'BIBO stable'},
+  {t:'title', text:'BIBO Stability'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Bounded signal', html:'$x(t)$ (or $x[n]$) is <b>bounded</b> if there exists a constant $B<\\infty$ with $|x(t)|<B$ for all $t$.'},
     {t:'note', kind:'def', head:'BIBO stability', html:'A system is <b>stable</b> if a bounded input <b>always</b> produces a bounded output: if $|x(t)|<B$ for some $B<\\infty$, then $|y(t)|<\\infty$. <b>B</b>ounded <b>I</b>nput ⇒ <b>B</b>ounded <b>O</b>utput.'},
@@ -227,7 +227,7 @@ const SC = [
   objective:'State the test as a comparison of two computed signals and work both examples.',
   keywords:'time invariance shift test two paths sin worked example', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
-  {t:'title', text:'Time invariant'},
+  {t:'title', text:'Time Invariance'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Criterion', html:'A system is <b>time invariant</b> if a time shift of the input produces the <b>same</b> time shift of the output:<br>if $x(t)\\to y(t)$ then $x(t-t_0)\\to y(t-t_0)$ for every $t_0\\in\\mathbb{R}$.'},
     {t:'note', kind:'warn', head:'Method', html:'Compute two signals.<br><b>Path 1.</b> Shift the input and apply the system: $y_2 = S\\{x(t-t_0)\\}$.<br><b>Path 2.</b> Apply the system and shift its output: $y_1(t-t_0)$.<br>The system is time invariant only if the results agree for every input and every $t_0$.'},
@@ -260,7 +260,7 @@ const SC = [
   objective:'Work the n·x[n] counterexample and name the pattern behind every failure.',
   keywords:'time invariance counterexample n x[n] explicit time variable independent of linearity', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
-  {t:'title', text:'One counterexample is enough'},
+  {t:'title', text:'Counterexamples to Time Invariance'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['(b)','$y[n]=n\\,x[n]$ — <b>not time invariant</b>.'],
@@ -302,7 +302,7 @@ const SC = [
   objective:'State superposition and work both source examples in full.',
   keywords:'linearity superposition additive homogeneous scalable cross term', steps:4, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
-  {t:'title', text:'Linear'},
+  {t:'title', text:'Linearity'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longrightarrow\\;a\\,y_1(t)+b\\,y_2(t),\\qquad a,b\\in\\mathbb{C}',
       label:'Superposition', note:'where $x_1\\to y_1$ and $x_2\\to y_2$. Additivity ($a=b=1$) and homogeneity ($b=0$) in one statement.'},
@@ -345,7 +345,7 @@ const SC = [
   objective:'Give a repeatable order of attack for classifying an unfamiliar system.',
   keywords:'workflow classification order strategy checklist', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Method', src:'pp. 11–14'},
-  {t:'title', text:'A method for classifying a system'},
+  {t:'title', text:'System Classification Workflow'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p><b>Step 1: test time invariance.</b> Apply the two-path test when the rule contains an explicit $t$ or $n$, a time-dependent gain, or a scaled argument.</p>
       <p><b>Step 2: test linearity.</b> Look for squares, products, $\\sin(x)$, absolute values or saturation. Test homogeneity with one scalar first.</p>
@@ -385,7 +385,7 @@ const SC = [
   objective:'Apply the six formal tests to thirteen source systems.',
   keywords:'laboratory system property checker criterion counterexample', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory D', src:'pp. 11–14, 21'},
-  {t:'title', text:'Thirteen systems, six tests each'},
+  {t:'title', text:'Laboratory D · System Properties'},
   {t:'lede', text:'Classify each system with a proof or an explicit counterexample. Predict all six results before opening the explanation.'},
   {t:'lab', id:'D'}
 ]},
@@ -394,7 +394,7 @@ const SC = [
   dark:true, objective:'Consolidate and motivate the LTI restriction.',
   keywords:'synthesis summary module 2 LTI motivation', steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Synthesis', src:'pp. 11–14'},
-  {t:'title', text:'Why linearity and time invariance are used together'},
+  {t:'title', text:'Module 2 Summary'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:var(--graphite)">Memory, causality, stability and invertibility describe limits on a system.</p>
       <p style="color:var(--graphite)">Linearity and time invariance give an additional result: one impulse response determines the output for every input.</p>`},

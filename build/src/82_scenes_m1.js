@@ -10,7 +10,7 @@ const SC = [
 { id:'m1-open', module:'M1', nav:'Module 1 opening', title:'Signal Foundations', src:'pp. 2–10',
   dark:true, keywords:'module 1 overview signals', steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal Foundations', src:'pp. 2–10'},
-  {t:'title', level:1, text:'What a signal is,<br>and what it carries'},
+  {t:'title', level:1, text:'Signal Foundations'},
   {t:'lede', text:'This module gives the signal descriptions needed before we study systems. It defines energy and power, explains changes to the time axis, tests periodicity and introduces complex exponential signals.'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
     {t:'note', kind:'warn', head:'Result 1', html:'<span style="color:var(--graphite)">A signal is <em>energy-type</em>, <em>power-type</em>, or <em>neither</em>. These are not opposites and the third case is real.</span>'},
@@ -43,7 +43,7 @@ const SC = [
   objective:'Fix the CT/DT notation and the meaning of the independent variable.',
   keywords:'x(t) x[n] notation integer time index continuous discrete stem', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
-  {t:'title', text:'Use separate notation for continuous and discrete time'},
+  {t:'title', text:'Continuous- and Discrete-Time Notation'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x(t),\\qquad \\forall t\\in\\mathbb{R}', label:'Continuous time',
       note:'Round brackets. The signal is defined at every real instant.'},
@@ -73,7 +73,7 @@ const SC = [
   objective:'Derive the normalised energy/power definitions from the physical ones.',
   keywords:'instantaneous power energy resistor normalised R=1 joule watt', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
-  {t:'title', text:'Where $|x|^2$ comes from'},
+  {t:'title', text:'Instantaneous Signal Power'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'Signal energy and power come from circuit power. For a voltage $v(t)$ across a resistance $R$, first use Ohm\'s law to replace the current:'},
     {t:'eq', tex:'p(t)=v(t)\\,i(t)=v(t)\\left(\\frac{v(t)}{R}\\right)=\\frac{1}{R}\\,v^{2}(t)',
@@ -106,7 +106,7 @@ const SC = [
   objective:'State E∞ in both domains and flag non-convergence.',
   keywords:'E infinity total energy integral summation converge', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
-  {t:'title', text:'Let the energy interval grow'},
+  {t:'title', text:'Total Signal Energy'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, size:'lg',
       tex:'E_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\;=\\;\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t',
@@ -141,7 +141,7 @@ const SC = [
   objective:'State P over a window and P∞ in both domains, with the 2N+1 count.',
   keywords:'average power P infinity 2N+1 time averaged', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
-  {t:'title', text:'Energy per unit time'},
+  {t:'title', text:'Average Signal Power'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'P=\\frac{1}{t_2-t_1}\\int_{t_1}^{t_2}p(t)\\,\\d t', label:'Average power over a finite window',
       note:'Divide the energy by the length of the window.'},
@@ -172,7 +172,7 @@ const SC = [
   objective:'State the two classifications and the third case that neither of them covers.',
   keywords:'energy signal power signal neither classification finite infinite', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'Classify a signal using energy and power'},
+  {t:'title', text:'Energy and Power Classification'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'ok', head:'Energy signals', html:'Finite energy $\\bigl(E_\\infty<\\infty\\bigr)$ <b>and</b> zero average power $\\bigl(P_\\infty=0\\bigr)$.'},
     {t:'note', kind:'warn', head:'Power signals', html:'Finite power $\\bigl(P_\\infty<\\infty\\bigr)$ <b>and</b> infinite energy $\\bigl(E_\\infty\\to\\infty\\bigr)$.'},
@@ -194,11 +194,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m1-classify-b', module:'M1', nav:'Why the second condition is free', title:'Why the second condition is free', src:'p. 3',
+{ id:'m1-classify-b', module:'M1', nav:'Finite energy and average power', title:'Finite-energy signals and average power', src:'p. 3',
   objective:'Show that finite energy forces zero average power, and give the engineering reading of the three classes.',
   keywords:'energy forces zero power averaging window transient steady state neither ramp', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'Finite energy implies zero average power'},
+  {t:'title', text:'Finite-Energy Signals and Average Power'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The energy-signal conditions are not independent. If total energy is finite, the energy in every finite window is at most $E_\\infty$. Dividing that bound by $2T$ makes the average power approach zero.'},
     {t:'eq', size:'sm', tex:'E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0',
@@ -228,7 +228,7 @@ const SC = [
   objective:'Reproduce both source examples with full method and sanity checks.',
   keywords:'example rectangular pulse constant sequence energy power worked', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
-  {t:'title', text:'Classify a pulse and a constant sequence'},
+  {t:'title', text:'Energy and Power Classification Examples'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'wex', rows:[
       ['Given', '$x(t)=\\begin{cases}1,&0\\le t\\le 1\\\\ 0,&\\text{otherwise}\\end{cases}$'],
@@ -266,7 +266,7 @@ const SC = [
   objective:'Classify source-grounded signals before seeing the calculation.',
   keywords:'laboratory classifier energy power neither interactive', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory B', src:'pp. 2–3'},
-  {t:'title', text:'Classify first, then verify'},
+  {t:'title', text:'Laboratory B · Energy and Power'},
   {t:'lede', text:'Predict the class from the signal shape. Then use the definitions to test the prediction.'},
   {t:'lab', id:'B'}
 ]},
@@ -275,7 +275,7 @@ const SC = [
   objective:'Fix the delay/advance sign convention.',
   keywords:'time shift delay advance t0 x(t-t0)', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
-  {t:'title', text:'Use the argument to determine a time shift'},
+  {t:'title', text:'Time Shifting'},
   {t:'cols', ratio:'c-4-8', vcenter:true, left:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
     {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ ⇒ <b>delay</b> (the signal moves right, later).<br>$t_0<0$ ⇒ <b>advance</b> (the signal moves left, earlier).'},
@@ -303,7 +303,7 @@ const SC = [
   objective:'State reversal and scaling and their effect on the support.',
   keywords:'time reversal flip scaling decimation expansion a>1 compression', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
-  {t:'title', text:'Reversal and scaling'},
+  {t:'title', text:'Time Reversal and Scaling'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'x(t)\\;\\longrightarrow\\;x(-t)\\qquad\\bigl(x[n]\\to x[-n]\\bigr)', label:'Time reversal',
       note:'A reflection about the vertical axis.'},
@@ -341,7 +341,7 @@ const SC = [
   objective:'Establish the correct two-step order for x(at−b).',
   keywords:'combination shift then scale order x(at-b) intermediate v(t)', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
-  {t:'title', text:'Build $x(at-b)$ by shifting before scaling'},
+  {t:'title', text:'Combined Time Transformations'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:'To construct $x(at-b)$ from $x(t)$, use an intermediate signal so that each operation is explicit.'},
     {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
@@ -389,7 +389,7 @@ const SC = [
   objective:'Explore x(at−b) with live support and critical-point tracking.',
   keywords:'laboratory transformation shift scale reversal support critical points', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory A', src:'pp. 3–4'},
-  {t:'title', text:'Apply the shift and scale in separate steps'},
+  {t:'title', text:'Laboratory A · Signal Transformations'},
   {t:'lab', id:'A'}
 ]},
 
@@ -397,7 +397,7 @@ const SC = [
   objective:'Define CT and DT periodicity and the fundamental period.',
   keywords:'periodic aperiodic fundamental period T0 N0 omega0 fundamental frequency', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
-  {t:'title', text:'Test whether a signal repeats'},
+  {t:'title', text:'Signal Periodicity'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is <b>periodic</b> if there exists a constant $T>0$ such that $x(t)=x(t+T)$ for all $t\\in\\mathbb{R}$.'},
     {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is <b>periodic</b> if there exists an <b>integer</b> constant $N>0$ such that $x[n]=x[n+N]$ for all $n\\in\\mathbb{Z}$.'},
@@ -432,7 +432,7 @@ const SC = [
   objective:'Define even/odd and the unique decomposition.',
   keywords:'even odd decomposition Ev Od symmetry x(0)=0', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
-  {t:'title', text:'Split a signal into even and odd parts'},
+  {t:'title', text:'Even and Odd Decomposition'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'note', kind:'def', head:'Definitions', html:'<b>Even</b>: $x(t)=x(-t)$ (or $x[n]=x[-n]$).<br><b>Odd</b>: $x(t)=-x(-t)$ (or $x[n]=-x[-n]$).'},
     {t:'note', kind:'warn', head:'Check the value at the origin', html:'For an odd signal, set $t=0$ in the definition. This gives $x(0)=-x(0)$, so $x(0)=0$. Therefore any signal with $x(0)\\neq0$ is not odd.'},
@@ -473,7 +473,7 @@ const SC = [
   objective:'Define δ[n], u[n], the first difference and the running sum.',
   keywords:'delta[n] u[n] unit impulse step first difference running sum representation', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
-  {t:'title', text:'Use impulses to build discrete-time signals'},
+  {t:'title', text:'Discrete-Time Impulse and Step'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
       note:'An ordinary, well-behaved sequence. Nothing infinite happens here. Compare $\\delta(t)$ on the next scene.'},
@@ -507,7 +507,7 @@ const SC = [
   objective:'Distinguish the two properties and verify both on the definition example.',
   keywords:'sampling property sifting property delta n0 x[n0]', steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
-  {t:'title', text:'Use sampling before sifting'},
+  {t:'title', text:'Discrete-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', key:true, tex:'x[n]\\,\\delta[n-n_0]=x[n_0]\\,\\delta[n-n_0]', label:'Sampling property',
       note:'Both sides are <b>sequences</b>. Multiplying by a shifted impulse freezes the signal at one index and discards the rest.'},
@@ -543,7 +543,7 @@ const SC = [
   objective:'Present δ(t) rigorously as a distribution while keeping the definition picture.',
   keywords:'dirac delta distribution generalized function unit step derivative area 1', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
-  {t:'title', text:'$\\delta(t)$ is not a function'},
+  {t:'title', text:'Continuous-Time Impulse and Step'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'\\delta(t)=\\begin{cases}\\infty,&t=0\\\\0,&\\text{otherwise}\\end{cases}\\qquad \\int_{-\\infty}^{\\infty}\\delta(t)\\,\\d t=1',
       label:'Informal picture', note:'This formula is only a visual aid. The Dirac delta is a distribution, not an ordinary function. Its arrow has weight 1, which represents area rather than height.'},
@@ -588,7 +588,7 @@ const SC = [
   objective:'Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity.',
   keywords:'complex exponential Euler amplitude phase angular frequency growth decay', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
-  {t:'title', text:'Use the exponent to identify growth and oscillation'},
+  {t:'title', text:'Continuous-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition'},
     {t:'body', html:'Complex exponentials describe growth, decay and oscillation in one form. The real and imaginary parts of $a$ determine which behaviour occurs.'},
@@ -613,7 +613,7 @@ const SC = [
   objective:'Derive the fundamental period and read the general complex case as a sinusoid in an envelope.',
   keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
-  {t:'title', text:'Find the period and then include the envelope'},
+  {t:'title', text:'Period and Envelope of a Complex Exponential'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', tex:'A e^{j(\\omega_0 t+\\theta)}=A e^{j(\\omega_0(t+T)+\\theta)}\\;\\Rightarrow\\;1=e^{j\\omega_0 T}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0T\\;\\Rightarrow\\; T=\\frac{2\\pi}{\\omega_0}k',
       label:'Periodicity, derived', note:'$k\\in\\mathbb{Z}$. Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. <b>Every</b> continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
@@ -648,7 +648,7 @@ const SC = [
   objective:'Introduce x[n]=Cα^n and the three envelope cases.',
   keywords:'discrete complex exponential alpha beta growing decaying envelope', steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
-  {t:'title', text:'Write a discrete-time exponential as a power'},
+  {t:'title', text:'Discrete-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x[n]=C\\,e^{\\beta n},\\qquad C,\\beta\\in\\mathbb{C}'},
     {t:'eq', key:true, tex:'\\alpha=e^{\\beta}\\;\\Longrightarrow\\; x[n]=C\\,\\alpha^{n}',
@@ -683,7 +683,7 @@ const SC = [
   objective:'Derive N = 2πk/ω₀ and the rationality condition; work the definition example.',
   keywords:'discrete periodicity rational multiple 2pi N0 integer condition', steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
-  {t:'title', text:'Test discrete-time periodicity with an integer period'},
+  {t:'title', text:'Discrete-Time Periodicity Condition'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'eq', tex:'x[n]=C e^{j\\omega_0 n}\\;\\text{periodic}\\;\\Longleftrightarrow\\; x[n]=x[n+N]', label:'Requirement'},
     {t:'reveal', at:1, items:[
@@ -719,7 +719,7 @@ const SC = [
   objective:'Compare CT and DT periodicity with an exact rationality test.',
   keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory C', src:'pp. 5, 8, 10'},
-  {t:'title', text:'Periodicity, tested exactly'},
+  {t:'title', text:'Laboratory C · Periodicity'},
   {t:'lede', text:'Enter $\\omega_0$ as a rational multiple of $\\pi$. The laboratory can then apply the discrete-time rationality test exactly. A rounded decimal cannot prove that a number is rational.'},
   {t:'lab', id:'C'}
 ]},
@@ -728,7 +728,7 @@ const SC = [
   dark:true, objective:'Consolidate the module and connect to Module 2.',
   keywords:'synthesis summary module 1 review', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Synthesis', src:'pp. 2–10'},
-  {t:'title', text:'Use five results from this module'},
+  {t:'title', text:'Module 1 Summary'},
   {t:'cols', ratio:'c-6-6', left:[
     {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> $E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.</p>
       <p style="color:var(--graphite)"><b>2.</b> $x(at-b)$ requires <em>shift, then scale</em>. The other order gives $x(at-ab)$.</p>
