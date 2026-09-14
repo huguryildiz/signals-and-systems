@@ -45,6 +45,31 @@ const RENDER = (() => {
       (m,k,label)=>`<span class="sym" data-sym="${k}" title="${symTitle(k)}">${label}</span>`);
   }
 
+  function mountCourseMap(host){
+    const panel=host.querySelector('[data-course-map-panel]');
+    const path=CONTENT.COURSE_PATH;
+    if(!panel || !path) return;
+    const byId=Object.fromEntries(path.map((n,i)=>[n.m,Object.assign({i},n)]));
+    const pick=id=>{
+      const n=byId[id]; if(!n) return;
+      host.querySelectorAll('[data-course-node]').forEach(el=>{
+        const on=el.dataset.courseNode===id;
+        el.classList.toggle('is-active',on);
+        el.setAttribute('aria-pressed',String(on));
+      });
+      panel.querySelector('.course-map-kicker').innerHTML=`THE LEARNING PATH <span>${String(n.i+1).padStart(2,'0')} / ${String(path.length).padStart(2,'0')}</span>`;
+      panel.querySelector('h3').textContent=n.t;
+      panel.querySelector('.course-map-topic').textContent=n.s;
+      panel.querySelector('.course-map-copy').innerHTML=`<p><b>Uses.</b> ${n.dep}</p><p><b>Adds.</b> ${n.add}</p><p><b>Leads to.</b> ${n.next}</p>`;
+    };
+    host.querySelectorAll('[data-course-node]').forEach(el=>{
+      el.addEventListener('click',()=>pick(el.dataset.courseNode));
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pick(el.dataset.courseNode); }
+      });
+    });
+  }
+
   /* ---------- block renderers ---------- */
   const B = {
     eyebrow: b => `<p class="eyebrow"><span class="tick"></span>${md(b.text)}
@@ -192,6 +217,7 @@ const RENDER = (() => {
       if(L) L.mount(el);
       else el.innerHTML = '<div class="note warn">Laboratory not available in this build.</div>';
     });
+    mountCourseMap(host);
     fitScene();
     chrome(sc);
   }
@@ -292,6 +318,10 @@ const RENDER = (() => {
       bt.textContent = S.theme==='dark'?'Dark':'Light'; }
     const bd=document.getElementById('btn-display'); if(bd){ bd.setAttribute('aria-pressed', S.display==='projector');
       bd.textContent = S.display==='projector'?'Projector':'Normal'; }
+    const bp=document.getElementById('btn-pointer'); if(bp){ bp.setAttribute('aria-pressed', S.pointer==='laser');
+      bp.textContent = S.pointer==='laser'?'Laser':'Arrow'; }
+    const bi=document.getElementById('btn-trail'); if(bi){ bi.setAttribute('aria-pressed', S.trail!=='off');
+      bi.textContent = 'Trail: '+S.trail; bi.disabled = S.pointer!=='laser'; }
     APP.buildMap();
     APP.buildSidebar();
   }

@@ -130,6 +130,29 @@ body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
 body[data-display=projector] .scene{ padding:44px 76px 60px; }
 body[data-display=projector] .cols{ gap:34px; }
 
+/* the laser pointer of projector mode. The canvas is created by the core the
+   first time projector mode is entered; it never takes a click. The system
+   arrow is hidden only while the laser is the pointer, and only where there
+   is a real mouse to hide it from — on a touch screen there is nothing to
+   replace it with. */
+#laser{
+  position:fixed; inset:0; display:none;
+  pointer-events:none; z-index:90;
+}
+@media (pointer:fine){
+  body[data-display=projector][data-pointer=laser],
+  body[data-display=projector][data-pointer=laser] *{ cursor:none; }
+}
+/* drawing with the button held would otherwise sweep a text selection across
+   the scene; the fields the reader types into keep theirs */
+body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user-select:none; }
+body[data-display=projector][data-pointer=laser] input,
+body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
+
+/* the two pointer controls belong to projector mode and are hidden outside it */
+#appheader .proj-only{ display:none; }
+body[data-display=projector] #appheader .proj-only{ display:block; }
+
 *,*::before,*::after{ box-sizing:border-box; }
 
 html,body{
@@ -191,6 +214,8 @@ body[data-motion=reduced] .eelogo-halo{ animation:none; }
 }
 #appheader button:hover{ color:var(--ink); background:var(--paper-3); }
 #appheader button[aria-pressed=true]{ color:var(--coral); }
+#appheader button:disabled{ opacity:.4; cursor:default; }
+#appheader button:disabled:hover{ color:var(--muted); background:transparent; }
 #sbtoggle{ font-size:15px !important; line-height:1; padding:5px 9px !important; }
 
 /* --- left contents rail ---------------------------------------------- */
@@ -478,6 +503,39 @@ figure.fig .katex svg, #scene-host .katex svg{ display:inline; width:auto; heigh
 #scene-host .eyebrow .ebicon{ display:inline-block; width:12.5px; height:12.5px; }
 figcaption{ font-size:calc(14px * var(--ts)); color:var(--muted); line-height:1.42; }
 figcaption b{ color:var(--graphite); font-weight:600; }
+.course-map-svg{ overflow:visible; }
+.course-orbit{ fill:none; stroke:var(--rule); stroke-width:1.2; stroke-dasharray:2 7; }
+.course-core{ fill:var(--paper-2); stroke:var(--rule-strong); stroke-width:1.2; }
+.course-core-k,.course-node-id,.course-map-kicker{ font-family:var(--mono); letter-spacing:.14em; }
+.course-core-k{ fill:var(--slate); font-size:13px; }
+.course-core-t,.course-node-title{ fill:var(--ink); font-family:var(--serif); }
+.course-core-t{ font-size:21px; }
+.course-spoke{ stroke:var(--rule-strong); stroke-width:1; stroke-dasharray:1 5; opacity:.3; animation:course-spoke-in .36s var(--ease) calc(.16s + var(--i) * .11s) both; }
+.course-node{ opacity:.34; transform-box:fill-box; transform-origin:center; animation:course-node-in .46s var(--ease) calc(.28s + var(--i) * .11s) both; }
+.course-node{ cursor:pointer; outline:none; }
+.course-node-disc{ fill:var(--paper); stroke:var(--slate); stroke-width:1.35; transition:fill 180ms var(--ease),stroke 180ms var(--ease),stroke-width 180ms var(--ease); }
+.course-node-title{ font-size:15px; }
+.course-node-id{ fill:var(--muted); font-size:10px; }
+.course-node:hover .course-node-disc,.course-node:focus .course-node-disc,.course-node.is-active .course-node-disc{ fill:color-mix(in srgb,var(--coral) 8%,var(--paper)); stroke:var(--coral); stroke-width:2.4; }
+.course-node.is-active .course-node-disc{ animation:course-node-pulse 4.8s var(--ease) 2.1s infinite; }
+.course-node:hover .course-node-title,.course-node:focus .course-node-title,.course-node.is-active .course-node-title{ fill:var(--coral); }
+.course-map-panel{ border-left:2px solid var(--coral); padding:5px 0 4px 22px; }
+.course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
+.course-map-kicker span{ float:right; color:var(--coral); }
+.course-map-panel h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:clamp(28px,2.2vw,38px); font-weight:500; line-height:1.05; }
+.course-map-topic{ margin:5px 0 20px; color:var(--slate); font-family:var(--mono); font-size:12px; letter-spacing:.09em; }
+.course-map-copy{ display:grid; gap:12px; color:var(--graphite); font-size:calc(16px * var(--ts)); line-height:1.44; }
+.course-map-copy p{ margin:0; }
+.course-map-copy b{ color:var(--ink); }
+.course-map-controls{ display:flex; gap:5px; margin-top:24px; }
+.course-path-btn{ min-width:34px; padding:7px 4px; border:1px solid var(--rule-strong); border-radius:2px; background:transparent; color:var(--slate-deep); cursor:pointer; font:600 11px/1 var(--mono); letter-spacing:.04em; transition:background 160ms var(--ease),color 160ms var(--ease),border-color 160ms var(--ease); }
+.course-path-btn:hover,.course-path-btn:focus-visible,.course-path-btn.is-active{ background:var(--coral); border-color:var(--coral); color:#FCF9F3; outline:none; }
+.course-map-hint{ margin:12px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+@keyframes course-spoke-in{ from{ opacity:.3; } to{ opacity:1; } }
+@keyframes course-node-in{ from{ opacity:.34; transform:scale(.92); } to{ opacity:1; transform:scale(1); } }
+@keyframes course-node-pulse{ 0%,76%,100%{ filter:drop-shadow(0 0 0 transparent); } 84%{ filter:drop-shadow(0 0 7px color-mix(in srgb,var(--coral) 38%,transparent)); } }
+body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,body[data-motion=reduced] .course-node.is-active .course-node-disc{ animation:none; opacity:1; }
+@media (prefers-reduced-motion:reduce){ .course-spoke,.course-node,.course-node.is-active .course-node-disc{ animation:none; opacity:1; } }
 .fig-frame{
   background:var(--paper-2); border:1px solid var(--rule);
   border-radius:var(--radius); padding:12px 15px;
