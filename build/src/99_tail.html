@@ -1,14 +1,13 @@
 <script>
 /* ---------- assemble the scene list from the content modules ---------- */
 (function(){
-  /* Each module opens with the taxonomy of the question types that recur in
-     examinations, and closes with the questions themselves. The map is read
-     before the work; the work is done after the module has been taught. Both
-     carry the module id of the module they belong to, so the contents rail and
-     the module list need no separate entry. */
+  /* Modules 2–7 open with the taxonomy of the question types that recur in
+     their practice questions. Every module closes with its questions after the
+     teaching scenes. The scene objects carry their module id, so the contents
+     rail and the module list need no separate entry. */
   const SCENES = [].concat(
     window.SCENES_M0||[],
-    window.DRILLMAP_M1||[], window.SCENES_M1||[], window.DRILL_M1||[],
+    window.SCENES_M1||[], window.DRILL_M1||[],
     window.DRILLMAP_M2||[], window.SCENES_M2||[], window.DRILL_M2||[],
     window.DRILLMAP_M3||[], window.SCENES_M3||[], window.DRILL_M3||[],
     window.DRILLMAP_M4||[], window.SCENES_M4||[], window.DRILL_M4||[],
@@ -37,7 +36,10 @@
     ['Home / End','First / last scene'],
     ['M','Contents overlay'],['/ or F','Full-text search'],['G','Notation glossary'],
     ['S','Show or hide the contents rail'],
-    ['P','Normal ⇄ projector size'],['D','Light ⇄ dark'],
+    ['P','Normal ⇄ projector size; in projector size the mouse becomes a laser pointer'],
+    ['T','Ink of that pointer: fades a few seconds after the button is let go, is held until it is cleared, or is off'],
+    ['C','Clear the ink now; a change of scene clears it too'],
+    ['D','Light ⇄ dark'],
     ['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],
     ['Esc','Close any overlay']
   ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');

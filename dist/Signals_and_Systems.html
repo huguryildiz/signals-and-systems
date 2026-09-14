@@ -141,6 +141,29 @@ body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
 body[data-display=projector] .scene{ padding:44px 76px 60px; }
 body[data-display=projector] .cols{ gap:34px; }
 
+/* the laser pointer of projector mode. The canvas is created by the core the
+   first time projector mode is entered; it never takes a click. The system
+   arrow is hidden only while the laser is the pointer, and only where there
+   is a real mouse to hide it from — on a touch screen there is nothing to
+   replace it with. */
+#laser{
+  position:fixed; inset:0; display:none;
+  pointer-events:none; z-index:90;
+}
+@media (pointer:fine){
+  body[data-display=projector][data-pointer=laser],
+  body[data-display=projector][data-pointer=laser] *{ cursor:none; }
+}
+/* drawing with the button held would otherwise sweep a text selection across
+   the scene; the fields the reader types into keep theirs */
+body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user-select:none; }
+body[data-display=projector][data-pointer=laser] input,
+body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
+
+/* the two pointer controls belong to projector mode and are hidden outside it */
+#appheader .proj-only{ display:none; }
+body[data-display=projector] #appheader .proj-only{ display:block; }
+
 *,*::before,*::after{ box-sizing:border-box; }
 
 html,body{
@@ -202,6 +225,8 @@ body[data-motion=reduced] .eelogo-halo{ animation:none; }
 }
 #appheader button:hover{ color:var(--ink); background:var(--paper-3); }
 #appheader button[aria-pressed=true]{ color:var(--coral); }
+#appheader button:disabled{ opacity:.4; cursor:default; }
+#appheader button:disabled:hover{ color:var(--muted); background:transparent; }
 #sbtoggle{ font-size:15px !important; line-height:1; padding:5px 9px !important; }
 
 /* --- left contents rail ---------------------------------------------- */
@@ -489,6 +514,39 @@ figure.fig .katex svg, #scene-host .katex svg{ display:inline; width:auto; heigh
 #scene-host .eyebrow .ebicon{ display:inline-block; width:12.5px; height:12.5px; }
 figcaption{ font-size:calc(14px * var(--ts)); color:var(--muted); line-height:1.42; }
 figcaption b{ color:var(--graphite); font-weight:600; }
+.course-map-svg{ overflow:visible; }
+.course-orbit{ fill:none; stroke:var(--rule); stroke-width:1.2; stroke-dasharray:2 7; }
+.course-core{ fill:var(--paper-2); stroke:var(--rule-strong); stroke-width:1.2; }
+.course-core-k,.course-node-id,.course-map-kicker{ font-family:var(--mono); letter-spacing:.14em; }
+.course-core-k{ fill:var(--slate); font-size:13px; }
+.course-core-t,.course-node-title{ fill:var(--ink); font-family:var(--serif); }
+.course-core-t{ font-size:21px; }
+.course-spoke{ stroke:var(--rule-strong); stroke-width:1; stroke-dasharray:1 5; opacity:.3; animation:course-spoke-in .36s var(--ease) calc(.16s + var(--i) * .11s) both; }
+.course-node{ opacity:.34; transform-box:fill-box; transform-origin:center; animation:course-node-in .46s var(--ease) calc(.28s + var(--i) * .11s) both; }
+.course-node{ cursor:pointer; outline:none; }
+.course-node-disc{ fill:var(--paper); stroke:var(--slate); stroke-width:1.35; transition:fill 180ms var(--ease),stroke 180ms var(--ease),stroke-width 180ms var(--ease); }
+.course-node-title{ font-size:15px; }
+.course-node-id{ fill:var(--muted); font-size:10px; }
+.course-node:hover .course-node-disc,.course-node:focus .course-node-disc,.course-node.is-active .course-node-disc{ fill:color-mix(in srgb,var(--coral) 8%,var(--paper)); stroke:var(--coral); stroke-width:2.4; }
+.course-node.is-active .course-node-disc{ animation:course-node-pulse 4.8s var(--ease) 2.1s infinite; }
+.course-node:hover .course-node-title,.course-node:focus .course-node-title,.course-node.is-active .course-node-title{ fill:var(--coral); }
+.course-map-panel{ border-left:2px solid var(--coral); padding:5px 0 4px 22px; }
+.course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
+.course-map-kicker span{ float:right; color:var(--coral); }
+.course-map-panel h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:clamp(28px,2.2vw,38px); font-weight:500; line-height:1.05; }
+.course-map-topic{ margin:5px 0 20px; color:var(--slate); font-family:var(--mono); font-size:12px; letter-spacing:.09em; }
+.course-map-copy{ display:grid; gap:12px; color:var(--graphite); font-size:calc(16px * var(--ts)); line-height:1.44; }
+.course-map-copy p{ margin:0; }
+.course-map-copy b{ color:var(--ink); }
+.course-map-controls{ display:flex; gap:5px; margin-top:24px; }
+.course-path-btn{ min-width:34px; padding:7px 4px; border:1px solid var(--rule-strong); border-radius:2px; background:transparent; color:var(--slate-deep); cursor:pointer; font:600 11px/1 var(--mono); letter-spacing:.04em; transition:background 160ms var(--ease),color 160ms var(--ease),border-color 160ms var(--ease); }
+.course-path-btn:hover,.course-path-btn:focus-visible,.course-path-btn.is-active{ background:var(--coral); border-color:var(--coral); color:#FCF9F3; outline:none; }
+.course-map-hint{ margin:12px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+@keyframes course-spoke-in{ from{ opacity:.3; } to{ opacity:1; } }
+@keyframes course-node-in{ from{ opacity:.34; transform:scale(.92); } to{ opacity:1; transform:scale(1); } }
+@keyframes course-node-pulse{ 0%,76%,100%{ filter:drop-shadow(0 0 0 transparent); } 84%{ filter:drop-shadow(0 0 7px color-mix(in srgb,var(--coral) 38%,transparent)); } }
+body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,body[data-motion=reduced] .course-node.is-active .course-node-disc{ animation:none; opacity:1; }
+@media (prefers-reduced-motion:reduce){ .course-spoke,.course-node,.course-node.is-active .course-node-disc{ animation:none; opacity:1; } }
 .fig-frame{
   background:var(--paper-2); border:1px solid var(--rule);
   border-radius:var(--radius); padding:12px 15px;
@@ -850,6 +908,9 @@ body[data-motion=reduced] *{ transition-duration:1ms !important; animation-durat
     <button data-act="gloss" title="Notation (G)">Notation</button>
     <span class="sep"></span>
     <button id="btn-display" data-act="display" title="Normal / projector (P)">Normal</button>
+    <button id="btn-pointer" class="proj-only" data-act="pointer" title="Laser pointer / system arrow">Laser</button>
+    <button id="btn-trail" class="proj-only" data-act="trail" title="Ink: fade, hold, off (T) — hold the mouse button to draw, C clears">Trail: fade</button>
+    <span class="sep proj-only"></span>
     <button id="btn-theme" data-act="theme" title="Light / dark (D)">Light</button>
     <span class="sep"></span>
     <button id="btn-mode" data-act="mode" title="Lecture / self-study (L)">Self-study</button>
@@ -1062,6 +1123,7 @@ const PLOT = (() => {
   /* ======================================================================
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
+           xnameDrop,
            xtickfmt,ytickfmt,zeroAxes}
      xlabel and ylabel are TeX source — see texName above.
      ====================================================================== */
@@ -1095,10 +1157,10 @@ const PLOT = (() => {
        data area, clear of the tick row wherever the zero line happens to fall.
        A tick number is set 20 below the axis it belongs to and reaches about 4
        further down; the name above its own baseline is one line tall. Leaving the
-       name 45 below the axis keeps a clear gap between the two, so the last tick
+       name 62 below the axis keeps a clear gap between the two, so the last tick
        number and the name never touch even at the right-hand edge, where they
        share the same column. */
-    const XNAME_DROP = 45;
+    const XNAME_DROP = o.xnameDrop ?? 62;
     const xnameY = (Pb) => {
       const yy0 = H - Pb;
       if(!zeroInside) return yy0 + XNAME_DROP + 1;
@@ -1354,7 +1416,7 @@ const PLOT = (() => {
 <script>
 /* ==== 80_content_core.js ==== */
 /* ==========================================================================
-   COURSE CONTENT — verified against `Lecture Notes.pdf`.
+   COURSE CONTENT — verified against `lecture notes.pdf`.
    This file holds course data only (modules, notation glossary, the system
    catalogue used by Laboratory D, and the property criteria).
    Every entry carries its source page.
@@ -1363,9 +1425,9 @@ const CONTENT = {
 
   META: {
     course:'Signals and Systems',
-    source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.7 · Modules 0–7 and their notes, laboratories, practice questions, and worked solutions rewritten in plain teaching English',
-    date:'2026-08-02',
+    source:'lecture notes.pdf (88 pp.)',
+    version:'v1.8 · Modules 0–7 and their notes, laboratories, practice questions, and worked solutions rewritten in plain teaching English',
+    date:'2026-08-03',
     language:'Academic English',
     conventions:{
       ctft:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt',
@@ -1576,6 +1638,8 @@ const APP = (() => {
     sidebar: 'on',      // contents rail
     theme: 'light',     // 'light' | 'dark'
     display: 'normal',  // 'normal' | 'projector'
+    pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
+    trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
     drillPage: {},      // module id -> index of the drill question on screen
     secOpen: {}         // section number -> the reader's own open/closed choice
@@ -1594,6 +1658,8 @@ const APP = (() => {
       sidebar: saved.sidebar || 'on',
       theme: saved.theme || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),
       display: saved.display || 'normal',
+      pointer: saved.pointer || 'laser',
+      trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
       visited: saved.visited || {},
       quiz: saved.quiz || {},
       drillPage: saved.drillPage || {}
@@ -1609,7 +1675,7 @@ const APP = (() => {
 
   function persist(){
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.sidebar,
-                  theme:state.theme, display:state.display,
+                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
@@ -1620,7 +1686,105 @@ const APP = (() => {
     document.body.dataset.sidebar = state.sidebar;
     document.body.dataset.theme = state.theme;
     document.body.dataset.display = state.display;
+    document.body.dataset.pointer = state.pointer;
+    document.body.dataset.trail = state.trail;
+    laser.sync();
   }
+
+  /* ---------- laser pointer, projector mode only ----------
+     In front of a class the pointer is an instrument, not a control: the
+     system arrow is too small to follow from the back of a room. In
+     projector mode it becomes a red dot. Holding the mouse button down draws
+     with it. Strokes accumulate and fade together after a pause, or remain
+     until cleared, according to the header control. Everything is drawn on
+     one fixed canvas above the page that takes no clicks, so nothing else
+     changes. Under reduced motion the stroke is left out and only the dot is
+     drawn. */
+  const laser = (() => {
+    const HOLD = 3000, FADE = 900, KEEP = 6000;
+    let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0;
+    let head=null, drawing=false, released=0;
+    const strokes = [];
+    function count(){ let n=0; for(const s of strokes) n+=s.length; return n; }
+    function drop(){
+      while(count()>KEEP && strokes.length){
+        strokes[0].shift();
+        if(strokes[0].length<2) strokes.shift();
+      }
+    }
+    function size(){
+      dpr = Math.min(window.devicePixelRatio||1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+      cv.style.width = W+'px'; cv.style.height = H+'px';
+      cx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    function frame(){
+      raf = 0;
+      const keep = state.trail==='hold';
+      const idle = (drawing||keep) ? 0 : performance.now() - released;
+      let a = idle<=HOLD ? 1 : 1 - (idle-HOLD)/FADE;
+      if(a<=0){ a=0; strokes.length=0; }
+      cx.clearRect(0,0,W,H);
+      if(a>0 && strokes.length && state.trail!=='off' && state.motion==='full'){
+        cx.lineCap='round'; cx.lineJoin='round'; cx.globalAlpha=a;
+        cx.beginPath();
+        for(const pts of strokes){
+          if(pts.length<2) continue;
+          cx.moveTo(pts[0].x, pts[0].y);
+          for(let k=1;k<pts.length-1;k++) cx.quadraticCurveTo(pts[k].x,pts[k].y,(pts[k].x+pts[k+1].x)/2,(pts[k].y+pts[k+1].y)/2);
+          const b=pts[pts.length-1]; cx.lineTo(b.x,b.y);
+        }
+        cx.strokeStyle='rgba(255,66,44,0.26)'; cx.lineWidth=21; cx.stroke();
+        cx.strokeStyle='rgba(228,38,22,0.94)'; cx.lineWidth=11; cx.stroke();
+        cx.strokeStyle='rgba(255,231,226,0.96)'; cx.lineWidth=4; cx.stroke();
+        cx.globalAlpha=1;
+      }
+      if(head){
+        const g=cx.createRadialGradient(head.x,head.y,0,head.x,head.y,19);
+        g.addColorStop(0,'rgba(255,236,230,1)');
+        g.addColorStop(.10,'rgba(255,64,40,1)');
+        g.addColorStop(.32,'rgba(214,45,32,.92)');
+        g.addColorStop(.55,'rgba(214,45,32,.32)');
+        g.addColorStop(1,'rgba(214,45,32,0)');
+        cx.fillStyle=g; cx.beginPath(); cx.arc(head.x,head.y,19,0,Math.PI*2); cx.fill();
+      }
+      if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
+    }
+    function tick(){ if(!raf) raf=requestAnimationFrame(frame); }
+    function mouse(e){ return !e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'; }
+    function move(e){
+      if(!mouse(e)) return;
+      head={x:e.clientX,y:e.clientY};
+      if(drawing){ strokes[strokes.length-1].push(head); drop(); }
+      tick();
+    }
+    function down(e){
+      if(!mouse(e)||e.button!==0) return;
+      if(!drawing && state.trail!=='hold' && performance.now()-released>HOLD) strokes.length=0;
+      drawing=true; head={x:e.clientX,y:e.clientY}; strokes.push([head]); tick();
+    }
+    function up(){ if(!drawing) return; drawing=false; released=performance.now(); tick(); }
+    function leave(){ if(drawing){ drawing=false; released=performance.now(); } head=null; tick(); }
+    function start(){
+      if(on || !window.matchMedia || !matchMedia('(pointer:fine)').matches) return;
+      if(!cv){ cv=document.createElement('canvas'); cv.id='laser'; cv.setAttribute('aria-hidden','true'); document.body.appendChild(cv); cx=cv.getContext('2d'); }
+      on=true; cv.style.display='block'; size();
+      window.addEventListener('pointermove',move,{passive:true});
+      window.addEventListener('pointerdown',down,{passive:true});
+      window.addEventListener('pointerup',up,{passive:true});
+      window.addEventListener('pointercancel',up,{passive:true});
+      document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',size);
+    }
+    function stop(){
+      if(!on) return;
+      on=false; window.removeEventListener('pointermove',move); window.removeEventListener('pointerdown',down);
+      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up);
+      document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',size);
+      if(raf){ cancelAnimationFrame(raf); raf=0; } leave(); if(cv) cv.style.display='none';
+    }
+    return { sync(){ (state.display==='projector'&&state.pointer==='laser') ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } } };
+  })();
 
   /* ---------- stage scaling: exact 1920×1080 basis, scaled to fit ---------- */
   let _ro = null;
@@ -1672,6 +1836,7 @@ const APP = (() => {
 
   function go(i, opt={}){
     if(i<0||i>=SCENES.length) return;
+    if(i!==state.i) laser.clear();
     state.i = i;
     state.step = opt.step!=null ? opt.step : 0;
     state.visited[SCENES[i].id] = 1;
@@ -1730,6 +1895,8 @@ const APP = (() => {
         case 's': case 'S': toggleSidebar(); break;
         case 'd': case 'D': toggleTheme(); break;
         case 'p': case 'P': toggleDisplay(); break;
+        case 't': case 'T': toggleTrail(); break;
+        case 'c': case 'C': laser.clear(); break;
       }
     });
   }
@@ -1745,6 +1912,12 @@ const APP = (() => {
     state.sidebar = state.display==='projector' ? 'off' : 'on';
     applyBodyFlags(); persist();
     requestAnimationFrame(()=>{ fit(); onRender(); });
+  }
+  function togglePointer(){ state.pointer=state.pointer==='laser'?'arrow':'laser'; applyBodyFlags(); persist(); onRender(); }
+  function toggleTrail(){
+    state.trail=state.trail==='fade'?'hold':state.trail==='hold'?'off':'fade';
+    if(state.trail==='off') laser.clear();
+    applyBodyFlags(); persist(); onRender();
   }
   function toggleSidebar(){ state.sidebar = state.sidebar==='on'?'off':'on'; applyBodyFlags(); persist();
     requestAnimationFrame(()=>{ fit(); onRender(); }); }
@@ -1768,6 +1941,8 @@ const APP = (() => {
       else if(a==='sidebar') toggleSidebar();
       else if(a==='theme') toggleTheme();
       else if(a==='display') toggleDisplay();
+      else if(a==='pointer') togglePointer();
+      else if(a==='trail') toggleTrail();
       else if(a==='goto') goId(t.dataset.id, parseInt(t.dataset.step||'0',10));
       else if(a==='sec'){ const n=t.dataset.sec;
         state.secOpen[n] = !secIsOpen(n); buildSidebar(); }
@@ -2428,6 +2603,31 @@ const RENDER = (() => {
       (m,k,label)=>`<span class="sym" data-sym="${k}" title="${symTitle(k)}">${label}</span>`);
   }
 
+  function mountCourseMap(host){
+    const panel=host.querySelector('[data-course-map-panel]');
+    const path=CONTENT.COURSE_PATH;
+    if(!panel || !path) return;
+    const byId=Object.fromEntries(path.map((n,i)=>[n.m,Object.assign({i},n)]));
+    const pick=id=>{
+      const n=byId[id]; if(!n) return;
+      host.querySelectorAll('[data-course-node]').forEach(el=>{
+        const on=el.dataset.courseNode===id;
+        el.classList.toggle('is-active',on);
+        el.setAttribute('aria-pressed',String(on));
+      });
+      panel.querySelector('.course-map-kicker').innerHTML=`THE LEARNING PATH <span>${String(n.i+1).padStart(2,'0')} / ${String(path.length).padStart(2,'0')}</span>`;
+      panel.querySelector('h3').textContent=n.t;
+      panel.querySelector('.course-map-topic').textContent=n.s;
+      panel.querySelector('.course-map-copy').innerHTML=`<p><b>Uses.</b> ${n.dep}</p><p><b>Adds.</b> ${n.add}</p><p><b>Leads to.</b> ${n.next}</p>`;
+    };
+    host.querySelectorAll('[data-course-node]').forEach(el=>{
+      el.addEventListener('click',()=>pick(el.dataset.courseNode));
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pick(el.dataset.courseNode); }
+      });
+    });
+  }
+
   /* ---------- block renderers ---------- */
   const B = {
     eyebrow: b => `<p class="eyebrow"><span class="tick"></span>${md(b.text)}
@@ -2575,6 +2775,7 @@ const RENDER = (() => {
       if(L) L.mount(el);
       else el.innerHTML = '<div class="note warn">Laboratory not available in this build.</div>';
     });
+    mountCourseMap(host);
     fitScene();
     chrome(sc);
   }
@@ -2675,6 +2876,10 @@ const RENDER = (() => {
       bt.textContent = S.theme==='dark'?'Dark':'Light'; }
     const bd=document.getElementById('btn-display'); if(bd){ bd.setAttribute('aria-pressed', S.display==='projector');
       bd.textContent = S.display==='projector'?'Projector':'Normal'; }
+    const bp=document.getElementById('btn-pointer'); if(bp){ bp.setAttribute('aria-pressed', S.pointer==='laser');
+      bp.textContent = S.pointer==='laser'?'Laser':'Arrow'; }
+    const bi=document.getElementById('btn-trail'); if(bi){ bi.setAttribute('aria-pressed', S.trail!=='off');
+      bi.textContent = 'Trail: '+S.trail; bi.disabled = S.pointer!=='laser'; }
     APP.buildMap();
     APP.buildSidebar();
   }
@@ -4061,32 +4266,74 @@ function motifSignalSystem(){
   return a.svg();
 }
 
-/* --- course concept map: radial composition, used only for overview scenes --- */
+/* --- course concept map: the nodes form the teaching path, and selecting one
+       names the prerequisite it uses and the next question it unlocks. --- */
+const COURSE_PATH = CONTENT.COURSE_PATH = [
+  {m:'M1', t:'Signals', s:'energy · power · time',
+   dep:'Start here: a signal gives us a quantity that can be described and measured.',
+   add:'Build the time-domain language: energy, power, transformations and periodicity.',
+   next:'That language lets Module 2 ask what a system does to a signal.'},
+  {m:'M2', t:'Systems', s:'six properties',
+   dep:'Use the signal descriptions from Module 1 as system inputs and outputs.',
+   add:'Test memory, invertibility, causality, stability, time invariance and linearity.',
+   next:'Linearity and time invariance identify the special systems in Module 3.'},
+  {m:'M3', t:'LTI systems', s:'impulse response · convolution',
+   dep:'Carry forward the linearity and time-invariance tests from Module 2.',
+   add:'Describe an LTI system by its impulse response and calculate outputs by convolution.',
+   next:'Complex exponentials make convolution easier to analyse in Module 4.'},
+  {m:'M4', t:'Fourier series', s:'periodic signals · harmonics',
+   dep:'Use the LTI description from Module 3 and the complex exponentials from Module 1.',
+   add:'Represent periodic continuous- and discrete-time signals as sums of harmonics.',
+   next:'The limiting case of the series leads to the continuous-time transform.'},
+  {m:'M5', t:'CT Fourier transform', label:['CT Fourier','transform'], s:'continuous-time spectra',
+   dep:'Extend the Fourier-series view of periodic signals to continuous-time signals.',
+   add:'Work with spectra, transform properties, and differential equations.',
+   next:'The same frequency-domain reasoning is rebuilt for sequences in Module 6.'},
+  {m:'M6', t:'DT Fourier transform', label:['DT Fourier','transform'], s:'discrete-time spectra',
+   dep:'Keep the transform viewpoint, but return to the discrete-time model.',
+   add:'Analyse sequences, filters and difference equations in the frequency domain.',
+   next:'Those spectra explain what sampling preserves and what aliasing destroys.'},
+  {m:'M7', t:'Sampling', s:'replication · aliasing · recovery',
+   dep:'Combine the continuous-time and discrete-time spectrum models.',
+   add:'Relate a continuous signal to its samples, reconstruction and aliasing.',
+   next:'The path closes by connecting the two time models introduced at the start.'}
+];
+
 function conceptMap(){
-  const cx=590, cy=300, R=210;
-  const nodes = [
-    {a:-90, t:'Signals',      s:'energy · power · periodicity', m:'M1'},
-    {a:-18, t:'Systems',      s:'six formal properties',        m:'M2'},
-    {a: 54, t:'LTI',          s:'impulse response · convolution', m:'M3'},
-    {a:126, t:'Fourier',      s:'series · CTFT · DTFT',         m:'M4+'},
-    {a:198, t:'Sampling',     s:'replication · aliasing',       m:'M4+'}
-  ];
+  const cx=500, cy=300, R=215, nodeR=58;
   const g=[];
-  g.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.rule}" stroke-width="1" stroke-dasharray="2 6"/>`);
-  g.push(`<circle cx="${cx}" cy="${cy}" r="86" fill="${C.plate}" stroke="${C.ruleStrong}" stroke-width="1"/>`);
-  g.push(`<text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="21" font-family="Georgia,serif" fill="${C.ink}">signal</text>`);
-  g.push(`<text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="21" font-family="Georgia,serif" fill="${C.ink}">↔ system</text>`);
-  nodes.forEach((n,i)=>{
-    const r=n.a*Math.PI/180, x=cx+R*Math.cos(r), y=cy+R*Math.sin(r);
-    const x0=cx+88*Math.cos(r), y0=cy+88*Math.sin(r);
-    g.push(`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${(cx+(R-46)*Math.cos(r)).toFixed(1)}" y2="${(cy+(R-46)*Math.sin(r)).toFixed(1)}" stroke="${C.ruleStrong}" stroke-width="1" stroke-dasharray="1 5"/>`);
-    g.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="42" fill="${C.canvas}" stroke="${i<3?C.coral:C.slate}" stroke-width="1.4"/>`);
-    g.push(`<text x="${x.toFixed(1)}" y="${(y+2).toFixed(1)}" text-anchor="middle" font-size="16" font-family="Georgia,serif" fill="${C.ink}">${n.t}</text>`);
-    g.push(`<text x="${x.toFixed(1)}" y="${(y+18).toFixed(1)}" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" letter-spacing="1.4" fill="${C.muted}">${n.m}</text>`);
-    const ly = y + (Math.sin(r)>0.2? 66 : Math.sin(r)<-0.2? -56 : 66);
-    g.push(`<text x="${x.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-size="13" fill="${C.muted}">${n.s}</text>`);
+  g.push(`<circle class="course-orbit" cx="${cx}" cy="${cy}" r="${R}"/>`);
+  g.push(`<circle class="course-core" cx="${cx}" cy="${cy}" r="84"/>`);
+  g.push(`<text class="course-core-k" x="${cx}" y="${cy-10}" text-anchor="middle">M0</text>`);
+  g.push(`<text class="course-core-t" x="${cx}" y="${cy+16}" text-anchor="middle">orientation</text>`);
+  COURSE_PATH.forEach((n,i)=>{
+    const a=(-90+i*360/COURSE_PATH.length)*Math.PI/180;
+    const x=cx+R*Math.cos(a), y=cy+R*Math.sin(a);
+    const x0=cx+86*Math.cos(a), y0=cy+86*Math.sin(a);
+    const x1=cx+(R-nodeR-4)*Math.cos(a), y1=cy+(R-nodeR-4)*Math.sin(a);
+    g.push(`<line class="course-spoke" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`);
+    const lines=n.label||[n.t];
+    const title=lines.map((line,j)=>`<text class="course-node-title" x="${x.toFixed(1)}" y="${(y-(lines.length===1?3:11)+j*17).toFixed(1)}" text-anchor="middle">${line}</text>`).join('');
+    const idY=y+(lines.length===1?21:31);
+    g.push(`<g class="course-node${i===0?' is-active':''}" style="--i:${i}" data-course-node="${n.m}" role="button" tabindex="0" aria-label="${n.m}: ${n.t}" aria-pressed="${i===0?'true':'false'}">
+      <circle class="course-node-disc" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${nodeR}"/>
+      ${title}
+      <text class="course-node-id" x="${x.toFixed(1)}" y="${idY.toFixed(1)}" text-anchor="middle">${n.m}</text>
+    </g>`);
   });
-  return `<svg viewBox="0 0 1180 620" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
+  return `<svg class="course-map-svg" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" aria-label="Interactive course map. Select a module to read its place in the course." font-family="var(--sans)">${g.join('')}</svg>`;
+}
+
+function courseMapPanel(){
+  const buttons = COURSE_PATH.map((n,i)=>`<button class="course-path-btn${i===0?' is-active':''}" data-course-node="${n.m}" aria-pressed="${i===0?'true':'false'}">${n.m}</button>`).join('');
+  return `<section class="course-map-panel" data-course-map-panel aria-live="polite">
+    <p class="course-map-kicker">THE LEARNING PATH <span>01 / 07</span></p>
+    <h3>${COURSE_PATH[0].t}</h3>
+    <p class="course-map-topic">${COURSE_PATH[0].s}</p>
+    <div class="course-map-copy"><p><b>Uses.</b> ${COURSE_PATH[0].dep}</p><p><b>Adds.</b> ${COURSE_PATH[0].add}</p><p><b>Leads to.</b> ${COURSE_PATH[0].next}</p></div>
+    <div class="course-map-controls" aria-label="Choose a module">${buttons}</div>
+    <p class="course-map-hint">Select a node or module label to follow the dependency chain.</p>
+  </section>`;
 }
 
 function ctdtPair(){
@@ -4105,14 +4352,6 @@ const SC = [
     {t:'title', level:1, text:'Signals and Systems'},
     {t:'lede', text:'This course uses two ideas to describe and analyse physical processes. A signal is a function that carries information. A system is a rule that turns an input signal into an output signal. Energy, convolution, spectra and sampling let us calculate with signals and systems.'},
     {t:'raw', html:()=>`<div style="margin:22px 0 26px;width:1360px;max-width:100%">${motifSignalSystem()}</div>`},
-    {t:'raw', html:`<div style="display:flex;gap:56px;align-items:flex-start;font-size:16px;color:var(--muted);
-        border-top:1px solid var(--rule);padding-top:20px;max-width:1360px">
-      <div><b style="color:var(--graphite)">Course</b><br>Signals and Systems</div>
-      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate</div>
-      <div><b style="color:var(--graphite)">Covers</b><br>Modules 1–3: signals, systems, LTI systems</div>
-      <div><b style="color:var(--graphite)">Conventions</b><br>Normalised energy (R = 1 Ω); j is the imaginary unit</div>
-      <div><b style="color:var(--graphite)">Navigate</b><br><kbd>→</kbd> advance · <kbd>M</kbd> map · <kbd>/</kbd> search · <kbd>?</kbd> help</div>
-    </div>`}
   ]}
 ]},
 
@@ -4174,9 +4413,6 @@ const SC = [
   {t:'grid', cols:2, gap:'52px', items:[
     [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
     [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> The signal $x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its samples with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal values. No signal value exists between adjacent integers.'} ]
-  ]},
-  {t:'reveal', at:1, items:[
-    {t:'note', kind:'warn', head:'Keep the two models separate', html:'Three later results differ. (i) A discrete-time sinusoid need not be periodic. (ii) Discrete-time frequency is defined modulo $2\\pi$. This means that frequencies separated by an integer multiple of $2\\pi$ describe the same sequence. (iii) The discrete-time Fourier transform is $2\\pi$-periodic.'}
   ]}
 ]},
 
@@ -4188,14 +4424,7 @@ const SC = [
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
     {t:'fig', svg:conceptMap}
   ], right:[
-    {t:'lede', text:'The course uses each earlier topic to develop the next one. The order below shows these dependencies.'},
-    {t:'body', html:`<p><b>M1 · Signals.</b> Define a signal first. Then calculate its energy or power, transform its time axis and test whether it is periodic.</p>
-      <p><b>M2 · Systems.</b> Test six system properties. Linearity and time invariance are required for the method in the next module.</p>
-      <p><b>M3 · LTI systems.</b> Use the impulse response $h$ to describe a linear time-invariant system. Use convolution to calculate its output.</p>
-      <p><b>M4+ · Fourier and sampling.</b> Represent signals with complex exponentials. An LTI system changes each complex exponential only by a scale factor. This property turns convolution into multiplication in the frequency domain. Sampling then shows when a discrete signal keeps or loses information from a continuous signal.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Course coverage', html:'The course includes Modules 0 to 7 and ten laboratories, A to J. Every module from 1 onwards also includes twenty worked practice questions.'}
-    ]}
+    {t:'raw', html:courseMapPanel}
   ]}
 ]},
 
@@ -4439,7 +4668,7 @@ const SC = [
   {t:'title', text:'Finite-Energy Signals and Average Power'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The energy-signal conditions are not independent. If total energy is finite, the energy in every finite window is at most $E_\\infty$. Dividing that bound by $2T$ makes the average power approach zero.'},
-    {t:'eq', size:'sm', tex:'E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0',
+    {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\end{aligned}',
       note:'The averaging window grows without bound while the numerator stops growing, so the ratio is squeezed to zero.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The third class, drawn', html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power: the numerator now grows faster than the window. Neither class applies.'}]},
@@ -4474,8 +4703,8 @@ const SC = [
       ['Method', 'Evaluate $E_\\infty$ first. If it is finite, $P_\\infty=0$ follows and the classification is settled.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\int_{0}^{1}|1|^{2}\\d t = 1<\\infty'},
-      {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}=\\lim_{T\\to\\infty}\\frac{1}{2T}=0'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t\\\\&=\\int_{0}^{1}|1|^{2}\\d t=1<\\infty\\end{aligned}'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}=0\\end{aligned}'},
       {t:'wex', rows:[
         ['Solution','$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an <b>energy signal</b>. The pulse delivers a fixed amount of energy and is zero outside its finite support.'],
         ['Check','Halving the amplitude must divide the energy by four. Direct calculation gives $\\int_0^1(1/2)^2\\d t=1/4$, so the result has the required quadratic dependence on amplitude.']
@@ -4488,8 +4717,8 @@ const SC = [
         ['Method','Each sample contributes the same positive energy, so $E_\\infty$ diverges. Calculate $P_\\infty$ next and use the exact count $2N+1$.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', size:'sm', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
-      {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty'},
+      {t:'eq', size:'lg', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}\\\\&=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty\\end{aligned}'},
       {t:'wex', rows:[
         ['Solution','$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a <b>power signal</b>.'],
         ['Check','A constant sequence of amplitude $A$ has $P_\\infty=A^{2}$. Setting $A=4$ gives 16. The factor $2N+1$ also cancels exactly in the definition.']
@@ -13383,7 +13612,7 @@ const SC = [
   ], right:[
     {t:'sub', text:'Where the practice sits'},
     {t:'body', html:`<p>Laboratories A to J let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
-      <p>Each module from 1 to 7 begins with its recurring question types and ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
+      <p>Modules 2 to 7 begin with their recurring question types. Every module from 1 to 7 ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'How to practise', html:'Use a laboratory first to connect each control with its plotted effect. Then close the solution panels and answer the module questions. The laboratory shows the behaviour; the questions test whether you can predict it.'}]}
   ]}
@@ -13408,7 +13637,7 @@ const SC = [
     {t:'eq', size:'sm', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n},\\qquad x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})e^{j\\omega n}\\,\\d\\omega'},
     {t:'note', kind:'def', head:'sinc', html:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. The convention is restated wherever sinc appears.'},
     {t:'note', kind:'def', head:'Sampling', html:'A rate is angular unless it is named in hertz: $\\omega_s=2\\pi/T$ rad/s and $f_s=1/T$ Hz. The sampling theorem is stated with a strict inequality, $\\omega_s>2\\omega_M$.'},
-    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.7 — Modules 0–7 in 235 scenes, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook for the 208 scenes that have a counterpart there; both are declared once in 89_sections.js and checked by seccheck.js. Each module opens with a taxonomy of the question types that keep coming back and closes with the questions themselves, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills, 50 over Modules 1 to 3 and 26 over the Fourier properties of Modules 4 to 6. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
+    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.8 — Modules 0–7 in 234 scenes, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook for the 208 scenes that have a counterpart there; both are declared once in 89_sections.js and checked by seccheck.js. Modules 2 to 7 open with a taxonomy of the question types that keep coming back; every module closes with the questions themselves, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills, 50 over Modules 1 to 3 and 26 over the Fourier properties of Modules 4 to 6. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
   ]}
 ]}
 
@@ -13421,10 +13650,9 @@ window.SCENES_END = SC;
 /* ==== 92_drill_m1.js ==== */
 /* ==========================================================================
    Practice questions — Module 1.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
-   asks for it, so a first pass shows the target and not the answer.
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader asks for it, so a
+   first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
 const P = PLOT, C = P.COL;
@@ -14105,25 +14333,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M1 = [
-
-{ id:'m1-drill-map', module:'M1', nav:'Module 1 · question types',
-  title:'Module 1 — what a question looks like', src:'pp. 2–10',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 1 question types periodicity energy power transformation even odd impulse taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Question types', src:'pp. 2–10'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on signal foundations come in five shapes. Use this map to identify the method that each question needs.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M1'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The questions sit at the end of the module, after the teaching scenes. */
 window.DRILL_M1 = [
 
 { id:'m1-drill', module:'M1', nav:'Module 1 · practice questions',
@@ -18407,14 +18617,13 @@ window.DRILL_M7 = [
 <script>
 /* ---------- assemble the scene list from the content modules ---------- */
 (function(){
-  /* Each module opens with the taxonomy of the question types that recur in
-     examinations, and closes with the questions themselves. The map is read
-     before the work; the work is done after the module has been taught. Both
-     carry the module id of the module they belong to, so the contents rail and
-     the module list need no separate entry. */
+  /* Modules 2–7 open with the taxonomy of the question types that recur in
+     their practice questions. Every module closes with its questions after the
+     teaching scenes. The scene objects carry their module id, so the contents
+     rail and the module list need no separate entry. */
   const SCENES = [].concat(
     window.SCENES_M0||[],
-    window.DRILLMAP_M1||[], window.SCENES_M1||[], window.DRILL_M1||[],
+    window.SCENES_M1||[], window.DRILL_M1||[],
     window.DRILLMAP_M2||[], window.SCENES_M2||[], window.DRILL_M2||[],
     window.DRILLMAP_M3||[], window.SCENES_M3||[], window.DRILL_M3||[],
     window.DRILLMAP_M4||[], window.SCENES_M4||[], window.DRILL_M4||[],
@@ -18443,7 +18652,10 @@ window.DRILL_M7 = [
     ['Home / End','First / last scene'],
     ['M','Contents overlay'],['/ or F','Full-text search'],['G','Notation glossary'],
     ['S','Show or hide the contents rail'],
-    ['P','Normal ⇄ projector size'],['D','Light ⇄ dark'],
+    ['P','Normal ⇄ projector size; in projector size the mouse becomes a laser pointer'],
+    ['T','Ink of that pointer: fades a few seconds after the button is let go, is held until it is cleared, or is off'],
+    ['C','Clear the ink now; a change of scene clears it too'],
+    ['D','Light ⇄ dark'],
     ['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],
     ['Esc','Close any overlay']
   ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');
