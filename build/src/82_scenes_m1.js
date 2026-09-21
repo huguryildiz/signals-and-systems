@@ -201,7 +201,7 @@ const SC = [
   {t:'title', text:'Finite-Energy Signals and Average Power'},
   {t:'cols', ratio:'c-5-7', left:[
     {t:'body', html:'The energy-signal conditions are not independent. If total energy is finite, the energy in every finite window is at most $E_\\infty$. Dividing that bound by $2T$ makes the average power approach zero.'},
-    {t:'eq', size:'sm', tex:'E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0',
+    {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\end{aligned}',
       note:'The averaging window grows without bound while the numerator stops growing, so the ratio is squeezed to zero.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The third class, drawn', html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power: the numerator now grows faster than the window. Neither class applies.'}]},
@@ -236,8 +236,8 @@ const SC = [
       ['Method', 'Evaluate $E_\\infty$ first. If it is finite, $P_\\infty=0$ follows and the classification is settled.']
     ]},
     {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\int_{0}^{1}|1|^{2}\\d t = 1<\\infty'},
-      {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}=\\lim_{T\\to\\infty}\\frac{1}{2T}=0'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t\\\\&=\\int_{0}^{1}|1|^{2}\\d t=1<\\infty\\end{aligned}'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}=0\\end{aligned}'},
       {t:'wex', rows:[
         ['Solution','$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an <b>energy signal</b>. The pulse delivers a fixed amount of energy and is zero outside its finite support.'],
         ['Check','Halving the amplitude must divide the energy by four. Direct calculation gives $\\int_0^1(1/2)^2\\d t=1/4$, so the result has the required quadratic dependence on amplitude.']
@@ -250,8 +250,8 @@ const SC = [
         ['Method','Each sample contributes the same positive energy, so $E_\\infty$ diverges. Calculate $P_\\infty$ next and use the exact count $2N+1$.']
       ]}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', size:'sm', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
-      {t:'eq', size:'sm', tex:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty'},
+      {t:'eq', size:'lg', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
+      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}\\\\&=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty\\end{aligned}'},
       {t:'wex', rows:[
         ['Solution','$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a <b>power signal</b>.'],
         ['Check','A constant sequence of amplitude $A$ has $P_\\infty=A^{2}$. Setting $A=4$ gives 16. The factor $2N+1$ also cancels exactly in the definition.']
