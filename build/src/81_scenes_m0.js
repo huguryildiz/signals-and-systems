@@ -158,6 +158,12 @@ const COURSE_PATH = CONTENT.COURSE_PATH = [
    next:'The path closes by connecting the two time models introduced at the start.'}
 ];
 
+/* A node label is drawn over its own disc, with the orbit and a spoke behind it,
+   so it carries the halo every figure label carries. The halo is written as an
+   attribute, as `60_plot.js` writes it, because that is what the label reads. */
+const MAPHALO = 'paint-order="stroke" stroke="var(--fig-halo,#FFFFFF)"'
+  + ' stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"';
+
 function conceptMap(){
   const cx=500, cy=300, R=215, nodeR=58;
   const g=[];
@@ -172,12 +178,12 @@ function conceptMap(){
     const x1=cx+(R-nodeR-4)*Math.cos(a), y1=cy+(R-nodeR-4)*Math.sin(a);
     g.push(`<line class="course-spoke" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`);
     const lines=n.label||[n.t];
-    const title=lines.map((line,j)=>`<text class="course-node-title" x="${x.toFixed(1)}" y="${(y-(lines.length===1?3:11)+j*17).toFixed(1)}" text-anchor="middle">${line}</text>`).join('');
+    const title=lines.map((line,j)=>`<text class="course-node-title" ${MAPHALO} x="${x.toFixed(1)}" y="${(y-(lines.length===1?3:11)+j*17).toFixed(1)}" text-anchor="middle">${line}</text>`).join('');
     const idY=y+(lines.length===1?21:31);
     g.push(`<g class="course-node${i===0?' is-active':''}" style="--i:${i}" data-course-node="${n.m}" role="button" tabindex="0" aria-label="${n.m}: ${n.t}" aria-pressed="${i===0?'true':'false'}">
       <circle class="course-node-disc" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${nodeR}"/>
       ${title}
-      <text class="course-node-id" x="${x.toFixed(1)}" y="${idY.toFixed(1)}" text-anchor="middle">${n.m}</text>
+      <text class="course-node-id" ${MAPHALO} x="${x.toFixed(1)}" y="${idY.toFixed(1)}" text-anchor="middle">${n.m}</text>
     </g>`);
   });
   return `<svg class="course-map-svg" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" aria-label="Interactive course map. Select a module to read its place in the course." font-family="var(--sans)">${g.join('')}</svg>`;
