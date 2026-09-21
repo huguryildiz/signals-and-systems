@@ -141,7 +141,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'fig', frame:true, svg:()=>{
         const f=n=>{const m=n-9*Math.round(n/9); return Math.abs(m)<=2?1:0;};
-        const a=P.Axes({w:800,h:200,xr:[-16,16],yr:[-0.25,1.45],xlabel:'n',ylabel:'\\tilde{x}[n]',pad:{l:52,r:26,t:26,b:34},xtarget:8,ytarget:2});
+        const a=P.Axes({w:800,h:200,xr:[-16,16],yr:[-0.25,1.65],xlabel:'n',ylabel:'\\tilde{x}[n]',pad:{l:52,r:26,t:26,b:34},xtarget:8,ytarget:2});
         a.stem(D(f,-16,16),{color:C.mid,showZero:true});
         a.span(-4.5,4.5,1.22,'N=9>2N_1',{tex:true,color:C.out,fs:13});
         return a.svg(); },
@@ -545,7 +545,7 @@ const SC = [
         label:'Solution — the Dirichlet kernel'}]},
   ], right:[
     {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-9,9],yr:[-0.22,1.35],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:28,t:28,b:34},xtarget:8,ytarget:2});
+      const a=P.Axes({w:820,h:190,xr:[-9,9],yr:[-0.22,1.55],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:28,t:28,b:34},xtarget:8,ytarget:2});
       a.stem(D(n=>Math.abs(n)<=2?1:0,-9,9),{color:C.in,showZero:true});
       a.span(-2,2,1.12,'2N_1+1=5',{tex:true,color:C.slate,fs:13});
       return a.svg(); },

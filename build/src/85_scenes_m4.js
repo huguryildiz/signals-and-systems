@@ -775,7 +775,7 @@ const SC = [
         note:'Factor $e^{-jk(2\\pi/2N)}$ out of numerator and denominator; each bracket then becomes a difference of conjugate exponentials, that is $2j\\sin(\\cdot)$. The exponential and the factor $2j$ cancel, and the next scene collects the result.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:186,xr:[-16,16],yr:[-0.25,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:26,b:32},xtarget:8,ytarget:2});
+      const a=P.Axes({w:820,h:186,xr:[-16,16],yr:[-0.25,1.6],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:26,b:32},xtarget:8,ytarget:2});
       a.stem(D(n=>{const m=n-10*Math.round(n/10); return Math.abs(m)<=2?1:0;},-16,16),{color:C.in,r:3,showZero:true});
       a.vline(-2,{color:C.coral}); a.vline(2,{color:C.coral});
       a.span(-2,2,1.16,'2N_1+1\\;\\text{samples}',{color:C.coral,fs:13,tex:true});
