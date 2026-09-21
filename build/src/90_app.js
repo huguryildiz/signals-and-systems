@@ -94,7 +94,7 @@ const RENDER = (() => {
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
     grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
         ${b.items.map(it=>`<div class="gcell">${blocks(it)}</div>`).join('')}</div>`,
-    cols:    b => `<div class="cols ${b.ratio||'c-6-6'}" style="${b.style||''}">
+    cols:    b => `<div class="cols ${b.ratio||'c-6-6'}${b.fill?' fill':''}" style="${b.style||''}">
         <div class="col ${b.vcenter?'center':''}">${blocks(b.left)}</div>
         <div class="col ${b.vcenter?'center':''}">${blocks(b.right)}</div></div>`,
     stack:   b => `<div class="stack" style="${b.style||''}">${blocks(b.items)}</div>`,
@@ -196,7 +196,7 @@ const RENDER = (() => {
     const sc = APP.scenes()[S.i];
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
-    host.className = 'scene is-active' + (sc.dark?' dark':'');
+    host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
     host.innerHTML = '<div class="scene-inner">' + blocks(sc.blocks) + '</div>';
     host.setAttribute('aria-label', sc.title||sc.id);
     /* The address of the scene, and where the same material is developed at
