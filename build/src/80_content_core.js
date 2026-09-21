@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COURSE CONTENT — verified against `Lecture Notes.pdf`.
+   COURSE CONTENT — verified against `lecture notes.pdf`.
    This file holds course data only (modules, notation glossary, the system
    catalogue used by Laboratory D, and the property criteria).
    Every entry carries its source page.
@@ -8,9 +8,9 @@ const CONTENT = {
 
   META: {
     course:'Signals and Systems',
-    source:'Lecture Notes.pdf (88 pp.)',
-    version:'v1.7 · Modules 0–7 and their notes, laboratories, practice questions, and worked solutions rewritten in plain teaching English',
-    date:'2026-08-02',
+    source:'lecture notes.pdf (88 pp.)',
+    version:'v1.8 · Modules 0–7 and their notes, laboratories, practice questions, and worked solutions rewritten in plain teaching English',
+    date:'2026-08-03',
     language:'Academic English',
     conventions:{
       ctft:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)e^{-j\\omega t}\\,dt',

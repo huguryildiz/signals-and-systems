@@ -1,9 +1,8 @@
 /* ==========================================================================
    Practice questions — Module 1.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
-   asks for it, so a first pass shows the target and not the answer.
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader asks for it, so a
+   first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
 const P = PLOT, C = P.COL;
@@ -684,25 +683,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M1 = [
-
-{ id:'m1-drill-map', module:'M1', nav:'Module 1 · question types',
-  title:'Module 1 — what a question looks like', src:'pp. 2–10',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 1 question types periodicity energy power transformation even odd impulse taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 1 · Question types', src:'pp. 2–10'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on signal foundations come in five shapes. Use this map to identify the method that each question needs.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M1'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The questions sit at the end of the module, after the teaching scenes. */
 window.DRILL_M1 = [
 
 { id:'m1-drill', module:'M1', nav:'Module 1 · practice questions',

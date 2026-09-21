@@ -125,32 +125,74 @@ function motifSignalSystem(){
   return a.svg();
 }
 
-/* --- course concept map: radial composition, used only for overview scenes --- */
+/* --- course concept map: the nodes form the teaching path, and selecting one
+       names the prerequisite it uses and the next question it unlocks. --- */
+const COURSE_PATH = CONTENT.COURSE_PATH = [
+  {m:'M1', t:'Signals', s:'energy · power · time',
+   dep:'Start here: a signal gives us a quantity that can be described and measured.',
+   add:'Build the time-domain language: energy, power, transformations and periodicity.',
+   next:'That language lets Module 2 ask what a system does to a signal.'},
+  {m:'M2', t:'Systems', s:'six properties',
+   dep:'Use the signal descriptions from Module 1 as system inputs and outputs.',
+   add:'Test memory, invertibility, causality, stability, time invariance and linearity.',
+   next:'Linearity and time invariance identify the special systems in Module 3.'},
+  {m:'M3', t:'LTI systems', s:'impulse response · convolution',
+   dep:'Carry forward the linearity and time-invariance tests from Module 2.',
+   add:'Describe an LTI system by its impulse response and calculate outputs by convolution.',
+   next:'Complex exponentials make convolution easier to analyse in Module 4.'},
+  {m:'M4', t:'Fourier series', s:'periodic signals · harmonics',
+   dep:'Use the LTI description from Module 3 and the complex exponentials from Module 1.',
+   add:'Represent periodic continuous- and discrete-time signals as sums of harmonics.',
+   next:'The limiting case of the series leads to the continuous-time transform.'},
+  {m:'M5', t:'CT Fourier transform', label:['CT Fourier','transform'], s:'continuous-time spectra',
+   dep:'Extend the Fourier-series view of periodic signals to continuous-time signals.',
+   add:'Work with spectra, transform properties, and differential equations.',
+   next:'The same frequency-domain reasoning is rebuilt for sequences in Module 6.'},
+  {m:'M6', t:'DT Fourier transform', label:['DT Fourier','transform'], s:'discrete-time spectra',
+   dep:'Keep the transform viewpoint, but return to the discrete-time model.',
+   add:'Analyse sequences, filters and difference equations in the frequency domain.',
+   next:'Those spectra explain what sampling preserves and what aliasing destroys.'},
+  {m:'M7', t:'Sampling', s:'replication · aliasing · recovery',
+   dep:'Combine the continuous-time and discrete-time spectrum models.',
+   add:'Relate a continuous signal to its samples, reconstruction and aliasing.',
+   next:'The path closes by connecting the two time models introduced at the start.'}
+];
+
 function conceptMap(){
-  const cx=590, cy=300, R=210;
-  const nodes = [
-    {a:-90, t:'Signals',      s:'energy · power · periodicity', m:'M1'},
-    {a:-18, t:'Systems',      s:'six formal properties',        m:'M2'},
-    {a: 54, t:'LTI',          s:'impulse response · convolution', m:'M3'},
-    {a:126, t:'Fourier',      s:'series · CTFT · DTFT',         m:'M4+'},
-    {a:198, t:'Sampling',     s:'replication · aliasing',       m:'M4+'}
-  ];
+  const cx=500, cy=300, R=215, nodeR=58;
   const g=[];
-  g.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${C.rule}" stroke-width="1" stroke-dasharray="2 6"/>`);
-  g.push(`<circle cx="${cx}" cy="${cy}" r="86" fill="${C.plate}" stroke="${C.ruleStrong}" stroke-width="1"/>`);
-  g.push(`<text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="21" font-family="Georgia,serif" fill="${C.ink}">signal</text>`);
-  g.push(`<text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="21" font-family="Georgia,serif" fill="${C.ink}">↔ system</text>`);
-  nodes.forEach((n,i)=>{
-    const r=n.a*Math.PI/180, x=cx+R*Math.cos(r), y=cy+R*Math.sin(r);
-    const x0=cx+88*Math.cos(r), y0=cy+88*Math.sin(r);
-    g.push(`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${(cx+(R-46)*Math.cos(r)).toFixed(1)}" y2="${(cy+(R-46)*Math.sin(r)).toFixed(1)}" stroke="${C.ruleStrong}" stroke-width="1" stroke-dasharray="1 5"/>`);
-    g.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="42" fill="${C.canvas}" stroke="${i<3?C.coral:C.slate}" stroke-width="1.4"/>`);
-    g.push(`<text x="${x.toFixed(1)}" y="${(y+2).toFixed(1)}" text-anchor="middle" font-size="16" font-family="Georgia,serif" fill="${C.ink}">${n.t}</text>`);
-    g.push(`<text x="${x.toFixed(1)}" y="${(y+18).toFixed(1)}" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" letter-spacing="1.4" fill="${C.muted}">${n.m}</text>`);
-    const ly = y + (Math.sin(r)>0.2? 66 : Math.sin(r)<-0.2? -56 : 66);
-    g.push(`<text x="${x.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-size="13" fill="${C.muted}">${n.s}</text>`);
+  g.push(`<circle class="course-orbit" cx="${cx}" cy="${cy}" r="${R}"/>`);
+  g.push(`<circle class="course-core" cx="${cx}" cy="${cy}" r="84"/>`);
+  g.push(`<text class="course-core-k" x="${cx}" y="${cy-10}" text-anchor="middle">M0</text>`);
+  g.push(`<text class="course-core-t" x="${cx}" y="${cy+16}" text-anchor="middle">orientation</text>`);
+  COURSE_PATH.forEach((n,i)=>{
+    const a=(-90+i*360/COURSE_PATH.length)*Math.PI/180;
+    const x=cx+R*Math.cos(a), y=cy+R*Math.sin(a);
+    const x0=cx+86*Math.cos(a), y0=cy+86*Math.sin(a);
+    const x1=cx+(R-nodeR-4)*Math.cos(a), y1=cy+(R-nodeR-4)*Math.sin(a);
+    g.push(`<line class="course-spoke" style="--i:${i}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`);
+    const lines=n.label||[n.t];
+    const title=lines.map((line,j)=>`<text class="course-node-title" x="${x.toFixed(1)}" y="${(y-(lines.length===1?3:11)+j*17).toFixed(1)}" text-anchor="middle">${line}</text>`).join('');
+    const idY=y+(lines.length===1?21:31);
+    g.push(`<g class="course-node${i===0?' is-active':''}" style="--i:${i}" data-course-node="${n.m}" role="button" tabindex="0" aria-label="${n.m}: ${n.t}" aria-pressed="${i===0?'true':'false'}">
+      <circle class="course-node-disc" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${nodeR}"/>
+      ${title}
+      <text class="course-node-id" x="${x.toFixed(1)}" y="${idY.toFixed(1)}" text-anchor="middle">${n.m}</text>
+    </g>`);
   });
-  return `<svg viewBox="0 0 1180 620" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
+  return `<svg class="course-map-svg" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" aria-label="Interactive course map. Select a module to read its place in the course." font-family="var(--sans)">${g.join('')}</svg>`;
+}
+
+function courseMapPanel(){
+  const buttons = COURSE_PATH.map((n,i)=>`<button class="course-path-btn${i===0?' is-active':''}" data-course-node="${n.m}" aria-pressed="${i===0?'true':'false'}">${n.m}</button>`).join('');
+  return `<section class="course-map-panel" data-course-map-panel aria-live="polite">
+    <p class="course-map-kicker">THE LEARNING PATH <span>01 / 07</span></p>
+    <h3>${COURSE_PATH[0].t}</h3>
+    <p class="course-map-topic">${COURSE_PATH[0].s}</p>
+    <div class="course-map-copy"><p><b>Uses.</b> ${COURSE_PATH[0].dep}</p><p><b>Adds.</b> ${COURSE_PATH[0].add}</p><p><b>Leads to.</b> ${COURSE_PATH[0].next}</p></div>
+    <div class="course-map-controls" aria-label="Choose a module">${buttons}</div>
+    <p class="course-map-hint">Select a node or module label to follow the dependency chain.</p>
+  </section>`;
 }
 
 function ctdtPair(){
@@ -169,14 +211,6 @@ const SC = [
     {t:'title', level:1, text:'Signals and Systems'},
     {t:'lede', text:'This course uses two ideas to describe and analyse physical processes. A signal is a function that carries information. A system is a rule that turns an input signal into an output signal. Energy, convolution, spectra and sampling let us calculate with signals and systems.'},
     {t:'raw', html:()=>`<div style="margin:22px 0 26px;width:1360px;max-width:100%">${motifSignalSystem()}</div>`},
-    {t:'raw', html:`<div style="display:flex;gap:56px;align-items:flex-start;font-size:16px;color:var(--muted);
-        border-top:1px solid var(--rule);padding-top:20px;max-width:1360px">
-      <div><b style="color:var(--graphite)">Course</b><br>Signals and Systems</div>
-      <div><b style="color:var(--graphite)">Level</b><br>Undergraduate</div>
-      <div><b style="color:var(--graphite)">Covers</b><br>Modules 1–3: signals, systems, LTI systems</div>
-      <div><b style="color:var(--graphite)">Conventions</b><br>Normalised energy (R = 1 Ω); j is the imaginary unit</div>
-      <div><b style="color:var(--graphite)">Navigate</b><br><kbd>→</kbd> advance · <kbd>M</kbd> map · <kbd>/</kbd> search · <kbd>?</kbd> help</div>
-    </div>`}
   ]}
 ]},
 
@@ -238,9 +272,6 @@ const SC = [
   {t:'grid', cols:2, gap:'52px', items:[
     [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
     [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> The signal $x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its samples with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal values. No signal value exists between adjacent integers.'} ]
-  ]},
-  {t:'reveal', at:1, items:[
-    {t:'note', kind:'warn', head:'Keep the two models separate', html:'Three later results differ. (i) A discrete-time sinusoid need not be periodic. (ii) Discrete-time frequency is defined modulo $2\\pi$. This means that frequencies separated by an integer multiple of $2\\pi$ describe the same sequence. (iii) The discrete-time Fourier transform is $2\\pi$-periodic.'}
   ]}
 ]},
 
@@ -252,14 +283,7 @@ const SC = [
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
     {t:'fig', svg:conceptMap}
   ], right:[
-    {t:'lede', text:'The course uses each earlier topic to develop the next one. The order below shows these dependencies.'},
-    {t:'body', html:`<p><b>M1 · Signals.</b> Define a signal first. Then calculate its energy or power, transform its time axis and test whether it is periodic.</p>
-      <p><b>M2 · Systems.</b> Test six system properties. Linearity and time invariance are required for the method in the next module.</p>
-      <p><b>M3 · LTI systems.</b> Use the impulse response $h$ to describe a linear time-invariant system. Use convolution to calculate its output.</p>
-      <p><b>M4+ · Fourier and sampling.</b> Represent signals with complex exponentials. An LTI system changes each complex exponential only by a scale factor. This property turns convolution into multiplication in the frequency domain. Sampling then shows when a discrete signal keeps or loses information from a continuous signal.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Course coverage', html:'The course includes Modules 0 to 7 and ten laboratories, A to J. Every module from 1 onwards also includes twenty worked practice questions.'}
-    ]}
+    {t:'raw', html:courseMapPanel}
   ]}
 ]},
 

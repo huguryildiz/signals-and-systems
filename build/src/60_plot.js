@@ -132,6 +132,7 @@ const PLOT = (() => {
   /* ======================================================================
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
+           xnameDrop,
            xtickfmt,ytickfmt,zeroAxes}
      xlabel and ylabel are TeX source — see texName above.
      ====================================================================== */
@@ -165,10 +166,10 @@ const PLOT = (() => {
        data area, clear of the tick row wherever the zero line happens to fall.
        A tick number is set 20 below the axis it belongs to and reaches about 4
        further down; the name above its own baseline is one line tall. Leaving the
-       name 45 below the axis keeps a clear gap between the two, so the last tick
+       name 62 below the axis keeps a clear gap between the two, so the last tick
        number and the name never touch even at the right-hand edge, where they
        share the same column. */
-    const XNAME_DROP = 45;
+    const XNAME_DROP = o.xnameDrop ?? 62;
     const xnameY = (Pb) => {
       const yy0 = H - Pb;
       if(!zeroInside) return yy0 + XNAME_DROP + 1;

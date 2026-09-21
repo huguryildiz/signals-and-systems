@@ -32,7 +32,7 @@
 self-explaining document. It covers the whole course — what a signal is, energy and power, time
 transformations, periodicity, impulses and complex exponentials, system properties, linear
 time-invariant systems through convolution, Fourier series, the continuous- and discrete-time Fourier
-transforms, and sampling and aliasing — in 235 scenes that advance one idea at a time.
+transforms, and sampling and aliasing — in 234 scenes that advance one idea at a time.
 
 Everything runs from one HTML file. No install, no sign-in, no server, no network request at any point.
 Progress is stored on the reader's own device and nowhere else. Beside the artifact sits an A4
@@ -62,13 +62,13 @@ artifact makes that change the interface.
 
 ## Modules
 
-Eight modules and a closing set of three, 235 scenes in all. A module's count includes its two
-question sections: the taxonomy that opens it and the thirty practice questions that close it.
+Eight modules and a closing set of three, 234 scenes in all. Modules 2–7 include a
+question-type taxonomy; every module from 1 to 7 closes with thirty practice questions.
 
 | #   | Module                             | Scenes | What it covers                                                                                                                                                                     |
 | --- | ---------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0   | **Why Signals and Systems?**       | 6      | What a signal represents, what a system does, continuous versus discrete time, the course concept map, how to use the artifact                                                      |
-| 1   | **Signal Foundations**             | 26     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
+| 1   | **Signal Foundations**             | 25     | Notation, instantaneous power, total energy and average power, energy/power/neither classification, shifting, reversal and scaling, combined transformations, periodicity, even and odd parts, DT and CT impulse and step, sifting, complex exponentials, the DT periodicity condition |
 | 2   | **Systems and Their Properties**   | 14     | The input–output abstraction, memory, invertibility, causality, BIBO stability, time invariance, linearity, and a classification workflow that puts the six properties in order      |
 | 3   | **Linear Time-Invariant Systems**  | 18     | Impulse response, the representation property, the convolution sum and integral, flip–shift–multiply–add, four worked convolutions including a five-case continuous-time split, convolution properties, LTI property criteria |
 | 4   | **Fourier Series**                 | 44     | The eigenfunction property, the analysis and synthesis equations, existence, the rectangular and sawtooth waves, the envelope and its harmonic samples, series properties in full with a summary table for each domain, and an LTI system driven by a periodic input |
@@ -217,7 +217,7 @@ clean. A rebuild that produces a diff you did not author is a signal, not noise.
 /opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy
 ```
 
-Two files in `source/` are deliberately untracked: `Book.pdf`, which is third-party material and must
+Two files in `source/` are deliberately untracked: `book.pdf`, which is third-party material and must
 not be redistributed, and the 41 MB handwritten scan, which is too large for git history. A fresh clone
 will not contain them — copy them in from an existing working copy before rebuilding or reading source
 pages. Nothing else in the repository needs network access.
@@ -234,9 +234,9 @@ gets reported.
 | Layout                  | `cd build && node pw.js qa.js`                   | 0 errors, 0 overflow             |
 | Interaction             | `cd build && node pw.js labtest.js`              | `ERRORS: none`                   |
 | Labels                  | `cd build && node pw.js textclash.js`            | `TOTAL COLLISIONS: 0`            |
-| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 235`|
+| Mathematics             | `cd build && node pw.js mathscan.js`             | `SCENES WITH MATH DAMAGE: 0 / 234`|
 | Laboratories            | `cd build && node pw.js labwalk.js`              | `STATES WALKED: 1038`, `PROBLEMS: none` |
-| Contents addressing     | `cd build && node pw.js seccheck.js`             | `ADDRESSED: 234`, `ANCHORED: 208` |
+| Contents addressing     | `cd build && node pw.js seccheck.js`             | `ADDRESSED: 233`, `ANCHORED: 208` |
 | Notes mathematics       | `cd build && node pw.js ../notes/mathscan.js`    | `LITERAL MATH IN NOTES: 0`       |
 | Numbers, Modules 1–3    | `cd verify && ../.venv/bin/python verify_m1_m3.py` | `50 passed, 0 failed`          |
 | Numbers, Modules 4–6    | `cd verify && ../.venv/bin/python verify_m4_m6.py` | `26 passed, 0 failed`          |
@@ -325,10 +325,10 @@ reproduced, quoted or redistributed in any form.
 
 ## Current State
 
-**v1.7 — complete, and published at
-[signals-and-systems-tedu.vercel.app](https://signals-and-systems-tedu.vercel.app).** Modules 0–7 in 235 scenes, laboratories A–J, and thirty open-ended practice
+**v1.8 — ready to publish at
+[signals-and-systems-tedu.vercel.app](https://signals-and-systems-tedu.vercel.app).** Modules 0–7 in 234 scenes, laboratories A–J, and thirty open-ended practice
 questions in every module from 1 to 7 — 210 questions, each with a worked solution that ends by testing
-its own answer a second way. A module opens with a map of the question types it will ask and closes
+its own answer a second way. Modules 2–7 open with a map of their question types; every module closes
 with the questions themselves. Every Fourier property the course needs is now both taught and collected
 into a summary: the series properties in a new section of Module 4, the transform properties and the
 standard pairs in a scene each in Modules 5 and 6, and the same tables in Appendix A of the notes.
@@ -340,9 +340,9 @@ to the scenes and questions that carry it. Seventy-seven confirmed issues in the
 recorded in the issue ledger, and each is stated in the artifact at the point where it occurs — in
 the artifact's own voice, with no reference to a page or a source.
 
-What the gates printed on the final run: 235 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
+What the gates printed on the final run: 234 scenes, 0 errors, 0 overflow, 0 label collisions, 0 scenes
 with damaged mathematics, 0 literal mathematics in the notes, 1038 laboratory states walked with no
-problem in either theme, 234 scenes addressed and 208 anchored to the textbook, 989 numerical checks
+problem in either theme, 233 scenes addressed and 208 anchored to the textbook, 989 numerical checks
 passed, and 0 wording violations. Both builds are byte-reproducible: building twice from unchanged
 sources gives the same file both times.
 
