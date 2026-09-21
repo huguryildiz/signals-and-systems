@@ -21,7 +21,8 @@
   <img src="https://img.shields.io/badge/KaTeX%20vendored-12314E?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX">
   <img src="https://img.shields.io/badge/Playwright-12314E?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
   <img src="https://img.shields.io/badge/NumPy%20%C2%B7%20SymPy-12314E?style=for-the-badge&logo=python&logoColor=FFD343" alt="NumPy and SymPy">
-  <img src="https://img.shields.io/badge/v1.7%20%C2%B7%20Modules%200--7-12314E?style=for-the-badge" alt="Version v1.7">
+  <img src="https://img.shields.io/badge/v1.8%20%C2%B7%20Modules%200--7-12314E?style=for-the-badge" alt="Version v1.8">
+  <img src="https://img.shields.io/badge/CC%20BY--NC--SA%204.0%20%C2%B7%20MIT-12314E?style=for-the-badge" alt="Content CC BY-NC-SA 4.0, code MIT">
 </p>
 
 ---
@@ -53,8 +54,8 @@ artifact makes that change the interface.
 
 - **One step, one idea.** A scene reveals its parts in order, so a derivation is read rather than decoded.
 - **Every figure is drawn, not pasted.** Curves, stems, impulses and block diagrams are generated per render.
-- **Five laboratories.** Move a control and the classification, the period or the convolution updates with it.
-- **Every number is checked.** 50 numerical results are recomputed independently in `verify/`.
+- **Ten laboratories.** Move a control and the classification, the period or the convolution updates with it.
+- **Every number is checked.** 989 numerical results are recomputed independently in `verify/`.
 - **Every label is checked.** A sweep proves that nothing written inside a figure is crossed by anything drawn in it.
 - **Lecture and print from one source.** The same content produces the artifact and the printable notes.
 
@@ -94,9 +95,10 @@ question-type taxonomy; every module from 1 to 7 closes with thirty practice que
 
 ### Question banks
 
-Q1–Q7, twelve questions per module, 84 in all, in a fixed type mix: concept, calculation,
-misconception, exam-style, graph-reading and synthesis. Each question carries its answer, a reason for
-each distractor, a worked solution, and its source pages as instructor-only metadata.
+Q1–Q7, thirty open-ended questions per module, 210 in all, in a fixed mix of six question types:
+concept, calculation, misconception, exam-style, graph-reading and synthesis. No answer options. Each
+question carries a worked solution — Given, Find, Method, Solution, Check — and its source pages as
+instructor-only metadata.
 
 ---
 
@@ -126,8 +128,8 @@ periodic    scale        stable     h(t), h[n]   case        transforms   recove
 | Content          | Plain JavaScript data: scenes, blocks, laboratories, questions                     |
 | State            | `localStorage` on the reader's device only                                        |
 | Build            | Node · `build/build.js` concatenates `build/src/*` · byte-reproducible            |
-| Notes            | `notes/build.js` → HTML · `notes/topdf.js` → 25-page A4 PDF, 18 worked examples   |
-| Gates            | Playwright (`qa` · `labtest` · `textclash`) · Python (NumPy · SymPy) · `rule_check` |
+| Notes            | `notes/build.js` → HTML · `notes/topdf.js` → 80-page A4 PDF, 63 worked examples   |
+| Gates            | Playwright (`qa` · `labtest` · `textclash` · `mathscan` · `labwalk` · `seccheck`) · Python (NumPy · SymPy) · `rule_check` |
 | Distribution     | Two files in `dist/` · no server, no analytics                                    |
 
 The pipeline enforces a hard boundary between content and rendering. Scenes are data; `90_app.js`
@@ -170,18 +172,19 @@ build/
 │   ├── 40_core.js              Navigation, keyboard, overlays, persisted state
 │   ├── 60_plot.js              SVG plotting: Axes, curve, poly, stem, blocks, texName
 │   ├── 70_labs.js              Laboratories A–E
+│   ├── 71_labs_m4.js … 74_labs_m7.js     Laboratories F and G, H, I, J
 │   ├── 80_content_core.js      Metadata, conventions, glossary, system catalogue
-│   ├── 81_scenes_m0.js         Module 0 — why signals and systems (6 scenes)
-│   ├── 82_scenes_m1.js         Module 1 — signal foundations (23 scenes)
-│   ├── 83_scenes_m2.js         Module 2 — system properties (12 scenes)
-│   ├── 84_scenes_m3.js         Module 3 — LTI systems and convolution (15 scenes)
+│   ├── 81_scenes_m0.js         Module 0 — why signals and systems
+│   ├── 82_scenes_m1.js … 88_scenes_m7.js Modules 1 to 7, one file a module
+│   ├── 89_sections.js          Chapters, sections, addresses, textbook anchors
 │   ├── 90_app.js               Scene renderer and block types
 │   ├── 91_scenes_end.js        Closing synthesis and symbol table
-│   ├── 92_drill_m1.js … 98_drill_m7.js   Practice questions D1–D7, twenty a module
+│   ├── 92_drill_m1.js … 98_drill_m7.js   Practice questions D1–D7, thirty a module
 │   └── 99_tail.html            Scene registration and boot
 ├── build.js                    Concatenates src/ → dist/Signals_and_Systems.html
-├── qa.js labtest.js textclash.js   Three of the five gates
-└── domcheck.js mathscan.js     Two extra sweeps, not gates
+├── qa.js labtest.js textclash.js mathscan.js   Four of the eleven gates
+├── seccheck.js labwalk.js      Addressing and laboratory-state gates
+└── pw.js                       Runs a Playwright script on this machine
 
 notes/
 ├── build.js topdf.js           Lecture-notes pipeline → HTML → PDF
@@ -189,7 +192,8 @@ notes/
 
 verify/                         verify_m1_m3.py · verify_m4_m6.py · verify_drills.py · drill_common.py · drills_m1–m7.py
 tools/rule_check.py             The editorial banned-phrase scanner
-dist/                           The two deliverables
+web/                            build-site.js · index.html · site.css · sitecheck.js
+dist/                           The two tracked deliverables, beside the generated editions
 source/                         Course source material (git-ignored)
 ```
 
@@ -258,8 +262,8 @@ made, and for mathematics inside a figure written as anything other than LaTeX. 
 matched case-insensitively and covers page references; the `src:` field and every comment are exempt,
 because those are the traceability record rather than something a student reads.
 
-The five Playwright harnesses — `qa.js`, `labtest.js`, `textclash.js`, `domcheck.js`, `mathscan.js` —
-and `notes/topdf.js` require Playwright at a fixed absolute path. Elsewhere they run unmodified behind
+The Playwright harnesses — `qa.js`, `labtest.js`, `textclash.js`, `mathscan.js`, `labwalk.js`,
+`seccheck.js` — and `notes/topdf.js` require Playwright at a fixed absolute path. Elsewhere they run unmodified behind
 `build/pw.js`, a short module-resolution redirect: `node pw.js qa.js`, `node pw.js ../notes/topdf.js`.
 The `require` line itself is not rewritten in place. Set `PW_PATH` if Playwright lives somewhere else.
 
@@ -291,9 +295,9 @@ The `require` line itself is not rewritten in place. Set `PW_PATH` if Playwright
 
 Give students the two files in `dist/`:
 
-- **`Signals_and_Systems.html`** — the interactive artifact, about 1 MB. Opens in any browser,
+- **`Signals_and_Systems.html`** — the interactive artifact, about 2 MB. Opens in any browser,
   works offline, makes no network request, stores optional progress on the reader's own device.
-- **`Lecture_Notes.pdf`** — 25 pages, A4, printable and annotatable, with 18 worked examples.
+- **`Lecture_Notes.pdf`** — 80 pages, A4, printable and annotatable, with 63 worked examples.
 
 Both are self-contained teaching material. Neither mentions how it was produced and neither shows
 source pages; those appear only in the instructor edition of the artifact, reached with `I`.
@@ -312,6 +316,22 @@ Fixed for the whole course, stated in the artifact where a reader first needs th
 - `X(jω) = ∫ x(t)e^{−jωt} dt` · `x(t) = (1/2π)∫ X(jω)e^{jωt} dω`
 - `X(e^{jω}) = Σ x[n]e^{−jωn}` · `x[n] = (1/2π)∫_{2π} X(e^{jω})e^{jωn} dω`
 - sinc is **unnormalised**, `sinc(θ) = sin θ / θ`, restated at every point of use.
+
+---
+
+## License
+
+Two licenses, because the repository holds two kinds of work.
+
+- **Course content** — scenes, laboratories, practice questions, worked solutions, lecture notes,
+  figures and the files in `dist/` — is licensed under
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Use it in teaching, adapt it,
+  hand it out; credit the source, keep the same license, and do not sell it. See `LICENSE-CONTENT`.
+- **Software** — the build pipeline, the renderer, the plotting primitives, the gates and the site
+  build — is licensed under the MIT License. See `LICENSE`.
+
+KaTeX is vendored and stays under its own MIT License. Material in `source/` is third-party, is not
+covered by either license, and is never reproduced or redistributed here.
 
 ---
 

@@ -1,0 +1,32 @@
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+(CC BY-NC-SA 4.0)
+
+Copyright (c) 2026 huguryildiz
+
+This license applies to the course content in this repository: the scenes,
+the laboratories, the practice questions and their worked solutions, the
+lecture notes, the figures and the two deliverables in `dist/` — that is,
+the content data files under `build/src/` (`70_labs.js`, `71_labs_m4.js`
+through `74_labs_m7.js`, `80_content_core.js`, `81_scenes_m0.js` through
+`89_sections.js`, `91_scenes_end.js`, `92_drill_m1.js` through
+`98_drill_m7.js`), the chapter files under `notes/src/` (`c1.js`, `c23.js`,
+`c4.js` through `c7.js`, `ca.js`), and everything in `dist/`.
+
+You are free to share and adapt this material for non-commercial purposes,
+provided you give appropriate credit and license your adaptations under the
+same terms.
+
+The full legal code is at:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+A plain-language summary is at:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+The software in this repository is licensed separately under the MIT
+License; see LICENSE.
+
+KaTeX is vendored in `build/src/20_katex.css` and `build/src/30_katex.js`
+and remains under its own MIT License, Copyright (c) 2013-2020 Khan Academy
+and other contributors.
+
+Material in `source/` is third-party and is not licensed by this repository.
+It is not reproduced, quoted or redistributed here.
