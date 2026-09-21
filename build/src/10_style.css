@@ -520,6 +520,13 @@ figcaption b{ color:var(--graphite); font-weight:600; }
 .course-node.is-active .course-node-disc{ animation:course-node-pulse 4.8s var(--ease) 2.1s infinite; }
 .course-node:hover .course-node-title,.course-node:focus .course-node-title,.course-node.is-active .course-node-title{ fill:var(--coral); }
 .course-map-panel{ border-left:2px solid var(--coral); padding:5px 0 4px 22px; }
+
+/* ---- lecture slides (DECIDED 2026-09-21) ------------------------------------
+   Everything here is scoped to a scene that carries `slide:true`. A scene that
+   has not opted in renders exactly as it did before. A filled column spreads its
+   children over the stage instead of stacking them at the top. */
+.scene.slide .cols.fill{ align-items:stretch; }
+.scene.slide .cols.fill > .col{ justify-content:space-between; }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
 .course-map-panel h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:clamp(28px,2.2vw,38px); font-weight:500; line-height:1.05; }
