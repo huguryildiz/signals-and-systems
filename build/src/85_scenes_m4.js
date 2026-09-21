@@ -511,10 +511,10 @@ const SC = [
       caption:'The envelope $E(\\omega)$ for $T_1=1$, with the sampling points $\\omega=k\\omega_0$ marked for $T_0=4$.'},
     {t:'reveal', at:1, items:[
       {t:'grid', cols:1, gap:'6px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:135,xr:[-24,24],yr:[-0.16,0.58],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:3});
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:135,xr:[-24,24],yr:[-0.16,0.58],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:2});
           a.stem(D(k=>k===0?0.5:Math.sin(Math.PI*k/2)/(Math.PI*k),-24,24),{color:C.in,r:2.6,showZero:true}); return a.svg(); },
           caption:'$T_0=4T_1$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:135,xr:[-24,24],yr:[-0.08,0.29],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:3});
+        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:135,xr:[-24,24],yr:[-0.08,0.29],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:2,yticksOverride:[0,0.25]});
           a.stem(D(k=>k===0?0.25:Math.sin(Math.PI*k/4)/(Math.PI*k),-24,24),{color:C.in,r:2.6,showZero:true}); return a.svg(); },
           caption:'$T_0=8T_1$. Same envelope, twice as many samples across it, half the height. Doubling the period again halves it once more.'}]
       ]}]}
@@ -818,13 +818,13 @@ const SC = [
       {t:'small', html:'Keeping fewer than $N$ coefficients does produce an error, and the panels on the right show it falling from $0.045$ to $0$ as the last terms are added back. What never appears is an overshoot that refuses to shrink.'}]}
   ], right:[
     {t:'grid', cols:1, gap:'6px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-25,25],yr:[-0.18,0.58],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:3});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-25,25],yr:[-0.18,0.58],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:2});
         a.stem(D(k=>dtRect(k,10,2),-25,25),{color:C.in,r:2.6,showZero:true}); return a.svg(); },
         caption:'$N=10$, $N_1=2$. Peak $0.5$, repeating every 10.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-45,45],yr:[-0.09,0.3],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:3});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-45,45],yr:[-0.09,0.3],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:2,yticksOverride:[0,0.25]});
         a.stem(D(k=>dtRect(k,20,2),-45,45),{color:C.in,r:2,showZero:true}); return a.svg(); },
         caption:'$N=20$. Peak $0.25$, repeating every 20.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-45,45],yr:[-0.06,0.2],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:3});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:800,h:130,xr:[-45,45],yr:[-0.06,0.2],xlabel:'k',ylabel:'a_k',pad:{l:56,r:22,t:24,b:30},xtarget:7,ytarget:2,yticksOverride:[0,0.2]});
         a.stem(D(k=>dtRect(k,30,2),-45,45),{color:C.in,r:2,showZero:true}); return a.svg(); },
         caption:'$N=30$. Peak $1/6$, repeating every 30.'}]
     ]},
