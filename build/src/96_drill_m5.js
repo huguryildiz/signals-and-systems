@@ -538,7 +538,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:1});
       a.poly([[-8,0],[-6,0],[-2,2],[2,2],[6,0],[8,0]],{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-1,7.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+      pad:{l:56,r:26,t:28,b:38},xstep:2,yticksOverride:[0,2,4]});
       [[-5,Math.PI],[-3,1.5*Math.PI],[-1,2*Math.PI],[1,2*Math.PI],[3,1.5*Math.PI],[5,Math.PI]]
         .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
       return a.svg();})()),

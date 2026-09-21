@@ -77,7 +77,7 @@ const SC = [
       {t:'note', kind:'ok', head:'Limit of the construction', html:'Increase $T$ while keeping the central pulse fixed. The neighbouring copies move to larger values of $|t|$. As $T\\to\\infty$, $\\tilde{x}(t)\\to x(t)$ for every $t$. The following steps take this limit in the Fourier-series equations.'}]}
   ], right:[
     {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
+      const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.7],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
       a.curve(t=>rectp(t,1),{color:C.in,n:3000});
       a.span(-1,1,1.22,'2T_1',{color:C.coral,tex:true,fs:14});
       return a.svg(); },
@@ -637,13 +637,13 @@ const SC = [
       {t:'note', kind:'ok', head:'General conclusion', html:'For any fixed measure, narrowing a signal in time widens its spectrum, and widening it in time narrows its spectrum. Their product has a lower bound and no upper bound, so both widths cannot be made arbitrarily small.'}]}
   ], right:[
     {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
         a.curve(t=>rectp(t,1),{color:C.in,n:3000}); a.span(-1,1,1.14,'T=2',{color:C.coral,tex:true,fs:13}); return a.svg(); },
         caption:'$T_1=1$.'}],
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-16,16],yr:[-0.75,2.4],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1,2]});
         a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); a.point(PI,0,{color:C.err,r:4}); return a.svg(); },
         caption:'First null at $\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
+      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
         a.curve(t=>rectp(t,0.25),{color:C.out,n:3000}); a.span(-0.25,0.25,1.14,'T=0.5',{color:C.coral,tex:true,fs:13}); return a.svg(); },
         caption:'$T_1=1/4$: four times narrower.'}],
       [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-16,16],yr:[-0.19,0.6],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,0.25,0.5]});
@@ -849,7 +849,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'grid', cols:1, gap:'10px', items:[
         [{t:'fig', frame:true, svg:()=>{
-          const a=P.Axes({w:820,h:180,xr:[-16,16],yr:[-3.4,36],xlabel:'\\omega',ylabel:'|X(j\\omega)|',pad:{l:58,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,12.57,18.85,31.42],ytickfmt:v=>v.toFixed(2)});
+          const a=P.Axes({w:820,h:180,xr:[-16,16],yr:[-3.4,36],xlabel:'\\omega',ylabel:'|X(j\\omega)|',pad:{l:58,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,31.42],ytickfmt:v=>v.toFixed(2)});
           a.impulse(0,10*PI,{color:C.in,labelText:'31.42'});
           a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
           a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
@@ -1786,7 +1786,7 @@ const SC = [
         a.curve(dn,{color:C.h,n:4000,width:2,dash:'6 4'});
         return a.svg(); },
         caption:'The two half-height copies, drawn separately. They share the stretch $|\\omega|\\le\\pi$.'}]}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-20,20],yr:[-0.28,1.4],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
+      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-20,20],yr:[-0.28,1.6],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
         const f=w=>((Math.abs(w-2*PI)>=PI&&Math.abs(w-2*PI)<=3*PI)?0.5:0)+((Math.abs(w+2*PI)>=PI&&Math.abs(w+2*PI)<=3*PI)?0.5:0);
         a.area(f,-20,20,{color:'rgba(74,122,70,.13)'});
         a.curve(f,{color:C.out,n:4000,width:2.4});
