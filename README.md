@@ -9,7 +9,7 @@
 
 <p align="center">
   <strong>Interactive Lecture Artifact, Laboratories and Lecture Notes</strong><br>
-  <sub>EE 311 · Signals and Systems — a single offline HTML file for an undergraduate signals course. Step through a scene and watch the mathematics build itself.</sub>
+  <sub>Signals and Systems — a single offline HTML file for an undergraduate signals course. Step through a scene and watch the mathematics build itself.</sub>
 </p>
 
 <p align="center">
