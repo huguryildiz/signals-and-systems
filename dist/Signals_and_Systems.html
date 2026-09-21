@@ -543,8 +543,128 @@ figcaption b{ color:var(--graphite); font-weight:600; }
    stage, so the offset hangs 6 px past the bottom of the column and the browser
    counts it as scrollable overflow: `qa.js` then reads a full slide as
    overflowing at every step before its last. The motion is kept and turned the
-   other way, because overflow above the top of a scroll box adds no height. */
-.scene.slide .reveal{ transform:translateY(-6px); }
+   other way, because overflow above the top of a scroll box adds no height.
+   The rule names the hidden state: written on `.reveal` alone it out-specifies
+   `.reveal.shown{ transform:none }` and a revealed card stays 6 px too high. */
+.scene.slide .reveal:not(.shown){ transform:translateY(-6px); }
+
+/* The slide's tokens. The ink of a tab is white on the light page; in the dark
+   theme every colour token is a light tint, so the ink is the page. White on
+   the amber token is about 3:1, so the light amber tab takes a darker fill.
+   A tab is one line of label type and 8 px of padding tall, and the room kept
+   above a card follows it: 30 px in normal display, more in lecture mode, where
+   a fixed 30 px would be shorter than the tab it has to hold. */
+.scene.slide{
+  --tab-ink:#FFFFFF;
+  --tab-amber:#8A5E12;
+  --tab-room:calc(22px * var(--ts) + 8px);
+}
+body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--sig-h); }
+
+/* the title: a full-width hairline under it, a short coral segment at its left */
+.scene.slide .scene-inner > h2.title{ position:relative; margin:0 0 26px; padding-bottom:16px; }
+.scene.slide .scene-inner > h2.title::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:var(--rule);
+}
+.scene.slide .scene-inner > h2.title::before{
+  content:""; position:absolute; left:0; bottom:0; z-index:1;
+  width:150px; height:2px; background:var(--coral);
+}
+
+/* The information card: the `note` block. The body is a raised panel tinted
+   with the colour of its kind; the head becomes a filled tab on the top-left
+   edge, outside the reading column. The base rules for `.note.err` and for the
+   head colour of each kind are out-specified here, not restated. */
+.scene.slide .note{
+  --nc:var(--slate); --ntab:var(--slate); --ntint:4%;
+  position:relative;
+  background:color-mix(in srgb, var(--nc) var(--ntint), var(--paper-2));
+  border:1px solid var(--rule); border-left:3px solid var(--nc);
+  border-radius:var(--radius);
+  padding:17px 22px 16px;
+  font-size:calc(21.5px * var(--ts)); line-height:1.52; color:var(--graphite);
+}
+.scene.slide .note.ok  { --nc:var(--sig-out); --ntab:var(--sig-out); }
+.scene.slide .note.warn{ --nc:var(--sig-h);   --ntab:var(--tab-amber); }
+.scene.slide .note.err { --nc:var(--sig-err); --ntab:var(--sig-err); --ntint:8%; }
+.scene.slide .note b, .scene.slide .note strong{ color:var(--ink); font-weight:650; }
+/* a hairline inside a card, between the given data and the question */
+.scene.slide .note .nsep{ height:1px; background:var(--rule); margin:13px 0 12px; }
+
+/* The tab of a card and the tab of a labelled equation are one rule. It also
+   sets the size of a tab in lecture mode: this selector out-specifies the
+   `body[data-display=projector] .note-h` floor, so a slide's tab is
+   13.5 px times the type scale in both displays and is set once. */
+.scene.slide .note > .note-h,
+.scene.slide .eq:not(.plain) > .eq-label{
+  position:absolute; bottom:calc(100% - 1px); left:-3px;
+  display:inline-flex; align-items:center; gap:.46em;
+  margin:0; padding:4px 12px 4px 10px;
+  background:var(--ntab); color:var(--tab-ink);
+  border-radius:var(--radius) var(--radius) 0 0;
+  font-family:var(--mono); font-size:calc(13.5px * var(--ts)); letter-spacing:.12em;
+  text-transform:uppercase; font-weight:600; line-height:1.35;
+  white-space:nowrap;
+}
+.scene.slide .eq:not(.plain) > .eq-label{ --ntab:var(--coral); padding:4px 12px; }
+/* a tab is a label frame, and a label frame never rewrites its mathematics */
+.scene.slide .note > .note-h .katex,
+.scene.slide .eq > .eq-label .katex{ text-transform:none; letter-spacing:normal; }
+
+/* the tab's icon: one drawn set, 1.6 px stroke, masked so it takes the tab ink
+   and sized in em so it follows the tab in lecture mode */
+.scene.slide .note > .note-h::before{
+  content:""; flex:none; width:1.11em; height:1.11em;
+  background:currentColor;
+  -webkit-mask-position:center; mask-position:center;
+  -webkit-mask-size:contain;    mask-size:contain;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+}
+.scene.slide .note.def > .note-h::before{                     /* bookmark */
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h11v17l-5.5-4.2-5.5 4.2z'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h11v17l-5.5-4.2-5.5 4.2z'/%3E%3C/svg%3E");
+}
+.scene.slide .note.ok > .note-h::before{                      /* check */
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E");
+}
+.scene.slide .note.warn > .note-h::before{                    /* lightbulb */
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0-3.4 10.9c.6.5 1 1.2 1 1.9v.4h4.8v-.4c0-.7.4-1.4 1-1.9A6 6 0 0 0 12 3z'/%3E%3Cpath d='M9.8 19h4.4M10.6 21.4h2.8'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0-3.4 10.9c.6.5 1 1.2 1 1.9v.4h4.8v-.4c0-.7.4-1.4 1-1.9A6 6 0 0 0 12 3z'/%3E%3Cpath d='M9.8 19h4.4M10.6 21.4h2.8'/%3E%3C/svg%3E");
+}
+.scene.slide .note.err > .note-h::before{                     /* warning triangle */
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.6 21.2 20H2.8z'/%3E%3Cpath d='M12 9.6v4.6M12 17.4v.1'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.6 21.2 20H2.8z'/%3E%3Cpath d='M12 9.6v4.6M12 17.4v.1'/%3E%3C/svg%3E");
+}
+
+/* An equation takes the card's padding. One with a label is the same card with
+   a coral tab; one without keeps the look it has outside a slide. `:where`
+   keeps the larger `lg` size under the lecture-mode rule, which is larger
+   still and has to win there. */
+.scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
+:where(.scene.slide) .eq.lg .katex{ font-size:1.62em; }
+
+/* Room for the tab. Only a card with a head and an equation with a label have
+   a tab, so only they take the room; the corner under the tab is squared so the
+   tab and the left edge meet in one line. A reveal that opens with such a block
+   gives up its own flow gap, or the block would stand off twice. The first
+   block of a column takes the same room whatever it is, so a figure at the top
+   of one column starts level with the card body at the top of the other. */
+.scene.slide :is(.scene-inner, .col, .reveal, .gcell) > .note:has(> .note-h),
+.scene.slide :is(.scene-inner, .col, .reveal, .gcell) > .eq:not(.plain):has(> .eq-label){
+  margin:var(--tab-room) 0 0; border-top-left-radius:0;
+}
+.scene.slide .reveal:has(> .note:first-child > .note-h, > .eq:not(.plain):first-child > .eq-label){ margin-top:0; }
+.scene.slide .cols > .col > :first-child:not(.reveal),
+.scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
+/* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
+   above it, and a figure that grows takes every pixel the column has left. It
+   keeps the same distance from the block above it as a card does. */
+.scene.slide :is(.scene-inner, .col, .reveal, .gcell) > * + figure.fig{ margin-top:var(--tab-room); }
+
+/* the figure frame keeps the card's rhythm; the caption reads from the back */
+.scene.slide figcaption{ font-size:calc(16px * var(--ts)); line-height:1.45; }
+.scene.slide .fig-frame{ padding:14px 16px; }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
 .course-map-panel h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:clamp(28px,2.2vw,38px); font-weight:500; line-height:1.05; }
