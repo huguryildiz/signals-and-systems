@@ -15,7 +15,7 @@ venv/
 node_modules/
 
 # --- Large / restricted source material (kept on disk, never tracked) ---
-# The whole directory, not file by file. Book.pdf is a cross-check reference only
+# The whole directory, not file by file. book.pdf is a cross-check reference only
 # and is never reproduced or redistributed; the handwritten scan is 41 MB and too
 # large for git history; and source/exams holds the examination papers themselves,
 # which are the model for the drills and must never leave this machine. Naming the
@@ -49,6 +49,7 @@ _to_delete/
 
 # Local working area: prompts, plans, session notes. Never tracked.
 .claude/
+.Codex/
 
 # FUSE mount leftovers
 .fuse_hidden*
@@ -56,6 +57,8 @@ _to_delete/
 # Project operating instructions: local working document, not tracked.
 CLAUDE.md
 AGENTS.md
+DESIGN.md
+PRODUCT.md
 
 # Editor settings: a local convenience, not a property of the project.
 .vscode/
