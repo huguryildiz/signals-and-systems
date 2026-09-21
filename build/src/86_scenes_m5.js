@@ -1294,7 +1294,7 @@ const SC = [
         a.area(w=>Math.abs(w)<2*PI?1:0,-16,16,{color:'rgba(106,90,146,.14)'});
         a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.mid,n:3000}); return a.svg(); },
         caption:'$a=1$: height 1 on $|\\omega|<2\\pi$.'}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega',ylabel:'0.5X(j\\omega/2)',pad:{l:62,r:26,t:32,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1,2]});
+      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega',ylabel:'0.5X(j\\omega/2)',pad:{l:62,r:26,t:32,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,2]});
         a.area(w=>Math.abs(w)<4*PI?0.5:0,-16,16,{color:'rgba(74,122,70,.14)'});
         a.curve(w=>Math.abs(w)<4*PI?0.5:0,{color:C.out,n:3000}); return a.svg(); },
         caption:'$a=2$: height $0.5$ on $|\\omega|<4\\pi$. All three shaded areas are $4\\pi$.'}]}]
