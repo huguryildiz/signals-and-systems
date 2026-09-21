@@ -538,6 +538,13 @@ figcaption b{ color:var(--graphite); font-weight:600; }
    children over the stage instead of stacking them at the top. */
 .scene.slide .cols.fill{ align-items:stretch; }
 .scene.slide .cols.fill > .col{ justify-content:space-between; }
+/* A card that has not been revealed yet starts 6 px below its place. On a scene
+   that leaves room under it that offset is invisible, but a slide fills the
+   stage, so the offset hangs 6 px past the bottom of the column and the browser
+   counts it as scrollable overflow: `qa.js` then reads a full slide as
+   overflowing at every step before its last. The motion is kept and turned the
+   other way, because overflow above the top of a scroll box adds no height. */
+.scene.slide .reveal{ transform:translateY(-6px); }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
 .course-map-panel h3{ margin:0; color:var(--ink); font-family:var(--serif); font-size:clamp(28px,2.2vw,38px); font-weight:500; line-height:1.05; }
