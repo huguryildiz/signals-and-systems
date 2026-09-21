@@ -89,7 +89,8 @@ const RENDER = (() => {
     legend:  b => `<div class="legend">${b.items.map(([c,l])=>`<i class="lg-${c}">${md(l)}</i>`).join('')}</div>`,
     wex:     b => `<div class="wex">${b.rows.map(([k,v])=>
         `<div class="wex-row"><div class="wex-k">${md(k)}</div><div class="wex-v">${symLinks(md(v))}</div></div>`).join('')}</div>`,
-    fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}">
+    fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}"${
+          b.grow && typeof b.svg==='function' ? ` data-grow="${GROW.push(b)-1}"` : ''}>
         ${typeof b.svg==='function'?b.svg():b.svg}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
     grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
@@ -135,6 +136,11 @@ const RENDER = (() => {
        palette of the theme in force */
     raw:     b => typeof b.html === 'function' ? b.html() : b.html
   };
+
+  /* Figures a slide may grow into its column's spare height. The renderer fills
+     this as it draws; `fitScene` reads it back to call svg() again at a taller
+     height. It is rebuilt on every render, so an index never outlives its DOM. */
+  let GROW = [];
 
   function blocks(list){
     if(!list) return '';
@@ -197,6 +203,7 @@ const RENDER = (() => {
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
+    GROW = [];
     host.innerHTML = '<div class="scene-inner">' + blocks(sc.blocks) + '</div>';
     host.setAttribute('aria-label', sc.title||sc.id);
     /* The address of the scene, and where the same material is developed at
@@ -232,6 +239,7 @@ const RENDER = (() => {
     const figs = Array.from(inner.querySelectorAll('figure.fig > svg'));
     figs.forEach(s => s.style.maxHeight = '');
     delete host.dataset.capped;
+    delete host.dataset.grown;
     if(host.querySelector('.dr-page')){   /* a question page scrolls, never scales */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
       delete host.dataset.fit; return; }
@@ -288,6 +296,11 @@ const RENDER = (() => {
       }
       if(kept < 0.97) host.dataset.capped = (1 - kept).toFixed(3);
     }
+    /* A slide's figure takes the height its column has left over. Only when the
+       scene already fits as authored: growing must never cause a scale-down, and
+       a capped scene has no spare height to give away. */
+    if(k === 1 && !host.dataset.capped && host.classList.contains('slide'))
+      growFigures(host, inner, TARGET);
     if(k < 1){
       inner.style.height = (100 / k) + '%';
       inner.style.width  = (100 / k) + '%';
@@ -297,6 +310,53 @@ const RENDER = (() => {
       inner.style.height = '100%';
       delete host.dataset.fit;
     }
+  }
+
+  /* An svg in a column is width:100% and height:auto, so its height follows its
+     viewBox; CSS cannot make it taller without distorting or letterboxing it.
+     The figure is drawn again instead, at a height that takes up the space its
+     column has left over. A hidden reveal keeps its space, so that space is the
+     same at every step of the scene and the figure does not jump as cards
+     appear. The column is measured against the real stage height, because with
+     `height:auto` a column is exactly as tall as its contents and has no spare
+     height by definition. */
+  function growFigures(host, inner, TARGET){
+    const MIN_FREE = 24, CAP = 1.8;
+    const hWas = inner.style.height;
+    inner.style.height = TARGET + 'px';
+    inner.querySelectorAll('.cols.fill > .col').forEach(col => {
+      const figure = col.querySelector('figure.fig[data-grow]');
+      const blk = figure && GROW[+figure.dataset.grow];
+      const svg = figure && figure.querySelector('svg');
+      if(!blk || !svg) return;
+      const vb = (svg.getAttribute('viewBox')||'').split(/[\s,]+/).map(Number);
+      if(vb.length !== 4 || !vb[2] || !vb[3]) return;
+      const w0 = vb[2], h0 = vb[3];
+      const stack = () => Array.from(col.children).reduce((a,el) => {
+        const m = getComputedStyle(el);
+        return a + el.offsetHeight + parseFloat(m.marginTop||0) + parseFloat(m.marginBottom||0);
+      }, 0);
+      const free = col.clientHeight - stack();
+      const wpx = svg.clientWidth || figure.clientWidth;
+      if(free < MIN_FREE || !wpx) return;
+      const h1 = Math.min(h0 * CAP, h0 + free * (w0 / wpx));
+      if(h1 <= h0 + 1) return;
+      let markup;
+      PLOT.hOverride = h1;
+      try { markup = blk.svg(); } finally { PLOT.hOverride = null; }
+      const holder = document.createElement('div');
+      holder.innerHTML = markup || '';
+      const next = holder.querySelector('svg');
+      if(!next) return;
+      svg.replaceWith(next);
+      /* The guard measures the column, not `inner.scrollHeight`. A reveal that
+         has not been shown yet is offset by `translateY(6px)`, which costs no
+         layout height but does enlarge the scroll box, and growth can only
+         overflow the one column it happened in. */
+      if(stack() > col.clientHeight + 1){ next.replaceWith(svg); return; }
+      host.dataset.grown = (h1 / h0).toFixed(3);
+    });
+    inner.style.height = hWas;
   }
 
   function chrome(sc){
