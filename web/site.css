@@ -72,9 +72,15 @@ h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.15;
 .bar__nav a{ color:var(--muted); text-decoration:none; transition:color .18s var(--ease); }
 .bar__nav a:hover{ color:var(--ink); }
 
+.bar__gh{ display:flex; align-items:center; color:var(--muted); }
+.bar__gh svg{ display:block; }
+
 @media (max-width:760px){
   .brand__sub{ display:none; }
-  .bar__nav a:not(.btn){ display:none; }
+  .bar__nav a:not(.btn):not(.bar__gh){ display:none; }
+  .bar__nav{ gap:16px; }
+  .brand{ gap:9px; }
+  .brand__name{ font-size:13px; letter-spacing:.05em; }
 }
 
 /* ----------------------------------------------------------------- button -- */
