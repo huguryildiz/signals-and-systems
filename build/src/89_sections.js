@@ -86,7 +86,7 @@ CONTENT.SECTIONS = {
     { n:'1.2', title:'Energy and power',                           ids:[
         'm1-power','m1-energy-inf','m1-energy-div','m1-avgpower',
         'm1-classify','m1-classify-b','m1-classify-c',
-        'm1-ex-energy','m1-ex-energy-b','m1-lab-b'] },
+        'm1-ex-energy','m1-ex-energy-b','m1-ex-energy-c','m1-lab-b'] },
     { n:'1.3', title:'Transformations of the independent variable', ids:[
         'm1-shift','m1-reverse','m1-scale','m1-combined','m1-combined-b','m1-lab-a'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:[
@@ -215,7 +215,7 @@ CONTENT.BOOK = {
   'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-energy-div':'1.1.2',
   'm1-avgpower':'1.1.2',
   'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-classify-c':'1.1.2',
-  'm1-ex-energy':'1.1.2', 'm1-ex-energy-b':'1.1.2',
+  'm1-ex-energy':'1.1.2', 'm1-ex-energy-b':'1.1.2', 'm1-ex-energy-c':'1.1.2',
   'm1-lab-b':'1.1.2',
   'm1-shift':'1.2.1', 'm1-reverse':'1.2.1', 'm1-scale':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',

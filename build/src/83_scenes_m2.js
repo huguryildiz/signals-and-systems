@@ -85,7 +85,7 @@ const SC = [
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'y[n]=\\sum_{k=0}^{\\infty}x[n-k]', label:'The past', note:'Substitute the same rule for $y[n-1]$, then for $y[n-2]$, and so on.'}]},
+      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+y[n-1]\\\\&=x[n]+x[n-1]+y[n-2]\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'This form assumes initial rest, so no stored initial value remains.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'The whole past', html:'The output uses $x[n-k]$ for every $k\\ge 0$. Feedback can give a system memory.'}]}
   ]}
@@ -112,7 +112,8 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Given', html:'$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$.<div class="nsep"></div>Is the system invertible?'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'Yes. $x(t)=y(t)/\\bigl(\\cos(t)+2\\bigr)$. The gain lies in $[1,3]$, so it is never zero.'}]}
+      {t:'eq', tex:'\\begin{aligned}-1&\\le\\cos(t)\\le1\\\\1&\\le\\cos(t)+2\\le3\\\\y(t)&=[\\cos(t)+2]x(t)\\\\x(t)&=\\dfrac{y(t)}{\\cos(t)+2}\\end{aligned}', label:'Recover the input',
+        note:'The divisor is never zero, so the system is invertible.'}]}
   ]}
 ]},
 
@@ -134,7 +135,8 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y(t)=x^{2}(t)$.<div class="nsep"></div>Is the system invertible?'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Counterexample', html:'$x_1(t)=1$ and $x_2(t)=-1$ are distinct, and both give $y(t)=1$. The sign is lost.'}]},
+      {t:'eq', tex:'\\begin{aligned}x_1(t)&=1&\\Longrightarrow\\quad S\\{x_1\\}&=1^2=1\\\\x_2(t)&=-1&\\Longrightarrow\\quad S\\{x_2\\}&=(-1)^2=1\\end{aligned}', label:'Two inputs, one output',
+        note:'The inputs are distinct, but their outputs are equal. The sign is lost.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Not an inverse', html:'$x(t)=\\sqrt{y(t)}$ keeps only one of the two inputs. An inverse must recover the actual input.'}]}
   ]}
@@ -184,7 +186,8 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'Not causal', html:'$y[n]=x[n]+x[n+1]$ uses a future sample.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Reversal', html:'$y[n]=x[-n]$ gives $y[-1]=x[1]$. The output at $n=-1$ reads a future input.'}]},
+      {t:'eq', tex:'y[-1]=x[-(-1)]=x[1]', label:'Reversal',
+        note:'The output at $n=-1$ reads a future input.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'ok', head:'A known function', html:'$y(t)=x(t)\\cos(t+1)$ uses only $x(t)$. The cosine is a fixed function of $t$, not a future input.'}]}
   ]}
@@ -208,7 +211,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'BIBO stability', html:'Every bounded input must produce a bounded output. One bounded example cannot prove this.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'|y(t)|\\le 2B^{2}+B', label:'A stable rule', note:'For $y(t)=2x^{2}(t-1)+x(3t)$, if $|x|\\le B$.'}]},
+      {t:'eq', key:true, tex:'\\begin{aligned}|y(t)|&=|2x^{2}(t-1)+x(3t)|\\\\&\\le2|x(t-1)|^{2}+|x(3t)|\\\\&\\le2B^{2}+B<\\infty\\end{aligned}', label:'A stable rule', note:'The first inequality is the triangle inequality. The second uses $|x|\\le B$.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'$x(t-1)$ and $x(3t)$ take the same values as $x$. A shift or a scale cannot break the bound.'}]}
   ]}
@@ -229,7 +232,8 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$.<div class="nsep"></div>Is the accumulator stable?'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Counterexample', html:'$x[n]=u[n]$ is bounded by 1. Then $y[n]=n+1$, which grows without a bound.'}]},
+      {t:'eq', tex:'\\begin{aligned}y[n]&=\\sum_{k=-\\infty}^{n}u[k]\\\\&=\\sum_{k=0}^{n}1\\\\&=n+1\\;\\longrightarrow\\;\\infty,\\qquad n\\ge0\\end{aligned}', label:'Bounded input, unbounded output',
+        note:'The input satisfies $|u[n]|\\le1$, but the output has no finite bound.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Causal is not stable', html:'The accumulator is causal and not stable. $y[n]=x[-n]$ is stable and not causal.'}]}
   ]}
@@ -258,7 +262,8 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'warn', head:'Two paths', html:'Path 1 shifts the input, then applies the system. Path 2 applies the system, then shifts the output.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$y(t)=\\sin\\bigl(x(t)\\bigr)$ gives $\\sin\\bigl(x(t-t_0)\\bigr)$ on both paths. The system is time invariant.'}]}
+      {t:'eq', tex:'\\begin{aligned}x_2(t)&=x_1(t-t_0)\\\\y_2(t)&=\\sin(x_2(t))=\\sin(x_1(t-t_0))\\\\y_1(t-t_0)&=\\sin(x_1(t-t_0))\\\\y_2(t)&=y_1(t-t_0)\\end{aligned}', label:'Compare the two paths',
+        note:'They agree for every input and every shift, so the system is time invariant.'}]}
   ]}
 ]},
 
@@ -280,9 +285,10 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Path 2', html:'$x_1[n]=\\delta[n]$ gives $y_1[n]=0$ for every $n$. A shift of that output is still 0.'}]},
+      {t:'eq', tex:'\\begin{aligned}x_1[n]&=\\delta[n]\\\\y_1[n]&=n\\delta[n]=0\\\\y_1[n-1]&=0\\end{aligned}', label:'Path 2 · shift the output'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Path 1', html:'$x_2[n]=\\delta[n-1]$ gives $y_2[n]=\\delta[n-1]$. The paths disagree, so the system is not time invariant.'}]}
+      {t:'eq', tex:'\\begin{aligned}x_2[n]&=\\delta[n-1]\\\\y_2[n]&=n\\delta[n-1]\\\\&=1\\cdot\\delta[n-1]=\\delta[n-1]\\neq0\\end{aligned}', label:'Path 1 · shift the input',
+        note:'The paths disagree, so the system is not time invariant.'}]}
   ]}
 ]},
 
@@ -311,7 +317,8 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Given', html:'$y(t)=2\\pi\\,x(t)$.<div class="nsep"></div>Is the system linear?'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'The output of $ax_1+bx_2$ is $a\\,y_1+b\\,y_2$. The system is linear, and it is time invariant, so it is LTI.'}]}
+      {t:'eq', tex:'\\begin{aligned}S\\{ax_1+bx_2\\}&=2\\pi(ax_1+bx_2)\\\\&=a(2\\pi x_1)+b(2\\pi x_2)\\\\&=a\\,y_1+b\\,y_2\\end{aligned}', label:'Apply superposition',
+        note:'The two paths agree, so the system is linear.'}]}
   ]}
 ]},
 
@@ -338,9 +345,10 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=\\bigl(x[2n]\\bigr)^{2}$.<div class="nsep"></div>Is the system linear?'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'y_3[n]=a^{2}x_1^{2}[2n]+2ab\\,x_1[2n]x_2[2n]+b^{2}x_2^{2}[2n]', label:'After the system'}]},
+      {t:'eq', tex:'\\begin{aligned}x_3[n]&=ax_1[n]+bx_2[n]\\\\y_3[n]&=\\bigl(x_3[2n]\\bigr)^2\\\\&=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^2\\\\&=a^2x_1^2[2n]+2ab\\,x_1[2n]x_2[2n]+b^2x_2^2[2n]\\end{aligned}', label:'Combine, then apply the system'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Not linear', html:'$a\\,y_1[n]+b\\,y_2[n]$ has no cross term, and the powers of $a$ and $b$ differ. Scaling the input by $a$ scales this output by $a^{2}$.'}]}
+      {t:'eq', tex:'a\\,y_1[n]+b\\,y_2[n]=a\\,x_1^2[2n]+b\\,x_2^2[2n]\\neq y_3[n]', label:'Apply, then combine',
+        note:'There is no cross term, and the powers of $a$ and $b$ differ. The system is not linear.'}]}
   ]}
 ]},
 

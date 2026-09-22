@@ -24,6 +24,19 @@ Nn = sp.Symbol('Nn', positive=True, integer=True)
 P2 = sp.limit((2*Nn+1)*16/(2*Nn+1), Nn, sp.oo)
 chk("M1 x[n]=4: P_inf = 16", P2 == 16, f"P={P2}")
 
+# Explicit derivations added to the M1 energy and power slides
+E_cos = sp.integrate(sp.cos(2*t)**2, (t, -T, T))
+P_cos_T = sp.simplify(E_cos/(2*T))
+chk("M1 cos(2t): E_T = T + sin(4T)/4",
+    sp.simplify(E_cos - (T + sp.sin(4*T)/4)) == 0, f"E_T={E_cos}")
+chk("M1 cos(2t): running average tends to 1/2",
+    sp.limit(P_cos_T, T, sp.oo) == sp.Rational(1,2), f"P_T={P_cos_T}")
+E_ramp = sp.integrate(t**2, (t, 0, T))
+chk("M1 t*u(t): E_T = T^3/3", sp.simplify(E_ramp - T**3/3) == 0,
+    f"E_T={E_ramp}")
+chk("M1 t*u(t): P_T = T^2/6",
+    sp.simplify(E_ramp/(2*T) - T**2/6) == 0)
+
 # lab B items
 chk("LabB (1/2)^n u[n]: E = 4/3", sp.summation(sp.Rational(1,4)**k, (k,0,sp.oo)) == sp.Rational(4,3))
 chk("LabB e^{2t}u(-t): E = 1/4", sp.integrate(sp.exp(4*t), (t,-sp.oo,0)) == sp.Rational(1,4))
