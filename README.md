@@ -191,7 +191,8 @@ notes/
 └── src/                        c1.js · c23.js · render.js · notes.css
 
 verify/                         verify_m1_m3.py · verify_m4_m6.py · verify_drills.py · drill_common.py · drills_m1–m7.py
-tools/rule_check.py             The editorial banned-phrase scanner
+tools/rule_check.py             The provenance and figure-label scanner
+tools/content_guard.py          The plain-academic-English and no-ai-slop guard
 web/                            build-site.js · index.html · site.css · sitecheck.js
 dist/                           The two tracked deliverables, beside the generated editions
 source/                         Course source material (git-ignored)
@@ -321,17 +322,25 @@ Fixed for the whole course, stated in the artifact where a reader first needs th
 
 ## License
 
-Two licenses, because the repository holds two kinds of work.
+The repository separates original software from original course content.
 
 - **Course content** — scenes, laboratories, practice questions, worked solutions, lecture notes,
-  figures and the files in `dist/` — is licensed under
-  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Use it in teaching, adapt it,
-  hand it out; credit the source, keep the same license, and do not sell it. See `LICENSE-CONTENT`.
-- **Software** — the build pipeline, the renderer, the plotting primitives, the gates and the site
-  build — is licensed under the MIT License. See `LICENSE`.
+  figures and the authored material in the generated deliverables — is licensed under
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may share and adapt it
+  for non-commercial purposes, provided you credit the source, indicate changes and license
+  adaptations under the same terms. See `LICENSE-CONTENT`.
+- **Software** — the build pipeline, application shell, renderer, plotting primitives, verification
+  gates, notes pipeline and site build — is licensed under the MIT License. See `LICENSE`.
+- **Composite HTML artifacts** — the authored course content, embedded software and third-party
+  components retain the separate licenses above; the HTML file is not wholly covered by one license.
 
-KaTeX is vendored and stays under its own MIT License. Material in `source/` is third-party, is not
-covered by either license, and is never reproduced or redistributed here.
+KaTeX is vendored and remains under its own MIT License. The public cover page also contains a
+Radiant shader under its upstream MIT notice. See `THIRD_PARTY_NOTICES.md`. Material in `source/` is
+third-party, is not covered by either project license, and is never reproduced or redistributed here.
+
+Suggested attribution:
+
+> Hüseyin Uğur Yıldız, *Signals and Systems*, https://huguryildiz.com/
 
 ---
 

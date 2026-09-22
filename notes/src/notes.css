@@ -124,6 +124,8 @@ td:last-child,th:last-child{ padding-right:0; }
 .title .meta{ margin-top:34pt; border-top:0.7pt solid var(--rule); padding-top:10pt;
   display:grid; grid-template-columns:repeat(3,1fr); gap:12pt; font-size:9.4pt; color:var(--muted); }
 .title .meta b{ display:block; color:var(--body); font-weight:650; margin-bottom:2pt; }
+.title-credit{ margin-top:28pt; padding-top:9pt; border-top:0.7pt solid var(--rule); font-size:8.8pt; line-height:1.45; color:var(--muted); }
+.title-credit a{ color:var(--slate); text-decoration:none; }
 
 /* exercises */
 .q{ break-inside:avoid; margin:0 0 9pt; }

@@ -63,10 +63,10 @@ const LABS = (() => {
       const stages = [A1,A2,A3].slice(0, st.stage+1);
       root.querySelector('.plots').innerHTML = stages.map(z=>z.svg()).join('');
       root.querySelector('.ro').innerHTML = `
-        <div><dt>Operation order</dt><dd style="font-size:16px">shift by ${F(b)} → scale by ${F(a)}</dd></div>
+        <div><dt>Operation order</dt><dd>shift by ${F(b)} → scale by ${F(a)}</dd></div>
         <div><dt>Support of y</dt><dd>${isFinite(lo)?`[${F(lo,3)}, ${F(hi,3)}]`:'—'}</dd></div>
-        <div><dt>Mapped critical points</dt><dd style="font-size:16px">${critY.map(c=>F(c,3)).join(', ')}</dd></div>
-        <div><dt>Effect</dt><dd class="${Math.abs(a)>1?'':'okv'}" style="font-size:16px">${
+        <div><dt>Mapped critical points</dt><dd>${critY.map(c=>F(c,3)).join(', ')}</dd></div>
+        <div><dt>Effect</dt><dd class="${Math.abs(a)>1?'':'okv'}">${
           Math.abs(a)>1?'decimation (compress)':Math.abs(a)<1?'expansion (stretch)':'no scaling'}${a<0?' + reversal':''}</dd></div>`;
       root.querySelector('.lab-eq').innerHTML =
         T(`y(${st.dt?'n':'t'})=x\\!\\left(${F(a)}\\,${st.dt?'n':'t'}${b>=0?'-':'+'}${F(Math.abs(b))}\\right)`,true);

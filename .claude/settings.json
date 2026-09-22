@@ -12,6 +12,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/stop_guard.py"],
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

@@ -185,11 +185,20 @@ Mono is used for labels and addresses only, never for running text.
 | card body | 21.5 px / 1.52 | **new**; was 17.5 px |
 | label / tab | 13.5 px mono, `.12em`, 600 | **new**; was 12.5 px |
 | equation | 15.2 px legacy base; converted slides 19 px and converted-module laboratories 18 px, KaTeX at 1.30 em; slide `lg` 1.68 em | scales with `--ts` |
+| explanation below a slide equation | 21.5 px / 1.52 | matches the information-card body; legacy equations retain 15 px |
 | figure caption | 18 px / 1.45 on converted slides and converted-module laboratories | legacy scenes remain 14 px |
 
 **Every size is written `calc(Npx * var(--ts))`.** `--ts` is 1 in normal display and 1.36 in lecture
 mode (`body[data-display=projector]`). A size written as a bare pixel value does not grow in the
 lecture room, which is the one place it has to. The mockup hard-coded its sizes; the build must not.
+
+**Laboratory type floor.** When a laboratory is authored or restyled, control and result labels are
+at least 16 px, segmented choices at least 17 px, live and result values at least 20 px, and
+explanatory prose at least 19 px at `--ts:1`. These are source sizes, all multiplied by `var(--ts)`;
+inline pixel sizes do not qualify. Inspect populated, long-text states in both themes and display
+modes at 1920×1080. In lecture mode the scene must keep a fit factor of at least 0.90 with no
+clipping. Reflow controls or results, or split the laboratory, before reducing type. A common
+font-size override is not a substitute for checking each laboratory's fit.
 
 **A label frame does not rewrite the mathematics it carries (R8).** The label classes are uppercase
 with wide tracking, and both are inherited: `text-transform` turns `a_k` into `A_K` and

@@ -27,7 +27,9 @@
 </g>
 </svg></div><p class="kicker">${md(b.kicker)}</p>
        <h1 class="doc">${md(b.text)}</h1>${b.sub?`<p class="lead">${md(b.sub)}</p>`:''}
-       ${b.meta?`<div class="meta">${b.meta.map(([k,v])=>`<div><b>${md(k)}</b>${md(v)}</div>`).join('')}</div>`:''}</div>`,
+       ${b.meta?`<div class="meta">${b.meta.map(([k,v])=>`<div><b>${md(k)}</b>${md(v)}</div>`).join('')}</div>`:''}
+       <div class="title-credit">© 2026 <a href="https://huguryildiz.com/">Hüseyin Uğur Yıldız</a> · <a href="https://huguryildiz.com/">huguryildiz.com</a><br>
+       Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div></div>`,
     h1:     b=>`<h1>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h1>${b.rule!==false?'<hr class="thick">':''}`,
     h2:     b=>`<h2>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h2>`,
     h3:     b=>`<h3>${md(b.text)}</h3>`,
