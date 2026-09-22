@@ -82,17 +82,22 @@ CONTENT.SECTIONS = {
 
   M1: [
     { n:'1.0', title:'Opening',                                   ids:['m1-open'] },
-    { n:'1.1', title:'Definitions and notation',                  ids:['m1-def'] },
+    { n:'1.1', title:'Definitions and notation',                  ids:['m1-def','m1-def-b'] },
     { n:'1.2', title:'Energy and power',                           ids:[
-        'm1-power','m1-energy-inf','m1-avgpower','m1-classify','m1-classify-b',
-        'm1-ex-energy','m1-lab-b'] },
+        'm1-power','m1-energy-inf','m1-energy-div','m1-avgpower',
+        'm1-classify','m1-classify-b','m1-classify-c',
+        'm1-ex-energy','m1-ex-energy-b','m1-lab-b'] },
     { n:'1.3', title:'Transformations of the independent variable', ids:[
         'm1-shift','m1-reverse','m1-scale','m1-combined','m1-combined-b','m1-lab-a'] },
-    { n:'1.4', title:'Periodicity, even and odd',                  ids:['m1-periodic','m1-evenodd'] },
+    { n:'1.4', title:'Periodicity, even and odd',                  ids:[
+        'm1-periodic','m1-periodic-b','m1-evenodd','m1-evenodd-b'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
-        'm1-dt-impulse','m1-dt-sift','m1-ct-impulse'] },
+        'm1-dt-impulse','m1-dt-impulse-b','m1-dt-sift','m1-dt-sift-b',
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
-        'm1-ct-cexp','m1-ct-cexp-b','m1-dt-cexp','m1-dt-period','m1-lab-c'] },
+        'm1-ct-cexp','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
+        'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c',
+        'm1-dt-period','m1-dt-period-b','m1-lab-c'] },
     { n:'1.7', title:'Summary',                                    ids:['m1-synth'] }
   ],
 
@@ -204,17 +209,25 @@ CONTENT.SECTIONS = {
 CONTENT.BOOK = {
   'm0-signal':'1.1', 'm0-system':'1.5', 'm0-ctdt':'1.1.1',
 
-  'm1-def':'1.1.1',
-  'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-avgpower':'1.1.2',
-  'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-ex-energy':'1.1.2',
+  'm1-def':'1.1.1', 'm1-def-b':'1.1.1',
+  'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-energy-div':'1.1.2',
+  'm1-avgpower':'1.1.2',
+  'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-classify-c':'1.1.2',
+  'm1-ex-energy':'1.1.2', 'm1-ex-energy-b':'1.1.2',
   'm1-lab-b':'1.1.2',
   'm1-shift':'1.2.1', 'm1-reverse':'1.2.1', 'm1-scale':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1',
-  'm1-periodic':'1.2.2', 'm1-evenodd':'1.2.3',
-  'm1-dt-impulse':'1.4.1', 'm1-dt-sift':'1.4.1', 'm1-ct-impulse':'1.4.2',
-  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-b':'1.3.1', 'm1-dt-cexp':'1.3.2',
-  'm1-dt-period':'1.3.3', 'm1-lab-c':'1.3.3',
+  'm1-periodic':'1.2.2', 'm1-periodic-b':'1.2.2',
+  'm1-evenodd':'1.2.3', 'm1-evenodd-b':'1.2.3',
+  'm1-dt-impulse':'1.4.1', 'm1-dt-impulse-b':'1.4.1',
+  'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
+  'm1-ct-impulse':'1.4.2', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2',
+  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
+  'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1',
+  'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2',
+  'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3',
+  'm1-lab-c':'1.3.3',
   'm1-synth':'1.7',
 
   'm2-abstraction':'1.5.1',

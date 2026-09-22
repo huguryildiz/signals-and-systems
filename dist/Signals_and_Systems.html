@@ -4724,119 +4724,128 @@ const SC = [
 
 { id:'m1-def', module:'M1', nav:'Definitions and notation', title:'Definitions and notation', src:'p. 2',
   objective:'Fix the CT/DT notation and the meaning of the independent variable.',
-  keywords:'x(t) x[n] notation integer time index continuous discrete stem', steps:2, blocks:[
+  keywords:'x(t) x[n] notation integer time index continuous discrete stem',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
-  {t:'title', text:'Continuous- and Discrete-Time Notation'},
-  {t:'cols', ratio:'c-5-7', left:[
+  {t:'title', text:'Continuous-Time Notation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,20],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)=\\cos(t)',
+        pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
+      a.curve(t=>Math.cos(t),{color:C.in}); return a.svg();
+    }, caption:'A continuous-time cosine is drawn as a curve. It has a value at every real $t$.'}
+  ], right:[
     {t:'eq', tex:'x(t),\\qquad \\forall t\\in\\mathbb{R}', label:'Continuous time',
       note:'Round brackets. The signal is defined at every real instant.'},
-    {t:'eq', tex:'x[n],\\qquad \\forall n\\in\\mathbb{Z}', label:'Discrete time',
-      note:'Square brackets. {{sym:xn|The index $n$}} is an <b>integer time index</b> — not a time in seconds. Plotted with <code>stem(·)</code>.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The brackets state the domain', html:'Writing $x[t]$ or $x(n)$ states the wrong domain. The domain determines the periodicity test, the convolution limits and the transform properties.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'A signal does not have to use time as its independent variable. An image uses two space variables. The same signal operations apply to those variables. Module 7 therefore studies <em>spatial aliasing</em> as well as time-domain aliasing.'}]}
+      {t:'note', kind:'err', head:'The brackets state the domain',
+        html:'Writing $x[t]$ states the wrong domain. The domain decides the periodicity test, the convolution limits and the transform.'}]}
+  ]}
+]},
+
+{ id:'m1-def-b', module:'M1', nav:'Discrete-time notation', title:'Discrete-time notation', src:'p. 2',
+  objective:'Fix discrete-time notation and the meaning of the index n.',
+  keywords:'x[n] square brackets integer index stem',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
+  {t:'title', text:'Discrete-Time Notation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]=\\cos(n)',
+        pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
+      a.stem(disc(n=>Math.cos(n),0,20),{color:C.mid}); return a.svg();
+    }, caption:'The dots are the discrete-time signal values. A curve through the dots is a separate continuous-time signal. Module 7 gives the conditions under which the samples determine that curve uniquely.'}
   ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:230,xr:[0,20],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)=\\cos(t)',
-          pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
-        a.curve(t=>Math.cos(t),{color:C.in}); return a.svg();
-      }}],
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:230,xr:[0,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]=\\cos(n)',
-          pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
-        a.stem(disc(n=>Math.cos(n),0,20),{color:C.mid}); return a.svg();
-      }, caption:'The dots are the discrete-time signal values. A curve through the dots is a separate continuous-time signal. Module 7 gives the conditions under which the samples determine that curve uniquely.'}]
-    ]}
+    {t:'eq', tex:'x[n],\\qquad \\forall n\\in\\mathbb{Z}', label:'Discrete time',
+      note:'Square brackets. The index $n$ is an integer, not a time in seconds.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'The brackets state the domain',
+        html:'Writing $x(n)$ states the wrong domain. The dots are the signal. A curve through the dots is a different signal.'}]}
   ]}
 ]},
 
 { id:'m1-power', module:'M1', nav:'Instantaneous power', title:'From circuit power to signal power', src:'p. 2',
   objective:'Derive the normalised energy/power definitions from the physical ones.',
-  keywords:'instantaneous power energy resistor normalised R=1 joule watt', steps:3, blocks:[
+  keywords:'instantaneous power energy resistor normalised R=1 joule watt',
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Instantaneous Signal Power'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Signal energy and power come from circuit power. For a voltage $v(t)$ across a resistance $R$, first use Ohm\'s law to replace the current:'},
-    {t:'eq', tex:'p(t)=v(t)\\,i(t)=v(t)\\left(\\frac{v(t)}{R}\\right)=\\frac{1}{R}\\,v^{2}(t)',
-      label:'Instantaneous power', note:'Units: watts. The square of the voltage signal is what carries the power.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'E=\\int_{t_1}^{t_2}p(t)\\,\\d t=\\int_{t_1}^{t_2}\\frac{1}{R}v^{2}(t)\\,\\d t',
-        label:'Energy over a finite window', note:'Energy = power × time, integrated because the power varies.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Normalised convention', html:'From this point onward, set $R=1\\ \\Omega$ and write power as $|x(t)|^{2}$. This is the <b>normalised</b> convention. Restore the factor $1/R$ when a physical calculation uses a different resistance.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why the modulus', html:'Signals may be complex-valued, and $|x(t)|^{2}=x(t)\\,x^{*}(t)$ is the quantity that is real and non-negative. Writing $x^{2}(t)$ instead is correct only for real signals.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:760,h:270,xr:[0,8],yr:[-1.5,1.5],xlabel:'t',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
-      a.curve(t=>Math.cos(1.7*t),{color:C.in});
-      a.note(7.8,1.15,'v(t)',{anchor:'end',color:C.in,fs:15,tex:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:760,h:270,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
       a.area(t=>Math.pow(Math.cos(1.7*t),2),1.2,4.4,{color:'rgba(190,85,57,.18)'});
       a.curve(t=>Math.pow(Math.cos(1.7*t),2),{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
       return a.svg(); },
       caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
+  ], right:[
+    {t:'eq', tex:'p(t)=v(t)\\,i(t)=\\dfrac{1}{R}v^{2}(t)', label:'Instantaneous power',
+      note:'Units: watts. The square of the voltage carries the power.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'E=\\int_{t_1}^{t_2}p(t)\\,\\d t=\\int_{t_1}^{t_2}\\dfrac{1}{R}v^{2}(t)\\,\\d t',
+        label:'Energy over a window', note:'Integrate the power, because the power varies.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Normalised convention', html:'From here, set $R=1\\ \\Omega$ and write power as $|x(t)|^{2}$. Restore the factor $1/R$ when the resistance is different.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Why the modulus', html:'$|x(t)|^{2}=x(t)\\,x^{*}(t)$ is real and non-negative. Writing $x^{2}(t)$ is correct only for a real signal.'}]}
   ]}
 ]},
 
 { id:'m1-energy-inf', module:'M1', nav:'Total energy', title:'Total energy over an infinite interval', src:'p. 2',
   objective:'State E∞ in both domains and flag non-convergence.',
-  keywords:'E infinity total energy integral summation converge', steps:2, blocks:[
+  keywords:'E infinity total energy integral summation converge',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Total Signal Energy'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, size:'lg',
-      tex:'E_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\;=\\;\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t',
-      label:'Continuous time'},
-    {t:'eq', key:true, size:'lg',
-      tex:'E_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\sum_{n=-N}^{N}|x[n]|^{2}\\;=\\;\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}',
-      label:'Discrete time'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Check convergence', html:'The integral or sum may not converge. Because $E_\\infty$ is a limit, non-convergence means that the signal has no finite total energy. You must then calculate average power before classifying the signal.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'Use a symmetric interval from $-T$ to $T$ so that the limit includes both sides of a two-sided signal. The average-power definition uses the same interval.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:780,h:300,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.exp(-Math.abs(t)),-4,4,{color:'rgba(20,112,127,.16)'});
       a.curve(t=>Math.exp(-Math.abs(t)),{color:C.in});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
       a.span(-4,4,1.06,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'<b>Converging.</b> As $T$ grows the shaded area approaches a finite limit. The tails contribute less and less.'},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:780,h:300,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      caption:'<b>Converging.</b> As $T$ grows the shaded area approaches a finite limit. The tails contribute less and less.'}
+  ], right:[
+    {t:'eq', key:true, tex:'E_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\;=\\;\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t',
+      label:'Continuous time'},
+    {t:'eq', key:true, tex:'E_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\sum_{n=-N}^{N}|x[n]|^{2}\\;=\\;\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}',
+      label:'Discrete time'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Use a symmetric window', html:'Integrate from $-T$ to $T$, so a two-sided signal is included on both sides. Average power uses the same window.'}]}
+  ]}
+]},
+
+{ id:'m1-energy-div', module:'M1', nav:'Energy that diverges', title:'When total energy diverges', src:'p. 2',
+  objective:'Recognise a signal whose total energy has no finite value.',
+  keywords:'diverge E infinity cosine average power',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
+  {t:'title', text:'When Total Energy Diverges'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.pow(Math.cos(2*t),2),-4,4,{color:'rgba(166,59,42,.15)'});
       a.curve(t=>Math.cos(2*t),{color:C.err});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
       return a.svg(); },
       caption:'<b>Diverging.</b> Each new period adds the same area, so $E_\\infty\\to\\infty$. Average power measures the energy added per unit time.'}
+  ], right:[
+    {t:'note', kind:'err', head:'Check convergence',
+      html:'The integral or the sum may not converge. The signal then has no finite total energy, so calculate average power before classifying it.'}
   ]}
 ]},
 
 { id:'m1-avgpower', module:'M1', nav:'Average power', title:'Average power', src:'p. 2',
   objective:'State P over a window and P∞ in both domains, with the 2N+1 count.',
-  keywords:'average power P infinity 2N+1 time averaged', steps:2, blocks:[
+  keywords:'average power P infinity 2N+1 time averaged',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Average Signal Power'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', tex:'P=\\frac{1}{t_2-t_1}\\int_{t_1}^{t_2}p(t)\\,\\d t', label:'Average power over a finite window',
-      note:'Divide the energy by the length of the window.'},
-    {t:'eq', key:true, tex:'P_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t', label:'Continuous time'},
-    {t:'eq', key:true, tex:'P_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}', label:'Discrete time'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Why the count is 2N + 1', html:'$2N+1$ is the <b>number of samples</b> from $-N$ to $+N$, with both ends included. Using $2N$ gives the same limit, but the wrong value at finite $N$. That difference shows up at once in estimates from short records.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Take the limit of the ratio', html:'For each finite interval, divide its energy by its duration. Then let the interval grow. The ratio may approach any non-negative value. It approaches zero for every energy signal.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:780,h:340,xr:[0,40],yr:[-0.06,0.62],xlabel:'T\\;(\\text{half-window})',
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,40],yr:[-0.06,0.62],xlabel:'T\\;(\\text{half-window})',
         ylabel:'\\text{running average power}',pad:{l:60,r:26,t:22,b:40},xtarget:5,ytarget:4});
       const pts=[],qts=[];
       for(let i=1;i<=200;i++){ const T=i*0.2;
@@ -4848,101 +4857,132 @@ const SC = [
       a.note(38,0.09,'\\text{rectangular pulse}:\\;P_\\infty=0',{anchor:'end',color:C.out,fs:14,tex:true});
       return a.svg(); },
       caption:'These curves show the average over a window with half-width $T$. The power signal approaches a non-zero value. The energy signal approaches zero because its finite energy is divided by $2T$.'}
+  ], right:[
+    {t:'eq', tex:'P=\\dfrac{1}{t_2-t_1}\\int_{t_1}^{t_2}p(t)\\,\\d t', label:'Average over a window',
+      note:'Divide the energy by the length of the window.'},
+    {t:'eq', key:true, tex:'P_\\infty\\;\\triangleq\\;\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t',
+      label:'Continuous time'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'P_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}',
+        label:'Discrete time'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Why the count is 2N+1', html:'$2N+1$ is the number of samples from $-N$ to $N$, with both ends included. Using $2N$ gives the same limit, but the wrong value at a finite $N$.'}]}
   ]}
 ]},
 
 { id:'m1-classify', module:'M1', nav:'Energy, power, or neither', title:'Energy, power, or neither', src:'p. 3',
   objective:'State the two classifications and the third case that neither of them covers.',
-  keywords:'energy signal power signal neither classification finite infinite', steps:1, blocks:[
+  keywords:'energy signal power signal neither classification finite infinite',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Energy and Power Classification'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'note', kind:'ok', head:'Energy signals', html:'Finite energy $\\bigl(E_\\infty<\\infty\\bigr)$ <b>and</b> zero average power $\\bigl(P_\\infty=0\\bigr)$.'},
-    {t:'note', kind:'warn', head:'Power signals', html:'Finite power $\\bigl(P_\\infty<\\infty\\bigr)$ <b>and</b> infinite energy $\\bigl(E_\\infty\\to\\infty\\bigr)$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Neither class', html:'If a signal grows without bound, both quantities may diverge. For $x(t)=t\\,u(t)$, $E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$. The signal is neither an energy signal nor a power signal.'},
-      {t:'small', html:'Always allow three possible classifications: energy, power or neither.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:840,h:250,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:840,h:250,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
-      a.stem(disc(()=>4,-6,6),{color:C.h});
-      a.note(5.6,4.7,'power-type',{anchor:'end',color:C.h,fs:15,italic:true});
-      return a.svg(); }}
+      return a.svg(); },
+      caption:'A pulse of finite support has finite energy. Its average power is zero.'}
+  ], right:[
+    {t:'note', kind:'ok', head:'Energy signal', html:'Finite total energy, $E_\\infty<\\infty$, and zero average power, $P_\\infty=0$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Power signal', html:'Finite average power, $P_\\infty<\\infty$, and infinite total energy, $E_\\infty\\to\\infty$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Neither class', html:'A signal that grows without bound may send both quantities to infinity. For $x(t)=t\\,u(t)$, both $E_\\infty$ and $P_\\infty$ diverge.'}]}
   ]}
 ]},
 
 { id:'m1-classify-b', module:'M1', nav:'Finite energy and average power', title:'Finite-energy signals and average power', src:'p. 3',
   objective:'Show that finite energy forces zero average power, and give the engineering reading of the three classes.',
-  keywords:'energy forces zero power averaging window transient steady state neither ramp', steps:2, blocks:[
+  keywords:'energy forces zero power averaging window transient steady state neither ramp',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Finite-Energy Signals and Average Power'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'body', html:'The energy-signal conditions are not independent. If total energy is finite, the energy in every finite window is at most $E_\\infty$. Dividing that bound by $2T$ makes the average power approach zero.'},
-    {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\end{aligned}',
-      note:'The averaging window grows without bound while the numerator stops growing, so the ratio is squeezed to zero.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The third class, drawn', html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power: the numerator now grows faster than the window. Neither class applies.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'What to measure', html:'Use energy for a transient signal such as a pulse or a decaying response. Use average power for a continuing signal such as a sinusoid or a constant. The classification selects the finite quantity.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:840,h:250,xr:[0,12],yr:[-0.05,0.6],xlabel:'T',ylabel:'E_\\infty/2T',pad:{l:64,r:24,t:24,b:36},xtarget:6,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-0.05,0.6],xlabel:'T',ylabel:'E_\\infty/2T',pad:{l:64,r:24,t:24,b:36},xtarget:6,ytarget:3});
       a.curve(t=>t<1?NaN:1/(2*t),{color:C.out,n:1400});
       a.note(11.4,0.5,'E_\\infty=1\\;\\text{J}',{anchor:'end',color:C.out,fs:14,tex:true});
       return a.svg(); },
-      caption:'A pulse of energy 1 J, averaged over a window of half-width $T$. The average falls towards zero as the window grows, which is why a finite-energy signal always has $P_\\infty=0$.'},
+      caption:'A pulse of energy 1 J, averaged over a window of half-width $T$. The average falls towards zero as the window grows, which is why a finite-energy signal always has $P_\\infty=0$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\end{aligned}',
+      note:'The window grows, and the energy in the numerator does not, so the ratio is squeezed to zero.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:840,h:250,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
-        a.curve(t=>t>=0?t:0,{color:C.err});
-        a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
-        return a.svg(); },
-        caption:'$x(t)=t\\,u(t)$: both $E_\\infty$ and $P_\\infty$ diverge, so it is neither an energy signal nor a power signal.'}]}
+      {t:'note', kind:'def', head:'What to measure', html:'Use energy for a pulse or a decaying response. Use average power for a sinusoid or a constant. The class is the quantity that stays finite.'}]}
+  ]}
+]},
+
+{ id:'m1-classify-c', module:'M1', nav:'Neither class', title:'A signal in neither class', src:'p. 3',
+  objective:'Show a signal whose energy and average power both diverge.',
+  keywords:'neither ramp t u(t) unbounded',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
+  {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      a.curve(t=>t>=0?t:0,{color:C.err});
+      a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
+      return a.svg(); },
+      caption:'$x(t)=t\\,u(t)$: both $E_\\infty$ and $P_\\infty$ diverge, so it is neither an energy signal nor a power signal.'}
+  ], right:[
+    {t:'note', kind:'err', head:'The third class',
+      html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power. Neither class applies.'}
   ]}
 ]},
 
 { id:'m1-ex-energy', module:'M1', nav:'Worked example · classification', title:'Worked example — classify two signals', src:'p. 3',
   objective:'Reproduce both source examples with full method and sanity checks.',
-  keywords:'example rectangular pulse constant sequence energy power worked', steps:4, blocks:[
+  keywords:'example rectangular pulse constant sequence energy power worked',
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
   {t:'title', text:'Energy and Power Classification Examples'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given', '$x(t)=\\begin{cases}1,&0\\le t\\le 1\\\\ 0,&\\text{otherwise}\\end{cases}$'],
-      ['Find', 'Is $x(t)$ an energy signal or a power signal?'],
-      ['Method', 'Evaluate $E_\\infty$ first. If it is finite, $P_\\infty=0$ follows and the classification is settled.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'lg', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t\\\\&=\\int_{0}^{1}|1|^{2}\\d t=1<\\infty\\end{aligned}'},
-      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\underbrace{\\int_{0}^{1}1\\,\\d t}_{=1}\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}=0\\end{aligned}'},
-      {t:'wex', rows:[
-        ['Solution','$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an <b>energy signal</b>. The pulse delivers a fixed amount of energy and is zero outside its finite support.'],
-        ['Check','Halving the amplitude must divide the energy by four. Direct calculation gives $\\int_0^1(1/2)^2\\d t=1/4$, so the result has the required quadratic dependence on amplitude.']
-      ]}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
+      a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
+      a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
+      return a.svg(); },
+      caption:'The integrand is 1 on $[0,1]$ and 0 elsewhere, so the energy is the length of that interval.'}
   ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $0\\le t\\le 1$, and $0$ otherwise.<div class="nsep"></div>Is $x(t)$ an energy signal or a power signal?'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'E_\\infty=\\int_{0}^{1}1\\,\\d t=1', label:'Total energy'},
+      {t:'eq', tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0', label:'Average power'}]},
     {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Given','$x[n]=4,\\quad \\forall n\\in\\mathbb{Z}$'],
-        ['Find','Is $x[n]$ an energy signal or a power signal?'],
-        ['Method','Each sample contributes the same positive energy, so $E_\\infty$ diverges. Calculate $P_\\infty$ next and use the exact count $2N+1$.']
-      ]}]},
+      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an energy signal.'}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', size:'lg', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\;\\to\\;\\infty'},
-      {t:'eq', size:'lg', tex:'\\begin{aligned}P_\\infty&=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|4|^{2}\\\\&=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16<\\infty\\end{aligned}'},
-      {t:'wex', rows:[
-        ['Solution','$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a <b>power signal</b>.'],
-        ['Check','A constant sequence of amplitude $A$ has $P_\\infty=A^{2}$. Setting $A=4$ gives 16. The factor $2N+1$ also cancels exactly in the definition.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'Do not infer power from energy alone', html:'Infinite energy does not imply infinite average power. For the constant sequence, both the energy sum and the sample count grow at the same rate. Their ratio approaches 16.'}]}
+      {t:'note', kind:'def', head:'Check', html:'Halving the amplitude divides the energy by four. $\\int_0^1 (1/2)^{2}\\,\\d t=1/4$.'}]}
   ]},
   {t:'instr', head:'Presenter cue', html:'Ask the class to predict $P_\\infty$ for $x[n]=4$ <em>before</em> revealing step 3. The common guesses are 4 and ∞. Both are worth discussing.'}
+]},
+
+{ id:'m1-ex-energy-b', module:'M1', nav:'Constant sequence', title:'Worked example — a constant sequence', src:'p. 3',
+  objective:'Classify a constant sequence by its average power.',
+  keywords:'constant sequence power signal 2N+1',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
+  {t:'title', text:'Worked Example — a Constant Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
+      a.stem(disc(()=>4,-6,6),{color:C.h});
+      a.note(5.6,4.7,'power-type',{anchor:'end',color:C.h,fs:15,italic:true});
+      return a.svg(); },
+      caption:'Every sample has the same energy, so the energy sum diverges. The average power is the sample value squared.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x[n]=4$ for every integer $n$.<div class="nsep"></div>Is $x[n]$ an energy signal or a power signal?'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\to\\infty', label:'Total energy'},
+      {t:'eq', tex:'P_\\infty=\\lim_{N\\to\\infty}\\dfrac{(2N+1)\\cdot 16}{2N+1}=16', label:'Average power'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a power signal.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'A constant of amplitude $A$ has $P_\\infty=A^{2}$. For $A=4$ that is 16, and the factor $2N+1$ cancels.'}]}
+  ]}
 ]},
 
 { id:'m1-lab-b', module:'M1', nav:'Laboratory B · Energy and power', title:'Laboratory B — Energy and Power Classifier', src:'pp. 2–3, 7, 16–18',
@@ -5094,323 +5134,450 @@ const SC = [
 
 { id:'m1-periodic', module:'M1', nav:'Periodicity', title:'Periodicity', src:'p. 5',
   objective:'Define CT and DT periodicity and the fundamental period.',
-  keywords:'periodic aperiodic fundamental period T0 N0 omega0 fundamental frequency', steps:3, blocks:[
+  keywords:'periodic aperiodic fundamental period T0 N0 omega0 fundamental frequency',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
   {t:'title', text:'Signal Periodicity'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is <b>periodic</b> if there exists a constant $T>0$ such that $x(t)=x(t+T)$ for all $t\\in\\mathbb{R}$.'},
-    {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is <b>periodic</b> if there exists an <b>integer</b> constant $N>0$ such that $x[n]=x[n+N]$ for all $n\\in\\mathbb{Z}$.'},
-    {t:'body', html:'A signal that is not periodic is <b>aperiodic</b>. The definition has two requirements. A positive period must exist, and the equality must hold for every $t$ or $n$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'A discrete-time period is an integer', html:'In continuous time, $T$ may be any positive real number. In discrete time, $N$ must be a positive integer because the sequence exists only at integer indices. A value such as 3.5 samples cannot be a period.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'\\omega_0=\\frac{2\\pi}{T_0}\\qquad\\text{and}\\qquad \\omega_0=\\frac{2\\pi}{N_0}',
-        label:'Fundamental frequency',
-        note:'{{sym:T0|$T_0$}} is the <b>smallest</b> $T>0$ satisfying the periodicity condition; {{sym:N0|$N_0$}} is the smallest such positive integer.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Use the smallest positive period', html:'If $T$ is a period, every positive integer multiple $kT$ is also a period. A signal with period 4 therefore also has periods $8,12,16,\\dots$. The smallest positive value defines $T_0$ and gives a unique fundamental frequency $\\omega_0$.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const saw=t=>{const u=((t%4)+4)%4; return u/2-1;};
-      const a=P.Axes({w:900,h:250,xr:[0,20],yr:[-1.4,2.05],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:26,t:22,b:36},xtarget:10,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,20],yr:[-1.4,2.05],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:26,t:22,b:36},xtarget:10,ytarget:3});
       a.curve(saw,{color:C.in,n:2000});
       a.span(8,12,1.12,'T_0=4',{color:C.coral,tex:true}); a.span(8,16,1.76,'T=8',{color:C.muted,tex:true});
       return a.svg(); },
-      caption:'A period of 8 works as well, but the fundamental period is the smallest one, $T_0=4$.'},
-    {t:'fig', frame:true, svg:()=>{
+      caption:'A period of 8 works as well, but the fundamental period is the smallest one, $T_0=4$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is periodic if some $T>0$ satisfies $x(t)=x(t+T)$ for every real $t$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Aperiodic', html:'A signal that is not periodic is aperiodic. The equality has to hold for every $t$, not just for some of them.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\omega_0=\\dfrac{2\\pi}{T_0}', label:'Fundamental frequency',
+        note:'$T_0$ is the smallest such $T$. Every positive integer multiple of $T_0$ is also a period.'}]}
+  ]}
+]},
+
+{ id:'m1-periodic-b', module:'M1', nav:'Discrete-time period', title:'A Discrete-Time Period', src:'p. 5',
+  objective:'State the discrete-time period and the fundamental frequency.',
+  keywords:'periodic N0 integer fundamental frequency',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
+  {t:'title', text:'A Discrete-Time Period'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const f=n=>{const u=((n%8)+8)%8; return [1,3,5,3,1,0,-1,0][u];};
-      const a=P.Axes({w:900,h:250,xr:[-16,16],yr:[-1.8,6],xlabel:'n',ylabel:'y[n]',pad:{l:56,r:26,t:22,b:36},xtarget:9,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-16,16],yr:[-1.8,6],xlabel:'n',ylabel:'y[n]',pad:{l:56,r:26,t:22,b:36},xtarget:9,ytarget:4});
       a.stem(disc(f,-16,16),{color:C.mid});
       a.span(0,8,5.4,'N_0=8',{color:C.coral,tex:true});
       return a.svg(); },
       caption:'Periods $N=8,16,24,\\dots$; the fundamental period is $N_0=8$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is periodic if some integer $N>0$ satisfies $x[n]=x[n+N]$ for every integer $n$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'The period is an integer', html:'The sequence exists only at integer indices. A value such as 3.5 samples cannot be a period.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\omega_0=\\dfrac{2\\pi}{N_0}', label:'Fundamental frequency',
+        note:'$N_0$ is the smallest such positive integer.'}]}
   ]}
 ]},
 
 { id:'m1-evenodd', module:'M1', nav:'Even and odd', title:'Even and odd parts', src:'pp. 5–6',
   objective:'Define even/odd and the unique decomposition.',
-  keywords:'even odd decomposition Ev Od symmetry x(0)=0', steps:2, blocks:[
+  keywords:'even odd decomposition Ev Od symmetry x(0)=0',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
   {t:'title', text:'Even and Odd Decomposition'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'note', kind:'def', head:'Definitions', html:'<b>Even</b>: $x(t)=x(-t)$ (or $x[n]=x[-n]$).<br><b>Odd</b>: $x(t)=-x(-t)$ (or $x[n]=-x[-n]$).'},
-    {t:'note', kind:'warn', head:'Check the value at the origin', html:'For an odd signal, set $t=0$ in the definition. This gives $x(0)=-x(0)$, so $x(0)=0$. Therefore any signal with $x(0)\\neq0$ is not odd.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)'},
-      {t:'eq', key:true, tex:'x(t)=\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}', label:'Decomposition',
-        note:'Adding the two definitions returns $x$ exactly. The same construction works without change for $x[n]$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Use the parts in transform calculations', html:'The decomposition is unique. In Modules 5 and 6, it separates the real and imaginary parts of a Fourier transform. A real even signal has a real transform. A real odd signal has a purely imaginary transform.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
+      a.curve(t=>t*t*t,{color:C.mid}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
+      caption:'$t^3$ is odd, so its value at $t=0$ is 0.'}
   ], right:[
-    {t:'grid', cols:3, gap:'18px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:420,h:250,xr:[-1,1],yr:[-0.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
-        a.curve(t=>t*t,{color:C.in}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
-        caption:'$x_1(t)=t^2$ — <b>even</b>'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:420,h:250,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
-        a.curve(t=>t*t*t,{color:C.mid}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
-        caption:'$x_2(t)=t^3$ — <b>odd</b>'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:420,h:250,xr:[-1,1],yr:[-0.2,3.1],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
-        a.curve(t=>Math.exp(-t),{color:C.h}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
-        caption:'$x_3(t)=e^{-t}$ — <b>neither</b>'}]
-    ]},
+    {t:'note', kind:'def', head:'Definitions', html:'Even: $x(t)=x(-t)$. Odd: $x(t)=-x(-t)$. The same two tests apply to $x[n]$, with $n$ in place of $t$.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const x=t=>Math.exp(-t);
-        const a=P.Axes({w:900,h:270,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
-        a.curve(x,{color:C.h,dash:'4 4'});
-        a.curve(t=>0.5*(x(t)+x(-t)),{color:C.in});
-        a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid});
-        a.note(-1.42,2.6,'x',{color:C.h,fs:14,tex:true});
-        a.note(1.42,2.5,'\\operatorname{Ev}\\{x\\}=\\cosh t',{anchor:'end',color:C.in,fs:14,tex:true});
-        a.note(-0.25,-1.5,'\\operatorname{Od}\\{x\\}=-\\sinh t',{anchor:'end',color:C.mid,fs:14,tex:true});
-        return a.svg(); },
-        caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'}]}
+      {t:'note', kind:'warn', head:'Check the origin', html:'An odd signal satisfies $x(0)=-x(0)$, so $x(0)=0$. A signal with $x(0)\\neq 0$ is not odd.'}]}
+  ]}
+]},
+
+{ id:'m1-evenodd-b', module:'M1', nav:'Even–odd decomposition', title:'Even and Odd Parts', src:'pp. 5–6',
+  objective:'Split a signal into its even and odd parts.',
+  keywords:'even part odd part decomposition Ev Od',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
+  {t:'title', text:'Even and Odd Parts'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const x=t=>Math.exp(-t);
+      const a=P.Axes({w:560,h:380,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
+      a.curve(x,{color:C.h,dash:'4 4'});
+      a.curve(t=>0.5*(x(t)+x(-t)),{color:C.in});
+      a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid});
+      a.note(-1.42,2.6,'x',{color:C.h,fs:14,tex:true});
+      a.note(1.42,2.5,'\\operatorname{Ev}\\{x\\}=\\cosh t',{anchor:'end',color:C.in,fs:14,tex:true});
+      a.note(-0.25,-1.5,'\\operatorname{Od}\\{x\\}=-\\sinh t',{anchor:'end',color:C.mid,fs:14,tex:true});
+      return a.svg(); },
+      caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'}
+  ], right:[
+    {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)',
+      label:'Even and odd parts'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'x(t)=\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}', label:'Decomposition',
+        note:'Adding the two parts returns $x$. The same construction works for $x[n]$.'}]}
   ]}
 ]},
 
 { id:'m1-dt-impulse', module:'M1', nav:'DT impulse and step', title:'The discrete-time impulse and step', src:'p. 6',
   objective:'Define δ[n], u[n], the first difference and the running sum.',
-  keywords:'delta[n] u[n] unit impulse step first difference running sum representation', steps:3, blocks:[
+  keywords:'delta[n] u[n] unit impulse step first difference running sum representation',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'Discrete-Time Impulse and Step'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
-      note:'An ordinary, well-behaved sequence. Nothing infinite happens here. Compare $\\delta(t)$ on the next scene.'},
-    {t:'eq', tex:'u[n]=\\begin{cases}1,&n\\ge 0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit step'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference — the discrete derivative',
-        note:'Subtracting a copy delayed by one sample cancels the flat part of the step and leaves a single sample.'},
-      {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]=\\delta[n]+\\delta[n-1]+\\delta[n-2]+\\cdots',
-        label:'Running sum — the discrete integral'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Difference and accumulation are inverse operations', html:'A first difference reverses a running sum. A running sum reverses a first difference, subject to the initial condition. These operations are the discrete-time forms of differentiation and integration. Module 3 represents them as inverse systems, with $h[n]*g[n]=\\delta[n]$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation property',
-        note:'Expand the sum term by term: $\\;\\underbrace{u[-1]}_{=0}\\delta[n+1]+\\underbrace{u[0]}_{=1}\\delta[n]+\\underbrace{u[1]}_{=1}\\delta[n-1]+\\cdots$. Each shifted impulse places one sample value at its index. Module 3 uses this form to derive the convolution sum.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      a.stem(disc(n=>n===0?1:0,-3,5),{color:C.in,showZero:false});
+      a.note(4.6,1.15,'\\delta[n]',{anchor:'end',color:C.in,fs:16,tex:true});
+      return a.svg(); },
+      caption:'The discrete-time impulse is the sequence that equals 1 at $n=0$ and 0 elsewhere.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:220,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.stem(disc(n=>n===0?1:0,-3,5),{color:C.in,showZero:false}); a.note(4.6,1.15,'\\delta[n]',{anchor:'end',color:C.in,fs:16,tex:true}); return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:220,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h}); a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:16,tex:true}); return a.svg(); }},
+    {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
+      note:'An ordinary sequence. Nothing here is infinite.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:240,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
-        a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h}); a.stem(disc(n=>n>=1?-1:0,-3,5),{color:C.mid});
-        a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
-        a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
-        return a.svg(); },
-        caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'}]}
+      {t:'eq', tex:'u[n]=\\begin{cases}1,&n\\ge 0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit step'}]}
+  ]}
+]},
+
+{ id:'m1-dt-impulse-b', module:'M1', nav:'First difference', title:'Difference and Running Sum', src:'p. 6',
+  objective:'Relate the discrete-time step and impulse by a difference and a sum.',
+  keywords:'first difference running sum u[n] delta[n]',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
+  {t:'title', text:'Difference and Running Sum'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h});
+      a.stem(disc(n=>n>=1?-1:0,-3,5),{color:C.mid});
+      a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
+      a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
+      return a.svg(); },
+      caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
+      note:'A delay of one sample cancels the flat part of the step and leaves a single sample.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]', label:'Running sum'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'The two operations invert each other', html:'A first difference reverses a running sum. A running sum reverses a first difference. They are the discrete-time forms of differentiation and integration.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation',
+        note:'Each shifted impulse places one sample at its index.'}]}
   ]}
 ]},
 
 { id:'m1-dt-sift', module:'M1', nav:'Sampling and sifting (DT)', title:'Sampling and sifting properties', src:'pp. 6–7',
   objective:'Distinguish the two properties and verify both on the definition example.',
-  keywords:'sampling property sifting property delta n0 x[n0]', steps:3, blocks:[
+  keywords:'sampling property sifting property delta n0 x[n0]',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
   {t:'title', text:'Discrete-Time Sampling and Sifting'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, tex:'x[n]\\,\\delta[n-n_0]=x[n_0]\\,\\delta[n-n_0]', label:'Sampling property',
-      note:'Both sides are <b>sequences</b>. Multiplying by a shifted impulse freezes the signal at one index and discards the rest.'},
-    {t:'eq', key:true, tex:'x[n_0]=\\sum_{n=-\\infty}^{\\infty}x[n]\\,\\delta[n-n_0]', label:'Sifting property',
-      note:'The right-hand side is a <b>number</b>. Summing the sampled sequence extracts the single value $x[n_0]$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Check the type of the result', html:'Sampling gives a sequence. Sifting gives one number. The sifting operation first samples and then sums the resulting sequence. Confusing the two operations gives a result of the wrong type.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Given','$n_0=2$ and $x[0]=1,\\;x[1]=2,\\;x[2]=3$.'],
-        ['Find','The sampled sequence and the sifted value.'],
-        ['Method','Multiply by $\\delta[n-2]$ to keep the sample at $n=2$. Then sum the sampled sequence to sift out its value.'],
-        ['Solution','Sampling gives $x[n]\\delta[n-2]=x[2]\\delta[n-2]=3\\,\\delta[n-2]$, a single stem of height 3 at $n=2$. Sifting gives $\\displaystyle\\sum_n x[n]\\delta[n-2]=x[0]\\underbrace{\\delta[-2]}_{0}+x[1]\\underbrace{\\delta[-1]}_{0}+x[2]\\underbrace{\\delta[0]}_{1}=3$.'],
-        ['Check','The sampled result is a sequence. The sifted result is the number 3.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Use the representation to derive convolution', html:'The representation $x[n]=\\sum_k x[k]\\delta[n-k]$ writes every sequence as a sum of shifted impulses. Module 3 applies a linear time-invariant system to this sum. Linearity and time invariance then produce the convolution sum.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>[1,2,3][n]!==undefined&&n>=0&&n<=2?[1,2,3][n]:0,-1,5),{color:C.in});
-      a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true}); return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,5],yr:[-0.3,1.4],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:2});
-      a.stem(disc(n=>n===2?1:0,-1,5),{color:C.h});
-      a.note(4.6,1.2,'\\delta[n-2]',{anchor:'end',color:C.h,fs:15,tex:true}); return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true});
+      return a.svg(); },
+      caption:'The sequence used below. Sampling keeps the sample at $n=2$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'x[n]\\,\\delta[n-n_0]=x[n_0]\\,\\delta[n-n_0]', label:'Sampling property',
+      note:'Both sides are sequences. The impulse keeps one sample and drops the rest.'},
+    {t:'eq', key:true, tex:'x[n_0]=\\sum_{n=-\\infty}^{\\infty}x[n]\\,\\delta[n-n_0]', label:'Sifting property',
+      note:'The right-hand side is a number.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Check the type of the result', html:'Sampling gives a sequence. Sifting gives one number. Sifting is sampling followed by a sum.'}]}
+  ]}
+]},
+
+{ id:'m1-dt-sift-b', module:'M1', nav:'Sampling example', title:'Sampling and Sifting, Computed', src:'pp. 6–7',
+  objective:'Compute one sampled sequence and one sifted value.',
+  keywords:'sampling sifting example n0=2',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
+  {t:'title', text:'Sampling and Sifting, Computed'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>n===2?3:0,-1,5),{color:C.out});
-      a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true}); return a.svg(); },
+      a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true});
+      return a.svg(); },
       caption:'The product is a <em>sequence</em>. The sifting property gives the number obtained by summing it.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$n_0=2$, and $x[0]=1$, $x[1]=2$, $x[2]=3$.<div class="nsep"></div>Find the sampled sequence and the sifted value.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'Multiply by $\\delta[n-2]$ to keep the sample at $n=2$. Then sum that sequence.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'Sampling gives $3\\,\\delta[n-2]$. Sifting gives the number 3.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'The sampled result is a sequence. The sifted result is the number 3.'}]}
   ]}
 ]},
 
 { id:'m1-ct-impulse', module:'M1', nav:'CT impulse and step', title:'The continuous-time impulse', src:'p. 7',
   objective:'Present δ(t) rigorously as a distribution while keeping the definition picture.',
-  keywords:'dirac delta distribution generalized function unit step derivative area 1', steps:4, blocks:[
+  keywords:'dirac delta distribution generalized function unit step derivative area 1',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Continuous-Time Impulse and Step'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', tex:'\\delta(t)=\\begin{cases}\\infty,&t=0\\\\0,&\\text{otherwise}\\end{cases}\\qquad \\int_{-\\infty}^{\\infty}\\delta(t)\\,\\d t=1',
-      label:'Informal picture', note:'This formula is only a visual aid. The Dirac delta is a distribution, not an ordinary function. Its arrow has weight 1, which represents area rather than height.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Define the impulse by its action', html:'An ordinary function that is zero except at one point has integral 0, not 1. The impulse is therefore a <b>distribution</b>, also called a generalized function. A distribution is defined by how it acts inside an integral. Here $\\int x(t)\\delta(t-t_0)\\d t=x(t_0)$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'To picture the impulse, use a rectangle of width $\\varepsilon$ and height $1/\\varepsilon$. Its area is 1. Then let $\\varepsilon\\to0$. The rectangles do not approach an ordinary function at each fixed $t$. Their integrals against a continuous test function do approach the sifting result.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'eq', tex:'\\delta(t)=\\frac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau', label:'Step and impulse',
-        note:'The discrete pair $\\delta[n]=u[n]-u[n-1]$ and $u[n]=\\sum\\delta[n-k]$ is the exact analogue.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)\\qquad\\text{(sampling)}'},
-      {t:'eq', key:true, tex:'x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\d t\\qquad\\text{(sifting)}',
-        note:'Same two statements as in discrete time, with the sum replaced by an integral.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:240,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
       a.impulse(0,1,{color:C.in,labelText:'1'});
       a.note(1.9,1.2,'\\delta(t)',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
-      caption:'The arrow label gives the impulse weight. This weight is its area in an integral, not a function value.'},
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:240,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
+      caption:'The arrow label gives the impulse weight. This weight is its area in an integral, not a function value.'}
+  ], right:[
+    {t:'eq', tex:'\\delta(t)=\\begin{cases}\\infty,&t=0\\\\0,&\\text{otherwise}\\end{cases}\\qquad \\int_{-\\infty}^{\\infty}\\delta(t)\\,\\d t=1',
+      label:'Informal picture', note:'A picture only. The arrow\'s weight is area, not a function value.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Define the impulse by its action', html:'An ordinary function that is zero except at one point has integral 0, not 1. The impulse is a distribution, and $\\int x(t)\\,\\delta(t-t_0)\\,\\d t=x(t_0)$.'}]}
+  ]}
+]},
+
+{ id:'m1-ct-impulse-b', module:'M1', nav:'Impulse as a limit', title:'Picturing the Impulse', src:'p. 7',
+  objective:'Picture the impulse as a unit-area rectangle made narrow.',
+  keywords:'epsilon rectangle area distribution',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
+  {t:'title', text:'Picturing the Impulse'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
       [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
         const col=[ '#9BC4CB','#4E9AA6',C.in][i];
         a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
       a.note(1.1,4.1,'\\text{width }\\varepsilon,\\;\\text{height }1/\\varepsilon',{anchor:'end',color:C.muted,fs:13,tex:true});
       return a.svg(); },
-      caption:'Each rectangle has unit area. As the width decreases, its integral against a continuous test function approaches the sifting result.'},
-    {t:'reveal', at:4, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:840,h:230,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
-        const x=t=>0.75*Math.cos(1.2*t-0.5);
-        a.curve(x,{color:C.muted,width:1.6});
-        a.impulse(3, x(3), {color:C.coral, labelText:'x(t₀)'});
-        a.point(3,x(3),{color:C.coral});
-        a.note(5.7,1.35,'x(t)',{anchor:'end',color:C.muted,fs:15,tex:true});
-        a.note(2.86,-0.28,'t_0',{anchor:'end',color:C.coral,fs:14,tex:true});
-        return a.svg(); },
-        caption:'Sifting, drawn. The impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}]}
+      caption:'Each rectangle has unit area. As the width decreases, its integral against a continuous test function approaches the sifting result.'}
+  ], right:[
+    {t:'note', kind:'def', head:'A unit-area picture', html:'A rectangle of width $\\varepsilon$ and height $1/\\varepsilon$ has area 1. As $\\varepsilon\\to 0$, its integral against a continuous test function approaches the sifting result.'}
+  ]}
+]},
+
+{ id:'m1-ct-impulse-c', module:'M1', nav:'CT sampling and sifting', title:'Continuous-Time Sampling and Sifting', src:'p. 7',
+  objective:'State the continuous-time sampling and sifting properties.',
+  keywords:'sampling sifting delta(t) step derivative',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
+  {t:'title', text:'Continuous-Time Sampling and Sifting'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
+      const x=t=>0.75*Math.cos(1.2*t-0.5);
+      a.curve(x,{color:C.muted,width:1.6});
+      a.impulse(3, x(3), {color:C.coral, label:false});
+      a.point(3,x(3),{color:C.coral});
+      a.note(4.55,-0.9,'(x(t_0))',{color:C.coral,fs:14,tex:true});
+      a.note(5.7,1.35,'x(t)',{anchor:'end',color:C.muted,fs:15,tex:true});
+      a.note(2.86,-0.28,'t_0',{anchor:'end',color:C.coral,fs:14,tex:true});
+      return a.svg(); },
+      caption:'Sifting, drawn. The impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
+  ], right:[
+    {t:'eq', tex:'\\delta(t)=\\dfrac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau',
+      label:'Step and impulse', note:'The pair $\\delta[n]=u[n]-u[n-1]$ is the discrete-time analogue.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)', label:'Sampling'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\d t', label:'Sifting',
+        note:'The discrete-time sum is an integral here.'}]}
   ]}
 ]},
 
 { id:'m1-ct-cexp', module:'M1', nav:'CT complex exponentials', title:'Continuous-time complex exponentials', src:'pp. 7–9',
   objective:'Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity.',
-  keywords:'complex exponential Euler amplitude phase angular frequency growth decay', steps:2, blocks:[
+  keywords:'complex exponential Euler amplitude phase angular frequency growth decay',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'Continuous-Time Complex Exponentials'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition'},
-    {t:'body', html:'Complex exponentials describe growth, decay and oscillation in one form. The real and imaginary parts of $a$ determine which behaviour occurs.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Case 1 · both parameters real', html:'Both $C$ and $a$ are real. Then $a<0$ gives decay, $a>0$ gives growth, and $a=0$ gives the constant $x(t)=C$. Larger $|a|$ means faster decay or growth.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Case 2 · a purely imaginary', html:'Here $a=j\\omega_0$. With $C=Ae^{j\\theta}$, Euler\'s relation $e^{jx}=\\cos x+j\\sin x$ gives<br>$x(t)=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)$,<br>where $\\omega_0$ is the angular frequency (rad/s), $\\theta$ the phase shift (rad) and $A$ the amplitude.'},
-      {t:'small', html:'When $a$ is purely imaginary, $|x(t)|=A$ for every $t$. The signal does not grow or decay. Its real part oscillates between $\\pm A$.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
       a.note(5.7,1.02,'e^{-0.5t},\\;e^{-t},\\;e^{-2t}',{anchor:'end',color:C.in,fs:14,tex:true});
-      return a.svg(); }, caption:'Real case, $a<0$: decay. Larger $|a|$ ⇒ faster.'},
-    {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
-        a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
-        return a.svg(); }, caption:'$x(t)=e^{j0.5\\pi t}$: the real part, $\\cos(0.5\\pi t)$, of constant amplitude.'}]}
+      return a.svg(); },
+      caption:'Real case, $a<0$: decay. A larger $|a|$ decays faster.'}
+  ], right:[
+    {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition',
+      note:'The real and imaginary parts of $a$ decide growth, decay and oscillation.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Both parameters real', html:'If $a<0$ the signal decays. If $a>0$ it grows. If $a=0$ it is the constant $C$. A larger $|a|$ is faster.'}]}
+  ]}
+]},
+
+{ id:'m1-ct-cexp-im', module:'M1', nav:'Imaginary exponent', title:'A Purely Imaginary Exponent', src:'pp. 7–9',
+  objective:'Write a purely imaginary exponent as a sinusoid of constant amplitude.',
+  keywords:'Euler omega0 amplitude phase rad/s',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
+  {t:'title', text:'A Purely Imaginary Exponent'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
+      a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
+      return a.svg(); },
+      caption:'$x(t)=e^{j0.5\\pi t}$: the real part, $\\cos(0.5\\pi t)$, of constant amplitude.'}
+  ], right:[
+    {t:'eq', tex:'x(t)=A\\cos(\\omega_0 t+\\theta)+jA\\sin(\\omega_0 t+\\theta)', label:'Purely imaginary exponent',
+      note:'$a=j\\omega_0$ and $C=Ae^{j\\theta}$. Here $\\omega_0$ is in rad/s and $\\theta$ is in radians.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Constant amplitude', html:'$|x(t)|=A$ for every $t$. The signal does not grow or decay.'}]}
   ]}
 ]},
 
 { id:'m1-ct-cexp-b', module:'M1', nav:'CT exponentials · period and envelope', title:'Period and envelope', src:'pp. 8–9',
   objective:'Derive the fundamental period and read the general complex case as a sinusoid in an envelope.',
-  keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order', steps:2, blocks:[
+  keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order',
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
   {t:'title', text:'Period and Envelope of a Complex Exponential'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'eq', tex:'A e^{j(\\omega_0 t+\\theta)}=A e^{j(\\omega_0(t+T)+\\theta)}\\;\\Rightarrow\\;1=e^{j\\omega_0 T}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0T\\;\\Rightarrow\\; T=\\frac{2\\pi}{\\omega_0}k',
-      label:'Periodicity, derived', note:'$k\\in\\mathbb{Z}$. Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. <b>Every</b> continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['Given','$x(t)=e^{j0.5\\pi t}$.'],
-        ['Find','The fundamental period $T_0$.'],
-        ['Method','Use $T_0=2\\pi/\\omega_0$ because the exponent is purely imaginary and $\\omega_0\\neq0$.'],
-        ['Solution','$T_0=\\dfrac{2\\pi}{0.5\\pi}=4$ seconds.'],
-        ['Check','$0.5\\pi\\cdot4=2\\pi$, so the phase increases by one full turn over the calculated period.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Case 3 · both parts non-zero', html:'With $a=r+j\\omega_0$, $x(t)=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta)$. The curves $\\pm Ae^{rt}$ form the envelope, which bounds the sinusoid. Here $r<0$ gives damping, $r>0$ gives growth and $r=0$ gives a sustained oscillation.'},
-      {t:'small', html:'The angular frequency $\\omega_0$ sets the oscillation rate. The real part $r$ sets the envelope. If $r\\neq0$, the changing envelope prevents the full signal from repeating, even though the sinusoidal factor has period $2\\pi/\\omega_0$.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
       a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
       a.span(0,4,1.12,'T_0=4\\;\\text{s}',{color:C.coral,tex:true});
-      return a.svg(); }, caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'},
+      return a.svg(); },
+      caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'}
+  ], right:[
+    {t:'eq', key:true, tex:'T_0=\\dfrac{2\\pi}{\\omega_0}', label:'Fundamental period',
+      note:'Every continuous-time complex exponential with $\\omega_0\\neq 0$ is periodic. There is no further condition.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j0.5\\pi t}$.<div class="nsep"></div>Find the fundamental period. Use $T_0=2\\pi/\\omega_0$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:260,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
-        a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
-        a.curve(t=>-2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
-        a.curve(t=>2*Math.exp(-0.5*t)*Math.cos(2*Math.PI*t),{color:C.in,n:1400});
-        a.note(4.8,2.05,'\\operatorname{Re}\\{2e^{-0.5t}e^{j2\\pi t}\\}',{anchor:'end',color:C.in,fs:14,tex:true});
-        return a.svg(); },
-        caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'}]}
+      {t:'note', kind:'ok', head:'Solution', html:'$T_0=2\\pi/(0.5\\pi)=4$ seconds.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$0.5\\pi\\cdot 4=2\\pi$. The phase advances one full turn over the period.'}]}
+  ]}
+]},
+
+{ id:'m1-ct-cexp-c', module:'M1', nav:'Envelope', title:'Growth, Decay, and an Envelope', src:'pp. 8–9',
+  objective:'Read a complex exponent as a sinusoid inside an exponential envelope.',
+  keywords:'envelope damping r omega0',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
+  {t:'title', text:'Growth, Decay, and an Envelope'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+      a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
+      a.curve(t=>-2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
+      a.curve(t=>2*Math.exp(-0.5*t)*Math.cos(2*Math.PI*t),{color:C.in,n:1400});
+      a.note(4.8,2.05,'\\operatorname{Re}\\{2e^{-0.5t}e^{j2\\pi t}\\}',{anchor:'end',color:C.in,fs:14,tex:true});
+      return a.svg(); },
+      caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'}
+  ], right:[
+    {t:'note', kind:'warn', head:'Both parts non-zero', html:'With $a=r+j\\omega_0$, the curves $\\pm Ae^{rt}$ bound the sinusoid. If $r<0$ the oscillation is damped, if $r>0$ it grows, and if $r=0$ it is sustained.'}
   ]}
 ]},
 
 { id:'m1-dt-cexp', module:'M1', nav:'DT complex exponentials', title:'Discrete-time complex exponentials', src:'pp. 9–10',
   objective:'Introduce x[n]=Cα^n and the three envelope cases.',
-  keywords:'discrete complex exponential alpha beta growing decaying envelope', steps:2, blocks:[
+  keywords:'discrete complex exponential alpha beta growing decaying envelope',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'Discrete-Time Complex Exponentials'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'eq', key:true, tex:'x[n]=C\\,e^{\\beta n},\\qquad C,\\beta\\in\\mathbb{C}'},
-    {t:'eq', key:true, tex:'\\alpha=e^{\\beta}\\;\\Longrightarrow\\; x[n]=C\\,\\alpha^{n}',
-      note:'The power form is the natural one in discrete time. It is what a difference equation produces.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Real case', html:'$0<\\alpha<1$ decreases monotonically. $\\alpha>1$ increases monotonically. The two plots opposite are $x[n]=0.5^n$ and $y[n]=2^n$.'},
-      {t:'note', kind:'warn', head:'The boundary moved', html:'In continuous time the boundary between growth and decay is $\\operatorname{Re}\\{a\\}=0$. In discrete time it is $|\\alpha|=1$, the unit circle, not the imaginary axis. The map between the two is $\\alpha=e^{\\beta}$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', tex:'C=|C|e^{j\\theta},\\;\\alpha=|\\alpha|e^{j\\omega_0}\\;\\Rightarrow\\; x[n]=|C||\\alpha|^{n}\\cos(\\omega_0 n+\\theta)+j\\,|C||\\alpha|^{n}\\sin(\\omega_0 n+\\theta)',
-        label:'General complex case',
-        note:'$|\\alpha|=1$ is sustained, $|\\alpha|>1$ is growing and $|\\alpha|<1$ is decaying. The three plots use $\\alpha=1,\\,1.05,\\,0.95$ at $\\omega_0=0.14\\pi$.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      a.stem(disc(n=>Math.pow(0.5,n),0,10),{color:C.in});
+      return a.svg(); },
+      caption:'$x[n]=0.5^{n}$ decreases.'}
   ], right:[
-    {t:'grid', cols:2, gap:'20px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:520,h:230,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
-        a.stem(disc(n=>Math.pow(0.5,n),0,10),{color:C.in}); return a.svg(); }, caption:'$x[n]=0.5^{\\,n}$ — decreasing'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:520,h:230,xr:[0,10],yr:[-40,1100],xlabel:'n',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
-        a.stem(disc(n=>Math.pow(2,n),0,10),{color:C.h}); return a.svg(); }, caption:'$y[n]=2^{\\,n}$ — increasing'}]
-    ]},
+    {t:'eq', key:true, tex:'x[n]=C\\,e^{\\beta n},\\qquad C,\\beta\\in\\mathbb{C}', label:'Definition'},
+    {t:'eq', key:true, tex:'\\alpha=e^{\\beta}\\;\\Longrightarrow\\; x[n]=C\\,\\alpha^{n}', label:'Power form',
+      note:'A difference equation produces this form.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Real $\\alpha$', html:'If $0<\\alpha<1$ the sequence decreases. If $\\alpha>1$ it increases.'}]},
     {t:'reveal', at:2, items:[
-      {t:'grid', cols:3, gap:'14px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:400,h:220,xr:[-20,20],yr:[-1.5,1.5],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-          a.stem(disc(n=>Math.cos(0.14*Math.PI*n),-20,20),{color:C.in,r:2.4,width:1.2}); return a.svg(); }, caption:'$|\\alpha|=1$'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:400,h:220,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-          a.stem(disc(n=>Math.pow(1.05,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.h,r:2.4,width:1.2}); return a.svg(); }, caption:'$|\\alpha|=1.05$ — growing'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:400,h:220,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-          a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:2.4,width:1.2}); return a.svg(); }, caption:'$|\\alpha|=0.95$ — decaying'}]
-      ]}]}
+      {t:'note', kind:'warn', head:'The boundary moved', html:'In continuous time the boundary is $\\operatorname{Re}\\{a\\}=0$. In discrete time it is $|\\alpha|=1$, the unit circle.'}]}
+  ]}
+]},
+
+{ id:'m1-dt-cexp-b', module:'M1', nav:'Growing sequence', title:'A Growing Real Sequence', src:'pp. 9–10',
+  objective:'Show a real geometric sequence that grows.',
+  keywords:'alpha greater than 1 geometric growth',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
+  {t:'title', text:'A Growing Real Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-40,1100],xlabel:'n',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      a.stem(disc(n=>Math.pow(2,n),0,10),{color:C.h});
+      return a.svg(); },
+      caption:'$y[n]=2^{n}$ increases.'}
+  ], right:[
+    {t:'note', kind:'def', head:'A growing sequence', html:'$\\alpha>1$ increases. The sequence drawn here is $2^{n}$.'}
+  ]}
+]},
+
+{ id:'m1-dt-cexp-c', module:'M1', nav:'Complex envelope', title:'A Discrete-Time Envelope', src:'pp. 9–10',
+  objective:'Read the modulus of alpha as growth, decay, or a sustained oscillation.',
+  keywords:'alpha modulus envelope omega0 discrete',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
+  {t:'title', text:'A Discrete-Time Envelope'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
+      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:2.4,width:1.2});
+      return a.svg(); },
+      caption:'$|\\alpha|=0.95$ decays. The frequency is $0.14\\pi$ radians per sample.'}
+  ], right:[
+    {t:'eq', tex:'x[n]=|C|\\,|\\alpha|^{n}\\cos(\\omega_0 n+\\theta)+j\\,|C|\\,|\\alpha|^{n}\\sin(\\omega_0 n+\\theta)',
+      label:'General complex case'},
+    {t:'note', kind:'def', head:'Read $|\\alpha|$', html:'$|\\alpha|=1$ is sustained, $|\\alpha|>1$ grows, and $|\\alpha|<1$ decays. The figure uses $|\\alpha|=0.95$ and $\\omega_0=0.14\\pi$.'}
   ]}
 ]},
 
 { id:'m1-dt-period', module:'M1', nav:'DT periodicity condition', title:'When is a discrete-time exponential periodic?', src:'p. 10',
   objective:'Derive N = 2πk/ω₀ and the rationality condition; work the definition example.',
-  keywords:'discrete periodicity rational multiple 2pi N0 integer condition', steps:4, blocks:[
+  keywords:'discrete periodicity rational multiple 2pi N0 integer condition',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
   {t:'title', text:'Discrete-Time Periodicity Condition'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', tex:'x[n]=C e^{j\\omega_0 n}\\;\\text{periodic}\\;\\Longleftrightarrow\\; x[n]=x[n+N]', label:'Requirement'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'Ce^{j\\omega_0 n}=Ce^{j\\omega_0(n+N)}\\;\\Rightarrow\\;1=e^{j\\omega_0 N}\\;\\Rightarrow\\;\\bigl(e^{j2\\pi}\\bigr)^{k}=e^{j\\omega_0N}\\;\\Rightarrow\\; j2\\pi k=j\\omega_0 N'},
-      {t:'eq', key:true, tex:'N=\\frac{2\\pi}{\\omega_0}\\,k,\\qquad k\\in\\mathbb{Z}', label:'Result'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Apply the integer condition', html:'$N$ must be an integer. This is possible only if $\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}$ is rational. Thus $\\omega_0$ must be a rational multiple of $2\\pi$. If the ratio is irrational, no integer $N$ satisfies the periodicity equation and the sequence is aperiodic.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Given','$x[n]=e^{j\\frac{3\\pi}{5}n}$'],
-        ['Find','The fundamental period $N_0$.'],
-        ['Method','Apply $N=2\\pi k/\\omega_0$ and take the smallest $k$ that makes $N$ an integer.'],
-        ['Solution','$N=\\dfrac{2\\pi}{3\\pi/5}k=\\dfrac{10\\pi}{3\\pi}k=\\dfrac{10}{3}k$. The smallest $k\\in\\mathbb{Z}^{+}$ giving an integer is $k=3$, so $\\boxed{N_0=10}$.'],
-        ['Check','$\\omega_0N_0=\\frac{3\\pi}{5}\\cdot10=6\\pi=2\\pi\\cdot3$. The phase therefore changes by three full turns in ten samples. The integer $k$ counts these turns.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'Frequencies separated by $2\\pi$ give the same sequence', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. Therefore discrete-time frequencies that differ by $2\\pi$ produce identical samples. This identity makes the DTFT $2\\pi$-periodic in Module 6 and leads to aliasing in Module 7.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
+      a.stem(disc(n=>Math.cos(n),-20,20),{color:C.err,r:3});
+      return a.svg(); },
+      caption:'<b>Aperiodic.</b> $x[n]=\\cos(n)$ has $\\omega_0=1$, so $\\omega_0/2\\pi=1/(2\\pi)$ is irrational. The pattern never repeats exactly. It looks periodic, but it is not.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:270,xr:[-20,20],yr:[-1.35,1.5],xlabel:'n',ylabel:'\\operatorname{Re}\\{x[n]\\}',pad:{l:60,r:26,t:22,b:36},xtarget:9,ytarget:3});
+    {t:'eq', key:true, tex:'N=\\dfrac{2\\pi}{\\omega_0}\\,k,\\qquad k\\in\\mathbb{Z}', label:'Result'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'N has to be an integer', html:'This is possible only when $\\omega_0/2\\pi$ is rational. If the ratio is irrational, no integer $N$ works and the sequence is aperiodic.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A shift of $2\\pi$', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. Frequencies that differ by $2\\pi$ are the same sequence.'}]}
+  ]}
+]},
+
+{ id:'m1-dt-period-b', module:'M1', nav:'A discrete period', title:'Computing a Discrete-Time Period', src:'p. 10',
+  objective:'Find the fundamental period of a rational discrete-time exponential.',
+  keywords:'N0 10 rational 3 pi over 5',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
+  {t:'title', text:'Computing a Discrete-Time Period'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.5],xlabel:'n',ylabel:'\\operatorname{Re}\\{x[n]\\}',pad:{l:60,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(3*Math.PI*n/5),-20,20),{color:C.in,r:3});
       a.span(0,10,1.24,'N_0=10',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'$x[n]=e^{j3\\pi n/5}$, real part. The samples repeat after $N_0=10$.'},
+      caption:'$x[n]=e^{j3\\pi n/5}$, real part. The samples repeat after $N_0=10$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x[n]=e^{j(3\\pi/5)n}$.<div class="nsep"></div>Find $N_0$. Take the smallest positive integer $k$ that makes $N$ an integer.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'N=\\dfrac{10}{3}k', label:'The count'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:900,h:250,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
-        a.stem(disc(n=>Math.cos(n),-20,20),{color:C.err,r:3});
-        return a.svg(); },
-        caption:'<b>Aperiodic.</b> $x[n]=\\cos(n)$ has $\\omega_0=1$, so $\\omega_0/2\\pi=1/(2\\pi)$ is irrational. The pattern never repeats exactly. It looks periodic, but it is not.'}]}
+      {t:'note', kind:'ok', head:'Solution', html:'The smallest such $k$ is 3, so $N_0=10$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$\\omega_0 N_0=6\\pi=2\\pi\\cdot 3$. The phase advances three full turns in ten samples.'}]}
   ]}
 ]},
 
@@ -13512,17 +13679,22 @@ CONTENT.SECTIONS = {
 
   M1: [
     { n:'1.0', title:'Opening',                                   ids:['m1-open'] },
-    { n:'1.1', title:'Definitions and notation',                  ids:['m1-def'] },
+    { n:'1.1', title:'Definitions and notation',                  ids:['m1-def','m1-def-b'] },
     { n:'1.2', title:'Energy and power',                           ids:[
-        'm1-power','m1-energy-inf','m1-avgpower','m1-classify','m1-classify-b',
-        'm1-ex-energy','m1-lab-b'] },
+        'm1-power','m1-energy-inf','m1-energy-div','m1-avgpower',
+        'm1-classify','m1-classify-b','m1-classify-c',
+        'm1-ex-energy','m1-ex-energy-b','m1-lab-b'] },
     { n:'1.3', title:'Transformations of the independent variable', ids:[
         'm1-shift','m1-reverse','m1-scale','m1-combined','m1-combined-b','m1-lab-a'] },
-    { n:'1.4', title:'Periodicity, even and odd',                  ids:['m1-periodic','m1-evenodd'] },
+    { n:'1.4', title:'Periodicity, even and odd',                  ids:[
+        'm1-periodic','m1-periodic-b','m1-evenodd','m1-evenodd-b'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
-        'm1-dt-impulse','m1-dt-sift','m1-ct-impulse'] },
+        'm1-dt-impulse','m1-dt-impulse-b','m1-dt-sift','m1-dt-sift-b',
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
-        'm1-ct-cexp','m1-ct-cexp-b','m1-dt-cexp','m1-dt-period','m1-lab-c'] },
+        'm1-ct-cexp','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
+        'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c',
+        'm1-dt-period','m1-dt-period-b','m1-lab-c'] },
     { n:'1.7', title:'Summary',                                    ids:['m1-synth'] }
   ],
 
@@ -13634,17 +13806,25 @@ CONTENT.SECTIONS = {
 CONTENT.BOOK = {
   'm0-signal':'1.1', 'm0-system':'1.5', 'm0-ctdt':'1.1.1',
 
-  'm1-def':'1.1.1',
-  'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-avgpower':'1.1.2',
-  'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-ex-energy':'1.1.2',
+  'm1-def':'1.1.1', 'm1-def-b':'1.1.1',
+  'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-energy-div':'1.1.2',
+  'm1-avgpower':'1.1.2',
+  'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-classify-c':'1.1.2',
+  'm1-ex-energy':'1.1.2', 'm1-ex-energy-b':'1.1.2',
   'm1-lab-b':'1.1.2',
   'm1-shift':'1.2.1', 'm1-reverse':'1.2.1', 'm1-scale':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1',
-  'm1-periodic':'1.2.2', 'm1-evenodd':'1.2.3',
-  'm1-dt-impulse':'1.4.1', 'm1-dt-sift':'1.4.1', 'm1-ct-impulse':'1.4.2',
-  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-b':'1.3.1', 'm1-dt-cexp':'1.3.2',
-  'm1-dt-period':'1.3.3', 'm1-lab-c':'1.3.3',
+  'm1-periodic':'1.2.2', 'm1-periodic-b':'1.2.2',
+  'm1-evenodd':'1.2.3', 'm1-evenodd-b':'1.2.3',
+  'm1-dt-impulse':'1.4.1', 'm1-dt-impulse-b':'1.4.1',
+  'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
+  'm1-ct-impulse':'1.4.2', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2',
+  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
+  'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1',
+  'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2',
+  'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3',
+  'm1-lab-c':'1.3.3',
   'm1-synth':'1.7',
 
   'm2-abstraction':'1.5.1',
