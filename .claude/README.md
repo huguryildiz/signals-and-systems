@@ -13,6 +13,9 @@ source-audit records stay local.
 | `reference/` | what `CLAUDE.md` points to: `gates.md` (what each gate covers), `history.md` (how the course reached its state), `archive/` (the full instruction files as they stood on 2026-09-21), and the approved slide mockup |
 | `rules/` | path-scoped content, figure, notes/PDF, source-audit, and build instructions; `CLAUDE.md` routes Codex to the relevant file |
 
+The tracked `settings.json` enables the small `PreToolUse` guard in `tools/agent_guard.py`
+for Claude Code. Codex uses the tracked `.codex/hooks.json` for the same guard.
+
 `reports/` is the only copy of the ambiguity ledger, and it is not in git — back up
 the working copy accordingly. The work order stays tracked in
 `instructor/PHASE2_HANDOFF.md`; editorial rules R1–R9 live in `rules/content-writing.md`

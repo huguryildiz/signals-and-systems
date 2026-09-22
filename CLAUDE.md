@@ -30,6 +30,7 @@ Read all applicable rows. These files hold the detailed editorial rules R1–R9,
 - The one place for chapter, section, address, and textbook anchors is `build/src/89_sections.js`. Scene order is assembled in `build/src/99_tail.html`.
 - Run `git status` before writing generated output. Preserve unrelated changes in this shared tree. Stage only task-owned paths and state what a commit contains beyond your own work.
 - Never hand-edit `dist/`, run `npm install`, or fetch dependencies from the network. Do not run blanket search-and-replace across `build/src/*.js`.
+- `tools/agent_guard.py` blocks common `npm install` calls and direct agent edits to `dist/` through the configured Claude/Codex `PreToolUse` hooks. It is a narrow guard, not a substitute for the gates.
 - For source changes, rebuild, run the prescribed gates, and inspect screenshots after visual changes. Run the PDF text and page inspection before shipping PDFs. Report actual gate numbers; do not substitute old baseline counts.
 - Commit rebuilt tracked `dist/` files with the sources that produced them. For implementation work, commit and push to `main` unless the current task or active plan explicitly holds publication for review. No pull requests or AI attribution in commits.
 - If work spans hours or is interrupted, update `TODO.md` and append durable context to `.claude/reference/history.md` before ending.
