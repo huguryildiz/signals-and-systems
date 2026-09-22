@@ -4956,20 +4956,14 @@ const SC = [
 
 { id:'m1-shift', module:'M1', nav:'Time shifting', title:'Time shifting', src:'p. 3',
   objective:'Fix the delay/advance sign convention.',
-  keywords:'time shift delay advance t0 x(t-t0)', steps:2, blocks:[
+  keywords:'time shift delay advance t0 x(t-t0)',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
   {t:'title', text:'Time Shifting'},
-  {t:'cols', ratio:'c-4-8', vcenter:true, left:[
-    {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
-    {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ ⇒ <b>delay</b> (the signal moves right, later).<br>$t_0<0$ ⇒ <b>advance</b> (the signal moves left, earlier).'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Read the argument before moving the graph', html:'At time $t$, the shifted signal uses the original value at $t-t_0$. For $t_0>0$, it reaches each original value $t_0$ seconds later. The graph therefore moves right.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Discrete time works the same way', html:'$x[n]\\to x[n-n_0]$ with $n_0\\in\\mathbb{Z}$. A one-sample delay, $x[n-1]$, is the basic memory element in every difference equation in Module 3.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
-      const a=P.Axes({w:1000,h:320,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
       a.curve(t=>tri(t+3),{color:C.out}); a.curve(tri,{color:C.ink});
       a.curve(t=>tri(t-3),{color:C.in});
       a.note(-3,1.14,'x(t+3)',{anchor:'middle',color:C.out,fs:15,tex:true});
@@ -4979,92 +4973,114 @@ const SC = [
       a.span(0,3,-0.38,'delay by 3 s',{color:C.in});
       return a.svg(); },
       caption:'The pulse shape does not change. Only its position on the time axis changes.'}
+  ], right:[
+    {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
+    {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ delays the signal, so the graph moves right. $t_0<0$ advances it, so the graph moves left.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Read the argument', html:'At time $t$ the shifted signal has the value $x$ had at $t-t_0$. A delay reaches each value later.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Discrete time', html:'$x[n]\\to x[n-n_0]$ with $n_0$ an integer. The delay $x[n-1]$ is the memory element of a difference equation.'}]}
   ]}
 ]},
 
-{ id:'m1-reverse-scale', module:'M1', nav:'Reversal and scaling', title:'Reversal and scaling', src:'pp. 3–4',
-  objective:'State reversal and scaling and their effect on the support.',
-  keywords:'time reversal flip scaling decimation expansion a>1 compression', steps:3, blocks:[
+{ id:'m1-reverse', module:'M1', nav:'Time reversal', title:'Time reversal', src:'pp. 3–4',
+  objective:'State time reversal as a reflection about the vertical axis.',
+  keywords:'time reversal flip x(-t) reflection support',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
-  {t:'title', text:'Time Reversal and Scaling'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'eq', tex:'x(t)\\;\\longrightarrow\\;x(-t)\\qquad\\bigl(x[n]\\to x[-n]\\bigr)', label:'Time reversal',
-      note:'A reflection about the vertical axis.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling',
-        note:'$a>1$ gives <b>compression</b>: the signal changes faster. $0<a<1$ gives <b>expansion</b>: the signal changes more slowly.'},
-      {t:'note', kind:'warn', head:'A notation caution', html:'Scaling is often written “$x(t)=x(at)$”. Read it as the definition of a <em>new</em> signal, $y(t)=x(at)$. Taken literally, that equation would force $a=1$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Map the support endpoints', html:'If $x$ is non-zero on $[\\alpha,\\beta]$, solve $at\\in[\\alpha,\\beta]$. This gives the support $[\\alpha/a,\\beta/a]$. Its width is the original width divided by $a$. For example, compression by 2 halves the duration.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Discrete-time scaling needs separate rules', html:'$x[2n]$ keeps only the even-indexed samples and discards the odd-indexed samples. This operation is decimation and may lose information. The expression $x[n/2]$ is undefined at odd $n$ unless an interpolation rule supplies those values. Continuous-time scaling does not have this integer-index restriction.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
+  {t:'title', text:'Time Reversal'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:900,h:210,xr:[-1,7],yr:[-0.2,1.35],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.curve(r,{color:C.ink}); a.note(2,1.16,'x(t)',{anchor:'middle',color:C.ink,fs:15,tex:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:900,h:210,xr:[-1,7],yr:[-0.2,1.35],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.curve(t=>r(2*t),{color:C.mid}); a.note(1,1.16,'x(2t)\\;\\text{— decimation}',{anchor:'middle',color:C.mid,fs:15,tex:true});
-      a.span(0.5,1.5,-0.12,'width halved',{color:C.mid});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:900,h:210,xr:[-1,7],yr:[-0.2,1.35],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
-      a.curve(t=>r(0.5*t),{color:C.h}); a.note(4,1.16,'x(0.5t)\\;\\text{— expansion}',{anchor:'middle',color:C.h,fs:15,tex:true});
-      a.span(2,6,-0.12,'width doubled',{color:C.h});
+      const a=P.Axes({w:560,h:380,xr:[-4.5,4.5],yr:[-0.35,1.55],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:10,ytarget:3});
+      a.curve(r,{color:C.ink}); a.curve(t=>r(-t),{color:C.mid});
+      a.note(2,1.28,'x(t)',{anchor:'middle',color:C.ink,fs:15,tex:true});
+      a.note(-2,1.28,'x(-t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
       return a.svg(); },
-      caption:'Scaling moves the support. Compression by 2 maps $[1,3]\\to[0.5,1.5]$, and expansion by 2 maps $[1,3]\\to[2,6]$.'}
+      caption:'Reversal reflects the pulse about $t=0$. The pulse on $[1,3]$ moves to $[-3,-1]$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(-t)\\qquad\\bigl(x[n]\\to x[-n]\\bigr)',
+      label:'Time reversal'},
+    {t:'note', kind:'def', head:'What it does',
+      html:'Reflect the signal about the vertical axis. The value at time $t$ moves to time $-t$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'The support',
+        html:'A pulse on $[1,3]$ moves to $[-3,-1]$. The width stays 2.'}]}
+  ]}
+]},
+
+{ id:'m1-scale', module:'M1', nav:'Time scaling', title:'Time scaling', src:'pp. 3–4',
+  objective:'State time scaling and its effect on the support.',
+  keywords:'time scaling compression expansion support width x(at) decimation',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
+  {t:'title', text:'Time Scaling'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const r=t=>(t>=1&&t<=3)?1:0;
+      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      a.curve(r,{color:C.ink});
+      a.curve(t=>r(2*t),{color:C.mid});
+      a.curve(t=>r(0.5*t),{color:C.h});
+      a.note(2.2,1.85,'x(t)',{anchor:'middle',color:C.ink,fs:15,tex:true});
+      a.note(1.0,1.5,'x(2t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
+      a.note(5.0,1.5,'x(0.5t)',{anchor:'middle',color:C.h,fs:15,tex:true});
+      return a.svg(); },
+      caption:'Compression by 2 maps $[1,3]$ to $[0.5,1.5]$. Expansion by 2 maps $[1,3]$ to $[2,6]$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling'},
+    {t:'note', kind:'warn', head:'Name the new signal', html:'Write $y(t)=x(at)$. The equation $x(t)=x(at)$ would force $a=1$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Map the endpoints', html:'If $x$ is non-zero on $[\\alpha,\\beta]$, then $x(at)$ is non-zero on $[\\alpha/a,\\beta/a]$. The width is divided by $a$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Discrete time is different', html:'$x[2n]$ keeps the even samples and drops the odd ones. $x[n/2]$ is undefined at odd $n$.'}]}
   ]}
 ]},
 
 { id:'m1-combined', module:'M1', nav:'Combined transformations', title:'Combining operations: shift, then scale', src:'p. 4',
   objective:'Establish the correct two-step order for x(at−b).',
-  keywords:'combination shift then scale order x(at-b) intermediate v(t)', steps:4, blocks:[
+  keywords:'combination shift then scale order x(at-b) intermediate v(t)',
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
   {t:'title', text:'Combined Time Transformations'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'To construct $x(at-b)$ from $x(t)$, use an intermediate signal so that each operation is explicit.'},
-    {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
-      label:'Shift, then scale', note:'Shift by $b$ first; scale the <em>result</em> by $a$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'What the other order gives', html:'Scaling first gives $w(t)=x(at)$. Shifting that by $b$ gives $w(t-b)=x\\bigl(a(t-b)\\bigr)=x(at-ab)$. Unless $a=1$ this is a <b>different signal</b>. It is shifted by $b$ instead of by $b/a$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Given','$x(t)$: 0 for $t<-2$; 1 on $[-2,0]$; 2 on $[0,2]$; falling linearly from 2 to 0 on $[2,4]$.'],
-        ['Find','Plot $x(3t-5)$.'],
-        ['Method','$a=3$, $b=5$. Shift right by 5, then compress by 3.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Solution','$v(t)=x(t-5)$ has breakpoints at $3,5,7,9$. Then $y(t)=v(3t)$ has breakpoints at $1,\\;5/3,\\;7/3,\\;3$.'],
-        ['Check','The original support has width 6. Compression by $a=3$ must give width 2, and the result has support $[1,3]$. Neither operation changes the signal amplitude.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'def', head:'Check one mapped point', html:'Set the argument equal to zero: $at-b=0$ gives $t=b/a$. At this time, $y(t)$ must equal $x(0)$. Here $t=5/3$, and the plotted result has the value $x(0)=2$ there.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:880,h:206,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(x,{color:C.ink}); a.note(9.6,2.2,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
+      return a.svg(); },
+      caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
+      label:'Shift, then scale', note:'Shift by $b$ first. Then scale the result by $a$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'The other order', html:'Scaling first, then shifting by $b$, gives $x(at-ab)$. Unless $a=1$, that is a different signal.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)$ is the signal drawn here.<div class="nsep"></div>Plot $x(3t-5)$.'}]}
+  ]}
+]},
+
+{ id:'m1-combined-b', module:'M1', nav:'Plotting the result', title:'Plotting $x(3t-5)$', src:'p. 4',
+  objective:'Plot $x(3t-5)$ by shifting right by 5 and then compressing by 3.',
+  keywords:'x(3t-5) shift compress corners support width check',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
+  {t:'title', text:'Plotting $x(3t-5)$'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:880,h:206,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
-      a.curve(t=>x(t-5),{color:C.mid});
-      a.note(9.6,2.2,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true});
-      [3,5,7,9].forEach(b=>a.vline(b,{color:C.mid,opacity:.5}));
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:880,h:206,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(t=>x(3*t-5),{color:C.out});
       a.note(9.6,2.2,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
       [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
       return a.svg(); },
-      caption:'Breakpoints map $3,5,7,9\\;\\to\\;1,\\,5/3,\\,7/3,\\,3$.'}
+      caption:'The corners land at $1$, $5/3$, $7/3$ and $3$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Method', html:'Shift right by 5, then compress by 3. The shifted signal has corners at $3,5,7,9$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'After compression the corners are at $1$, $5/3$, $7/3$ and $3$. The support is $[1,3]$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Check', html:'The width goes from 6 to 2. At $t=5/3$ the value is $x(0)=2$.'}]}
   ]}
 ]},
 
@@ -13501,7 +13517,7 @@ CONTENT.SECTIONS = {
         'm1-power','m1-energy-inf','m1-avgpower','m1-classify','m1-classify-b',
         'm1-ex-energy','m1-lab-b'] },
     { n:'1.3', title:'Transformations of the independent variable', ids:[
-        'm1-shift','m1-reverse-scale','m1-combined','m1-lab-a'] },
+        'm1-shift','m1-reverse','m1-scale','m1-combined','m1-combined-b','m1-lab-a'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:['m1-periodic','m1-evenodd'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-sift','m1-ct-impulse'] },
@@ -13622,7 +13638,8 @@ CONTENT.BOOK = {
   'm1-power':'1.1.2', 'm1-energy-inf':'1.1.2', 'm1-avgpower':'1.1.2',
   'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-ex-energy':'1.1.2',
   'm1-lab-b':'1.1.2',
-  'm1-shift':'1.2.1', 'm1-reverse-scale':'1.2.1', 'm1-combined':'1.2.1',
+  'm1-shift':'1.2.1', 'm1-reverse':'1.2.1', 'm1-scale':'1.2.1',
+  'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1',
   'm1-periodic':'1.2.2', 'm1-evenodd':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-sift':'1.4.1', 'm1-ct-impulse':'1.4.2',
