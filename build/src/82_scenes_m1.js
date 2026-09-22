@@ -92,6 +92,7 @@ const SC = [
       const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',ylabel:'p(t)',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
       a.area(t=>Math.pow(Math.cos(1.7*t),2),1.2,4.4,{color:'rgba(190,85,57,.18)'});
       a.curve(t=>Math.pow(Math.cos(1.7*t),2),{color:C.coral});
+      a.vline(1.2,{color:C.coral}); a.vline(4.4,{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
       return a.svg(); },
@@ -142,7 +143,7 @@ const SC = [
   {t:'title', text:'When Total Energy Diverges'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',ylabel:'x(t)=\\cos(2t)',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.pow(Math.cos(2*t),2),-4,4,{color:'rgba(166,59,42,.15)'});
       a.curve(t=>Math.cos(2*t),{color:C.err});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
@@ -164,19 +165,30 @@ const SC = [
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Average Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, svg:()=>{
+      const sq=[[-7,0]];
+      for(let k=-3;k<=3;k++){ const c=2*k; sq.push([c-0.5,0],[c-0.5,1],[c+0.5,1],[c+0.5,0]); }
+      sq.push([7,0]);
+      const a=P.Axes({w:560,h:190,xr:[-7,7],yr:[-0.2,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:18,b:30},xtarget:7,ytarget:1});
+      a.area(t=>Math.abs(t)<0.5?1:0,-7,7,{color:'rgba(130,194,123,.45)',n:1400});
+      a.poly(sq,{color:C.in});
+      a.note(6.8,1.28,'\\text{square wave}',{anchor:'end',color:C.in,fs:14,tex:true});
+      a.note(0.7,1.28,'\\text{single pulse}',{anchor:'start',color:C.out,fs:14,tex:true});
+      return a.svg(); }},
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,40],yr:[-0.06,0.62],xlabel:'T\\;(\\text{half-window})',
+      const a=P.Axes({w:560,h:280,xr:[0,20],yr:[-0.06,1.15],xlabel:'T\\;(\\text{half-window})',
         ylabel:'\\text{running average power}',pad:{l:60,r:26,t:22,b:40},xtarget:5,ytarget:4});
       const pts=[],qts=[];
-      for(let i=1;i<=200;i++){ const T=i*0.2;
-        pts.push([T, 0.5 + Math.sin(4*T)/(8*T)]);
-        qts.push([T, 1/(2*T)]); }
-      a.poly(pts,{color:C.in}); a.poly(qts,{color:C.out});
+      for(let i=1;i<=1000;i++){ const T=i*0.02, k=Math.floor(T/2), r=T-2*k;
+        pts.push([T, (k + Math.min(r,0.5) + Math.max(r-1.5,0))/T]);
+        qts.push([T, T<=0.5 ? 1 : 1/(2*T)]); }
+      a.poly(qts,{color:C.out}); a.poly(pts,{color:C.in});
+      a.poly(qts.filter(p=>p[0]<=1.5),{color:C.out,dash:'6 6'});
       a.hline(0.5,{color:C.in,dash:'2 5'});
-      a.note(38,0.545,'\\cos(2t):\\;P_\\infty=1/2',{anchor:'end',color:C.in,fs:14,tex:true});
-      a.note(38,0.09,'\\text{rectangular pulse}:\\;P_\\infty=0',{anchor:'end',color:C.out,fs:14,tex:true});
+      a.note(19.5,0.62,'\\text{square wave}:\\;P_\\infty=1/2',{anchor:'end',color:C.in,fs:14,tex:true});
+      a.note(19.5,0.12,'\\text{single pulse}:\\;P_\\infty=0',{anchor:'end',color:C.out,fs:14,tex:true});
       return a.svg(); },
-      caption:'These curves show the average over a window with half-width $T$. The power signal approaches a non-zero value. The energy signal approaches zero because its finite energy is divided by $2T$.'}
+      caption:'The single pulse is the shaded pulse at $t=0$, with energy $1$. Both averages agree until $T=3/2$. The square wave keeps adding energy, so its average approaches $1/2$. The pulse adds none, so $1/(2T)\\to0$.'}
   ], right:[
     {t:'eq', tex:'P=\\dfrac{1}{t_2-t_1}\\int_{t_1}^{t_2}p(t)\\,\\d t', label:'Average over a window',
       note:'Divide the energy by the length of the window.'},
@@ -190,53 +202,60 @@ const SC = [
   ]}
 ]},
 
-{ id:'m1-classify', module:'M1', nav:'Energy, power, or neither', title:'Energy, power, or neither', src:'p. 3',
-  objective:'State the two classifications and the third case that neither of them covers.',
-  keywords:'energy signal power signal neither classification finite infinite',
-  slide:true, steps:2, blocks:[
+{ id:'m1-classify', module:'M1', nav:'Energy signals', title:'Energy signals', src:'p. 3',
+  objective:'Define an energy signal and show that a finite pulse has finite energy and zero average power.',
+  keywords:'energy signal classification finite energy zero power pulse',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'Energy and Power Classification'},
+  {t:'title', text:'Energy Signals'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.5],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
-      a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
+      a.span(0,1,1.25,'E_\\infty=1',{color:C.out,tex:true});
       return a.svg(); },
-      caption:'A pulse of finite support has finite energy. Its average power is zero.'}
+      caption:'The pulse $x(t)=1$ for $0\\le t\\le 1$ and $x(t)=0$ elsewhere. The shaded area is its total energy.'}
   ], right:[
-    {t:'note', kind:'ok', head:'Energy signal', html:'Finite total energy, $E_\\infty<\\infty$, and zero average power, $P_\\infty=0$.'},
+    {t:'note', kind:'ok', head:'Energy signal', html:'A signal with finite total energy, $E_\\infty<\\infty$. Its average power is then zero, $P_\\infty=0$.'},
+    {t:'eq', tex:'E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t=\\int_{0}^{1}1^{2}\\,\\d t=1',
+      label:'Total energy', note:'The integrand is zero outside $0\\le t\\le 1$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Power signal', html:'Finite average power, $P_\\infty<\\infty$, and infinite total energy, $E_\\infty\\to\\infty$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Neither class', html:'A signal that grows without bound may send both quantities to infinity. For $x(t)=t\\,u(t)$, both $E_\\infty$ and $P_\\infty$ diverge.'}]}
+      {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0',
+        label:'Average power', note:'For $T\\ge 1$ the window holds the whole pulse, so $E_T=1$.'}]}
   ]}
 ]},
 
-{ id:'m1-classify-b', module:'M1', nav:'Finite energy and average power', title:'Finite-energy signals and average power', src:'p. 3',
-  objective:'Show that finite energy forces zero average power, and give the engineering reading of the three classes.',
-  keywords:'energy forces zero power averaging window transient steady state neither ramp',
+{ id:'m1-classify-b', module:'M1', nav:'Power signals', title:'Power signals', src:'p. 3',
+  objective:'Define a power signal and show that a constant has infinite energy and finite average power.',
+  keywords:'power signal classification infinite energy finite power constant',
   slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
-  {t:'title', text:'Finite-Energy Signals and Average Power'},
+  {t:'title', text:'Power Signals'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-0.05,0.6],xlabel:'T',ylabel:'E_\\infty/2T',pad:{l:64,r:24,t:24,b:36},xtarget:6,ytarget:3});
-      a.curve(t=>t<1?NaN:1/(2*t),{color:C.out,n:1400});
-      a.note(11.4,0.5,'E_\\infty=1\\;\\text{J}',{anchor:'end',color:C.out,fs:14,tex:true});
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.6],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:8,ytarget:3,
+        ytickfmt:v=>Math.abs(v-1)<1e-9?'':String(v)});
+      a.area(t=>1,-2,2,{color:'rgba(190,85,57,.15)'});
+      a.curve(t=>1,{color:C.h});
+      a.note(3.9,1.1,'x(t)=1',{anchor:'end',color:C.h,fs:15,tex:true});
+      a.vline(-2,{color:C.coral}); a.vline(2,{color:C.coral});
+      a.span(-2,2,1.3,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'A pulse of energy 1 J, averaged over a window of half-width $T$. The average falls towards zero as the window grows, which is why a finite-energy signal always has $P_\\infty=0$.'}
+      caption:'The constant $x(t)=1$. The energy in the window grows with the window, so the total energy is infinite.'}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\le E_\\infty\\\\0\\le P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}\\\\&\\le\\lim_{T\\to\\infty}\\dfrac{E_\\infty}{2T}=0\\\\\\therefore\\quad P_\\infty&=0\\end{aligned}',
-      note:'The window grows, and the energy in the numerator does not, so the ratio is squeezed to zero.'},
+    {t:'note', kind:'warn', head:'Power signal', html:'A signal with finite, non-zero average power, $0<P_\\infty<\\infty$. Its total energy is then infinite, $E_\\infty=\\infty$.'},
+    {t:'eq', tex:'E_T=\\int_{-T}^{T}1^{2}\\,\\d t=2T\\;\\to\\;\\infty',
+      label:'Energy in the window', note:'The energy grows without limit as $T\\to\\infty$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'What to measure', html:'Use energy for a pulse or a decaying response. Use average power for a sinusoid or a constant. The class is the quantity that stays finite.'}]}
+      {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{2T}{2T}=1',
+        label:'Average power', note:'The window length cancels, so the limit is finite.'}]}
   ]}
 ]},
 
 { id:'m1-classify-c', module:'M1', nav:'Neither class', title:'A signal in neither class', src:'p. 3',
   objective:'Show a signal whose energy and average power both diverge.',
-  keywords:'neither ramp t u(t) unbounded',
+  keywords:'neither ramp unbounded infinite energy infinite power classification',
   slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
@@ -244,15 +263,16 @@ const SC = [
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.curve(t=>t>=0?t:0,{color:C.err});
-      a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
       return a.svg(); },
-      caption:'$x(t)=t\\,u(t)$: both $E_\\infty$ and $P_\\infty$ diverge, so it is neither an energy signal nor a power signal.'}
+      caption:'The ramp grows without bound. Both its energy and its average power diverge.'}
   ], right:[
-    {t:'note', kind:'err', head:'The third class',
-      html:'$x(t)=t\\,u(t)$ grows without bound. Compute both limits before assigning a class.'},
+    {t:'note', kind:'err', head:'Neither class',
+      html:'The ramp$$x(t)=\\begin{cases}t, & t\\ge 0\\\\0, & t<0\\end{cases}$$grows without bound. Compute both limits before you assign a class.'},
+    {t:'eq', tex:'E_T=\\int_{0}^{T}t^{2}\\,\\d t=\\left.\\dfrac{t^{3}}{3}\\right|_{0}^{T}=\\dfrac{T^{3}}{3}\\;\\to\\;\\infty',
+      label:'Energy in the window', note:'The lower limit is $0$ because $x(t)=0$ for $t<0$.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{0}^{T}t^{2}\\,\\d t=\\left.\\dfrac{t^{3}}{3}\\right|_{0}^{T}=\\dfrac{T^{3}}{3}\\to\\infty\\\\P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}=\\infty\\end{aligned}',
-        label:'Both quantities diverge', note:'The signal is neither an energy signal nor a power signal.'}]}
+      {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}=\\infty',
+        label:'Average power', note:'Both quantities diverge, so the ramp is in neither class.'}]}
   ]}
 ]},
 
