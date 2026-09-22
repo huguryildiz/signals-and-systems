@@ -105,7 +105,9 @@ CONTENT.SECTIONS = {
     { n:'2.0', title:'Opening',                        ids:['m2-open'] },
     { n:'2.1', title:'The input–output abstraction', ids:['m2-abstraction'] },
     { n:'2.2', title:'The six properties',             ids:[
-        'm2-memory','m2-invertible','m2-causal','m2-stable','m2-ti','m2-ti-b','m2-linear'] },
+        'm2-memory','m2-memory-b','m2-invertible','m2-invertible-b',
+        'm2-causal','m2-causal-b','m2-stable','m2-stable-b',
+        'm2-ti','m2-ti-b','m2-linear','m2-linear-b'] },
     { n:'2.3', title:'Classification in practice',     ids:['m2-workflow','m2-lab-d'] },
     { n:'2.4', title:'Summary',                        ids:['m2-synth'] }
   ],
@@ -231,8 +233,12 @@ CONTENT.BOOK = {
   'm1-synth':'1.7',
 
   'm2-abstraction':'1.5.1',
-  'm2-memory':'1.6.1', 'm2-invertible':'1.6.2', 'm2-causal':'1.6.3',
-  'm2-stable':'1.6.4', 'm2-ti':'1.6.5', 'm2-ti-b':'1.6.5', 'm2-linear':'1.6.6',
+  'm2-memory':'1.6.1', 'm2-memory-b':'1.6.1',
+  'm2-invertible':'1.6.2', 'm2-invertible-b':'1.6.2',
+  'm2-causal':'1.6.3', 'm2-causal-b':'1.6.3',
+  'm2-stable':'1.6.4', 'm2-stable-b':'1.6.4',
+  'm2-ti':'1.6.5', 'm2-ti-b':'1.6.5',
+  'm2-linear':'1.6.6', 'm2-linear-b':'1.6.6',
   'm2-workflow':'1.6', 'm2-lab-d':'1.6',
   'm2-synth':'1.7',
 
