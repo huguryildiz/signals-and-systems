@@ -4,198 +4,231 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Signals and Systems</title>
-<meta name="description" content="Signals and Systems — an interactive course artifact in 235 scenes, ten laboratories, 210 practice questions with worked solutions, and the lecture notes as a book.">
+<meta name="description" content="Signals and Systems: an undergraduate course in eight modules, with lecture notes, a student workbook and a formula reference.">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="site.css">
+<link rel="preload" as="image" href="img/lecture_notes.jpg">
 <meta property="og:title" content="Signals and Systems">
-<meta property="og:description" content="An interactive course artifact in 235 scenes, with lecture notes, a workbook and a formula reference.">
+<meta property="og:description" content="An undergraduate course in eight modules, with lecture notes, a student workbook and a formula reference.">
 <meta property="og:type" content="website">
+<style>
+:root{
+  --canvas:#FAF8F4; --panel:#FFFFFF; --well:#ECE8E0;
+  --ink:#232B33; --graphite:#3B4650; --muted:#616B76;
+  --hair:#DCD7CC; --hair-strong:#C2BCB0;
+  --coral:#A0451C; --slate:#28567E;
+  --btn:#12314E; --btn-ink:#FAF8F4; --btn-hover:#1C4368;
+  --lift:0 1px 2px rgba(35,43,51,.04), 0 12px 28px -18px rgba(35,43,51,.28);
+  --bd-filter:invert(1) hue-rotate(180deg); --bd-blend:multiply; --bd-op:.3;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:Inter,"SF Pro Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --canvas:#0E1621; --panel:#16212D; --well:#ECE8E0;
+    --ink:#E6E2D9; --graphite:#C9C4BA; --muted:#9AA3AD;
+    --hair:#27333F; --hair-strong:#3A4755;
+    --coral:#E09A6A; --slate:#8FB8DC;
+    --btn:#E6E2D9; --btn-ink:#0E1621; --btn-hover:#FFFFFF;
+    --lift:0 1px 2px rgba(0,0,0,.3), 0 16px 32px -18px rgba(0,0,0,.7);
+    --bd-filter:none; --bd-blend:screen; --bd-op:.34;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --canvas:#0E1621; --panel:#16212D; --well:#ECE8E0;
+  --ink:#E6E2D9; --graphite:#C9C4BA; --muted:#9AA3AD;
+  --hair:#27333F; --hair-strong:#3A4755;
+  --coral:#E09A6A; --slate:#8FB8DC;
+  --btn:#E6E2D9; --btn-ink:#0E1621; --btn-hover:#FFFFFF;
+  --lift:0 1px 2px rgba(0,0,0,.3), 0 16px 32px -18px rgba(0,0,0,.7);
+  --bd-filter:none; --bd-blend:screen; --bd-op:.34;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{ margin:0; background:var(--canvas); color:var(--graphite); font:400 17px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
+::selection{ background:color-mix(in srgb, var(--coral) 26%, transparent); color:var(--ink); }
+a{ color:inherit; }
+a:focus-visible{ outline:2px solid var(--coral); outline-offset:3px; border-radius:3px; }
+.wrap{ max-width:1200px; margin:0 auto; padding:0 40px; }
+
+/* ── the stage: bar, hero and documents over one live backdrop ───────── */
+.stage{ position:relative; overflow:hidden; }
+.stage > :not(#backdrop){ position:relative; z-index:1; }
+#backdrop{
+  position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none;
+  filter:var(--bd-filter); mix-blend-mode:var(--bd-blend);
+  opacity:0; transition:opacity 1.6s cubic-bezier(.16,1,.3,1);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 45%,transparent 92%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 45%,transparent 92%);
+}
+#backdrop.is-on{ opacity:var(--bd-op); }
+
+/* bar */
+.bar .wrap{ display:flex; align-items:center; justify-content:space-between; height:68px; }
+.brand{ display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--ink); }
+.brand img{ display:block; }
+.brand__name{ font-family:var(--serif); font-size:18.5px; }
+.bar__nav{ display:flex; gap:26px; font-size:15px; }
+.bar__nav a{ text-decoration:none; color:var(--muted); }
+.bar__nav a:hover{ color:var(--ink); }
+
+/* hero */
+.hero{ padding:92px 0 76px; text-align:center; }
+.hero h1{
+  margin:0; font-family:var(--serif); font-weight:400; color:var(--ink);
+  font-size:clamp(46px, 7.4vw, 92px); line-height:1; letter-spacing:-.016em;
+}
+.rule{ width:120px; height:2px; margin:30px auto 24px; background:var(--coral); }
+.byline{ margin:0 0 20px; font-size:15px; color:var(--muted); }
+.byline b{ font-weight:500; color:var(--graphite); white-space:nowrap; }
+.lead{ margin:0 auto; max-width:35em; font-family:var(--serif); font-size:21px; line-height:1.55; color:var(--graphite); text-wrap:pretty; }
+.cta{ margin-top:36px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:15px 28px 15px 30px; border-radius:3px;
+  background:var(--btn); color:var(--btn-ink); text-decoration:none;
+  font-size:16.5px; font-weight:500; transition:background-color .2s ease;
+}
+.btn:hover{ background:var(--btn-hover); }
+.btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; transition:transform .25s cubic-bezier(.16,1,.3,1); }
+.btn:hover svg{ transform:translateX(3px); }
+.cta__note{ font-size:14px; color:var(--muted); }
+
+/* documents */
+.docs{ padding:0 0 104px; }
+.docs h2{
+  margin:0 0 24px; font-family:var(--serif); font-weight:400; font-size:15px; letter-spacing:.01em;
+  color:var(--muted); text-align:center;
+}
+.grid{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:22px; }
+.doc{
+  display:flex; flex-direction:column; height:100%; padding:10px;
+  background:var(--panel); border:1px solid var(--hair); border-radius:4px; box-shadow:var(--lift);
+  text-decoration:none; color:inherit;
+  transition:border-color .2s ease, transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s ease;
+}
+.doc:hover{ border-color:var(--hair-strong); transform:translateY(-3px); }
+.doc__img{ position:relative; aspect-ratio:4/3; overflow:hidden; border-radius:2px; background:var(--well); }
+.doc__img img{ display:block; width:100%; height:100%; object-fit:cover; transform:scale(1.06); transition:transform .7s cubic-bezier(.16,1,.3,1); }
+.doc:hover .doc__img img{ transform:scale(1.1); }
+.doc__body{ padding:18px 12px 6px; flex:1; }
+.doc h3{ margin:0 0 7px; font-family:var(--serif); font-weight:400; font-size:22px; line-height:1.2; color:var(--ink); }
+.doc p{ margin:0; font-size:14.5px; line-height:1.55; color:var(--muted); }
+.doc__foot{
+  display:flex; align-items:center; gap:10px; margin:16px 12px 0; padding:13px 0 6px;
+  border-top:1px solid var(--hair); font-size:13.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.doc__go{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; color:var(--ink); font-weight:500; }
+.doc__go svg{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; transition:transform .3s cubic-bezier(.16,1,.3,1); }
+.doc:hover .doc__go{ color:var(--coral); }
+.doc:hover .doc__go svg{ transform:translateY(2px); }
+
+/* footer */
+.foot{ border-top:1px solid var(--hair); padding:28px 0 36px; font-size:14px; color:var(--muted); }
+.foot .wrap{ display:flex; justify-content:space-between; gap:12px 24px; flex-wrap:wrap; }
+.foot p{ margin:0; }
+.foot a{ text-underline-offset:3px; text-decoration-color:var(--hair-strong); }
+.foot a:hover{ color:var(--ink); text-decoration-color:var(--coral); }
+
+/* responsive */
+@media (max-width:1080px){ .grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:620px){
+  .wrap{ padding:0 16px; }
+  .hero{ padding:56px 0 52px; }
+  .lead{ font-size:18.5px; }
+  .btn{ width:100%; justify-content:center; }
+  .grid{ grid-template-columns:1fr; gap:16px; }
+  .doc__img{ aspect-ratio:3/2; }
+  .docs{ padding-bottom:64px; }
+}
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; } }
+</style>
 </head>
 <body>
 
-<header class="bar">
-  <a class="brand" href="/">
-    <img src="icon.svg" alt="" width="30" height="30">
-    <span class="brand__name">Signals&nbsp;and&nbsp;Systems</span>
-    <span class="brand__sub">Modules 0–7</span>
-  </a>
-  <nav class="bar__nav">
-    <a href="#instrument">The instrument</a>
-    <a href="#modules">Modules</a>
-    <a href="#documents">Documents</a>
-    <a class="bar__gh" href="https://github.com/huguryildiz/signals-and-systems"
-       target="_blank" rel="noopener" aria-label="The repository on GitHub" title="The repository on GitHub">
-      <svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-      </svg>
-    </a>
-  </nav>
-</header>
+<div class="stage">
+  <canvas id="backdrop" aria-hidden="true"></canvas>
 
-<!-- ─────────────────────────────── hero ─────────────────────────────── -->
-<section class="hero">
-  <canvas id="backdrop" class="hero__grid" aria-hidden="true"></canvas>
-  <div class="hero__inner">
-    <p class="eyebrow">Undergraduate course · Modules 0–7</p>
-    <h1 class="hero__title">Signals and<br><span class="hero__title-em">Systems</span></h1>
-    <p class="hero__lead">
-      A signal carries information in the way it changes. A system is anything that takes one
-      signal and returns another. This course is the study of what a system does to a signal,
-      and of the one change of variable — into frequency — that turns a hard question into
-      an easy one.
-    </p>
-    <div class="hero__cta">
-      <a class="btn btn--primary" href="Signals_and_Systems.html">Open the course</a>
-      <a class="btn" href="Lecture_Notes.pdf">Lecture notes (PDF)</a>
-      <a class="btn" href="Student_Workbook.pdf" download="Student_Workbook.pdf">Student workbook (PDF)</a>
-      <a class="btn" href="Formula_Reference.pdf" download="Formula_Reference.pdf">Formula reference (PDF)</a>
+  <header class="bar">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <img src="icon.svg" alt="" width="28" height="28">
+        <span class="brand__name">Signals and Systems</span>
+      </a>
+      <nav class="bar__nav" aria-label="Site">
+        <a href="https://github.com/huguryildiz/signals-and-systems" target="_blank" rel="noopener">GitHub</a>
+      </nav>
     </div>
-    <ul class="facts">
-      <li><b>8</b><span>modules</span></li>
-      <li><b>235</b><span>scenes</span></li>
-      <li><b>10</b><span>laboratories</span></li>
-      <li><b>210</b><span>worked questions</span></li>
-    </ul>
-  </div>
-</section>
+  </header>
 
-<!-- ──────────────────────────── the instrument ──────────────────────── -->
-<section class="band" id="instrument">
-  <div class="band__grid">
-    <div class="band__copy">
-      <p class="eyebrow">Where the course arrives</p>
-      <h2>Sample too slowly and you get a different signal</h2>
-      <p>
-        The screen beside this shows one cosine in green, the instants at which it is sampled in
-        blue, and the signal a receiver rebuilds from those samples alone in amber. The sampling
-        rate drifts. Nothing else on the screen changes.
-      </p>
-      <p class="eq">ω<sub>s</sub> &gt; 2ω<sub>M</sub></p>
-      <p>
-        While the rate stays above twice the highest frequency in the signal, the amber curve sits
-        exactly on the green one and you cannot see two curves. Below it they separate: the samples
-        are still correct, but they now fit a slower cosine just as well, and the rebuilt signal
-        drops to that frequency instead. The readout turns red at the same instant, because the
-        picture and the inequality are one statement.
-      </p>
-      <p class="note">
-        Every figure in the course is drawn from the mathematics beside it, and every number a
-        solution states is re-derived by a program that computes it a second way.
-      </p>
-    </div>
-
-    <figure class="scope">
-      <div class="scope__frame">
-        <canvas id="scope" class="scope__screen" aria-hidden="true"></canvas>
-        <div class="hud" aria-hidden="true">
-          <span class="hud__tl">
-            <span class="hud__live"><i></i> LIVE · SAMPLER</span>
-            <span class="hud__key">
-              <i class="k-in">━ x(t)</i> &nbsp; <i class="k-sm">┃ x[n]</i> &nbsp; <i class="k-out">━ x̂(t)</i>
-            </span>
-          </span>
-          <span class="hud__tr">f<sub>0</sub> = <b id="hud-f0">1.00 kHz</b><br>COSINE</span>
-          <span class="hud__bl">f<sub>s</sub> = <b id="hud-fs">4.00 kHz</b></span>
-          <span class="hud__br" id="hud-out">REBUILT <b id="hud-fr">1.00 kHz</b></span>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>Signals and Systems</h1>
+        <div class="rule" aria-hidden="true"></div>
+        <p class="byline">An undergraduate course in eight modules &middot; <b>Huseyin Ugur Yildiz</b></p>
+        <p class="lead">
+          A signal carries information in the way it changes. A system is anything that takes one
+          signal and returns another. This course is the study of what a system does to a signal,
+          and of the one change of variable, into frequency, that turns a hard question into an easy one.
+        </p>
+        <div class="cta">
+          <a class="btn" href="Signals_and_Systems.html">Open the course
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11.5M11 5.5l4.5 4.5-4.5 4.5"/></svg>
+          </a>
+          <span class="cta__note">Runs in the browser. No account, no tracking.</span>
         </div>
       </div>
-      <figcaption>
-        A 1 kHz cosine over 4 ms, sampled at a rate that drifts through its Nyquist rate.
-        The rebuilt frequency is computed from the same model that draws the trace.
-      </figcaption>
-    </figure>
-  </div>
-</section>
+    </section>
 
-<!-- ───────────────────────────── the modules ────────────────────────── -->
-<section class="band band--alt" id="modules">
- <div class="band__in">
-  <p class="eyebrow">The eight modules</p>
-  <h2>One question, asked eight ways</h2>
-  <p class="band__lead">
-    A system is given a signal and returns another one. Every module is either a way of describing
-    the signal, a way of describing what the system does to it, or the change of variable that
-    makes the second question a multiplication instead of an integral.
-  </p>
-
-  <ol class="mods">
-    <li><span class="mods__n">0</span>
-      <h3>What a signal is</h3>
-      <p>The frame of the course: what is being studied, in continuous and in discrete time.</p></li>
-    <li><span class="mods__n">1</span>
-      <h3>Signals and their measures</h3>
-      <p>Energy, power, time transformations, periodicity, impulses and complex exponentials.</p></li>
-    <li><span class="mods__n">2</span>
-      <h3>System properties</h3>
-      <p>Memory, causality, stability, linearity, time invariance — and a counterexample each.</p></li>
-    <li><span class="mods__n">3</span>
-      <h3>LTI systems and convolution</h3>
-      <p>Why the impulse response is the whole system, and how to slide one signal past another.</p></li>
-    <li><span class="mods__n">4</span>
-      <h3>Fourier series</h3>
-      <p>A periodic signal as a sum of harmonics, in continuous and in discrete time.</p></li>
-    <li><span class="mods__n">5</span>
-      <h3>The continuous-time transform</h3>
-      <p>The same idea for signals that never repeat, with the properties that make it usable.</p></li>
-    <li><span class="mods__n">6</span>
-      <h3>The discrete-time transform</h3>
-      <p>The sequence version, periodic in frequency, and where the two theories differ.</p></li>
-    <li><span class="mods__n">7</span>
-      <h3>Sampling and aliasing</h3>
-      <p>What is kept when a signal is measured at instants, what is lost, and when.</p></li>
-  </ol>
- </div>
-</section>
-
-<!-- ──────────────────────────── the documents ───────────────────────── -->
-<section class="band" id="documents">
-  <p class="eyebrow">Take it away</p>
-  <h2>The course as four things you can hold</h2>
-
-  <div class="docs">
-    <a class="doc" href="Signals_and_Systems.html">
-      <span class="doc__kind">Interactive</span>
-      <h3>The course artifact</h3>
-      <p>235 scenes, ten laboratories and every practice question with its worked solution.
-         One file, no network, works offline.</p>
-      <span class="doc__go">Open →</span>
-    </a>
-    <a class="doc" href="Lecture_Notes.html">
-      <span class="doc__kind">Reading · A4</span>
-      <h3>Lecture notes</h3>
-      <p>The eight chapters written out as a book, with worked examples in Given, Find, Method,
-         Solution, Check form.</p>
-      <span class="doc__go">Open →</span>
-      <span class="doc__alt">Also as a PDF, linked below</span>
-    </a>
-    <a class="doc" href="Student_Workbook.html">
-      <span class="doc__kind">Practice</span>
-      <h3>Student workbook</h3>
-      <p>The 210 questions on their own, thirty to a module, in the form the papers use.</p>
-      <span class="doc__go">Open →</span>
-    </a>
-    <a class="doc" href="Formula_Reference.html">
-      <span class="doc__kind">Reference</span>
-      <h3>Formula reference</h3>
-      <p>Both transform pairs, every property table the course establishes, and a definition
-         for every symbol it uses.</p>
-      <span class="doc__go">Open →</span>
-    </a>
-  </div>
-
-  <p class="note note--wide">
-    Three conventions decide every number here, and each is restated where it is used: energy and
-    power are normalised at one ohm, the imaginary unit is <b>j</b>, and sinc is
-    <b>unnormalised</b>, sinc(θ) = sin θ ⁄ θ. The lecture notes are also available as a
-    <a href="Lecture_Notes.pdf">PDF</a>.
-  </p>
-</section>
+    <section class="docs" id="documents" aria-labelledby="docs-h">
+      <div class="wrap">
+        <h2 id="docs-h">Download the course documents</h2>
+        <ul class="grid">
+          <li><a class="doc" href="Lecture_Notes.pdf" download>
+            <div class="doc__img"><img src="img/lecture_notes.jpg" width="960" height="640" alt="" decoding="async"></div>
+            <div class="doc__body"><h3>Lecture notes</h3>
+              <p>The eight chapters written out as a book, with worked examples in Given, Find, Method, Solution, Check form.</p></div>
+            <div class="doc__foot"><span>PDF &middot; 82 pp &middot; 4.8 MB</span>
+              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
+          </a></li>
+          <li><a class="doc" href="Student_Workbook.pdf" download>
+            <div class="doc__img"><img src="img/student_workbook.jpg" width="960" height="640" alt="" loading="lazy" decoding="async"></div>
+            <div class="doc__body"><h3>Student workbook</h3>
+              <p>The 210 practice questions on their own, set out in the form the examination papers use.</p></div>
+            <div class="doc__foot"><span>PDF &middot; 83 pp &middot; 6.2 MB</span>
+              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
+          </a></li>
+          <li><a class="doc" href="Formula_Reference.pdf" download>
+            <div class="doc__img"><img src="img/formula_reference.jpg" width="960" height="640" alt="" loading="lazy" decoding="async"></div>
+            <div class="doc__body"><h3>Formula reference</h3>
+              <p>Both transform pairs, every property table the course establishes, and a definition for every symbol it uses.</p></div>
+            <div class="doc__foot"><span>PDF &middot; 11 pp &middot; 241 KB</span>
+              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
+          </a></li>
+          <li><a class="doc" href="Signals_and_Systems.html" download>
+            <div class="doc__img"><img src="img/course_offline.jpg" width="960" height="640" alt="" loading="lazy" decoding="async"></div>
+            <div class="doc__body"><h3>The course, offline</h3>
+              <p>Every scene, laboratory and worked solution in one HTML file. It opens in any browser with no network connection.</p></div>
+            <div class="doc__foot"><span>HTML &middot; 2.3 MB</span>
+              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
+          </a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
 
 <footer class="foot">
-  <p>© 2026 Huseyin Ugur Yildiz — <a href="https://huguryildiz.com/">huguryildiz.com</a></p>
+  <div class="wrap">
+    <p>&copy; 2026 Huseyin Ugur Yildiz &middot; <a href="https://huguryildiz.com/">huguryildiz.com</a></p>
+    <p><a href="https://github.com/huguryildiz/signals-and-systems">Source on GitHub</a></p>
+  </div>
 </footer>
 
-<script src="backdrop.js"></script>
-<script src="sampler.js"></script>
+<script src="backdrop.js" defer></script>
 </body>
 </html>

@@ -157,18 +157,32 @@ are therefore not the same colour. This is a known gap, not a decision.
 
 ### The public cover page
 
-`web/site.css` is the sibling course's file (`~/Documents/GitHub/digital-communications`), copied
-unchanged, so the two cover pages are one design. A change to the theme is made in one place and
-copied to the other. Its palette is that course's: green a signal, blue a sample, amber what comes
-out. It is **not** the signal semantics above, which govern figures inside the artifact and the notes.
-Only the classes this course's own instrument (`web/sampler.js`) needs are appended, below a marked
-line.
+Redesigned on 2026-09-23. The cover no longer shares `site.css` with the sibling course
+(`~/Documents/GitHub/digital-communications`); the two cover pages are now separate designs. It uses
+the artifact's own tokens (the ivory and navy surfaces, the ink ramp, coral and slate above) so the
+cover and the course read as one publication. The styles are inline in `web/index.html`, with no web
+font and no stylesheet request.
 
-The hero backdrop, `web/backdrop.js` (Radiant Shaders #41, "Signal Decay", MIT), is the one thing not
-shared. It is the hero's backdrop and nothing else: `#backdrop{opacity:.16}`, masked out over the lower
-part of the hero, and no surface gives up any opacity for it. It settles to a still frame under reduced
-motion and stops when the tab is hidden. It cannot be checked by reading pixels back; `sitecheck.js`
-asserts the context, the linked program and the viewport instead.
+The page is one stage and a footer. The stage holds the bar, a centred title with a 120 px coral rule
+under it, the byline, the lead, one primary action (`Open the course`), and four download cards: the
+lecture notes, the student workbook and the formula reference as PDFs, and the course itself as its
+single HTML file. The instructor edition is never linked. Each card carries a photograph of the
+document, its title, one sentence, and a footer with the format, page count, file size and a
+`Download` action. There is no eyebrow, no gradient text, no glass and no numbered sequence.
+
+The four photographs in `web/img/` were generated with Codex (`gpt-6-sol`, reasoning effort medium)
+from the prompt kept in `web/img/PROMPT.md`, then reduced to 960×640 JPEG at quality 72, about 65 KB
+each. The first is preloaded; the others load lazily. They show the design of the covers, not the
+printed PDFs, and a regenerated image must keep the spelling of every title exact.
+
+The backdrop, `web/backdrop.js` (Radiant Shaders #41, "Signal Decay", MIT), sits behind the whole
+stage and fades out below the cards. Its traces use the dark-theme signal tints (cyan clean, amber
+degrading, slate what is left). CSS blends it into the page: `screen` at opacity .34 in the dark
+theme, and in the light theme `invert(1) hue-rotate(180deg)` with `multiply` at .30, so the same
+traces read dark on ivory. It renders at 0.6 of CSS resolution and 30 frames a second, starts after
+the page has loaded, pauses when the tab is hidden or the canvas is off screen, and draws one still
+frame under reduced motion. It cannot be checked by reading pixels back; `sitecheck.js` asserts the
+context, the linked program and the viewport instead, and checks that the four photographs load.
 
 ## Typography
 

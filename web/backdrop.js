@@ -1,5 +1,5 @@
 /* ==========================================================================
-   web/backdrop.js — the page's backdrop.
+   web/backdrop.js — the cover page's backdrop.
 
    Radiant Shaders #41, "Signal Decay".
 
@@ -12,15 +12,19 @@
    course's own subject seen end to end: a signal is a sum of harmonics, and
    what a channel does to it is measurable at every stage of coming apart.
 
-   It is the backdrop of the whole page, fixed to the viewport, so it stays
-   put while the page scrolls over it, and it is turned down at the canvas
-   (`.page-bg{opacity}`) rather than behind each column.
+   It sits behind the top of the cover: the bar, the title and the four
+   document cards. The canvas is faded out towards the foot of that stage and
+   blended into the page by CSS (`#backdrop` in `index.html`): screen over the
+   dark theme, and over the light theme inverted in lightness and multiplied,
+   so the same traces read dark on ivory.
 
-   Changed from the original: the palette is the page's own — green the clean
-   signal, amber the signal degrading, blue what is left when it has gone, and
-   the ground the page colour rather than a warm near-black. The standalone
-   page's postMessage parameter channel is gone. One fragment shader, no
-   dependency, and it stops when the tab is hidden.
+   Changed from the original: the trace colours are the course's signal tints
+   (cyan the clean signal, amber the signal degrading, slate what is left when
+   it has gone). The standalone page's postMessage parameter channel is gone.
+   One fragment shader, no dependency. It renders at 0.6 of CSS resolution and
+   30 frames a second, starts after the page has loaded, pauses when the tab is
+   hidden or the canvas is off screen, and draws one still frame under reduced
+   motion.
    ========================================================================== */
 (function () {
   var canvas = document.getElementById('backdrop');
@@ -199,10 +203,10 @@
     '  vec3 col = vec3(0.0);',
     '',
     '  // Color palette',
-    '  vec3 colClean    = vec3(0.22, 1.00, 0.52);  // green, the clean signal',
-    '  vec3 colDistort  = vec3(1.00, 0.62, 0.27);  // amber, the signal degrading',
+    '  vec3 colClean    = vec3(0.31, 0.75, 0.81);  // cyan, the clean signal',
+    '  vec3 colDistort  = vec3(0.90, 0.70, 0.33);  // amber, the signal degrading',
     '  vec3 colHot      = vec3(0.91, 0.96, 1.00);  // the hot core of a trace',
-    '  vec3 colNoise    = vec3(0.30, 0.40, 0.66);  // blue, what is left when it goes',
+    '  vec3 colNoise    = vec3(0.56, 0.72, 0.86);  // slate, what is left when it goes',
     '',
     '  // Each track is a horizontal band with a waveform line',
     '  float trackH = 1.0 / float(NUM_TRACKS);',
@@ -383,7 +387,8 @@
     mouseXVal = -1; mouseYVal = -1;
   });
 
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var dpr = 0.6;          // a texture at low opacity; full resolution buys nothing
+  var last = 0;
   var needsResize = true;
   var running = true;
 
@@ -401,6 +406,8 @@
 
   function render(now) {
     if (!running) return;
+    if (!prefersReduced && now - last < 33) { requestAnimationFrame(render); return; }
+    last = now;
     if (needsResize) resize();
     var t = prefersReduced ? 0.0 : now * 0.001;
     gl.uniform1f(uTime, t);
@@ -408,24 +415,31 @@
     gl.uniform1f(uDecayIntensity, decayIntensityVal);
     gl.uniform2f(uMouse, mouseXVal, mouseYVal);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    requestAnimationFrame(render);
+    if (!prefersReduced) requestAnimationFrame(render);
   }
 
   window.addEventListener('resize', function () {
     needsResize = true;
   });
 
-  resize();
+  var onScreen = true;
+  function wake() {
+    var want = onScreen && !document.hidden;
+    if (want && !running) { running = true; requestAnimationFrame(render); }
+    else if (!want) running = false;
+  }
 
-  requestAnimationFrame(render);
-
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      running = false;
-    } else {
-      running = true;
-      requestAnimationFrame(render);
+  function start() {
+    resize();
+    requestAnimationFrame(render);
+    canvas.classList.add('is-on');
+    document.addEventListener('visibilitychange', wake);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; wake(); })
+        .observe(canvas);
     }
-  });
+  }
+  if (document.readyState === 'complete') start();
+  else window.addEventListener('load', function () { setTimeout(start, 120); });
 
 })();

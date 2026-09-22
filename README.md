@@ -193,7 +193,7 @@ notes/
 verify/                         verify_m1_m3.py · verify_m4_m6.py · verify_drills.py · drill_common.py · drills_m1–m7.py
 tools/rule_check.py             The provenance and figure-label scanner
 tools/content_guard.py          The plain-academic-English and no-ai-slop guard
-web/                            build-site.js · index.html · site.css · sitecheck.js
+web/                            build-site.js · index.html · backdrop.js · img/ · sitecheck.js
 dist/                           The two tracked deliverables, beside the generated editions
 source/                         Course source material (git-ignored)
 ```
