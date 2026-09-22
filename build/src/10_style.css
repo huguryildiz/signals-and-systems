@@ -636,6 +636,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 .scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
 :where(.scene.slide) .eq{ font-size:calc(19px * var(--ts)); }
 :where(.scene.slide) .eq.lg .katex{ font-size:1.68em; }
+.scene.slide .eq-note{ font-size:calc(21.5px * var(--ts)); line-height:1.52; }
 
 /* Room for the tab. Only a card with a head and an equation with a label have
    a tab, so only they take the room; the corner under the tab is squared so the
@@ -763,6 +764,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
+.scene .lab[data-lab="A"] .ctrl label,
+.scene .lab[data-lab="A"] .readout dt,
+.scene .lab[data-lab="A"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="A"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="A"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
+.scene .lab[data-lab="A"] .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
   font-size:calc(18px * var(--ts));
 }
@@ -771,6 +779,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 }
 .lab > .cols{ height:100%; align-items:stretch; }
 .lab > .cols > .col.stack{ justify-content:space-between; }
+/* Laboratory A needs two columns so longer results can keep the type floor. */
+.lab[data-lab="A"] .ctrls{ gap:10px 20px; padding:16px 20px; }
+.lab[data-lab="A"] .ctrl{ gap:5px; }
+.lab[data-lab="A"] .seg button{ padding:8px 12px; }
+.lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.lab[data-lab="A"] .readout div{ padding:10px 14px; }
+.lab[data-lab="A"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -827,6 +842,34 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .btn:disabled{ opacity:.42; cursor:not-allowed; }
 .btn.ghost{ border-color:transparent; }
 
+/* Laboratory B keeps its own classification choices after quiz options were removed. */
+.lab[data-lab="B"] .opts{ display:grid; gap:10px; }
+.lab[data-lab="B"] .opt{
+  display:flex; align-items:center; gap:16px; width:100%; min-height:68px;
+  padding:12px 18px; text-align:left;
+  font-family:var(--sans); font-size:calc(18px * var(--ts)); line-height:1.4;
+  color:var(--ink); background:var(--paper-2);
+  border:1px solid var(--rule-strong); border-radius:var(--radius);
+  cursor:pointer; transition:background 140ms var(--ease),border-color 140ms var(--ease);
+}
+.lab[data-lab="B"] .opt .k{
+  flex:none; display:grid; place-items:center; width:30px; height:30px;
+  font-family:var(--mono); font-size:calc(13.5px * var(--ts)); font-weight:600;
+  color:var(--slate); border:1px solid var(--rule-strong); border-radius:var(--radius);
+}
+.lab[data-lab="B"] .opt:hover:not(:disabled){ background:var(--paper-3); border-color:var(--slate); }
+.lab[data-lab="B"] .opt:disabled{ cursor:default; opacity:1; }
+.lab[data-lab="B"] .opt.correct{ background:var(--sig-out-soft); border-color:var(--sig-out); }
+.lab[data-lab="B"] .opt.correct .k{ color:var(--sig-out); border-color:var(--sig-out); }
+.lab[data-lab="B"] .opt.wrong{ background:var(--sig-err-soft); border-color:var(--sig-err); }
+.lab[data-lab="B"] .opt.wrong .k{ color:var(--sig-err); border-color:var(--sig-err); }
+.lab[data-lab="B"] .fb{
+  padding:14px 18px; font-size:calc(17.5px * var(--ts)); line-height:1.5;
+  color:var(--graphite); background:var(--paper-2);
+  border-left:3px solid var(--sig-out); border-radius:var(--radius);
+}
+.lab[data-lab="B"] .fb.bad{ border-left-color:var(--sig-err); }
+
 .readout{
   display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:2px;
   background:var(--rule); border:1px solid var(--rule); border-radius:var(--radius);
@@ -845,10 +888,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .quiz{ display:flex; flex-direction:column; gap:var(--s2); max-width:1180px; }
 .qid{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; color:var(--faint); }
 .qstem{ font-size:calc(21px * var(--ts)); line-height:1.55; color:var(--ink); }
-/* Answer options, their feedback panel and the hint ladder were all removed when
-   the question bank was folded into the exam drill: a question is now stated,
-   worked on paper, and checked against its solution. Nothing renders .opt, .fb
-   or .hintbox any more. */
+/* The question bank has no answer options or hint ladder. Laboratory B's
+   classification choices and feedback are styled above, within the lab. */
 
 /* instructor-only material */
 .instr{ display:none; }
@@ -932,6 +973,10 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
   padding:9px 0; border-bottom:1px solid var(--rule); }
 .gitem .gs{ text-align:right; }
 .gitem .gd{ font-size:15.5px; color:var(--graphite); line-height:1.4; }
+.licensebox{ margin-top:30px; padding-top:18px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px; line-height:1.5; }
+.licensebox .eyebrow{ margin-bottom:8px; }
+.licensebox p{ margin:4px 0; }
+.licensebox a{ color:var(--slate); }
 .gitem .gd a{ color:var(--slate); cursor:pointer; text-decoration:none;
   border-bottom:1px dotted var(--slate); }
 

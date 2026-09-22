@@ -1,14 +1,14 @@
 MIT License
 
-Copyright (c) 2026 huguryildiz
+Copyright (c) 2026 Hüseyin Uğur Yıldız
 
-The MIT License applies to the software in this repository: the build
-pipeline, the rendering and plotting code, the verification gates, the
-notes pipeline and the site build — that is, everything under `build/`,
-`notes/src/render.js`, `notes/build.js`, `notes/topdf.js`,
-`notes/editions.js`, `notes/mathscan.js`, `tools/`, `verify/` and `web/`.
+The MIT License applies to the original software portions of this repository:
+the build pipeline, the application shell, the rendering and plotting code,
+the verification gates, the notes and edition pipeline, the editorial tools,
+and the site build. Authored course content is licensed separately; see
+LICENSE-CONTENT. Third-party components retain their own licenses; see
+THIRD_PARTY_NOTICES.md.
 
-The course content is licensed separately; see LICENSE-CONTENT.
 Material in `source/` is third-party and is not licensed by this
 repository. It is not redistributed here.
 

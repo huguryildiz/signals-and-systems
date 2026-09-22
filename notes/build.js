@@ -3,6 +3,7 @@ const S=p=>fs.readFileSync(path.join(__dirname,p),'utf8');
 const B=path.join(__dirname,'..','build','src');
 const g=s=>s.replace(/<\/script>/gi,'<\\/script>');
 const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="author" content="Hüseyin Uğur Yıldız"><meta name="license" content="CC BY-NC-SA 4.0">
 <title>Signals, Systems and Frequency-Domain Analysis</title>
 <style>${fs.readFileSync(path.join(B,'20_katex.css'),'utf8')}</style>
 <style>${S('src/notes.css')}</style></head><body><div id="doc"></div>

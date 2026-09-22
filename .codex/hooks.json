@@ -1,0 +1,30 @@
+{
+  "description": "Repository-local agent guards shared with Claude Code; no CI integration.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.claude/hooks/agent_guard.py\"",
+            "timeout": 5,
+            "statusMessage": "Checking repository edit policy"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.claude/hooks/stop_guard.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking student-facing prose"
+          }
+        ]
+      }
+    ]
+  }
+}

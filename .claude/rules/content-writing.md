@@ -23,6 +23,8 @@ These rules apply to the artifact, notes, PDFs, practice questions, and instruct
 
 Every derivation is explicit. Start from the governing definition, substitute the given signal or system, show changes of limits or indices, evaluate the integral or sum, and show each algebraic simplification before stating the result. Explain every non-obvious equality or inequality. Do not hide a step in prose or require the student to reconstruct it. A definition or directly stated identity needs no false derivation. On a slide, distribute a long derivation across reveal steps or additional slides; the lecture notes carry the uninterrupted chain.
 
+For a content review, use the manual checklist and coverage record in `.claude/reference/derivation-review.md`. This review is editorial; it is not a CI gate or an automated claim that every intermediate step is present.
+
 Say what an idea is for before developing it. Name each move (for example, "take the transform of both sides"). Explain steps students commonly get wrong and the reason for a definition that otherwise looks arbitrary. Worked examples and solutions use **Given, Find, Method, Solution, Check**, including why the method fits. A slide card holds one or two sentences; the notes provide the full explanation.
 
 **R5 — Simple language must preserve correctness.** Define every symbol on first use. Keep CT and DT distinct. Preserve signs, coefficients, limits, and scale factors. State required assumptions and convergence conditions. Distinguish necessary from sufficient, functions from distributions, rad/s or rad/sample from hertz, and impulse locations from weights. State the sinc convention at every use.

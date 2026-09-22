@@ -24,6 +24,7 @@ const g = s => s.replace(/<\/script>/gi, '<\\/script>');
 const DRILL_FILES = fs.readdirSync(B).filter(f => /^9[2-8]_drill_m\d\.js$/.test(f)).sort();
 
 const doc = (title, builder, extra = '') => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="author" content="Hüseyin Uğur Yıldız"><meta name="license" content="Course content: CC BY-NC-SA 4.0; software: MIT License">
 <title>${title}</title>
 <style>${R('20_katex.css')}</style>
 <style>${S('src/notes.css')}</style>

@@ -105,6 +105,14 @@ Never run these under the x86_64 anaconda `python3`.
   mathematics — turning `energy = shaded area` into `\text{energy}=\text{shaded area}` is an editorial
   call — and nothing about where a label sits, which is what `textclash.js` measures.
 
+- `content_guard.py` applies the deterministic part of the plain-academic-English policy. It fails on
+  unambiguous AI-slop and promotional patterns from the `no-ai-slop` editorial guide, scans both the
+  authored student-facing sources and the generated lecture-note PDF/HTML, and prints context-dependent
+  signals such as `simply`, `in terms of`, or an em dash as review warnings. Warnings do not fail the gate:
+  technical prose can need those forms. The Stop hook runs the source scan in quiet mode and can block a
+  normal stop on a hard failure; its matcher, timeout and user interruption limits still apply. Nuanced
+  style decisions remain with an editor.
+
 - `labwalk.js` is the gate for what `mathscan.js` structurally cannot see. `mathscan.js` only ever
   opens the item a laboratory shows first; `labwalk.js` opens **every** item of **every** laboratory, in
   **both themes**, sweeps each slider to the bottom, middle and top of its range, and reads the state

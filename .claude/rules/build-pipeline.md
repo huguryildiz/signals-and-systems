@@ -41,9 +41,10 @@ cd verify && ../.venv/bin/python verify_m1_m3.py
 cd verify && ../.venv/bin/python verify_m4_m6.py
 cd verify && ../.venv/bin/python verify_drills.py
 .venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/9[2-8]_drill_m*.js" "build/src/91_*.js" "build/src/70_labs.js" "notes/src/*.js"
+.venv/bin/python tools/content_guard.py --source --artifacts --hook
 cd build && node pw.js ../web/sitecheck.js
 ```
 
-Expected qualitative results: `qa.js` reports 0 errors and 0 overflow; inspect its `dense` list, which is not itself a failure. `labtest.js` reports no errors and `options=0`; `textclash.js` reports 0 collisions; both math scans report no damage; `labwalk.js`, `seccheck.js`, and `sitecheck.js` report no problems; numeric suites report 0 failed; `rule_check.py` reports 0 violations. New modules extend the suites rather than replacing them. Every new numerical result needs a PASS/FAIL line in `verify/`.
+Expected qualitative results: `qa.js` reports 0 errors and 0 overflow; inspect its `dense` list, which is not itself a failure. `labtest.js` reports no errors and `options=0`; `textclash.js` reports 0 collisions; both math scans report no damage; `labwalk.js`, `seccheck.js`, and `sitecheck.js` report no problems; numeric suites report 0 failed; `rule_check.py` reports 0 violations; and `content_guard.py` reports no hard failures. Content-guard review warnings are not automatic failures because technical prose can legitimately contain phrases such as `in terms of` or an em dash in a worked-example title. New modules extend the suites rather than replacing them. Every new numerical result needs a PASS/FAIL line in `verify/`.
 
 Every Playwright script uses the existing container-path `require('/home/claude/.npm-global/lib/node_modules/playwright')`; do not rewrite that line. `build/pw.js` redirects resolution to the available local Playwright installation and retries with a cached Chromium headless shell when needed. It reports the browser used on stderr. `PW_PATH` and `PW_CHROME` override package and browser paths. Read `.claude/reference/gates.md` when a gate fails or a new gate is proposed. After a visual change, take and inspect screenshots.

@@ -19,6 +19,13 @@ Read `DESIGN.md` before changing a scene, figure, or style. Respect its LOCKED d
 
 **R9 — Check these rules mechanically.** Run the relevant gates in `build-pipeline.md`. Inspect screenshots after visual changes; gates cannot see every flaw.
 
+**Laboratory font-size rule.** Before delivering a new or restyled laboratory, check computed sizes
+against the laboratory type floor in `DESIGN.md`. Remove bare inline pixel sizes from its controls
+and results. Inspect normal and projector views in both themes with the longest populated control
+state. Record the projector fit factor and confirm it is at least 0.90 without clipped text. If
+larger type causes a poor fit, reflow the controls or readouts, or split the scene; do not shrink the
+type back down or apply an unverified font override to every laboratory.
+
 Keep the KaTeX macro lists in `60_plot.js` and `90_app.js` in step. `PLOT` and `APP` are top-level `const`, not `window` properties; use their bare identifiers in Playwright `page.evaluate`.
 
 Never run blanket search-and-replace over `build/src/*.js`. JavaScript statement terminators and TeX thin spaces use semicolons differently. Edit labels individually, then run `node --check build/src/8*.js build/src/9*.js`.

@@ -1,32 +1,32 @@
 Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
 (CC BY-NC-SA 4.0)
 
-Copyright (c) 2026 huguryildiz
+Copyright (c) 2026 Hüseyin Uğur Yıldız
 
-This license applies to the course content in this repository: the scenes,
-the laboratories, the practice questions and their worked solutions, the
-lecture notes, the figures and the two deliverables in `dist/` — that is,
-the content data files under `build/src/` (`70_labs.js`, `71_labs_m4.js`
+This license applies to the original course content in this repository: the
+scenes, laboratories, practice questions and their worked solutions, lecture
+notes, figures, and formula and notation material. The source content is in
+the authored data files under `build/src/` (`70_labs.js`, `71_labs_m4.js`
 through `74_labs_m7.js`, `80_content_core.js`, `81_scenes_m0.js` through
 `89_sections.js`, `91_scenes_end.js`, `92_drill_m1.js` through
-`98_drill_m7.js`), the chapter files under `notes/src/` (`c1.js`, `c23.js`,
-`c4.js` through `c7.js`, `ca.js`), and everything in `dist/`.
+`98_drill_m7.js`) and the chapter files under `notes/src/` (`c1.js`,
+`c23.js`, `c4.js` through `c7.js`, `ca.js`).
+
+The PDF deliverables in `dist/` contain this course content and are covered
+by this license. The HTML deliverables in `dist/` are composite artifacts:
+this license covers their authored course content, while embedded software
+and third-party components remain under their own licenses. See `LICENSE`
+and `THIRD_PARTY_NOTICES.md`.
 
 You are free to share and adapt this material for non-commercial purposes,
-provided you give appropriate credit and license your adaptations under the
-same terms.
+provided you give appropriate credit, link to this license, indicate changes,
+and license your adaptations under the same terms. You may not imply that the
+licensor endorses you or your use.
 
 The full legal code is at:
 https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 A plain-language summary is at:
 https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-The software in this repository is licensed separately under the MIT
-License; see LICENSE.
-
-KaTeX is vendored in `build/src/20_katex.css` and `build/src/30_katex.js`
-and remains under its own MIT License, Copyright (c) 2013-2020 Khan Academy
-and other contributors.
 
 Material in `source/` is third-party and is not licensed by this repository.
 It is not reproduced, quoted or redistributed here.
