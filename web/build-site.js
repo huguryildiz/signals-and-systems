@@ -287,11 +287,13 @@ copy(path.join(DIST, 'Lecture_Notes.html'), 'Lecture_Notes.html');
 copy(path.join(DIST, 'Student_Workbook.html'), 'Student_Workbook.html');
 copy(path.join(DIST, 'Formula_Reference.html'), 'Formula_Reference.html');
 
-/* Of the four printed editions only the lecture notes are tracked, and only
-   they can be published without a Playwright run. */
+/* The lecture notes, student workbook and formula reference PDFs are published
+   as tracked deliverables. The instructor edition remains local. */
 const notesPdf = path.join(DIST, 'Lecture_Notes.pdf');
 if (fs.existsSync(notesPdf)) copy(notesPdf, 'Lecture_Notes.pdf');
 else log('  · Lecture_Notes.pdf missing — the cover will link to the HTML edition only');
+copy(path.join(DIST, 'Student_Workbook.pdf'), 'Student_Workbook.pdf');
+copy(path.join(DIST, 'Formula_Reference.pdf'), 'Formula_Reference.pdf');
 
 /* The cover page and the two instruments on it. */
 for (const f of ['index.html', 'site.css', 'backdrop.js', 'sampler.js'])
