@@ -45,6 +45,11 @@ cd verify && ../.venv/bin/python verify_drills.py
 cd build && node pw.js ../web/sitecheck.js
 ```
 
+For the local edit loop, use `cd build && node pw.js labwalk.js --smoke`. It checks every laboratory in
+both themes with a representative control state and avoids the full pager and endpoint sweep. Use
+`cd build && node pw.js labwalk.js --labs=B,F` when a change is limited to selected laboratories. The
+unqualified `labwalk.js` command remains the release gate.
+
 Expected qualitative results: `qa.js` reports 0 errors and 0 overflow; inspect its `dense` list, which is not itself a failure. `labtest.js` reports no errors and `options=0`; `textclash.js` reports 0 collisions; both math scans report no damage; `labwalk.js`, `seccheck.js`, and `sitecheck.js` report no problems; numeric suites report 0 failed; `rule_check.py` reports 0 violations; and `content_guard.py` reports no hard failures. Content-guard review warnings are not automatic failures because technical prose can legitimately contain phrases such as `in terms of` or an em dash in a worked-example title. New modules extend the suites rather than replacing them. Every new numerical result needs a PASS/FAIL line in `verify/`.
 
 Every Playwright script uses the existing container-path `require('/home/claude/.npm-global/lib/node_modules/playwright')`; do not rewrite that line. `build/pw.js` redirects resolution to the available local Playwright installation and retries with a cached Chromium headless shell when needed. It reports the browser used on stderr. `PW_PATH` and `PW_CHROME` override package and browser paths. Read `.claude/reference/gates.md` when a gate fails or a new gate is proposed. After a visual change, take and inspect screenshots.

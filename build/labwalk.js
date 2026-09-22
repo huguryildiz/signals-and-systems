@@ -1,4 +1,10 @@
-/* Exhaustive laboratory walk — the check no other gate performs.
+/* Laboratory walk — the check no other gate performs.
+
+   The default invocation is exhaustive. For the local edit loop, pass --smoke:
+   it keeps both themes but samples the first control combination, the midpoint
+   of each slider and the first item in each pager. Pass --labs=B,F to run the
+   exhaustive walk only for selected laboratories. Neither option changes the
+   default release gate.
 
    mathscan.js only ever sees whatever a laboratory shows first: it does not drive
    [data-nav], [data-case], [data-wave], [data-fac] or a segmented control, so damage
@@ -21,7 +27,10 @@
    using an attribute this file does not know about is still invisible, so ATTRS is
    the one thing to extend when the design system gains a new kind of control.
 
-   Run it through pw.js like the gates: cd build && node pw.js labwalk.js            */
+   Run it through pw.js like the gates:
+     cd build && node pw.js labwalk.js
+     cd build && node pw.js labwalk.js --smoke
+     cd build && node pw.js labwalk.js --labs=B,F                              */
 const { chromium } = require('/home/claude/.npm-global/lib/node_modules/playwright');
 const path = require('path');
 
@@ -29,6 +38,15 @@ const path = require('path');
    attribute becomes one dimension of the walk; each of its values, one position. */
 const ATTRS = ['data-case', 'data-wave', 'data-fac', 'data-cls', 'data-prop', 'data-stage'];
 const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silent */
+const ARGS = process.argv.slice(2);
+const SMOKE = ARGS.includes('--smoke');
+const LABS_ARG = ARGS.find(a => a.startsWith('--labs='));
+const REQUESTED_LABS = LABS_ARG
+  ? new Set(LABS_ARG.slice('--labs='.length).split(',').map(x => x.trim().toUpperCase()).filter(Boolean))
+  : null;
+const WAIT = SMOKE
+  ? { startup: 250, theme: 140, scene: 180, control: 55, slider: 35 }
+  : { startup: 400, theme: 260, scene: 340, control: 110, slider: 70 };
 
 (async () => {
   const file = 'file://' + path.resolve(__dirname, '..', 'dist', 'Signals_and_Systems.html');
@@ -38,7 +56,7 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
   p.on('pageerror', e => errs.push('PAGEERROR ' + e.message));
   p.on('console', m => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
   await p.goto(file, { waitUntil: 'load' });
-  await p.waitForTimeout(400);
+  await p.waitForTimeout(WAIT.startup);
 
   const problems = [];
   const notes = [];
@@ -63,6 +81,16 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
     return found;
   });
   if (!LABS.length) { console.log('NO LABORATORIES FOUND'); process.exit(1); }
+  const availableLabs = new Set(LABS.map(x => x.lab.toUpperCase()));
+  if (REQUESTED_LABS) {
+    for (const requested of REQUESTED_LABS) {
+      if (!availableLabs.has(requested)) problems.push(`unknown laboratory in --labs: ${requested}`);
+    }
+  }
+  const WALK_LABS = REQUESTED_LABS
+    ? LABS.filter(x => REQUESTED_LABS.has(x.lab.toUpperCase()))
+    : LABS;
+  if (!WALK_LABS.length) problems.push('no laboratories selected');
 
   /* ---- read one laboratory's controls off its own rendered DOM ---- */
   async function discover() {
@@ -128,7 +156,7 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
     const h = await p.$(sel);          // re-query every time: a redraw detaches handles
     if (!h) return false;
     await h.click().catch(() => {});
-    await p.waitForTimeout(110);
+    await p.waitForTimeout(WAIT.control);
     return true;
   }
   async function sweep(keys, tag, wantFigure) {
@@ -136,11 +164,14 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
     for (const k of keys) {
       const rng = await p.$eval(`[data-v="${k}"]`, e => ({ min: +e.min, max: +e.max })).catch(() => null);
       if (!rng) continue;
-      for (const v of [rng.min, (rng.min + rng.max) / 2, rng.max]) {
+      const values = SMOKE
+        ? [(rng.min + rng.max) / 2]
+        : [rng.min, (rng.min + rng.max) / 2, rng.max];
+      for (const v of values) {
         await p.$eval(`[data-v="${k}"]`, (e, val) => {
           e.value = val; e.dispatchEvent(new Event('input', { bubbles: true }));
         }, v).catch(() => {});
-        await p.waitForTimeout(70);
+        await p.waitForTimeout(WAIT.slider);
         await probe(`${tag} ${k}=${v}`, wantFigure);
       }
     }
@@ -148,13 +179,13 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
   const combos = gs => gs.reduce((acc, g) => acc.flatMap(a => g.map(x => a.concat([x]))), [[]]);
 
   for (const theme of ['light', 'dark']) {
-    if (theme === 'dark') { await p.click('#btn-theme'); await p.waitForTimeout(260); }
+    if (theme === 'dark') { await p.click('#btn-theme'); await p.waitForTimeout(WAIT.theme); }
     const shown = await p.$eval('#btn-theme', e => e.textContent.trim().toLowerCase());
     if (shown !== theme) problems.push(`theme switch did not take: asked ${theme}, button reads ${shown}`);
 
-    for (const { lab, scene } of LABS) {
+    for (const { lab, scene } of WALK_LABS) {
       await p.evaluate(i => APP.goId(i, 0), scene);
-      await p.waitForTimeout(340);
+      await p.waitForTimeout(WAIT.scene);
       const d = await discover();
       if (!d) { problems.push(`${theme} ${lab}: laboratory did not mount in scene ${scene}`); continue; }
       if (theme === 'light') {
@@ -169,14 +200,15 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
         problems.push(`${theme} ${lab}: ${cs.length} control combinations exceeds the cap of ${MAX_COMBOS}` +
           ` — raise MAX_COMBOS deliberately rather than walking a subset`);
       }
-      for (const combo of cs.slice(0, MAX_COMBOS)) {
+      const comboLimit = SMOKE ? 1 : MAX_COMBOS;
+      for (const combo of cs.slice(0, comboLimit)) {
         for (const sel of combo) await click(sel);
         if (d.hasReveal) await click('[data-reveal]');
         await sweep(d.sliders, `${theme} ${lab} ${combo.join(' ')}`.trim(), d.figures);
       }
 
       /* an item list traversed with [data-nav] */
-      if (d.hasNav) {
+      if (d.hasNav && !SMOKE) {
         for (let k = 0; k < 12; k++) {
           if (d.hasReveal) await click('[data-reveal]');
           await sweep(d.sliders, `${theme} ${lab} item${k + 1}`, d.figures);
@@ -187,8 +219,9 @@ const MAX_COMBOS = 60;      /* per laboratory; a breach is reported, never silen
     }
   }
 
+  console.log('MODE: ' + (SMOKE ? 'smoke' : REQUESTED_LABS ? 'targeted' : 'full'));
   notes.forEach(n => console.log(n));
-  console.log('LABORATORIES WALKED: ' + LABS.map(l => l.lab).join(' '));
+  console.log('LABORATORIES WALKED: ' + WALK_LABS.map(l => l.lab).join(' '));
   console.log('STATES WALKED: ' + states);
   console.log('PROBLEMS: ' + (problems.length ? '\n  ' + problems.join('\n  ') : 'none'));
   console.log('CONSOLE/PAGE ERRORS: ' + (errs.length ? '\n  ' + errs.slice(0, 20).join('\n  ') : 'none'));

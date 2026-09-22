@@ -127,7 +127,10 @@ Never run these under the x86_64 anaconda `python3`.
   one line per laboratory, so a laboratory that grows a control changes that line and you see it. The
   one thing to extend is `ATTRS`, the list of attributes that select an item, if the design system ever
   gains a new kind of control. A laboratory whose control product exceeds `MAX_COMBOS` is reported as a
-  failure rather than walked in part.
+  failure rather than walked in part. For the local edit loop, `node pw.js labwalk.js --smoke` keeps both
+  themes but samples the first control combination, midpoint slider values and the first paged item. Use
+  `node pw.js labwalk.js --labs=B,F` for an exhaustive walk of selected laboratories. Neither shortcut
+  replaces the full release gate.
 
 - `seccheck.js` is the gate for the contents addressing. Every scene has exactly one
   address, no address repeats, and each chapter's section numbers, scene ordinals,
