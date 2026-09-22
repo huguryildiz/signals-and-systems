@@ -111,7 +111,7 @@ what a curve *is*, and the card colours say what a card *does*.
 
 **Key characteristics**
 
-- Figures first. A scene without a figure needs a reason.
+- One slide, one figure, two or three cards. See "A slide" under Layout.
 - One idea a card, one or two short sentences a card.
 - The stage is full: nothing top-heavy, nothing clipped.
 - The same slide works in both themes and in lecture mode without a second design.
@@ -268,6 +268,11 @@ equal columns by default: the given data and the figure on the left, the method,
 result on the right. A documented exception may keep a 5:7 split only when the figure itself needs a
 narrower column to avoid growth-cap or fit failure. Reveal steps stay; a slide builds in the order the
 instructor speaks.
+
+**Figure and card budget — DECIDED 2026-09-23.** A teaching slide carries exactly one figure and two
+or three information cards. The figure is required; a slide without one records the reason in a
+comment beside its scene. More than three cards means the slide holds more than one idea and is
+split. Laboratories keep their own layout and are outside this budget.
 
 A laboratory uses the full remaining stage height. Its main columns stretch to the bottom of the
 scene, and stacked controls, readouts and explanations distribute through that height. Do not leave a
