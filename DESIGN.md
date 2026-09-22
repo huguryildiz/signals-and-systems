@@ -277,9 +277,12 @@ narrower column to avoid growth-cap or fit failure. Reveal steps stay; a slide b
 instructor speaks.
 
 **Figure and card budget — DECIDED 2026-09-23.** A teaching slide carries exactly one figure and two
-or three information cards. The figure is required; a slide without one records the reason in a
-comment beside its scene. More than three cards means the slide holds more than one idea and is
-split. Laboratories keep their own layout and are outside this budget.
+or three information cards. The figure is required. A slide outside the budget states its reason
+in a `budget:'...'` field on its scene. More than three cards means the slide holds more than one
+idea and is split. Laboratories and navy scenes keep their own layout and are outside this budget.
+`build/slidebudget.js` counts `fig` and `note` blocks on every `slide:true` scene and lists the
+slides outside the budget; it is advisory until the existing slides comply, then runs with
+`--strict`.
 
 A laboratory uses the full remaining stage height. Its main columns stretch to the bottom of the
 scene, and stacked controls, readouts and explanations distribute through that height. Do not leave a
