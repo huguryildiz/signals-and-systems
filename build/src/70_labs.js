@@ -120,30 +120,30 @@ const LABS = (() => {
      ======================================================================= */
   const B = (() => {
     const items = [
-      { id:'b1', tex:'x(t)=\\begin{cases}1,&0\\le t\\le 1\\\\0,&\\text{o.w.}\\end{cases}', kind:'energy',
-        E:'E_\\infty=\\int_0^1 1^2\\,dt = 1<\\infty', P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^1 1\\,dt=\\lim_{T\\to\\infty}\\frac{1}{2T}=0',
-        why:'Finite energy and zero average power. That pair defines an energy signal.', src:'p. 3', dt:false,
-        f:t=>(t>=0&&t<=1)?1:0, yr:[-0.3,1.4], xr:[-2,3] },
-      { id:'b2', tex:'x[n]=4,\\quad \\forall n\\in\\mathbb{Z}', kind:'power',
-        E:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^2\\to\\infty', P:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}(2N+1)\\,|4|^2=16<\\infty',
-        why:'Infinite energy, but finite and non-zero average power. That is a power signal.', src:'p. 3', dt:true,
-        f:n=>4, yr:[-0.6,5.2], xr:[-6,6] },
-      { id:'b3', tex:'x[n]=\\left(\\tfrac12\\right)^{n}u[n]', kind:'energy',
+      { id:'b1', tex:'x(t)=\\begin{cases}1-|t|,&|t|\\le 1\\\\0,&\\text{o.w.}\\end{cases}', kind:'energy',
+        E:'E_\\infty=\\int_{-1}^{1}(1-|t|)^2\\,dt=2\\int_0^1(1-t)^2\\,dt=\\tfrac23<\\infty', P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\cdot\\tfrac23=0',
+        why:'The pulse is zero outside $|t|\\le 1$, so the energy integral is finite. Spreading a fixed energy over a growing window drives the power to zero.', src:'editorial (consistent with pp. 2–3)', dt:false,
+        f:t=>Math.abs(t)<=1?1-Math.abs(t):0, yr:[-0.3,1.4], xr:[-3,3] },
+      { id:'b2', tex:'x[n]=2\\cos\\!\\left(\\tfrac{\\pi n}{2}\\right)', kind:'power',
+        E:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}4\\cos^2\\!\\left(\\tfrac{\\pi n}{2}\\right)\\to\\infty', P:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}4\\cos^2\\!\\left(\\tfrac{\\pi n}{2}\\right)=\\frac{4+0+4+0}{4}=2<\\infty',
+        why:'The samples repeat $2,0,-2,0$ forever. The energy sum grows without bound, while the average of $|x[n]|^2$ over one period is $2$. That is a power signal.', src:'editorial (consistent with pp. 2–3)', dt:true,
+        f:n=>Math.round(2*Math.cos(Math.PI*n/2)), yr:[-2.6,2.6], xr:[-8,8] },
+      { id:'b3', tex:'x[n]=\\begin{cases}0,&n<0\\\\\\left(\\tfrac12\\right)^{n},&n\\ge 0\\end{cases}', kind:'energy',
         E:'E_\\infty=\\sum_{n=0}^{\\infty}\\left(\\tfrac14\\right)^{n}=\\frac{1}{1-\\tfrac14}=\\tfrac43<\\infty',
         P:'P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=0}^{N}\\left(\\tfrac14\\right)^{n}=0',
         why:'A convergent geometric sum gives finite energy. Dividing a bounded sum by $2N+1$ drives the power to zero.',
         src:'pp. 16–17', dt:true, f:n=>n>=0?Math.pow(0.5,n):0, yr:[-0.2,1.2], xr:[-3,10] },
-      { id:'b4', tex:'x(t)=e^{2t}u(-t)', kind:'energy',
+      { id:'b4', tex:'x(t)=\\begin{cases}e^{2t},&t\\le 0\\\\0,&t>0\\end{cases}', kind:'energy',
         E:'E_\\infty=\\int_{-\\infty}^{0}e^{4t}\\,dt=\\tfrac14<\\infty',
         P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\cdot\\tfrac14=0',
         why:'The two-sided integral converges because the exponential decays as $t\\to-\\infty$.',
         src:'p. 18', dt:false, f:t=>t<=0?Math.exp(2*t):0, yr:[-0.2,1.3], xr:[-4,2] },
-      { id:'b5', tex:'x(t)=u(t)', kind:'power',
+      { id:'b5', tex:'x(t)=\\begin{cases}0,&t<0\\\\1,&t\\ge 0\\end{cases}', kind:'power',
         E:'E_\\infty=\\int_0^{\\infty}1\\,dt\\to\\infty',
         P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^{T}1\\,dt=\\lim_{T\\to\\infty}\\frac{T}{2T}=\\tfrac12',
         why:'Half the averaging window carries unit amplitude, so the limit is $1/2$. That is finite and non-zero.',
         src:'p. 7', dt:false, f:t=>t>=0?1:0, yr:[-0.3,1.4], xr:[-3,4] },
-      { id:'b6', tex:'x(t)=t\\,u(t)', kind:'neither',
+      { id:'b6', tex:'x(t)=\\begin{cases}0,&t<0\\\\t,&t\\ge 0\\end{cases}', kind:'neither',
         E:'E_\\infty=\\int_0^{\\infty}t^2\\,dt\\to\\infty',
         P:'P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_0^{T}t^2\\,dt=\\lim_{T\\to\\infty}\\frac{T^2}{6}\\to\\infty',
         why:'Both quantities diverge, so the signal is neither an energy signal nor a power signal.',
@@ -166,8 +166,8 @@ const LABS = (() => {
           this is ${it.kind==='neither'?'<b>neither</b> an energy nor a power signal'
           :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>`) : '';
       root.querySelector('.work').innerHTML = revealed ? M(`
-        <div class="eq sm">${T(it.E,true)}</div>
-        <div class="eq sm">${T(it.P,true)}</div>
+        <div class="eq">${T(it.E,true)}</div>
+        <div class="eq">${T(it.P,true)}</div>
         <div class="note ok"><span class="note-h">Conclusion</span>${
           it.kind==='energy'?'$E_\\infty<\\infty$ and $P_\\infty=0$ ⇒ energy-type signal.'
           :it.kind==='power'?'$E_\\infty\\to\\infty$ and $0<P_\\infty<\\infty$ ⇒ power-type signal.'
