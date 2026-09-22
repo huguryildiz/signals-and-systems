@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "/usr/bin/python3",
-            "args": ["${CLAUDE_PROJECT_DIR}/tools/agent_guard.py"],
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/agent_guard.py"],
             "timeout": 5
           }
         ]

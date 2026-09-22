@@ -1,4 +1,4 @@
-"""Behavior checks for the small Claude Code and Codex PreToolUse guard."""
+"""Behavior checks for the repository PreToolUse guard."""
 
 import json
 import subprocess
@@ -7,8 +7,8 @@ import unittest
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent.parent
-GUARD = ROOT / "tools" / "agent_guard.py"
+ROOT = Path(__file__).resolve().parents[2]
+GUARD = ROOT / ".claude" / "hooks" / "agent_guard.py"
 
 
 def invoke(tool, tool_input, cwd=ROOT):

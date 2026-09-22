@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small PreToolUse guard shared by Claude Code and Codex.
+"""Small repository PreToolUse guard.
 
 This checks agent tool requests, not manual shell activity or generated build output.
 Exit 2 blocks a request in both clients.
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 DIST = ROOT / "dist"
 PATCH_PATH = re.compile(r"^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$")
 SEPARATORS = {";", "&&", "||", "|", "&", "(", ")", "\n"}

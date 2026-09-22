@@ -50,8 +50,6 @@ _to_delete/
 # Local working area. Selected instruction and hook files are explicitly tracked;
 # prompts, reports, source audits, and other working records remain ignored.
 .claude/
-# Case-insensitive filesystems also match .codex/ here; its selected hook is tracked.
-.Codex/
 
 # FUSE mount leftovers
 .fuse_hidden*
