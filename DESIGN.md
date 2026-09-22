@@ -155,6 +155,13 @@ report on colours the artifact no longer draws.
 `notes/src/notes.css` still carries the earlier light-only palette. The lecture notes and the artifact
 are therefore not the same colour. This is a known gap, not a decision.
 
+The lecture notes open on a full-bleed navy cover (block type `cover` in `notes/src/render.js`),
+with the table of contents on page 2. The cover art is vector, drawn from the functions it shows:
+a sinc pulse in teal, its samples as coral stems whose dots lie on the curve, and a damped cosine
+in amber behind them. Chromium scales a page whose margins differ from the rest, so
+`notes/topdf.js` prints the cover alone with no margins and no footer, prints the body from page 2
+with its original page numbers, and joins the two with `pdfunite`.
+
 ### The public cover page
 
 Redesigned on 2026-09-23. The cover no longer shares `site.css` with the sibling course

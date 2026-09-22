@@ -6,19 +6,12 @@ const ax=o=>P.Axes(Object.assign({w:700,h:200,pad:{l:44,r:20,t:16,b:30},xtarget:
 
 window.C1 = [
 
-/* ---------------- title ---------------- */
-{t:'title', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis',
- sub:'These notes teach the full course. They define signals, classify systems and show why one function describes a linear time-invariant system. They then represent signals with complex exponentials and explain how sampling changes a signal.',
- meta:[['Covers','Chapters 1 to 7, and Appendix A'],['Level','Undergraduate'],
-       ['Assumed background','Calculus, complex numbers, basic circuits']]},
+/* ---------------- cover and contents ---------------- */
+{t:'cover', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis',
+ sub:'Lecture Notes', foot:'Chapters 1&ndash;7 &middot; Appendix A'},
+{t:'page'},
 
-{t:'h3', text:'How to read these notes'},
-{t:'p', text:'Read the chapters in order because each chapter uses the one before it. First, a signal is defined as a function. Next, a system is defined as a map on functions. A linear time-invariant system is then described by one function. The frequency-domain chapters use this function to turn convolution into multiplication.'},
-{t:'p', text:'Each topic follows the same teaching order. A picture introduces the purpose of the idea. A definition and an equation state it exactly. A short derivation names each step. A worked example applies the method and ends with a check. Each worked example uses five headings: Given, Find, Method, Solution, Check. Try the Check step before you read it.'},
-{t:'p', text:'Two conventions apply throughout the notes. Energy and power are <b>normalised</b>: the resistance is $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. The imaginary unit is $j$.'},
-
-{t:'p', text:'The third contents column gives textbook references. For example, <b>OW CH1.1&ndash;1.4</b> points to the matching material in Oppenheim and Willsky, <i>Signals and Systems</i>, second edition. The <b>OW</b> mark separates a textbook address from a course address. The numbering systems differ: these notes introduce the continuous-time Fourier transform in chapter 5, while the textbook introduces it in chapter 4.'},
-
+{t:'h1', text:'Contents', rule:false},
 {t:'toc', items:[
  ['1','Signals','Energy and power. Shifting, reversal and scaling. Periodicity. Impulses and steps. Complex exponentials.','OW CH1.1&ndash;1.4'],
  ['2','Systems and their properties','Memory, invertibility, causality, stability, time invariance, linearity.','OW CH1.5&ndash;1.6'],
@@ -29,6 +22,14 @@ window.C1 = [
  ['7','Sampling and aliasing','Impulse-train sampling. Replication and the guard band. The sampling theorem. Reconstruction, holds, and aliasing.','OW CH7.1&ndash;7.3'],
  ['A','Summary of formulas','Everything from Chapters 1 to 7 on two pages.','']
 ]},
+
+{t:'h3', text:'How to read these notes'},
+{t:'p', text:'These notes teach the full course at undergraduate level. They assume calculus, complex numbers and basic circuits. They define signals, classify systems and show why one function describes a linear time-invariant system. They then represent signals with complex exponentials and explain how sampling changes a signal.'},
+{t:'p', text:'Read the chapters in order because each chapter uses the one before it. First, a signal is defined as a function. Next, a system is defined as a map on functions. A linear time-invariant system is then described by one function. The frequency-domain chapters use this function to turn convolution into multiplication.'},
+{t:'p', text:'Each topic follows the same teaching order. A picture introduces the purpose of the idea. A definition and an equation state it exactly. A short derivation names each step. A worked example applies the method and ends with a check. Each worked example uses five headings: Given, Find, Method, Solution, Check. Try the Check step before you read it.'},
+{t:'p', text:'Two conventions apply throughout the notes. Energy and power are <b>normalised</b>: the resistance is $1\\ \\Omega$, so instantaneous power is $|x|^{2}$. The imaginary unit is $j$.'},
+
+{t:'p', text:'The third contents column gives textbook references. For example, <b>OW CH1.1&ndash;1.4</b> points to the matching material in Oppenheim and Willsky, <i>Signals and Systems</i>, second edition. The <b>OW</b> mark separates a textbook address from a course address. The numbering systems differ: these notes introduce the continuous-time Fourier transform in chapter 5, while the textbook introduces it in chapter 4.'},
 
 {t:'page'},
 
