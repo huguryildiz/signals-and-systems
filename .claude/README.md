@@ -12,9 +12,11 @@ source-audit records stay local.
 | `notes/` | session notes, scratch findings, anything not yet worth a record |
 | `reference/` | what `CLAUDE.md` points to: `gates.md` (what each gate covers), `history.md` (how the course reached its state), `archive/` (the full instruction files as they stood on 2026-09-21), and the approved slide mockup |
 | `rules/` | path-scoped content, figure, notes/PDF, source-audit, and build instructions; `CLAUDE.md` routes Codex to the relevant file |
+| `hooks/` | the tracked `PreToolUse` guard and its behavior tests |
 
-The tracked `settings.json` enables the small `PreToolUse` guard in `tools/agent_guard.py`
-for Claude Code. Codex uses the tracked `.codex/hooks.json` for the same guard.
+The tracked `settings.json` enables the small `PreToolUse` guard in
+`hooks/agent_guard.py`. Agent configuration and local working records are consolidated
+under `.claude/`; the repository does not use a separate `.codex/` directory.
 
 `reports/` is the only copy of the ambiguity ledger, and it is not in git — back up
 the working copy accordingly. The work order stays tracked in
