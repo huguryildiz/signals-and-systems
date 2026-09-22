@@ -658,6 +658,11 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 
 /* the figure frame keeps the card's rhythm; the caption reads from the back */
 .scene.slide figcaption{ font-size:calc(18px * var(--ts)); line-height:1.45; }
+
+/* a grid of cards on a slide: a card fills its cell, so a row of cards reads as
+   one band and the rows share the height of the stage */
+.scene.slide .gcell{ display:flex; flex-direction:column; }
+.scene.slide .gcell > .note:only-child{ flex:1; }
 .scene.slide .fig-frame{ padding:14px 16px; }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
@@ -764,13 +769,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
-.scene .lab[data-lab="A"] .ctrl label,
-.scene .lab[data-lab="A"] .readout dt,
-.scene .lab[data-lab="A"] .note-h{ font-size:calc(16px * var(--ts)); }
-.scene .lab[data-lab="A"] .seg button{ font-size:calc(17px * var(--ts)); }
-.scene .lab[data-lab="A"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label,
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .readout dt,
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
 .scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
-.scene .lab[data-lab="A"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
   font-size:calc(18px * var(--ts));
 }
@@ -785,7 +790,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
 .lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .lab[data-lab="A"] .readout div{ padding:10px 14px; }
-.lab[data-lab="A"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab:is([data-lab="A"],[data-lab="C"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab[data-lab="C"] .lab-eq{ font-size:calc(22px * var(--ts)); }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -1000,8 +1006,9 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 /* Examination parts are lettered a), b), c) — not numbered, because the numbers
    would read as steps of one method rather than as separate questions. */
 .drill .dr-parts{ margin:0; padding-left:30px; list-style:none; counter-reset:drpart;
-  display:flex; flex-direction:column; gap:9px;
-  font-size:calc(19px * var(--ts)); line-height:1.5; color:var(--graphite); }
+  display:flex; flex-direction:column; gap:11px;
+  font-size:calc(22px * var(--ts)); line-height:1.5; color:var(--graphite); }
+.drill .qstem{ font-size:calc(25px * var(--ts)); }
 .drill .dr-parts li{ counter-increment:drpart; position:relative; }
 .drill .dr-parts li::before{
   content:counter(drpart,lower-alpha) ")"; position:absolute; left:-30px; top:1px;

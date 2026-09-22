@@ -671,6 +671,11 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 
 /* the figure frame keeps the card's rhythm; the caption reads from the back */
 .scene.slide figcaption{ font-size:calc(18px * var(--ts)); line-height:1.45; }
+
+/* a grid of cards on a slide: a card fills its cell, so a row of cards reads as
+   one band and the rows share the height of the stage */
+.scene.slide .gcell{ display:flex; flex-direction:column; }
+.scene.slide .gcell > .note:only-child{ flex:1; }
 .scene.slide .fig-frame{ padding:14px 16px; }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
@@ -777,13 +782,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
-.scene .lab[data-lab="A"] .ctrl label,
-.scene .lab[data-lab="A"] .readout dt,
-.scene .lab[data-lab="A"] .note-h{ font-size:calc(16px * var(--ts)); }
-.scene .lab[data-lab="A"] .seg button{ font-size:calc(17px * var(--ts)); }
-.scene .lab[data-lab="A"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label,
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .readout dt,
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
 .scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
-.scene .lab[data-lab="A"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="C"]) .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
   font-size:calc(18px * var(--ts));
 }
@@ -798,7 +803,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
 .lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .lab[data-lab="A"] .readout div{ padding:10px 14px; }
-.lab[data-lab="A"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab:is([data-lab="A"],[data-lab="C"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab[data-lab="C"] .lab-eq{ font-size:calc(22px * var(--ts)); }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -1013,8 +1019,9 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 /* Examination parts are lettered a), b), c) — not numbered, because the numbers
    would read as steps of one method rather than as separate questions. */
 .drill .dr-parts{ margin:0; padding-left:30px; list-style:none; counter-reset:drpart;
-  display:flex; flex-direction:column; gap:9px;
-  font-size:calc(19px * var(--ts)); line-height:1.5; color:var(--graphite); }
+  display:flex; flex-direction:column; gap:11px;
+  font-size:calc(22px * var(--ts)); line-height:1.5; color:var(--graphite); }
+.drill .qstem{ font-size:calc(25px * var(--ts)); }
 .drill .dr-parts li{ counter-increment:drpart; position:relative; }
 .drill .dr-parts li::before{
   content:counter(drpart,lower-alpha) ")"; position:absolute; left:-30px; top:1px;
@@ -2493,7 +2500,7 @@ const LABS = (() => {
       const N0 = (2*st.q)/g, kmin = st.p/g;
       const T0 = 2*Math.PI/w0;
       const xr = st.dt? [-2, 34] : [-1, 26];
-      const ax = PLOT.Axes({w:820,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
+      const ax = PLOT.Axes({w:660,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
         pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3});
       if(st.dt){
         const pts=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) pts.push([n,Math.cos(w0*n+th)]);
@@ -2511,12 +2518,12 @@ const LABS = (() => {
         T(st.dt? `x[n]=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}n+\\tfrac{${st.th}\\pi}{4}\\right)`
                : `x(t)=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}t+\\tfrac{${st.th}\\pi}{4}\\right)`, true);
       root.querySelector('.derive').innerHTML = M(st.dt ? `
-        <div class="eq sm">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
+        <div class="eq">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
         <div class="note ${'ok'}"><span class="note-h">Rationality test</span>
           ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}. The control values make this ratio rational, so the
           discrete-time cosine is periodic. Choose the smallest $k$ that makes $N$ an integer.
           Here ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
-        : `<div class="eq sm">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
+        : `<div class="eq">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
            <div class="note ok"><span class="note-h">Continuous time has no rationality test</span>
              Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. Calculate its period directly from $T_0=2\\pi/\\omega_0$.</div>`);
       root.querySelector('.ro').innerHTML = st.dt ? `
@@ -4615,68 +4622,79 @@ const SC = [
 
 { id:'m0-signal', module:'M0', nav:'Signal representation', title:'Signal representation', src:'p. 2',
   objective:'Establish the physical meaning of a signal before any formalism.',
-  keywords:'signal definition independent variable information', steps:2, blocks:[
+  keywords:'signal definition independent variable information', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Signal Representation'},
-  {t:'cols', ratio:'c-5-7', vcenter:true, left:[
-    {t:'body', html:'We use a signal to represent information in a form that we can calculate with. The physical and mathematical definitions describe the same signal in two ways.'},
-    {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. A signal is a <b>function of one or more independent variables</b>.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'The physical definition tells us what to measure. The measured quantity may be a voltage, a pressure or a pixel intensity. The mathematical definition writes that measurement as a function. We can then differentiate, integrate, shift or transform the function.'},
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Use both definitions', html:'Each operation in this course acts on the <em>function</em>. The result must still describe the <em>physical variation</em>. A correct calculation is useful only when its physical meaning is also clear.'}
-    ]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:660,h:300,xr:[0,10],yr:[-1.6,1.6],xlabel:'t\\;(\\text{independent variable})',ylabel:'x(t)',
-        pad:{l:52,r:26,t:22,b:44},xtarget:6,ytarget:4});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-1.6,1.6],xlabel:'t',ylabel:'x(t)',
+        pad:{l:52,r:26,t:22,b:38},xtarget:6,ytarget:4});
       a.curve(t=>Math.sin(1.9*t)*Math.exp(-0.12*t)+0.25*Math.sin(6.4*t),{color:C.in});
       a.point(3.2, Math.sin(1.9*3.2)*Math.exp(-0.12*3.2)+0.25*Math.sin(6.4*3.2),{color:C.coral});
-      a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:13,color:C.coral,tex:true});
+      a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:14,color:C.coral,tex:true});
       return a.svg();
-    }, caption:'This one-dimensional signal uses time as its independent variable. The measured quantity is the dependent variable. An image instead uses two space variables. Video uses two space variables and time.'}
+    }, caption:'Here time is the independent variable. An image uses two space variables, and a video adds time.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. As mathematics, it is a <b>function of one or more independent variables</b>.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Two views', html:'The physical view tells us what to measure: a voltage, a pressure or a pixel intensity. The function lets us differentiate, integrate, shift or transform it.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Use both definitions', html:'Each operation in this course acts on the function. The result must still describe the physical variation.'}]}
   ]}
 ]},
 
 { id:'m0-system', module:'M0', nav:'System representation', title:'System representation', src:'p. 11',
   objective:'Introduce the input–output abstraction that Module 2 formalises.',
-  keywords:'system black box transformation input output', steps:2, blocks:[
+  keywords:'system black box transformation input output', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 11'},
   {t:'title', text:'System Representation'},
-  {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b>. It applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always produces the same output.'},
-    {t:'reveal', at:1, items:[{t:'body', html:'The deterministic rule lets us test the system. We can apply an input, calculate the output and compare that output with the requirements for the six properties in Module 2.'}]},
-    {t:'reveal', at:2, items:[{t:'note', kind:'warn', head:'Read the diagram as a rule', html:'The block diagram does not have to represent a circuit. It represents a <em>map between function spaces</em>: $S:\\;x\\mapsto y$. A function space is a set of possible signals. The map assigns one output signal to each input signal. An amplifier, a numerical filter and a differentiator can therefore represent the same rule.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:460,items:[
+      {t:'arrow',x1:40,y1:135,x2:180,y2:135}, {t:'box',x:180,y:90,w:200,h:90,label:'CT system'},
+      {t:'arrow',x1:380,y1:135,x2:520,y2:135},
+      {t:'text',x:110,y:119,label:'x(t)',tex:true,fs:18}, {t:'text',x:450,y:119,label:'y(t)',tex:true,fs:18},
+      {t:'text',x:110,y:159,label:'input',fs:13}, {t:'text',x:450,y:159,label:'output',fs:13},
+      {t:'arrow',x1:40,y1:325,x2:180,y2:325}, {t:'box',x:180,y:280,w:200,h:90,label:'DT system'},
+      {t:'arrow',x1:380,y1:325,x2:520,y2:325},
+      {t:'text',x:110,y:309,label:'x[n]',tex:true,fs:18}, {t:'text',x:450,y:309,label:'y[n]',tex:true,fs:18},
+      {t:'text',x:110,y:349,label:'input',fs:13}, {t:'text',x:450,y:349,label:'output',fs:13}
+    ]}), caption:'A system maps an input to an output, in continuous time or in discrete time.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:660,h:300,items:[
-      {t:'arrow',x1:60,y1:90,x2:210,y2:90}, {t:'box',x:210,y:52,w:180,h:76,label:'CT system'},
-      {t:'arrow',x1:390,y1:90,x2:560,y2:90},
-      {t:'text',x:120,y:76,label:'x(t)',tex:true,fs:17}, {t:'text',x:470,y:76,label:'y(t)',tex:true,fs:17},
-      {t:'text',x:120,y:112,label:'input',fs:12}, {t:'text',x:470,y:112,label:'output',fs:12},
-      {t:'arrow',x1:60,y1:220,x2:210,y2:220}, {t:'box',x:210,y:182,w:180,h:76,label:'DT system'},
-      {t:'arrow',x1:390,y1:220,x2:560,y2:220},
-      {t:'text',x:120,y:206,label:'x[n]',tex:true,fs:17}, {t:'text',x:470,y:206,label:'y[n]',tex:true,fs:17},
-      {t:'text',x:120,y:242,label:'input',fs:12}, {t:'text',x:470,y:242,label:'output',fs:12}
-    ]}), caption:'A system maps an input to an output in continuous time or discrete time. Module 2 tests six system properties. Module 3 uses two of them, linearity and time invariance, to describe a system with one function.'}
+    {t:'note', kind:'def', head:'Definition', html:'A system applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always gives the same output.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Why a fixed rule', html:'We can apply an input and calculate the output. Module 2 uses this to test six system properties.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A rule, not a circuit', html:'The diagram is a map $S:\\;x\\mapsto y$ from input signals to output signals. An amplifier and a numerical filter can realise the same rule.'}]}
   ]}
 ]},
 
 { id:'m0-ctdt', module:'M0', nav:'Continuous and discrete time', title:'Two viewpoints, one theory', src:'p. 2',
   objective:'Fix the CT/DT notational split that persists through the whole course.',
-  keywords:'continuous discrete time stem MATLAB integer index', steps:1, blocks:[
+  keywords:'continuous discrete time stem MATLAB integer index', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Continuous and Discrete Time'},
-  {t:'lede', text:'We need separate models for signals defined at every time and signals defined only at integer times. Most continuous-time results use integrals. The matching discrete-time results use sums.'},
-  {t:'grid', cols:2, gap:'52px', items:[
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> The signal $x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its samples with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal values. No signal value exists between adjacent integers.'} ]
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,20],yr:[-1.45,1.45],xlabel:'t,\\;n',ylabel:'\\text{amplitude}',
+        pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
+      a.curve(t=>Math.cos(t),{color:C.in});
+      const pts=[]; for(let n=0;n<=20;n++) pts.push([n,Math.cos(n)]);
+      a.stem(pts,{color:C.mid});
+      return a.svg();
+    }, caption:'The stems are the values of $x[n]$ at the integers. No value of $x[n]$ exists between two integers.'},
+    {t:'legend', items:[['in','$x(t)=\\cos(t)$'],['mid','$x[n]=\\cos(n)$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its values as stems, as <code>stem(·)</code> does in MATLAB.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Integrals and sums', html:'Most continuous-time results use integrals. The matching discrete-time results use sums.'}]}
   ]}
 ]},
 
 { id:'m0-map', module:'M0', nav:'Course concept map', title:'How the course fits together', src:'pp. 2–88',
   objective:'Give a single mental picture of the dependency structure.',
-  keywords:'map overview dependencies modules', steps:1, blocks:[
+  keywords:'map overview dependencies modules', slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
   {t:'title', text:'Course Structure'},
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
@@ -4688,32 +4706,18 @@ const SC = [
 
 { id:'m0-howto', module:'M0', nav:'Using the course artifact', title:'Using the course artifact', src:'—',
   objective:'Explain modes, controls and the definition-citation policy.',
-  keywords:'help navigation modes instructor student reduced motion privacy', steps:0, blocks:[
+  keywords:'help navigation modes instructor student reduced motion privacy', slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
   {t:'title', text:'Using the Course Artifact'},
-  {t:'grid', cols:2, gap:'24px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
-    [{t:'card', head:'Navigation', items:[
-      {t:'body', html:`<p>Use <kbd>→</kbd> or <kbd>space</kbd> for the next reveal state, then the next scene. Use <kbd>←</kbd> to go back one state. <kbd>↑</kbd> and <kbd>↓</kbd> move by a whole scene. <kbd>Home</kbd> returns to the title.</p>
-        <p><kbd>M</kbd> opens the map, <kbd>/</kbd> search, <kbd>G</kbd> the glossary and <kbd>?</kbd> help. <kbd>L</kbd> changes the study mode, <kbd>I</kbd> changes the edition and <kbd>R</kbd> reduces motion.</p>`}
-    ]}],
-    [{t:'card', head:'Two modes', items:[
-      {t:'body', html:`<p><b>Lecture mode</b> returns to the last reveal state of the previous scene, so a completed derivation stays complete. <b>Self-study mode</b> returns to the first state so you can work through the scene again.</p>`}
-    ]}],
-    [{t:'card', head:'Two editions', items:[
-      {t:'body', html:`<p>The <b>student edition</b> hides solutions until you request them. It also hides teaching comments. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.</p>`}
-    ]}],
-    [{t:'card', head:'How the material is organised', items:[
-      {t:'body', html:`<p>Each module uses earlier material. A topic starts with a picture and a definition. An equation and a step-by-step derivation follow. A worked example then uses Given, Find, Method, Solution and Check.</p>
-        <p>The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition. The open book separates the two numbering systems.</p>`}
-    ]}],
-    [{t:'card', head:'Conventions fixed for the whole artifact', items:[
-      {t:'body', html:`<p>Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$. The imaginary unit is $j$. Angular frequency $\\omega$ uses rad/s in continuous time and rad/sample in discrete time. Frequency in hertz is labelled explicitly.</p>`}
-    ]}],
-    [{t:'card', head:'Privacy and offline use', items:[
-      {t:'body', html:`<p>The artifact is one self-contained file. It does not use the network or collect analytics. It stores progress only on this device. Without browser storage, it runs but does not keep progress after you close it.</p>`},
-      {t:'raw', html:'<div><button class="btn" data-act="reset">Reset all local progress</button></div>'}
-    ]}]
-  ]}
+  {t:'grid', cols:3, gap:'30px 28px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
+    [{t:'note', kind:'def', head:'Navigation', html:'<kbd>→</kbd> or <kbd>space</kbd> gives the next state, and <kbd>←</kbd> goes back one. <kbd>↑</kbd> and <kbd>↓</kbd> move a whole scene, and <kbd>Home</kbd> returns to the title.'}],
+    [{t:'note', kind:'def', head:'Keys', html:'<kbd>M</kbd> map, <kbd>/</kbd> search, <kbd>G</kbd> glossary, <kbd>?</kbd> help. <kbd>L</kbd> study mode, <kbd>I</kbd> edition, <kbd>R</kbd> reduced motion.'}],
+    [{t:'note', kind:'def', head:'Two modes', html:'<b>Lecture mode</b> returns to the last state of the previous scene, so a finished derivation stays finished. <b>Self-study mode</b> returns to the first state, so you can work through it again.'}],
+    [{t:'note', kind:'def', head:'Two editions', html:'The <b>student edition</b> hides solutions until you ask for them. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.'}],
+    [{t:'note', kind:'warn', head:'Textbook anchors', html:'The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition.'}],
+    [{t:'note', kind:'warn', head:'Conventions', html:'Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$, and the imaginary unit is $j$. Angular frequency $\\omega$ is in rad/s in continuous time and in rad/sample in discrete time.'}]
+  ]},
+  {t:'note', kind:'ok', head:'Privacy and offline use', html:'The artifact is one file. It uses no network and keeps your progress only on this device. <button class="btn" data-act="reset" style="margin-left:14px">Reset all local progress</button>'}
 ]}
 ];
 
@@ -4820,6 +4824,13 @@ const SC = [
       a.vline(1.2,{color:C.coral}); a.vline(4.4,{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
+      /* a sticky note: the constant-power rule the integral generalises */
+      const nx=a.sx(6.55), ny=a.sy(1.43);
+      a.raw(`<g transform="rotate(-3 ${nx} ${ny})" style="--fig-halo:#F3DC7A">
+        <rect x="${nx-104}" y="${ny-26}" width="212" height="56" rx="2" fill="rgba(0,0,0,.28)"/>
+        <rect x="${nx-108}" y="${ny-30}" width="212" height="56" rx="2" fill="#F3DC7A"/>`);
+      a.note(6.55,1.43,'\\text{Energy}=\\text{Power}\\times\\text{Time}',{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
+      a.raw('</g>');
       return a.svg(); },
       caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
   ], right:[
@@ -4969,7 +4980,7 @@ const SC = [
       return a.svg(); },
       caption:'The constant $x(t)=1$. The energy in the window grows with the window, so the total energy is infinite.'}
   ], right:[
-    {t:'note', kind:'warn', head:'Power signal', html:'A signal with finite, non-zero average power, $0<P_\\infty<\\infty$. Its total energy is then infinite, $E_\\infty=\\infty$.'},
+    {t:'note', kind:'warn', head:'Power signal', html:'A signal with finite, non-zero average power, $0<P_\\infty<\\infty$. Its total energy then diverges, $E_\\infty\\to\\infty$.'},
     {t:'eq', tex:'E_T=\\int_{-T}^{T}1^{2}\\,\\d t=2T\\;\\to\\;\\infty',
       label:'Energy in the window', note:'The energy grows without limit as $T\\to\\infty$.'},
     {t:'reveal', at:1, items:[
@@ -14267,7 +14278,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> Energy, power and class for each.<br>'
      +'<b>Method.</b> In discrete time,$$E_\\infty=\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2},\\qquad P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}.$$'
      +'<b>Solution — part (a).</b>$$E_\\infty=\\sum_{n=0}^{\\infty}\\left(\\tfrac25\\right)^{\\!2n}=\\sum_{n=0}^{\\infty}\\left(\\tfrac{4}{25}\\right)^{\\!n}=\\frac{1}{1-\\tfrac{4}{25}}=\\frac{25}{21},$$which is finite, so $P_\\infty=0$.<br>'
-     +'<b>Solution — part (b).</b> $|x_2[n]|^{2}=9\\,u[n]$, so the energy sum diverges: $E_\\infty=\\infty$. For the power, the window $-N\\le n\\le N$ contains $N+1$ non-zero samples out of $2N+1$, each contributing $9$, so$$P_\\infty=\\lim_{N\\to\\infty}\\frac{9(N+1)}{2N+1}=\\frac92=4.5.$$'
+     +'<b>Solution — part (b).</b> $|x_2[n]|^{2}=9\\,u[n]$, so the energy sum diverges: $E_\\infty\\to\\infty$. For the power, the window $-N\\le n\\le N$ contains $N+1$ non-zero samples out of $2N+1$, each contributing $9$, so$$P_\\infty=\\lim_{N\\to\\infty}\\frac{9(N+1)}{2N+1}=\\frac92=4.5.$$'
      +'<b>Solution — part (c).</b> $x_1$ is an <b>energy signal</b>; $x_2$ is a <b>power signal</b>.<br>'
      +'<b>Check.</b> The counting argument gives $P_\\infty=A^{2}/2$ for a constant sequence of amplitude $A$ that begins at $n=0$. With $A=3$, this gives $9/2$, as in part (b). In part (a), the first term is $1$ and all later terms are positive and smaller, so $25/21\\approx1.19$ is consistent with the sequence.',
   err:'Writing $P_\\infty=9$ for $x_2$ by evaluating the sum only over $n\\ge0$ and dividing by $N+1$ instead of $2N+1$. The window is symmetric about the origin, and the zeros on the negative side count in the denominator.',

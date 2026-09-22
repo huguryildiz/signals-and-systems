@@ -232,68 +232,79 @@ const SC = [
 
 { id:'m0-signal', module:'M0', nav:'Signal representation', title:'Signal representation', src:'p. 2',
   objective:'Establish the physical meaning of a signal before any formalism.',
-  keywords:'signal definition independent variable information', steps:2, blocks:[
+  keywords:'signal definition independent variable information', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Signal Representation'},
-  {t:'cols', ratio:'c-5-7', vcenter:true, left:[
-    {t:'body', html:'We use a signal to represent information in a form that we can calculate with. The physical and mathematical definitions describe the same signal in two ways.'},
-    {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. A signal is a <b>function of one or more independent variables</b>.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'The physical definition tells us what to measure. The measured quantity may be a voltage, a pressure or a pixel intensity. The mathematical definition writes that measurement as a function. We can then differentiate, integrate, shift or transform the function.'},
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Use both definitions', html:'Each operation in this course acts on the <em>function</em>. The result must still describe the <em>physical variation</em>. A correct calculation is useful only when its physical meaning is also clear.'}
-    ]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:660,h:300,xr:[0,10],yr:[-1.6,1.6],xlabel:'t\\;(\\text{independent variable})',ylabel:'x(t)',
-        pad:{l:52,r:26,t:22,b:44},xtarget:6,ytarget:4});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-1.6,1.6],xlabel:'t',ylabel:'x(t)',
+        pad:{l:52,r:26,t:22,b:38},xtarget:6,ytarget:4});
       a.curve(t=>Math.sin(1.9*t)*Math.exp(-0.12*t)+0.25*Math.sin(6.4*t),{color:C.in});
       a.point(3.2, Math.sin(1.9*3.2)*Math.exp(-0.12*3.2)+0.25*Math.sin(6.4*3.2),{color:C.coral});
-      a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:13,color:C.coral,tex:true});
+      a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:14,color:C.coral,tex:true});
       return a.svg();
-    }, caption:'This one-dimensional signal uses time as its independent variable. The measured quantity is the dependent variable. An image instead uses two space variables. Video uses two space variables and time.'}
+    }, caption:'Here time is the independent variable. An image uses two space variables, and a video adds time.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. As mathematics, it is a <b>function of one or more independent variables</b>.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Two views', html:'The physical view tells us what to measure: a voltage, a pressure or a pixel intensity. The function lets us differentiate, integrate, shift or transform it.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Use both definitions', html:'Each operation in this course acts on the function. The result must still describe the physical variation.'}]}
   ]}
 ]},
 
 { id:'m0-system', module:'M0', nav:'System representation', title:'System representation', src:'p. 11',
   objective:'Introduce the input–output abstraction that Module 2 formalises.',
-  keywords:'system black box transformation input output', steps:2, blocks:[
+  keywords:'system black box transformation input output', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 11'},
   {t:'title', text:'System Representation'},
-  {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a <b>quantitative description of a physical process</b>. It applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always produces the same output.'},
-    {t:'reveal', at:1, items:[{t:'body', html:'The deterministic rule lets us test the system. We can apply an input, calculate the output and compare that output with the requirements for the six properties in Module 2.'}]},
-    {t:'reveal', at:2, items:[{t:'note', kind:'warn', head:'Read the diagram as a rule', html:'The block diagram does not have to represent a circuit. It represents a <em>map between function spaces</em>: $S:\\;x\\mapsto y$. A function space is a set of possible signals. The map assigns one output signal to each input signal. An amplifier, a numerical filter and a differentiator can therefore represent the same rule.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:460,items:[
+      {t:'arrow',x1:40,y1:135,x2:180,y2:135}, {t:'box',x:180,y:90,w:200,h:90,label:'CT system'},
+      {t:'arrow',x1:380,y1:135,x2:520,y2:135},
+      {t:'text',x:110,y:119,label:'x(t)',tex:true,fs:18}, {t:'text',x:450,y:119,label:'y(t)',tex:true,fs:18},
+      {t:'text',x:110,y:159,label:'input',fs:13}, {t:'text',x:450,y:159,label:'output',fs:13},
+      {t:'arrow',x1:40,y1:325,x2:180,y2:325}, {t:'box',x:180,y:280,w:200,h:90,label:'DT system'},
+      {t:'arrow',x1:380,y1:325,x2:520,y2:325},
+      {t:'text',x:110,y:309,label:'x[n]',tex:true,fs:18}, {t:'text',x:450,y:309,label:'y[n]',tex:true,fs:18},
+      {t:'text',x:110,y:349,label:'input',fs:13}, {t:'text',x:450,y:349,label:'output',fs:13}
+    ]}), caption:'A system maps an input to an output, in continuous time or in discrete time.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:660,h:300,items:[
-      {t:'arrow',x1:60,y1:90,x2:210,y2:90}, {t:'box',x:210,y:52,w:180,h:76,label:'CT system'},
-      {t:'arrow',x1:390,y1:90,x2:560,y2:90},
-      {t:'text',x:120,y:76,label:'x(t)',tex:true,fs:17}, {t:'text',x:470,y:76,label:'y(t)',tex:true,fs:17},
-      {t:'text',x:120,y:112,label:'input',fs:12}, {t:'text',x:470,y:112,label:'output',fs:12},
-      {t:'arrow',x1:60,y1:220,x2:210,y2:220}, {t:'box',x:210,y:182,w:180,h:76,label:'DT system'},
-      {t:'arrow',x1:390,y1:220,x2:560,y2:220},
-      {t:'text',x:120,y:206,label:'x[n]',tex:true,fs:17}, {t:'text',x:470,y:206,label:'y[n]',tex:true,fs:17},
-      {t:'text',x:120,y:242,label:'input',fs:12}, {t:'text',x:470,y:242,label:'output',fs:12}
-    ]}), caption:'A system maps an input to an output in continuous time or discrete time. Module 2 tests six system properties. Module 3 uses two of them, linearity and time invariance, to describe a system with one function.'}
+    {t:'note', kind:'def', head:'Definition', html:'A system applies a rule to an input signal and produces an output signal. The rule is <b>deterministic</b>: the same input always gives the same output.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Why a fixed rule', html:'We can apply an input and calculate the output. Module 2 uses this to test six system properties.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A rule, not a circuit', html:'The diagram is a map $S:\\;x\\mapsto y$ from input signals to output signals. An amplifier and a numerical filter can realise the same rule.'}]}
   ]}
 ]},
 
 { id:'m0-ctdt', module:'M0', nav:'Continuous and discrete time', title:'Two viewpoints, one theory', src:'p. 2',
   objective:'Fix the CT/DT notational split that persists through the whole course.',
-  keywords:'continuous discrete time stem MATLAB integer index', steps:1, blocks:[
+  keywords:'continuous discrete time stem MATLAB integer index', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Continuous and Discrete Time'},
-  {t:'lede', text:'We need separate models for signals defined at every time and signals defined only at integer times. Most continuous-time results use integrals. The matching discrete-time results use sums.'},
-  {t:'grid', cols:2, gap:'52px', items:[
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().a, caption:'<b>Continuous time.</b> The signal $x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'} ],
-    [ {t:'fig', frame:true, svg:()=>ctdtPair().b, caption:'<b>Discrete time.</b> The signal $x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its samples with stems, as <code>stem(·)</code> does in MATLAB. The dots are the signal values. No signal value exists between adjacent integers.'} ]
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,20],yr:[-1.45,1.45],xlabel:'t,\\;n',ylabel:'\\text{amplitude}',
+        pad:{l:56,r:26,t:22,b:38},xtarget:6,ytarget:3});
+      a.curve(t=>Math.cos(t),{color:C.in});
+      const pts=[]; for(let n=0;n<=20;n++) pts.push([n,Math.cos(n)]);
+      a.stem(pts,{color:C.mid});
+      return a.svg();
+    }, caption:'The stems are the values of $x[n]$ at the integers. No value of $x[n]$ exists between two integers.'},
+    {t:'legend', items:[['in','$x(t)=\\cos(t)$'],['mid','$x[n]=\\cos(n)$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Continuous time', html:'$x(t)$ is defined for every $t\\in\\mathbb{R}$. We draw it as an unbroken curve.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its values as stems, as <code>stem(·)</code> does in MATLAB.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Integrals and sums', html:'Most continuous-time results use integrals. The matching discrete-time results use sums.'}]}
   ]}
 ]},
 
 { id:'m0-map', module:'M0', nav:'Course concept map', title:'How the course fits together', src:'pp. 2–88',
   objective:'Give a single mental picture of the dependency structure.',
-  keywords:'map overview dependencies modules', steps:1, blocks:[
+  keywords:'map overview dependencies modules', slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
   {t:'title', text:'Course Structure'},
   {t:'cols', ratio:'c-7-5', vcenter:true, left:[
@@ -305,32 +316,18 @@ const SC = [
 
 { id:'m0-howto', module:'M0', nav:'Using the course artifact', title:'Using the course artifact', src:'—',
   objective:'Explain modes, controls and the definition-citation policy.',
-  keywords:'help navigation modes instructor student reduced motion privacy', steps:0, blocks:[
+  keywords:'help navigation modes instructor student reduced motion privacy', slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
   {t:'title', text:'Using the Course Artifact'},
-  {t:'grid', cols:2, gap:'24px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
-    [{t:'card', head:'Navigation', items:[
-      {t:'body', html:`<p>Use <kbd>→</kbd> or <kbd>space</kbd> for the next reveal state, then the next scene. Use <kbd>←</kbd> to go back one state. <kbd>↑</kbd> and <kbd>↓</kbd> move by a whole scene. <kbd>Home</kbd> returns to the title.</p>
-        <p><kbd>M</kbd> opens the map, <kbd>/</kbd> search, <kbd>G</kbd> the glossary and <kbd>?</kbd> help. <kbd>L</kbd> changes the study mode, <kbd>I</kbd> changes the edition and <kbd>R</kbd> reduces motion.</p>`}
-    ]}],
-    [{t:'card', head:'Two modes', items:[
-      {t:'body', html:`<p><b>Lecture mode</b> returns to the last reveal state of the previous scene, so a completed derivation stays complete. <b>Self-study mode</b> returns to the first state so you can work through the scene again.</p>`}
-    ]}],
-    [{t:'card', head:'Two editions', items:[
-      {t:'body', html:`<p>The <b>student edition</b> hides solutions until you request them. It also hides teaching comments. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.</p>`}
-    ]}],
-    [{t:'card', head:'How the material is organised', items:[
-      {t:'body', html:`<p>Each module uses earlier material. A topic starts with a picture and a definition. An equation and a step-by-step derivation follow. A worked example then uses Given, Find, Method, Solution and Check.</p>
-        <p>The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition. The open book separates the two numbering systems.</p>`}
-    ]}],
-    [{t:'card', head:'Conventions fixed for the whole artifact', items:[
-      {t:'body', html:`<p>Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$. The imaginary unit is $j$. Angular frequency $\\omega$ uses rad/s in continuous time and rad/sample in discrete time. Frequency in hertz is labelled explicitly.</p>`}
-    ]}],
-    [{t:'card', head:'Privacy and offline use', items:[
-      {t:'body', html:`<p>The artifact is one self-contained file. It does not use the network or collect analytics. It stores progress only on this device. Without browser storage, it runs but does not keep progress after you close it.</p>`},
-      {t:'raw', html:'<div><button class="btn" data-act="reset">Reset all local progress</button></div>'}
-    ]}]
-  ]}
+  {t:'grid', cols:3, gap:'30px 28px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
+    [{t:'note', kind:'def', head:'Navigation', html:'<kbd>→</kbd> or <kbd>space</kbd> gives the next state, and <kbd>←</kbd> goes back one. <kbd>↑</kbd> and <kbd>↓</kbd> move a whole scene, and <kbd>Home</kbd> returns to the title.'}],
+    [{t:'note', kind:'def', head:'Keys', html:'<kbd>M</kbd> map, <kbd>/</kbd> search, <kbd>G</kbd> glossary, <kbd>?</kbd> help. <kbd>L</kbd> study mode, <kbd>I</kbd> edition, <kbd>R</kbd> reduced motion.'}],
+    [{t:'note', kind:'def', head:'Two modes', html:'<b>Lecture mode</b> returns to the last state of the previous scene, so a finished derivation stays finished. <b>Self-study mode</b> returns to the first state, so you can work through it again.'}],
+    [{t:'note', kind:'def', head:'Two editions', html:'The <b>student edition</b> hides solutions until you ask for them. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.'}],
+    [{t:'note', kind:'warn', head:'Textbook anchors', html:'The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition.'}],
+    [{t:'note', kind:'warn', head:'Conventions', html:'Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$, and the imaginary unit is $j$. Angular frequency $\\omega$ is in rad/s in continuous time and in rad/sample in discrete time.'}]
+  ]},
+  {t:'note', kind:'ok', head:'Privacy and offline use', html:'The artifact is one file. It uses no network and keeps your progress only on this device. <button class="btn" data-act="reset" style="margin-left:14px">Reset all local progress</button>'}
 ]}
 ];
 
