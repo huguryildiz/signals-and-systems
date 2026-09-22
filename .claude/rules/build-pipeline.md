@@ -42,6 +42,7 @@ cd verify && ../.venv/bin/python verify_m4_m6.py
 cd verify && ../.venv/bin/python verify_drills.py
 .venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/9[2-8]_drill_m*.js" "build/src/91_*.js" "build/src/70_labs.js" "notes/src/*.js"
 .venv/bin/python tools/content_guard.py --source --artifacts --hook
+cd build && node pw.js slidebudget.js
 cd build && node pw.js ../web/sitecheck.js
 ```
 
