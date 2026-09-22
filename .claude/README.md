@@ -16,8 +16,10 @@ source-audit records stay local.
 
 The tracked `settings.json` enables Claude Code hooks. The repository's
 `.codex/hooks.json` enables the corresponding Codex hooks. Both call the same
-`PreToolUse` guard in `hooks/agent_guard.py`; their Stop hooks call
-`hooks/stop_guard.py`, which runs the student-facing prose guard. Codex
+`PreToolUse` guard in `hooks/agent_guard.py`; their `PostToolUse` hooks call
+`tools/derivation_advisor.py` to list changed mathematics without blocking.
+Their Stop hooks call `hooks/stop_guard.py`, which runs the student-facing prose
+guard and any remaining derivation reminder. Codex
 requires the user to review and trust a new hook definition before it runs.
 These agent hooks do not run in CI. Working records remain under `.claude/`.
 

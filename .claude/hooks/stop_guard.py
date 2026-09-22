@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the shared prose guard for Claude Code and Codex Stop hooks."""
+"""Run shared prose and advisory math checks for both clients' Stop hooks."""
 
 import json
 import subprocess
@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 GUARD = ROOT / "tools" / "content_guard.py"
+ADVISOR = ROOT / "tools" / "derivation_advisor.py"
 
 
 def main():
@@ -27,8 +28,22 @@ def main():
         print(result.stderr.strip() or "Content guard failed.", file=sys.stderr)
         return 2
 
+    # A candidate reminder is informational. It never changes the Stop exit code.
+    message = None
+    if ADVISOR.is_file():
+        advisory = subprocess.run(
+            [sys.executable, str(ADVISOR)],
+            cwd=str(ROOT), input=sys.stdin.read(), text=True,
+            capture_output=True, check=False,
+        )
+        if advisory.returncode == 0:
+            try:
+                message = json.loads(advisory.stdout).get("systemMessage")
+            except (ValueError, TypeError, AttributeError):
+                pass
+
     # Both clients accept JSON output; Codex requires it on a successful Stop.
-    print(json.dumps({}))
+    print(json.dumps({"systemMessage": message} if message else {}))
     return 0
 
 
