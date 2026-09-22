@@ -132,9 +132,9 @@ body[data-display=projector] .qid,
 body[data-display=projector] .ctrl label,
 body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
 body[data-display=projector] .legend{ font-size:calc(17px * var(--ts)); }
-body[data-display=projector] .eq .katex{ font-size:1.42em; }
-body[data-display=projector] .eq.lg .katex{ font-size:1.66em; }
-body[data-display=projector] .eq.sm .katex{ font-size:1.18em; }
+body[data-display=projector] .eq .katex{ font-size:1.30em; }
+body[data-display=projector] .eq.lg .katex{ font-size:1.58em; }
+body[data-display=projector] .eq.sm .katex{ font-size:1.12em; }
 body[data-display=projector] .katex{ font-size:1.10em; }
 body[data-display=projector]{ --rule:#C2BCB0; }      /* stronger hairlines */
 body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
@@ -384,9 +384,11 @@ h3.sub{
 .cols{ display:grid; gap:var(--s6); flex:1; min-height:0; }
 .cols.c-6-6{ grid-template-columns:1fr 1fr; }
 .cols.c-5-7{ grid-template-columns:5fr 7fr; }
+.cols.c-5-7-exception{ grid-template-columns:5fr 7fr; }
 .cols.c-7-5{ grid-template-columns:7fr 5fr; }
 .cols.c-4-8{ grid-template-columns:4fr 8fr; }
 .cols.c-8-4{ grid-template-columns:8fr 4fr; }
+.scene.slide .cols.c-5-7{ grid-template-columns:1fr 1fr; }
 .col{ min-width:0; display:flex; flex-direction:column; }
 .col.center{ justify-content:center; }
 .stack{ display:flex; flex-direction:column; gap:16px; }
@@ -418,6 +420,7 @@ h3.sub{
    ========================================================================== */
 .eq{
   position:relative; margin:10px 0; padding:14px 22px 14px 26px;
+  font-size:calc(15.2px * var(--ts));
   background:var(--paper-2);
   border:1px solid var(--rule);
   border-left:3px solid var(--coral);
@@ -426,9 +429,9 @@ h3.sub{
 .eq.plain{ background:transparent; border:0; border-left:0; padding:10px 0; }
 .eq.key{ background:linear-gradient(0deg,rgba(190,85,57,.045),rgba(190,85,57,.045)),var(--paper-2); }
 .eq .katex-display{ margin:0; }
-.eq .katex{ font-size:1.26em; }
-.eq.lg .katex{ font-size:1.5em; }
-.eq.sm .katex{ font-size:1.06em; }
+.eq .katex{ font-size:1.30em; }
+.eq.lg .katex{ font-size:1.58em; }
+.eq.sm .katex{ font-size:1.12em; }
 .eq-label{
   font-family:var(--mono); font-size:calc(12px * var(--ts)); letter-spacing:.12em;
   text-transform:uppercase; color:var(--slate); margin-bottom:6px;
@@ -642,7 +645,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
    keeps the larger `lg` size under the lecture-mode rule, which is larger
    still and has to win there. */
 .scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
-:where(.scene.slide) .eq.lg .katex{ font-size:1.62em; }
+:where(.scene.slide) .eq.lg .katex{ font-size:1.68em; }
 
 /* Room for the tab. Only a card with a head and an equation with a label have
    a tab, so only they take the room; the corner under the tab is squared so the
@@ -770,6 +773,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
+.lab > .cols{ height:100%; align-items:stretch; }
+.lab > .cols > .col.stack{ justify-content:space-between; }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -934,26 +939,6 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 .gitem .gd a{ color:var(--slate); cursor:pointer; text-decoration:none;
   border-bottom:1px dotted var(--slate); }
 
-
-/* ==========================================================================
-   Exam drills: the taxonomy scene, and the panel of open-ended questions
-   ========================================================================== */
-.dr-types{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:24px 38px; align-items:start; }
-.dr-type{ border-top:2px solid var(--rule-strong); padding-top:14px; }
-.dr-type-h{ display:flex; align-items:baseline; gap:10px;
-  font-family:var(--serif); font-size:calc(21px * var(--ts)); line-height:1.25;
-  color:var(--ink); margin-bottom:8px; }
-.dr-type-k{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em;
-  color:var(--coral); flex:none; padding-top:2px; }
-.dr-type-asks{ font-size:calc(16.5px * var(--ts)); line-height:1.5; color:var(--graphite); }
-.dr-type-m{ margin:10px 0 0; padding-left:20px;
-  font-size:calc(15.5px * var(--ts)); line-height:1.48; color:var(--muted); }
-.dr-type-m li{ margin:3px 0; }
-.dr-type-go{ display:inline-block; margin-top:10px; cursor:pointer;
-  font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
-  color:var(--slate); border-bottom:1px dotted var(--slate); }
-.dr-type-go:hover{ color:var(--coral); border-bottom-color:var(--coral); }
 
 /* The pager. One question is on screen at a time, so the reader always knows
    which of the twenty they are on and never has to hunt for the next one. */
@@ -1151,12 +1136,14 @@ const PLOT = (() => {
   const COL = Object.assign({}, LIGHT);
   let LBLS = 1;   /* label scale  */
   let STRW = 1;   /* stroke scale */
+  let EMPH = false; /* lecture slides and laboratories use the back-row scale */
   let CLIPN = 0;  /* serial number for the data-area clip of each figure */
   function setTheme(o){
     o = o || {};
     Object.assign(COL, o.dark ? DARK : LIGHT);
     LBLS = o.scale || 1;
     STRW = 1 + (LBLS - 1) * 0.75;
+    EMPH = !!o.emphasis;
   }
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -1194,7 +1181,7 @@ const PLOT = (() => {
        fitScene() answers by scaling the whole scene down. `figW` is the width of
        the figure the label belongs to; without it the box keeps its full width. */
     const figW = opts.figW;
-    const BWMAX = 460, BH = 34*LBLS;
+    const BWMAX = 460, BH = (opts.boxHeight||34)*LBLS;
     const fs = size*LBLS;
     let x, BW, just;
     if(xRight!=null){ x = Math.max(0, xRight-BWMAX); BW = xRight-x; just='flex-end'; }
@@ -1290,8 +1277,10 @@ const PLOT = (() => {
        a tall bracket down to the tail of a parenthesis. NAMEBOX is that height at
        the size axis names use, so the strip reserved above the data area holds the
        whole name and nothing is cut off by the edge of the figure. */
-    const NAMEBOX = 21*LBLS;
-    if(o.ylabel) P.t = Math.max(P.t, NAMEBOX + 8);
+    const NAME_H = W < 500 ? 24 : 26;
+    const NAME_GAP = W < 500 ? 9 : 10;
+    const NAMEBOX = (EMPH ? NAME_H : 21)*LBLS;
+    if(o.ylabel) P.t = Math.max(P.t, EMPH ? NAME_H*LBLS + NAME_GAP*LBLS + 2 : NAMEBOX + 8);
     /* The name of the independent variable sits just under the lower edge of the
        data area, clear of the tick row wherever the zero line happens to fall.
        A tick number is set 20 below the axis it belongs to and reaches about 4
@@ -1299,7 +1288,7 @@ const PLOT = (() => {
        name 62 below the axis keeps a clear gap between the two, so the last tick
        number and the name never touch even at the right-hand edge, where they
        share the same column. */
-    const XNAME_DROP = o.xnameDrop ?? 62;
+    const XNAME_DROP = o.xnameDrop ?? (EMPH ? 66 : 62);
     const xnameY = (Pb) => {
       const yy0 = H - Pb;
       if(!zeroInside) return yy0 + XNAME_DROP + 1;
@@ -1331,7 +1320,7 @@ const PLOT = (() => {
       raw(s){ parts.push(s); return api; },
       /* ---- continuous curve from a function ---- */
       curve(f, opts={}){
-        const n = opts.n||520, col=opts.color||COL.in, wdt=(opts.width||2.2)*STRW;
+        const n = opts.n||520, col=opts.color||COL.in, wdt=(opts.width||(EMPH?2.4:2.2))*STRW;
         const seg=[]; let cur=[];
         for(let i=0;i<=n;i++){
           const t = xa + (xb-xa)*i/n;
@@ -1353,7 +1342,7 @@ const PLOT = (() => {
       /* ---- polyline through explicit points ---- */
       poly(pts, opts={}){
         if(pts.length<2) return api;
-        const col=opts.color||COL.in, wdt=(opts.width||2.2)*STRW;
+        const col=opts.color||COL.in, wdt=(opts.width||(EMPH?2.4:2.2))*STRW;
         const d='M'+pts.map(p=>sx(p[0]).toFixed(2)+','+sy(p[1]).toFixed(2)).join('L');
         parts.push(`<path d="${d}"${clip} fill="none" stroke="${col}" stroke-width="${wdt}"
           stroke-linejoin="round" stroke-linecap="round"${opts.dash?` stroke-dasharray="${opts.dash}"`:''}/>`);
@@ -1382,12 +1371,12 @@ const PLOT = (() => {
       },
       /* ---- discrete-time stems ---- */
       stem(pairs, opts={}){
-        const col=opts.color||COL.in, r=(opts.r||3.6)*STRW;
+        const col=opts.color||COL.in, r=(opts.r||(EMPH?4:3.6))*STRW;
         pairs.forEach(([n,v])=>{
           if(n<xa-1e-9||n>xb+1e-9) return;
           const X=sx(n).toFixed(2);
           parts.push(`<line x1="${X}" y1="${sy(0).toFixed(2)}" x2="${X}" y2="${sy(v).toFixed(2)}"
-            stroke="${col}" stroke-width="${(opts.width||1.8)*STRW}"/>`);
+            stroke="${col}" stroke-width="${(opts.width||(EMPH?2:1.8))*STRW}"/>`);
           if(Math.abs(v)>1e-12 || opts.showZero)
             parts.push(`<circle cx="${X}" cy="${sy(v).toFixed(2)}" r="${r}" fill="${col}"/>`);
           else
@@ -1422,7 +1411,7 @@ const PLOT = (() => {
         return api;
       },
       point(t,v,opts={}){
-        parts.push(`<circle cx="${sx(t).toFixed(2)}" cy="${sy(v).toFixed(2)}" r="${(opts.r||4)*STRW}"
+        parts.push(`<circle cx="${sx(t).toFixed(2)}" cy="${sy(v).toFixed(2)}" r="${(opts.r||(EMPH?4:3.6))*STRW}"
           fill="${opts.color||COL.coral}" stroke="${opts.ring||'#FCF9F3'}" stroke-width="${opts.ringw||1.4}"/>`);
         return api;
       },
@@ -1481,24 +1470,34 @@ const PLOT = (() => {
         /* frame when zero axes are outside the view */
         if(yz==null||xz==null)
           g.push(`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="none" stroke="${CH.axis}" stroke-width="1"/>`);
-        /* tick labels */
+        /* Tick labels on compact two-up plots stay at the established size.
+           A full-width signal plot gets the larger lecture-slide size. */
+        const TICK_SIZE = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13) * LBLS;
         const yBase = yz!=null? yz : y0;
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
+          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         const xBase = xz!=null? xz : x0;
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
+          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal
            that leaves the data area is interrupted by the name rather than
            drawn across it. */
         const names=[];
-        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+8, baseline:xnameY(P.b), size:15, color:CH.name, role:'axisname', figW:W }));
-        if(o.ylabel) names.push(texName(o.ylabel, { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:15, color:CH.name, role:'axisname', figW:W }));
+        const NAME_SIZE = EMPH ? (W < 500 ? 15.5 : 16.5) : 15;
+        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+(o.xnameRight??8), baseline:xnameY(P.b), size:NAME_SIZE, color:CH.name, role:'axisname', figW:W }));
+        /* Keep the dependent-variable name at the upper-left edge of the data
+           area. Putting it beside an interior zero axis makes it compete with
+           peaks, span labels and impulse weights near the centre. */
+        if(o.ylabel) names.push(texName(o.ylabel, EMPH
+          ? { xLeft:(o.ynameAtAxis && xz!=null ? xz+14 : x0+14), baseline:y1-NAME_GAP*LBLS, size:NAME_SIZE, boxHeight:NAME_H,
+              color:CH.name, role:'axisname', figW:W }
+          : { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:NAME_SIZE,
+              color:CH.name, role:'axisname', figW:W }));
         return `<svg viewBox="0 0 ${W} ${H}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,'Segoe UI',sans-serif">`
           + g.join('') + parts.join('') + names.join('') + `</svg>`;
       }
@@ -1733,13 +1732,8 @@ const CONTENT = {
   ],
 
 
-  /* ---- practice questions: open-ended, in the form they are asked in ----
-     DRILL holds the questions themselves, one flat array populated by the
-     module drill files. DRILLTYPES holds, per module, the recurring question
-     types those questions are drawn from: what each type asks for, the method
-     that answers it, and the scene where that method is taught. */
-  DRILL: [],
-  DRILLTYPES: {}
+  /* ---- practice questions: open-ended, in the form they are asked in ---- */
+  DRILL: []
 };
 
 </script>
@@ -2116,13 +2110,10 @@ const APP = (() => {
     const cur = SCENES[state.i];
     return !!(cur && cur.sec && cur.sec.indexOf(n+'.') === 0);
   }
-  /* The question scenes bracket a chapter: the taxonomy of question types is
-     read before the teaching scenes, the questions themselves are worked after
-     them. `row` is given the scene, not a position, so both surfaces place
-     them the same way. */
+  /* The practice questions follow the teaching scenes. `row` is given the
+     scene, not a position, so both surfaces place it the same way. */
   function chapterRows(ch, row, head, collapse){
     const out = [];
-    if(ch.q.map) out.push(row(ch.q.map));
     ch.sections.forEach(sec=>{
       const titled = !ch.flat && sec.title;
       const open = !collapse || !titled || secIsOpen(sec.n);
@@ -2267,7 +2258,7 @@ const LABS = (() => {
       const lo=Math.min(e1,e2), hi=Math.max(e1,e2);
       const critY = P.crit.map(c=>(c+b)/a).sort((p,q)=>p-q);
       const xr=[-8,8];
-      const ax = o => PLOT.Axes(Object.assign({w:760,h:210,xr,yr:P.yr,xlabel:st.dt?'n':'t',
+      const ax = o => PLOT.Axes(Object.assign({w:760,h:210,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
         pad:{l:44,r:26,t:16,b:34}, xtarget:9, ytarget:3},o));
       const disc = f => { const out=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) out.push([n,f(n)]); return out; };
       const A1 = ax({}); const A2 = ax({}); const A3 = ax({});
@@ -2372,7 +2363,7 @@ const LABS = (() => {
     let cur=0, picked=null, revealed=false;
     function draw(root){
       const it = items[cur];
-      const ax = PLOT.Axes({w:640,h:250,xr:it.xr,yr:it.yr,xlabel:it.dt?'n':'t',pad:{l:46,r:24,t:18,b:36},xtarget:8,ytarget:4});
+      const ax = PLOT.Axes({w:640,h:250,xr:it.xr,yr:it.yr,xlabel:it.dt?'n':'t',ylabel:it.dt?'x[n]':'x(t)',pad:{l:46,r:24,t:18,b:36},xtarget:8,ytarget:4});
       if(it.dt){ const p=[]; for(let n=Math.ceil(it.xr[0]);n<=it.xr[1];n++) p.push([n,it.f(n)]); ax.stem(p,{color:PLOT.COL.in}); }
       else ax.curve(it.f,{color:PLOT.COL.in});
       root.querySelector('.plots').innerHTML = ax.svg();
@@ -2442,7 +2433,7 @@ const LABS = (() => {
       const N0 = (2*st.q)/g, kmin = st.p/g;
       const T0 = 2*Math.PI/w0;
       const xr = st.dt? [-2, 34] : [-1, 26];
-      const ax = PLOT.Axes({w:820,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',
+      const ax = PLOT.Axes({w:820,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
         pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3});
       if(st.dt){
         const pts=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) pts.push([n,Math.cos(w0*n+th)]);
@@ -2602,7 +2593,7 @@ const LABS = (() => {
     }
     function draw(root){
       const c=cases[key]; const n = c.dt? Math.round(pos) : pos;
-      const mk=o=>PLOT.Axes(Object.assign({w:760,h:172,xr:c.kr,yr:c.yr,xlabel:c.dt?'k':'\\tau',
+      const mk=o=>PLOT.Axes(Object.assign({w:760,h:172,xr:c.kr,yr:c.yr,xlabel:c.dt?'k':'\\tau',ylabel:'\\text{amplitude}',
         pad:{l:44,r:24,t:14,b:30},xtarget:9,ytarget:2},o));
       const disc=f=>{const p=[];for(let k=Math.ceil(c.kr[0]);k<=c.kr[1];k++)p.push([k,f(k)]);return p;};
       /* panel 1: x and the flipped-shifted h */
@@ -2619,7 +2610,7 @@ const LABS = (() => {
              A2.curve(t=>c.x(t)*c.h(n-t),{color:PLOT.COL.mid}); }
       A2.note(c.kr[0]+0.2,c.yr[1]*0.82,c.dt?'x[k]·h[n−k]':'x(τ)h(t−τ)',{color:PLOT.COL.mid,fs:15,italic:true});
       /* panel 3: accumulated output */
-      const A3=PLOT.Axes({w:760,h:196,xr:c.nr,yr:c.yr,xlabel:c.dt?'n':'t',pad:{l:44,r:24,t:16,b:32},xtarget:8,ytarget:3});
+      const A3=PLOT.Axes({w:760,h:196,xr:c.nr,yr:c.yr,xlabel:c.dt?'n':'t',ylabel:c.dt?'y[n]':'y(t)',pad:{l:44,r:24,t:16,b:32},xtarget:8,ytarget:3});
       if(c.dt){ const p=[]; for(let m=Math.ceil(c.nr[0]);m<=c.nr[1];m++) p.push([m, m<=n?conv(c,m):0]);
         A3.stem(p.filter(q=>q[0]<=n),{color:PLOT.COL.out}); }
       else { const pts=[]; for(let i=0;i<=260;i++){ const t=c.nr[0]+(Math.min(n,c.nr[1])-c.nr[0])*i/260;
@@ -2820,15 +2811,6 @@ const RENDER = (() => {
                                      :'No solution has been opened on this device yet.'}</span>
         </div>
         <div class="dr-page">${drillHTML(qs[i])}</div>`; },
-    /* The taxonomy of a module's question types, read from CONTENT.DRILLTYPES. */
-    drilltypes: b => { const ts=(CONTENT.DRILLTYPES[b.module]||[]);
-        return `<div class="dr-types" style="${b.style||''}">${ts.map((ty,i)=>
-          `<div class="dr-type">
-             <div class="dr-type-h"><span class="dr-type-k">${String.fromCharCode(65+i)}</span>${md(ty.name)}</div>
-             <div class="dr-type-asks">${symLinks(md(ty.asks))}</div>
-             <ol class="dr-type-m">${ty.method.map(s=>`<li>${symLinks(md(s))}</li>`).join('')}</ol>
-             ${ty.go?`<a class="dr-type-go" data-act="goto" data-id="${ty.go}">where this is taught →</a>`:''}
-           </div>`).join('')}</div>`; },
     /* a raw block may carry a function instead of a string, exactly as fig does,
        so a figure built in JavaScript is generated per render and picks up the
        palette of the theme in force */
@@ -2861,9 +2843,8 @@ const RENDER = (() => {
      uses, so persistence and the reset action need no new code. */
   function drillHTML(q){
     const st = S.quiz[q.id] || {};
-    const ty = (CONTENT.DRILLTYPES[q.module]||[]).find(t=>t.k===q.type);
     return `<div class="quiz drill" data-qid="${q.id}">
-      <div class="qid">${q.id}${ty?' · '+md(ty.name):''}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
+      <div class="qid">${q.id}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
       <div class="qstem">${symLinks(md(q.stem))}</div>
       ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
       <ol class="dr-parts">${(q.parts||[]).map(p=>`<li>${symLinks(md(p))}</li>`).join('')}</ol>
@@ -2895,9 +2876,10 @@ const RENDER = (() => {
 
   /* ---------- scene drawing ---------- */
   function draw(){
-    if(typeof PLOT!=='undefined' && PLOT.setTheme)
-      PLOT.setTheme({ dark: S.theme==='dark', scale: S.display==='projector' ? 1.36 : 1 });
     const sc = APP.scenes()[S.i];
+    if(typeof PLOT!=='undefined' && PLOT.setTheme)
+      PLOT.setTheme({ dark: S.theme==='dark', scale: S.display==='projector' ? 1.36 : 1,
+        emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
@@ -4772,7 +4754,7 @@ const SC = [
   {t:'title', text:'Instantaneous Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',ylabel:'p(t)',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
       a.area(t=>Math.pow(Math.cos(1.7*t),2),1.2,4.4,{color:'rgba(190,85,57,.18)'});
       a.curve(t=>Math.pow(Math.cos(1.7*t),2),{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
@@ -4800,7 +4782,7 @@ const SC = [
   {t:'title', text:'Total Signal Energy'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'|x(t)|^{2}',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.exp(-Math.abs(t)),-4,4,{color:'rgba(20,112,127,.16)'});
       a.curve(t=>Math.exp(-Math.abs(t)),{color:C.in});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
@@ -4825,7 +4807,7 @@ const SC = [
   {t:'title', text:'When Total Energy Diverges'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.pow(Math.cos(2*t),2),-4,4,{color:'rgba(166,59,42,.15)'});
       a.curve(t=>Math.cos(2*t),{color:C.err});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
@@ -4878,7 +4860,7 @@ const SC = [
   {t:'title', text:'Energy and Power Classification'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
@@ -4922,7 +4904,7 @@ const SC = [
   {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.curve(t=>t>=0?t:0,{color:C.err});
       a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
       return a.svg(); },
@@ -4941,7 +4923,7 @@ const SC = [
   {t:'title', text:'Energy and Power Classification Examples'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
@@ -4968,7 +4950,7 @@ const SC = [
   {t:'title', text:'Worked Example — a Constant Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',ylabel:'x[n]',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
       a.stem(disc(()=>4,-6,6),{color:C.h});
       a.note(5.6,4.7,'power-type',{anchor:'end',color:C.h,fs:15,italic:true});
       return a.svg(); },
@@ -5003,7 +4985,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
-      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
       a.curve(t=>tri(t+3),{color:C.out}); a.curve(tri,{color:C.ink});
       a.curve(t=>tri(t-3),{color:C.in});
       a.note(-3,1.14,'x(t+3)',{anchor:'middle',color:C.out,fs:15,tex:true});
@@ -5012,7 +4994,8 @@ const SC = [
       a.span(-3,0,-0.38,'advance by 3 s',{color:C.out});
       a.span(0,3,-0.38,'delay by 3 s',{color:C.in});
       return a.svg(); },
-      caption:'The pulse shape does not change. Only its position on the time axis changes.'}
+      caption:'The pulse shape does not change. Only its position on the time axis changes.'},
+    {t:'legend', items:[['out','$x(t+3)$'],['muted','$x(t)$'],['in','$x(t-3)$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
     {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ delays the signal, so the graph moves right. $t_0<0$ advances it, so the graph moves left.'},
@@ -5032,12 +5015,13 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-4.5,4.5],yr:[-0.35,1.55],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:10,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-4.5,4.5],yr:[-0.35,1.55],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:26,t:24,b:40},xtarget:10,ytarget:3});
       a.curve(r,{color:C.ink}); a.curve(t=>r(-t),{color:C.mid});
       a.note(2,1.28,'x(t)',{anchor:'middle',color:C.ink,fs:15,tex:true});
       a.note(-2,1.28,'x(-t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
       return a.svg(); },
-      caption:'Reversal reflects the pulse about $t=0$. The pulse on $[1,3]$ moves to $[-3,-1]$.'}
+      caption:'Reversal reflects the pulse about $t=0$. The pulse on $[1,3]$ moves to $[-3,-1]$.'},
+    {t:'legend', items:[['muted','$x(t)$'],['mid','$x(-t)$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(-t)\\qquad\\bigl(x[n]\\to x[-n]\\bigr)',
       label:'Time reversal'},
@@ -5058,7 +5042,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.curve(r,{color:C.ink});
       a.curve(t=>r(2*t),{color:C.mid});
       a.curve(t=>r(0.5*t),{color:C.h});
@@ -5066,7 +5050,8 @@ const SC = [
       a.note(1.0,1.5,'x(2t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
       a.note(5.0,1.5,'x(0.5t)',{anchor:'middle',color:C.h,fs:15,tex:true});
       return a.svg(); },
-      caption:'Compression by 2 maps $[1,3]$ to $[0.5,1.5]$. Expansion by 2 maps $[1,3]$ to $[2,6]$.'}
+      caption:'Compression by 2 maps $[1,3]$ to $[0.5,1.5]$. Expansion by 2 maps $[1,3]$ to $[2,6]$.'},
+    {t:'legend', items:[['muted','$x(t)$'],['mid','$x(2t)$'],['h','$x(0.5t)$']]}
   ], right:[
     {t:'eq', key:true, tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling'},
     {t:'note', kind:'warn', head:'Name the new signal', html:'Write $y(t)=x(at)$. The equation $x(t)=x(at)$ would force $a=1$.'},
@@ -5086,7 +5071,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(x,{color:C.ink}); a.note(9.6,2.2,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
       return a.svg(); },
       caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$.'}
@@ -5109,7 +5094,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(t=>x(3*t-5),{color:C.out});
       a.note(9.6,2.2,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
       [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
@@ -5188,7 +5173,7 @@ const SC = [
   {t:'title', text:'Even and Odd Decomposition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
       a.curve(t=>t*t*t,{color:C.mid}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
       caption:'$t^3$ is odd, so its value at $t=0$ is 0.'}
   ], right:[
@@ -5207,7 +5192,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=>Math.exp(-t);
-      const a=P.Axes({w:560,h:380,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',ylabel:'\\text{amplitude}',xnameRight:14,pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
       a.curve(x,{color:C.h,dash:'4 4'});
       a.curve(t=>0.5*(x(t)+x(-t)),{color:C.in});
       a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid});
@@ -5215,7 +5200,8 @@ const SC = [
       a.note(1.42,2.5,'\\operatorname{Ev}\\{x\\}=\\cosh t',{anchor:'end',color:C.in,fs:14,tex:true});
       a.note(-0.25,-1.5,'\\operatorname{Od}\\{x\\}=-\\sinh t',{anchor:'end',color:C.mid,fs:14,tex:true});
       return a.svg(); },
-      caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'}
+      caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'},
+    {t:'legend', items:[['h','$x(t)$'],['in','$\\Ev\\{x\\}(t)$'],['mid','$\\Od\\{x\\}(t)$']]}
   ], right:[
     {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)',
       label:'Even and odd parts'},
@@ -5233,7 +5219,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Impulse and Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',ylabel:'\\delta[n]',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
       a.stem(disc(n=>n===0?1:0,-3,5),{color:C.in,showZero:false});
       a.note(4.6,1.15,'\\delta[n]',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
@@ -5254,13 +5240,14 @@ const SC = [
   {t:'title', text:'Difference and Running Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h});
       a.stem(disc(n=>n>=1?-1:0,-3,5),{color:C.mid});
       a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
       a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
       return a.svg(); },
-      caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'}
+      caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'},
+    {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']]}
   ], right:[
     {t:'eq', key:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
       note:'A delay of one sample cancels the flat part of the step and leaves a single sample.'},
@@ -5282,7 +5269,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>[1,2,3][n]!==undefined&&n>=0&&n<=2?[1,2,3][n]:0,-1,5),{color:C.in});
       a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true});
       return a.svg(); },
@@ -5305,7 +5292,7 @@ const SC = [
   {t:'title', text:'Sampling and Sifting, Computed'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]\\delta[n-2]',ynameAtAxis:true,pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>n===2?3:0,-1,5),{color:C.out});
       a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true});
       return a.svg(); },
@@ -5329,7 +5316,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Impulse and Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',ylabel:'\\text{weight}',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
       a.impulse(0,1,{color:C.in,labelText:'1'});
       a.note(1.9,1.2,'\\delta(t)',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
@@ -5350,7 +5337,7 @@ const SC = [
   {t:'title', text:'Picturing the Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',ylabel:'\\delta_\\varepsilon(t)',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
       [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
         const col=[ '#9BC4CB','#4E9AA6',C.in][i];
         a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
@@ -5370,7 +5357,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
       const x=t=>0.75*Math.cos(1.2*t-0.5);
       a.curve(x,{color:C.muted,width:1.6});
       a.impulse(3, x(3), {color:C.coral, label:false});
@@ -5399,7 +5386,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
       a.note(5.7,1.02,'e^{-0.5t},\\;e^{-t},\\;e^{-2t}',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); },
@@ -5465,13 +5452,14 @@ const SC = [
   {t:'title', text:'Growth, Decay, and an Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
       a.curve(t=>-2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
       a.curve(t=>2*Math.exp(-0.5*t)*Math.cos(2*Math.PI*t),{color:C.in,n:1400});
       a.note(4.8,2.05,'\\operatorname{Re}\\{2e^{-0.5t}e^{j2\\pi t}\\}',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); },
-      caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'}
+      caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'},
+    {t:'legend', items:[['in','$\\operatorname{Re}\\{x(t)\\}$'],['err','$\\pm2e^{-0.5t}$']]}
   ], right:[
     {t:'note', kind:'warn', head:'Both parts non-zero', html:'With $a=r+j\\omega_0$, the curves $\\pm Ae^{rt}$ bound the sinusoid. If $r<0$ the oscillation is damped, if $r>0$ it grows, and if $r=0$ it is sustained.'}
   ]}
@@ -5485,7 +5473,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
       a.stem(disc(n=>Math.pow(0.5,n),0,10),{color:C.in});
       return a.svg(); },
       caption:'$x[n]=0.5^{n}$ decreases.'}
@@ -5508,7 +5496,7 @@ const SC = [
   {t:'title', text:'A Growing Real Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-40,1100],xlabel:'n',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-40,1100],xlabel:'n',ylabel:'y[n]',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
       a.stem(disc(n=>Math.pow(2,n),0,10),{color:C.h});
       return a.svg(); },
       caption:'$y[n]=2^{n}$ increases.'}
@@ -5525,8 +5513,8 @@ const SC = [
   {t:'title', text:'A Discrete-Time Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:2.4,width:1.2});
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',ylabel:'x[n]',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
+      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:3.2,width:1.8});
       return a.svg(); },
       caption:'$|\\alpha|=0.95$ decays. The frequency is $0.14\\pi$ radians per sample.'}
   ], right:[
@@ -5544,7 +5532,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Periodicity Condition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(n),-20,20),{color:C.err,r:3});
       return a.svg(); },
       caption:'<b>Aperiodic.</b> $x[n]=\\cos(n)$ has $\\omega_0=1$, so $\\omega_0/2\\pi=1/(2\\pi)$ is irrational. The pattern never repeats exactly. It looks periodic, but it is not.'}
@@ -5694,13 +5682,14 @@ const SC = [
   {t:'title', text:'Feedback Gives Memory'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
       a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
       a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
       a.note(-1.8,1.4,'x[n]',{anchor:'start',color:C.in,fs:14,tex:true});
       return a.svg(); },
-      caption:'Each output of the accumulator carries every earlier input.'}
+      caption:'Each output of the accumulator carries every earlier input.'},
+    {t:'legend', items:[['in','$x[n]$'],['out','$y[n]$']]}
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
@@ -5742,13 +5731,14 @@ const SC = [
   {t:'title', text:'Squaring Is Not Invertible'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
       a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
       a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
       a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
       return a.svg(); },
-      caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'}
+      caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'},
+    {t:'legend', items:[['in','$x_1(t)$'],['mid','$x_2(t)$'],['err','$y(t)$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y(t)=x^{2}(t)$.<div class="nsep"></div>Is the system invertible?'},
     {t:'reveal', at:1, items:[
@@ -5765,7 +5755,7 @@ const SC = [
   {t:'title', text:'Causality'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',ylabel:'\\text{input access}',
         pad:{l:50,r:24,t:26,b:44},xtarget:11,ytarget:2,yticksOverride:[]});
       a.rect(-5,0,0,1,{fill:'rgba(74,122,70,.14)'});
       a.rect(0,0,5,1,{fill:'rgba(166,59,42,.13)'});
@@ -5787,7 +5777,7 @@ const SC = [
   {t:'title', text:'Causal and Not Causal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
       a.stem(disc(n=>n===1?1:0,-4,4),{color:C.in});
       a.stem(disc(n=>n===-1?1:0,-4,4),{color:C.err});
       a.note(-1,1.22,'y[-1]',{anchor:'middle',color:C.err,fs:14,tex:true});
@@ -5795,7 +5785,8 @@ const SC = [
       a.raw(`<path d="M${a.sx(0.9)},${a.sy(1.05)} C ${a.sx(0.3)},${a.sy(1.32)} ${a.sx(-0.3)},${a.sy(1.32)} ${a.sx(-0.9)},${a.sy(1.05)}"
               fill="none" stroke="${C.err}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
       return a.svg(); },
-      caption:'$y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=1$.'}
+      caption:'$y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=1$.'},
+    {t:'legend', items:[['in','$x[1]$'],['err','$y[-1]$']]}
   ], right:[
     {t:'note', kind:'ok', head:'Causal', html:'$y[n]=x[n-1]$ uses a past sample. $\\displaystyle y(t)=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau$ stops at $t$.'},
     {t:'reveal', at:1, items:[
@@ -5838,7 +5829,7 @@ const SC = [
   {t:'title', text:'A Bounded Input, an Unbounded Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',ylabel:'y[n]',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
       a.stem(disc(n=>n>=0?n+1:0,-2,12),{color:C.err});
       a.note(11.6,12.6,'y[n]=n+1\\to\\infty',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
@@ -5886,13 +5877,14 @@ const SC = [
   {t:'title', text:'Counterexamples to Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
       a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
       a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
       a.note(3.6,0.42,'y_1[n]=0',{anchor:'end',color:C.out,fs:14,tex:true});
       a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
-      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'}
+      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'},
+    {t:'legend', items:[['out','$y_1[n]$'],['err','$y_2[n]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?'},
     {t:'reveal', at:1, items:[
@@ -5965,7 +5957,7 @@ const SC = [
   keywords:'workflow classification order strategy checklist', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Method', src:'pp. 11–14'},
   {t:'title', text:'System Classification Workflow'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
+  {t:'cols', ratio:'c-5-7-exception', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const rows=[
         ['y(t)=2\\pi x(t)',           [1,1,1,1,1,1]],
@@ -13923,14 +13915,9 @@ window.applyNumbering = function(scenes){
     let labN = 0;
     const out = { n:ch.n, title:ch.title, module:ch.module, flat:!!ch.flat, sections:[] };
 
-    /* The question scenes bracket the chapter: the taxonomy is read before the
-       teaching scenes and the questions are worked after them. They are listed
-       where they occur, so they are collected from the scene array rather than
-       from the declaration. */
-    const q = { map:byId[ch.module.toLowerCase()+'-drill-map'],
-                drill:byId[ch.module.toLowerCase()+'-drill'] };
-    if(q.map)   q.map.sec   = ch.n+'.Q1';
-    if(q.drill) q.drill.sec = ch.n+'.Q2';
+    /* Each teaching module closes with one practice-question scene. */
+    const drill = byId[ch.module.toLowerCase()+'-drill'];
+    if(drill) drill.sec = ch.n+'.P';
 
     secs.forEach(sec=>{
       const entries = [];
@@ -13947,7 +13934,7 @@ window.applyNumbering = function(scenes){
       out.sections.push({ n:sec.n, title:sec.title, scenes:entries });
     });
 
-    out.q = q;
+    out.q = { drill };
     return out;
   });
 };
@@ -14028,7 +14015,7 @@ const SC = [
   ], right:[
     {t:'sub', text:'Where the practice sits'},
     {t:'body', html:`<p>Laboratories A to J let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
-      <p>Modules 2 to 7 begin with their recurring question types. Every module from 1 to 7 ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
+      <p>Every module from 1 to 7 ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'How to practise', html:'Use a laboratory first to connect each control with its plotted effect. Then close the solution panels and answer the module questions. The laboratory shows the behaviour; the questions test whether you can predict it.'}]}
   ]}
@@ -14053,7 +14040,7 @@ const SC = [
     {t:'eq', size:'sm', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n},\\qquad x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})e^{j\\omega n}\\,\\d\\omega'},
     {t:'note', kind:'def', head:'sinc', html:'Unnormalised: $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$. The convention is restated wherever sinc appears.'},
     {t:'note', kind:'def', head:'Sampling', html:'A rate is angular unless it is named in hertz: $\\omega_s=2\\pi/T$ rad/s and $f_s=1/T$ Hz. The sampling theorem is stated with a strict inequality, $\\omega_s>2\\omega_M$.'},
-    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.8 — Modules 0–7 in 234 scenes, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook for the 208 scenes that have a counterpart there; both are declared once in 89_sections.js and checked by seccheck.js. Modules 2 to 7 open with a taxonomy of the question types that keep coming back; every module closes with the questions themselves, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills, 50 over Modules 1 to 3 and 26 over the Fourier properties of Modules 4 to 6. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
+    {t:'instr', head:'INSTRUCTOR-ONLY · provenance', html:'Artifact v1.8 — Modules 0–7, laboratories A–J, and 210 open-ended practice questions, D1–D7, thirty to a module. The contents carries a chapter, section and scene address for every scene, and an anchor into the course textbook where a counterpart exists; both are declared once in 89_sections.js and checked by seccheck.js. Every module closes with its questions, one to a screen. Every number a solution states in its Check step is re-derived independently: 913 checks over the drills, 50 over Modules 1 to 3 and 26 over the Fourier properties of Modules 4 to 6. Source pages 2–88 are mapped scene by scene in the coverage matrix. Confirmed issues in the source material are recorded as A-09 … A-104 in the continuous ledger, and each one is stated in the artifact at the point where it occurs, in the artifact\'s own voice. Coverage matrix, traceability and the ledger are held outside the student build.'}
   ]}
 ]}
 
@@ -14079,50 +14066,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
 /* ======================================================================
    MODULE 1 — Signal Foundations
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M1 = [
-  { k:'period', name:'Periodicity and the fundamental period',
-    asks:'A signal is given as a formula. Decide whether it repeats, and if it does, find the smallest period.',
-    method:['In discrete time, test whether $\\omega_0/2\\pi$ is a ratio of two integers. If it is not, the sequence never repeats.',
-            'If it is, write $N=(2\\pi/\\omega_0)k$ and take the smallest positive integer value.',
-            'In continuous time every sinusoid repeats, with $T_0=2\\pi/|\\omega_0|$.',
-            'For a sum, each term must repeat, and the period of the sum is the least common multiple of the individual periods.'],
-    go:'m1-periodic' },
-  { k:'energy', name:'Energy, power, and which class a signal belongs to',
-    asks:'Compute $E_\\infty$ or $P_\\infty$ for a given signal and classify it.',
-    method:['Use the normalised definitions, $R=1\\,\\Omega$ throughout.',
-            'Square the magnitude first, then integrate or sum over the whole axis.',
-            'A finite $E_\\infty$ forces $P_\\infty=0$. A finite non-zero $P_\\infty$ forces $E_\\infty=\\infty$.',
-            'Report both numbers, then name the class. One number alone does not classify.'],
-    go:'m1-energy-inf' },
-  { k:'transform', name:'Transformation of the independent variable',
-    asks:'A signal is given by a plot or a formula. Plot $x(at+b)$ or $x[an+b]$.',
-    method:['Write the transformation in the form $x(a t - b)$ and read off $a$ and $b$.',
-            'Shift first, then scale or reflect. Doing it in the other order changes the sign of the shift.',
-            'Map the edges of the support one at a time and check the width of the result.',
-            'Verify one interior sample by direct substitution.'],
-    go:'m1-combined' },
-  { k:'evenodd', name:'Even and odd parts',
-    asks:'Split a signal into its even and odd parts, and use the split.',
-    method:['$\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$.',
-            'Build $x(-t)$ first, as a plot or a formula, and keep it visible.',
-            'The two parts must add back to $x$. Check one point where $x$ is zero.',
-            'The energies add: $E_x=E_{\\Ev}+E_{\\Od}$, because the two parts are orthogonal.'],
-    go:'m1-evenodd' },
-  { k:'impulse', name:'The impulse: sifting, scaling, and impulse trains',
-    asks:'Evaluate an integral against an impulse, or sketch a sequence or signal built from impulses and steps.',
-    method:['Sifting returns a number: $\\int x(t)\\delta(t-t_0)\\,\\d t=x(t_0)$.',
-            'Sampling returns a signal: $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$.',
-            'A scaled argument carries a factor: $\\delta(at-b)=\\frac{1}{|a|}\\delta\\!\\left(t-\\frac{b}{a}\\right)$.',
-            'The impulse and the step are related by $\\delta=\\d u/\\d t$ in continuous time and $\\delta[n]=u[n]-u[n-1]$ in discrete time; running the relation the other way turns a train of impulses into a staircase.'],
-    go:'m1-ct-impulse' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several parts under one statement. A later part may use a result from an earlier part.',
-    method:['Read all the parts before starting. Mark every later part that uses a signal or result from an earlier part.',
-            'Name the type of each part before working it, and use the method for that type unchanged.',
-            'Carry exact values between parts. Rounding an intermediate result can change the final answer.',
-            'Check each part against the one before: a transformation must preserve the width of the support up to the scale factor, and the even and odd parts must add back to the signal they came from.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -14772,9 +14715,8 @@ window.DRILL_M1 = [
 /* ==== 93_drill_m2.js ==== */
 /* ==========================================================================
    Practice questions — Module 2.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -14783,50 +14725,6 @@ const P = PLOT, C = P.COL;
 /* ======================================================================
    MODULE 2 — Systems and Their Properties
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M2 = [
-  { k:'p-nonlin', name:'A nonlinearity applied to the input',
-    asks:'The rule squares, multiplies, rectifies or exponentiates. Linearity is the property at risk.',
-    method:['Test homogeneity first: is the response to $ax$ equal to $a$ times the response to $x$?',
-            'To disprove homogeneity, give one input and one scale factor for which the two responses differ.',
-            'A nonlinearity does not by itself break time invariance, causality or stability.',
-            'Bound the output from a bound on the input to settle stability in one line.'],
-    go:'m2-linear' },
-  { k:'p-accum', name:'Accumulation, integration or differencing',
-    asks:'The rule sums or integrates the input, or takes a difference of neighbouring values. Memory and stability are the properties at risk.',
-    method:['Write the output as an explicit sum or integral with its limits.',
-            'The limits decide memory and causality: an upper limit above the present time is not causal.',
-            'For stability, bound the output when $|x|\\le B$. A finite window gives a finite bound.',
-            'For an unbounded window, test a bounded step input. If the weights decay, sum their absolute values before deciding stability.'],
-    go:'m2-stable' },
-  { k:'p-gain', name:'An explicitly time-dependent gain',
-    asks:'The rule multiplies the input by a known function of $t$ or $n$. Time invariance is the property at risk.',
-    method:['Linearity survives: multiplication by a fixed function is linear in $x$.',
-            'For time invariance, compute the response to $x(t-t_0)$ and compare it with $y(t-t_0)$.',
-            'A gain that grows without bound also breaks stability. A bounded gain does not.',
-            'Name a specific $x$ and a specific $t_0$ in the counterexample.'],
-    go:'m2-ti-b' },
-  { k:'p-argop', name:'An operation on the time argument',
-    asks:'The rule shifts, scales or reverses the argument of the input. Causality and time invariance are the properties at risk.',
-    method:['Find one instant where the output uses an input from later than that instant.',
-            'For time invariance, remember that a scaled argument rescales any shift you apply.',
-            'Linearity always survives an operation on the argument alone.',
-            'Stability also survives: the output only ever reuses input values.'],
-    go:'m2-causal' },
-  { k:'p-connect', name:'Interconnection: series, parallel and feedback',
-    asks:'The system combines other systems in series, in parallel or with feedback, or asks for an inverse. First write one relation between the input and output.',
-    method:['In series, substitute the first relation into the second before testing any property on the result.',
-            'In parallel, the outputs add. A property that survives addition survives the connection.',
-            'In feedback, the relation is implicit. Iterate it or solve it before testing the properties. Use the resulting loop-gain condition to test stability.',
-            'For invertibility, find an inversion formula that works for every input, or find two distinct inputs that share one output.'],
-    go:'m2-invertible' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'One system, tested against all five properties in turn.',
-    method:['Take the properties one at a time and in the order asked. Each has its own test, and none of them substitutes for another.',
-            'To establish a property, prove it for every input. To deny one, give a single explicit counterexample.',
-            'For time invariance, build the response to the shifted input and the shift of the response separately, then compare the two. Do not argue from the look of the equation.',
-            'A coefficient that depends on the independent variable breaks time invariance. A coefficient that grows without bound, or a sum with a growing number of terms, usually breaks stability.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -15406,26 +15304,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M2 = [
-
-{ id:'m2-drill-map', module:'M2', nav:'Module 2 · question types',
-  title:'Module 2 — what a question looks like', src:'pp. 11–14',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 2 question types system properties linearity time invariance causality stability invertibility interconnection series parallel feedback taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Question types', src:'pp. 11–14'},
-  {t:'title', text:'Four disguises for one question, a fifth entirely its own, and a sixth that asks them together'},
-  {t:'lede', text:'Most questions give an input-output rule and ask for five properties. The remaining questions ask how system properties change under interconnection or whether the input can be recovered.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M2'},
-  {t:'note', kind:'warn', head:'Use a proof or a counterexample', html:'To establish a property, prove it for every input. To disprove it, give one input, or one pair of inputs and one shift, for which the definition fails. For an interconnection, first state which properties are preserved by addition or composition.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M2 = [
 
 { id:'m2-drill', module:'M2', nav:'Module 2 · practice questions',
@@ -15448,9 +15327,8 @@ window.DRILL_M2 = [
 /* ==== 94_drill_m3.js ==== */
 /* ==========================================================================
    Practice questions — Module 3.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -15462,50 +15340,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
 /* ======================================================================
    MODULE 3 — Linear Time-Invariant Systems
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M3 = [
-  { k:'dt-h', name:'Impulse response from a difference equation',
-    asks:'A difference equation gives the relation between $x[n]$ and $y[n]$. Find the impulse response $h[n]$, then use it to find another output.',
-    method:['Set $x[n]=\\delta[n]$ and read the relation as it stands.',
-            'For a non-recursive relation, $h[n]$ is the list of coefficients placed at their delays.',
-            'For a recursive relation, state the rest condition and compute $h[0]$, $h[1]$, and enough later samples to identify the pattern.',
-            'State the support of $h$ before using it in any convolution.'],
-    go:'m3-impulse' },
-  { k:'dt-conv', name:'Convolution sum',
-    asks:'Two sequences are given. Compute $y[n]=x[n]*h[n]$ and plot it.',
-    method:['Write both sequences with their supports as inequalities in $k$.',
-            'Decide which one to flip. Flip the shorter or simpler one.',
-            'Find every case boundary from the support conditions before evaluating the sum.',
-            'Check that the output support is the sum of the input supports and that the sample totals multiply.'],
-    go:'m3-convsum' },
-  { k:'ct-conv', name:'Convolution integral',
-    asks:'Two continuous-time signals are given. Compute $y(t)=x(t)*h(t)$ and plot it, marking every breakpoint.',
-    method:['Write $y(t)=\\int x(\\tau)h(t-\\tau)\\,\\d\\tau$ and mark the support of each factor in $\\tau$.',
-            'Set each moving support edge equal to each fixed support edge. The resulting values are the case boundaries.',
-            'Integrate case by case, with the limits read off the overlap.',
-            'Check that adjacent formulas agree at each boundary, that the supports add, and that the areas multiply.'],
-    go:'m3-convint' },
-  { k:'graph-h', name:'Recovering the impulse response from an input-output pair',
-    asks:'One input and its output are given as plots. Find $h[n]$.',
-    method:['Write the input as a sum of shifted impulses.',
-            'That turns $y[n]$ into a sum of shifted copies of $h[n]$.',
-            'Start with the earliest output sample, because it contains the fewest unknown samples of $h[n]$, and solve forward.',
-            'Check by convolving the recovered $h$ with the given input.'],
-    go:'m3-convsum' },
-  { k:'h-props', name:'Reading causality and stability off the impulse response',
-    asks:'An impulse response is given. Decide whether the system is causal and whether it is stable.',
-    method:['Causal exactly when $h[n]=0$ for $n<0$, or $h(t)=0$ for $t<0$.',
-            'Stable exactly when $\\sum_n|h[n]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.',
-            'For a one-sided geometric sequence or exponential, test whether its magnitude decays away from the support edge.',
-            'The two properties are independent. Neither implies the other.'],
-    go:'m3-lti-props' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'A full question asks for the impulse response, the output for a given input, and one or more system properties.',
-    method:['Find $h$ first because every later output is a convolution with it.',
-            'For a difference equation, apply an impulse and iterate from rest. For an input-output pair, use the support widths to find the number of unknown samples of $h$, then solve from the earliest sample.',
-            'If the input is a sum of impulses, form one shifted and scaled copy of $h$ for each impulse. If the input is a pulse, use the support overlap to set the convolution limits.',
-            'Check the total and the support. In discrete time $\\sum_n y[n]=\\left(\\sum_n x[n]\\right)\\left(\\sum_n h[n]\\right)$, and the areas multiply in the same way in continuous time.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -16202,25 +16036,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M3 = [
-
-{ id:'m3-drill-map', module:'M3', nav:'Module 3 · question types',
-  title:'Module 3 — what a question looks like', src:'pp. 14–21',
-  objective:'Name the six recurring question types before the module is read.',
-  keywords:'practice questions module 3 question types impulse response convolution causality stability taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Question types', src:'pp. 14–21'},
-  {t:'title', text:'Six question types and the method for each'},
-  {t:'lede', text:'This map lists five recurring question types in Module 3. Use it first to identify what the question asks, then follow the listed method. The later teaching scenes develop each method.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M3'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M3 = [
 
 { id:'m3-drill', module:'M3', nav:'Module 3 · practice questions',
@@ -16243,9 +16059,8 @@ window.DRILL_M3 = [
 /* ==== 95_drill_m4.js ==== */
 /* ==========================================================================
    Practice questions — Module 4.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -16257,50 +16072,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
 /* ======================================================================
    MODULE 4 — Fourier Series
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M4 = [
-  { k:'fs-coef', name:'Coefficients of a given periodic signal',
-    asks:'A periodic signal is given as a formula or a plot. Find $a_k$ and plot the magnitude, and where asked the phase.',
-    method:['Find $T_0$ first, then $\\omega_0=2\\pi/T_0$. Every index is counted against that $\\omega_0$.',
-            'If the signal is already a sum of sinusoids, read the coefficients off Euler\'s formulas. Do not integrate.',
-            'Otherwise use the analysis equation over any one full period.',
-            'For a real signal, verify $a_{-k}=a_k^{*}$. Also calculate the mean from the signal definition and compare it with $a_0$.'],
-    go:'m4-fs-coef' },
-  { k:'fs-power', name:'Average power over one period',
-    asks:'Compute the average power of a periodic signal, in the time domain or from its coefficients.',
-    method:['In time: $P=\\frac{1}{T_0}\\int_{T_0}|x(t)|^{2}\\,\\d t$ over any one period.',
-            'From the coefficients, Parseval gives $P=\\sum_{k}|a_k|^{2}$.',
-            'For a sum of sinusoids, a DC term of height $A_0$ contributes $A_0^{2}$ and a sinusoid of amplitude $A$ contributes $A^{2}/2$.',
-            'Compute it both ways when you can. Agreement is the check.'],
-    go:'m4-parseval' },
-  { k:'fs-lti', name:'A periodic signal through an LTI system',
-    asks:'A periodic input meets a system with a known impulse response. Find the frequency response and the output coefficients.',
-    method:['Complex exponentials are eigenfunctions: $e^{jk\\omega_0t}$ comes out as $H(jk\\omega_0)e^{jk\\omega_0t}$.',
-            'Compute $H$ once as a function, then evaluate it at each harmonic that is present.',
-            'Calculate each output coefficient from $b_k=a_k\\,H(jk\\omega_0)$. This operation is multiplication, not convolution.',
-            'A harmonic where $H$ vanishes is absent from the output. Say so explicitly.'],
-    go:'m4-lti' },
-  { k:'fs-dt', name:'The discrete-time series',
-    asks:'A periodic sequence is given. Find its $N$ coefficients.',
-    method:['Find $N$ first, then $\\omega_0=2\\pi/N$. There are exactly $N$ distinct coefficients.',
-            'The analysis sum runs over one period only, and it is a finite sum.',
-            'The coefficients themselves are periodic in $k$ with the same $N$.',
-            'Check $a_0$ against the mean of one period.'],
-    go:'m4-dtfs' },
-  { k:'fs-op', name:'What an operation does to the coefficients',
-    asks:'A signal is shifted, differentiated, differenced or multiplied by a harmonic. Give the new coefficients.',
-    method:['Apply the operation inside the synthesis sum and read off what multiplies $e^{jk\\omega_0t}$.',
-            'A delay $t_0$ multiplies $a_k$ by $e^{-jk\\omega_0t_0}$: magnitudes are untouched, phases tilt linearly.',
-            'Differentiation multiplies $a_k$ by $jk\\omega_0$.',
-            'Multiplication by $e^{jM\\omega_0t}$ shifts the index: $b_k=a_{k-M}$.'],
-    go:'m4-props-1' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'One periodic signal, its coefficients, and what a system or a second signal does to them.',
-    method:['Find the fundamental period first and fix $\\omega_0$ from it. Every index in the answer is counted against that one $\\omega_0$, and a wrong period misplaces all of them.',
-            'Where a signal is a sum of sinusoids, expand each into complex exponentials and read the coefficients off; do not integrate what can be recognised.',
-            'Where a system is present, the coefficients pass through it one harmonic at a time: $b_k=a_kH(jk\\omega_0)$ in continuous time and $b_k=a_kH(e^{jk\\omega_0})$ in discrete time.',
-            'Check the power with Parseval. The average power is $\\sum_k|a_k|^{2}$, and it must agree with the value calculated from the time-domain amplitudes.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -16904,25 +16675,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M4 = [
-
-{ id:'m4-drill-map', module:'M4', nav:'Module 4 · question types',
-  title:'Module 4 — what a question looks like', src:'pp. 22–41',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 4 question types Fourier series coefficients power spectrum taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 4 · Question types', src:'pp. 22–41'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on Fourier series come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M4'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M4 = [
 
 { id:'m4-drill', module:'M4', nav:'Module 4 · practice questions',
@@ -16945,9 +16698,8 @@ window.DRILL_M4 = [
 /* ==== 96_drill_m5.js ==== */
 /* ==========================================================================
    Practice questions — Module 5.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -16958,50 +16710,6 @@ const trio=(a,b,c)=>`<div class="dr-pair" style="grid-template-columns:repeat(3,
 /* ======================================================================
    MODULE 5 — The Continuous-Time Fourier Transform
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M5 = [
-  { k:'ft-basic', name:'Transform of a given signal',
-    asks:'A signal is given in closed form — including a periodic one. Compute $X(j\\omega)$ from the analysis equation.',
-    method:['Write the analysis integral and cut it down to the support of the signal.',
-            'A one-sided exponential integrates directly; a rectangular pulse gives a sinc; a periodic signal gives a line spectrum built from its Fourier series coefficients.',
-            'State the convergence condition wherever the integral needs one.',
-            'Check $X(0)=\\int x(t)\\,\\d t$ by calculating the total signal area independently.'],
-    go:'m5-pair' },
-  { k:'ft-inv', name:'Inverse transform from a rational $X(j\\omega)$',
-    asks:'A rational $X(j\\omega)$ — or a frequency response read off a differential equation — is given. Recover $x(t)$.',
-    method:['Treat $j\\omega$ as a single symbol and factor the denominator in it.',
-            'Split into partial fractions; a repeated factor needs one term per power, found by differentiation, not by covering up.',
-            'Invert each term with $\\dfrac{1}{a+j\\omega}\\leftrightarrow e^{-at}u(t)$ and $\\dfrac{1}{(a+j\\omega)^{2}}\\leftrightarrow t\\,e^{-at}u(t)$, valid for $a>0$.',
-            'Check by evaluating $X(0)$ against $\\int x(t)\\,\\d t$.'],
-    go:'m5-diffeq-ex' },
-  { k:'ft-dual', name:'A property used as the shortcut',
-    asks:'A signal is built from a known transform pair by duality, a shift, a scaling, or a derivative. Use the property instead of integrating again.',
-    method:['Identify which known pair the signal is built from, and which property connects the two.',
-            'Duality: if $x(t)\\leftrightarrow X(j\\omega)$, then $X(t)\\leftrightarrow2\\pi\\,x(-\\omega)$. A shift in one domain is an exponential factor in the other; a scale factor in time is the reciprocal scale in frequency.',
-            'Apply the property once, carefully, and do not lose a sign or a factor of $2\\pi$ on the way.',
-            'Check the result at $\\omega=0$ or at $t=0$ against the area of the given signal.'],
-    go:'m5-duality' },
-  { k:'ft-parseval', name:'Total energy in frequency',
-    asks:'Compute the energy of a signal, in time or in frequency.',
-    method:['Parseval: $\\int|x(t)|^{2}\\,\\d t=\\dfrac{1}{2\\pi}\\int|X(j\\omega)|^{2}\\,\\d\\omega$.',
-            'Choose whichever side is the easier integral. That choice is the whole skill.',
-            'Do not forget the $1/2\\pi$ on the frequency side.',
-            'Both sides are real and non-negative. A complex or negative answer means an algebra error.'],
-    go:'m5-parseval' },
-  { k:'ft-mod', name:'Modulation and a communication chain',
-    asks:'A signal is multiplied by a carrier, or carried through a modulator and a filter. Find the spectrum at each stage.',
-    method:['Multiplication in time is convolution in frequency, with a factor $1/2\\pi$. For a cosine carrier the convolution is two shifted half-height copies.',
-            'Draw the shifted copies and check whether they overlap. Overlap is where information is lost.',
-            'An ideal filter multiplies the spectrum by $1$ inside its band and by $0$ outside it.',
-            'Process a chain one stage at a time. After the last stage, check the spectrum at one frequency against an independent calculation.'],
-    go:'m5-am' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several transforms under one statement, or one signal carried through a whole chain.',
-    method:['Name the standard pair each part is built on before transforming anything. Almost every part is a table entry plus one property.',
-            'When several transforms are required, calculate the simplest one first. Then use duality, shifting, or modulation to obtain the others.',
-            'In a chain, take one stage at a time and draw the spectrum after each. Overlap between shifted copies is where information is lost, and it is visible only in the drawing.',
-            'Check at one frequency: $X(j0)$ is the area under $x(t)$. For an energy result, use Parseval to compare the time and frequency domains.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -17631,25 +17339,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M5 = [
-
-{ id:'m5-drill-map', module:'M5', nav:'Module 5 · question types',
-  title:'Module 5 — what a question looks like', src:'pp. 42–63',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 5 question types Fourier transform duality Parseval inverse modulation taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Question types', src:'pp. 42–63'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M5'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M5 = [
 
 { id:'m5-drill', module:'M5', nav:'Module 5 · practice questions',
@@ -17672,9 +17362,8 @@ window.DRILL_M5 = [
 /* ==== 97_drill_m6.js ==== */
 /* ==========================================================================
    Practice questions — Module 6.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -17696,50 +17385,6 @@ const piFmt = v => { const r=v/Math.PI; if(Math.abs(r)<1e-9) return '0';
 /* ======================================================================
    MODULE 6 — Discrete-Time Fourier Transform
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M6 = [
-  { k:'dtft-basic', name:'Transform of a standard sequence',
-    asks:'A sequence is given in closed form. Compute $X(e^{j\\omega})$ from the analysis sum.',
-    method:['Write the analysis sum and cut it down to the support of the sequence.',
-            'A one-sided geometric sequence sums directly, provided $|a|<1$.',
-            'A two-sided one splits at $n=0$, with the $n\\ge1$ half summed separately.',
-            'Check $X(e^{j0})=\\sum_n x[n]$, the total sum, without doing a second transform.'],
-    go:'m6-ex-anun' },
-  { k:'dtft-sinu', name:'Sinusoids, impulses, and the $2\\pi$ periodicity',
-    asks:'A sum of sinusoids is given. Plot $X(e^{j\\omega})$ as impulses on $-\\pi\\le\\omega\\le\\pi$.',
-    method:['A discrete-time sinusoid transforms into a pair of impulses inside every $2\\pi$ interval.',
-            'A cosine of amplitude $A$ gives impulses of weight $\\pi A$ at $\\pm\\omega_c$.',
-            'Reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ before plotting anything.',
-            'The transform repeats with period $2\\pi$, so one interval is the whole answer.'],
-    go:'m6-dt-periodic' },
-  { k:'dtft-inv', name:'Inverse transform',
-    asks:'$X(e^{j\\omega})$ is given over one period. Recover $x[n]$.',
-    method:['The synthesis integral runs over any one $2\\pi$ interval, with the factor $1/2\\pi$.',
-            'A rectangle in frequency integrates to a sinc-shaped sequence.',
-            'A finite sum of terms $e^{-j\\omega n_0}$ is read off directly as impulses at $n_0$.',
-            'Check $x[0]$ against $\\frac{1}{2\\pi}\\int X(e^{j\\omega})\\,\\d\\omega$, the mean of the spectrum.'],
-    go:'m6-ex-lpf' },
-  { k:'dtft-lti', name:'A sequence through an LTI system',
-    asks:'An input and an impulse response are given. Find $Y(e^{j\\omega})$ and, where asked, $y[n]$.',
-    method:['Convolution in time is multiplication in frequency: $Y=X\\cdot H$.',
-            'For a sinusoidal input, evaluate $H$ at that one frequency and read off gain and phase.',
-            'For a rational $Y$, split into first-order terms in $e^{-j\\omega}$ and invert each.',
-            'Check the result at $\\omega=0$ against the sums of the sequences.'],
-    go:'m6-conv' },
-  { k:'dtft-prop', name:'Properties: symmetry, differencing, accumulation, Parseval',
-    asks:'A property is applied to a given sequence or spectrum, or a general fact about the transform is proved directly from the analysis sum.',
-    method:['Linearity and the time-shift property come from a change of index in the analysis sum; write the index change out.',
-            'A real sequence has $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$: even magnitude, odd phase.',
-            'Differencing multiplies by $1-e^{-j\\omega}$; accumulation divides by it, plus an impulse train unless $X(e^{j0})=0$.',
-            'Parseval counts the same energy twice: once as $\\sum_n|x[n]|^{2}$, once as $\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\,\\d\\omega$.'],
-    go:'m6-props-1' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several transforms under one statement, or one sequence carried through a filter.',
-    method:['Reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ before anything else. A frequency written as $\\tfrac{5\\pi}{2}$ is the frequency $\\tfrac{\\pi}{2}$, and drawing it where it was written is the commonest error in this module.',
-            'Recognise the standard pairs: $\\dfrac{\\sin(Wn)}{\\pi n}$ is a rectangle of half-width $W$, $a^{n}u[n]$ is one pole, $a^{|n|}$ is a real even spectrum.',
-            'A factor $(-1)^{n}$ is $e^{j\\pi n}$: it shifts the spectrum by $\\pi$ and turns a low-pass shape into a high-pass one.',
-            'Check at $\\omega=0$, where $X$ is the sum of all the samples, and remember that every answer repeats with period $2\\pi$.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -18304,26 +17949,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M6 = [
-
-{ id:'m6-drill-map', module:'M6', nav:'Module 6 · question types',
-  title:'Module 6 — what a question looks like', src:'pp. 64–79',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 6 question types DTFT periodicity inverse transform LTI symmetry taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 6 · Question types', src:'pp. 64–79'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on the discrete-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M6'},
-  {t:'note', kind:'warn', head:'One difference governs every question here', html:'The discrete-time transform is periodic in $\\omega$ with period $2\\pi$. Every answer is given on one interval, every frequency is reduced into that interval before it is used, and $\\omega=\\pi$ — not infinity — is the highest frequency there is.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M6 = [
 
 { id:'m6-drill', module:'M6', nav:'Module 6 · practice questions',
@@ -18346,9 +17972,8 @@ window.DRILL_M6 = [
 /* ==== 98_drill_m7.js ==== */
 /* ==========================================================================
    Practice questions — Module 7.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -18367,50 +17992,6 @@ const sinc = th => Math.abs(th)<1e-9 ? 1 : Math.sin(th)/th;
 /* ======================================================================
    MODULE 7 — Sampling and Aliasing
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M7 = [
-  { k:'nyq-sum', name:'Nyquist rate of a sum or a product of sinusoids',
-    asks:'A signal is written as a sum or a product of sinusoids. Find the Nyquist rate.',
-    method:['Reduce every product of sinusoids to a sum, using the product-to-sum identities.',
-            'List every frequency present and take the largest, $\\omega_M$.',
-            'The Nyquist rate is $\\omega_s=2\\omega_M$, and the largest usable sampling period is $T=\\pi/\\omega_M$.',
-            'State the units. A rate in rad/s and a rate in hertz differ by $2\\pi$.'],
-    go:'m7-ex-73a' },
-  { k:'nyq-band', name:'Bandwidth of a sinc-type signal',
-    asks:'A signal is given as a sinc, a sinc squared, or a sum of these. Find its bandwidth and Nyquist rate.',
-    method:['A sinc in time is a rectangle in frequency. Read the cutoff off the argument.',
-            'A squared sinc is a triangle of twice the width, because squaring in time convolves in frequency.',
-            'For a sum, the bandwidth is the largest of the individual bandwidths, never their sum.',
-            'Always give $\\omega_M$ before giving the rate, so the factor of two is visible.'],
-    go:'m7-ex-73c' },
-  { k:'nyq-op', name:'Bandwidth after a product, a convolution, or a carrier',
-    asks:'Two band-limited signals are combined, or a guard band is required. Find the bandwidth of the result, and the rate that leaves room for the filter.',
-    method:['A product in time convolves the spectra, so the bandwidths add.',
-            'A convolution in time multiplies the spectra, so the bandwidth is the smaller of the two.',
-            'Multiplication by a carrier shifts the band rather than widening it: the highest frequency is the carrier plus the half-width.',
-            'A guard band $\\omega_g$ raises the requirement to $\\omega_s\\ge2\\omega_M+\\omega_g$, measured once, between one copy and the next.'],
-    go:'m7-freq' },
-  { k:'alias', name:'The sampled spectrum as copies, and aliasing',
-    asks:'A band-limited signal is sampled. Describe how the copies of its spectrum sit, or find the apparent frequency once they overlap.',
-    method:['Sampling replicates the spectrum every $\\omega_s$, at every rate, without exception.',
-            'Aliasing is the overlap of two neighbouring copies. It happens exactly when $\\omega_s<2\\omega_M$.',
-            'A component at $f_0$ sampled at $f_s$ appears at the distance from $f_0$ to the nearest multiple of $f_s$.',
-            'Two distinct components can land on the same apparent frequency. Say so when they do, and say that neither can then be recovered.'],
-    go:'m7-aliasing' },
-  { k:'recon', name:'Reconstruction: the interpolation formula, the hold, and the filter\u2019s place',
-    asks:'A sampled signal is to be turned back into a continuous one, ideally or by a practical hold, or a filter has to be placed in a sampling chain. Say what comes out, or where the filter goes.',
-    method:['The ideal filter has gain $T$ and a cutoff strictly inside the guard band; its impulse response is an unnormalised sinc, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.',
-            'Reconstruction is interpolation: $x_r(t)=\\sum_nx(nT)\\,h_{LP}(t-nT)$, one shifted kernel per sample, and the kernel is 1 at its own instant and 0 at every other sample instant.',
-            'A practical hold approximates the ideal filter; it is not equal to it, and its gain sags away from $T$ as $\\omega$ grows.',
-            'An anti-aliasing filter works only ahead of the sampler. Placed after, it cannot separate two numbers that have already been added together.'],
-    go:'m7-recon' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several signals under one statement, each needing its highest frequency found before a rate can be quoted.',
-    method:['Find the spectrum of each signal before quoting any rate. The highest frequency is a property of the spectrum, not of the expression it is written with.',
-            'A product in time widens the band: two sincs multiplied give the sum of their bandwidths, and a squared signal doubles its own.',
-            'A convolution in time narrows it: the spectra multiply, so the band is the narrower of the two, never the wider.',
-            'Quote the rate against the definition asked for. The Nyquist rate is $2\\omega_M$; with a guard band it is $2\\omega_M+\\omega_g$; and a sampling frequency in hertz is the rate in rad/s divided by $2\\pi$.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -18992,26 +18573,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M7 = [
-
-{ id:'m7-drill-map', module:'M7', nav:'Module 7 · question types',
-  title:'Module 7 — what a question looks like', src:'pp. 80–88',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 7 question types Nyquist rate bandwidth aliasing guard band reconstruction taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Question types', src:'pp. 80–88'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on sampling come in five shapes, and three of them reduce to the same task: find the highest frequency present. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M7'},
-  {t:'note', kind:'def', head:'The two rules that decide most of these questions', html:'A <b>product</b> in time convolves the spectra, so the bandwidths <b>add</b>. A <b>convolution</b> in time multiplies the spectra, so the bandwidth is the <b>smaller</b> of the two. A <b>sum</b> takes the larger. Getting these three straight answers most of the module.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M7 = [
 
 { id:'m7-drill', module:'M7', nav:'Module 7 · practice questions',
@@ -19033,19 +18595,18 @@ window.DRILL_M7 = [
 <script>
 /* ---------- assemble the scene list from the content modules ---------- */
 (function(){
-  /* Modules 2–7 open with the taxonomy of the question types that recur in
-     their practice questions. Every module closes with its questions after the
-     teaching scenes. The scene objects carry their module id, so the contents
-     rail and the module list need no separate entry. */
+  /* Every teaching module closes with its practice questions. The scene
+     objects carry their module id, so the contents rail and the module list
+     need no separate entry. */
   const SCENES = [].concat(
     window.SCENES_M0||[],
     window.SCENES_M1||[], window.DRILL_M1||[],
-    window.DRILLMAP_M2||[], window.SCENES_M2||[], window.DRILL_M2||[],
-    window.DRILLMAP_M3||[], window.SCENES_M3||[], window.DRILL_M3||[],
-    window.DRILLMAP_M4||[], window.SCENES_M4||[], window.DRILL_M4||[],
-    window.DRILLMAP_M5||[], window.SCENES_M5||[], window.DRILL_M5||[],
-    window.DRILLMAP_M6||[], window.SCENES_M6||[], window.DRILL_M6||[],
-    window.DRILLMAP_M7||[], window.SCENES_M7||[], window.DRILL_M7||[],
+    window.SCENES_M2||[], window.DRILL_M2||[],
+    window.SCENES_M3||[], window.DRILL_M3||[],
+    window.SCENES_M4||[], window.DRILL_M4||[],
+    window.SCENES_M5||[], window.DRILL_M5||[],
+    window.SCENES_M6||[], window.DRILL_M6||[],
+    window.SCENES_M7||[], window.DRILL_M7||[],
     window.SCENES_END||[]
   );
 

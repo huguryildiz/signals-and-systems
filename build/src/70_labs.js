@@ -47,7 +47,7 @@ const LABS = (() => {
       const lo=Math.min(e1,e2), hi=Math.max(e1,e2);
       const critY = P.crit.map(c=>(c+b)/a).sort((p,q)=>p-q);
       const xr=[-8,8];
-      const ax = o => PLOT.Axes(Object.assign({w:760,h:210,xr,yr:P.yr,xlabel:st.dt?'n':'t',
+      const ax = o => PLOT.Axes(Object.assign({w:760,h:210,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
         pad:{l:44,r:26,t:16,b:34}, xtarget:9, ytarget:3},o));
       const disc = f => { const out=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) out.push([n,f(n)]); return out; };
       const A1 = ax({}); const A2 = ax({}); const A3 = ax({});
@@ -152,7 +152,7 @@ const LABS = (() => {
     let cur=0, picked=null, revealed=false;
     function draw(root){
       const it = items[cur];
-      const ax = PLOT.Axes({w:640,h:250,xr:it.xr,yr:it.yr,xlabel:it.dt?'n':'t',pad:{l:46,r:24,t:18,b:36},xtarget:8,ytarget:4});
+      const ax = PLOT.Axes({w:640,h:250,xr:it.xr,yr:it.yr,xlabel:it.dt?'n':'t',ylabel:it.dt?'x[n]':'x(t)',pad:{l:46,r:24,t:18,b:36},xtarget:8,ytarget:4});
       if(it.dt){ const p=[]; for(let n=Math.ceil(it.xr[0]);n<=it.xr[1];n++) p.push([n,it.f(n)]); ax.stem(p,{color:PLOT.COL.in}); }
       else ax.curve(it.f,{color:PLOT.COL.in});
       root.querySelector('.plots').innerHTML = ax.svg();
@@ -222,7 +222,7 @@ const LABS = (() => {
       const N0 = (2*st.q)/g, kmin = st.p/g;
       const T0 = 2*Math.PI/w0;
       const xr = st.dt? [-2, 34] : [-1, 26];
-      const ax = PLOT.Axes({w:820,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',
+      const ax = PLOT.Axes({w:820,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
         pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3});
       if(st.dt){
         const pts=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) pts.push([n,Math.cos(w0*n+th)]);
@@ -382,7 +382,7 @@ const LABS = (() => {
     }
     function draw(root){
       const c=cases[key]; const n = c.dt? Math.round(pos) : pos;
-      const mk=o=>PLOT.Axes(Object.assign({w:760,h:172,xr:c.kr,yr:c.yr,xlabel:c.dt?'k':'\\tau',
+      const mk=o=>PLOT.Axes(Object.assign({w:760,h:172,xr:c.kr,yr:c.yr,xlabel:c.dt?'k':'\\tau',ylabel:'\\text{amplitude}',
         pad:{l:44,r:24,t:14,b:30},xtarget:9,ytarget:2},o));
       const disc=f=>{const p=[];for(let k=Math.ceil(c.kr[0]);k<=c.kr[1];k++)p.push([k,f(k)]);return p;};
       /* panel 1: x and the flipped-shifted h */
@@ -399,7 +399,7 @@ const LABS = (() => {
              A2.curve(t=>c.x(t)*c.h(n-t),{color:PLOT.COL.mid}); }
       A2.note(c.kr[0]+0.2,c.yr[1]*0.82,c.dt?'x[k]·h[n−k]':'x(τ)h(t−τ)',{color:PLOT.COL.mid,fs:15,italic:true});
       /* panel 3: accumulated output */
-      const A3=PLOT.Axes({w:760,h:196,xr:c.nr,yr:c.yr,xlabel:c.dt?'n':'t',pad:{l:44,r:24,t:16,b:32},xtarget:8,ytarget:3});
+      const A3=PLOT.Axes({w:760,h:196,xr:c.nr,yr:c.yr,xlabel:c.dt?'n':'t',ylabel:c.dt?'y[n]':'y(t)',pad:{l:44,r:24,t:16,b:32},xtarget:8,ytarget:3});
       if(c.dt){ const p=[]; for(let m=Math.ceil(c.nr[0]);m<=c.nr[1];m++) p.push([m, m<=n?conv(c,m):0]);
         A3.stem(p.filter(q=>q[0]<=n),{color:PLOT.COL.out}); }
       else { const pts=[]; for(let i=0;i<=260;i++){ const t=c.nr[0]+(Math.min(n,c.nr[1])-c.nr[0])*i/260;

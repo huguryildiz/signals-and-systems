@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 6.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -24,50 +23,6 @@ const piFmt = v => { const r=v/Math.PI; if(Math.abs(r)<1e-9) return '0';
 /* ======================================================================
    MODULE 6 — Discrete-Time Fourier Transform
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M6 = [
-  { k:'dtft-basic', name:'Transform of a standard sequence',
-    asks:'A sequence is given in closed form. Compute $X(e^{j\\omega})$ from the analysis sum.',
-    method:['Write the analysis sum and cut it down to the support of the sequence.',
-            'A one-sided geometric sequence sums directly, provided $|a|<1$.',
-            'A two-sided one splits at $n=0$, with the $n\\ge1$ half summed separately.',
-            'Check $X(e^{j0})=\\sum_n x[n]$, the total sum, without doing a second transform.'],
-    go:'m6-ex-anun' },
-  { k:'dtft-sinu', name:'Sinusoids, impulses, and the $2\\pi$ periodicity',
-    asks:'A sum of sinusoids is given. Plot $X(e^{j\\omega})$ as impulses on $-\\pi\\le\\omega\\le\\pi$.',
-    method:['A discrete-time sinusoid transforms into a pair of impulses inside every $2\\pi$ interval.',
-            'A cosine of amplitude $A$ gives impulses of weight $\\pi A$ at $\\pm\\omega_c$.',
-            'Reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ before plotting anything.',
-            'The transform repeats with period $2\\pi$, so one interval is the whole answer.'],
-    go:'m6-dt-periodic' },
-  { k:'dtft-inv', name:'Inverse transform',
-    asks:'$X(e^{j\\omega})$ is given over one period. Recover $x[n]$.',
-    method:['The synthesis integral runs over any one $2\\pi$ interval, with the factor $1/2\\pi$.',
-            'A rectangle in frequency integrates to a sinc-shaped sequence.',
-            'A finite sum of terms $e^{-j\\omega n_0}$ is read off directly as impulses at $n_0$.',
-            'Check $x[0]$ against $\\frac{1}{2\\pi}\\int X(e^{j\\omega})\\,\\d\\omega$, the mean of the spectrum.'],
-    go:'m6-ex-lpf' },
-  { k:'dtft-lti', name:'A sequence through an LTI system',
-    asks:'An input and an impulse response are given. Find $Y(e^{j\\omega})$ and, where asked, $y[n]$.',
-    method:['Convolution in time is multiplication in frequency: $Y=X\\cdot H$.',
-            'For a sinusoidal input, evaluate $H$ at that one frequency and read off gain and phase.',
-            'For a rational $Y$, split into first-order terms in $e^{-j\\omega}$ and invert each.',
-            'Check the result at $\\omega=0$ against the sums of the sequences.'],
-    go:'m6-conv' },
-  { k:'dtft-prop', name:'Properties: symmetry, differencing, accumulation, Parseval',
-    asks:'A property is applied to a given sequence or spectrum, or a general fact about the transform is proved directly from the analysis sum.',
-    method:['Linearity and the time-shift property come from a change of index in the analysis sum; write the index change out.',
-            'A real sequence has $X(e^{-j\\omega})=X^{*}(e^{j\\omega})$: even magnitude, odd phase.',
-            'Differencing multiplies by $1-e^{-j\\omega}$; accumulation divides by it, plus an impulse train unless $X(e^{j0})=0$.',
-            'Parseval counts the same energy twice: once as $\\sum_n|x[n]|^{2}$, once as $\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\,\\d\\omega$.'],
-    go:'m6-props-1' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several transforms under one statement, or one sequence carried through a filter.',
-    method:['Reduce every frequency into $-\\pi\\le\\omega\\le\\pi$ before anything else. A frequency written as $\\tfrac{5\\pi}{2}$ is the frequency $\\tfrac{\\pi}{2}$, and drawing it where it was written is the commonest error in this module.',
-            'Recognise the standard pairs: $\\dfrac{\\sin(Wn)}{\\pi n}$ is a rectangle of half-width $W$, $a^{n}u[n]$ is one pole, $a^{|n|}$ is a real even spectrum.',
-            'A factor $(-1)^{n}$ is $e^{j\\pi n}$: it shifts the spectrum by $\\pi$ and turns a low-pass shape into a high-pass one.',
-            'Check at $\\omega=0$, where $X$ is the sum of all the samples, and remember that every answer repeats with period $2\\pi$.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -632,26 +587,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M6 = [
-
-{ id:'m6-drill-map', module:'M6', nav:'Module 6 · question types',
-  title:'Module 6 — what a question looks like', src:'pp. 64–79',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 6 question types DTFT periodicity inverse transform LTI symmetry taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 6 · Question types', src:'pp. 64–79'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on the discrete-time Fourier transform come in five shapes. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M6'},
-  {t:'note', kind:'warn', head:'One difference governs every question here', html:'The discrete-time transform is periodic in $\\omega$ with period $2\\pi$. Every answer is given on one interval, every frequency is reduced into that interval before it is used, and $\\omega=\\pi$ — not infinity — is the highest frequency there is.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M6 = [
 
 { id:'m6-drill', module:'M6', nav:'Module 6 · practice questions',

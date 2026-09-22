@@ -329,14 +329,9 @@ window.applyNumbering = function(scenes){
     let labN = 0;
     const out = { n:ch.n, title:ch.title, module:ch.module, flat:!!ch.flat, sections:[] };
 
-    /* The question scenes bracket the chapter: the taxonomy is read before the
-       teaching scenes and the questions are worked after them. They are listed
-       where they occur, so they are collected from the scene array rather than
-       from the declaration. */
-    const q = { map:byId[ch.module.toLowerCase()+'-drill-map'],
-                drill:byId[ch.module.toLowerCase()+'-drill'] };
-    if(q.map)   q.map.sec   = ch.n+'.Q1';
-    if(q.drill) q.drill.sec = ch.n+'.Q2';
+    /* Each teaching module closes with one practice-question scene. */
+    const drill = byId[ch.module.toLowerCase()+'-drill'];
+    if(drill) drill.sec = ch.n+'.P';
 
     secs.forEach(sec=>{
       const entries = [];
@@ -353,7 +348,7 @@ window.applyNumbering = function(scenes){
       out.sections.push({ n:sec.n, title:sec.title, scenes:entries });
     });
 
-    out.q = q;
+    out.q = { drill };
     return out;
   });
 };

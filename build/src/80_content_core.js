@@ -176,11 +176,6 @@ const CONTENT = {
   ],
 
 
-  /* ---- practice questions: open-ended, in the form they are asked in ----
-     DRILL holds the questions themselves, one flat array populated by the
-     module drill files. DRILLTYPES holds, per module, the recurring question
-     types those questions are drawn from: what each type asks for, the method
-     that answers it, and the scene where that method is taught. */
-  DRILL: [],
-  DRILLTYPES: {}
+  /* ---- practice questions: open-ended, in the form they are asked in ---- */
+  DRILL: []
 };

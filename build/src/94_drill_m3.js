@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 3.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -14,50 +13,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
 /* ======================================================================
    MODULE 3 — Linear Time-Invariant Systems
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M3 = [
-  { k:'dt-h', name:'Impulse response from a difference equation',
-    asks:'A difference equation gives the relation between $x[n]$ and $y[n]$. Find the impulse response $h[n]$, then use it to find another output.',
-    method:['Set $x[n]=\\delta[n]$ and read the relation as it stands.',
-            'For a non-recursive relation, $h[n]$ is the list of coefficients placed at their delays.',
-            'For a recursive relation, state the rest condition and compute $h[0]$, $h[1]$, and enough later samples to identify the pattern.',
-            'State the support of $h$ before using it in any convolution.'],
-    go:'m3-impulse' },
-  { k:'dt-conv', name:'Convolution sum',
-    asks:'Two sequences are given. Compute $y[n]=x[n]*h[n]$ and plot it.',
-    method:['Write both sequences with their supports as inequalities in $k$.',
-            'Decide which one to flip. Flip the shorter or simpler one.',
-            'Find every case boundary from the support conditions before evaluating the sum.',
-            'Check that the output support is the sum of the input supports and that the sample totals multiply.'],
-    go:'m3-convsum' },
-  { k:'ct-conv', name:'Convolution integral',
-    asks:'Two continuous-time signals are given. Compute $y(t)=x(t)*h(t)$ and plot it, marking every breakpoint.',
-    method:['Write $y(t)=\\int x(\\tau)h(t-\\tau)\\,\\d\\tau$ and mark the support of each factor in $\\tau$.',
-            'Set each moving support edge equal to each fixed support edge. The resulting values are the case boundaries.',
-            'Integrate case by case, with the limits read off the overlap.',
-            'Check that adjacent formulas agree at each boundary, that the supports add, and that the areas multiply.'],
-    go:'m3-convint' },
-  { k:'graph-h', name:'Recovering the impulse response from an input-output pair',
-    asks:'One input and its output are given as plots. Find $h[n]$.',
-    method:['Write the input as a sum of shifted impulses.',
-            'That turns $y[n]$ into a sum of shifted copies of $h[n]$.',
-            'Start with the earliest output sample, because it contains the fewest unknown samples of $h[n]$, and solve forward.',
-            'Check by convolving the recovered $h$ with the given input.'],
-    go:'m3-convsum' },
-  { k:'h-props', name:'Reading causality and stability off the impulse response',
-    asks:'An impulse response is given. Decide whether the system is causal and whether it is stable.',
-    method:['Causal exactly when $h[n]=0$ for $n<0$, or $h(t)=0$ for $t<0$.',
-            'Stable exactly when $\\sum_n|h[n]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.',
-            'For a one-sided geometric sequence or exponential, test whether its magnitude decays away from the support edge.',
-            'The two properties are independent. Neither implies the other.'],
-    go:'m3-lti-props' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'A full question asks for the impulse response, the output for a given input, and one or more system properties.',
-    method:['Find $h$ first because every later output is a convolution with it.',
-            'For a difference equation, apply an impulse and iterate from rest. For an input-output pair, use the support widths to find the number of unknown samples of $h$, then solve from the earliest sample.',
-            'If the input is a sum of impulses, form one shifted and scaled copy of $h$ for each impulse. If the input is a pulse, use the support overlap to set the convolution limits.',
-            'Check the total and the support. In discrete time $\\sum_n y[n]=\\left(\\sum_n x[n]\\right)\\left(\\sum_n h[n]\\right)$, and the areas multiply in the same way in continuous time.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -754,25 +709,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M3 = [
-
-{ id:'m3-drill-map', module:'M3', nav:'Module 3 · question types',
-  title:'Module 3 — what a question looks like', src:'pp. 14–21',
-  objective:'Name the six recurring question types before the module is read.',
-  keywords:'practice questions module 3 question types impulse response convolution causality stability taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 3 · Question types', src:'pp. 14–21'},
-  {t:'title', text:'Six question types and the method for each'},
-  {t:'lede', text:'This map lists five recurring question types in Module 3. Use it first to identify what the question asks, then follow the listed method. The later teaching scenes develop each method.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M3'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M3 = [
 
 { id:'m3-drill', module:'M3', nav:'Module 3 · practice questions',

@@ -54,21 +54,13 @@ ${extra}
 </body></html>`;
 
 const MODULE_TITLE = `const MT = Object.fromEntries(CONTENT.MODULES.map(m=>[m.id,m.title]));`;
-/* A question-type name may carry mathematics — `Inverse transform from a
-   rational $X(j\\omega)$` is one — so it goes through the same md() the running
-   text uses. Interpolated raw it prints the dollar signs and the backslash on
-   the page, which is the R8 failure in the one place nobody proofreads. The
-   .qh frame is uppercase mono with wide tracking and both are reset on .katex
-   below, so the typeset name keeps its own case and spacing. */
-const KIND = `const KIND = (m,k)=>{ const t=(CONTENT.DRILLTYPES[m]||[]).find(x=>x.k===k);
-  return t ? renderInline(t.name) : k; };`;
 const GROUP = `const BY = {};
   CONTENT.DRILL.forEach(q=>{ (BY[q.module] = BY[q.module] || []).push(q); });
   const MODS = CONTENT.MODULES.map(m=>m.id).filter(id=>BY[id]);`;
 
 /* ---------------------------------------------------------------- workbook */
 const workbook = `
-${MODULE_TITLE}${KIND}${GROUP}
+${MODULE_TITLE}${GROUP}
 const B = [
  {t:'title', kicker:'Signals and Systems', text:'Student Workbook',
   sub:'Every question in the course, with no answer and no solution. Work each one on the page, then check it against the artifact or against the instructor edition.',
@@ -77,14 +69,14 @@ const B = [
         ['Answers','Not printed in this edition']]},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'h3', text:'How to use it'},
- {t:'p', text:'The questions are in the order the course meets them, and each is labelled with what it asks for. Only the statement and its lettered parts are printed; the reasoning stays for you to supply. The question numbers are shared with every other edition, so D5-04 is the same question in the artifact, in this workbook and in the instructor solutions.'},
+ {t:'p', text:'The questions are in the order the course meets them, and each has a stable question number. Only the statement and its lettered parts are printed; the reasoning stays for you to supply. The question numbers are shared with every other edition, so D5-04 is the same question in the artifact, in this workbook and in the instructor solutions.'},
  {t:'page'}
 ];
 MODS.forEach((id,i)=>{
   B.push({t:'h1', num:'MODULE ' + id.replace('M',''), text: MT[id]});
   B.push({t:'p', lead:true, text:BY[id].length + ' questions on ' + MT[id].toLowerCase() + '. Write your reasoning in the space under each one.'});
   BY[id].forEach(q=>{
-    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + KIND(id,q.type) + '</div>'});
+    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + '</div>'});
     B.push({t:'p', text:q.stem});
     if(q.figure) B.push({t:'fig', svg:q.figure});
     B.push({t:'raw', html:'<ul class="opts">' + (q.parts||[]).map((o,k)=>
@@ -97,7 +89,7 @@ renderNotes(B, document.getElementById('doc'));`;
 
 /* ------------------------------------------------------ instructor solutions */
 const solutions = `
-${MODULE_TITLE}${KIND}${GROUP}
+${MODULE_TITLE}${GROUP}
 const B = [
  {t:'title', kicker:'Signals and Systems', text:'Instructor Solutions',
   sub:'Every question with its worked solution, the error it is built to catch, and a teaching note. Not for distribution to students.',
@@ -111,7 +103,7 @@ const B = [
 MODS.forEach((id,i)=>{
   B.push({t:'h1', num:'MODULE ' + id.replace('M',''), text: MT[id]});
   BY[id].forEach(q=>{
-    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id + ' &middot; ' + KIND(id,q.type) +
+    B.push({t:'raw', html:'<div class="qcard"><div class="qh">' + q.id +
       (q.src ? ' &middot; ref ' + q.src : '') + '</div>'});
     B.push({t:'p', text:q.stem});
     if(q.figure) B.push({t:'fig', svg:q.figure});

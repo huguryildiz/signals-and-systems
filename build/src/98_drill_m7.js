@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 7.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -21,50 +20,6 @@ const sinc = th => Math.abs(th)<1e-9 ? 1 : Math.sin(th)/th;
 /* ======================================================================
    MODULE 7 — Sampling and Aliasing
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M7 = [
-  { k:'nyq-sum', name:'Nyquist rate of a sum or a product of sinusoids',
-    asks:'A signal is written as a sum or a product of sinusoids. Find the Nyquist rate.',
-    method:['Reduce every product of sinusoids to a sum, using the product-to-sum identities.',
-            'List every frequency present and take the largest, $\\omega_M$.',
-            'The Nyquist rate is $\\omega_s=2\\omega_M$, and the largest usable sampling period is $T=\\pi/\\omega_M$.',
-            'State the units. A rate in rad/s and a rate in hertz differ by $2\\pi$.'],
-    go:'m7-ex-73a' },
-  { k:'nyq-band', name:'Bandwidth of a sinc-type signal',
-    asks:'A signal is given as a sinc, a sinc squared, or a sum of these. Find its bandwidth and Nyquist rate.',
-    method:['A sinc in time is a rectangle in frequency. Read the cutoff off the argument.',
-            'A squared sinc is a triangle of twice the width, because squaring in time convolves in frequency.',
-            'For a sum, the bandwidth is the largest of the individual bandwidths, never their sum.',
-            'Always give $\\omega_M$ before giving the rate, so the factor of two is visible.'],
-    go:'m7-ex-73c' },
-  { k:'nyq-op', name:'Bandwidth after a product, a convolution, or a carrier',
-    asks:'Two band-limited signals are combined, or a guard band is required. Find the bandwidth of the result, and the rate that leaves room for the filter.',
-    method:['A product in time convolves the spectra, so the bandwidths add.',
-            'A convolution in time multiplies the spectra, so the bandwidth is the smaller of the two.',
-            'Multiplication by a carrier shifts the band rather than widening it: the highest frequency is the carrier plus the half-width.',
-            'A guard band $\\omega_g$ raises the requirement to $\\omega_s\\ge2\\omega_M+\\omega_g$, measured once, between one copy and the next.'],
-    go:'m7-freq' },
-  { k:'alias', name:'The sampled spectrum as copies, and aliasing',
-    asks:'A band-limited signal is sampled. Describe how the copies of its spectrum sit, or find the apparent frequency once they overlap.',
-    method:['Sampling replicates the spectrum every $\\omega_s$, at every rate, without exception.',
-            'Aliasing is the overlap of two neighbouring copies. It happens exactly when $\\omega_s<2\\omega_M$.',
-            'A component at $f_0$ sampled at $f_s$ appears at the distance from $f_0$ to the nearest multiple of $f_s$.',
-            'Two distinct components can land on the same apparent frequency. Say so when they do, and say that neither can then be recovered.'],
-    go:'m7-aliasing' },
-  { k:'recon', name:'Reconstruction: the interpolation formula, the hold, and the filter\u2019s place',
-    asks:'A sampled signal is to be turned back into a continuous one, ideally or by a practical hold, or a filter has to be placed in a sampling chain. Say what comes out, or where the filter goes.',
-    method:['The ideal filter has gain $T$ and a cutoff strictly inside the guard band; its impulse response is an unnormalised sinc, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.',
-            'Reconstruction is interpolation: $x_r(t)=\\sum_nx(nT)\\,h_{LP}(t-nT)$, one shifted kernel per sample, and the kernel is 1 at its own instant and 0 at every other sample instant.',
-            'A practical hold approximates the ideal filter; it is not equal to it, and its gain sags away from $T$ as $\\omega$ grows.',
-            'An anti-aliasing filter works only ahead of the sampler. Placed after, it cannot separate two numbers that have already been added together.'],
-    go:'m7-recon' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several signals under one statement, each needing its highest frequency found before a rate can be quoted.',
-    method:['Find the spectrum of each signal before quoting any rate. The highest frequency is a property of the spectrum, not of the expression it is written with.',
-            'A product in time widens the band: two sincs multiplied give the sum of their bandwidths, and a squared signal doubles its own.',
-            'A convolution in time narrows it: the spectra multiply, so the band is the narrower of the two, never the wider.',
-            'Quote the rate against the definition asked for. The Nyquist rate is $2\\omega_M$; with a guard band it is $2\\omega_M+\\omega_g$; and a sampling frequency in hertz is the rate in rad/s divided by $2\\pi$.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -646,26 +601,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M7 = [
-
-{ id:'m7-drill-map', module:'M7', nav:'Module 7 · question types',
-  title:'Module 7 — what a question looks like', src:'pp. 80–88',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 7 question types Nyquist rate bandwidth aliasing guard band reconstruction taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 7 · Question types', src:'pp. 80–88'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on sampling come in five shapes, and three of them reduce to the same task: find the highest frequency present. Read them now, before the module. You are not expected to be able to answer them yet — you are expected to recognise them when they arrive.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M7'},
-  {t:'note', kind:'def', head:'The two rules that decide most of these questions', html:'A <b>product</b> in time convolves the spectra, so the bandwidths <b>add</b>. A <b>convolution</b> in time multiplies the spectra, so the bandwidth is the <b>smaller</b> of the two. A <b>sum</b> takes the larger. Getting these three straight answers most of the module.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M7 = [
 
 { id:'m7-drill', module:'M7', nav:'Module 7 · practice questions',

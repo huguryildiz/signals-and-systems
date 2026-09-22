@@ -89,7 +89,7 @@ const SC = [
   {t:'title', text:'Instantaneous Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',ylabel:'p(t)',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
       a.area(t=>Math.pow(Math.cos(1.7*t),2),1.2,4.4,{color:'rgba(190,85,57,.18)'});
       a.curve(t=>Math.pow(Math.cos(1.7*t),2),{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
@@ -117,7 +117,7 @@ const SC = [
   {t:'title', text:'Total Signal Energy'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'|x(t)|^{2}',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.exp(-Math.abs(t)),-4,4,{color:'rgba(20,112,127,.16)'});
       a.curve(t=>Math.exp(-Math.abs(t)),{color:C.in});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
@@ -142,7 +142,7 @@ const SC = [
   {t:'title', text:'When Total Energy Diverges'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-1.4,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:38},xtarget:7,ytarget:3});
       a.area(t=>Math.pow(Math.cos(2*t),2),-4,4,{color:'rgba(166,59,42,.15)'});
       a.curve(t=>Math.cos(2*t),{color:C.err});
       a.vline(-4,{color:C.coral}); a.vline(4,{color:C.coral});
@@ -195,7 +195,7 @@ const SC = [
   {t:'title', text:'Energy and Power Classification'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
@@ -239,7 +239,7 @@ const SC = [
   {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,4],yr:[-0.4,4.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.curve(t=>t>=0?t:0,{color:C.err});
       a.note(2.0,3.9,'neither',{anchor:'end',color:C.err,fs:15,italic:true});
       return a.svg(); },
@@ -258,7 +258,7 @@ const SC = [
   {t:'title', text:'Energy and Power Classification Examples'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
@@ -285,7 +285,7 @@ const SC = [
   {t:'title', text:'Worked Example — a Constant Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',ylabel:'x[n]',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
       a.stem(disc(()=>4,-6,6),{color:C.h});
       a.note(5.6,4.7,'power-type',{anchor:'end',color:C.h,fs:15,italic:true});
       return a.svg(); },
@@ -320,7 +320,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
-      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.55,1.35],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:26,t:24,b:40},xtarget:11,ytarget:3});
       a.curve(t=>tri(t+3),{color:C.out}); a.curve(tri,{color:C.ink});
       a.curve(t=>tri(t-3),{color:C.in});
       a.note(-3,1.14,'x(t+3)',{anchor:'middle',color:C.out,fs:15,tex:true});
@@ -329,7 +329,8 @@ const SC = [
       a.span(-3,0,-0.38,'advance by 3 s',{color:C.out});
       a.span(0,3,-0.38,'delay by 3 s',{color:C.in});
       return a.svg(); },
-      caption:'The pulse shape does not change. Only its position on the time axis changes.'}
+      caption:'The pulse shape does not change. Only its position on the time axis changes.'},
+    {t:'legend', items:[['out','$x(t+3)$'],['muted','$x(t)$'],['in','$x(t-3)$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(t-t_0)', label:'Time shift'},
     {t:'note', kind:'def', head:'Sign convention', html:'$t_0>0$ delays the signal, so the graph moves right. $t_0<0$ advances it, so the graph moves left.'},
@@ -349,12 +350,13 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-4.5,4.5],yr:[-0.35,1.55],xlabel:'t',pad:{l:50,r:26,t:24,b:40},xtarget:10,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-4.5,4.5],yr:[-0.35,1.55],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:26,t:24,b:40},xtarget:10,ytarget:3});
       a.curve(r,{color:C.ink}); a.curve(t=>r(-t),{color:C.mid});
       a.note(2,1.28,'x(t)',{anchor:'middle',color:C.ink,fs:15,tex:true});
       a.note(-2,1.28,'x(-t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
       return a.svg(); },
-      caption:'Reversal reflects the pulse about $t=0$. The pulse on $[1,3]$ moves to $[-3,-1]$.'}
+      caption:'Reversal reflects the pulse about $t=0$. The pulse on $[1,3]$ moves to $[-3,-1]$.'},
+    {t:'legend', items:[['muted','$x(t)$'],['mid','$x(-t)$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)\\;\\longrightarrow\\;x(-t)\\qquad\\bigl(x[n]\\to x[-n]\\bigr)',
       label:'Time reversal'},
@@ -375,7 +377,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.curve(r,{color:C.ink});
       a.curve(t=>r(2*t),{color:C.mid});
       a.curve(t=>r(0.5*t),{color:C.h});
@@ -383,7 +385,8 @@ const SC = [
       a.note(1.0,1.5,'x(2t)',{anchor:'middle',color:C.mid,fs:15,tex:true});
       a.note(5.0,1.5,'x(0.5t)',{anchor:'middle',color:C.h,fs:15,tex:true});
       return a.svg(); },
-      caption:'Compression by 2 maps $[1,3]$ to $[0.5,1.5]$. Expansion by 2 maps $[1,3]$ to $[2,6]$.'}
+      caption:'Compression by 2 maps $[1,3]$ to $[0.5,1.5]$. Expansion by 2 maps $[1,3]$ to $[2,6]$.'},
+    {t:'legend', items:[['muted','$x(t)$'],['mid','$x(2t)$'],['h','$x(0.5t)$']]}
   ], right:[
     {t:'eq', key:true, tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling'},
     {t:'note', kind:'warn', head:'Name the new signal', html:'Write $y(t)=x(at)$. The equation $x(t)=x(at)$ would force $a=1$.'},
@@ -403,7 +406,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(x,{color:C.ink}); a.note(9.6,2.2,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
       return a.svg(); },
       caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$.'}
@@ -426,7 +429,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.curve(t=>x(3*t-5),{color:C.out});
       a.note(9.6,2.2,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
       [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
@@ -505,7 +508,7 @@ const SC = [
   {t:'title', text:'Even and Odd Decomposition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
       a.curve(t=>t*t*t,{color:C.mid}); a.vline(0,{color:C.err,dash:'4 4'}); return a.svg(); },
       caption:'$t^3$ is odd, so its value at $t=0$ is 0.'}
   ], right:[
@@ -524,7 +527,7 @@ const SC = [
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const x=t=>Math.exp(-t);
-      const a=P.Axes({w:560,h:380,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-1.5,1.5],yr:[-2.2,3.4],xlabel:'t',ylabel:'\\text{amplitude}',xnameRight:14,pad:{l:52,r:24,t:20,b:36},xtarget:7,ytarget:4});
       a.curve(x,{color:C.h,dash:'4 4'});
       a.curve(t=>0.5*(x(t)+x(-t)),{color:C.in});
       a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid});
@@ -532,7 +535,8 @@ const SC = [
       a.note(1.42,2.5,'\\operatorname{Ev}\\{x\\}=\\cosh t',{anchor:'end',color:C.in,fs:14,tex:true});
       a.note(-0.25,-1.5,'\\operatorname{Od}\\{x\\}=-\\sinh t',{anchor:'end',color:C.mid,fs:14,tex:true});
       return a.svg(); },
-      caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'}
+      caption:'The decomposition of $e^{-t}$. Adding the cyan and violet curves reproduces the dashed original at every $t$.'},
+    {t:'legend', items:[['h','$x(t)$'],['in','$\\Ev\\{x\\}(t)$'],['mid','$\\Od\\{x\\}(t)$']]}
   ], right:[
     {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)',
       label:'Even and odd parts'},
@@ -550,7 +554,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Impulse and Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',ylabel:'\\delta[n]',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
       a.stem(disc(n=>n===0?1:0,-3,5),{color:C.in,showZero:false});
       a.note(4.6,1.15,'\\delta[n]',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
@@ -571,13 +575,14 @@ const SC = [
   {t:'title', text:'Difference and Running Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h});
       a.stem(disc(n=>n>=1?-1:0,-3,5),{color:C.mid});
       a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
       a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
       return a.svg(); },
-      caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'}
+      caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'},
+    {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']]}
   ], right:[
     {t:'eq', key:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
       note:'A delay of one sample cancels the flat part of the step and leaves a single sample.'},
@@ -599,7 +604,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>[1,2,3][n]!==undefined&&n>=0&&n<=2?[1,2,3][n]:0,-1,5),{color:C.in});
       a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true});
       return a.svg(); },
@@ -622,7 +627,7 @@ const SC = [
   {t:'title', text:'Sampling and Sifting, Computed'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]\\delta[n-2]',ynameAtAxis:true,pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>n===2?3:0,-1,5),{color:C.out});
       a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true});
       return a.svg(); },
@@ -646,7 +651,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Impulse and Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',ylabel:'\\text{weight}',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
       a.impulse(0,1,{color:C.in,labelText:'1'});
       a.note(1.9,1.2,'\\delta(t)',{anchor:'end',color:C.in,fs:16,tex:true});
       return a.svg(); },
@@ -667,7 +672,7 @@ const SC = [
   {t:'title', text:'Picturing the Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',ylabel:'\\delta_\\varepsilon(t)',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
       [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
         const col=[ '#9BC4CB','#4E9AA6',C.in][i];
         a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
@@ -687,7 +692,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
       const x=t=>0.75*Math.cos(1.2*t-0.5);
       a.curve(x,{color:C.muted,width:1.6});
       a.impulse(3, x(3), {color:C.coral, label:false});
@@ -716,7 +721,7 @@ const SC = [
   {t:'title', text:'Continuous-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
       a.note(5.7,1.02,'e^{-0.5t},\\;e^{-t},\\;e^{-2t}',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); },
@@ -782,13 +787,14 @@ const SC = [
   {t:'title', text:'Growth, Decay, and an Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,5],yr:[-2.3,2.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
       a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
       a.curve(t=>-2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.4});
       a.curve(t=>2*Math.exp(-0.5*t)*Math.cos(2*Math.PI*t),{color:C.in,n:1400});
       a.note(4.8,2.05,'\\operatorname{Re}\\{2e^{-0.5t}e^{j2\\pi t}\\}',{anchor:'end',color:C.in,fs:14,tex:true});
       return a.svg(); },
-      caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'}
+      caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'},
+    {t:'legend', items:[['in','$\\operatorname{Re}\\{x(t)\\}$'],['err','$\\pm2e^{-0.5t}$']]}
   ], right:[
     {t:'note', kind:'warn', head:'Both parts non-zero', html:'With $a=r+j\\omega_0$, the curves $\\pm Ae^{rt}$ bound the sinusoid. If $r<0$ the oscillation is damped, if $r>0$ it grows, and if $r=0$ it is sustained.'}
   ]}
@@ -802,7 +808,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-0.1,1.15],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:22,t:20,b:34},xtarget:5,ytarget:3});
       a.stem(disc(n=>Math.pow(0.5,n),0,10),{color:C.in});
       return a.svg(); },
       caption:'$x[n]=0.5^{n}$ decreases.'}
@@ -825,7 +831,7 @@ const SC = [
   {t:'title', text:'A Growing Real Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-40,1100],xlabel:'n',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-40,1100],xlabel:'n',ylabel:'y[n]',pad:{l:64,r:22,t:20,b:34},xtarget:5,ytarget:3});
       a.stem(disc(n=>Math.pow(2,n),0,10),{color:C.h});
       return a.svg(); },
       caption:'$y[n]=2^{n}$ increases.'}
@@ -842,8 +848,8 @@ const SC = [
   {t:'title', text:'A Discrete-Time Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:2.4,width:1.2});
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',ylabel:'x[n]',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
+      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:3.2,width:1.8});
       return a.svg(); },
       caption:'$|\\alpha|=0.95$ decays. The frequency is $0.14\\pi$ radians per sample.'}
   ], right:[
@@ -861,7 +867,7 @@ const SC = [
   {t:'title', text:'Discrete-Time Periodicity Condition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:26,t:20,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(n),-20,20),{color:C.err,r:3});
       return a.svg(); },
       caption:'<b>Aperiodic.</b> $x[n]=\\cos(n)$ has $\\omega_0=1$, so $\\omega_0/2\\pi=1/(2\\pi)$ is irrational. The pattern never repeats exactly. It looks periodic, but it is not.'}

@@ -14,50 +14,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
    MODULE 1 — Signal Foundations
    ====================================================================== */
 
-CONTENT.DRILLTYPES.M1 = [
-  { k:'period', name:'Periodicity and the fundamental period',
-    asks:'A signal is given as a formula. Decide whether it repeats, and if it does, find the smallest period.',
-    method:['In discrete time, test whether $\\omega_0/2\\pi$ is a ratio of two integers. If it is not, the sequence never repeats.',
-            'If it is, write $N=(2\\pi/\\omega_0)k$ and take the smallest positive integer value.',
-            'In continuous time every sinusoid repeats, with $T_0=2\\pi/|\\omega_0|$.',
-            'For a sum, each term must repeat, and the period of the sum is the least common multiple of the individual periods.'],
-    go:'m1-periodic' },
-  { k:'energy', name:'Energy, power, and which class a signal belongs to',
-    asks:'Compute $E_\\infty$ or $P_\\infty$ for a given signal and classify it.',
-    method:['Use the normalised definitions, $R=1\\,\\Omega$ throughout.',
-            'Square the magnitude first, then integrate or sum over the whole axis.',
-            'A finite $E_\\infty$ forces $P_\\infty=0$. A finite non-zero $P_\\infty$ forces $E_\\infty=\\infty$.',
-            'Report both numbers, then name the class. One number alone does not classify.'],
-    go:'m1-energy-inf' },
-  { k:'transform', name:'Transformation of the independent variable',
-    asks:'A signal is given by a plot or a formula. Plot $x(at+b)$ or $x[an+b]$.',
-    method:['Write the transformation in the form $x(a t - b)$ and read off $a$ and $b$.',
-            'Shift first, then scale or reflect. Doing it in the other order changes the sign of the shift.',
-            'Map the edges of the support one at a time and check the width of the result.',
-            'Verify one interior sample by direct substitution.'],
-    go:'m1-combined' },
-  { k:'evenodd', name:'Even and odd parts',
-    asks:'Split a signal into its even and odd parts, and use the split.',
-    method:['$\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$.',
-            'Build $x(-t)$ first, as a plot or a formula, and keep it visible.',
-            'The two parts must add back to $x$. Check one point where $x$ is zero.',
-            'The energies add: $E_x=E_{\\Ev}+E_{\\Od}$, because the two parts are orthogonal.'],
-    go:'m1-evenodd' },
-  { k:'impulse', name:'The impulse: sifting, scaling, and impulse trains',
-    asks:'Evaluate an integral against an impulse, or sketch a sequence or signal built from impulses and steps.',
-    method:['Sifting returns a number: $\\int x(t)\\delta(t-t_0)\\,\\d t=x(t_0)$.',
-            'Sampling returns a signal: $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$.',
-            'A scaled argument carries a factor: $\\delta(at-b)=\\frac{1}{|a|}\\delta\\!\\left(t-\\frac{b}{a}\\right)$.',
-            'The impulse and the step are related by $\\delta=\\d u/\\d t$ in continuous time and $\\delta[n]=u[n]-u[n-1]$ in discrete time; running the relation the other way turns a train of impulses into a staircase.'],
-    go:'m1-ct-impulse' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several parts under one statement. A later part may use a result from an earlier part.',
-    method:['Read all the parts before starting. Mark every later part that uses a signal or result from an earlier part.',
-            'Name the type of each part before working it, and use the method for that type unchanged.',
-            'Carry exact values between parts. Rounding an intermediate result can change the final answer.',
-            'Check each part against the one before: a transformation must preserve the width of the support up to the scale factor, and the even and odd parts must add back to the signal they came from.'] }
-];
-
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D1-01', module:'M1', type:'period', src:'MT1 Q1',

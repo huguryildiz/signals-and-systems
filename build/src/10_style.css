@@ -121,9 +121,9 @@ body[data-display=projector] .qid,
 body[data-display=projector] .ctrl label,
 body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
 body[data-display=projector] .legend{ font-size:calc(17px * var(--ts)); }
-body[data-display=projector] .eq .katex{ font-size:1.42em; }
-body[data-display=projector] .eq.lg .katex{ font-size:1.66em; }
-body[data-display=projector] .eq.sm .katex{ font-size:1.18em; }
+body[data-display=projector] .eq .katex{ font-size:1.30em; }
+body[data-display=projector] .eq.lg .katex{ font-size:1.58em; }
+body[data-display=projector] .eq.sm .katex{ font-size:1.12em; }
 body[data-display=projector] .katex{ font-size:1.10em; }
 body[data-display=projector]{ --rule:#C2BCB0; }      /* stronger hairlines */
 body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
@@ -373,9 +373,11 @@ h3.sub{
 .cols{ display:grid; gap:var(--s6); flex:1; min-height:0; }
 .cols.c-6-6{ grid-template-columns:1fr 1fr; }
 .cols.c-5-7{ grid-template-columns:5fr 7fr; }
+.cols.c-5-7-exception{ grid-template-columns:5fr 7fr; }
 .cols.c-7-5{ grid-template-columns:7fr 5fr; }
 .cols.c-4-8{ grid-template-columns:4fr 8fr; }
 .cols.c-8-4{ grid-template-columns:8fr 4fr; }
+.scene.slide .cols.c-5-7{ grid-template-columns:1fr 1fr; }
 .col{ min-width:0; display:flex; flex-direction:column; }
 .col.center{ justify-content:center; }
 .stack{ display:flex; flex-direction:column; gap:16px; }
@@ -407,6 +409,7 @@ h3.sub{
    ========================================================================== */
 .eq{
   position:relative; margin:10px 0; padding:14px 22px 14px 26px;
+  font-size:calc(15.2px * var(--ts));
   background:var(--paper-2);
   border:1px solid var(--rule);
   border-left:3px solid var(--coral);
@@ -415,9 +418,9 @@ h3.sub{
 .eq.plain{ background:transparent; border:0; border-left:0; padding:10px 0; }
 .eq.key{ background:linear-gradient(0deg,rgba(190,85,57,.045),rgba(190,85,57,.045)),var(--paper-2); }
 .eq .katex-display{ margin:0; }
-.eq .katex{ font-size:1.26em; }
-.eq.lg .katex{ font-size:1.5em; }
-.eq.sm .katex{ font-size:1.06em; }
+.eq .katex{ font-size:1.30em; }
+.eq.lg .katex{ font-size:1.58em; }
+.eq.sm .katex{ font-size:1.12em; }
 .eq-label{
   font-family:var(--mono); font-size:calc(12px * var(--ts)); letter-spacing:.12em;
   text-transform:uppercase; color:var(--slate); margin-bottom:6px;
@@ -631,7 +634,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
    keeps the larger `lg` size under the lecture-mode rule, which is larger
    still and has to win there. */
 .scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
-:where(.scene.slide) .eq.lg .katex{ font-size:1.62em; }
+:where(.scene.slide) .eq.lg .katex{ font-size:1.68em; }
 
 /* Room for the tab. Only a card with a head and an equation with a label have
    a tab, so only they take the room; the corner under the tab is squared so the
@@ -759,6 +762,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
+.lab > .cols{ height:100%; align-items:stretch; }
+.lab > .cols > .col.stack{ justify-content:space-between; }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -923,26 +928,6 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 .gitem .gd a{ color:var(--slate); cursor:pointer; text-decoration:none;
   border-bottom:1px dotted var(--slate); }
 
-
-/* ==========================================================================
-   Exam drills: the taxonomy scene, and the panel of open-ended questions
-   ========================================================================== */
-.dr-types{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:24px 38px; align-items:start; }
-.dr-type{ border-top:2px solid var(--rule-strong); padding-top:14px; }
-.dr-type-h{ display:flex; align-items:baseline; gap:10px;
-  font-family:var(--serif); font-size:calc(21px * var(--ts)); line-height:1.25;
-  color:var(--ink); margin-bottom:8px; }
-.dr-type-k{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em;
-  color:var(--coral); flex:none; padding-top:2px; }
-.dr-type-asks{ font-size:calc(16.5px * var(--ts)); line-height:1.5; color:var(--graphite); }
-.dr-type-m{ margin:10px 0 0; padding-left:20px;
-  font-size:calc(15.5px * var(--ts)); line-height:1.48; color:var(--muted); }
-.dr-type-m li{ margin:3px 0; }
-.dr-type-go{ display:inline-block; margin-top:10px; cursor:pointer;
-  font-family:var(--mono); font-size:11.5px; letter-spacing:.08em;
-  color:var(--slate); border-bottom:1px dotted var(--slate); }
-.dr-type-go:hover{ color:var(--coral); border-bottom-color:var(--coral); }
 
 /* The pager. One question is on screen at a time, so the reader always knows
    which of the twenty they are on and never has to hunt for the next one. */
