@@ -13,6 +13,19 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3",
+            "args": ["${CLAUDE_PROJECT_DIR}/tools/derivation_advisor.py"],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

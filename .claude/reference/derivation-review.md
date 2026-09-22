@@ -5,6 +5,13 @@ This is a manual editorial review record for the explicit-derivation rule in
 exit status of any build or verification gate. Automated syntax, numerical, and
 rendering checks cannot establish that a student can follow every equality.
 
+The local `tools/derivation_advisor.py` hook lists mathematical lines added or
+changed in authored source files. It runs after agent tool calls and at Stop in
+both Claude Code and Codex. It is a reminder, not a review result. It reads the
+current uncommitted diff and therefore cannot identify a change that was both
+made and committed before the hook ran. A generated HTML or PDF change alone is
+not treated as authored mathematics.
+
 ## Review one derivation
 
 - Identify the equation or conclusion being derived and the governing definition.
