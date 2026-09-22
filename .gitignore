@@ -47,14 +47,15 @@ pages/
 _to_delete/
 *.tmp
 
-# Local working area: prompts, plans, session notes. Never tracked.
+# Local working area. Selected instruction files are explicitly tracked;
+# prompts, reports, source audits, and other working records remain ignored.
 .claude/
 .Codex/
 
 # FUSE mount leftovers
 .fuse_hidden*
 
-# Project operating instructions: local working document, not tracked.
+# Project instruction files are explicitly tracked; ignore other local copies.
 CLAUDE.md
 AGENTS.md
 DESIGN.md
