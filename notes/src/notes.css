@@ -131,3 +131,23 @@ td:last-child,th:last-child{ padding-right:0; }
 .q{ break-inside:avoid; margin:0 0 9pt; }
 .q .n{ font-family:var(--mono); font-size:8.4pt; color:var(--accent); }
 .ans{ font-size:9.4pt; color:var(--muted); }
+
+/* front cover — a full-bleed page with no margins and no running footer */
+@page cover{ size:A4 portrait; margin:0; }
+.cover{ page:cover; position:relative; width:210mm; height:297mm; overflow:hidden;
+  background:#0B1826; color:#F3EEE4; padding:30mm 22mm 18mm; display:flex; flex-direction:column; }
+.cover .cv-art{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.cover > *{ position:relative; }
+.cover .mark .eelogo{ width:34pt; height:34pt; display:block; margin-bottom:16pt; }
+.cover .kicker{ font-family:var(--mono); font-size:8.6pt; letter-spacing:.24em;
+  text-transform:uppercase; color:#A9B7C6; margin:0; padding-bottom:9pt;
+  border-bottom:0.6pt solid rgba(243,238,228,.28); }
+.cover .cv-title{ margin-top:22mm; }
+.cover h1.doc{ color:#F7F3EA; font-size:38pt; line-height:1.08; margin:0; letter-spacing:-.012em; }
+.cover .cv-rule{ width:64pt; height:2pt; background:#E09A6A; margin:16pt 0 14pt; }
+.cover .cv-sub{ font-family:var(--serif); font-style:italic; font-size:15pt; color:#D9D2C4; margin:0; }
+.cover .cv-foot{ margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end;
+  gap:14pt; font-size:8.4pt; color:#A9B7C6; }
+.cover .cv-ed{ font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; }
+.cover .cv-credit{ text-align:right; }
+.cover a{ color:inherit; text-decoration:none; }
