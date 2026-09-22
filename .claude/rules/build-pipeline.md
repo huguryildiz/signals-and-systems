@@ -27,13 +27,13 @@ Run `git status` before any generated write. The tree is shared; preserve unrela
 
 ## Gates
 
-Before delivery, run all eleven gates, and the site check if the site was rebuilt. Report the numbers actually printed. Start with `node --check build/src/8*.js build/src/9*.js`; a parse error can make later gate failures misleading. Do not use old scene, state, or pass counts as current expectations; update recorded counts when they change.
+The full gate chain is a release check, not a per-edit step. Routine edits (styling, wording, a single figure) need only a rebuild and a screenshot. Before a release, after a change to mathematics or laboratory logic, or when the owner asks, run all eleven gates, and the site check if the site was rebuilt. Report the numbers actually printed. Start with `node --check build/src/8*.js build/src/9*.js`; a parse error can make later gate failures misleading. Do not use old scene, state, or pass counts as current expectations; update recorded counts when they change.
 
 ```bash
-cd build && node qa.js
+cd build && node pw.js qa.js
 cd build && node labtest.js
-cd build && node textclash.js
-cd build && node mathscan.js
+cd build && node pw.js textclash.js
+cd build && node pw.js mathscan.js
 cd build && node pw.js ../notes/mathscan.js
 cd build && node pw.js labwalk.js
 cd build && node pw.js seccheck.js
@@ -53,3 +53,5 @@ unqualified `labwalk.js` command remains the release gate.
 Expected qualitative results: `qa.js` reports 0 errors and 0 overflow; inspect its `dense` list, which is not itself a failure. `labtest.js` reports no errors and `options=0`; `textclash.js` reports 0 collisions; both math scans report no damage; `labwalk.js`, `seccheck.js`, and `sitecheck.js` report no problems; numeric suites report 0 failed; `rule_check.py` reports 0 violations; and `content_guard.py` reports no hard failures. Content-guard review warnings are not automatic failures because technical prose can legitimately contain phrases such as `in terms of` or an em dash in a worked-example title. New modules extend the suites rather than replacing them. Every new numerical result needs a PASS/FAIL line in `verify/`.
 
 Every Playwright script uses the existing container-path `require('/home/claude/.npm-global/lib/node_modules/playwright')`; do not rewrite that line. `build/pw.js` redirects resolution to the available local Playwright installation and retries with a cached Chromium headless shell when needed. It reports the browser used on stderr. `PW_PATH` and `PW_CHROME` override package and browser paths. Read `.claude/reference/gates.md` when a gate fails or a new gate is proposed. After a visual change, take and inspect screenshots.
+
+On a local machine, run every browser gate through `pw.js`; `qa.js`, `textclash.js`, and `mathscan.js` fail when started with plain `node`. Run the browser gates one per command and redirect each output to a file, then read its summary line. Chaining several browser gates in one shell command can exceed the tool's memory or time limit and kill the whole command (exit 137), which discards all their results. macOS has no `timeout` command. For a single-scene figure edit, rebuild and inspect a screenshot of that scene first, then run the gates.

@@ -13,31 +13,6 @@
           }
         ]
       }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash|Write|Edit|MultiEdit|apply_patch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/tools/derivation_advisor.py\"",
-            "timeout": 10,
-            "statusMessage": "Listing changed mathematics for review"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.claude/hooks/stop_guard.py\"",
-            "timeout": 10,
-            "statusMessage": "Checking student-facing prose"
-          }
-        ]
-      }
     ]
   }
 }
