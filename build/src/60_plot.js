@@ -26,12 +26,14 @@ const PLOT = (() => {
   const COL = Object.assign({}, LIGHT);
   let LBLS = 1;   /* label scale  */
   let STRW = 1;   /* stroke scale */
+  let EMPH = false; /* lecture slides and laboratories use the back-row scale */
   let CLIPN = 0;  /* serial number for the data-area clip of each figure */
   function setTheme(o){
     o = o || {};
     Object.assign(COL, o.dark ? DARK : LIGHT);
     LBLS = o.scale || 1;
     STRW = 1 + (LBLS - 1) * 0.75;
+    EMPH = !!o.emphasis;
   }
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -69,7 +71,7 @@ const PLOT = (() => {
        fitScene() answers by scaling the whole scene down. `figW` is the width of
        the figure the label belongs to; without it the box keeps its full width. */
     const figW = opts.figW;
-    const BWMAX = 460, BH = 34*LBLS;
+    const BWMAX = 460, BH = (opts.boxHeight||34)*LBLS;
     const fs = size*LBLS;
     let x, BW, just;
     if(xRight!=null){ x = Math.max(0, xRight-BWMAX); BW = xRight-x; just='flex-end'; }
@@ -165,8 +167,10 @@ const PLOT = (() => {
        a tall bracket down to the tail of a parenthesis. NAMEBOX is that height at
        the size axis names use, so the strip reserved above the data area holds the
        whole name and nothing is cut off by the edge of the figure. */
-    const NAMEBOX = 21*LBLS;
-    if(o.ylabel) P.t = Math.max(P.t, NAMEBOX + 8);
+    const NAME_H = W < 500 ? 24 : 26;
+    const NAME_GAP = W < 500 ? 9 : 10;
+    const NAMEBOX = (EMPH ? NAME_H : 21)*LBLS;
+    if(o.ylabel) P.t = Math.max(P.t, EMPH ? NAME_H*LBLS + NAME_GAP*LBLS + 2 : NAMEBOX + 8);
     /* The name of the independent variable sits just under the lower edge of the
        data area, clear of the tick row wherever the zero line happens to fall.
        A tick number is set 20 below the axis it belongs to and reaches about 4
@@ -174,7 +178,7 @@ const PLOT = (() => {
        name 62 below the axis keeps a clear gap between the two, so the last tick
        number and the name never touch even at the right-hand edge, where they
        share the same column. */
-    const XNAME_DROP = o.xnameDrop ?? 62;
+    const XNAME_DROP = o.xnameDrop ?? (EMPH ? 66 : 62);
     const xnameY = (Pb) => {
       const yy0 = H - Pb;
       if(!zeroInside) return yy0 + XNAME_DROP + 1;
@@ -206,7 +210,7 @@ const PLOT = (() => {
       raw(s){ parts.push(s); return api; },
       /* ---- continuous curve from a function ---- */
       curve(f, opts={}){
-        const n = opts.n||520, col=opts.color||COL.in, wdt=(opts.width||2.2)*STRW;
+        const n = opts.n||520, col=opts.color||COL.in, wdt=(opts.width||(EMPH?2.4:2.2))*STRW;
         const seg=[]; let cur=[];
         for(let i=0;i<=n;i++){
           const t = xa + (xb-xa)*i/n;
@@ -228,7 +232,7 @@ const PLOT = (() => {
       /* ---- polyline through explicit points ---- */
       poly(pts, opts={}){
         if(pts.length<2) return api;
-        const col=opts.color||COL.in, wdt=(opts.width||2.2)*STRW;
+        const col=opts.color||COL.in, wdt=(opts.width||(EMPH?2.4:2.2))*STRW;
         const d='M'+pts.map(p=>sx(p[0]).toFixed(2)+','+sy(p[1]).toFixed(2)).join('L');
         parts.push(`<path d="${d}"${clip} fill="none" stroke="${col}" stroke-width="${wdt}"
           stroke-linejoin="round" stroke-linecap="round"${opts.dash?` stroke-dasharray="${opts.dash}"`:''}/>`);
@@ -257,12 +261,12 @@ const PLOT = (() => {
       },
       /* ---- discrete-time stems ---- */
       stem(pairs, opts={}){
-        const col=opts.color||COL.in, r=(opts.r||3.6)*STRW;
+        const col=opts.color||COL.in, r=(opts.r||(EMPH?4:3.6))*STRW;
         pairs.forEach(([n,v])=>{
           if(n<xa-1e-9||n>xb+1e-9) return;
           const X=sx(n).toFixed(2);
           parts.push(`<line x1="${X}" y1="${sy(0).toFixed(2)}" x2="${X}" y2="${sy(v).toFixed(2)}"
-            stroke="${col}" stroke-width="${(opts.width||1.8)*STRW}"/>`);
+            stroke="${col}" stroke-width="${(opts.width||(EMPH?2:1.8))*STRW}"/>`);
           if(Math.abs(v)>1e-12 || opts.showZero)
             parts.push(`<circle cx="${X}" cy="${sy(v).toFixed(2)}" r="${r}" fill="${col}"/>`);
           else
@@ -297,7 +301,7 @@ const PLOT = (() => {
         return api;
       },
       point(t,v,opts={}){
-        parts.push(`<circle cx="${sx(t).toFixed(2)}" cy="${sy(v).toFixed(2)}" r="${(opts.r||4)*STRW}"
+        parts.push(`<circle cx="${sx(t).toFixed(2)}" cy="${sy(v).toFixed(2)}" r="${(opts.r||(EMPH?4:3.6))*STRW}"
           fill="${opts.color||COL.coral}" stroke="${opts.ring||'#FCF9F3'}" stroke-width="${opts.ringw||1.4}"/>`);
         return api;
       },
@@ -356,24 +360,34 @@ const PLOT = (() => {
         /* frame when zero axes are outside the view */
         if(yz==null||xz==null)
           g.push(`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="none" stroke="${CH.axis}" stroke-width="1"/>`);
-        /* tick labels */
+        /* Tick labels on compact two-up plots stay at the established size.
+           A full-width signal plot gets the larger lecture-slide size. */
+        const TICK_SIZE = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13) * LBLS;
         const yBase = yz!=null? yz : y0;
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
+          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         const xBase = xz!=null? xz : x0;
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${13*LBLS}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
+          g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal
            that leaves the data area is interrupted by the name rather than
            drawn across it. */
         const names=[];
-        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+8, baseline:xnameY(P.b), size:15, color:CH.name, role:'axisname', figW:W }));
-        if(o.ylabel) names.push(texName(o.ylabel, { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:15, color:CH.name, role:'axisname', figW:W }));
+        const NAME_SIZE = EMPH ? (W < 500 ? 15.5 : 16.5) : 15;
+        if(o.xlabel) names.push(texName(o.xlabel, { xRight:x1+(o.xnameRight??8), baseline:xnameY(P.b), size:NAME_SIZE, color:CH.name, role:'axisname', figW:W }));
+        /* Keep the dependent-variable name at the upper-left edge of the data
+           area. Putting it beside an interior zero axis makes it compete with
+           peaks, span labels and impulse weights near the centre. */
+        if(o.ylabel) names.push(texName(o.ylabel, EMPH
+          ? { xLeft:(o.ynameAtAxis && xz!=null ? xz+14 : x0+14), baseline:y1-NAME_GAP*LBLS, size:NAME_SIZE, boxHeight:NAME_H,
+              color:CH.name, role:'axisname', figW:W }
+          : { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:NAME_SIZE,
+              color:CH.name, role:'axisname', figW:W }));
         return `<svg viewBox="0 0 ${W} ${H}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,'Segoe UI',sans-serif">`
           + g.join('') + parts.join('') + names.join('') + `</svg>`;
       }

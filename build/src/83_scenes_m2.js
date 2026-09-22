@@ -74,13 +74,14 @@ const SC = [
   {t:'title', text:'Feedback Gives Memory'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
       a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
       a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
       a.note(-1.8,1.4,'x[n]',{anchor:'start',color:C.in,fs:14,tex:true});
       return a.svg(); },
-      caption:'Each output of the accumulator carries every earlier input.'}
+      caption:'Each output of the accumulator carries every earlier input.'},
+    {t:'legend', items:[['in','$x[n]$'],['out','$y[n]$']]}
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
@@ -122,13 +123,14 @@ const SC = [
   {t:'title', text:'Squaring Is Not Invertible'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
       a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
       a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
       a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
       return a.svg(); },
-      caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'}
+      caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'},
+    {t:'legend', items:[['in','$x_1(t)$'],['mid','$x_2(t)$'],['err','$y(t)$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y(t)=x^{2}(t)$.<div class="nsep"></div>Is the system invertible?'},
     {t:'reveal', at:1, items:[
@@ -145,7 +147,7 @@ const SC = [
   {t:'title', text:'Causality'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',ylabel:'\\text{input access}',
         pad:{l:50,r:24,t:26,b:44},xtarget:11,ytarget:2,yticksOverride:[]});
       a.rect(-5,0,0,1,{fill:'rgba(74,122,70,.14)'});
       a.rect(0,0,5,1,{fill:'rgba(166,59,42,.13)'});
@@ -167,7 +169,7 @@ const SC = [
   {t:'title', text:'Causal and Not Causal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
       a.stem(disc(n=>n===1?1:0,-4,4),{color:C.in});
       a.stem(disc(n=>n===-1?1:0,-4,4),{color:C.err});
       a.note(-1,1.22,'y[-1]',{anchor:'middle',color:C.err,fs:14,tex:true});
@@ -175,7 +177,8 @@ const SC = [
       a.raw(`<path d="M${a.sx(0.9)},${a.sy(1.05)} C ${a.sx(0.3)},${a.sy(1.32)} ${a.sx(-0.3)},${a.sy(1.32)} ${a.sx(-0.9)},${a.sy(1.05)}"
               fill="none" stroke="${C.err}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
       return a.svg(); },
-      caption:'$y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=1$.'}
+      caption:'$y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=1$.'},
+    {t:'legend', items:[['in','$x[1]$'],['err','$y[-1]$']]}
   ], right:[
     {t:'note', kind:'ok', head:'Causal', html:'$y[n]=x[n-1]$ uses a past sample. $\\displaystyle y(t)=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau$ stops at $t$.'},
     {t:'reveal', at:1, items:[
@@ -218,7 +221,7 @@ const SC = [
   {t:'title', text:'A Bounded Input, an Unbounded Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',ylabel:'y[n]',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
       a.stem(disc(n=>n>=0?n+1:0,-2,12),{color:C.err});
       a.note(11.6,12.6,'y[n]=n+1\\to\\infty',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
@@ -266,13 +269,14 @@ const SC = [
   {t:'title', text:'Counterexamples to Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
       a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
       a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
       a.note(3.6,0.42,'y_1[n]=0',{anchor:'end',color:C.out,fs:14,tex:true});
       a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
-      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'}
+      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'},
+    {t:'legend', items:[['out','$y_1[n]$'],['err','$y_2[n]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?'},
     {t:'reveal', at:1, items:[
@@ -345,7 +349,7 @@ const SC = [
   keywords:'workflow classification order strategy checklist', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Method', src:'pp. 11–14'},
   {t:'title', text:'System Classification Workflow'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
+  {t:'cols', ratio:'c-5-7-exception', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const rows=[
         ['y(t)=2\\pi x(t)',           [1,1,1,1,1,1]],

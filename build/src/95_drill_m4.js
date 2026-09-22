@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 4.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -14,50 +13,6 @@ const pair=(a,b)=>`<div class="dr-pair"><div>${a}</div><div>${b}</div></div>`;
 /* ======================================================================
    MODULE 4 — Fourier Series
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M4 = [
-  { k:'fs-coef', name:'Coefficients of a given periodic signal',
-    asks:'A periodic signal is given as a formula or a plot. Find $a_k$ and plot the magnitude, and where asked the phase.',
-    method:['Find $T_0$ first, then $\\omega_0=2\\pi/T_0$. Every index is counted against that $\\omega_0$.',
-            'If the signal is already a sum of sinusoids, read the coefficients off Euler\'s formulas. Do not integrate.',
-            'Otherwise use the analysis equation over any one full period.',
-            'For a real signal, verify $a_{-k}=a_k^{*}$. Also calculate the mean from the signal definition and compare it with $a_0$.'],
-    go:'m4-fs-coef' },
-  { k:'fs-power', name:'Average power over one period',
-    asks:'Compute the average power of a periodic signal, in the time domain or from its coefficients.',
-    method:['In time: $P=\\frac{1}{T_0}\\int_{T_0}|x(t)|^{2}\\,\\d t$ over any one period.',
-            'From the coefficients, Parseval gives $P=\\sum_{k}|a_k|^{2}$.',
-            'For a sum of sinusoids, a DC term of height $A_0$ contributes $A_0^{2}$ and a sinusoid of amplitude $A$ contributes $A^{2}/2$.',
-            'Compute it both ways when you can. Agreement is the check.'],
-    go:'m4-parseval' },
-  { k:'fs-lti', name:'A periodic signal through an LTI system',
-    asks:'A periodic input meets a system with a known impulse response. Find the frequency response and the output coefficients.',
-    method:['Complex exponentials are eigenfunctions: $e^{jk\\omega_0t}$ comes out as $H(jk\\omega_0)e^{jk\\omega_0t}$.',
-            'Compute $H$ once as a function, then evaluate it at each harmonic that is present.',
-            'Calculate each output coefficient from $b_k=a_k\\,H(jk\\omega_0)$. This operation is multiplication, not convolution.',
-            'A harmonic where $H$ vanishes is absent from the output. Say so explicitly.'],
-    go:'m4-lti' },
-  { k:'fs-dt', name:'The discrete-time series',
-    asks:'A periodic sequence is given. Find its $N$ coefficients.',
-    method:['Find $N$ first, then $\\omega_0=2\\pi/N$. There are exactly $N$ distinct coefficients.',
-            'The analysis sum runs over one period only, and it is a finite sum.',
-            'The coefficients themselves are periodic in $k$ with the same $N$.',
-            'Check $a_0$ against the mean of one period.'],
-    go:'m4-dtfs' },
-  { k:'fs-op', name:'What an operation does to the coefficients',
-    asks:'A signal is shifted, differentiated, differenced or multiplied by a harmonic. Give the new coefficients.',
-    method:['Apply the operation inside the synthesis sum and read off what multiplies $e^{jk\\omega_0t}$.',
-            'A delay $t_0$ multiplies $a_k$ by $e^{-jk\\omega_0t_0}$: magnitudes are untouched, phases tilt linearly.',
-            'Differentiation multiplies $a_k$ by $jk\\omega_0$.',
-            'Multiplication by $e^{jM\\omega_0t}$ shifts the index: $b_k=a_{k-M}$.'],
-    go:'m4-props-1' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'One periodic signal, its coefficients, and what a system or a second signal does to them.',
-    method:['Find the fundamental period first and fix $\\omega_0$ from it. Every index in the answer is counted against that one $\\omega_0$, and a wrong period misplaces all of them.',
-            'Where a signal is a sum of sinusoids, expand each into complex exponentials and read the coefficients off; do not integrate what can be recognised.',
-            'Where a system is present, the coefficients pass through it one harmonic at a time: $b_k=a_kH(jk\\omega_0)$ in continuous time and $b_k=a_kH(e^{jk\\omega_0})$ in discrete time.',
-            'Check the power with Parseval. The average power is $\\sum_k|a_k|^{2}$, and it must agree with the value calculated from the time-domain amplitudes.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -661,25 +616,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M4 = [
-
-{ id:'m4-drill-map', module:'M4', nav:'Module 4 · question types',
-  title:'Module 4 — what a question looks like', src:'pp. 22–41',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 4 question types Fourier series coefficients power spectrum taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 4 · Question types', src:'pp. 22–41'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on Fourier series come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M4'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M4 = [
 
 { id:'m4-drill', module:'M4', nav:'Module 4 · practice questions',

@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 2.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -11,50 +10,6 @@ const P = PLOT, C = P.COL;
 /* ======================================================================
    MODULE 2 — Systems and Their Properties
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M2 = [
-  { k:'p-nonlin', name:'A nonlinearity applied to the input',
-    asks:'The rule squares, multiplies, rectifies or exponentiates. Linearity is the property at risk.',
-    method:['Test homogeneity first: is the response to $ax$ equal to $a$ times the response to $x$?',
-            'To disprove homogeneity, give one input and one scale factor for which the two responses differ.',
-            'A nonlinearity does not by itself break time invariance, causality or stability.',
-            'Bound the output from a bound on the input to settle stability in one line.'],
-    go:'m2-linear' },
-  { k:'p-accum', name:'Accumulation, integration or differencing',
-    asks:'The rule sums or integrates the input, or takes a difference of neighbouring values. Memory and stability are the properties at risk.',
-    method:['Write the output as an explicit sum or integral with its limits.',
-            'The limits decide memory and causality: an upper limit above the present time is not causal.',
-            'For stability, bound the output when $|x|\\le B$. A finite window gives a finite bound.',
-            'For an unbounded window, test a bounded step input. If the weights decay, sum their absolute values before deciding stability.'],
-    go:'m2-stable' },
-  { k:'p-gain', name:'An explicitly time-dependent gain',
-    asks:'The rule multiplies the input by a known function of $t$ or $n$. Time invariance is the property at risk.',
-    method:['Linearity survives: multiplication by a fixed function is linear in $x$.',
-            'For time invariance, compute the response to $x(t-t_0)$ and compare it with $y(t-t_0)$.',
-            'A gain that grows without bound also breaks stability. A bounded gain does not.',
-            'Name a specific $x$ and a specific $t_0$ in the counterexample.'],
-    go:'m2-ti-b' },
-  { k:'p-argop', name:'An operation on the time argument',
-    asks:'The rule shifts, scales or reverses the argument of the input. Causality and time invariance are the properties at risk.',
-    method:['Find one instant where the output uses an input from later than that instant.',
-            'For time invariance, remember that a scaled argument rescales any shift you apply.',
-            'Linearity always survives an operation on the argument alone.',
-            'Stability also survives: the output only ever reuses input values.'],
-    go:'m2-causal' },
-  { k:'p-connect', name:'Interconnection: series, parallel and feedback',
-    asks:'The system combines other systems in series, in parallel or with feedback, or asks for an inverse. First write one relation between the input and output.',
-    method:['In series, substitute the first relation into the second before testing any property on the result.',
-            'In parallel, the outputs add. A property that survives addition survives the connection.',
-            'In feedback, the relation is implicit. Iterate it or solve it before testing the properties. Use the resulting loop-gain condition to test stability.',
-            'For invertibility, find an inversion formula that works for every input, or find two distinct inputs that share one output.'],
-    go:'m2-invertible' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'One system, tested against all five properties in turn.',
-    method:['Take the properties one at a time and in the order asked. Each has its own test, and none of them substitutes for another.',
-            'To establish a property, prove it for every input. To deny one, give a single explicit counterexample.',
-            'For time invariance, build the response to the shifted input and the shift of the response separately, then compare the two. Do not argue from the look of the equation.',
-            'A coefficient that depends on the independent variable breaks time invariance. A coefficient that grows without bound, or a sum with a growing number of terms, usually breaks stability.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -634,26 +589,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M2 = [
-
-{ id:'m2-drill-map', module:'M2', nav:'Module 2 · question types',
-  title:'Module 2 — what a question looks like', src:'pp. 11–14',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 2 question types system properties linearity time invariance causality stability invertibility interconnection series parallel feedback taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 2 · Question types', src:'pp. 11–14'},
-  {t:'title', text:'Four disguises for one question, a fifth entirely its own, and a sixth that asks them together'},
-  {t:'lede', text:'Most questions give an input-output rule and ask for five properties. The remaining questions ask how system properties change under interconnection or whether the input can be recovered.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M2'},
-  {t:'note', kind:'warn', head:'Use a proof or a counterexample', html:'To establish a property, prove it for every input. To disprove it, give one input, or one pair of inputs and one shift, for which the definition fails. For an interconnection, first state which properties are preserved by addition or composition.'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M2 = [
 
 { id:'m2-drill', module:'M2', nav:'Module 2 · practice questions',

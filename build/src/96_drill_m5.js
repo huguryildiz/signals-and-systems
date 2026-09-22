@@ -1,8 +1,7 @@
 /* ==========================================================================
    Practice questions — Module 5.
-   The module opens with two scenes: a taxonomy of the question types that
-   keep coming back, and a pager of twenty open-ended questions in that
-   form. The worked solution of every question is hidden until the reader
+   The module closes with a pager of thirty open-ended questions. The worked
+   solution of every question is hidden until the reader
    asks for it, so a first pass shows the target and not the answer.
    ========================================================================== */
 (function(){
@@ -13,50 +12,6 @@ const trio=(a,b,c)=>`<div class="dr-pair" style="grid-template-columns:repeat(3,
 /* ======================================================================
    MODULE 5 — The Continuous-Time Fourier Transform
    ====================================================================== */
-
-CONTENT.DRILLTYPES.M5 = [
-  { k:'ft-basic', name:'Transform of a given signal',
-    asks:'A signal is given in closed form — including a periodic one. Compute $X(j\\omega)$ from the analysis equation.',
-    method:['Write the analysis integral and cut it down to the support of the signal.',
-            'A one-sided exponential integrates directly; a rectangular pulse gives a sinc; a periodic signal gives a line spectrum built from its Fourier series coefficients.',
-            'State the convergence condition wherever the integral needs one.',
-            'Check $X(0)=\\int x(t)\\,\\d t$ by calculating the total signal area independently.'],
-    go:'m5-pair' },
-  { k:'ft-inv', name:'Inverse transform from a rational $X(j\\omega)$',
-    asks:'A rational $X(j\\omega)$ — or a frequency response read off a differential equation — is given. Recover $x(t)$.',
-    method:['Treat $j\\omega$ as a single symbol and factor the denominator in it.',
-            'Split into partial fractions; a repeated factor needs one term per power, found by differentiation, not by covering up.',
-            'Invert each term with $\\dfrac{1}{a+j\\omega}\\leftrightarrow e^{-at}u(t)$ and $\\dfrac{1}{(a+j\\omega)^{2}}\\leftrightarrow t\\,e^{-at}u(t)$, valid for $a>0$.',
-            'Check by evaluating $X(0)$ against $\\int x(t)\\,\\d t$.'],
-    go:'m5-diffeq-ex' },
-  { k:'ft-dual', name:'A property used as the shortcut',
-    asks:'A signal is built from a known transform pair by duality, a shift, a scaling, or a derivative. Use the property instead of integrating again.',
-    method:['Identify which known pair the signal is built from, and which property connects the two.',
-            'Duality: if $x(t)\\leftrightarrow X(j\\omega)$, then $X(t)\\leftrightarrow2\\pi\\,x(-\\omega)$. A shift in one domain is an exponential factor in the other; a scale factor in time is the reciprocal scale in frequency.',
-            'Apply the property once, carefully, and do not lose a sign or a factor of $2\\pi$ on the way.',
-            'Check the result at $\\omega=0$ or at $t=0$ against the area of the given signal.'],
-    go:'m5-duality' },
-  { k:'ft-parseval', name:'Total energy in frequency',
-    asks:'Compute the energy of a signal, in time or in frequency.',
-    method:['Parseval: $\\int|x(t)|^{2}\\,\\d t=\\dfrac{1}{2\\pi}\\int|X(j\\omega)|^{2}\\,\\d\\omega$.',
-            'Choose whichever side is the easier integral. That choice is the whole skill.',
-            'Do not forget the $1/2\\pi$ on the frequency side.',
-            'Both sides are real and non-negative. A complex or negative answer means an algebra error.'],
-    go:'m5-parseval' },
-  { k:'ft-mod', name:'Modulation and a communication chain',
-    asks:'A signal is multiplied by a carrier, or carried through a modulator and a filter. Find the spectrum at each stage.',
-    method:['Multiplication in time is convolution in frequency, with a factor $1/2\\pi$. For a cosine carrier the convolution is two shifted half-height copies.',
-            'Draw the shifted copies and check whether they overlap. Overlap is where information is lost.',
-            'An ideal filter multiplies the spectrum by $1$ inside its band and by $0$ outside it.',
-            'Process a chain one stage at a time. After the last stage, check the spectrum at one frequency against an independent calculation.'],
-    go:'m5-am' },
-  { k:'full', name:'A full-length question that combines several of the types above',
-    asks:'Several transforms under one statement, or one signal carried through a whole chain.',
-    method:['Name the standard pair each part is built on before transforming anything. Almost every part is a table entry plus one property.',
-            'When several transforms are required, calculate the simplest one first. Then use duality, shifting, or modulation to obtain the others.',
-            'In a chain, take one stage at a time and draw the spectrum after each. Overlap between shifted copies is where information is lost, and it is visible only in the drawing.',
-            'Check at one frequency: $X(j0)$ is the area under $x(t)$. For an energy result, use Parseval to compare the time and frequency domains.'] }
-];
 
 CONTENT.DRILL = CONTENT.DRILL.concat([
 
@@ -686,25 +641,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 ]);
 
-window.DRILLMAP_M5 = [
-
-{ id:'m5-drill-map', module:'M5', nav:'Module 5 · question types',
-  title:'Module 5 — what a question looks like', src:'pp. 42–63',
-  objective:'Name the six recurring question shapes before the module is read.',
-  keywords:'practice questions module 5 question types Fourier transform duality Parseval inverse modulation taxonomy practice',
-  steps:0, blocks:[
-  {t:'eyebrow', text:'Module 5 · Question types', src:'pp. 42–63'},
-  {t:'title', text:'Six shapes, and the method each one wants'},
-  {t:'lede', text:'Questions on the continuous-time Fourier transform come in five shapes. This list states the purpose and method of each shape. Read it before the module so that you can identify the required method when a question appears.'},
-  {t:'raw', html:'<div style="height:10px"></div>'},
-  {t:'drilltypes', module:'M5'}
-]}
-
-];
-
-/* The questions themselves sit at the end of the module, after the teaching
-   scenes. The taxonomy above sits in front of it: one is a map read before the
-   work, the other is the work. */
+/* The practice questions sit at the end of the module. */
 window.DRILL_M5 = [
 
 { id:'m5-drill', module:'M5', nav:'Module 5 · practice questions',

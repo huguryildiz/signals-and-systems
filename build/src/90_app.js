@@ -122,15 +122,6 @@ const RENDER = (() => {
                                      :'No solution has been opened on this device yet.'}</span>
         </div>
         <div class="dr-page">${drillHTML(qs[i])}</div>`; },
-    /* The taxonomy of a module's question types, read from CONTENT.DRILLTYPES. */
-    drilltypes: b => { const ts=(CONTENT.DRILLTYPES[b.module]||[]);
-        return `<div class="dr-types" style="${b.style||''}">${ts.map((ty,i)=>
-          `<div class="dr-type">
-             <div class="dr-type-h"><span class="dr-type-k">${String.fromCharCode(65+i)}</span>${md(ty.name)}</div>
-             <div class="dr-type-asks">${symLinks(md(ty.asks))}</div>
-             <ol class="dr-type-m">${ty.method.map(s=>`<li>${symLinks(md(s))}</li>`).join('')}</ol>
-             ${ty.go?`<a class="dr-type-go" data-act="goto" data-id="${ty.go}">where this is taught →</a>`:''}
-           </div>`).join('')}</div>`; },
     /* a raw block may carry a function instead of a string, exactly as fig does,
        so a figure built in JavaScript is generated per render and picks up the
        palette of the theme in force */
@@ -163,9 +154,8 @@ const RENDER = (() => {
      uses, so persistence and the reset action need no new code. */
   function drillHTML(q){
     const st = S.quiz[q.id] || {};
-    const ty = (CONTENT.DRILLTYPES[q.module]||[]).find(t=>t.k===q.type);
     return `<div class="quiz drill" data-qid="${q.id}">
-      <div class="qid">${q.id}${ty?' · '+md(ty.name):''}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
+      <div class="qid">${q.id}<span class="instr-inline" data-instr>${q.src?` · ref ${q.src}`:''}</span></div>
       <div class="qstem">${symLinks(md(q.stem))}</div>
       ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
       <ol class="dr-parts">${(q.parts||[]).map(p=>`<li>${symLinks(md(p))}</li>`).join('')}</ol>
@@ -197,9 +187,10 @@ const RENDER = (() => {
 
   /* ---------- scene drawing ---------- */
   function draw(){
-    if(typeof PLOT!=='undefined' && PLOT.setTheme)
-      PLOT.setTheme({ dark: S.theme==='dark', scale: S.display==='projector' ? 1.36 : 1 });
     const sc = APP.scenes()[S.i];
+    if(typeof PLOT!=='undefined' && PLOT.setTheme)
+      PLOT.setTheme({ dark: S.theme==='dark', scale: S.display==='projector' ? 1.36 : 1,
+        emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');

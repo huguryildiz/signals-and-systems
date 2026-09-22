@@ -1,19 +1,18 @@
 <script>
 /* ---------- assemble the scene list from the content modules ---------- */
 (function(){
-  /* Modules 2–7 open with the taxonomy of the question types that recur in
-     their practice questions. Every module closes with its questions after the
-     teaching scenes. The scene objects carry their module id, so the contents
-     rail and the module list need no separate entry. */
+  /* Every teaching module closes with its practice questions. The scene
+     objects carry their module id, so the contents rail and the module list
+     need no separate entry. */
   const SCENES = [].concat(
     window.SCENES_M0||[],
     window.SCENES_M1||[], window.DRILL_M1||[],
-    window.DRILLMAP_M2||[], window.SCENES_M2||[], window.DRILL_M2||[],
-    window.DRILLMAP_M3||[], window.SCENES_M3||[], window.DRILL_M3||[],
-    window.DRILLMAP_M4||[], window.SCENES_M4||[], window.DRILL_M4||[],
-    window.DRILLMAP_M5||[], window.SCENES_M5||[], window.DRILL_M5||[],
-    window.DRILLMAP_M6||[], window.SCENES_M6||[], window.DRILL_M6||[],
-    window.DRILLMAP_M7||[], window.SCENES_M7||[], window.DRILL_M7||[],
+    window.SCENES_M2||[], window.DRILL_M2||[],
+    window.SCENES_M3||[], window.DRILL_M3||[],
+    window.SCENES_M4||[], window.DRILL_M4||[],
+    window.SCENES_M5||[], window.DRILL_M5||[],
+    window.SCENES_M6||[], window.DRILL_M6||[],
+    window.SCENES_M7||[], window.DRILL_M7||[],
     window.SCENES_END||[]
   );
 

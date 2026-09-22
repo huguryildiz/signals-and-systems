@@ -369,13 +369,10 @@ const APP = (() => {
     const cur = SCENES[state.i];
     return !!(cur && cur.sec && cur.sec.indexOf(n+'.') === 0);
   }
-  /* The question scenes bracket a chapter: the taxonomy of question types is
-     read before the teaching scenes, the questions themselves are worked after
-     them. `row` is given the scene, not a position, so both surfaces place
-     them the same way. */
+  /* The practice questions follow the teaching scenes. `row` is given the
+     scene, not a position, so both surfaces place it the same way. */
   function chapterRows(ch, row, head, collapse){
     const out = [];
-    if(ch.q.map) out.push(row(ch.q.map));
     ch.sections.forEach(sec=>{
       const titled = !ch.flat && sec.title;
       const open = !collapse || !titled || secIsOpen(sec.n);
