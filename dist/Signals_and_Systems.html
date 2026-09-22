@@ -5646,138 +5646,126 @@ const SC = [
 
 { id:'m2-abstraction', module:'M2', nav:'Input–output abstraction', title:'The input–output abstraction', src:'p. 11',
   objective:'Define a system as a deterministic map between signals.',
-  keywords:'system black box deterministic input output CT DT', steps:2, blocks:[
+  keywords:'system black box deterministic input output CT DT', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'Input–Output Abstraction'},
-  {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'note', kind:'def', head:'Definition', html:'A system is a rule that turns an input signal into an output signal. The rule is <b>deterministic</b>: the same input always gives the same output.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Write the rule as an operator: $y=S\\{x\\}$. The operator {{sym:S|$S$}} maps the whole input signal to the whole output signal. This form lets us ask whether the output uses other input times or changes when the input is shifted.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Equality of systems', html:'Two systems are equal when they give the same output for every input. Their physical construction may differ, but their input-output rule is the same.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:520,items:[
+      {t:'arrow',x1:40,y1:190,x2:180,y2:190},{t:'box',x:180,y:145,w:200,h:90,label:'S',tex:true},
+      {t:'arrow',x1:380,y1:190,x2:520,y2:190},
+      {t:'text',x:110,y:174,label:'x(t)',tex:true,fs:18},{t:'text',x:450,y:174,label:'y(t)',tex:true,fs:18},
+      {t:'arrow',x1:40,y1:450,x2:180,y2:450},{t:'box',x:180,y:405,w:200,h:90,label:'S',tex:true},
+      {t:'arrow',x1:380,y1:450,x2:520,y2:450},
+      {t:'text',x:110,y:434,label:'x[n]',tex:true,fs:18},{t:'text',x:450,y:434,label:'y[n]',tex:true,fs:18}
+    ]}), caption:'The same operator in continuous time and in discrete time.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:300,items:[
-      {t:'arrow',x1:70,y1:100,x2:250,y2:100},{t:'box',x:250,y:60,w:200,h:80,label:'S',tex:true},
-      {t:'arrow',x1:450,y1:100,x2:640,y2:100},
-      {t:'text',x:150,y:86,label:'x(t)',tex:true,fs:18},{t:'text',x:545,y:86,label:'y(t)',tex:true,fs:18},
-      {t:'arrow',x1:70,y1:225,x2:250,y2:225},{t:'box',x:250,y:185,w:200,h:80,label:'S',tex:true},
-      {t:'arrow',x1:450,y1:225,x2:640,y2:225},
-      {t:'text',x:150,y:211,label:'x[n]',tex:true,fs:18},{t:'text',x:545,y:211,label:'y[n]',tex:true,fs:18}
-    ]}), caption:'The same operator viewpoint in continuous time and in discrete time.'}
+    {t:'note', kind:'def', head:'Definition', html:'A system turns an input signal into an output signal. The same input always gives the same output.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'y=S\\{x\\}', label:'The operator', note:'$S$ acts on the whole input signal.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Equality', html:'Two systems are equal when they give the same output for every input. Their construction may differ.'}]}
   ]}
 ]},
 
 { id:'m2-memory', module:'M2', nav:'Memory', title:'Memoryless systems and systems with memory', src:'p. 11',
   objective:'Define memorylessness and test it on the definition examples.',
-  keywords:'memoryless memory instantaneous resistor capacitor accumulator', steps:3, blocks:[
+  keywords:'memoryless memory instantaneous resistor capacitor accumulator', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 1', src:'p. 11'},
   {t:'title', text:'Memoryless Systems'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>memoryless</b> if the output at time $t$ (or $n$) depends <b>only</b> on the input at that same time.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['(a)','$y(t)=\\bigl[2x(t)-x^{2}(t)\\bigr]^{2}$ — <b>memoryless</b>. Only $x(t)$ appears; there is no $x(t+1)$ or $x(t-2)$ term.'],
-        ['(b)','$y[n]=x[n]$ — <b>memoryless</b> (the identity system).'],
-        ['(c)','$y[n]=x[n-1]$ — <b>not memoryless</b>: the $n$-th output uses the $(n-1)$-th input.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['(d)','$y[n]=x[n]+y[n-1]$ — <b>not memoryless</b>.'],
-        ['Proof','Substituting repeatedly: $y[n-1]=x[n-1]+y[n-2]$, $y[n-2]=x[n-2]+y[n-3]$, … so<br>$y[n]=x[n]+x[n-1]+x[n-2]+\\cdots=\\displaystyle\\sum_{k=0}^{\\infty}x[n-k]$.'],
-        ['Conclusion','$y[n]$ depends on $x[n-k]$ for every $k\\ge0$, so it depends on the whole past. Output feedback can therefore give a system memory.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Circuit examples', html:'A resistor, $v(t)=R\\,i(t)$, is memoryless because its voltage at $t$ uses only its current at $t$. A capacitor is not memoryless because $v(t)=\\frac1C\\int_{-\\infty}^{t}i(\\tau)\\d\\tau$ uses the current history.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:420,items:[
+      {t:'line',d:'M40 210 h70 l14 -28 l28 56 l28 -56 l28 56 l28 -56 l14 28 h70'},
+      {t:'text',x:420,y:185,label:'v(t)=R\\,i(t)',fs:17,tex:true},
+      {t:'text',x:420,y:235,label:'memoryless: output now, input now',fs:13}
+    ]}), caption:'A resistor is memoryless. The voltage at $t$ uses the current at $t$.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:150,items:[
-      {t:'line',d:'M60 75 h60 l12 -22 l24 44 l24 -44 l24 44 l24 -44 l12 22 h60'},
-      {t:'text',x:340,y:52,label:'v(t)=R\\,i(t)',fs:16,tex:true},
-      {t:'text',x:340,y:96,label:'memoryless — output now, input now',fs:13},
-      {t:'arrow',x1:400,y1:75,x2:470,y2:75}
-    ]}), caption:'Resistor: no stored energy, therefore no memory.'},
-    {t:'fig', frame:true, svg:()=>P.blocks({w:760,h:150,items:[
-      {t:'line',d:'M60 75 h110 M170 45 v60 M198 45 v60 M198 75 h110'},
-      {t:'text',x:430,y:52,label:'v(t)=\\tfrac{1}{C}\\int i(\\tau)\\,d\\tau',fs:16,tex:true},
-      {t:'text',x:430,y:96,label:'not memoryless — the whole past enters',fs:13}
-    ]}), caption:'Capacitor: stored charge is memory.'},
+    {t:'note', kind:'def', head:'Criterion', html:'A system is memoryless if the output at time $t$, or at $n$, depends only on the input at that same time.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Memoryless', html:'$y(t)=\\bigl[2x(t)-x^{2}(t)\\bigr]^{2}$ uses only $x(t)$. The identity $y[n]=x[n]$ is memoryless.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:760,h:230,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
-        a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
-        a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
-        a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
-        a.note(8.6,1.4,'x[n]',{anchor:'end',color:C.in,fs:14,tex:true});
-        return a.svg(); },
-        caption:'The accumulator of (d): each output carries every earlier input.'}]}
+      {t:'note', kind:'err', head:'Has memory', html:'$y[n]=x[n-1]$ uses the previous input. The output at $n$ depends on $n-1$.'}]}
+  ]}
+]},
+
+{ id:'m2-memory-b', module:'M2', nav:'Accumulator', title:'Feedback Gives Memory', src:'p. 11',
+  objective:'Show that output feedback can make a system remember its input.',
+  keywords:'accumulator feedback memory sum', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 1', src:'p. 11'},
+  {t:'title', text:'Feedback Gives Memory'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
+      a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
+      a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
+      a.note(-1.8,1.4,'x[n]',{anchor:'start',color:C.in,fs:14,tex:true});
+      return a.svg(); },
+      caption:'Each output of the accumulator carries every earlier input.'}
+  ], right:[
+    {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'y[n]=\\sum_{k=0}^{\\infty}x[n-k]', label:'The past', note:'Substitute the same rule for $y[n-1]$, then for $y[n-2]$, and so on.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'The whole past', html:'The output uses $x[n-k]$ for every $k\\ge 0$. Feedback can give a system memory.'}]}
   ]}
 ]},
 
 { id:'m2-invertible', module:'M2', nav:'Invertibility', title:'Invertibility', src:'pp. 11–12',
   objective:'Define invertibility and demonstrate both proof strategies.',
-  keywords:'invertible one-to-one inversion formula counterexample distinct inputs', steps:3, blocks:[
+  keywords:'invertible one-to-one inversion formula counterexample distinct inputs', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
   {t:'title', text:'Invertibility'},
-  {t:'cols', ratio:'c-5-7', left:[
-    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>invertible</b> if distinct input signals produce distinct output signals. This property is also called a <b>one-to-one</b> map.'},
-    {t:'note', kind:'warn', head:'Two methods', html:'To prove invertibility, find a formula that recovers every input from its output. To disprove invertibility, find two distinct inputs that give the same output.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['(a)','$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$ — <b>invertible</b>.'],
-        ['Inversion','$x(t)=\\dfrac{y(t)}{\\cos(t)+2}$.'],
-        ['Why it is safe','$\\cos(t)+2\\in[1,3]$, so the divisor is never zero. If the gain were $\\cos(t)$, the system would fail at every zero of the cosine.'],
-        ['Verification','Substituting back: $[\\cos t+2]\\dfrac{y(t)}{\\cos t+2}=y(t)$ ✓']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['(b)','$y(t)=x^{2}(t)$ — <b>not invertible</b>.'],
-        ['Counterexample','$x_1(t)=1\\;\\forall t$ and $x_2(t)=-1\\;\\forall t$ are distinct, yet $y_1(t)=y_2(t)=1\\;\\forall t$.'],
-        ['Conclusion','Two inputs, one output ⇒ the map is not one-to-one. The sign information is destroyed and cannot be recovered from $y$ alone.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Not an inverse', html:'$x(t)=\\sqrt{y(t)}$ does not invert $y=x^{2}$. It selects only one of the two possible inputs. An inversion formula must recover the actual input for every allowed input.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:420,items:[
+      {t:'line',d:'M105 210 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
+      {t:'line',d:'M455 210 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
+      {t:'text',x:105,y:95,label:'inputs',fs:14},{t:'text',x:455,y:95,label:'outputs',fs:14},
+      {t:'line',d:'M105 180 C 210 150, 350 150, 455 180',color:C.in},
+      {t:'line',d:'M105 240 C 210 270, 350 270, 455 240',color:C.out},
+      {t:'text',x:280,y:138,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
+    ]}), caption:'Invertibility is a property of the map. Distinct inputs must land on distinct outputs.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:800,h:230,items:[
-      {t:'line',d:'M120 115 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
-      {t:'line',d:'M560 115 m-70,0 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0'},
-      {t:'text',x:120,y:20,label:'inputs',fs:14},{t:'text',x:560,y:20,label:'outputs',fs:14},
-      {t:'line',d:'M120 85 C 250 60, 430 60, 560 85',color:'#14707F'},
-      {t:'line',d:'M120 145 C 250 170, 430 170, 560 145',color:'#4A7A46'},
-      {t:'text',x:340,y:52,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
-    ]}), caption:'Invertibility is a statement about the <em>map</em>, not about any single signal.'},
+    {t:'note', kind:'def', head:'Criterion', html:'A system is invertible if distinct inputs produce distinct outputs. The map is one-to-one.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Two methods', html:'To prove it, recover every input from its output. To disprove it, find two distinct inputs with the same output.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:800,h:260,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
-        a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
-        a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
-        a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
-        a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
-        return a.svg(); },
-        caption:'The counterexample for $y=x^{2}$: two distinct inputs collapse onto one output.'}]}
+      {t:'note', kind:'def', head:'Given', html:'$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$.<div class="nsep"></div>Is the system invertible?'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'Yes. $x(t)=y(t)/\\bigl(\\cos(t)+2\\bigr)$. The gain lies in $[1,3]$, so it is never zero.'}]}
+  ]}
+]},
+
+{ id:'m2-invertible-b', module:'M2', nav:'Squaring', title:'Squaring Is Not Invertible', src:'pp. 11–12',
+  objective:'Disprove invertibility with two inputs that share an output.',
+  keywords:'square counterexample sign not invertible', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
+  {t:'title', text:'Squaring Is Not Invertible'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
+      a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
+      a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
+      a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
+      return a.svg(); },
+      caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$y(t)=x^{2}(t)$.<div class="nsep"></div>Is the system invertible?'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Counterexample', html:'$x_1(t)=1$ and $x_2(t)=-1$ are distinct, and both give $y(t)=1$. The sign is lost.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Not an inverse', html:'$x(t)=\\sqrt{y(t)}$ keeps only one of the two inputs. An inverse must recover the actual input.'}]}
   ]}
 ]},
 
 { id:'m2-causal', module:'M2', nav:'Causality', title:'Causality', src:'p. 12',
   objective:'Define causality and work all five source examples.',
-  keywords:'causal non-causal future past present real-time', steps:3, blocks:[
+  keywords:'causal non-causal future past present real-time', slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 3', src:'p. 12'},
   {t:'title', text:'Causality'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>causal</b> if the output at time $t$ (or $n$) depends only on inputs at times $\\le t$ — the present and the past.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['(a)','$y[n]=x[n-1]$ — <b>causal</b>: only the past sample $x[n-1]$ is used.'],
-        ['(b)','$y[n]=x[n]+x[n+1]$ — <b>not causal</b>: $x[n+1]$ is a future value.'],
-        ['(c)','$y(t)=\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau$ — <b>causal</b>: the upper limit is $t$, so $-\\infty<\\tau\\le t$.'],
-        ['(d)','$y[n]=x[-n]$ — <b>not causal</b>: $y[-1]=x[1]$, so the output at $n=-1$ needs an input from the future.'],
-        ['(e)','$y(t)=x(t)\\cos(t+1)$ — <b>causal</b>: $y(t)$ uses only $x(t)$; $\\cos(t+1)$ is a known deterministic function of $t$, not a future input.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Why example (e) is causal', html:'$\\cos(t+1)$ is not constant. It is a known function fixed before the input is applied. The system remains causal because it uses no input value after time $t$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Use of causality', html:'A real-time system must be causal because future input values are not available. A non-causal system can be used when the complete signal has already been stored, as in offline audio and image processing.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:300,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-5,5],yr:[-0.15,1.25],xlabel:'\\text{time relative to the output instant}',
         pad:{l:50,r:24,t:26,b:44},xtarget:11,ytarget:2,yticksOverride:[]});
       a.rect(-5,0,0,1,{fill:'rgba(74,122,70,.14)'});
       a.rect(0,0,5,1,{fill:'rgba(166,59,42,.13)'});
@@ -5786,196 +5774,199 @@ const SC = [
       a.note(2.5,0.55,'forbidden — the future',{anchor:'middle',color:C.err,fs:15});
       a.note(0,1.12,'now',{anchor:'middle',color:C.coral,fs:14});
       return a.svg(); },
-      caption:'Causality limits which part of the input axis the output is allowed to use.'},
+      caption:'A causal system may use the past and the present. It may not use the future.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Criterion', html:'A system is causal if the output at time $t$, or at $n$, depends only on inputs at times up to $t$. That is the present and the past.'}
+  ]}
+]},
+
+{ id:'m2-causal-b', module:'M2', nav:'Five tests', title:'Causal and Not Causal', src:'p. 12',
+  objective:'Apply the causality test to five system rules.',
+  keywords:'causal future reversal cosine', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 3', src:'p. 12'},
+  {t:'title', text:'Causal and Not Causal'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      a.stem(disc(n=>n===1?1:0,-4,4),{color:C.in});
+      a.stem(disc(n=>n===-1?1:0,-4,4),{color:C.err});
+      a.note(-1,1.22,'y[-1]',{anchor:'middle',color:C.err,fs:14,tex:true});
+      a.note(1,1.22,'x[1]',{anchor:'middle',color:C.in,fs:14,tex:true});
+      a.raw(`<path d="M${a.sx(0.9)},${a.sy(1.05)} C ${a.sx(0.3)},${a.sy(1.32)} ${a.sx(-0.3)},${a.sy(1.32)} ${a.sx(-0.9)},${a.sy(1.05)}"
+              fill="none" stroke="${C.err}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
+      return a.svg(); },
+      caption:'$y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=1$.'}
+  ], right:[
+    {t:'note', kind:'ok', head:'Causal', html:'$y[n]=x[n-1]$ uses a past sample. $\\displaystyle y(t)=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau$ stops at $t$.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:240,xr:[-4,4],yr:[-0.3,1.4],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:2});
-        a.stem(disc(n=>n===1?1:0,-4,4),{color:C.in});
-        a.stem(disc(n=>n===-1?1:0,-4,4),{color:C.err});
-        a.note(-1,1.22,'y[-1]',{anchor:'middle',color:C.err,fs:14,tex:true});
-        a.note(1,1.22,'x[1]',{anchor:'middle',color:C.in,fs:14,tex:true});
-        a.raw(`<path d="M${a.sx(0.9)},${a.sy(1.05)} C ${a.sx(0.3)},${a.sy(1.32)} ${a.sx(-0.3)},${a.sy(1.32)} ${a.sx(-0.9)},${a.sy(1.05)}"
-                fill="none" stroke="${C.err}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
-        return a.svg(); },
-        caption:'Example (d), $y[n]=x[-n]$: the output at $n=-1$ reads the input at $n=+1$. Time reversal cannot be causal.'}]}
+      {t:'note', kind:'err', head:'Not causal', html:'$y[n]=x[n]+x[n+1]$ uses a future sample.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Reversal', html:'$y[n]=x[-n]$ gives $y[-1]=x[1]$. The output at $n=-1$ reads a future input.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'A known function', html:'$y(t)=x(t)\\cos(t+1)$ uses only $x(t)$. The cosine is a fixed function of $t$, not a future input.'}]}
   ]}
 ]},
 
 { id:'m2-stable', module:'M2', nav:'BIBO stability', title:'BIBO stability', src:'pp. 12–13',
   objective:'Define boundedness and BIBO stability; prove one case, disprove another.',
-  keywords:'BIBO bounded input bounded output stability triangle inequality accumulator', steps:4, blocks:[
+  keywords:'BIBO bounded input bounded output stability triangle inequality accumulator', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 4', src:'pp. 12–13'},
   {t:'title', text:'BIBO Stability'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Bounded signal', html:'$x(t)$ (or $x[n]$) is <b>bounded</b> if there exists a constant $B<\\infty$ with $|x(t)|<B$ for all $t$.'},
-    {t:'note', kind:'def', head:'BIBO stability', html:'A system is <b>stable</b> if a bounded input <b>always</b> produces a bounded output: if $|x(t)|<B$ for some $B<\\infty$, then $|y(t)|<\\infty$. <b>B</b>ounded <b>I</b>nput ⇒ <b>B</b>ounded <b>O</b>utput.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['Claim','$y(t)=2x^{2}(t-1)+x(3t)$ is <b>stable</b>.'],
-        ['Method','Assume $|x(t)|\\le B<\\infty$ and bound $|y|$ using the triangle inequality.'],
-        ['Proof','$|y(t)|=\\bigl|2x^{2}(t-1)+x(3t)\\bigr|\\le\\bigl|2x^{2}(t-1)\\bigr|+\\bigl|x(3t)\\bigr|\\le 2B^{2}+B<\\infty$.'],
-        ['Note','Time shifting and time scaling cannot break boundedness: $x(t-1)$ and $x(3t)$ take exactly the same set of values as $x$.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Claim','$y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$ is <b>not stable</b>.'],
-        ['Method','Exhibit one bounded input whose output is unbounded.'],
-        ['Counterexample','$x[n]=u[n]$, so $|x[n]|\\le1$. Then $y[n]=\\displaystyle\\sum_{k=0}^{n}1=n+1$, and $y[n]\\to\\infty$ as $n\\to\\infty$.'],
-        ['Conclusion','One bounded input with unbounded output is enough. The accumulator is unstable.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Proof and counterexample', html:'To prove stability, find an output bound for every bounded input. To disprove stability, find one bounded input that produces an unbounded output. One bounded example cannot prove stability.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'Causal ≠ stable', html:'The accumulator is causal and unstable. $y[n]=x[-n]$ is stable and non-causal. The six properties are logically independent, except where a proof connects them. Memoryless ⇒ causal is the one implication that always holds.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:420,items:[
+      {t:'arrow',x1:35,y1:210,x2:170,y2:210},
+      {t:'box',x:170,y:165,w:220,h:90,label:'2x^{2}(t-1)+x(3t)',tex:true,fs:16},
+      {t:'arrow',x1:390,y1:210,x2:525,y2:210},
+      {t:'text',x:102,y:194,label:'x(t)',tex:true,fs:18},
+      {t:'text',x:458,y:194,label:'y(t)',tex:true,fs:18}
+    ]}), caption:'The bound $2B^{2}+B$ holds for every input that stays within $B$.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:250,xr:[-2,12],yr:[-0.4,1.5],xlabel:'n',pad:{l:50,r:24,t:20,b:34},xtarget:8,ytarget:3});
-      a.stem(disc(n=>n>=0?1:0,-2,12),{color:C.in});
-      a.hline(1,{color:C.in,dash:'2 5'});
-      a.note(11.6,1.32,'\\text{bounded input }u[n]',{anchor:'end',color:C.in,fs:14,tex:true});
-      return a.svg(); }},
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:290,xr:[-2,12],yr:[-1,14],xlabel:'n',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
+    {t:'note', kind:'def', head:'Bounded', html:'A signal is bounded if some finite $B$ satisfies $|x(t)|<B$ for every $t$. The same word applies to $x[n]$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'BIBO stability', html:'Every bounded input must produce a bounded output. One bounded example cannot prove this.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'|y(t)|\\le 2B^{2}+B', label:'A stable rule', note:'For $y(t)=2x^{2}(t-1)+x(3t)$, if $|x|\\le B$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$x(t-1)$ and $x(3t)$ take the same values as $x$. A shift or a scale cannot break the bound.'}]}
+  ]}
+]},
+
+{ id:'m2-stable-b', module:'M2', nav:'Unstable accumulator', title:'A Bounded Input, an Unbounded Output', src:'pp. 12–13',
+  objective:'Disprove stability with one bounded input.',
+  keywords:'accumulator BIBO counterexample n+1', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 4', src:'pp. 12–13'},
+  {t:'title', text:'A Bounded Input, an Unbounded Output'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
       a.stem(disc(n=>n>=0?n+1:0,-2,12),{color:C.err});
       a.note(11.6,12.6,'y[n]=n+1\\to\\infty',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
-      caption:'The counterexample, drawn. The input never exceeds 1, but the output grows without bound. <b>The system is not stable.</b>'}
+      caption:'The input never exceeds 1. The output grows without a bound, so the system is not stable.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$.<div class="nsep"></div>Is the accumulator stable?'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Counterexample', html:'$x[n]=u[n]$ is bounded by 1. Then $y[n]=n+1$, which grows without a bound.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Causal is not stable', html:'The accumulator is causal and not stable. $y[n]=x[-n]$ is stable and not causal.'}]}
   ]}
 ]},
 
 { id:'m2-ti', module:'M2', nav:'Time invariance', title:'Time invariance', src:'p. 13',
   objective:'State the test as a comparison of two computed signals and work both examples.',
-  keywords:'time invariance shift test two paths sin worked example', steps:2, blocks:[
+  keywords:'time invariance shift test two paths sin worked example', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Time Invariance'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Criterion', html:'A system is <b>time invariant</b> if a time shift of the input produces the <b>same</b> time shift of the output:<br>if $x(t)\\to y(t)$ then $x(t-t_0)\\to y(t-t_0)$ for every $t_0\\in\\mathbb{R}$.'},
-    {t:'note', kind:'warn', head:'Method', html:'Compute two signals.<br><b>Path 1.</b> Shift the input and apply the system: $y_2 = S\\{x(t-t_0)\\}$.<br><b>Path 2.</b> Apply the system and shift its output: $y_1(t-t_0)$.<br>The system is time invariant only if the results agree for every input and every $t_0$.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['(a)','$y(t)=\\sin\\bigl(x(t)\\bigr)$ — <b>time invariant</b>.'],
-        ['Path 1','$x_2(t)=x_1(t-t_0)\\;\\Rightarrow\\; y_2(t)=\\sin\\bigl(x_2(t)\\bigr)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.'],
-        ['Path 2','$y_1(t)=\\sin\\bigl(x_1(t)\\bigr)\\;\\Rightarrow\\; y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.'],
-        ['Compare','Identical for every $t_0$ ⇒ time invariant.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'One shift cannot prove the property', html:'The comparison must hold for every $t_0$. The rule $y[n]=(-1)^{n}x[n]$ passes a shift of two and fails a shift of one. Agreement for one shift is not a proof, but disagreement for one shift is a valid counterexample.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:520,items:[
+      {t:'text',x:35,y:70,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:160,x2:155,y2:160},{t:'box',x:155,y:125,w:120,h:70,label:'\\text{shift}\\;t_0',tex:true},
+      {t:'arrow',x1:275,y1:160,x2:350,y2:160},{t:'box',x:350,y:125,w:100,h:70,label:'S',tex:true},
+      {t:'arrow',x1:450,y1:160,x2:525,y2:160},
+      {t:'text',x:95,y:144,label:'x(t)',tex:true,fs:17},{t:'text',x:488,y:144,label:'y_2(t)',tex:true,fs:17},
+      {t:'text',x:35,y:350,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:440,x2:155,y2:440},{t:'box',x:155,y:405,w:120,h:70,label:'S',tex:true},
+      {t:'arrow',x1:275,y1:440,x2:350,y2:440},{t:'box',x:350,y:405,w:100,h:70,label:'\\text{shift}\\;t_0',tex:true},
+      {t:'arrow',x1:450,y1:440,x2:525,y2:440},
+      {t:'text',x:95,y:424,label:'x(t)',tex:true,fs:17},{t:'text',x:488,y:424,label:'y_1(t-t_0)',tex:true,fs:17}
+    ]}), caption:'A time-invariant system makes the two paths agree, for every input and every shift.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:300,items:[
-      {t:'arrow',x1:60,y1:80,x2:200,y2:80},{t:'box',x:200,y:48,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:350,y1:80,x2:470,y2:80},{t:'box',x:470,y:48,w:150,h:64,label:'S',tex:true},
-      {t:'arrow',x1:620,y1:80,x2:770,y2:80},
-      {t:'text',x:130,y:66,label:'x(t)',tex:true,fs:17},{t:'text',x:695,y:66,label:'y_2(t)',tex:true,fs:17},
-      {t:'text',x:60,y:150,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:60,y1:230,x2:200,y2:230},{t:'box',x:200,y:198,w:150,h:64,label:'S',tex:true},
-      {t:'arrow',x1:350,y1:230,x2:470,y2:230},{t:'box',x:470,y:198,w:150,h:64,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:620,y1:230,x2:770,y2:230},
-      {t:'text',x:130,y:216,label:'x(t)',tex:true,fs:17},{t:'text',x:690,y:216,label:'y_1(t-t_0)',tex:true,fs:17},
-      {t:'text',x:60,y:288,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:C.slate}
-    ]}), caption:'The test as two chains. A time-invariant system is one whose two chains produce the same signal, for every input and every shift.'}
+    {t:'note', kind:'def', head:'Criterion', html:'If $x(t)$ produces $y(t)$, then $x(t-t_0)$ must produce $y(t-t_0)$, for every shift $t_0$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Two paths', html:'Path 1 shifts the input, then applies the system. Path 2 applies the system, then shifts the output.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'$y(t)=\\sin\\bigl(x(t)\\bigr)$ gives $\\sin\\bigl(x(t-t_0)\\bigr)$ on both paths. The system is time invariant.'}]}
   ]}
 ]},
 
 { id:'m2-ti-b', module:'M2', nav:'Time invariance · the counterexample', title:'Where time invariance fails', src:'p. 13',
   objective:'Work the n·x[n] counterexample and name the pattern behind every failure.',
-  keywords:'time invariance counterexample n x[n] explicit time variable independent of linearity', steps:2, blocks:[
+  keywords:'time invariance counterexample n x[n] explicit time variable independent of linearity', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Counterexamples to Time Invariance'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['(b)','$y[n]=n\\,x[n]$ — <b>not time invariant</b>.'],
-      ['Counterexample','$x_1[n]=\\delta[n]\\;\\Rightarrow\\; y_1[n]=n\\,\\delta[n]=0$ for every $n$ (at $n=0$ the factor is 0; elsewhere $\\delta$ is 0).'],
-      ['Shift by 1','$x_2[n]=x_1[n-1]=\\delta[n-1]\\;\\Rightarrow\\; y_2[n]=n\\,\\delta[n-1]=\\delta[n-1]$, i.e. the value 1 at $n=1$.'],
-      ['Compare','$y_1[n-1]=0$ but $y_2[n]=\\delta[n-1]\\neq0$. One counterexample settles it.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'When to test first', html:'An explicit time-dependent coefficient such as $n$ or $\\cos(t)$ usually breaks time invariance. A scaled input argument such as $x(3t)$ also changes input shifts. In either case, apply the two-path test.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Not the same as linearity', html:'$y[n]=n\\,x[n]$ is linear and <em>not</em> time invariant. $y(t)=x^{2}(t)$ is time invariant and <em>not</em> linear. The two properties are independent, and Module 3 needs both.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
+      a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
+      a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
+      a.note(3.6,0.42,'y_1[n]=0',{anchor:'end',color:C.out,fs:14,tex:true});
+      a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:14,tex:true});
+      return a.svg(); },
+      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'}
   ], right:[
-    {t:'grid', cols:2, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
-        a.stem(disc(n=>n===0?1:0,-3,4),{color:C.in,r:3});
-        a.note(3.6,1.28,'x_1[n]=\\delta[n]',{anchor:'end',color:C.in,fs:12,tex:true}); return a.svg(); }}],
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
-        a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
-        a.note(3.6,1.28,'y_1[n]=n\\,\\delta[n]=0',{anchor:'end',color:C.out,fs:12,tex:true}); return a.svg(); }}]
-    ]},
+    {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?'},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'10px', items:[
-        [{t:'fig', frame:true, svg:()=>{
-          const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
-          a.stem(disc(n=>n===1?1:0,-3,4),{color:C.h,r:3});
-          a.note(3.6,1.28,'x_2[n]=\\delta[n-1]',{anchor:'end',color:C.h,fs:12,tex:true}); return a.svg(); }}],
-        [{t:'fig', frame:true, svg:()=>{
-          const a=P.Axes({w:420,h:165,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
-          a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
-          a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:12,tex:true}); return a.svg(); }}]
-      ]},
-      {t:'small', html:'Top row: the impulse and the zero output it produces. Bottom row: the shifted impulse and the output it produces. Path 2 would give $y_1[n-1]=0$; path 1 gives $\\delta[n-1]$. The two disagree, so the system is not time invariant.'}]}
+      {t:'note', kind:'def', head:'Path 2', html:'$x_1[n]=\\delta[n]$ gives $y_1[n]=0$ for every $n$. A shift of that output is still 0.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Path 1', html:'$x_2[n]=\\delta[n-1]$ gives $y_2[n]=\\delta[n-1]$. The paths disagree, so the system is not time invariant.'}]}
   ]}
 ]},
 
 { id:'m2-linear', module:'M2', nav:'Linearity', title:'Linearity', src:'p. 14',
   objective:'State superposition and work both source examples in full.',
-  keywords:'linearity superposition additive homogeneous scalable cross term', steps:4, blocks:[
+  keywords:'linearity superposition additive homogeneous scalable cross term', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'Linearity'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longrightarrow\\;a\\,y_1(t)+b\\,y_2(t),\\qquad a,b\\in\\mathbb{C}',
-      label:'Superposition', note:'where $x_1\\to y_1$ and $x_2\\to y_2$. Additivity ($a=b=1$) and homogeneity ($b=0$) in one statement.'},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['(a)','$y(t)=2\\pi\\,x(t)$ — <b>linear</b>.'],
-        ['Proof','$x_3=a x_1+b x_2 \\Rightarrow y_3=2\\pi x_3=2\\pi(ax_1+bx_2)=a\\underbrace{2\\pi x_1}_{y_1}+b\\underbrace{2\\pi x_2}_{y_2}=ay_1+by_2$ ✓'],
-        ['Bonus','This system is also time invariant, so it is <b>LTI</b>. It is the simplest member of the family that Module 3 studies.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['(b)','$y[n]=\\bigl(x[2n]\\bigr)^{2}$ — <b>not linear</b>.'],
-        ['Setup','$x_3[n]=a x_1[n]+b x_2[n]\\;\\Rightarrow\\; y_3[n]=\\bigl(a x_1[2n]+b x_2[2n]\\bigr)^{2}$.'],
-        ['Expand','$y_3[n]=a^{2}x_1^{2}[2n]+\\underbrace{2ab\\,x_1[2n]x_2[2n]}_{\\text{cross term}}+b^{2}x_2^{2}[2n]$.'],
-        ['Compare','$a y_1[n]+b y_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n]$. The powers of $a,b$ differ <em>and</em> a cross term appears ⇒ not linear.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'A shorter disproof', html:'Test homogeneity first. Scaling the input by $a$ scales this output by $a^{2}$, not by $a$. Setting $a=2$ and $b=0$ disproves linearity. A failure of either homogeneity or additivity is enough.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'err', head:'Zero-input test', html:'$y(t)=x(t)+5$ is not linear because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$, so this test rules out any non-zero constant offset.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:520,items:[
+      {t:'text',x:35,y:70,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:160,x2:190,y2:160},{t:'box',x:190,y:125,w:150,h:70,label:'S',tex:true},
+      {t:'arrow',x1:340,y1:160,x2:500,y2:160},
+      {t:'text',x:112,y:144,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
+      {t:'text',x:420,y:144,label:'y_3',tex:true,fs:15},
+      {t:'text',x:35,y:350,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:440,x2:190,y2:440},{t:'box',x:190,y:405,w:150,h:70,label:'S',tex:true},
+      {t:'arrow',x1:340,y1:440,x2:500,y2:440},
+      {t:'text',x:112,y:424,label:'x_1,\\;x_2',tex:true,fs:15},
+      {t:'text',x:420,y:424,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
+      {t:'text',x:490,y:300,label:'equal?',fs:16,anchor:'end',color:C.coral},
+      {t:'line',d:'M505 160 h20 v280 h-20',color:C.coral}
+    ]}), caption:'A linear system gives the same result when the signals are combined before the system or after it.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:820,h:330,items:[
-      {t:'text',x:100,y:34,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:100,y1:90,x2:280,y2:90},{t:'box',x:280,y:58,w:150,h:64,label:'S',tex:true},
-      {t:'arrow',x1:430,y1:90,x2:610,y2:90},
-      {t:'text',x:190,y:78,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
-      {t:'text',x:520,y:78,label:'y_3',tex:true,fs:15},
-      {t:'text',x:100,y:186,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:100,y1:240,x2:280,y2:240},{t:'box',x:280,y:208,w:150,h:64,label:'S',tex:true},
-      {t:'arrow',x1:430,y1:240,x2:610,y2:240},
-      {t:'text',x:190,y:228,label:'x_1,\\;x_2',tex:true,fs:15},
-      {t:'text',x:520,y:228,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
-      {t:'text',x:660,y:170,label:'equal?',fs:16,color:C.coral},
-      {t:'line',d:'M640 90 h40 v150 h-40',color:C.coral}
-    ]}), caption:'A linear system gives the same result when signals are combined before or after the system.'}
+    {t:'eq', key:true, tex:'a\\,x_1+b\\,x_2\\;\\longrightarrow\\;a\\,y_1+b\\,y_2', label:'Superposition', note:'$a$ and $b$ are complex. $x_1$ produces $y_1$ and $x_2$ produces $y_2$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y(t)=2\\pi\\,x(t)$.<div class="nsep"></div>Is the system linear?'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Solution', html:'The output of $ax_1+bx_2$ is $a\\,y_1+b\\,y_2$. The system is linear, and it is time invariant, so it is LTI.'}]}
+  ]}
+]},
+
+{ id:'m2-linear-b', module:'M2', nav:'A square', title:'A Rule That Is Not Linear', src:'p. 14',
+  objective:'Show that a square of the input fails superposition.',
+  keywords:'square cross term homogeneity not linear', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
+  {t:'title', text:'A Rule That Is Not Linear'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:520,items:[
+      {t:'text',x:35,y:70,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:160,x2:190,y2:160},{t:'box',x:190,y:125,w:150,h:70,label:'S',tex:true},
+      {t:'arrow',x1:340,y1:160,x2:500,y2:160},
+      {t:'text',x:112,y:144,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
+      {t:'text',x:420,y:144,label:'y_3',tex:true,fs:15},
+      {t:'text',x:35,y:350,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
+      {t:'arrow',x1:35,y1:440,x2:190,y2:440},{t:'box',x:190,y:405,w:150,h:70,label:'S',tex:true},
+      {t:'arrow',x1:340,y1:440,x2:500,y2:440},
+      {t:'text',x:112,y:424,label:'x_1,\\;x_2',tex:true,fs:15},
+      {t:'text',x:420,y:424,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
+      {t:'text',x:490,y:300,label:'equal?',fs:16,anchor:'end',color:C.coral},
+      {t:'line',d:'M505 160 h20 v280 h-20',color:C.coral}
+    ]}), caption:'The two paths ask whether $y_3$ equals $a y_1+b y_2$. For this rule they do not.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$y[n]=\\bigl(x[2n]\\bigr)^{2}$.<div class="nsep"></div>Is the system linear?'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'y_3[n]=a^{2}x_1^{2}[2n]+2ab\\,x_1[2n]x_2[2n]+b^{2}x_2^{2}[2n]', label:'After the system'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Not linear', html:'$a\\,y_1[n]+b\\,y_2[n]$ has no cross term, and the powers of $a$ and $b$ differ. Scaling the input by $a$ scales this output by $a^{2}$.'}]}
   ]}
 ]},
 
 { id:'m2-workflow', module:'M2', nav:'Classification workflow', title:'A workflow you can defend', src:'pp. 11–14',
   objective:'Give a repeatable order of attack for classifying an unfamiliar system.',
-  keywords:'workflow classification order strategy checklist', steps:2, blocks:[
+  keywords:'workflow classification order strategy checklist', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 2 · Method', src:'pp. 11–14'},
   {t:'title', text:'System Classification Workflow'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p><b>Step 1: test time invariance.</b> Apply the two-path test when the rule contains an explicit $t$ or $n$, a time-dependent gain, or a scaled argument.</p>
-      <p><b>Step 2: test linearity.</b> Look for squares, products, $\\sin(x)$, absolute values or saturation. Test homogeneity with one scalar first.</p>
-      <p><b>Step 3: inspect every input argument.</b> An argument different from $t$ or $n$ gives memory. An argument later than the output time gives non-causality.</p>
-      <p><b>Step 4: test stability.</b> Assume $|x|\\le B$ and derive a finite output bound. To disprove stability, choose a bounded input that makes the output grow without bound.</p>
-      <p><b>Step 5: test invertibility.</b> Find an inverse formula or two distinct inputs with the same output.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'One general implication', html:'<b>Memoryless ⇒ causal.</b> Establish the other properties independently. A causal system need not be stable, a linear system need not be time invariant, and a stable system need not be memoryless.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const rows=[
         ['y(t)=2\\pi x(t)',           [1,1,1,1,1,1]],
         ['y[n]=x[n-1]',               [0,1,1,1,1,1]],
@@ -5986,18 +5977,24 @@ const SC = [
         ['y[n]=(x[2n])^{2}',          [0,0,0,1,0,0]]
       ];
       const cols=['mem','inv','caus','stab','TI','lin'];
-      const W=820,H=360,x0=250,cw=88,rh=40;
+      const W=560,H=590,x0=190,cw=60,rh=70;
       const g=[`<text x="8" y="30" font-size="13" fill="${C.slate}" font-family="ui-monospace,monospace" letter-spacing="1.4">SYSTEM</text>`];
       cols.forEach((c,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="30" font-size="12" fill="${C.slate}" text-anchor="middle" font-family="ui-monospace,monospace" letter-spacing="1.2">${c.toUpperCase()}</text>`));
       rows.forEach((r,j)=>{
-        const y=58+rh*j;
+        const y=82+rh*j;
         g.push(`<line x1="0" y1="${y-14}" x2="${W}" y2="${y-14}" stroke="${C.grid}"/>`);
         g.push(P.texName(r[0],{xLeft:8, baseline:y+9, size:14, color:C.ink, figW:x0-16}));
         r[1].forEach((v,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="${y+7}" font-size="16" text-anchor="middle"
           fill="${v?'#4A7A46':'#A63B2A'}">${v?'✓':'✗'}</text>`));
       });
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
-    }, caption:'The examples show that the six properties require separate tests. Read each property down its column.'}
+    }, caption:'Each column is one property. The rows show why the tests are separate.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Order', html:'Test time invariance first when the rule has an explicit $t$ or $n$. Then test linearity, with one scalar.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Then', html:'Read every input argument for memory and causality. Then test stability, and then invertibility.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'One implication', html:'Memoryless implies causal. A causal system need not be stable, and a linear system need not be time invariant.'}]}
   ]}
 ]},
 
@@ -13702,7 +13699,9 @@ CONTENT.SECTIONS = {
     { n:'2.0', title:'Opening',                        ids:['m2-open'] },
     { n:'2.1', title:'The input–output abstraction', ids:['m2-abstraction'] },
     { n:'2.2', title:'The six properties',             ids:[
-        'm2-memory','m2-invertible','m2-causal','m2-stable','m2-ti','m2-ti-b','m2-linear'] },
+        'm2-memory','m2-memory-b','m2-invertible','m2-invertible-b',
+        'm2-causal','m2-causal-b','m2-stable','m2-stable-b',
+        'm2-ti','m2-ti-b','m2-linear','m2-linear-b'] },
     { n:'2.3', title:'Classification in practice',     ids:['m2-workflow','m2-lab-d'] },
     { n:'2.4', title:'Summary',                        ids:['m2-synth'] }
   ],
@@ -13828,8 +13827,12 @@ CONTENT.BOOK = {
   'm1-synth':'1.7',
 
   'm2-abstraction':'1.5.1',
-  'm2-memory':'1.6.1', 'm2-invertible':'1.6.2', 'm2-causal':'1.6.3',
-  'm2-stable':'1.6.4', 'm2-ti':'1.6.5', 'm2-ti-b':'1.6.5', 'm2-linear':'1.6.6',
+  'm2-memory':'1.6.1', 'm2-memory-b':'1.6.1',
+  'm2-invertible':'1.6.2', 'm2-invertible-b':'1.6.2',
+  'm2-causal':'1.6.3', 'm2-causal-b':'1.6.3',
+  'm2-stable':'1.6.4', 'm2-stable-b':'1.6.4',
+  'm2-ti':'1.6.5', 'm2-ti-b':'1.6.5',
+  'm2-linear':'1.6.6', 'm2-linear-b':'1.6.6',
   'm2-workflow':'1.6', 'm2-lab-d':'1.6',
   'm2-synth':'1.7',
 
