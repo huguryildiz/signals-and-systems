@@ -97,7 +97,7 @@ const SC = [
       return a.svg(); },
       caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
   ], right:[
-    {t:'eq', tex:'p(t)=v(t)\\,i(t)=\\dfrac{1}{R}v^{2}(t)', label:'Instantaneous power',
+    {t:'eq', tex:'\\begin{aligned}p(t)&=v(t)\\,i(t)\\\\&=v(t)\\left(\\dfrac{v(t)}{R}\\right)\\\\&=\\dfrac{1}{R}v^{2}(t)\\end{aligned}', label:'Instantaneous power',
       note:'Units: watts. The square of the voltage carries the power.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'E=\\int_{t_1}^{t_2}p(t)\\,\\d t=\\int_{t_1}^{t_2}\\dfrac{1}{R}v^{2}(t)\\,\\d t',
@@ -137,7 +137,7 @@ const SC = [
 { id:'m1-energy-div', module:'M1', nav:'Energy that diverges', title:'When total energy diverges', src:'p. 2',
   objective:'Recognise a signal whose total energy has no finite value.',
   keywords:'diverge E infinity cosine average power',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'When Total Energy Diverges'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -150,7 +150,10 @@ const SC = [
       caption:'<b>Diverging.</b> Each new period adds the same area, so $E_\\infty\\to\\infty$. Average power measures the energy added per unit time.'}
   ], right:[
     {t:'note', kind:'err', head:'Check convergence',
-      html:'The integral or the sum may not converge. The signal then has no finite total energy, so calculate average power before classifying it.'}
+      html:'The integral or the sum may not converge. Calculate the finite-window energy before taking its limit.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{-T}^{T}\\cos^{2}(2t)\\,\\d t\\\\&=\\int_{-T}^{T}\\dfrac{1+\\cos(4t)}{2}\\,\\d t\\\\&=T+\\dfrac{\\sin(4T)}{4}\\;\\longrightarrow\\;\\infty\\end{aligned}',
+        label:'Energy over the window', note:'The sine term stays bounded while $T$ grows.'}]}
   ]}
 ]},
 
@@ -166,11 +169,11 @@ const SC = [
         ylabel:'\\text{running average power}',pad:{l:60,r:26,t:22,b:40},xtarget:5,ytarget:4});
       const pts=[],qts=[];
       for(let i=1;i<=200;i++){ const T=i*0.2;
-        pts.push([T, 0.5 - Math.sin(4*T)/(8*T)]);
+        pts.push([T, 0.5 + Math.sin(4*T)/(8*T)]);
         qts.push([T, 1/(2*T)]); }
       a.poly(pts,{color:C.in}); a.poly(qts,{color:C.out});
       a.hline(0.5,{color:C.in,dash:'2 5'});
-      a.note(38,0.545,'u(t):\\;P_\\infty=1/2',{anchor:'end',color:C.in,fs:14,tex:true});
+      a.note(38,0.545,'\\cos(2t):\\;P_\\infty=1/2',{anchor:'end',color:C.in,fs:14,tex:true});
       a.note(38,0.09,'\\text{rectangular pulse}:\\;P_\\infty=0',{anchor:'end',color:C.out,fs:14,tex:true});
       return a.svg(); },
       caption:'These curves show the average over a window with half-width $T$. The power signal approaches a non-zero value. The energy signal approaches zero because its finite energy is divided by $2T$.'}
@@ -224,7 +227,7 @@ const SC = [
       return a.svg(); },
       caption:'A pulse of energy 1 J, averaged over a window of half-width $T$. The average falls towards zero as the window grows, which is why a finite-energy signal always has $P_\\infty=0$.'}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}E_\\infty<\\infty\\;\\Longrightarrow\\;P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t\\\\&\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\end{aligned}',
+    {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\le E_\\infty\\\\0\\le P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}\\\\&\\le\\lim_{T\\to\\infty}\\dfrac{E_\\infty}{2T}=0\\\\\\therefore\\quad P_\\infty&=0\\end{aligned}',
       note:'The window grows, and the energy in the numerator does not, so the ratio is squeezed to zero.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'What to measure', html:'Use energy for a pulse or a decaying response. Use average power for a sinusoid or a constant. The class is the quantity that stays finite.'}]}
@@ -234,7 +237,7 @@ const SC = [
 { id:'m1-classify-c', module:'M1', nav:'Neither class', title:'A signal in neither class', src:'p. 3',
   objective:'Show a signal whose energy and average power both diverge.',
   keywords:'neither ramp t u(t) unbounded',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -246,7 +249,10 @@ const SC = [
       caption:'$x(t)=t\\,u(t)$: both $E_\\infty$ and $P_\\infty$ diverge, so it is neither an energy signal nor a power signal.'}
   ], right:[
     {t:'note', kind:'err', head:'The third class',
-      html:'$x(t)=t\\,u(t)$ grows without bound. Its energy diverges, and so does its average power. Neither class applies.'}
+      html:'$x(t)=t\\,u(t)$ grows without bound. Compute both limits before assigning a class.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{0}^{T}t^{2}\\,\\d t=\\left.\\dfrac{t^{3}}{3}\\right|_{0}^{T}=\\dfrac{T^{3}}{3}\\to\\infty\\\\P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}=\\infty\\end{aligned}',
+        label:'Both quantities diverge', note:'The signal is neither an energy signal nor a power signal.'}]}
   ]}
 ]},
 
@@ -267,8 +273,8 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $0\\le t\\le 1$, and $0$ otherwise.<div class="nsep"></div>Is $x(t)$ an energy signal or a power signal?'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'E_\\infty=\\int_{0}^{1}1\\,\\d t=1', label:'Total energy'},
-      {t:'eq', tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0', label:'Average power'}]},
+      {t:'eq', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t\\\\&=\\int_{0}^{1}1^{2}\\,\\d t\\\\&=\\left.t\\right|_{0}^{1}=1\\end{aligned}', label:'Total energy'},
+      {t:'eq', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{0}^{1}1\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0\\end{aligned}', label:'Average power'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an energy signal.'}]},
     {t:'reveal', at:3, items:[
@@ -277,12 +283,12 @@ const SC = [
   {t:'instr', head:'Presenter cue', html:'Ask the class to predict $P_\\infty$ for $x[n]=4$ <em>before</em> revealing step 3. The common guesses are 4 and ∞. Both are worth discussing.'}
 ]},
 
-{ id:'m1-ex-energy-b', module:'M1', nav:'Constant sequence', title:'Worked example — a constant sequence', src:'p. 3',
-  objective:'Classify a constant sequence by its average power.',
-  keywords:'constant sequence power signal 2N+1',
-  slide:true, steps:3, blocks:[
+{ id:'m1-ex-energy-b', module:'M1', nav:'Constant sequence · energy', title:'Total energy of a constant sequence', src:'p. 3',
+  objective:'Show why the total energy of a non-zero constant sequence diverges.',
+  keywords:'constant sequence total energy divergence',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
-  {t:'title', text:'Worked Example — a Constant Sequence'},
+  {t:'title', text:'Total Energy of a Constant Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',ylabel:'x[n]',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
@@ -293,12 +299,30 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=4$ for every integer $n$.<div class="nsep"></div>Is $x[n]$ an energy signal or a power signal?'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\to\\infty', label:'Total energy'},
-      {t:'eq', tex:'P_\\infty=\\lim_{N\\to\\infty}\\dfrac{(2N+1)\\cdot 16}{2N+1}=16', label:'Average power'}]},
+      {t:'eq', tex:'\\begin{aligned}E_\\infty&=\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}\\\\&=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\\\&=\\sum_{n=-\\infty}^{\\infty}16\\to\\infty\\end{aligned}', label:'Total energy'},
+      {t:'note', kind:'warn', head:'Next step', html:'Infinite energy does not determine the class. Calculate the average power next.'}]}
+  ]}
+]},
+
+{ id:'m1-ex-energy-c', module:'M1', nav:'Constant sequence · power', title:'Average power of a constant sequence', src:'p. 3',
+  objective:'Calculate the average power of a constant sequence from the definition.',
+  keywords:'constant sequence average power 2N+1 classification',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
+  {t:'title', text:'Average Power of a Constant Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-6,6],yr:[-0.6,5.2],xlabel:'n',ylabel:'x[n]',pad:{l:50,r:24,t:20,b:36},xtarget:7,ytarget:3});
+      a.stem(disc(()=>4,-6,6),{color:C.h});
+      a.note(5.6,4.7,'P_\\infty=16',{anchor:'end',color:C.h,fs:15,tex:true});
+      return a.svg(); },
+      caption:'The finite window contains $2N+1$ samples. Each sample contributes 16.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x[n]=4$ and $E_\\infty\\to\\infty$.<div class="nsep"></div>Calculate $P_\\infty$ and classify the signal.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}P_\\infty&=\\lim_{N\\to\\infty}\\dfrac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}\\\\&=\\lim_{N\\to\\infty}\\dfrac{1}{2N+1}\\sum_{n=-N}^{N}16\\\\&=\\lim_{N\\to\\infty}\\dfrac{(2N+1)16}{2N+1}\\\\&=\\lim_{N\\to\\infty}16=16\\end{aligned}', label:'Average power'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a power signal.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Check', html:'A constant of amplitude $A$ has $P_\\infty=A^{2}$. For $A=4$ that is 16, and the factor $2N+1$ cancels.'}]}
+      {t:'note', kind:'ok', head:'Solution and check', html:'$E_\\infty\\to\\infty$ and $P_\\infty=16$, so $x[n]$ is a power signal. In general, a constant of amplitude $A$ has power $A^{2}$.'}]}
   ]}
 ]},
 
@@ -391,7 +415,8 @@ const SC = [
     {t:'eq', key:true, tex:'y(t)=x(at),\\qquad a>0', label:'Time scaling'},
     {t:'note', kind:'warn', head:'Name the new signal', html:'Write $y(t)=x(at)$. The equation $x(t)=x(at)$ would force $a=1$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Map the endpoints', html:'If $x$ is non-zero on $[\\alpha,\\beta]$, then $x(at)$ is non-zero on $[\\alpha/a,\\beta/a]$. The width is divided by $a$.'}]},
+      {t:'eq', tex:'\\begin{aligned}at&\\in[\\alpha,\\beta]\\\\\\alpha&\\le at\\le\\beta\\\\\\dfrac{\\alpha}{a}&\\le t\\le\\dfrac{\\beta}{a}\\end{aligned}', label:'Map the support',
+        note:'For $a>0$, $x(at)$ is non-zero on $[\\alpha/a,\\beta/a]$. The width is divided by $a$.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Discrete time is different', html:'$x[2n]$ keeps the even samples and drops the odd ones. $x[n/2]$ is undefined at odd $n$.'}]}
   ]}
@@ -436,11 +461,11 @@ const SC = [
       return a.svg(); },
       caption:'The corners land at $1$, $5/3$, $7/3$ and $3$.'}
   ], right:[
-    {t:'note', kind:'def', head:'Method', html:'Shift right by 5, then compress by 3. The shifted signal has corners at $3,5,7,9$.'},
+    {t:'note', kind:'def', head:'Method', html:'Each original corner $c$ moves to the time that satisfies $3t-5=c$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'After compression the corners are at $1$, $5/3$, $7/3$ and $3$. The support is $[1,3]$.'}]},
+      {t:'eq', tex:'\\begin{aligned}3t-5&=c\\\\t&=\\dfrac{c+5}{3}\\\\c=-2,0,2,4&\\;\\Longrightarrow\\;t=1,\\dfrac53,\\dfrac73,3\\end{aligned}', label:'Map every corner'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Check', html:'The width goes from 6 to 2. At $t=5/3$ the value is $x(0)=2$.'}]}
+      {t:'note', kind:'ok', head:'Solution and check', html:'The support is $[1,3]$, so its width is $2=6/3$. At $t=5/3$, $3t-5=0$, so $y(5/3)=x(0)=2$.'}]}
   ]}
 ]},
 
@@ -541,8 +566,8 @@ const SC = [
     {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t),\\qquad \\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)',
       label:'Even and odd parts'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'x(t)=\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}', label:'Decomposition',
-        note:'Adding the two parts returns $x$. The same construction works for $x[n]$.'}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}&=\\tfrac12[x(t)+x(-t)]+\\tfrac12[x(t)-x(-t)]\\\\&=\\tfrac12[2x(t)]\\\\&=x(t)\\end{aligned}', label:'Decomposition',
+        note:'The $x(-t)$ terms cancel. The same construction works for $x[n]$.'}]}
   ]}
 ]},
 
@@ -637,7 +662,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Method', html:'Multiply by $\\delta[n-2]$ to keep the sample at $n=2$. Then sum that sequence.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'Sampling gives $3\\,\\delta[n-2]$. Sifting gives the number 3.'}]},
+      {t:'eq', tex:'\\begin{aligned}x[n]\\delta[n-2]&=x[2]\\delta[n-2]=3\\delta[n-2]\\\\\\sum_{n=-\\infty}^{\\infty}x[n]\\delta[n-2]&=x[0](0)+x[1](0)+x[2](1)\\\\&=3\\end{aligned}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'The sampled result is a sequence. The sifted result is the number 3.'}]}
   ]}
@@ -747,7 +772,7 @@ const SC = [
       return a.svg(); },
       caption:'$x(t)=e^{j0.5\\pi t}$: the real part, $\\cos(0.5\\pi t)$, of constant amplitude.'}
   ], right:[
-    {t:'eq', tex:'x(t)=A\\cos(\\omega_0 t+\\theta)+jA\\sin(\\omega_0 t+\\theta)', label:'Purely imaginary exponent',
+    {t:'eq', tex:'\\begin{aligned}x(t)&=Ce^{j\\omega_0t}\\\\&=Ae^{j\\theta}e^{j\\omega_0t}\\\\&=Ae^{j(\\omega_0t+\\theta)}\\\\&=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)\\end{aligned}', label:'Purely imaginary exponent',
       note:'$a=j\\omega_0$ and $C=Ae^{j\\theta}$. Here $\\omega_0$ is in rad/s and $\\theta$ is in radians.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Constant amplitude', html:'$|x(t)|=A$ for every $t$. The signal does not grow or decay.'}]}
@@ -768,12 +793,12 @@ const SC = [
       return a.svg(); },
       caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'}
   ], right:[
-    {t:'eq', key:true, tex:'T_0=\\dfrac{2\\pi}{\\omega_0}', label:'Fundamental period',
-      note:'Every continuous-time complex exponential with $\\omega_0\\neq 0$ is periodic. There is no further condition.'},
+    {t:'eq', key:true, tex:'\\begin{aligned}x(t+T)&=x(t)\\\\e^{j\\omega_0(t+T)}&=e^{j\\omega_0t}\\\\e^{j\\omega_0T}&=1\\\\\\omega_0T&=2\\pi k\\\\T&=\\dfrac{2\\pi k}{\\omega_0}\\end{aligned}', label:'Period condition',
+      note:'The smallest positive choice is $k=1$, so $T_0=2\\pi/\\omega_0$.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j0.5\\pi t}$.<div class="nsep"></div>Find the fundamental period. Use $T_0=2\\pi/\\omega_0$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$T_0=2\\pi/(0.5\\pi)=4$ seconds.'}]},
+      {t:'eq', tex:'T_0=\\dfrac{2\\pi}{\\omega_0}=\\dfrac{2\\pi}{0.5\\pi}=\\dfrac{2}{0.5}=4\\;\\text{s}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'$0.5\\pi\\cdot 4=2\\pi$. The phase advances one full turn over the period.'}]}
   ]}
@@ -796,7 +821,8 @@ const SC = [
       caption:'A damped case ($A=2$, $r=-0.5$): a sinusoid held inside the envelope $\\pm Ae^{rt}$.'},
     {t:'legend', items:[['in','$\\operatorname{Re}\\{x(t)\\}$'],['err','$\\pm2e^{-0.5t}$']]}
   ], right:[
-    {t:'note', kind:'warn', head:'Both parts non-zero', html:'With $a=r+j\\omega_0$, the curves $\\pm Ae^{rt}$ bound the sinusoid. If $r<0$ the oscillation is damped, if $r>0$ it grows, and if $r=0$ it is sustained.'}
+    {t:'eq', tex:'\\begin{aligned}x(t)&=Ae^{j\\theta}e^{(r+j\\omega_0)t}\\\\&=Ae^{rt}e^{j(\\omega_0t+\\theta)}\\\\\\operatorname{Re}\\{x(t)\\}&=Ae^{rt}\\cos(\\omega_0t+\\theta)\\end{aligned}', label:'Separate envelope and oscillation'},
+    {t:'note', kind:'warn', head:'Read the envelope', html:'The curves $\\pm Ae^{rt}$ bound the sinusoid. It decays for $r<0$, grows for $r>0$, and is sustained for $r=0$.'}
   ]}
 ]},
 
@@ -814,7 +840,7 @@ const SC = [
       caption:'$x[n]=0.5^{n}$ decreases.'}
   ], right:[
     {t:'eq', key:true, tex:'x[n]=C\\,e^{\\beta n},\\qquad C,\\beta\\in\\mathbb{C}', label:'Definition'},
-    {t:'eq', key:true, tex:'\\alpha=e^{\\beta}\\;\\Longrightarrow\\; x[n]=C\\,\\alpha^{n}', label:'Power form',
+    {t:'eq', key:true, tex:'\\begin{aligned}\\alpha&=e^{\\beta}\\\\x[n]&=Ce^{\\beta n}=C\\bigl(e^{\\beta}\\bigr)^n=C\\alpha^n\\end{aligned}', label:'Power form',
       note:'A difference equation produces this form.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Real $\\alpha$', html:'If $0<\\alpha<1$ the sequence decreases. If $\\alpha>1$ it increases.'}]},
@@ -853,7 +879,7 @@ const SC = [
       return a.svg(); },
       caption:'$|\\alpha|=0.95$ decays. The frequency is $0.14\\pi$ radians per sample.'}
   ], right:[
-    {t:'eq', tex:'x[n]=|C|\\,|\\alpha|^{n}\\cos(\\omega_0 n+\\theta)+j\\,|C|\\,|\\alpha|^{n}\\sin(\\omega_0 n+\\theta)',
+    {t:'eq', tex:'\\begin{aligned}x[n]&=C\\alpha^n\\\\&=|C|e^{j\\theta}\\bigl(|\\alpha|e^{j\\omega_0}\\bigr)^n\\\\&=|C||\\alpha|^ne^{j(\\omega_0n+\\theta)}\\\\&=|C||\\alpha|^n\\cos(\\omega_0n+\\theta)\\\\&\\quad+j|C||\\alpha|^n\\sin(\\omega_0n+\\theta)\\end{aligned}',
       label:'General complex case'},
     {t:'note', kind:'def', head:'Read $|\\alpha|$', html:'$|\\alpha|=1$ is sustained, $|\\alpha|>1$ grows, and $|\\alpha|<1$ decays. The figure uses $|\\alpha|=0.95$ and $\\omega_0=0.14\\pi$.'}
   ]}
@@ -872,9 +898,10 @@ const SC = [
       return a.svg(); },
       caption:'<b>Aperiodic.</b> $x[n]=\\cos(n)$ has $\\omega_0=1$, so $\\omega_0/2\\pi=1/(2\\pi)$ is irrational. The pattern never repeats exactly. It looks periodic, but it is not.'}
   ], right:[
-    {t:'eq', key:true, tex:'N=\\dfrac{2\\pi}{\\omega_0}\\,k,\\qquad k\\in\\mathbb{Z}', label:'Result'},
+    {t:'eq', key:true, tex:'\\begin{aligned}x[n+N]&=x[n]\\\\e^{j\\omega_0(n+N)}&=e^{j\\omega_0n}\\\\e^{j\\omega_0N}&=1\\\\\\omega_0N&=2\\pi k\\\\N&=\\dfrac{2\\pi k}{\\omega_0}\\end{aligned}', label:'Period condition'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'N has to be an integer', html:'This is possible only when $\\omega_0/2\\pi$ is rational. If the ratio is irrational, no integer $N$ works and the sequence is aperiodic.'}]},
+      {t:'eq', tex:'\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}\\in\\mathbb{Q}', label:'Integer requirement',
+        note:'Both $k$ and $N$ are integers. If the ratio is irrational, no integer period exists.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'A shift of $2\\pi$', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. Frequencies that differ by $2\\pi$ are the same sequence.'}]}
   ]}
@@ -896,7 +923,7 @@ const SC = [
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=e^{j(3\\pi/5)n}$.<div class="nsep"></div>Find $N_0$. Take the smallest positive integer $k$ that makes $N$ an integer.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'N=\\dfrac{10}{3}k', label:'The count'}]},
+      {t:'eq', tex:'\\begin{aligned}N&=\\dfrac{2\\pi k}{\\omega_0}\\\\&=\\dfrac{2\\pi k}{3\\pi/5}\\\\&=\\dfrac{10}{3}k\\end{aligned}', label:'Substitute the frequency'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'Solution', html:'The smallest such $k$ is 3, so $N_0=10$.'}]},
     {t:'reveal', at:3, items:[

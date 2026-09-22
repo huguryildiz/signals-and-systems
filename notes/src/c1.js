@@ -94,12 +94,13 @@ window.C1 = [
  ['Neither','$E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$','Signals that grow without bound, such as $t\\,u(t)$']
 ]},
 {t:'p', text:'The two energy-signal conditions are not independent. If $E_\\infty$ is finite, the energy in every finite window is at most $E_\\infty$. Dividing this bound by $2T$ makes $P_\\infty$ approach zero. The power condition follows from the energy condition.'},
+{t:'eq', tex:'\\begin{aligned}E_T&=\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\le E_\\infty\\\\0\\le P_\\infty&=\\lim_{T\\to\\infty}\\frac{E_T}{2T}\\le\\lim_{T\\to\\infty}\\frac{E_\\infty}{2T}=0\\\\\\therefore\\quad P_\\infty&=0.\\end{aligned}'},
 
 {t:'ex', hd:'Example 1.1', rows:[
  ['Given','$x(t)=1$ for $0\\le t\\le1$, and $x(t)=0$ otherwise.'],
  ['Find','Is this an energy signal or a power signal?'],
  ['Method','Find $E_\\infty$ first because finite energy implies zero average power. This result then determines the class.'],
- ['Solution','$$E_\\infty=\\int_{0}^{1}1^{2}\\,\\d t=1<\\infty$$ $$P_\\infty=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{0}^{1}1\\,\\d t=\\lim_{T\\to\\infty}\\frac{1}{2T}=0$$ So $x(t)$ is an <b>energy signal</b>, with $E_\\infty=1$ J.'],
+ ['Solution','Start with the definitions and then use the support of the signal: $$\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t\\\\&=\\int_{0}^{1}1^{2}\\,\\d t\\\\&=\\left.t\\right|_{0}^{1}=1<\\infty.\\end{aligned}$$ For every $T\\ge1$, the window contains the whole pulse. Therefore $$\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}\\int_{0}^{1}1\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\frac{1}{2T}=0.\\end{aligned}$$ So $x(t)$ is an <b>energy signal</b>, with $E_\\infty=1$ J.'],
  ['Check','Halving the amplitude must divide the energy by four. Direct calculation gives $\\int_0^1(1/2)^2\\d t=1/4$, so the result has the required quadratic dependence on amplitude.']
 ]},
 
@@ -107,7 +108,7 @@ window.C1 = [
  ['Given','$x[n]=4$ for every integer $n$.'],
  ['Find','Is this an energy signal or a power signal?'],
  ['Method','Each sample contributes the same positive energy, so $E_\\infty$ diverges. Calculate $P_\\infty$ next and use the exact count $2N+1$.'],
- ['Solution','$$E_\\infty=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\to\\infty$$ $$P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}16=\\lim_{N\\to\\infty}\\frac{(2N+1)\\cdot16}{2N+1}=16$$ So $x[n]$ is a <b>power signal</b>, with $P_\\infty=16$.'],
+ ['Solution','Each sample contributes $|4|^{2}=16$, so $$\\begin{aligned}E_\\infty&=\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}\\\\&=\\sum_{n=-\\infty}^{\\infty}|4|^{2}\\\\&=\\sum_{n=-\\infty}^{\\infty}16\\to\\infty.\\end{aligned}$$ The finite window from $-N$ to $N$ contains $2N+1$ samples. Hence $$\\begin{aligned}P_\\infty&=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}\\\\&=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}16\\\\&=\\lim_{N\\to\\infty}\\frac{(2N+1)16}{2N+1}\\\\&=\\lim_{N\\to\\infty}16=16.\\end{aligned}$$ So $x[n]$ is a <b>power signal</b>, with $P_\\infty=16$.'],
  ['Check','A constant of amplitude $A$ must have $P_\\infty=A^{2}$. The factor $2N+1$ cancels exactly, which confirms the sample count was right.']
 ]},
 {t:'box', kind:'err', html:'<span class="t">Do not infer power from energy alone</span>Infinite energy does not imply infinite average power. For the constant sequence, both the energy sum and the sample count grow at the same rate. Their ratio approaches 16.'},
@@ -136,6 +137,7 @@ window.C1 = [
  after:'If $a>1$ the signal is compressed and speeded up. If $0<a<1$ it is stretched and slowed down.'},
 {t:'p', text:'Write the scaled signal as a new signal $y(t)$. Writing $x(t)=x(at)$ would force $a=1$.'},
 {t:'p', text:'Find the new support by solving $at\\in[\\alpha,\\beta]$. If $x$ is non-zero only on $[\\alpha,\\beta]$, then $x(at)$ is non-zero only on $[\\alpha/a,\\beta/a]$. The width is divided by $a$.'},
+{t:'eq', tex:'at\\in[\\alpha,\\beta]\\;\\Longleftrightarrow\\;\\alpha\\le at\\le\\beta\\;\\Longleftrightarrow\\;\\frac{\\alpha}{a}\\le t\\le\\frac{\\beta}{a},\\qquad a>0.'},
 {t:'figrow', n:3, items:[
  {svg:()=>{const r=t=>(t>=1&&t<=3)?1:0;const a=ax({xr:[-1,7],yr:[-0.2,1.3],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:3,ytarget:2});
    a.curve(r,{color:C.ink}); a.note(2,1.1,'x(t)',{anchor:'middle',color:C.ink,fs:11,tex:true}); return a.svg();}},
@@ -157,7 +159,7 @@ window.C1 = [
  ['Given','$x(t)$ is zero for $t<-2$, equal to $1$ on $[-2,0]$, equal to $2$ on $[0,2]$, and falls linearly from $2$ to $0$ on $[2,4]$.'],
  ['Find','Plot $x(3t-5)$.'],
  ['Method','Here $a=3$ and $b=5$. Shift right by 5, then compress by 3.'],
- ['Solution','$v(t)=x(t-5)$ has corners at $t=3,5,7,9$. Then $y(t)=v(3t)$ has corners at $t=1,\\;5/3,\\;7/3,\\;3$.'],
+ ['Solution','For the shift, each original corner $c$ moves to $c+5$, so $-2,0,2,4$ become $3,5,7,9$. For the final signal, solve the argument equation for each original corner: $$3t-5=c\\quad\\Longrightarrow\\quad t=\\frac{c+5}{3}.$$ Thus $$c=-2,0,2,4\\quad\\Longrightarrow\\quad t=1,\\frac53,\\frac73,3.$$ These are the four corners of $y(t)=x(3t-5)$.'],
  ['Check','The original support has width 6. Compression by $a=3$ must give width 2, and the result has support $[1,3]$. Also set $at-b=0$. This gives $t=b/a=5/3$, where $y(t)$ must equal $x(0)=2$.']
 ]},
 {t:'figrow', n:3, items:[
@@ -204,6 +206,7 @@ window.C1 = [
  tex:['\\Ev\\{x(t)\\}=\\tfrac12\\bigl[x(t)+x(-t)\\bigr],\\qquad \\Od\\{x(t)\\}=\\tfrac12\\bigl[x(t)-x(-t)\\bigr]',
       'x(t)=\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}'],
  after:'Adding the two definitions returns $x$ exactly.'},
+{t:'eq', tex:'\\begin{aligned}\\Ev\\{x(t)\\}+\\Od\\{x(t)\\}&=\\tfrac12[x(t)+x(-t)]+\\tfrac12[x(t)-x(-t)]\\\\&=\\tfrac12[2x(t)]=x(t).\\end{aligned}'},
 {t:'figrow', n:3, items:[
  {svg:()=>{const a=ax({xr:[-1,1],yr:[-0.12,1.15],xlabel:'t',w:230,h:120,pad:{l:32,r:12,t:12,b:24},xtarget:2,ytarget:2});
    a.curve(t=>t*t,{color:C.in}); return a.svg();}, cap:'$t^{2}$ is even.'},
@@ -274,10 +277,10 @@ window.C1 = [
 {t:'p', text:'If $a<0$ the signal decays. If $a>0$ it grows. If $a=0$ it is the constant $C$. A larger $|a|$ makes the decay or growth faster.'},
 {t:'h3', text:'Case 2: $a=j\\omega_0$ purely imaginary'},
 {t:'p', text:'Write $C=Ae^{j\\theta}$ and use Euler\'s relation $e^{jx}=\\cos x+j\\sin x$:'},
-{t:'eq', tex:'x(t)=A e^{j(\\omega_0 t+\\theta)}=A\\cos(\\omega_0 t+\\theta)+jA\\sin(\\omega_0 t+\\theta).'},
+{t:'eq', tex:'\\begin{aligned}x(t)&=Ce^{j\\omega_0t}\\\\&=Ae^{j\\theta}e^{j\\omega_0t}\\\\&=Ae^{j(\\omega_0t+\\theta)}\\\\&=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta).\\end{aligned}'},
 {t:'p', text:'Here $A$ is the amplitude, $\\omega_0$ is the angular frequency in rad/s, and $\\theta$ is the phase in radians.'},
 {t:'p', text:'To test periodicity, impose the condition $x(t)=x(t+T)$ and solve for $T$:'},
-{t:'eq', tex:'Ae^{j(\\omega_0 t+\\theta)}=Ae^{j(\\omega_0(t+T)+\\theta)}\\;\\Longrightarrow\\;1=e^{j\\omega_0 T}\\;\\Longrightarrow\\;j2\\pi k=j\\omega_0 T\\;\\Longrightarrow\\;T=\\frac{2\\pi}{\\omega_0}k.'},
+{t:'eq', tex:'\\begin{aligned}x(t+T)&=x(t)\\\\Ae^{j[\\omega_0(t+T)+\\theta]}&=Ae^{j(\\omega_0t+\\theta)}\\\\e^{j\\omega_0T}&=1\\\\\\omega_0T&=2\\pi k,\\qquad k\\in\\mathbb{Z}\\\\T&=\\frac{2\\pi k}{\\omega_0}.\\end{aligned}'},
 {t:'box', kind:'ok', html:'<span class="t">Result</span>Taking $k=1$ gives the fundamental period $T_0=2\\pi/\\omega_0$. Every continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
 {t:'ex', hd:'Example 1.5', rows:[
  ['Given','$x(t)=e^{j0.5\\pi t}$.'],
@@ -287,7 +290,7 @@ window.C1 = [
  ['Check','$0.5\\pi\\times4=2\\pi$, so the phase increases by one full turn over the calculated period.']
 ]},
 {t:'h3', text:'Case 3: $a=r+j\\omega_0$'},
-{t:'eq', tex:'x(t)=Ae^{rt}\\cos(\\omega_0 t+\\theta)+jAe^{rt}\\sin(\\omega_0 t+\\theta).'},
+{t:'eq', tex:'\\begin{aligned}x(t)&=Ae^{j\\theta}e^{(r+j\\omega_0)t}\\\\&=Ae^{rt}e^{j(\\omega_0t+\\theta)}\\\\&=Ae^{rt}\\cos(\\omega_0t+\\theta)+jAe^{rt}\\sin(\\omega_0t+\\theta).\\end{aligned}'},
 {t:'p', text:'The curves $\\pm Ae^{rt}$ form an envelope that bounds the sinusoid. If $r<0$, the oscillation is damped. If $r>0$, it grows. If $r=0$, it is sustained.'},
 {t:'fig', svg:()=>{const a=ax({xr:[0,5],yr:[-2.3,2.3],xlabel:'t',w:700,h:170,xtarget:5,ytarget:3});
   a.curve(t=>2*Math.exp(-0.5*t),{color:C.err,dash:'5 5',width:1.2});
@@ -300,19 +303,19 @@ window.C1 = [
 {t:'eqbox', cap:'Definition', tex:'x[n]=C\\,e^{\\beta n}=C\\,\\alpha^{n},\\qquad \\alpha=e^{\\beta}',
  after:'Use the power form in discrete time because solutions of difference equations have this form.'},
 {t:'p', text:'For real $C$ and $\\alpha$: if $0<\\alpha<1$ the sequence decreases; if $\\alpha>1$ it increases. For complex $C=|C|e^{j\\theta}$ and $\\alpha=|\\alpha|e^{j\\omega_0}$:'},
-{t:'eq', tex:'x[n]=|C|\\,|\\alpha|^{n}\\cos(\\omega_0 n+\\theta)+j\\,|C|\\,|\\alpha|^{n}\\sin(\\omega_0 n+\\theta).'},
+{t:'eq', tex:'\\begin{aligned}x[n]&=C\\alpha^n\\\\&=|C|e^{j\\theta}\\bigl(|\\alpha|e^{j\\omega_0}\\bigr)^n\\\\&=|C||\\alpha|^ne^{j(\\omega_0n+\\theta)}\\\\&=|C||\\alpha|^n\\cos(\\omega_0n+\\theta)+j|C||\\alpha|^n\\sin(\\omega_0n+\\theta).\\end{aligned}'},
 {t:'box', kind:'warn', html:'<span class="t">The boundary moves</span>In continuous time the growth-decay boundary is $\\operatorname{Re}\\{a\\}=0$, the imaginary axis. In discrete time it is $|\\alpha|=1$, the unit circle. The map between them is $\\alpha=e^{\\beta}$.'},
 
 {t:'h2', num:'1.13', text:'When is a discrete-time exponential periodic?'},
 {t:'p', text:'A discrete-time period must be an integer. Apply $x[n]=x[n+N]$ to $x[n]=Ce^{j\\omega_0 n}$ and solve for that integer:'},
-{t:'eq', tex:'Ce^{j\\omega_0 n}=Ce^{j\\omega_0(n+N)}\\;\\Longrightarrow\\;1=e^{j\\omega_0 N}\\;\\Longrightarrow\\;j2\\pi k=j\\omega_0 N\\;\\Longrightarrow\\;N=\\frac{2\\pi}{\\omega_0}k.'},
+{t:'eq', tex:'\\begin{aligned}x[n+N]&=x[n]\\\\Ce^{j\\omega_0(n+N)}&=Ce^{j\\omega_0n}\\\\e^{j\\omega_0N}&=1\\\\\\omega_0N&=2\\pi k,\\qquad k\\in\\mathbb{Z}\\\\N&=\\frac{2\\pi k}{\\omega_0}.\\end{aligned}'},
 {t:'eqbox', cap:'Periodicity condition', big:true, tex:'\\frac{\\omega_0}{2\\pi}=\\frac{k}{N}\\in\\mathbb{Q}',
  after:'$N$ must be an integer. This is possible only when $\\omega_0/2\\pi$ is rational. If the ratio is irrational, no integer $N$ satisfies the periodicity condition and the sequence is aperiodic.'},
 {t:'ex', hd:'Example 1.6', rows:[
  ['Given','$x[n]=e^{j(3\\pi/5)n}$.'],
  ['Find','The fundamental period $N_0$.'],
  ['Method','Use $N=2\\pi k/\\omega_0$ and take the smallest $k$ that makes $N$ an integer.'],
- ['Solution','$N=\\dfrac{2\\pi}{3\\pi/5}k=\\dfrac{10}{3}k$. The smallest positive integer $k$ giving an integer $N$ is $k=3$, so $N_0=10$.'],
+ ['Solution','Substitute the frequency before choosing $k$: $$\\begin{aligned}N&=\\frac{2\\pi k}{\\omega_0}\\\\&=\\frac{2\\pi k}{3\\pi/5}\\\\&=\\frac{10}{3}k.\\end{aligned}$$ The smallest positive integer $k$ giving an integer $N$ is $k=3$, so $N_0=10$.'],
  ['Check','$\\omega_0N_0=\\dfrac{3\\pi}{5}\\times10=6\\pi=2\\pi\\times3$. The phase therefore changes by three full turns in ten samples.']
 ]},
 {t:'figrow', items:[

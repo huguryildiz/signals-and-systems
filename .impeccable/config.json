@@ -1,0 +1,38 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "rgba(152,53,39,.14)",
+        "createdAt": "2026-09-22T18:14:23.624Z",
+        "reason": "Pre-existing notes figure fill; DESIGN.md records the notes palette gap and this derivation task does not change visual tokens."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(63,108,59,.13)",
+        "createdAt": "2026-09-22T18:15:53.684Z",
+        "reason": "Pre-existing notes figure fill; DESIGN.md records the notes palette gap and this derivation task does not change visual tokens."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(152,53,39,.12)",
+        "createdAt": "2026-09-22T18:15:53.925Z",
+        "reason": "Pre-existing notes figure fill; DESIGN.md records the notes palette gap and this derivation task does not change visual tokens."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#a9741c",
+        "createdAt": "2026-09-22T18:15:54.046Z",
+        "reason": "Pre-existing notes figure color; DESIGN.md records the notes palette gap and this derivation task does not change visual tokens."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(169,80,47,.2)",
+        "createdAt": "2026-09-22T18:15:54.171Z",
+        "reason": "Pre-existing notes figure fill; DESIGN.md records the notes palette gap and this derivation task does not change visual tokens."
+      }
+    ]
+  }
+}

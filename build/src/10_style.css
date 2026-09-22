@@ -634,6 +634,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
    keeps the larger `lg` size under the lecture-mode rule, which is larger
    still and has to win there. */
 .scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
+:where(.scene.slide) .eq{ font-size:calc(19px * var(--ts)); }
 :where(.scene.slide) .eq.lg .katex{ font-size:1.68em; }
 
 /* Room for the tab. Only a card with a head and an equation with a label have
@@ -655,7 +656,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 .scene.slide :is(.scene-inner, .col, .reveal, .gcell) > * + figure.fig{ margin-top:var(--tab-room); }
 
 /* the figure frame keeps the card's rhythm; the caption reads from the back */
-.scene.slide figcaption{ font-size:calc(16px * var(--ts)); line-height:1.45; }
+.scene.slide figcaption{ font-size:calc(18px * var(--ts)); line-height:1.45; }
 .scene.slide .fig-frame{ padding:14px 16px; }
 .course-map-kicker{ margin:0 0 13px; color:var(--slate); font-size:12px; font-weight:650; }
 .course-map-kicker span{ float:right; color:var(--coral); }
@@ -762,6 +763,12 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
+.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
+  font-size:calc(18px * var(--ts));
+}
+.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) figcaption{
+  font-size:calc(18px * var(--ts));
+}
 .lab > .cols{ height:100%; align-items:stretch; }
 .lab > .cols > .col.stack{ justify-content:space-between; }
 .ctrls{

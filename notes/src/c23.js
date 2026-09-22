@@ -31,9 +31,8 @@ window.C23 = [
  ['$y[n]=x[n-1]$','has memory','The output at $n$ uses the sample at $n-1$.'],
  ['$y[n]=x[n]+y[n-1]$','has memory','See the derivation below.']
 ]},
-{t:'p', text:'For the last system, expose the memory by substituting the feedback relation repeatedly:'},
-{t:'eq', tex:'y[n-1]=x[n-1]+y[n-2],\\qquad y[n-2]=x[n-2]+y[n-3],\\qquad\\dots'},
-{t:'eq', tex:'\\Longrightarrow\\quad y[n]=x[n]+x[n-1]+x[n-2]+\\cdots=\\sum_{k=0}^{\\infty}x[n-k].'},
+{t:'p', text:'For the last system, assume initial rest and expose the memory by substituting the feedback relation repeatedly:'},
+{t:'eq', tex:'\\begin{aligned}y[n]&=x[n]+y[n-1]\\\\&=x[n]+x[n-1]+y[n-2]\\\\&=x[n]+x[n-1]+x[n-2]+y[n-3]\\\\&\\;\\;\\vdots\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k].\\end{aligned}'},
 {t:'p', text:'The result uses $x[n-k]$ for every $k\\ge0$, so the output depends on the whole input history. Output feedback can therefore give a system memory.'},
 {t:'box', kind:'ok', html:'<span class="t">Circuit examples</span>A resistor, $v(t)=R\\,i(t)$, is memoryless because the voltage at $t$ uses only the current at $t$. A capacitor is not memoryless because $v(t)=\\frac{1}{C}\\int_{-\\infty}^{t}i(\\tau)\\,\\d\\tau$ uses the current history.'},
 
@@ -44,14 +43,14 @@ window.C23 = [
  ['Given','$y(t)=\\bigl[\\cos(t)+2\\bigr]x(t)$.'],
  ['Find','Is the system invertible?'],
  ['Method','Solve the system rule for $x(t)$ and verify that the divisor never vanishes.'],
- ['Solution','Yes. The gain satisfies $1\\le\\cos(t)+2\\le3$, so it never vanishes and $$x(t)=\\frac{y(t)}{\\cos(t)+2}.$$'],
+ ['Solution','First bound the gain: $$-1\\le\\cos(t)\\le1\\quad\\Longrightarrow\\quad1\\le\\cos(t)+2\\le3.$$ It is never zero. Now solve the system equation for the input: $$y(t)=[\\cos(t)+2]x(t)\\quad\\Longrightarrow\\quad x(t)=\\frac{y(t)}{\\cos(t)+2}.$$ The input is recovered uniquely, so the system is invertible.'],
  ['Check','Substituting back gives $\\bigl[\\cos t+2\\bigr]\\dfrac{y(t)}{\\cos t+2}=y(t)$. Had the gain been $\\cos(t)$ alone, the system would fail at every zero of the cosine.']
 ]},
 {t:'ex', hd:'Example 2.2', rows:[
  ['Given','$y(t)=x^{2}(t)$.'],
  ['Find','Is the system invertible?'],
  ['Method','Search for two distinct inputs that lose the same information under squaring.'],
- ['Solution','No. Take $x_1(t)=1$ and $x_2(t)=-1$ for all $t$. These are different inputs, but $y_1(t)=y_2(t)=1$.'],
+ ['Solution','No. Take $x_1(t)=1$ and $x_2(t)=-1$ for all $t$. Then $$S\\{x_1\\}=1^2=1,\\qquad S\\{x_2\\}=(-1)^2=1.$$ The inputs are different, but their outputs are equal.'],
  ['Check','One counterexample is enough. The sign information is destroyed and cannot be recovered from $y$ alone.']
 ]},
 {t:'box', kind:'err', html:'<span class="t">Not an inversion formula</span>Writing $x(t)=\\sqrt{y(t)}$ does not invert $y=x^{2}$. It picks one of two possible inputs by convention. An inversion formula must return the actual input, for every admissible input.'},
@@ -82,14 +81,14 @@ window.C23 = [
  ['Given','$y(t)=2x^{2}(t-1)+x(3t)$.'],
  ['Find','Is the system stable?'],
  ['Method','Assume $|x(t)|\\le B<\\infty$ and bound $|y|$ with the triangle inequality.'],
- ['Solution','$$|y(t)|\\le\\bigl|2x^{2}(t-1)\\bigr|+\\bigl|x(3t)\\bigr|\\le 2B^{2}+B<\\infty.$$ The system is stable.'],
+ ['Solution','Use the system rule, then apply the triangle inequality, then use the input bound: $$\\begin{aligned}|y(t)|&=|2x^{2}(t-1)+x(3t)|\\\\&\\le|2x^{2}(t-1)|+|x(3t)|\\\\&=2|x(t-1)|^{2}+|x(3t)|\\\\&\\le2B^{2}+B<\\infty.\\end{aligned}$$ The output therefore has the finite bound $2B^{2}+B$, so the system is stable.'],
  ['Check','Shifting and scaling the time axis cannot change the set of values a signal takes, so $x(t-1)$ and $x(3t)$ are bounded by the same $B$.']
 ]},
 {t:'ex', hd:'Example 2.4', rows:[
  ['Given','$y[n]=\\sum_{k=-\\infty}^{n}x[k]$, the accumulator.'],
  ['Find','Is the system stable?'],
  ['Method','Look for one bounded input with an unbounded output.'],
- ['Solution','Take $x[n]=u[n]$, so $|x[n]|\\le1$. Then $$y[n]=\\sum_{k=0}^{n}1=n+1\\longrightarrow\\infty.$$ The system is <b>not</b> stable.'],
+ ['Solution','Take $x[n]=u[n]$, so $|x[n]|\\le1$. For $n\\ge0$, $$\\begin{aligned}y[n]&=\\sum_{k=-\\infty}^{n}u[k]\\\\&=\\sum_{k=0}^{n}1\\\\&=n+1\\longrightarrow\\infty.\\end{aligned}$$ The input is bounded and the output is unbounded. The system is <b>not</b> stable.'],
  ['Check','The input never exceeds 1 and the output grows without bound. That is exactly the failure BIBO stability forbids.']
 ]},
 {t:'figrow', items:[
@@ -114,18 +113,19 @@ window.C23 = [
  ['Given','$y(t)=\\sin\\bigl(x(t)\\bigr)$.'],
  ['Find','Is the system time invariant?'],
  ['Method','Compute the response to a shifted input and compare it with the shifted response.'],
- ['Solution','Path 1: with $x_2(t)=x_1(t-t_0)$ we get $y_2(t)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.<br>Path 2: $y_1(t)=\\sin\\bigl(x_1(t)\\bigr)$, so $y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)$.<br>They agree for every $t_0$, so the system is time invariant.'],
+ ['Solution','Path 1 shifts the input and then applies the system: $$x_2(t)=x_1(t-t_0)\\quad\\Longrightarrow\\quad y_2(t)=\\sin(x_2(t))=\\sin(x_1(t-t_0)).$$ Path 2 applies the system and then shifts its output: $$y_1(t)=\\sin(x_1(t))\\quad\\Longrightarrow\\quad y_1(t-t_0)=\\sin(x_1(t-t_0)).$$ Thus $y_2(t)=y_1(t-t_0)$ for every input and every $t_0$. The system is time invariant.'],
  ['Check','Both paths give the same expression for every input and every $t_0$.']
 ]},
 {t:'ex', hd:'Example 2.6', rows:[
  ['Given','$y[n]=n\\,x[n]$.'],
  ['Find','Is the system time invariant?'],
  ['Method','Look for a counterexample using an impulse.'],
- ['Solution','Take $x_1[n]=\\delta[n]$. Then $y_1[n]=n\\,\\delta[n]=0$ for every $n$.<br>Now delay by one: $x_2[n]=\\delta[n-1]$ gives $y_2[n]=n\\,\\delta[n-1]=\\delta[n-1]$, which equals 1 at $n=1$.<br>Time invariance would require $y_2[n]=y_1[n-1]=0$. It does not. The system is <b>not</b> time invariant.'],
+ ['Solution','Take $x_1[n]=\\delta[n]$. The original output and its one-sample delay are $$y_1[n]=n\\delta[n]=0,\\qquad y_1[n-1]=0.$$ Now delay the input first: $$\\begin{aligned}x_2[n]&=\\delta[n-1],\\\\y_2[n]&=n\\delta[n-1]\\\\&=1\\cdot\\delta[n-1]=\\delta[n-1].\\end{aligned}$$ The identity $n\\delta[n-1]=\\delta[n-1]$ follows because the impulse is non-zero only at $n=1$. Therefore $y_2[n]\\neq y_1[n-1]$, so the system is <b>not</b> time invariant.'],
  ['Check','The impulse isolates one index, so the unequal outputs form a complete counterexample.']
 ]},
 {t:'box', kind:'ok', html:'<span class="t">When to apply the test first</span>An explicit time-dependent coefficient such as $n$ or $\\cos(t)$ usually breaks time invariance. A scaled input argument such as $x(3t)$ also changes input shifts. In either case, use the two-path test.'},
 
+{t:'page'},
 {t:'h2', num:'2.7', text:'Linearity'},
 {t:'eqbox', cap:'Criterion', tex:'a\\,x_1+b\\,x_2\\;\\longrightarrow\\;a\\,y_1+b\\,y_2\\qquad\\text{for all }a,b\\in\\mathbb{C}',
  after:'where $x_1\\to y_1$ and $x_2\\to y_2$. This is additivity and homogeneity in one statement.'},
@@ -133,13 +133,14 @@ window.C23 = [
  ['Given','$y(t)=2\\pi\\,x(t)$.'],
  ['Find','Is the system linear?'],
  ['Method','Apply the system to a weighted sum and compare the result with the same weighted sum of the two outputs.'],
- ['Solution','With $x_3=ax_1+bx_2$: $$y_3=2\\pi(ax_1+bx_2)=a\\underbrace{2\\pi x_1}_{y_1}+b\\underbrace{2\\pi x_2}_{y_2}=ay_1+by_2.$$ The system is linear. It is also time invariant, so it is the simplest possible LTI system.']
+ ['Solution','Let $x_3=ax_1+bx_2$. Apply the system and distribute the constant: $$\\begin{aligned}S\\{x_3\\}&=S\\{ax_1+bx_2\\}\\\\&=2\\pi(ax_1+bx_2)\\\\&=a(2\\pi x_1)+b(2\\pi x_2)\\\\&=a\\,y_1+b\\,y_2.\\end{aligned}$$ The required superposition equality holds, so the system is linear. It is also time invariant, so it is LTI.'],
+ ['Check','The final expression is exactly $a\\,S\\{x_1\\}+b\\,S\\{x_2\\}$ for arbitrary inputs and scalars.']
 ]},
 {t:'ex', hd:'Example 2.8', rows:[
  ['Given','$y[n]=\\bigl(x[2n]\\bigr)^{2}$.'],
  ['Find','Is the system linear?'],
  ['Method','Apply superposition and compare the powers and cross term with the required linear result.'],
- ['Solution','With $x_3[n]=ax_1[n]+bx_2[n]$: $$y_3[n]=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^{2}=a^{2}x_1^{2}[2n]+2ab\\,x_1[2n]x_2[2n]+b^{2}x_2^{2}[2n],$$ while $ay_1[n]+by_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n]$. The powers of $a$ and $b$ differ and a cross term appears, so the system is <b>not</b> linear.'],
+ ['Solution','Let $x_3[n]=ax_1[n]+bx_2[n]$. Combining first and then applying the system gives $$\\begin{aligned}y_3[n]&=\\bigl(x_3[2n]\\bigr)^2\\\\&=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^2\\\\&=a^{2}x_1^{2}[2n]+2ab\\,x_1[2n]x_2[2n]+b^{2}x_2^{2}[2n].\\end{aligned}$$ Applying the system first and then combining gives $$a\\,y_1[n]+b\\,y_2[n]=a\\,x_1^{2}[2n]+b\\,x_2^{2}[2n].$$ The expressions differ: the first has a cross term and different powers of $a$ and $b$. The system is <b>not</b> linear.'],
  ['Check','Scaling the input by $a$ scales this output by $a^{2}$, so homogeneity also fails.']
 ]},
 {t:'box', kind:'err', html:'<span class="t">Zero-input test</span>$y(t)=x(t)+5$ is not linear because the zero input does not give the zero output. Every linear system must satisfy $S\\{0\\}=0$.'},
@@ -337,8 +338,6 @@ window.C23 = [
 {t:'q', n:'3.2', text:'Let $h[n]=\\left(\\tfrac13\\right)^{n}u[n]$. Is the system stable? Is it causal? Is it memoryless?', ans:'Stable ($\\sum|h|=3/2$), causal, not memoryless.'},
 {t:'q', n:'3.3', text:'Find $y(t)=u(t)*u(t)$ and sketch it.', ans:'$y(t)=t\\,u(t)$.'},
 {t:'q', n:'3.4', text:'Two systems with $h_1[n]=\\delta[n]-\\delta[n-1]$ and $h_2[n]=u[n]$ are cascaded. Find the impulse response of the cascade and identify the resulting system.', ans:'$\\delta[n]$: the two systems are inverses.'},
-{t:'q', n:'3.5', text:'$x(t)=1$ on $0<t<3$ and $h(t)=t$ on $0<t<2$. List the case boundaries before computing anything, then find $y(t)$.', ans:'Boundaries at $t=0,2,3,5$; four cases.'},
-
-{t:'page'}
+{t:'q', n:'3.5', text:'$x(t)=1$ on $0<t<3$ and $h(t)=t$ on $0<t<2$. List the case boundaries before computing anything, then find $y(t)$.', ans:'Boundaries at $t=0,2,3,5$; four cases.'}
 ];
 })();
