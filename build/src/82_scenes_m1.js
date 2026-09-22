@@ -95,6 +95,13 @@ const SC = [
       a.vline(1.2,{color:C.coral}); a.vline(4.4,{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
+      /* a sticky note: the constant-power rule the integral generalises */
+      const nx=a.sx(6.55), ny=a.sy(1.43);
+      a.raw(`<g transform="rotate(-3 ${nx} ${ny})" style="--fig-halo:#F3DC7A">
+        <rect x="${nx-104}" y="${ny-26}" width="212" height="56" rx="2" fill="rgba(0,0,0,.28)"/>
+        <rect x="${nx-108}" y="${ny-30}" width="212" height="56" rx="2" fill="#F3DC7A"/>`);
+      a.note(6.55,1.43,'\\text{Energy}=\\text{Power}\\times\\text{Time}',{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
+      a.raw('</g>');
       return a.svg(); },
       caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
   ], right:[
