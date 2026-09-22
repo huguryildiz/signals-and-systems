@@ -129,6 +129,7 @@ const note = m => console.log('  ' + m);
     page.on('pageerror', e => errors.push(String(e)));
 
     await page.goto(url('index.html'));
+    await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
     await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-light.png') });
 
@@ -149,11 +150,6 @@ const note = m => console.log('  ' + m);
     if (missing.length) problems.push('cover links to files that were not published: ' + missing.join(', '));
     if (dangling.length) problems.push('cover links to sections that do not exist: ' + dangling.join(', '));
 
-    /* Both canvases have to have painted something. A canvas that stayed
-       blank is the failure this page can have without erroring. The backdrop
-       is a WebGL context and the instrument a 2D one, so each is read the way
-       its own context allows — a 2D read of a WebGL canvas returns null and
-       would report the blank it was meant to catch. */
     /* The backdrop is WebGL and asks for no preserved drawing buffer, so its
        pixels cannot be read back outside the frame that drew them — a
        readPixels here returns zeros however well it is painting. What is
@@ -177,56 +173,22 @@ const note = m => console.log('  ' + m);
          + (bg.w ? ' · canvas ' + bg.w + '×' + bg.h : ''));
     if (!bg.ok) problems.push('the backdrop shader is not running: ' + bg.why);
 
-    {
-      const ink = await page.evaluate(() => {
-        const c = document.getElementById('scope');
-        if (!c || !c.width || !c.height) return -1;
-        const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-        let lit = 0;
-        for (let i = 0; i < d.length; i += 4 * 97)
-          if (d[i] > 40 || d[i + 1] > 40 || d[i + 2] > 40) lit++;
-        return lit;
-      });
-      note('canvas #scope lit samples ' + ink);
-      if (ink <= 0) problems.push('the #scope canvas drew nothing');
+    /* The four document photographs loaded, and each card downloads a file
+       the site publishes. No card may point at the instructor edition. */
+    const cards = await page.evaluate(() => [...document.querySelectorAll('.doc')].map(a => ({
+      href: a.getAttribute('href'),
+      download: a.hasAttribute('download'),
+      img: (() => { const i = a.querySelector('img'); return i && i.complete ? i.naturalWidth : 0; })()
+    })));
+    note('cover cards ' + cards.length + ' · photographs loaded '
+         + cards.filter(c => c.img > 0).length + ' · download links '
+         + cards.filter(c => c.download).length);
+    if (cards.length !== 4) problems.push('the cover shows ' + cards.length + ' document cards, not 4');
+    for (const c of cards) {
+      if (!c.img) problems.push('the photograph on the ' + c.href + ' card did not load');
+      if (!c.download) problems.push('the ' + c.href + ' card is not a download link');
+      if (/instructor/i.test(c.href)) problems.push('a cover card links the instructor edition');
     }
-
-    /* The readout is computed from the same model that draws the trace, so it
-       has to move with the sweep and it has to call aliasing when the rate is
-       below the Nyquist rate of the 1 kHz cosine. */
-    const read = () => page.evaluate(() => ({
-      fs: parseFloat(document.getElementById('hud-fs').textContent),
-      fr: parseFloat(document.getElementById('hud-fr').textContent),
-      aliased: document.getElementById('hud-out').classList.contains('is-aliased')
-    }));
-    const a = await read();
-    await page.waitForTimeout(2200);
-    const b = await read();
-    note('sampler ' + a.fs.toFixed(2) + ' → ' + b.fs.toFixed(2) + ' kHz · rebuilt '
-         + b.fr.toFixed(2) + ' kHz · aliased ' + b.aliased);
-    if (a.fs === b.fs) problems.push('the sampling rate did not move');
-    for (const s of [a, b]) {
-      const shouldAlias = s.fs < 2 - 1e-9;
-      if (s.aliased !== shouldAlias)
-        problems.push('at fs=' + s.fs + ' kHz the readout says aliased=' + s.aliased);
-      if (!shouldAlias && Math.abs(s.fr - 1) > 1e-6)
-        problems.push('above the Nyquist rate the rebuilt frequency is ' + s.fr + ' kHz, not 1');
-      if (s.fr > s.fs / 2 + 1e-6)
-        problems.push('the rebuilt frequency ' + s.fr + ' is above fs/2');
-    }
-
-    /* The sweep starts at the bottom of its range, which is below the Nyquist
-       rate, so a fresh load is where the aliased branch can be caught. */
-    await page.reload();
-    await page.waitForTimeout(250);
-    const first = await read();
-    note('first frame ' + first.fs.toFixed(2) + ' kHz · rebuilt ' + first.fr.toFixed(2)
-         + ' kHz · aliased ' + first.aliased);
-    if (!first.aliased)
-      problems.push('the sweep does not start below the Nyquist rate, so aliasing is never shown');
-    if (Math.abs(first.fr - Math.abs(1 - Math.round(1 / first.fs) * first.fs)) > 1e-6)
-      problems.push('the rebuilt frequency does not match the folding of 1 kHz at fs='
-                    + first.fs + ' kHz');
 
     if (errors.length) problems.push('cover console error(s): ' + errors[0]);
     note('cover console errors ' + errors.length);

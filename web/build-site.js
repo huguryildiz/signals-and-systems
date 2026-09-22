@@ -289,20 +289,21 @@ copy(path.join(DIST, 'Formula_Reference.html'), 'Formula_Reference.html');
 
 /* The lecture notes, student workbook and formula reference PDFs are published
    as tracked deliverables. The instructor edition remains local. */
-const notesPdf = path.join(DIST, 'Lecture_Notes.pdf');
-if (fs.existsSync(notesPdf)) copy(notesPdf, 'Lecture_Notes.pdf');
-else log('  · Lecture_Notes.pdf missing — the cover will link to the HTML edition only');
+copy(path.join(DIST, 'Lecture_Notes.pdf'), 'Lecture_Notes.pdf');
 copy(path.join(DIST, 'Student_Workbook.pdf'), 'Student_Workbook.pdf');
 copy(path.join(DIST, 'Formula_Reference.pdf'), 'Formula_Reference.pdf');
 
-/* The cover page and the two instruments on it. */
-for (const f of ['index.html', 'site.css', 'backdrop.js', 'sampler.js'])
+/* The cover page, its backdrop, and the four document photographs. */
+for (const f of ['index.html', 'backdrop.js'])
   copy(path.join(__dirname, f), f);
 copy(path.join(ROOT, 'assets', 'icon.svg'), 'icon.svg');
+fs.mkdirSync(path.join(SITE, 'img'));
+for (const f of fs.readdirSync(path.join(__dirname, 'img')).filter(f => f.endsWith('.jpg')))
+  copy(path.join(__dirname, 'img', f), path.join('img', f));
 
 /* ------------------------------------------------------------ 6. last look */
 
-const published = fs.readdirSync(SITE).sort();
+const published = fs.readdirSync(SITE, { recursive: true }).sort();
 const forbidden = published.filter(f => /instructor/i.test(f));
 if (forbidden.length) fail('instructor material reached the site: ' + forbidden.join(', '));
 
