@@ -5687,8 +5687,9 @@ Object.assign(LABS, (function(){
     };
     let st = { proto:'wave', t0:0, eps:2, dt:false };
     /* Simpson's rule on the window; x is smooth there, so 400 panels are
-       accurate far beyond the three decimals shown. */
-    const avg = (f,t0,e)=>{ const n=400, a=t0-e/2, d=e/n; let s=0;
+       accurate far beyond the three decimals shown. At zero width the pulse
+       is the impulse itself and the average is its limit, x(t0). */
+    const avg = (f,t0,e)=>{ if(e<=0) return f(t0); const n=400, a=t0-e/2, d=e/n; let s=0;
       for(let i=0;i<=n;i++) s += (i===0||i===n?1:(i%2?4:2))*f(a+i*d);
       return s*d/3/e; };
     function draw(root){
@@ -5713,8 +5714,9 @@ Object.assign(LABS, (function(){
         A1.curve(f,{color:PLOT.COL.in});
         A1.poly([[t0-e/2,I],[t0+e/2,I]],{color:PLOT.COL.out,width:2.6});
         A1.point(t0,f(t0),{color:PLOT.COL.coral});
+        A1.note(t0,f(t0),fmt(f(t0),3),{anchor:'middle',dy:-14,color:PLOT.COL.coral,fs:14,weight:600});
         /* the second panel is the sifting integral as a function of the width */
-        const es=[]; for(let i=0;i<=120;i++) es.push(0.1+3.9*i/120);
+        const es=[]; for(let i=0;i<=120;i++) es.push(4*i/120);
         const Is = es.map(w=>avg(f,t0,w));
         let lo=Math.min(f(t0),...Is), hi=Math.max(f(t0),...Is), m=Math.max(0.12,(hi-lo)*0.2);
         const A2 = ax({xr:[0,4.1],yr:[lo-m,hi+m],xlabel:'\\varepsilon',ylabel:'\\text{integral}',xtarget:7,ytarget:3});
@@ -5743,13 +5745,14 @@ Object.assign(LABS, (function(){
       } else {
         const I = avg(f,t0,e);
         root.querySelector('.ro').innerHTML = `
-          <div><dt>Pulse height</dt><dd>${fmt(1/e,3)}</dd></div>
+          <div><dt>Pulse height</dt><dd>${e>0?fmt(1/e,3):'∞'}</dd></div>
           <div><dt>Integral</dt><dd>${fmt(I,4)}</dd></div>
           <div><dt>Signal value</dt><dd>${fmt(x0,4)}</dd></div>
           <div><dt>Error</dt><dd class="${Math.abs(I-x0)<5e-3?'okv':''}">${fmt(I-x0,4)}</dd></div>`;
         root.querySelector('.derive').innerHTML = M(`
-          <div class="eq"><span class="eq-label">Sifting with a unit-area pulse</span>${
-            T(`\\int_{-\\infty}^{\\infty}x(t)\\,\\delta_\\varepsilon(t-t_0)\\,\\mathrm{d}t=\\frac{1}{${fmt(e)}}\\int_{${N(t0-e/2)}}^{${N(t0+e/2)}}x(t)\\,\\mathrm{d}t=${N(I,4)}`,true)}</div>`);
+          <div class="eq"><span class="eq-label">${e>0?'Sifting with a unit-area pulse':'Sifting with the impulse'}</span>${
+            T(e>0 ? `\\int_{-\\infty}^{\\infty}x(t)\\,\\delta_\\varepsilon(t-t_0)\\,\\mathrm{d}t=\\frac{1}{${fmt(e)}}\\int_{${N(t0-e/2)}}^{${N(t0+e/2)}}x(t)\\,\\mathrm{d}t=${N(I,4)}`
+                  : `\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\mathrm{d}t=x(${N(t0)})=${N(I,4)}`,true)}</div>`);
         root.querySelector('.aper').innerHTML = M(`
           <div class="note ok"><span class="note-h">The limit</span>
             The integral is the average of $x$ over the window. Because $x$ is continuous at $t_0$, it tends to
@@ -5779,7 +5782,7 @@ Object.assign(LABS, (function(){
               <div class="ctrl"><label><span data-lbl="t0"></span> <span class="val" data-out="t0">0</span></label>
                 <input type="range" data-v="t0" min="-3" max="3" step="0.25" value="0"></div>
               <div class="ctrl"><label><span>Pulse width $\\varepsilon$</span> <span class="val" data-out="eps">2</span></label>
-                <input type="range" data-v="eps" min="0.1" max="4" step="0.1" value="2"></div>
+                <input type="range" data-v="eps" min="0" max="4" step="0.1" value="2"></div>
             </div>
             <dl class="readout ro"></dl>
             <div class="derive stack"></div>
