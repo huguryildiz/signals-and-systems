@@ -302,45 +302,68 @@ const LABS = (() => {
      D · SYSTEM PROPERTY CHECKER                     [Source: 11–14, 21]
      ======================================================================= */
   const D = (() => {
-    let cur=0, open={};
+    /* Each property is answered yes or no before its proof or counterexample
+       opens. The six answers sit in a list on the left; the right column shows
+       the criterion and, once answered, the argument for the chosen property. */
+    let cur=0, pick={}, sel='mem', shown=false;
     function draw(root){
       const s = CONTENT.SYSTEMS[cur];
-      root.querySelector('.sys').innerHTML = T(s.tex,true);
+      /* the system under test as a block: its rule inside, input and output on the wires */
+      const dt = /\[n\]/.test(s.tex), rhs = s.tex.slice(s.tex.indexOf('=')+1);
+      root.querySelector('.sys').innerHTML = PLOT.blocks({w:640,h:92,items:[
+        {t:'arrow',x1:14,y1:50,x2:150,y2:50},{t:'box',x:150,y:10,w:340,h:76,label:rhs,tex:true,fs:19},
+        {t:'arrow',x1:490,y1:50,x2:626,y2:50},
+        {t:'text',x:78,y:34,label:dt?'x[n]':'x(t)',tex:true,fs:19},{t:'text',x:560,y:34,label:dt?'y[n]':'y(t)',tex:true,fs:19}]});
       root.querySelector('.srcref').textContent = 'ref '+s.src+'';
-      root.querySelector('.plist').innerHTML = M(CONTENT.PROPS.map(p=>{
-        const r = s.p[p.k];
-        const isOpen = open[p.k];
-        return `<div class="note ${r.v?'ok':'err'}" style="cursor:pointer" data-prop="${p.k}">
-          <span class="note-h">${p.name} <span style="float:right;font-weight:700">${r.v?'YES':'NO'}</span></span>
-          ${isOpen? `<div style="margin-top:6px">
-             <div class="small" style="margin-bottom:6px"><b>Criterion.</b> ${p.crit}</div>
-             <div style="font-size:18px;line-height:1.55">${r.arg}</div></div>`
-           : `<div class="small">Open this result to see the criterion and the ${r.v?'proof':'counterexample'}.</div>`}
-        </div>`;
-      }).join(''));
-      root.querySelector('.counter').textContent=(cur+1)+' / '+CONTENT.SYSTEMS.length;
+      root.querySelector('.plist').innerHTML = CONTENT.PROPS.map(p=>{
+        const r = s.p[p.k], a = pick[p.k], done = a!==undefined || shown;
+        const opt = (v,k,lab)=>`<button class="opt${done ? (v===r.v?' correct':(a===v?' wrong':''))+' locked' : ''}"
+          data-pick="${v?'yes':'no'}" data-k="${p.k}"${done?' disabled':''}><span class="k">${k}</span><span>${lab}</span></button>`;
+        return `<div class="prow${p.k===sel?' on':''}">
+          <button class="pname" data-prop="${p.k}">${p.name}</button>
+          ${opt(true,'A','Yes')}${opt(false,'B','No')}</div>`;
+      }).join('');
+      const p = CONTENT.PROPS.find(q=>q.k===sel), r = s.p[sel], done = pick[sel]!==undefined || shown;
+      root.querySelector('.detail').innerHTML = M(`
+        <div class="note def"><span class="note-h">Criterion · ${p.name}</span>${p.crit}</div>
+        ${done ? `<div class="note ${r.v?'ok':'err'}"><span class="note-h">${r.v?'Proof':'Counterexample'}</span>${r.arg}</div>`
+               : `<div class="note warn"><span class="note-h">Predict first</span>Answer yes or no for ${p.name.toLowerCase()}. The ${r.v?'proof':'counterexample'} opens after your answer.</div>`}`);
+      const n = Object.keys(pick).length, ok = Object.keys(pick).filter(k=>pick[k]===s.p[k].v).length;
+      root.querySelector('.ro').innerHTML = `
+        <div><dt>Answered</dt><dd>${n} of 6</dd></div>
+        <div><dt>Correct</dt><dd class="${n&&ok===n?'okv':''}">${ok} of ${n}</dd></div>`;
+      root.querySelector('[data-reveal]').textContent = shown ? 'Hide the answers' : 'Show all answers';
+      root.querySelector('.counter').textContent = (cur+1)+' / '+CONTENT.SYSTEMS.length;
     }
     return { mount(root){
       root.innerHTML=`
-        <div class="cols c-5-7" style="gap:44px">
+        <div class="cols c-6-6" style="gap:44px">
           <div class="col stack">
-            <p class="eyebrow"><span class="tick"></span>System under test</p>
-            <div class="sys eq key"></div>
+            <div class="sys"></div>
+            <div class="plist"></div>
+            <dl class="readout ro"></dl>
             <div class="small srcref instr-inline" data-instr></div>
-            <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+            <div class="dnav">
+              <button class="btn" data-reveal>Show all answers</button>
               <button class="btn" data-nav="-1">Previous</button>
               <button class="btn primary" data-nav="1">Next system</button>
               <span class="small counter"></span></div>
-            <div class="note warn" style="margin-top:10px"><span class="note-h">Method</span>
-              To establish a property, apply its definition to every allowed input. To disprove a property,
-              give one explicit counterexample. Examples that pass a test do not prove that the property always holds.</div>
           </div>
-          <div class="col"><div class="plist stack" style="gap:12px"></div></div>
+          <div class="col stack">
+            <div class="detail derive stack"></div>
+            <div class="aper">${M(`<div class="note warn"><span class="note-h">Method</span>
+              To establish a property, apply its definition to every allowed input. To disprove it,
+              give one explicit counterexample. Examples that pass a test do not prove that the property holds.</div>`)}</div>
+          </div>
         </div>`;
       root.addEventListener('click',e=>{
-        const p=e.target.closest('[data-prop]'); if(p){ open[p.dataset.prop]=!open[p.dataset.prop]; draw(root); return; }
+        const b=e.target.closest('[data-pick]');
+        /* an answer opens an argument, so the scene is fitted again after each change */
+        if(b){ if(pick[b.dataset.k]===undefined && !shown){ pick[b.dataset.k] = b.dataset.pick==='yes'; sel=b.dataset.k; draw(root); RENDER.fit(); } return; }
+        const p=e.target.closest('[data-prop]'); if(p){ sel=p.dataset.prop; draw(root); RENDER.fit(); return; }
+        if(e.target.closest('[data-reveal]')){ shown=!shown; draw(root); RENDER.fit(); return; }
         const n=e.target.closest('[data-nav]');
-        if(n){ cur=(cur+ +n.dataset.nav + CONTENT.SYSTEMS.length)%CONTENT.SYSTEMS.length; open={}; draw(root); }
+        if(n){ cur=(cur+ +n.dataset.nav + CONTENT.SYSTEMS.length)%CONTENT.SYSTEMS.length; pick={}; sel='mem'; shown=false; draw(root); RENDER.fit(); }
       });
       draw(root);
     }};

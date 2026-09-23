@@ -6,6 +6,12 @@ const P = PLOT, C = P.COL;
 const disc=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
 const convDT=(x,h,n,lo,hi)=>{let s=0;for(let k=lo;k<=hi;k++)s+=x(k)*h(n-k);return s;};
 
+/* module-opening figure: y = x * h, computed rather than drawn by hand */
+const x3f=n=>[1,2,1][n]||0, h3f=n=>n>=0&&n<=3?Math.pow(0.5,n):0;
+const x3=[x3f,'x[n]','#7FC3CE',[-0.3,2.4],.2],
+      h3=[h3f,'h[n]','#E3B45E',[-0.3,1.25],.7],
+      y3=[n=>convDT(x3f,h3f,n,0,2),'y[n]=(x*h)[n]','#8FBF8A',[-0.3,3.1],1.3];
+
 const SC = [
 
 { id:'m3-open', module:'M3', nav:'Module 3 opening', title:'Linear Time-Invariant Systems', src:'pp. 14–21',
@@ -20,12 +26,15 @@ const SC = [
     {t:'eq', tex:'y(t)=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau', label:'Convolution integral'},
     {t:'note', kind:'err', head:'Check the system before using convolution', html:'<span style="color:var(--graphite)">Convolution gives the system output only when the system is linear and time invariant. If either property fails, the convolution result is not the output of that system.</span>'}
   ], right:[
-    {t:'fig', svg:()=>{
-      const a=P.Axes({w:760,h:430,xr:[-1,9],yr:[-0.4,2.4],grid:false,zeroAxes:false,arrows:false,
-        pad:{l:20,r:20,t:20,b:20},xticksOverride:[],yticksOverride:[]});
-      a.stem(disc(n=>(n>=0&&n<=3)?[1,2,1,2][n]:0,-1,9),{color:'#7FC3CE',r:5,width:2.2,anim:{delay:.2,step:.12,tip:true}});
-      a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]*0.5:0,-1,9),{color:'#8FBF8A',r:5,width:2.2,anim:{delay:1.1,step:.12,tip:true}});
-      return a.svg(); }}
+    /* x[n] and h[n] rise first, then their convolution y[n] rises under them,
+       on the same n axis. Each signal has its own panel, so no stem hides
+       another. The motion is the stem() anim of the other module openings. */
+    {t:'grid', cols:1, gap:'14px', items:[x3,h3,y3].map(([f,lab,col,yr,d])=>[{t:'fig', svg:()=>{
+      const a=P.Axes({w:520,h:150,xr:[-1,8],yr,grid:false,xlabel:'n',ylabel:lab,
+        chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#E6E2D9'},
+        pad:{l:46,r:30,t:18,b:30},xstep:2,ytarget:2});
+      a.stem(disc(f,-1,8),{color:col,r:4.5,width:2,anim:{delay:d,step:.1,tip:true}});
+      return a.svg(); }}])}
   ]}
 ]},
 

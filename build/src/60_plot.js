@@ -272,12 +272,13 @@ const PLOT = (() => {
       stem(pairs, opts={}){
         const col=opts.color||COL.in, r=(opts.r||(EMPH?4:3.6))*STRW;
         /* opts.anim {delay, step, tip}: stem i rises at delay + i*step seconds;
-           tip makes a pop run along the tips on the 7 s cycle */
+           tip makes a pop run along the tips on the 7 s cycle. --i must be set:
+           the .mtf-stem rule uses it, and an undefined var drops the animation */
         const an=opts.anim; let i=0;
         pairs.forEach(([n,v])=>{
           if(n<xa-1e-9||n>xb+1e-9) return;
           const X=sx(n).toFixed(2);
-          if(an) parts.push(`<g class="mtf-stem" style="transform-origin:${X}px ${sy(0).toFixed(2)}px;animation-delay:${((an.delay||0)+i*(an.step??.085)).toFixed(3)}s">`);
+          if(an) parts.push(`<g class="mtf-stem" style="--i:0;transform-origin:${X}px ${sy(0).toFixed(2)}px;animation-delay:${((an.delay||0)+i*(an.step??.085)).toFixed(3)}s">`);
           const tip=an&&an.tip?` class="mtf-tip" style="animation-delay:${(2.1+i*(an.step??.085)).toFixed(3)}s"`:'';
           parts.push(`<line x1="${X}" y1="${sy(0).toFixed(2)}" x2="${X}" y2="${sy(v).toFixed(2)}"
             stroke="${col}" stroke-width="${(opts.width||(EMPH?2:1.8))*STRW}"/>`);
