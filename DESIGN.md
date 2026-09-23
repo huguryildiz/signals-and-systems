@@ -173,33 +173,66 @@ with its original page numbers, and joins the two with `pdfunite`.
 
 ### The public cover page
 
-Redesigned on 2026-09-23. The cover no longer shares `site.css` with the sibling course
-(`~/Documents/GitHub/digital-communications`); the two cover pages are now separate designs. It uses
-the artifact's own tokens (the ivory and navy surfaces, the ink ramp, coral and slate above) so the
-cover and the course read as one publication. The styles are inline in `web/index.html`, with no web
-font and no stylesheet request.
+Redesigned on 2026-09-23 as a single cinematic frame. The owner chose it over an editorial version
+and over a copy of the sibling course's cover (`~/Documents/GitHub/digital-communications`); the
+model was a scroll-driven "journey" page with a changing serif title, a chapter counter and a
+timeline. The styles are inline in `web/index.html`, with no web font and no stylesheet request. The
+page is dark only (`color-scheme: dark`): ground `#070C13`, ink `#E6E2D9`, hairlines in ink at 13%
+and 28%, coral `#E09A6A` for the two nav dots and the `+` on the figure label, and the dark-theme
+signal tints for the traces.
 
-The page is one stage and a footer. The stage holds the bar, a centred title with a 120 px coral rule
-under it, the byline, the lead, one primary action (`Open the course`), and three download cards: the
-lecture notes, the student workbook and the formula reference, all PDFs. The course itself is opened
-on the site and is not offered as a download (since 2026-09-23). The instructor edition is never
-linked. Each card carries a photograph of the
-document, its title, one sentence, and a footer with the format, page count, file size and a
-`Download` action. There is no eyebrow, no gradient text, no glass and no numbered sequence.
+The cover is the one place where the artifact's rule against hero numbers does not apply. It still
+has no gradient text, no glass and no neon.
 
-The photographs in `web/img/` were generated with Codex (`gpt-6-sol`, reasoning effort medium)
-from the prompt kept in `web/img/PROMPT.md`, then reduced to 960×640 JPEG at quality 72, about 65 KB
-each. The first is preloaded; the others load lazily. They show the design of the covers, not the
-printed PDFs, and a regenerated image must keep the spelling of every title exact.
+**The frame.** The first 300vh of the page is one pinned stage with four corner marks inset 22 px,
+like a viewfinder. Inside it, top to bottom:
 
-The backdrop, `web/backdrop.js` (Radiant Shaders #41, "Signal Decay", MIT), sits behind the whole
-stage and fades out below the cards. Its traces use the dark-theme signal tints (cyan clean, amber
-degrading, slate what is left). CSS blends it into the page: `screen` at opacity .34 in the dark
-theme, and in the light theme `invert(1) hue-rotate(180deg)` with `multiply` at .30, so the same
-traces read dark on ivory. It renders at 0.6 of CSS resolution and 30 frames a second, starts after
-the page has loaded, pauses when the tab is hidden or the canvas is off screen, and draws one still
-frame under reduced motion. It cannot be checked by reading pixels back; `sitecheck.js` asserts the
-context, the linked program and the viewport instead, and checks that the three photographs load.
+- The mark and the course name as a small tracked label; links to the modules and the documents.
+- On the left: the label `Figure 1 · section 4.6`, a large serif title whose second line is italic,
+  a hairline, one caption sentence, `Open the course` and `Download the PDFs`. The title and the
+  caption change with the step: "Signals *and Systems.*", "Through *a system.*", "Seen in
+  *frequency.*". They cross-fade with a short blur.
+- On the right: Figure 1, frameless, with a `+` label under it naming the trace and its reading.
+- A vertical label on the right edge.
+- At the foot: the step counter (`01 / 03`), a timeline with the scroll progress and four marks
+  (Harmonics, System, Frequency, Documents) that scroll to their step when pressed, and a GitHub
+  button linking to the repository.
+
+On a phone the caption, the hairline, the second link and the side label are hidden, and the
+timeline shows only the current mark.
+
+After the frame: the four facts as large serif numerals in a ruled row, the eight modules as a
+two-column list, the three PDFs, and a footer with the copyright line and the GitHub button again.
+Section titles follow the title pattern ("Eight *modules.*", "Three *documents.*"). The course is
+opened on the site and is not offered as a download. The instructor edition is never linked.
+
+**Figure 1** (`web/fig.js`) is section 4.6 of the course, a periodic input through an LTI system, in
+three steps driven by the scroll position. First, a square wave is built from its odd harmonics, up
+to 25. Second, it passes through a first-order low-pass system and the output rounds off as the
+cutoff falls to 1.25 f₀. Third, the same system in frequency: |X(jω)| as hollow stems, |H(jω)|
+drawn across them, and the output stems falling to |H|·|X|. The traces keep the signal colours
+(cyan input, amber system, green output, violet for the harmonic being added) with a soft glow. The
+figure moves only when the reader scrolls, so it needs no reduced-motion branch.
+
+**The facts row** is written by hand in `index.html`, one `data-fact` attribute per number.
+`sitecheck.js` counts the same four things in the published artifact (modules, scenes, scenes whose
+id matches `-lab-x`, practice questions) and fails when a number on the cover disagrees. Update the
+cover when a module adds scenes or laboratories.
+
+**The document images** are the real PDFs, not photographs: each card shows page 1 (the navy cover)
+and one inside page behind it (lecture notes page 24, workbook page 8, formula reference page 3).
+They were rendered with `pdftoppm -r 72 -jpeg -jpegopt quality=80 -singlefile -f N -l N` into
+`web/img/{ln,wb,fr}_{cover,page}.jpg`. Re-render them when a PDF's cover or those pages change. The
+earlier generated photographs and their prompt were removed, because they showed an ivory cover the
+PDFs do not have.
+
+The backdrop, `web/backdrop.js` (Radiant Shaders #41, "Signal Decay", MIT), sits inside the pinned
+frame, blended with `screen` at opacity .22 and masked to the left third so it never runs through
+the figure. It renders at 0.6 of CSS resolution and 30 frames a second, starts after the page has
+loaded, pauses when the tab is hidden or the canvas is off screen, and draws one still frame under
+reduced motion. Its MIT notice stays in the header of `backdrop.js`. It cannot be checked by reading
+pixels back; `sitecheck.js` asserts the context, the linked program and the viewport instead, and
+checks that each document card's image loads.
 
 ## Typography
 

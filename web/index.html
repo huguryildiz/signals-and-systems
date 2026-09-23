@@ -6,220 +6,329 @@
 <title>Signals and Systems</title>
 <meta name="description" content="Signals and Systems: an undergraduate course in eight modules, with lecture notes, a student workbook and a formula reference.">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="preload" as="image" href="img/lecture_notes.jpg">
 <meta property="og:title" content="Signals and Systems">
 <meta property="og:description" content="An undergraduate course in eight modules, with lecture notes, a student workbook and a formula reference.">
 <meta property="og:type" content="website">
 <style>
+/* The cover page. One pinned frame tells Figure 1 (web/fig.js) in three steps while the title, the
+   caption and the timeline change with it; the modules and the documents follow. DESIGN.md, "The
+   public cover page", records the decisions. */
 :root{
-  --canvas:#FAF8F4; --panel:#FFFFFF; --well:#ECE8E0;
-  --ink:#232B33; --graphite:#3B4650; --muted:#616B76;
-  --hair:#DCD7CC; --hair-strong:#C2BCB0;
-  --coral:#A0451C; --slate:#28567E;
-  --btn:#12314E; --btn-ink:#FAF8F4; --btn-hover:#1C4368;
-  --lift:0 1px 2px rgba(35,43,51,.04), 0 12px 28px -18px rgba(35,43,51,.28);
-  --bd-filter:invert(1) hue-rotate(180deg); --bd-blend:multiply; --bd-op:.3;
+  --bg:#070C13; --bg-2:#0B121B; --panel:#101924;
+  --ink:#E6E2D9; --soft:#B9B4AA; --muted:#8C95A1; --faint:#5E6874;
+  --hair:rgba(230,226,217,.13); --hair-2:rgba(230,226,217,.28);
+  --coral:#E09A6A;
+  --cyan:#4FBECE; --amber:#E5B255; --green:#82C27B; --violet:#AC99DC;
+  --fig-axis:rgba(230,226,217,.18); --fig-text:#8C95A1; --fig-grid:transparent;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --sans:Inter,"SF Pro Text",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --canvas:#0E1621; --panel:#16212D; --well:#ECE8E0;
-    --ink:#E6E2D9; --graphite:#C9C4BA; --muted:#9AA3AD;
-    --hair:#27333F; --hair-strong:#3A4755;
-    --coral:#E09A6A; --slate:#8FB8DC;
-    --btn:#E6E2D9; --btn-ink:#0E1621; --btn-hover:#FFFFFF;
-    --lift:0 1px 2px rgba(0,0,0,.3), 0 16px 32px -18px rgba(0,0,0,.7);
-    --bd-filter:none; --bd-blend:screen; --bd-op:.34;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --canvas:#0E1621; --panel:#16212D; --well:#ECE8E0;
-  --ink:#E6E2D9; --graphite:#C9C4BA; --muted:#9AA3AD;
-  --hair:#27333F; --hair-strong:#3A4755;
-  --coral:#E09A6A; --slate:#8FB8DC;
-  --btn:#E6E2D9; --btn-ink:#0E1621; --btn-hover:#FFFFFF;
-  --lift:0 1px 2px rgba(0,0,0,.3), 0 16px 32px -18px rgba(0,0,0,.7);
-  --bd-filter:none; --bd-blend:screen; --bd-op:.34;
+  --ease:cubic-bezier(.16,1,.3,1);
   color-scheme:dark;
 }
-
 *,*::before,*::after{ box-sizing:border-box; }
 html{ -webkit-text-size-adjust:100%; }
-body{ margin:0; background:var(--canvas); color:var(--graphite); font:400 17px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
-::selection{ background:color-mix(in srgb, var(--coral) 26%, transparent); color:var(--ink); }
+body{ margin:0; background:var(--bg); color:var(--soft); font:400 16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; }
 a{ color:inherit; }
-a:focus-visible{ outline:2px solid var(--coral); outline-offset:3px; border-radius:3px; }
-.wrap{ max-width:1200px; margin:0 auto; padding:0 40px; }
+a:focus-visible, button:focus-visible{ outline:2px solid var(--coral); outline-offset:3px; border-radius:2px; }
+.label{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 
-/* ── the stage: bar, hero and documents over one live backdrop ───────── */
-.stage{ position:relative; overflow:hidden; }
-.stage > :not(#backdrop){ position:relative; z-index:1; }
-#backdrop{
-  position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none;
-  filter:var(--bd-filter); mix-blend-mode:var(--bd-blend);
-  opacity:0; transition:opacity 1.6s cubic-bezier(.16,1,.3,1);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 45%,transparent 92%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 45%,transparent 92%);
+/* ── the story: one pinned frame, 300vh of scroll ─────────────────────── */
+.story{ position:relative; height:300vh; }
+.stage{
+  position:sticky; top:0; height:100vh; overflow:hidden;
+  background:radial-gradient(70% 60% at 68% 48%, #0E1826 0%, var(--bg) 70%);
 }
-#backdrop.is-on{ opacity:var(--bd-op); }
+#backdrop{ position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none;
+  mix-blend-mode:screen; opacity:0; transition:opacity 1.6s var(--ease);
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,rgba(0,0,0,.6) 30%,transparent 55%);
+          mask-image:linear-gradient(90deg,#000 0%,rgba(0,0,0,.6) 30%,transparent 55%); }
+#backdrop.is-on{ opacity:.22; }
 
-/* bar */
-.bar .wrap{ display:flex; align-items:center; justify-content:space-between; height:68px; }
-.brand{ display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--ink); }
-.brand img{ display:block; }
-.brand__name{ font-family:var(--serif); font-size:18.5px; }
-.bar__nav{ display:flex; gap:26px; font-size:15px; }
-.bar__nav a{ text-decoration:none; color:var(--muted); }
-.bar__nav a:hover{ color:var(--ink); }
+/* the viewfinder: four corner marks inset from the window */
+.frame{ position:absolute; inset:22px; pointer-events:none; }
+.frame i{ position:absolute; width:22px; height:22px; border-color:var(--hair-2); border-style:solid; border-width:0; }
+.frame i:nth-child(1){ top:0; left:0; border-top-width:1px; border-left-width:1px; }
+.frame i:nth-child(2){ top:0; right:0; border-top-width:1px; border-right-width:1px; }
+.frame i:nth-child(3){ bottom:0; left:0; border-bottom-width:1px; border-left-width:1px; }
+.frame i:nth-child(4){ bottom:0; right:0; border-bottom-width:1px; border-right-width:1px; }
 
-/* hero */
-.hero{ padding:92px 0 76px; text-align:center; }
-.hero h1{
-  margin:0; font-family:var(--serif); font-weight:400; color:var(--ink);
-  font-size:clamp(46px, 7.4vw, 92px); line-height:1; letter-spacing:-.016em;
-}
-.rule{ width:120px; height:2px; margin:30px auto 24px; background:var(--coral); }
-.byline{ margin:0 0 20px; font-size:15px; color:var(--muted); }
-.lead{ margin:0 auto; max-width:35em; font-family:var(--serif); font-size:21px; line-height:1.55; color:var(--graphite); text-wrap:pretty; }
-.cta{ margin-top:36px; display:flex; flex-direction:column; align-items:center; gap:14px; }
-.btn{
-  display:inline-flex; align-items:center; gap:10px;
-  padding:15px 28px 15px 30px; border-radius:3px;
-  background:var(--btn); color:var(--btn-ink); text-decoration:none;
-  font-size:16.5px; font-weight:500; transition:background-color .2s ease;
-}
-.btn:hover{ background:var(--btn-hover); }
-.btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; transition:transform .25s cubic-bezier(.16,1,.3,1); }
-.btn:hover svg{ transform:translateX(3px); }
-.cta__note{ font-size:14px; color:var(--muted); }
+.inner{ position:absolute; inset:22px; display:grid; grid-template-rows:auto 1fr auto; padding:26px 44px 22px; }
 
-/* documents */
-.docs{ padding:0 0 104px; }
-.docs h2{
-  margin:0 0 24px; font-family:var(--serif); font-weight:400; font-size:15px; letter-spacing:.01em;
-  color:var(--muted); text-align:center;
-}
-.grid{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; }
-.doc{
-  display:flex; flex-direction:column; height:100%; padding:10px;
-  background:var(--panel); border:1px solid var(--hair); border-radius:4px; box-shadow:var(--lift);
-  text-decoration:none; color:inherit;
-  transition:border-color .2s ease, transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s ease;
-}
-.doc:hover{ border-color:var(--hair-strong); transform:translateY(-3px); }
-.doc__img{ position:relative; aspect-ratio:4/3; overflow:hidden; border-radius:2px; background:var(--well); }
-.doc__img img{ display:block; width:100%; height:100%; object-fit:cover; transform:scale(1.06); transition:transform .7s cubic-bezier(.16,1,.3,1); }
-.doc:hover .doc__img img{ transform:scale(1.1); }
-.doc__body{ padding:18px 12px 6px; flex:1; }
-.doc h3{ margin:0 0 7px; font-family:var(--serif); font-weight:400; font-size:22px; line-height:1.2; color:var(--ink); }
-.doc p{ margin:0; font-size:14.5px; line-height:1.55; color:var(--muted); }
-.doc__foot{
-  display:flex; align-items:center; gap:10px; margin:16px 12px 0; padding:13px 0 6px;
-  border-top:1px solid var(--hair); font-size:13.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;
-}
-.doc__go{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; color:var(--ink); font-weight:500; }
-.doc__go svg{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; transition:transform .3s cubic-bezier(.16,1,.3,1); }
-.doc:hover .doc__go{ color:var(--coral); }
-.doc:hover .doc__go svg{ transform:translateY(2px); }
+.top{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.brand{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); }
+.brand .label{ color:var(--ink); }
+.nav{ display:flex; align-items:center; gap:28px; }
+.nav a{ text-decoration:none; }
+.nav a.label:hover{ color:var(--ink); }
+.nav .dot::before{ content:""; display:inline-block; width:4px; height:4px; margin:0 10px 2px 0; border-radius:50%; background:var(--coral); }
 
-/* footer */
-.foot{ border-top:1px solid var(--hair); padding:28px 0 36px; font-size:14px; color:var(--muted); }
-.foot .wrap{ display:flex; justify-content:space-between; gap:12px 24px; flex-wrap:wrap; }
-.foot p{ margin:0; }
-.foot a{ text-underline-offset:3px; text-decoration-color:var(--hair-strong); }
-.foot a:hover{ color:var(--ink); text-decoration-color:var(--coral); }
+.body{ display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:48px; align-items:center; min-height:0; }
 
-/* responsive */
-@media (max-width:1080px){ .grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
-@media (max-width:620px){
-  .wrap{ padding:0 16px; }
-  .hero{ padding:56px 0 52px; }
-  .lead{ font-size:18.5px; }
-  .btn{ width:100%; justify-content:center; }
-  .grid{ grid-template-columns:1fr; gap:16px; }
-  .doc__img{ aspect-ratio:3/2; }
-  .docs{ padding-bottom:64px; }
+.copy{ position:relative; }
+.chapter{ display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+.chapter::before{ content:""; width:36px; height:1px; background:var(--hair-2); }
+.titles{ position:relative; height:clamp(170px, 22vw, 260px); }
+.titles h1, .titles h2{
+  position:absolute; inset:0 auto auto 0; margin:0;
+  font-family:var(--serif); font-weight:400; color:var(--ink);
+  font-size:clamp(56px, 7.4vw, 118px); line-height:.92; letter-spacing:-.025em;
+  opacity:0; transform:translateY(14px); filter:blur(6px);
+  transition:opacity .7s var(--ease), transform .9s var(--ease), filter .7s var(--ease);
+}
+.titles em{ font-style:italic; }
+.titles .on{ opacity:1; transform:none; filter:none; }
+.rule{ width:64px; height:1px; margin:30px 0 22px; background:var(--hair-2); }
+.caps{ position:relative; min-height:6.6em; max-width:26em; }
+.caps p{ position:absolute; inset:0 auto auto 0; margin:0; font-family:var(--serif); font-size:18.5px; line-height:1.6; color:var(--soft);
+  opacity:0; transition:opacity .6s var(--ease); }
+.caps p.on{ opacity:1; }
+.actions{ display:flex; align-items:center; gap:26px; margin-top:26px; }
+.btn{ display:inline-flex; align-items:center; gap:12px; padding:14px 24px; border:1px solid var(--hair-2); border-radius:2px;
+  text-decoration:none; color:var(--ink); font-size:15px; letter-spacing:.02em; transition:background-color .25s, border-color .25s, color .25s; }
+.btn:hover{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.btn svg{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.link{ font-size:15px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--hair-2); padding-bottom:2px; }
+.link:hover{ color:var(--ink); border-color:var(--ink); }
+
+.fig{ position:relative; margin:0; }
+#plot{ display:block; width:100%; aspect-ratio:16/11; }
+.tag{ display:flex; justify-content:flex-end; gap:12px; align-items:flex-start; margin-top:10px; }
+.tag b{ display:block; font:italic 400 17px/1 var(--serif); letter-spacing:0; text-transform:none; color:var(--ink); }
+.tag .plus{ font:300 20px/1 var(--sans); color:var(--coral); margin-top:-2px; }
+.tag small{ display:block; margin-top:5px; font-size:12.5px; letter-spacing:.02em; text-transform:none; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+.side{ position:absolute; right:-30px; top:50%; transform:translateY(-50%) rotate(90deg); transform-origin:center; white-space:nowrap; }
+
+/* the timeline */
+.foot{ display:grid; grid-template-columns:auto 1fr auto; gap:36px; align-items:end; }
+.gh{ display:inline-flex; width:40px; height:40px; align-items:center; justify-content:center; border:1px solid var(--hair-2); border-radius:50%; color:var(--muted); transition:color .25s, border-color .25s; }
+.gh:hover{ color:var(--ink); border-color:var(--ink); }
+.gh svg{ width:18px; height:18px; fill:currentColor; }
+.count{ font-family:var(--serif); font-size:64px; line-height:.8; color:var(--ink); font-variant-numeric:lining-nums; }
+.count span + span{ font-size:18px; color:var(--faint); margin-left:8px; letter-spacing:.05em; }
+.line{ position:relative; padding-bottom:4px; }
+.line__head{ display:flex; justify-content:space-between; margin-bottom:12px; }
+.line__track{ position:relative; height:1px; background:var(--hair-2); }
+.line__fill{ position:absolute; left:0; top:0; height:1px; width:0; background:var(--ink); }
+.line__knob{ position:absolute; top:-5px; width:11px; height:11px; margin-left:-5px; border-radius:50%; background:var(--ink); box-shadow:0 0 0 4px rgba(230,226,217,.12); left:0; }
+.line__marks{ position:relative; height:26px; margin-top:12px; }
+.line__marks button{ position:absolute; transform:translateX(-50%); padding:4px 0; background:none; border:0; cursor:pointer; font:inherit; }
+.line__marks button.label{ font-size:10.5px; }
+.line__marks button.on{ color:var(--ink); }
+.line__marks button:first-child{ transform:none; }
+.line__marks button:last-child{ transform:translateX(-100%); }
+
+/* ── after the story ───────────────────────────────────────────────────── */
+.wrap{ max-width:1240px; margin:0 auto; padding:0 66px; }
+.facts{ display:grid; grid-template-columns:repeat(4,1fr); border-block:1px solid var(--hair); }
+.facts div{ padding:34px 0 30px; }
+.facts div + div{ padding-left:32px; border-left:1px solid var(--hair); }
+.facts b{ display:block; font-family:var(--serif); font-weight:400; font-size:clamp(40px,4.4vw,60px); line-height:1; color:var(--ink); margin-bottom:12px; }
+
+.sec{ padding:110px 0 0; }
+.sec__head{ display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:48px; align-items:end; margin-bottom:48px; }
+.sec h2{ margin:14px 0 0; font-family:var(--serif); font-weight:400; font-size:clamp(40px,4.6vw,64px); line-height:1; letter-spacing:-.02em; color:var(--ink); }
+.sec h2 em{ font-style:italic; }
+.sec__head > p{ margin:0; max-width:34em; font-family:var(--serif); font-size:18px; color:var(--soft); }
+
+.mods{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:64px; border-top:1px solid var(--hair); }
+.mods li{ display:grid; grid-template-columns:52px 1fr; gap:10px; padding:22px 0 24px; border-bottom:1px solid var(--hair); }
+.mods .n{ font-family:var(--serif); font-size:26px; line-height:1.1; color:var(--faint); }
+.mods h3{ margin:0 0 4px; font-family:var(--serif); font-weight:400; font-size:22px; line-height:1.25; color:var(--ink); }
+.mods p{ margin:0; font-size:14.5px; color:var(--muted); }
+
+.docs{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:36px; }
+.doc{ display:flex; flex-direction:column; height:100%; text-decoration:none; color:inherit; }
+.doc__img{ position:relative; aspect-ratio:4/3; overflow:hidden; background:radial-gradient(90% 80% at 50% 100%, #122031 0%, var(--bg-2) 70%); }
+.doc__img::after{ content:""; position:absolute; inset:12px; border:1px solid var(--hair); pointer-events:none; }
+.doc__img img{ position:absolute; top:13%; width:38%; box-shadow:0 20px 40px -14px rgba(0,0,0,.85); transition:transform .8s var(--ease); }
+.doc__img .page{ left:46%; transform:rotate(4deg); filter:brightness(.85); }
+.doc__img .cover{ left:20%; transform:rotate(-3deg); }
+.doc:hover .page{ transform:translate(12px,-4px) rotate(6deg); }
+.doc:hover .cover{ transform:translate(-6px,0) rotate(-4deg); }
+.doc .label{ margin-top:22px; }
+.doc h3{ margin:8px 0 8px; font-family:var(--serif); font-weight:400; font-size:26px; line-height:1.15; color:var(--ink); }
+.doc p{ margin:0; font-size:14.5px; color:var(--muted); flex:1; }
+.doc__go{ margin-top:18px; font-size:14.5px; color:var(--ink); border-bottom:1px solid var(--hair-2); align-self:flex-start; padding-bottom:2px; transition:border-color .25s; }
+.doc:hover .doc__go{ border-color:var(--coral); }
+
+.end{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:120px; padding:24px 0 36px; border-top:1px solid var(--hair); font-size:13.5px; color:var(--faint); }
+.end a{ text-underline-offset:3px; }
+
+@media (max-width:980px){
+  .inner{ padding:20px 22px 18px; }
+  .body{ grid-template-columns:1fr; gap:8px; align-content:center; }
+  .titles{ height:clamp(110px, 26vw, 170px); }
+  .titles h1, .titles h2{ font-size:clamp(44px, 11vw, 76px); }
+  .chapter{ margin-bottom:14px; }
+  .rule, .caps{ display:none; }
+  .actions{ margin-top:10px; }
+  .side, .nav a:not(.btn){ display:none; }
+  .count{ font-size:40px; }
+  .foot{ gap:20px; }
+  .wrap{ padding:0 22px; }
+  .facts{ grid-template-columns:repeat(2,1fr); }
+  .facts div:nth-child(3){ padding-left:0; border-left:0; }
+  .facts div:nth-child(n+3){ border-top:1px solid var(--hair); }
+  .sec__head{ grid-template-columns:1fr; gap:18px; }
+  .mods{ grid-template-columns:1fr; }
+  .docs{ grid-template-columns:1fr; gap:48px; }
+}
+@media (max-width:560px){
+  .frame{ inset:10px; } .inner{ inset:10px; padding:16px 14px 14px; }
+  .actions .link{ display:none; }
+  .line__head .label:first-child{ display:none; }
+  .line__head{ justify-content:flex-end; }
+  .line__marks button{ display:none; }
+  .line__marks button.on{ display:block; left:0 !important; transform:none; }
 }
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none !important; } }
 </style>
 </head>
 <body>
 
-<div class="stage">
-  <canvas id="backdrop" aria-hidden="true"></canvas>
+<main>
+  <section class="story" id="track">
+    <div class="stage" id="fig">
+      <canvas id="backdrop" aria-hidden="true"></canvas>
+      <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
-  <header class="bar">
-    <div class="wrap">
-      <a class="brand" href="/">
-        <img src="icon.svg" alt="" width="28" height="28">
-        <span class="brand__name">Signals and Systems</span>
-      </a>
-      <nav class="bar__nav" aria-label="Site">
-        <a href="https://github.com/huguryildiz/signals-and-systems" target="_blank" rel="noopener">GitHub</a>
-      </nav>
-    </div>
-  </header>
+      <div class="inner">
+        <header class="top">
+          <a class="brand" href="#track"><img src="icon.svg" alt="" width="26" height="26"><span class="label">Signals and Systems</span></a>
+          <nav class="nav" aria-label="Site">
+            <a class="label dot" href="#modules">Eight modules</a>
+            <a class="label dot" href="#documents">Documents</a>
+          </nav>
+        </header>
 
-  <main>
-    <section class="hero">
-      <div class="wrap">
-        <h1>Signals and Systems</h1>
-        <div class="rule" aria-hidden="true"></div>
-        <p class="byline">An undergraduate course in eight modules</p>
-        <p class="lead">
-          A signal carries information in the way it changes. A system is anything that takes one
-          signal and returns another. This course is the study of what a system does to a signal,
-          and of the one change of variable, into frequency, that turns a hard question into an easy one.
-        </p>
-        <div class="cta">
-          <a class="btn" href="Signals_and_Systems.html">Open the course
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11.5M11 5.5l4.5 4.5-4.5 4.5"/></svg>
-          </a>
-          <span class="cta__note">Runs in the browser. No account, no tracking.</span>
+        <div class="body">
+          <div class="copy">
+            <p class="chapter label">Figure 1 · section 4.6</p>
+            <div class="titles">
+              <h1 data-s="0">Signals<br><em>and Systems.</em></h1>
+              <h2 data-s="1" aria-hidden="true">Through<br><em>a system.</em></h2>
+              <h2 data-s="2" aria-hidden="true">Seen in<br><em>frequency.</em></h2>
+            </div>
+            <div class="rule" aria-hidden="true"></div>
+            <div class="caps" aria-live="polite">
+              <p data-s="0">A square wave is a sum of sine waves. Scroll, and its odd harmonics are added one at a time.</p>
+              <p data-s="1">A low-pass system rounds its corners. The output is the input convolved with the impulse response.</p>
+              <p data-s="2">In frequency the same system only scales each harmonic by |H(j&omega;)|. Convolution became multiplication.</p>
+            </div>
+            <div class="actions">
+              <a class="btn" href="Signals_and_Systems.html">Open the course
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11.5M11 5.5l4.5 4.5-4.5 4.5"/></svg></a>
+              <a class="link" href="#documents">Download the PDFs</a>
+            </div>
+          </div>
+
+          <figure class="fig">
+            <canvas id="plot" data-pad="40,16,24,40" data-glow role="img"
+              aria-label="A square wave built from its harmonics, passed through a low-pass system, then shown as a spectrum."></canvas>
+            <figcaption class="tag"><span class="plus" aria-hidden="true">+</span>
+              <span class="label"><b id="tag-t">x(t)</b><small id="tag-s">square wave · 1 of 25 odd harmonics</small></span></figcaption>
+          </figure>
         </div>
-      </div>
-    </section>
 
-    <section class="docs" id="documents" aria-labelledby="docs-h">
-      <div class="wrap">
-        <h2 id="docs-h">Download the course documents</h2>
-        <ul class="grid">
-          <li><a class="doc" href="Lecture_Notes.pdf" download>
-            <div class="doc__img"><img src="img/lecture_notes.jpg" width="960" height="640" alt="" decoding="async"></div>
-            <div class="doc__body"><h3>Lecture notes</h3>
-              <p>The eight chapters written out as a book, with worked examples in Given, Find, Method, Solution, Check form.</p></div>
-            <div class="doc__foot"><span>PDF &middot; 106 pp &middot; 5.6 MB</span>
-              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
-          </a></li>
-          <li><a class="doc" href="Student_Workbook.pdf" download>
-            <div class="doc__img"><img src="img/student_workbook.jpg" width="960" height="640" alt="" loading="lazy" decoding="async"></div>
-            <div class="doc__body"><h3>Student workbook</h3>
-              <p>The 210 practice questions on their own, set out in the form the examination papers use.</p></div>
-            <div class="doc__foot"><span>PDF &middot; 84 pp &middot; 6.5 MB</span>
-              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
-          </a></li>
-          <li><a class="doc" href="Formula_Reference.pdf" download>
-            <div class="doc__img"><img src="img/formula_reference.jpg" width="960" height="640" alt="" loading="lazy" decoding="async"></div>
-            <div class="doc__body"><h3>Formula reference</h3>
-              <p>Both transform pairs, every property table the course establishes, and a definition for every symbol it uses.</p></div>
-            <div class="doc__foot"><span>PDF &middot; 13 pp &middot; 901 KB</span>
-              <span class="doc__go">Download <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.5v9M6 8.8l4 4 4-4M4.5 16h11"/></svg></span></div>
-          </a></li>
-        </ul>
+        <footer class="foot">
+          <div class="count" aria-hidden="true"><span id="cnt">01</span><span>/ 03</span></div>
+          <div class="line">
+            <div class="line__head"><span class="label">Signals and Systems · Figure 1</span><span class="label" id="pct">0%</span></div>
+            <div class="line__track"><div class="line__fill" id="fill"></div><div class="line__knob" id="knob"></div></div>
+            <div class="line__marks">
+              <button class="label" data-go="0" style="left:0%">Harmonics</button>
+              <button class="label" data-go=".36" style="left:36%">System</button>
+              <button class="label" data-go=".68" style="left:68%">Frequency</button>
+              <button class="label" data-go="1" style="left:100%">Documents</button>
+            </div>
+          </div>
+          <a class="gh" href="https://github.com/huguryildiz/signals-and-systems" target="_blank" rel="noopener" aria-label="The course on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        </footer>
       </div>
-    </section>
-  </main>
-</div>
+      <span class="side label" aria-hidden="true">Eight modules · 2026</span>
+    </div>
+  </section>
 
-<footer class="foot">
   <div class="wrap">
-    <p>&copy; 2026 Huseyin Ugur Yildiz &middot; <a href="https://huguryildiz.com/">huguryildiz.com</a></p>
-  </div>
-</footer>
+    <div class="facts">
+      <div><b data-fact="modules">8</b><span class="label">modules</span></div>
+      <div><b data-fact="scenes">306</b><span class="label">scenes</span></div>
+      <div><b data-fact="labs">15</b><span class="label">laboratories</span></div>
+      <div><b data-fact="questions">210</b><span class="label">worked questions</span></div>
+    </div>
 
+    <section class="sec" id="modules" aria-labelledby="mods-h">
+      <div class="sec__head">
+        <div><p class="label">The course</p><h2 id="mods-h">Eight <em>modules.</em></h2></div>
+        <p>The first half describes signals and systems in time. The second half moves the same questions into frequency, where convolution becomes multiplication.</p>
+      </div>
+      <ol class="mods">
+        <li><span class="n">0</span><div><h3>Why signals and systems?</h3><p>What the course asks, and where its answers are used.</p></div></li>
+        <li><span class="n">1</span><div><h3>Signals</h3><p>Energy and power, operations on the time axis, the impulse and the step, complex exponentials.</p></div></li>
+        <li><span class="n">2</span><div><h3>Systems and their properties</h3><p>The six properties, and how to test a given system for each one.</p></div></li>
+        <li><span class="n">3</span><div><h3>Linear time-invariant systems</h3><p>The impulse response, and convolution as a sum and as an integral.</p></div></li>
+        <li><span class="n">4</span><div><h3>Fourier series</h3><p>A periodic signal as a sum of harmonics, and what an LTI system does to each one.</p></div></li>
+        <li><span class="n">5</span><div><h3>The continuous-time Fourier transform</h3><p>The standard pairs, the properties, and systems described by a differential equation.</p></div></li>
+        <li><span class="n">6</span><div><h3>The discrete-time Fourier transform</h3><p>The same questions for sequences, and systems described by a difference equation.</p></div></li>
+        <li><span class="n">7</span><div><h3>Sampling and aliasing</h3><p>The sampling theorem, reconstruction, and aliasing where it happens in practice.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="sec" id="documents" aria-labelledby="docs-h">
+      <div class="sec__head">
+        <div><p class="label">On paper</p><h2 id="docs-h">Three <em>documents.</em></h2></div>
+        <p>Typeset from the same sources as the course, as PDFs.</p>
+      </div>
+      <ul class="docs">
+        <li><a class="doc" href="Lecture_Notes.pdf" download>
+          <div class="doc__img"><img class="page" src="img/ln_page.jpg" alt=""><img class="cover" src="img/ln_cover.jpg" alt=""></div>
+          <span class="label">PDF · 106 pp · 5.6 MB</span><h3>Lecture notes</h3>
+          <p>The eight chapters written out as a book, with worked examples in Given, Find, Method, Solution, Check form.</p>
+          <span class="doc__go">Download</span></a></li>
+        <li><a class="doc" href="Student_Workbook.pdf" download>
+          <div class="doc__img"><img class="page" src="img/wb_page.jpg" alt="" loading="lazy"><img class="cover" src="img/wb_cover.jpg" alt="" loading="lazy"></div>
+          <span class="label">PDF · 84 pp · 6.5 MB</span><h3>Student workbook</h3>
+          <p>The 210 practice questions on their own, set out in the form the examination papers use.</p>
+          <span class="doc__go">Download</span></a></li>
+        <li><a class="doc" href="Formula_Reference.pdf" download>
+          <div class="doc__img"><img class="page" src="img/fr_page.jpg" alt="" loading="lazy"><img class="cover" src="img/fr_cover.jpg" alt="" loading="lazy"></div>
+          <span class="label">PDF · 13 pp · 901 KB</span><h3>Formula reference</h3>
+          <p>Both transform pairs, every property table the course establishes, and a definition for every symbol it uses.</p>
+          <span class="doc__go">Download</span></a></li>
+      </ul>
+    </section>
+
+    <footer class="end"><span>&copy; 2026 Huseyin Ugur Yildiz &middot; <a href="https://huguryildiz.com/">huguryildiz.com</a></span>
+      <a class="gh" href="https://github.com/huguryildiz/signals-and-systems" target="_blank" rel="noopener" aria-label="The course on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a></footer>
+  </div>
+</main>
+
+
+<script>
+window.onFig = function (f) {
+  document.querySelectorAll('.titles [data-s], .caps p').forEach(function (e) { e.classList.toggle('on', +e.dataset.s === f.s); });
+  document.getElementById('cnt').textContent = '0' + (f.s + 1);
+  var pc = (f.p * 100).toFixed(0) + '%';
+  document.getElementById('pct').textContent = pc;
+  document.getElementById('fill').style.width = pc;
+  document.getElementById('knob').style.left = pc;
+  document.querySelectorAll('.line__marks button').forEach(function (b, i) { b.classList.toggle('on', i === f.s); });
+  document.getElementById('tag-t').textContent = ['x(t)', 'y(t)', 'H(jω)'][f.s];
+  document.getElementById('tag-s').textContent = f.s === 0 ? 'square wave · ' + f.harmonics + ' of ' + f.kmax + ' odd harmonics'
+    : f.s === 1 ? 'first-order low-pass · cutoff ' + (f.fc ? f.fc.toFixed(2) + ' f₀' : '∞')
+    : 'line spectrum · |H| at 3f₀ = ' + f.h3.toFixed(2);
+};
+document.querySelectorAll('.line__marks button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = document.getElementById('track'), span = t.offsetHeight - window.innerHeight;
+    var go = +b.dataset.go;
+    var y = go >= 1 ? document.getElementById('documents').offsetTop : t.offsetTop + go * span + 2;
+    window.scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+});
+</script>
+<script src="fig.js"></script>
 <script src="backdrop.js" defer></script>
 </body>
 </html>

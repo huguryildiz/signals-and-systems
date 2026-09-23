@@ -21,6 +21,7 @@ const note = m => console.log('  ' + m);
 
 (async () => {
   const browser = await chromium.launch();
+  let facts = {};   // what the artifact holds, for the cover's row of facts
 
   /* ---------------------------------------------------- the artifact ---- */
   {
@@ -34,6 +35,12 @@ const note = m => console.log('  ' + m);
 
     const scenes = await page.evaluate(() => APP.scenes().map(s => ({ id: s.id, steps: s.steps || 0 })));
     note('artifact loaded · ' + scenes.length + ' scenes');
+    facts = await page.evaluate(() => ({
+      modules: CONTENT.MODULES.length,
+      scenes: APP.scenes().length,
+      labs: APP.scenes().filter(s => /-lab-[a-z]$/.test(s.id)).length,
+      questions: CONTENT.DRILL.length
+    }));
     if (scenes.length < 200) problems.push('only ' + scenes.length + ' scenes loaded');
 
     /* The control is gone. */
@@ -129,7 +136,13 @@ const note = m => console.log('  ' + m);
     page.on('pageerror', e => errors.push(String(e)));
 
     await page.goto(url('index.html'));
+    /* The document images are lazy and sit below a 300vh pinned frame, so they
+       only start loading once the page has been scrolled to them; decode()
+       on an image that never starts would wait for ever. */
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(800);
     await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(2500);
     await page.screenshot({ path: path.join(__dirname, '..', 'shots', 'cover-light.png') });
 
@@ -149,6 +162,17 @@ const note = m => console.log('  ' + m);
          + anchors.length + ' anchors (dangling ' + dangling.length + ')');
     if (missing.length) problems.push('cover links to files that were not published: ' + missing.join(', '));
     if (dangling.length) problems.push('cover links to sections that do not exist: ' + dangling.join(', '));
+
+    /* The row of facts under the title states what the artifact holds. Each
+       number is written by hand in index.html and checked here against the
+       artifact itself, so a module that adds a scene fails this until the
+       cover says so. */
+    const shown = await page.evaluate(() => Object.fromEntries(
+      [...document.querySelectorAll('[data-fact]')].map(b => [b.dataset.fact, +b.textContent])));
+    const wrong = Object.keys(facts).filter(k => shown[k] !== facts[k]);
+    note('cover facts ' + Object.keys(facts).map(k => k + ' ' + shown[k] + '/' + facts[k]).join(' · '));
+    for (const k of wrong)
+      problems.push('the cover says ' + shown[k] + ' ' + k + '; the artifact has ' + facts[k]);
 
     /* The backdrop is WebGL and asks for no preserved drawing buffer, so its
        pixels cannot be read back outside the frame that drew them — a
