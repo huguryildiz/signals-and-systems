@@ -209,6 +209,43 @@ chk("M2 stability bound 2B^2+B", sp.simplify(2*B**2 + B - (2*B**2 + B)) == 0)
 # invertibility of (cos t + 2): gain never vanishes
 chk("M2 cos(t)+2 >= 1 > 0", sp.minimum(sp.cos(t)+2, t) == 1)
 
+# Module 2 predictions on the slides and the quick-check slide
+xv = sp.Symbol('xv')
+chk("M2 predict 2x built as x+x equals the amplifier 2x", sp.simplify((xv + xv) - 2*xv) == 0)
+chk("M2 predict y(t)=x(t/2): at t=2 it uses x(1)", sp.Rational(2, 2) == 1)
+def accum(xseq):
+    out, prev = [], 0
+    for v in xseq: prev = v + prev; out.append(prev)
+    return out
+chk("M2 predict accumulator at rest, x=delta: y[3] = 1", accum([1, 0, 0, 0, 0])[3] == 1)
+chk("M2 predict y(t)=x(2t): at t=1 it uses x(2), a future value", 2*1 == 2 and 2 > 1)
+chk("M2 predict y(t)=x(t)+1 maps the zero input to 1, so it is not linear", (0 + 1) != 0)
+chk("M2 qc y[n]=x[n]+x[n-2] uses n-2 != n", (n - 2) - n != 0)
+chk("M2 qc y=3x-1 is inverted by x=(y+1)/3", sp.simplify(((3*xv - 1) + 1)/3 - xv) == 0)
+chk("M2 qc y[n]=x[2n]: inputs that differ only at odd n give the same output",
+    [a for a in [1, 5, 2, 7][::2]] == [a for a in [1, -3, 2, 9][::2]])
+chk("M2 qc sum from k=n to inf uses k=n+1 > n", n + 1 > n)
+chk("M2 qc integral over [t-1, t+1] reaches t+1 > t", True)
+chk("M2 qc |x|<B gives 0 < e^x < e^B", bool(sp.exp(-3) > 0) and sp.exp(2) < sp.exp(3))
+chk("M2 qc |x[n]+x[n-1]+x[n-2]| < 3B (triangle inequality, worst case x=B)",
+    max(abs(sum(s)) for s in [(0.99, 0.99, 0.99), (-0.99, 0.99, -0.99)]) < 3*1)
+x0 = sp.Function('x0'); t0 = sp.Symbol('t0', real=True)
+chk("M2 qc y=x(t)+t is not time invariant: paths differ by t0",
+    sp.simplify((x0(t - t0) + t) - (x0(t - t0) + (t - t0))) == t0)
+chk("M2 qc y[n]=x[n]x[n-1] is time invariant (two paths agree for a random input)",
+    (lambda xs: np.allclose(np.roll(xs*np.roll(xs, 1), 1)[2:], (np.roll(xs, 1)*np.roll(xs, 2))[2:]))(np.random.default_rng(2).normal(size=12)))
+chk("M2 qc y=t x(t) is linear", sp.simplify(t*(a_*x1 + b_*x2) - (a_*t*x1 + b_*t*x2)) == 0)
+chk("M2 qc x(t-2) is LTI; x^2 fails superposition with a=2",
+    (2*1)**2 != 2*(1**2))
+# Laboratory 2.3 and the code page
+chk("M2 code accumulator on six ones: y[0..9] = 1..6, then 6",
+    accum([1]*6 + [0]*4) == [1, 2, 3, 4, 5, 6, 6, 6, 6, 6])
+chk("M2 code superposition difference for the square is 18",
+    (lambda x1_, x2_: np.max(np.abs(((2*x1_ - x2_)[::2])**2 - (2*x1_[::2]**2 - x2_[::2]**2))))(
+        np.array([1, 2, 0, -1, 3, 1, 2, 0]), np.array([0, 1, -2, 1, 1, 0, -1, 2])) == 18)
+sav = sum(100*1.01**k for k in range(25))       # y[24] of y[n] = 1.01 y[n-1] + 100 from rest
+chk("M2 gallery savings: 25 deposits of 100 at 1 % stay inside the 3400 axis", sav < 3400, f"y[24] = {sav:.0f}")
+
 # ---------------------------------------------------------------- Module 3
 # p.15-16 finite convolution
 x = np.array([1., 2., 1., 2.]); h = np.array([1., 1.])

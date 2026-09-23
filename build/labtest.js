@@ -52,16 +52,19 @@ const path = require('path');
   await p.click('[data-seg=dom][data-val=ct]'); await p.waitForTimeout(90);
   out.push('C CT mode :: ' + await p.$eval('.ro', e => e.innerText.replace(/\s+/g, ' ')));
 
-  // ---- Lab D : every system, open every property
+  // ---- Lab D : every system, answer every property, read each argument
   await scene('m2-lab-d');
   const nSys = await p.evaluate(() => CONTENT.SYSTEMS.length);
   for (let i = 0; i < nSys; i++) {
     const keys = await p.$$eval('[data-prop]', els => els.map(e => e.dataset.prop));
-    for (const kk of keys) { await p.click(`[data-prop="${kk}"]`); await p.waitForTimeout(30); }
-    await p.waitForTimeout(60);
-    const txt = await p.$eval('.plist', e => e.innerText);
-    const yes = (txt.match(/YES/g) || []).length, no = (txt.match(/NO/g) || []).length;
-    out.push(`D sys${i + 1} verdicts YES=${yes} NO=${no} (expect 6)`);
+    let args = 0;
+    for (const kk of keys) {
+      await p.click(`[data-pick="yes"][data-k="${kk}"]`); await p.waitForTimeout(30);
+      const d = await p.$eval('.detail', e => e.innerText);
+      if (/PROOF|COUNTEREXAMPLE/i.test(d)) args++;
+    }
+    const marked = await p.$$eval('.plist .opt.correct', e => e.length);
+    out.push(`D sys${i + 1} arguments=${args} verdicts=${marked} (expect 6)`);
     await p.click('[data-nav="1"]'); await p.waitForTimeout(90);
   }
 

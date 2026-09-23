@@ -49,6 +49,10 @@ _to_delete/
 # impeccable design tool: config.json is tracked; caches and local overrides are not.
 .impeccable/*
 !.impeccable/config.json
+/.impeccable.md
+
+# Local design mockups; production site sources remain tracked.
+/web/mockup-editorial.html
 
 # Local working area. The agent instructions and guards are tracked; prompts,
 # plans, reports, audits, references, and other working records remain ignored.
