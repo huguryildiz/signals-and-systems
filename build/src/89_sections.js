@@ -117,14 +117,16 @@ CONTENT.SECTIONS = {
   M3: [
     { n:'3.0', title:'Opening',                                          ids:['m3-open'] },
     { n:'3.1', title:'Impulse response and the representation property', ids:[
-        'm3-impulse','m3-representation'] },
+        'm3-impulse','m3-representation','m3-real-impulse','m3-lab-m','m3-code-impulse'] },
     { n:'3.2', title:'The convolution sum',                              ids:[
-        'm3-convsum','m3-steps','m3-ex-dt1','m3-ex-dt1-b','m3-ex-dt2'] },
+        'm3-convsum','m3-convsum-b','m3-steps','m3-ex-dt1','m3-ex-dt1-b','m3-ex-dt2','m3-ex-dt2-b',
+        'm3-real-convsum','m3-lab-e','m3-code-convsum'] },
     { n:'3.3', title:'The convolution integral',                         ids:[
-        'm3-convint','m3-ex-ct1','m3-ex-ct1-b','m3-ex-ct2','m3-lab-e'] },
+        'm3-convint','m3-convint-b','m3-ex-ct1','m3-ex-ct1-b','m3-ex-ct2','m3-ex-ct2-b','m3-ex-ct2-c',
+        'm3-real-convint','m3-lab-n','m3-code-convint'] },
     { n:'3.4', title:'Properties of convolution',                        ids:[
-        'm3-props','m3-lti-props'] },
-    { n:'3.5', title:'Summary',                                          ids:['m3-synth'] }
+        'm3-props','m3-props-b','m3-lti-props','m3-lti-stable','m3-lti-stable-b','m3-real-props','m3-lab-o','m3-code-props'] },
+    { n:'3.5', title:'Summary',                                          ids:['m3-quick','m3-synth','m3-projects'] }
   ],
 
   M4: [
@@ -244,13 +246,17 @@ CONTENT.BOOK = {
   'm2-workflow':'1.6', 'm2-real-systems':'1.6', 'm2-lab-d':'1.6', 'm2-code-props':'1.6',
   'm2-quick':'1.7', 'm2-synth':'1.7', 'm2-projects':'1.7',
 
-  'm3-impulse':'2.1.1', 'm3-representation':'2.1.1',
-  'm3-convsum':'2.1.2', 'm3-steps':'2.1.2', 'm3-ex-dt1':'2.1.2',
-  'm3-ex-dt1-b':'2.1.2', 'm3-ex-dt2':'2.1.2',
-  'm3-convint':'2.2.2', 'm3-ex-ct1':'2.2.2', 'm3-ex-ct1-b':'2.2.2',
-  'm3-ex-ct2':'2.2.2', 'm3-lab-e':'2.2',
-  'm3-props':'2.3', 'm3-lti-props':'2.3',
-  'm3-synth':'2.6',
+  'm3-impulse':'2.1.1', 'm3-representation':'2.1.1', 'm3-real-impulse':'2.1.1',
+  'm3-lab-m':'2.1.1', 'm3-code-impulse':'2.1.1',
+  'm3-convsum':'2.1.2', 'm3-convsum-b':'2.1.2', 'm3-steps':'2.1.2', 'm3-ex-dt1':'2.1.2',
+  'm3-ex-dt1-b':'2.1.2', 'm3-ex-dt2':'2.1.2', 'm3-ex-dt2-b':'2.1.2', 'm3-real-convsum':'2.1.2',
+  'm3-lab-e':'2.1.2', 'm3-code-convsum':'2.1.2',
+  'm3-convint':'2.2.2', 'm3-convint-b':'2.2.2', 'm3-ex-ct1':'2.2.2', 'm3-ex-ct1-b':'2.2.2',
+  'm3-ex-ct2':'2.2.2', 'm3-ex-ct2-b':'2.2.2', 'm3-ex-ct2-c':'2.2.2', 'm3-real-convint':'2.2.2',
+  'm3-lab-n':'2.2.2', 'm3-code-convint':'2.2.2',
+  'm3-props':'2.3', 'm3-props-b':'2.3', 'm3-lti-props':'2.3', 'm3-lti-stable':'2.3', 'm3-lti-stable-b':'2.3',
+  'm3-real-props':'2.3', 'm3-lab-o':'2.3', 'm3-code-props':'2.3',
+  'm3-quick':'2.6', 'm3-synth':'2.6', 'm3-projects':'2.6',
 
   'm4-eigen-ct':'3.2', 'm4-eigen-dt':'3.2', 'm4-eigen-why':'3.2', 'm4-eigen-ex':'3.2',
   'm4-fs-exist':'3.4', 'm4-fs-synth':'3.3.1', 'm4-period':'3.3.1',

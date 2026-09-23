@@ -68,9 +68,9 @@ const path = require('path');
     await p.click('[data-nav="1"]'); await p.waitForTimeout(90);
   }
 
-  // ---- Lab E : all four cases, slider across the full range
+  // ---- Lab E : all three discrete-time cases, slider across the full range
   await scene('m3-lab-e');
-  for (const c of ['dt1', 'dt2', 'ct1', 'ct2']) {
+  for (const c of ['dt1', 'dt2', 'dt3']) {
     await p.click(`[data-case=${c}]`); await p.waitForTimeout(90);
     const lim = await p.$eval('[data-v=pos]', e => [+e.min, +e.max]);
     for (const v of [lim[0], (lim[0] + lim[1]) / 2, lim[1]]) {
@@ -79,6 +79,45 @@ const path = require('path');
       const ro = await p.$eval('.ro', e => e.innerText.replace(/\s+/g, ' '));
       out.push(`E ${c} pos=${v} :: ${ro}`);
     }
+  }
+
+  // ---- Lab N : all three continuous-time cases, slider across the full range
+  await scene('m3-lab-n');
+  for (const c of ['ct1', 'ct2', 'ct3']) {
+    await p.click(`[data-case=${c}]`); await p.waitForTimeout(90);
+    const lim = await p.$eval('[data-v=pos]', e => [+e.min, +e.max]);
+    for (const v of [lim[0], (lim[0] + lim[1]) / 2, lim[1]]) {
+      await p.$eval('[data-v=pos]', (el, val) => { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
+      await p.waitForTimeout(60);
+      const ro = await p.$eval('.ro', e => e.innerText.replace(/\s+/g, ' '));
+      out.push(`N ${c} pos=${v} :: ${ro}`);
+    }
+  }
+
+  // ---- Lab M : every system x every input, read the gap readout
+  await scene('m3-lab-m');
+  for (const sys of ['A', 'B', 'C', 'D']) {
+    await p.click(`[data-seg="sys"][data-val="${sys}"]`); await p.waitForTimeout(70);
+    for (const inp of ['d0', 'd2', 'd0x2', 'pair', 'quad']) {
+      await p.click(`[data-seg="inp"][data-val="${inp}"]`); await p.waitForTimeout(70);
+      const ro = await p.$eval('.ro', e => e.innerText.replace(/\s+/g, ' '));
+      out.push(`M sys=${sys} inp=${inp} :: ${ro}`);
+    }
+  }
+
+  // ---- Lab O : answer every property for every h[n], check an argument opens
+  await scene('m3-lab-o');
+  for (let i = 0; i < 7; i++) {
+    const keys = await p.$$eval('[data-prop]', els => els.map(e => e.dataset.prop));
+    let args = 0;
+    for (const kk of keys) {
+      await p.click(`[data-pick="yes"][data-k="${kk}"]`); await p.waitForTimeout(30);
+      const d = await p.$eval('.detail', e => e.innerText);
+      if (/YES|NO/i.test(d)) args++;
+    }
+    const marked = await p.$$eval('.plist .opt.correct', e => e.length);
+    out.push(`O h${i + 1} arguments=${args} verdicts=${marked} (expect 3)`);
+    await p.click('[data-nav="1"]'); await p.waitForTimeout(90);
   }
 
   // ---- every laboratory in the build, found rather than listed
