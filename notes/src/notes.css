@@ -162,5 +162,8 @@ td:last-child,th:last-child{ padding-right:0; }
   font-size:9pt; color:var(--muted); line-height:1.5; break-inside:avoid; }
 .colophon .mark .eelogo{ width:22pt; height:22pt; display:block; margin-bottom:8pt; }
 .colophon p{ margin:0 0 2pt; }
-.colophon b{ color:var(--body); font-weight:650; }
+.colophon .cl-doc{ color:var(--body); font-weight:650; margin-bottom:8pt; }
+.colophon .cl-hist{ width:auto; min-width:60%; margin:0 0 10pt; font-size:9pt; }
+.colophon .cl-hist td:first-child{ font-family:var(--mono); color:var(--accent); }
+.colophon .cl-hist td:nth-child(2){ white-space:nowrap; }
 .colophon a{ color:var(--slate); text-decoration:none; }

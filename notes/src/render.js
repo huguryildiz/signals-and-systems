@@ -11,8 +11,11 @@
       .replace(/\$\$([^$]+)\$\$/g,(m,a)=>T(a,true))
       .replace(/\$([^$]+)\$/g,(m,a)=>T(a,false));
 
-  /* One version for every printed document. It appears on the last page of each. */
-  window.DOC_VERSION = 'v0';
+  /* One version history for every printed document, newest first. It is set as
+     a table on the last page of each. Add a row here for each new release. */
+  window.DOC_HISTORY = [
+    ['v0', '23 September 2026', 'First edition.']
+  ];
 
   const LOGO = `<svg class="eelogo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
 <defs>
@@ -83,8 +86,9 @@
        <div class="cv-credit">© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div></div></div>`,
     /* Last-page colophon: document name, version, licence. */
     colophon: b=>`<div class="colophon"><div class="mark">${LOGO}</div>
-       <p><b>Signals and Systems &middot; ${md(b.doc)}</b></p>
-       <p>Version ${window.DOC_VERSION}</p>
+       <p class="cl-doc">Signals and Systems &middot; ${md(b.doc)}</p>
+       <table class="cl-hist"><tr><th>Version</th><th>Date</th><th>Changes</th></tr>${
+         window.DOC_HISTORY.map(([v,d,c])=>`<tr><td>${md(v)}</td><td>${md(d)}</td><td>${md(c)}</td></tr>`).join('')}</table>
        <p>© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></p></div>`,
     h1:     b=>`<h1>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h1>${b.rule!==false?'<hr class="thick">':''}`,
     h2:     b=>`<h2>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h2>`,
