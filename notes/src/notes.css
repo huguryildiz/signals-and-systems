@@ -68,10 +68,15 @@ hr.thick{ border-top:1.6pt solid var(--accent); width:46pt; margin:0 0 11pt; }
 
 /* worked examples */
 .ex{ border-top:1.4pt solid var(--ink); border-bottom:0.7pt solid var(--rule);
-  padding:7pt 0 8pt; margin:12pt 0; break-inside:avoid; }
+  padding:7pt 0 8pt; margin:12pt 0; }
+/* A worked example may run across a page break once it is long; only its
+   heading and each displayed equation are kept whole. Holding the whole
+   example together left pages nearly empty ahead of the longer examples. */
+.ex .h{ break-after:avoid; }
+.ex .katex-display{ break-inside:avoid; }
 .ex .h{ font-family:var(--mono); font-size:8pt; letter-spacing:.12em;
   text-transform:uppercase; color:var(--accent); margin-bottom:6pt; }
-.ex dl{ margin:0; display:grid; grid-template-columns:52pt 1fr; gap:4pt 11pt; }
+.ex dl{ margin:0; display:grid; grid-template-columns:52pt minmax(0,1fr); gap:4pt 11pt; }
 .ex dt{ font-family:var(--mono); font-size:7.8pt; letter-spacing:.1em;
   text-transform:uppercase; color:var(--slate); padding-top:1.5pt; }
 .ex dd{ margin:0; }

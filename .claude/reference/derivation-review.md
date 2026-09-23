@@ -35,7 +35,8 @@ relevant module report. A passing automated gate alone is not a review result.
 | Scope | Authored pass | Manual derivation review | Evidence |
 | --- | --- | --- | --- |
 | Modules 1–2, artifact and lecture notes | Reported complete locally | Pending owner review; do not mark accepted from gate results alone | `.claude/plans/slides/REPORT_M1_M2_DERIVATIONS.md` |
-| Modules 3–7 | Not assessed under this new rule | Pending | Record in each module report when reviewed |
+| Lecture notes Chapters 3–7 | Expanded 2026-09-23; every added intermediate equality checked with sympy (Ch 3: 31, Ch 4: all, Ch 5: 50, Ch 6: 69, Ch 7: 76 checks); no result errors, three rounding corrections in Chapter 4 | Pending owner review | Commit of 2026-09-23 on `notes/src/c23.js`, `c4.js`–`c7.js` |
+| Artifact Modules 3–7 | Not assessed under this new rule | Pending | Record in each module report when reviewed |
 
 The M1–M2 report records an 82-page PDF text and rendered-page inspection. That
 print inspection is complete as reported there; the manual derivation review
