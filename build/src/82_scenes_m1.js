@@ -1595,15 +1595,34 @@ REAL_IMPULSE,
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
-      [[0.5,'#9BC4CB'],[1,'#3E8C9B'],[2,C.in]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
-      a.note(5.7,1.02,'e^{-0.5t},\\;e^{-t},\\;e^{-2t}',{anchor:'end',color:C.in,fs:14,tex:true});
+      [[0.5,C.in],[1,C.h],[2,C.out]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
       return a.svg(); },
-      caption:'Real case, $a<0$: decay. A larger $|a|$ decays faster.'}
+      caption:'Real case, $a<0$: decay. A larger $|a|$ decays faster.'},
+    {t:'legend', items:[['in','$e^{-0.5t}$'],['h','$e^{-t}$'],['out','$e^{-2t}$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition',
       note:'The real and imaginary parts of $a$ decide growth, decay and oscillation.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Both parameters real', html:'If $a<0$ the signal decays. If $a>0$ it grows. If $a=0$ it is the constant $C$. A larger $|a|$ is faster.'}]}
+  ]}
+]},
+
+{ id:'m1-ct-cexp-grow', module:'M1', nav:'Growing exponentials', title:'Growing Real Exponentials', src:'pp. 7–9',
+  objective:'See a real exponential grow when a>0, faster for a larger a.',
+  keywords:'real exponential growth a positive growing unstable',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
+  {t:'title', text:'Growing Real Exponentials'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,1.5],yr:[-1,21],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:4,ytarget:4});
+      [[0.5,C.in],[1,C.h],[2,C.out]].forEach(([k,col])=>a.curve(t=>Math.exp(k*t),{color:col}));
+      return a.svg(); },
+      caption:'Real case, $a>0$: growth. A larger $a$ grows faster.'},
+    {t:'legend', items:[['in','$e^{0.5t}$'],['h','$e^{t}$'],['out','$e^{2t}$']]}
+  ], right:[
+    {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{R},\\; a>0', label:'Growth',
+      note:'Every curve starts at $x(0)=C=1$. Each time $t$ advances by $1/a$, the signal is multiplied by $e\\approx 2.72$.'}
   ]}
 ]},
 
