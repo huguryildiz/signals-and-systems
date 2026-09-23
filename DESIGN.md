@@ -353,6 +353,29 @@ equation, `Solution` is a green card, and `Check` or `Common error` closes the c
 stays for the property tables, where a row is one `\leftrightarrow` correspondence; its key column is
 136 px, which holds `DIFFERENTIATION` in tracked mono without a mid-word break.
 
+### A laboratory on a slide — DECIDED 2026-09-23, built for Laboratories A–C
+
+A laboratory scene carries `slide:true` like any other slide, and its text follows the card language
+rather than the plain stack it had before. The rule applies to Module 1 now; Laboratories D–J keep
+their current look until their module is converted.
+
+- Every derivation, verdict and note that the laboratory draws is a card. A computed equation takes
+  a coral tab that names what it computes (`Period condition`, `Fundamental period`, `Energy`,
+  `Power`); a note keeps its kind's tab and icon (`ok` for a result, `warn` for a trap or a
+  counterexample). The equation that restates the current signal at the top of a column stays
+  untabbed: it is a readout, not a step.
+- The laboratory builds these cards inside its own containers (`.derive`, `.aper`, `.work`), and the
+  tab room applies there as it does in a column. The control panel has no tab, so a laboratory
+  column starts at the top edge.
+- Type is the Laboratory A scale: control labels, readout keys and tabs 16 px, control values 20 px,
+  readout values 21 px, card text 19 px, the signal equation at the top 22 px, all times `--ts`.
+  Plot text grows by narrowing the viewBox, not by a font override.
+- The laboratory must fit at k = 1 in normal display. When the tabs push it over, shorten it before
+  accepting a scale-down: pair two sliders in one row, drop the doubled flow gap inside a stack, move
+  a verdict under the figure where the column has spare height, or lower a stacked plot's viewBox
+  height. A laboratory that grows after an answer or a reveal calls `RENDER.fit()` so that state is
+  refitted too.
+
 ### Eyebrow
 
 The band above the title carries the module, the scene's address in coral, and for 196 scenes a

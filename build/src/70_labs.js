@@ -47,7 +47,7 @@ const LABS = (() => {
       const lo=Math.min(e1,e2), hi=Math.max(e1,e2);
       const critY = P.crit.map(c=>(c+b)/a).sort((p,q)=>p-q);
       const xr=[-8,8];
-      const ax = o => PLOT.Axes(Object.assign({w:760,h:210,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
+      const ax = o => PLOT.Axes(Object.assign({w:760,h:190,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
         pad:{l:44,r:26,t:16,b:34}, xtarget:9, ytarget:3},o));
       const disc = f => { const out=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) out.push([n,f(n)]); return out; };
       const A1 = ax({}); const A2 = ax({}); const A3 = ax({});
@@ -166,8 +166,8 @@ const LABS = (() => {
           this is ${it.kind==='neither'?'<b>neither</b> an energy nor a power signal'
           :(it.kind==='energy'?'an <b>energy</b> signal':'a <b>power</b> signal')}. ${it.why}</div>`) : '';
       root.querySelector('.work').innerHTML = revealed ? M(`
-        <div class="eq">${T(it.E,true)}</div>
-        <div class="eq">${T(it.P,true)}</div>
+        <div class="eq"><span class="eq-label">Energy</span>${T(it.E,true)}</div>
+        <div class="eq"><span class="eq-label">Power</span>${T(it.P,true)}</div>
         <div class="note ok"><span class="note-h">Conclusion</span>${
           it.kind==='energy'?'$E_\\infty<\\infty$ and $P_\\infty=0$ ⇒ energy-type signal.'
           :it.kind==='power'?'$E_\\infty\\to\\infty$ and $0<P_\\infty<\\infty$ ⇒ power-type signal.'
@@ -181,6 +181,7 @@ const LABS = (() => {
           <div class="col stack">
             <div class="sig eq key"></div>
             <div class="plots"></div>
+            <div class="verdict"></div>
             <div class="small srcref instr-inline" data-instr></div>
           </div>
           <div class="col stack">
@@ -190,7 +191,6 @@ const LABS = (() => {
               <button class="opt" data-cls="power"><span class="k">B</span><span>Power signal — $E_\\infty\\to\\infty$, $0\\lt P_\\infty\\lt\\infty$</span></button>
               <button class="opt" data-cls="neither"><span class="k">C</span><span>Neither</span></button>
             </div>
-            <div class="verdict"></div>
             <div class="work stack"></div>
             <div style="display:flex;gap:10px;align-items:center">
               <button class="btn" data-reveal>Reveal the calculation</button>
@@ -200,10 +200,12 @@ const LABS = (() => {
             </div>
           </div></div>`);
       root.addEventListener('click', e=>{
-        const c=e.target.closest('[data-cls]'); if(c && !picked){ picked=c.dataset.cls; draw(root); return; }
-        if(e.target.closest('[data-reveal]')){ revealed=!revealed; draw(root); return; }
+        /* the verdict and the calculation are built on demand, so the scene is
+           fitted again each time they change its height */
+        const c=e.target.closest('[data-cls]'); if(c && !picked){ picked=c.dataset.cls; draw(root); RENDER.fit(); return; }
+        if(e.target.closest('[data-reveal]')){ revealed=!revealed; draw(root); RENDER.fit(); return; }
         const n=e.target.closest('[data-nav]');
-        if(n){ cur=(cur+ +n.dataset.nav + items.length)%items.length; picked=null; revealed=false; draw(root); }
+        if(n){ cur=(cur+ +n.dataset.nav + items.length)%items.length; picked=null; revealed=false; draw(root); RENDER.fit(); }
       });
       draw(root);
     }};

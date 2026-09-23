@@ -377,5 +377,5 @@ const RENDER = (() => {
     APP.buildSidebar();
   }
 
-  return { draw, blocks, tex, md, drillHTML, symLinks };
+  return { draw, blocks, tex, md, drillHTML, symLinks, fit:fitScene };
 })();
