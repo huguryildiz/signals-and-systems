@@ -53,8 +53,12 @@ const path = require('path');
   for(const ch of data.chapters){
     const mine = data.scenes.filter(s=>s.sec && s.sec.split('.')[0] === ch.n);
 
-    run(`chapter ${ch.n} laboratories`,
-        mine.filter(s=>/\.L\d+$/.test(s.sec)).map(s=>+s.sec.match(/\.L(\d+)$/)[1]));
+    /* a laboratory is addressed after the section it closes: 1.2.L, 4.6.La */
+    const secNs = new Set((data.sections[ch.module]||[]).map(x=>x.n));
+    mine.filter(s=>/\.L/.test(s.sec)).forEach(s=>{
+      const m = s.sec.match(/^(.+)\.L([a-h]?)$/);
+      if(!m || !secNs.has(m[1])) say(`laboratory "${s.id}" has address ${s.sec}, not <section>.L`);
+    });
     run(`chapter ${ch.n} question sections`,
         mine.filter(s=>/\.Q\d+$/.test(s.sec)).map(s=>+s.sec.match(/\.Q(\d+)$/)[1]));
 

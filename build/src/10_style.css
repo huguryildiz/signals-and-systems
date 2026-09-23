@@ -113,7 +113,7 @@ body[data-display=projector]{ --ts:1.36; }
 /* the smallest labels are what a back row loses first: raise their floor */
 body[data-display=projector] .small{ font-size:calc(17.5px * var(--ts)); }
 body[data-display=projector] figcaption{ font-size:calc(16.5px * var(--ts)); }
-body[data-display=projector] .eyebrow{ font-size:calc(16px * var(--ts)); }
+body[data-display=projector] .eyebrow{ font-size:calc(16px * var(--ts) * var(--hk,1)); }
 body[data-display=projector] .eq-label,
 body[data-display=projector] .note-h,
 body[data-display=projector] .wex-k,
@@ -150,6 +150,11 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 /* the two pointer controls belong to projector mode and are hidden outside it */
 #appheader .proj-only{ display:none; }
 body[data-display=projector] #appheader .proj-only{ display:block; }
+body[data-display=projector] #appheader button.proj-only{ display:inline-flex; }
+body[data-display=projector] #appheader #trail-len{ display:inline-flex; align-items:center; gap:6px; }
+#trail-len input{ width:72px; accent-color:var(--coral); cursor:pointer; }
+#trail-len input:disabled{ opacity:.4; cursor:default; }
+#trail-len output{ min-width:3.2em; font-size:11.5px; letter-spacing:.08em; }
 
 *,*::before,*::after{ box-sizing:border-box; }
 
@@ -214,6 +219,16 @@ body[data-motion=reduced] .eelogo-halo{ animation:none; }
 #appheader button[aria-pressed=true]{ color:var(--coral); }
 #appheader button:disabled{ opacity:.4; cursor:default; }
 #appheader button:disabled:hover{ color:var(--muted); background:transparent; }
+#appheader button:has(svg){ display:inline-flex; align-items:center; gap:6px; }
+#appheader button svg{ display:block; width:16px; height:16px; flex:none; }
+@media (max-width:1180px){ #appheader button:has(svg) span{ display:none; } }
+#setmenu{ position:fixed; inset:auto; margin:0; padding:6px; min-width:200px;
+  flex-direction:column; align-items:stretch; gap:2px;
+  background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,.18); }
+#setmenu:popover-open{ display:flex; }
+#setmenu button{ justify-content:flex-start; }
+#appheader #setmenu button:has(svg) span{ display:inline; }
 #sbtoggle{ font-size:15px !important; line-height:1; padding:5px 9px !important; }
 
 /* --- left contents rail ---------------------------------------------- */
@@ -271,6 +286,30 @@ body[data-sidebar=off] #sidebar{ display:none; }
 #sidenav li.insec{ margin-left:7px; }
 #sidenav li.insec a{ border-left-color:var(--rule-strong); }
 #sidenav li.insec a.on{ border-left-color:var(--coral); }
+/* An open section is drawn as one panel: its heading is the panel's top band
+   and its scenes sit inside the same frame, so where the section starts and
+   ends reads at a glance. The panel closes at the next heading or at the end
+   of the chapter. */
+#sidenav li.csec:has(> button.open){
+  margin-top:10px; background:var(--paper-2);
+  border:1px solid var(--rule); border-bottom:0; border-radius:5px 5px 0 0;
+}
+#sidenav li.csec:has(> button.open) button{
+  color:var(--ink); font-weight:600; padding-top:7px; padding-bottom:6px;
+  border-bottom:1px solid var(--rule); border-radius:5px 5px 0 0;
+}
+#sidenav li.csec:has(> button.open) button:hover{ background:var(--paper-3); }
+#sidenav li.csec:has(> button.open) .cnum{ color:var(--coral); }
+#sidenav li.insec{
+  margin-left:0; padding:0 6px 0 8px; background:var(--paper-2);
+  border-left:1px solid var(--rule); border-right:1px solid var(--rule);
+}
+#sidenav li.csec + li.insec{ padding-top:4px; }
+#sidenav li.insec:has(+ li.csec), #sidenav li.insec:last-child{
+  border-bottom:1px solid var(--rule); border-radius:0 0 5px 5px;
+  padding-bottom:5px; margin-bottom:10px;
+}
+#sidenav li.insec a:hover, #sidenav li.insec a.on{ background:var(--paper-3); }
 .cnum{ font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--slate); }
 #sidenav a.on .cnum{ color:var(--coral); }
 /* The label frame is uppercase mono with wide tracking, and both properties
@@ -321,11 +360,11 @@ body[data-sidebar=off] #sidebar{ display:none; }
 
 /* eyebrow / metadata */
 .eyebrow{
-  font-family:var(--mono); font-size:calc(15px * var(--ts)); letter-spacing:.16em;
+  font-family:var(--mono); font-size:calc(15px * var(--ts) * var(--hk,1)); letter-spacing:.16em;
   text-transform:uppercase; color:var(--slate); font-weight:500;
-  display:flex; align-items:center; gap:12px; margin:0 0 18px;
+  display:flex; align-items:center; gap:calc(12px * var(--hk,1)); margin:0 0 calc(18px * var(--hk,1));
 }
-.eyebrow .tick{ width:26px; height:1px; background:currentColor; opacity:.55; }
+.eyebrow .tick{ width:calc(26px * var(--hk,1)); height:1px; background:currentColor; opacity:.55; }
 .eyebrow .ebnum{ color:var(--coral); letter-spacing:.1em; }
 .eyebrow .ebnum::before{ content:'·'; color:var(--faint); margin-right:8px; }
 /* The anchor is a chip, not another word in the eyebrow. It points outside the
@@ -344,12 +383,12 @@ body[data-sidebar=off] #sidebar{ display:none; }
 
 /* titles */
 h1.display{
-  font-family:var(--serif); font-weight:400; font-size:calc(74px * var(--ts)); line-height:1.04;
-  letter-spacing:-.012em; margin:0 0 20px; color:var(--ink);
+  font-family:var(--serif); font-weight:400; font-size:calc(74px * var(--ts) * var(--hk,1)); line-height:1.04;
+  letter-spacing:-.012em; margin:0 0 calc(20px * var(--hk,1)); color:var(--ink);
 }
 h2.title{
-  font-family:var(--serif); font-weight:400; font-size:calc(45px * var(--ts)); line-height:1.10;
-  letter-spacing:-.008em; margin:0 0 14px; color:var(--ink);
+  font-family:var(--serif); font-weight:400; font-size:calc(45px * var(--ts) * var(--hk,1)); line-height:1.10;
+  letter-spacing:-.008em; margin:0 0 calc(14px * var(--hk,1)); color:var(--ink);
 }
 h3.sub{
   font-family:var(--sans); font-weight:600; font-size:calc(20px * var(--ts)); line-height:1.3;
@@ -465,6 +504,37 @@ h3.sub{
 }
 .rc-glyph{ display:block; width:124px; opacity:.92; }
 .rc-glyph svg{ display:block; width:100%; height:auto; overflow:visible; }
+/* project deck: the recall card look for the list; the chosen card takes the
+   coral edge and its brief shows on the right. All briefs share one grid cell,
+   so choosing another project moves nothing. */
+.proj{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:40px; align-items:start; }
+.proj-right{ display:grid; }
+.proj-brief{ grid-area:1/1; opacity:0; visibility:hidden; transition:opacity 220ms var(--ease),visibility 0s linear 220ms; }
+.proj-brief.is-on{ opacity:1; visibility:visible; transition:opacity 220ms var(--ease),visibility 0s; }
+.proj-h{
+  font-family:var(--mono); font-size:calc(14px * var(--ts)); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--slate); margin:0 0 6px;
+}
+.proj-h:not(:first-child){ margin-top:18px; }
+.proj-aim{ font-family:var(--serif); font-style:italic; font-size:calc(24px * var(--ts)); line-height:1.35; color:var(--ink); margin:0; }
+.proj-learn,.proj-steps,.proj-look{ font-family:var(--sans); font-size:calc(18px * var(--ts)); line-height:1.45; color:var(--graphite); margin:0; }
+.proj-learn,.proj-steps{ padding-left:1.3em; }
+.proj-learn li+li,.proj-steps li+li{ margin-top:4px; }
+.proj-steps li::marker{ font-family:var(--mono); color:var(--coral); }
+/* heading icons: a small mono heading over a block of a panel (a project
+   brief, a reflection) carries a drawn coral icon for its role, in place of
+   the tick. One stroke set, 24-unit grid, as a mask so it takes the ink. */
+.hi{ display:flex; align-items:center; gap:.6em; }
+.hi::before{ content:""; flex:none; width:1.4em; height:1.4em; background:var(--coral);
+  -webkit-mask:var(--hi) center/contain no-repeat; mask:var(--hi) center/contain no-repeat; }
+.hi-aim{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Ccircle cx='12' cy='12' r='4.5'/%3E%3Ccircle cx='12' cy='12' r='.8'/%3E%3C/svg%3E"); }
+.hi-practise{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 6.5l1.6 1.6 3-3M3.5 13.5l1.6 1.6 3-3M11.5 7h9M11.5 14h9M11.5 20h9'/%3E%3C/svg%3E"); }
+.hi-steps{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20h5v-5h5v-5h5V5h3'/%3E%3C/svg%3E"); }
+.hi-look{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E"); }
+.hi-reflect{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v10.5h-9l-4.5 4v-4H4z'/%3E%3Cpath d='M8 9h8M8 12h5'/%3E%3C/svg%3E"); }
+.hi-next{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M14 7l5 5-5 5'/%3E%3C/svg%3E"); }
+.proj-card .rc-q, .proj-card.is-open .rc-q{ font-size:calc(23px * var(--ts)); opacity:1; visibility:visible; transform:none; }
+body[data-motion=reduced] .proj-brief{ transition:none; }
 body[data-motion=reduced] .rc-face{ transition:none; transform:none; }
 @media (prefers-reduced-motion:reduce){ .rc-face{ transition:none; transform:none; } }
 
@@ -563,6 +633,11 @@ body[data-motion=reduced] .rc-face{ transition:none; transform:none; }
    ========================================================================== */
 figure.fig{ margin:0; display:flex; flex-direction:column; gap:7px; min-height:0; }
 figure.fig svg{ display:block; width:100%; height:auto; }
+/* a photograph or a book cover, embedded as a data URI from 77_images.js */
+figure.fig > img.photo{ display:block; width:100%; height:auto; aspect-ratio:3/2; object-fit:cover; border-radius:2px; }
+figure.fig > img.cover{ display:block; height:540px; width:auto; max-width:100%; margin:0 auto 6px;
+  object-fit:contain; outline:1px solid var(--rule); box-shadow:0 6px 18px rgba(0,0,0,.18); }
+figure.fig:has(> img.cover) figcaption{ text-align:center; max-width:460px; margin:0 auto; }
 #scene-host svg{ display:block; width:100%; height:auto; }
 /* an axis name is typeset mathematics inside the figure; the small svg pieces a
    formula uses for roots and stretched brackets get back KaTeX's own sizing */
@@ -621,13 +696,13 @@ figcaption b{ color:var(--graphite); font-weight:600; }
 body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--sig-h); }
 
 /* the title: a full-width hairline under it, a short coral segment at its left */
-.scene.slide .scene-inner > h2.title{ position:relative; margin:0 0 26px; padding-bottom:16px; }
+.scene.slide .scene-inner > h2.title{ position:relative; margin:0 0 calc(26px * var(--hk,1)); padding-bottom:calc(16px * var(--hk,1)); }
 .scene.slide .scene-inner > h2.title::after{
   content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:var(--rule);
 }
 .scene.slide .scene-inner > h2.title::before{
   content:""; position:absolute; left:0; bottom:0; z-index:1;
-  width:150px; height:2px; background:var(--coral);
+  width:calc(150px * var(--hk,1)); height:calc(2px * var(--hk,1)); background:var(--coral);
 }
 
 /* The information card: the `note` block. The body is a raised panel tinted
@@ -721,19 +796,19 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 }
 /* the control panel has no tab, so a laboratory column starts at the top */
 .scene.slide .lab > .cols > .col > :first-child:not(.reveal){ margin-top:0; }
-/* Laboratory C sets p and q side by side, so its cards keep the type floor */
+/* Laboratory 1.6 sets p and q side by side, so its cards keep the type floor */
 .scene.slide .lab[data-lab="C"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="C"] .ctrl:is(:first-child, :last-child){ grid-column:1 / -1; }
-/* Laboratory L sets its two sliders side by side */
+/* Laboratory 1.5 sets its two sliders side by side */
 .scene.slide .lab[data-lab="L"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="L"] .ctrl:nth-child(-n+2){ grid-column:1 / -1; }
-/* Laboratory K sets domain and shift side by side, the domain buttons under their label */
+/* Laboratory 1.4 sets domain and shift side by side, the domain buttons under their label */
 .scene.slide .lab[data-lab="K"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="K"] .ctrl:first-child{ grid-column:1 / -1; }
 .scene.slide .lab[data-lab="K"] .ctrl:nth-child(2) label{ flex-direction:column; align-items:flex-start; gap:7px; }
 .scene.slide .lab .col > :is(.derive, .aper, .work){ margin-top:0; }
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
-/* Laboratory A keeps its signal, plot and verdict together at the top */
+/* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
@@ -860,6 +935,20 @@ body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,b
    motion is reduced, and never appears on paper */
 body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 @media (prefers-reduced-motion:reduce){ .mtf-sparkwrap{ display:none; } }
+/* difference of steps: each pair u[n], -u[n-1] collapses onto the axis, the
+   sample at n=0 is left and marked. Start and end equal the still figure. */
+.dc-pair{ transform-box:view-box; animation:dc-cancel 9s var(--ease) 1s infinite; }
+@keyframes dc-cancel{
+  0%,22%  { transform:scaleY(1); opacity:1 }
+  40%,80% { transform:scaleY(0); opacity:0 }
+  94%,100%{ transform:scaleY(1); opacity:1 }
+}
+.dc-zero{ opacity:0; animation:dc-show 9s var(--ease) 1s infinite; }
+.dc-keep{ opacity:0; animation:dc-show 9s var(--ease) 1.8s infinite; }
+@keyframes dc-show{ 0%,36%{ opacity:0 } 44%,78%{ opacity:1 } 88%,100%{ opacity:0 } }
+.dc-lbl{ animation:dc-hide 9s var(--ease) 1s infinite; }
+@keyframes dc-hide{ 0%,24%{ opacity:1 } 36%,82%{ opacity:.25 } 94%,100%{ opacity:1 } }
+@media (prefers-reduced-motion:reduce){ .dc-pair,.dc-zero,.dc-keep,.dc-lbl{ animation:none; } }
 
 
 /* ==========================================================================
@@ -886,7 +975,7 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 }
 .lab > .cols{ height:100%; align-items:stretch; }
 .lab > .cols > .col.stack{ justify-content:space-between; }
-/* Laboratory B needs two columns so longer results can keep the type floor. */
+/* Laboratory 1.3 needs two columns so longer results can keep the type floor. */
 .lab[data-lab="A"] .ctrls{ gap:10px 20px; padding:16px 20px; }
 .lab[data-lab="A"] .ctrl{ gap:5px; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
@@ -950,7 +1039,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .btn:disabled{ opacity:.42; cursor:not-allowed; }
 .btn.ghost{ border-color:transparent; }
 
-/* Laboratory A keeps its own classification choices after quiz options were removed. */
+/* Laboratory 1.2 keeps its own classification choices after quiz options were removed. */
 .lab[data-lab="B"] .opts{ display:grid; gap:10px; }
 .lab[data-lab="B"] .opt{
   display:flex; align-items:center; gap:16px; width:100%; min-height:68px;
@@ -997,7 +1086,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .quiz{ display:flex; flex-direction:column; gap:var(--s2); max-width:1180px; }
 .qid{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; color:var(--faint); }
 .qstem{ font-size:calc(21px * var(--ts)); line-height:1.55; color:var(--ink); }
-/* The question bank has no answer options or hint ladder. Laboratory A's
+/* The question bank has no answer options or hint ladder. Laboratory 1.2's
    classification choices and feedback are styled above, within the lab. */
 
 /* instructor-only material */
@@ -1100,14 +1189,23 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
    which of the twenty they are on and never has to hunt for the next one. */
 .dr-pager{ display:flex; align-items:center; gap:16px; margin-bottom:18px;
   padding-bottom:14px; border-bottom:1px solid var(--rule); }
-.dr-count{ font-family:var(--mono); font-size:13px; letter-spacing:.1em;
-  color:var(--ink); }
+.dr-count{ font-family:var(--mono); font-size:calc(16px * var(--ts)); letter-spacing:.08em;
+  color:var(--muted); padding:8px 18px; border-radius:999px;
+  background:var(--paper-2); border:1px solid var(--rule-strong); white-space:nowrap; }
+.dr-count .dr-n{ color:var(--coral); font-weight:600; font-size:1.2em; margin:0 2px; }
 .dr-count .dr-of{ color:var(--faint); }
-.dr-seen{ margin-left:auto; font-size:14.5px; color:var(--sig-out); }
+.dr-seen{ margin-left:auto; font-size:calc(16px * var(--ts)); color:var(--sig-out); }
+/* the question's own number, set as a coral pill above its statement */
+.drill .qid{ display:block; width:fit-content; font-size:calc(15px * var(--ts)); font-weight:600;
+  color:var(--coral); padding:5px 14px; border-radius:999px; margin-bottom:6px;
+  background:color-mix(in srgb, var(--coral) 12%, transparent);
+  border:1px solid color-mix(in srgb, var(--coral) 45%, transparent); }
 .dr-pager .btn[disabled]{ opacity:.38; cursor:default; }
 /* The question itself is a single column that scrolls. It is never laid out in
    columns: CSS multicolumn inside a height-constrained box overflows sideways,
    which puts the overflow out of reach rather than below the fold. */
+/* the page runs to the foot of the stage; the footer strip is outside it */
+.scene:has(.dr-page), body[data-display=projector] .scene:has(.dr-page){ padding-bottom:20px; }
 .dr-page{ flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding-right:22px; }
 .dr-page::-webkit-scrollbar{ width:9px; }
 .dr-page::-webkit-scrollbar-thumb{ background:var(--rule-strong); border-radius:6px; }
@@ -1244,6 +1342,20 @@ body[data-motion=reduced] *{ transition-duration:1ms !important; animation-durat
 .listen-btn.is-playing{ border-color:var(--coral); color:var(--coral); }
 .listen-btn.is-playing::before{ width:.62em; height:.62em; border:0; background:currentColor; }
 body[data-theme=dark] .listen-btn{ color:var(--slate); }
+.frame-btn{ padding:8px 16px; }
+.frame-btn::before{ display:none; }
+.frame-btn:disabled{ opacity:.45; cursor:default; }
+/* the frame counter reads like the eyebrow: mono numerals, coral progress */
+.frame-v{ display:inline-flex; align-items:center; gap:14px; margin-left:6px; padding-left:18px;
+  border-left:1px solid var(--rule-strong); min-height:calc(42px * var(--ts)); }
+.frame-n{ font-family:var(--mono); font-size:calc(14px * var(--ts)); letter-spacing:.12em;
+  color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.frame-n b{ color:var(--coral); font-weight:600; }
+.frame-pips{ display:inline-flex; gap:5px; }
+.frame-pips i{ width:18px; height:3px; border-radius:2px; background:var(--rule-strong);
+  transition:background 220ms var(--ease); }
+.frame-pips i.on{ background:var(--coral); }
+.frame-l{ font-size:calc(19px * var(--ts)); color:var(--ink); }
 @media print{ .fxbar, .ask-row, .ask-why{ display:none !important; } }
 
 .fig.sketch > svg{ cursor:crosshair; touch-action:none; }
@@ -1318,3 +1430,118 @@ body[data-theme=dark] .scene.slide .eq.result{
 .scene.slide .val > b .katex{ font-size:1.35em; color:var(--ink); }
 .scene.slide .val > small{ font-family:var(--mono); font-size:calc(13.5px * var(--ts));
   letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+
+/* ---------- title icons ----------
+   A laboratory, a code page, a gallery, the practice questions and the quick
+   check carry a drawn icon at the left of the title: a coral stroke in a
+   tinted square of the one radius. The id selector is needed because every
+   svg in a scene is otherwise a full-width figure. */
+#scene-host h2.title .t-icon{ display:inline-grid; place-items:center; vertical-align:-.08em;
+  width:1.04em; height:1.04em; margin-right:.34em; border:1.5px solid var(--coral); border-radius:var(--radius);
+  background:rgba(160,69,28,.07); color:var(--coral); }
+body[data-theme=dark] #scene-host h2.title .t-icon, #scene-host .scene.dark h2.title .t-icon{ background:rgba(224,154,106,.1); }
+#scene-host h2.title .t-icon svg{ display:block; width:.7em; height:.7em; fill:none; stroke:currentColor;
+  stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ---------- code: programs in MATLAB and Python ----------
+   A figure's Code button sits at the right end of the row under it and opens
+   the section's code page. The page is a scene: numbered program tabs, the
+   code on the left, and what it does, a task and the output on the right.
+   Highlighting uses the ink ramp, slate and terracotta only: the signal
+   colours keep their figure meanings. */
+.code-btn{
+  margin-left:auto; display:inline-flex; align-items:baseline; gap:.6em;
+  font-family:var(--sans); font-size:calc(17px * var(--ts)); line-height:1.3;
+  padding:8px 16px 8px 12px; min-height:calc(42px * var(--ts));
+  color:var(--slate-deep); background:var(--paper-2);
+  border:1px solid var(--rule-strong); border-radius:var(--radius); cursor:pointer;
+  transition:background 140ms var(--ease),border-color 140ms var(--ease);
+}
+.code-btn::before{ content:"</>"; font-family:var(--mono); font-weight:600; font-size:.9em; color:var(--coral); }
+.code-btn small{ font-family:var(--mono); font-size:calc(12.5px * var(--ts)); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); }
+/* beside sliders or sketch buttons the button keeps only its glyph, so the row does not wrap */
+.fxbar > .code-btn:not(:only-child){ padding:5px 12px; min-height:0; align-items:center; }
+.fxbar > .code-btn:not(:only-child) :is(.code-lbl, small){ display:none; }
+.fxbar:has(> .code-btn) > .live-ctrl{ flex-basis:200px; min-width:0; }
+.code-btn:hover{ border-color:var(--slate); background:var(--paper-3); }
+.code-btn:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
+body[data-theme=dark] .code-btn{ color:var(--slate); }
+
+/* code grows less than prose in projector mode: a program is 15 to 21 lines and must fit the stage */
+.cpage{ display:flex; flex-direction:column; gap:22px; --code-fs:calc(12px + 5px * var(--ts)); }
+body[data-theme=dark] .cpage{ color-scheme:dark; }
+.cp-nav{ display:flex; flex-wrap:wrap; gap:10px; }
+.cp-ex{ display:inline-flex; align-items:center; gap:.6em; cursor:pointer;
+  font-family:var(--sans); font-size:calc(17px * var(--ts)); line-height:1.3; color:var(--graphite);
+  padding:8px 16px 8px 10px; background:var(--paper-2);
+  border:1px solid var(--rule-strong); border-radius:var(--radius); }
+.cp-n{ width:1.55em; height:1.55em; display:grid; place-items:center; flex:none;
+  border:1.5px solid var(--coral); border-radius:50%; color:var(--coral);
+  font-family:var(--mono); font-size:.82em; font-weight:600; }
+.cp-ex:hover{ border-color:var(--slate); }
+.cp-ex[aria-selected=true]{ border-color:var(--coral); color:var(--ink); box-shadow:inset 0 -2px 0 var(--coral); }
+.cp-ex[aria-selected=true] .cp-n{ background:var(--coral); color:var(--paper); }
+.cp-ex:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
+.cp-body{ display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); gap:40px; align-items:start; }
+.cp-code{ display:flex; flex-direction:column; gap:14px; min-width:0; }
+.cp-side{ display:flex; flex-direction:column; gap:30px; min-width:0; }
+.cp-side > .note{ margin-top:12px; }   /* room for the tab above the card */
+.cp-what{ margin:0; font-size:calc(21.5px * var(--ts)); line-height:1.5; color:var(--graphite); }
+
+.code-bar{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+  border-bottom:1px solid var(--rule); }
+.code-tabs{ display:flex; gap:4px; }
+.code-tab{ font-family:var(--mono); font-size:calc(14.5px * var(--ts)); font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted); background:none;
+  border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:10px 16px 9px; cursor:pointer; }
+.code-tab:hover{ color:var(--ink); }
+.code-tab[aria-selected=true]{ color:var(--ink); border-bottom-color:var(--coral); }
+.code-tab:focus-visible{ outline:2px solid var(--slate); outline-offset:-2px; }
+.code-acts{ display:flex; gap:8px; margin-bottom:8px; }
+.code-acts .btn{ padding:7px 16px; font-size:calc(16px * var(--ts)); }
+.code-copy{ min-width:6.5em; }
+.code-runbtn::before{ content:""; display:inline-block; margin-right:.5em; vertical-align:-.05em;
+  border-left:.6em solid currentColor; border-top:.36em solid transparent; border-bottom:.36em solid transparent; }
+
+.cpage pre.code{ margin:0; padding:18px 20px 18px 0; overflow:auto;
+  background:var(--paper-3); border:1px solid var(--rule); border-radius:var(--radius);
+  font-family:var(--mono); font-size:var(--code-fs); line-height:1.6; color:var(--ink);
+  counter-reset:ln; tab-size:4; }
+pre.code .cl{ counter-increment:ln; }
+pre.code .cl::before{ content:counter(ln); display:inline-block; width:3.2em; padding-right:1.1em;
+  margin-right:.2em; text-align:right; color:var(--faint); user-select:none; -webkit-user-select:none; }
+pre.code .tk-c{ color:var(--muted); font-style:italic; }
+pre.code .tk-k{ color:var(--slate-deep); font-weight:600; }
+pre.code .tk-s{ color:var(--terracotta); }
+pre.code .tk-n{ color:var(--graphite); }
+body[data-theme=dark] pre.code .tk-k{ color:var(--slate); }
+
+/* The editable Python: a textarea over the highlighted text with the same
+   metrics; only its caret and selection show. */
+.code-edit{ position:relative; }
+.code-edit > pre.code{ overflow:hidden; }
+.code-edit > textarea{ position:absolute; inset:0; width:100%; height:100%; box-sizing:border-box; margin:0;
+  resize:none; overflow:auto; white-space:pre; border:1px solid transparent; border-radius:var(--radius);
+  background:transparent; color:transparent; caret-color:var(--ink);
+  font-family:var(--mono); font-size:var(--code-fs); line-height:1.6; tab-size:4;
+  padding:18px 20px 18px 4.5em; }
+.code-edit > textarea::selection{ background:rgba(40,86,126,.22); }
+.code-edit > textarea:focus{ outline:none; border-color:var(--slate); }
+
+/* with Run, the output keeps its height, so a run moves nothing on the page */
+.cp-out.is-run{ min-height:calc(480px - 70px * var(--ts)); }
+.cp-out{ border:1px solid var(--rule); border-left:3px solid var(--sig-out);
+  border-radius:var(--radius); background:var(--paper-2); padding:12px 18px 16px;
+  display:flex; flex-direction:column; gap:10px; }
+.run-status{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:calc(13.5px * var(--ts));
+  font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--sig-out); }
+.run-status span{ color:var(--muted); font-weight:400; }
+.run-text{ margin:0; font-family:var(--mono); font-size:calc(17px * var(--ts)); line-height:1.55; color:var(--ink);
+  white-space:pre-wrap; }
+.run-err{ color:var(--sig-err); }
+.run-idle{ margin:0; font-size:calc(17px * var(--ts)); line-height:1.5; color:var(--muted); }
+.run-idle code{ font-family:var(--mono); font-size:.92em; color:var(--graphite); }
+.run-fig{ display:block; width:100%; max-height:calc(420px - 120px * var(--ts)); object-fit:contain;
+  background:#fff; border:1px solid var(--rule); border-radius:var(--radius); }
+@media print{ .code-acts, .code-edit > textarea{ display:none !important; } }

@@ -33,6 +33,7 @@ const APP = (() => {
     display: 'normal',  // 'normal' | 'projector'
     pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
     trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
+    trailSec: 3,        // seconds a faded trail stays fully visible
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
     drillPage: {},      // module id -> index of the drill question on screen
     secOpen: {}         // section number -> the reader's own open/closed choice
@@ -53,6 +54,7 @@ const APP = (() => {
       display: saved.display || 'normal',
       pointer: saved.pointer || 'laser',
       trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
+      trailSec: saved.trailSec || 3,
       visited: saved.visited || {},
       quiz: saved.quiz || {},
       drillPage: saved.drillPage || {}
@@ -68,7 +70,7 @@ const APP = (() => {
 
   function persist(){
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.sidebar,
-                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail,
+                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailSec:state.trailSec,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
@@ -94,7 +96,8 @@ const APP = (() => {
      changes. Under reduced motion the stroke is left out and only the dot is
      drawn. */
   const laser = (() => {
-    const HOLD = 3000, FADE = 900, KEEP = 6000;
+    const FADE = 900, KEEP = 6000;
+    const hold = () => state.trailSec*1000;
     let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0;
     let head=null, drawing=false, released=0;
     const strokes = [];
@@ -116,7 +119,7 @@ const APP = (() => {
       raf = 0;
       const keep = state.trail==='hold';
       const idle = (drawing||keep) ? 0 : performance.now() - released;
-      let a = idle<=HOLD ? 1 : 1 - (idle-HOLD)/FADE;
+      let a = idle<=hold() ? 1 : 1 - (idle-hold())/FADE;
       if(a<=0){ a=0; strokes.length=0; }
       cx.clearRect(0,0,W,H);
       if(a>0 && strokes.length && state.trail!=='off' && state.motion==='full'){
@@ -154,7 +157,7 @@ const APP = (() => {
     }
     function down(e){
       if(!mouse(e)||e.button!==0) return;
-      if(!drawing && state.trail!=='hold' && performance.now()-released>HOLD) strokes.length=0;
+      if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
       drawing=true; head={x:e.clientX,y:e.clientY}; strokes.push([head]); tick();
     }
     function up(){ if(!drawing) return; drawing=false; released=performance.now(); tick(); }
@@ -191,8 +194,14 @@ const APP = (() => {
     const w = Math.max(1, Math.min(r.width,  wrap.clientWidth  || r.width));
     const h = Math.max(1, Math.min(r.height, wrap.clientHeight || r.height));
     const k = Math.min(w/1920, h/1080);
+    /* A practice-question page scrolls rather than scales, so on a window taller
+       than 16:9 the stage grows downward to the window's foot instead of
+       leaving a letterbox band under the question. */
+    const tall = !!stage.querySelector('.dr-page');
+    const H = tall ? Math.max(1080, h/k) : 1080;
+    stage.style.height = tall ? H + 'px' : '';
     const dx = Math.round((w - 1920*k) / 2);
-    const dy = Math.round((h - 1080*k) / 2);
+    const dy = Math.round((h - H*k) / 2);
     stage.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
     stage.dataset.k = k.toFixed(4);
   }
@@ -318,6 +327,10 @@ const APP = (() => {
     requestAnimationFrame(()=>{ fit(); onRender(); }); }
 
   function bindChrome(){
+    document.addEventListener('input', e=>{
+      if(e.target.id!=='trail-sec') return;
+      state.trailSec = +e.target.value; e.target.nextElementSibling.textContent = state.trailSec+' s'; persist();
+    });
     document.addEventListener('click', e=>{
       const t = e.target.closest('[data-act]');
       if(!t) return;

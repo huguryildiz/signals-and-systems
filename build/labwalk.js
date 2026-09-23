@@ -180,7 +180,7 @@ const WAIT = SMOKE
 
   for (const theme of ['light', 'dark']) {
     if (theme === 'dark') { await p.click('#btn-theme'); await p.waitForTimeout(WAIT.theme); }
-    const shown = await p.$eval('#btn-theme', e => e.textContent.trim().toLowerCase());
+    const shown = await p.$eval('#btn-theme', e => e.dataset.state);
     if (shown !== theme) problems.push(`theme switch did not take: asked ${theme}, button reads ${shown}`);
 
     for (const { lab, scene } of WALK_LABS) {

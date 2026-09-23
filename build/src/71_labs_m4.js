@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratories F and G — Module 4  [Source: 29–41]
+   Laboratories 4.6a and 4.6b (keys F and G) — Module 4  [Source: 29–41]
    Every displayed number is computed from the definitions at interaction time.
    ========================================================================== */
 Object.assign(LABS, (function(){

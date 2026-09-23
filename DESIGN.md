@@ -171,13 +171,14 @@ cover and the course read as one publication. The styles are inline in `web/inde
 font and no stylesheet request.
 
 The page is one stage and a footer. The stage holds the bar, a centred title with a 120 px coral rule
-under it, the byline, the lead, one primary action (`Open the course`), and four download cards: the
-lecture notes, the student workbook and the formula reference as PDFs, and the course itself as its
-single HTML file. The instructor edition is never linked. Each card carries a photograph of the
+under it, the byline, the lead, one primary action (`Open the course`), and three download cards: the
+lecture notes, the student workbook and the formula reference, all PDFs. The course itself is opened
+on the site and is not offered as a download (since 2026-09-23). The instructor edition is never
+linked. Each card carries a photograph of the
 document, its title, one sentence, and a footer with the format, page count, file size and a
 `Download` action. There is no eyebrow, no gradient text, no glass and no numbered sequence.
 
-The four photographs in `web/img/` were generated with Codex (`gpt-6-sol`, reasoning effort medium)
+The photographs in `web/img/` were generated with Codex (`gpt-6-sol`, reasoning effort medium)
 from the prompt kept in `web/img/PROMPT.md`, then reduced to 960×640 JPEG at quality 72, about 65 KB
 each. The first is preloaded; the others load lazily. They show the design of the covers, not the
 printed PDFs, and a regenerated image must keep the spelling of every title exact.
@@ -189,7 +190,7 @@ theme, and in the light theme `invert(1) hue-rotate(180deg)` with `multiply` at 
 traces read dark on ivory. It renders at 0.6 of CSS resolution and 30 frames a second, starts after
 the page has loaded, pauses when the tab is hidden or the canvas is off screen, and draws one still
 frame under reduced motion. It cannot be checked by reading pixels back; `sitecheck.js` asserts the
-context, the linked program and the viewport instead, and checks that the four photographs load.
+context, the linked program and the viewport instead, and checks that the three photographs load.
 
 ## Typography
 
@@ -213,6 +214,13 @@ Mono is used for labels and addresses only, never for running text.
 mode (`body[data-display=projector]`). A size written as a bare pixel value does not grow in the
 lecture room, which is the one place it has to. The mockup hard-coded its sizes; the build must not.
 
+**Every scene title reads at one size.** The eyebrow and the scene title (`h1.display`, `h2.title`)
+keep their table sizes on every scene, including a dense scene that `fitScene()` scales down. The fit
+sets `--hk` = 1/k on the column, and the eyebrow, the titles and the title rule multiply their sizes
+by `var(--hk,1)`, so the transform takes back exactly what `--hk` added. A new size on the eyebrow or
+a title, including a lecture-mode override, carries the same factor. Nothing else in the column is
+exempt from the fit.
+
 **Laboratory type floor.** When a laboratory is authored or restyled, control and result labels are
 at least 16 px, segmented choices at least 17 px, live and result values at least 20 px, and
 explanatory prose at least 19 px at `--ts:1`. These are source sizes, all multiplied by `var(--ts)`;
@@ -230,9 +238,14 @@ class, a card tab included, carries the same reset in the same commit.
 
 ### The stage — LOCKED
 
-- **One file.** No network requests, no analytics.
+- **One file, opened from the site.** No analytics, and no network request of its own. The one
+  exception, opened by the owner on 2026-09-23 when the course moved to site-only use: the Python
+  runtime for a code drawer's **Run** button, loaded from the course site on the first press. The
+  instructor keeps `dist/Signals_and_Systems.html` as an offline copy; there **Run** is not offered.
 - **Fixed 1920×1080 stage**, scaled to fit the window and centred. A window that is not 16:9 shows
   bands in the page colour above and below. This is accepted: the lecture room is 16:9.
+  The one exception is a practice-question page (below, *Practice questions*): there the stage
+  keeps the window's width scale, grows downward to the window's foot and sits at the top.
 - Scene padding `54px 104px 74px`; the content box under the padding is 952 px tall.
 - `fitScene()` scales an oversized scene down to a floor of 0.82 (0.70 in lecture mode). It is a
   safety net, not a licence to overfill: a scene that needs below about 0.90 is split instead. On the
@@ -404,7 +417,7 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   On the answer the letter gives way to the check or the cross in the same width; the other
   choices dim with their letters.
   **The ringed letter is the one form for a lettered choice anywhere in the artifact** (since
-  2026-09-23): a `note.ask` choice, a laboratory's classification buttons (Laboratory A's
+  2026-09-23): a `note.ask` choice, a laboratory's classification buttons (Laboratory 1.2's
   energy/power/neither), and any later quiz or drill option. The letter is mono, coral, in a circle
   with a 55 % coral ring, sized in `em` so it follows the button text; on hover the ring fills coral
   and the letter turns to paper. A square letter box or a slate letter is not used. A laboratory may
@@ -412,7 +425,22 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
 - **Sliders under a figure (`fig.live`).** `live:{controls:[{k, label, min, max, step, v, show?}]}`.
   `svg` then takes the current values, `svg:v=>…`, and falls back to the default when `v` is absent.
   A slider redraws the figure at its current, possibly grown, height. The default value is the figure
-  the slide showed before it had a slider, and it is the state the gates sweep.
+  the slide showed before it had a slider, and it is the state the gates sweep. A slider is only for
+  a continuous parameter the reader explores ($t_0$, $a$, $r$).
+- **A figure played in frames (`fig.frames`).** `frames:{labels:[…], ms?}`. A figure that builds or
+  takes apart a result in a sequence of moves (impulses adding up to a step, pairs cancelling, a
+  sample picked out) uses *Previous* and *Next*, never a slider. Each press plays the change as an
+  animation: `svg:v=>…` receives `v.frame`, which runs continuously from the old index to the new
+  one (about 0.9 s, eased), so the figure must be written for a fractional frame. Reduced motion
+  jumps straight to the new frame. Frame 0 is the printed figure. `m1-dt-step` and
+  `m1-dt-impulse-b` are the reference.
+  The control bar is the same on every such figure and is drawn by the renderer; no scene styles
+  its own. *Previous* and *Next* sit side by side, so they do not move as the label changes, and
+  each is disabled at its end. A thin rule separates them from the counter. The counter is set in
+  the mono of the eyebrow with tabular figures and two digits, `01 / 03`: the current frame in coral
+  and semibold, the total muted. Beside it one short bar per frame, coral up to the current frame and
+  rule-grey after it, then the frame's label in body type, which is TeX where it names a signal
+  (`$x[n]\,\delta[n-2]$`). Labels name what the frame shows, never "step 2".
 - **Sound under a figure (`fig.listen`).** `listen:{items:[{label, sound:v=>({f, dur})}]}`. `f` is
   the signal as a function of seconds, from the same formula the figure draws. The renderer samples
   it with Web Audio, sets one peak level, adds a 6 ms fade at each end and plays it once. A second
@@ -458,10 +486,69 @@ through `md()`.
   of the next module stays in the right column, and the method note stays a reveal step under the
   deck.
 
-### A laboratory on a slide — DECIDED 2026-09-23, built for Laboratories A–C
+### Code pages — DECIDED 2026-09-23, built in Module 1, a rule for every section
+
+Each teaching section closes with a code page, after its laboratory: gallery, laboratory, code. The
+page is a scene with the id shape `*-code-*`, which takes the address `<section>.C` (1.3.C). It pages
+through the section's programs one at a time, as the practice questions do: numbered program tabs
+across the top, the code on the left, and on the right what the program does, a **Try it** card
+(`warn`) with a change to predict before running, and the output. It carries `budget:` because the
+program draws its own figure. The scene calls it through a raw block,
+`{t:'raw', html:()=>CODEBANK.page('<scene id>')}`, so the block schema does not change.
+
+- **Where the code lives.** `build/src/7?_code_m<N>.js`: `CODE_M<N>`, one entry a program keyed by a
+  short name (`ops-shift`), and `CODE_BANKS_M<N>`, the list of programs on each code page. An entry is
+  `{title, what, try, out, m, py}`; `title`, `what` and `try` go through `md()`, the code is plain text.
+- **What a program is.** It draws a signal from the section and prints the number the section
+  computes, with the same `fprintf` / `print` wording in both languages, so `out` is one text for
+  both. 10 to 21 lines, the section's variable names, English comments. MATLAB uses no toolbox; Python
+  uses NumPy and Matplotlib only, with mathtext axis labels. No MATLAB transpose (`'`), so the
+  highlighter can read an apostrophe as a string.
+- **Figures link to it.** A figure may carry `code:'<key>'`: a **Code** button at the right end of
+  the row under it opens the code page on that program. Beside sliders or sketch buttons the button
+  keeps only its `</>` glyph, so the row does not wrap. `m1-combined-b` is the reference.
+- **Run (Python).** When the course is opened from its site, the Python tab is editable and has
+  **Run** and **Reset**. Run loads Pyodide 0.29.3 (CPython compiled to WebAssembly, with NumPy and
+  Matplotlib) from `pyodide/` on the site at the first press: about 18 MB and about 5 s on a fast
+  connection, then about 0.1 s a run. The output box shows what the program prints, the traceback
+  from the reader's own code, and each figure it draws; it keeps its height, so a run moves nothing.
+  Edits and the last output last for the session. Opened as a file (`file://`) the page offers Copy
+  and the expected output only, and makes no request. MATLAB has no Run: it does not run in a
+  browser. The site build must place the Pyodide files under `pyodide/`; until it does, Run on the
+  site reports that Python could not be loaded.
+- **Look.** Highlighting uses the ink ramp, slate for keywords and terracotta for strings; the signal
+  colours keep their figure meanings. Code type grows less than prose in projector mode
+  (`--code-fs`), so a 21-line program fits the stage at k = 1. The chosen language is kept on the
+  device.
+- **Check.** `verify/code_check.py` runs every entry in MATLAB (`-batch`) and in Python and compares
+  what each prints with `out`. It needs a Python with Matplotlib (here `/usr/bin/python3`).
+- **Built in Module 1.** Five code pages, 17 programs: 1.2.C `m1-code-energy`, 1.3.C
+  `m1-code-ops` (the reference), 1.4.C `m1-code-periodic`, 1.5.C `m1-code-impulse`, 1.6.C
+  `m1-code-cexp`. Ten figures link to their program with `code:'<key>'`.
+
+### Title icons — DECIDED 2026-09-23
+
+A scene that is not a teaching slide carries a drawn icon at the left of its title, so its kind reads
+at a glance. The icon is a coral stroke (24-unit grid, 1.7 stroke) in a square of 1.04 em with a 1.5 px
+coral border, the one 3 px radius and a 7 % coral tint. It is chosen from the scene id in
+`TITLE_ICONS` (`build/src/90_app.js`): `-lab-` a flask, `-code-` the `</>` brackets, `-real-` and
+`m0-examples` a globe, `-drill` a pencil, `-quick` a bolt. Teaching slides, openings and summaries
+have none. The icon is `aria-hidden`; the title carries the meaning.
+
+### Heading icons — DECIDED 2026-09-23
+
+Every small mono heading that labels a block inside a panel carries a drawn icon at its left, in
+place of the tick, so the reader finds each part of a brief at a glance. The icon is a coral stroke
+(24-unit grid, 1.8 stroke) at 1.4 em, drawn as a CSS mask on `.hi::before` so it needs no markup of its
+own. A heading takes it with two classes, `hi` and the role: `hi-aim` a target, `hi-practise` a
+checklist, `hi-steps` a stair, `hi-look` an eye, `hi-reflect` a speech card, `hi-next` an arrow. A new
+role adds one `.hi-*` rule to `build/src/10_style.css`; it does not reuse an icon that already means
+something else. The scene eyebrow at the top of a slide keeps its tick and takes no icon.
+
+### A laboratory on a slide — DECIDED 2026-09-23, built for Laboratories 1.2–1.6
 
 A laboratory scene carries `slide:true` like any other slide, and its text follows the card language
-rather than the plain stack it had before. The rule applies to Module 1 now; Laboratories D–J keep
+rather than the plain stack it had before. The rule applies to Module 1 now; the laboratories of Modules 2–7 keep
 their current look until their module is converted.
 
 - Every derivation, verdict and note that the laboratory draws is a card. A computed equation takes
@@ -472,7 +559,7 @@ their current look until their module is converted.
 - The laboratory builds these cards inside its own containers (`.derive`, `.aper`, `.work`), and the
   tab room applies there as it does in a column. The control panel has no tab, so a laboratory
   column starts at the top edge.
-- Type is the Laboratory B scale: control labels, readout keys and tabs 16 px, control values 20 px,
+- Type is the Laboratory 1.3 scale: control labels, readout keys and tabs 16 px, control values 20 px,
   readout values 21 px, card text 19 px, the signal equation at the top 22 px, all times `--ts`.
   Plot text grows by narrowing the viewBox, not by a font override.
 - The laboratory must fit at k = 1 in normal display. When the tabs push it over, shorten it before
@@ -480,6 +567,22 @@ their current look until their module is converted.
   a verdict under the figure where the column has spare height, or lower a stacked plot's viewBox
   height. A laboratory that grows after an answer or a reveal calls `RENDER.fit()` so that state is
   refitted too.
+
+### Practice questions — DECIDED 2026-09-23
+
+A module's practice questions show one question at a time under a pager. The page scrolls; it is
+never scaled.
+
+- **The page reaches the foot of the window.** On a window taller than 16:9, `APP.fit()` sets the
+  stage height to the window height divided by the width scale and places the stage at the top, so
+  no band is left under the question. The scene's bottom padding drops to 20 px, because the footer
+  strip is outside the stage. `fitScene()` calls `APP.fit()` first, so leaving the page restores the
+  1080 px, centred stage.
+- **The counter is a pill.** `Question 13 of 30` sits in a rounded pill (`.dr-count`): mono 16 px,
+  muted, on `--paper-2` with a `--rule-strong` border. The current number (`.dr-n`) is coral,
+  semibold and 1.2 em. The note on opened solutions (`.dr-seen`) is 16 px. All sizes are times `--ts`.
+- **The question's code is a coral pill.** `D1-13` above the statement (`.drill .qid`) is mono
+  15 px semibold, coral, on a 12 % coral fill with a 45 % coral border, as wide as its text.
 
 ### Eyebrow
 

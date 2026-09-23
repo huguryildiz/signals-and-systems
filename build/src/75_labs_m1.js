@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratories K and L — Module 1, sections 1.4 and 1.5  [Source: 5–7]
+   Laboratories 1.4 and 1.5 (keys K and L) — Module 1  [Source: 5–7]
    Every displayed number is computed from the definitions at interaction time.
    ========================================================================== */
 Object.assign(LABS, (function(){

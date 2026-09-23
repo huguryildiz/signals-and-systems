@@ -3,6 +3,9 @@
    ========================================================================== */
 (function(){
 const P = PLOT, C = P.COL;
+/* photographs and book covers live in 77_images.js as data URIs */
+const photo = (k, alt) => `<img class="photo" src="${IMG[k]}" alt="${alt}">`;
+const cover = (k, alt) => `<img class="cover" src="${IMG['book_'+k]}" alt="${alt}">`;
 
 /* --- original focal motif: a signal entering a system and leaving as a
        spectrum. Mathematically meaningful, not decorative. The two signals are
@@ -366,7 +369,7 @@ function dimensionsFigure(v){
   a.point(tp, vowel(tp/1000), {color:C.coral});
   a.note(tp+0.5, -1.05, '\\text{one instant}\\to\\text{one value}', {fs:14, color:C.coral, tex:true});
   g.push(a.svg().replace(/^<svg[^>]*>/, '<g>').replace(/<\/svg>$/, '</g>'));
-  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, 22, 16);
+  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, 28, 16);
   /* ---- 2-D: image ---- */
   const Y0 = 284, NX = 48, NY = 36, CELL = 8.25;
   const ix = 62, iy = Y0 + 44, iw = NX*CELL, ih = NY*CELL;
@@ -513,6 +516,46 @@ const SC = [
     {t:'note', kind:'def', head:'Continuous time', html:'A heartbeat and a voice exist at every instant. Voltages, pressures and positions measured by a sensor are continuous-time signals $x(t)$.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Discrete time', html:'A daily temperature, a monthly bill or a digital audio file holds one value per step, so it is a sequence $x[n]$. Many such sequences come from reading a continuous signal every $T$ seconds: $x[n]=x(nT)$.'}]}
+  ]}
+]},
+
+{ id:'m0-apps', module:'M0', nav:'Signals and systems in daily life', title:'Signals and systems in daily life', src:'—',
+  objective:'Show the fields where the input–output tools of the course are used every day.',
+  keywords:'applications audio equaliser wireless phone ECG medicine radar car image camera seismometer earthquake',
+  budget:'A gallery of six photographs, one field each; each caption names the signal and the system.',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 0 · Orientation'},
+  {t:'title', text:'Signals and Systems in Daily Life'},
+  {t:'cols', ratio:'c-8-4', fill:true, left:[
+    {t:'grid', cols:3, gap:'16px 20px', items:[
+      [{t:'fig', svg:()=>photo('audio','Headphones and an audio interface in a recording room'), caption:'Audio: an equaliser changes the level of each frequency in a music signal.'}],
+      [{t:'fig', svg:()=>photo('telecom','A cellular base-station mast and a phone'), caption:'Wireless: a phone and a base station carry speech and data as radio signals.'}],
+      [{t:'fig', svg:()=>photo('medical','A bedside monitor showing ECG traces'), caption:'Medicine: an ECG monitor filters the voltage of the heart to remove noise.'}],
+      [{t:'fig', svg:()=>photo('automotive','A car on a highway with radar waves ahead'), caption:'Cars: a radar measures the delay of an echo to find the distance ahead.'}],
+      [{t:'fig', svg:()=>photo('imaging','A laptop showing a blurred and a sharpened photograph'), caption:'Images: a filter sharpens or smooths an image, a signal of two variables.'}],
+      [{t:'fig', svg:()=>photo('seismic','A seismometer station with a seismogram on a laptop'), caption:'Geophysics: a seismometer records ground motion to locate an earthquake.'}]
+    ]}
+  ], right:[
+    {t:'note', kind:'def', head:'One picture for all', html:'Each photograph hides the same diagram: an input signal, a system and an output signal.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'One set of tools', html:'Convolution, the Fourier transform and sampling describe all six systems. The course builds these tools step by step.'}]}
+  ]}
+]},
+
+{ id:'m0-books', module:'M0', nav:'Course textbooks', title:'Course textbooks', src:'—',
+  objective:'Name the main textbook and two books for further reading.',
+  keywords:'textbook book reference Oppenheim Willsky Nawab McClellan Schafer Yoder Tervo MATLAB reading',
+  budget:'Three book covers with their full references.',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 0 · Orientation'},
+  {t:'title', text:'Course Textbooks'},
+  {t:'grid', cols:3, gap:'28px 40px', style:'flex:1;min-height:0;align-items:start;', items:[
+    [{t:'fig', svg:()=>cover('oppenheim','Cover of Signals and Systems, second edition'),
+      caption:'<b>Main textbook.</b> A. V. Oppenheim and A. S. Willsky, with S. H. Nawab, <i>Signals and Systems</i>, 2nd ed. Upper Saddle River, NJ: Prentice Hall, 1997.'}],
+    [{t:'fig', svg:()=>cover('mcclellan','Cover of Signal Processing First'),
+      caption:'<b>Further reading.</b> J. H. McClellan, R. W. Schafer and M. A. Yoder, <i>Signal Processing First</i>. Upper Saddle River, NJ: Pearson Prentice Hall, 2003.'}],
+    [{t:'fig', svg:()=>cover('tervo','Cover of Practical Signals Theory with MATLAB Applications'),
+      caption:'<b>Further reading.</b> R. J. Tervo, <i>Practical Signals Theory with MATLAB Applications</i>. Hoboken, NJ: Wiley, 2014.'}]
   ]}
 ]},
 

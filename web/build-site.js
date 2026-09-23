@@ -180,7 +180,7 @@ if (teachFields < 200) fail('found only ' + teachFields + ' teaching notes');
 /* The edition control. Removing the data is what matters; removing the
    control is what stops a reader from looking for it. */
 art = replaceExactly(art,
-  `    <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>\n`,
+  `      <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>\n`,
   '', 1, 'toolbar edition button');
 
 art = replaceExactly(art,

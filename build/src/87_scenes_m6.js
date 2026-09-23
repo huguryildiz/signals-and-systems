@@ -1951,11 +1951,11 @@ const SC = [
 ]},
 
 /* ============================================================ laboratory */
-{ id:'m6-lab-i', module:'M6', nav:'Laboratory I · Periodicity', title:'Laboratory I — DTFT Periodicity Explorer', src:'pp. 65–79',
+{ id:'m6-lab-i', module:'M6', nav:'Laboratory {lab} · Periodicity', title:'Laboratory {lab} — DTFT Periodicity Explorer', src:'pp. 65–79',
   objective:'See a sequence and its spectrum together, over more than one period, at every step.',
-  keywords:'laboratory I DTFT periodicity explorer sequences magnitude phase shift wrap difference equation pole radius', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory I', src:'pp. 65–79'},
-  {t:'title', text:'Laboratory I · Discrete-Time Periodicity'},
+  keywords:'laboratory {lab} DTFT periodicity explorer sequences magnitude phase shift wrap difference equation pole radius', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 65–79'},
+  {t:'title', text:'Laboratory {lab} · Discrete-Time Periodicity'},
   {t:'lede', text:'Choose a sequence and a parameter. The panels show the sequence as stems and its transform over three periods of $2\\pi$, with one period marked. The frequency-shift state slides the spectrum and lets what leaves a period come back at the other end.'},
   {t:'lab', id:'I'}
 ]}

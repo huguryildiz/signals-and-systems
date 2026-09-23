@@ -390,11 +390,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m2-lab-d', module:'M2', nav:'Laboratory D · Property checker', title:'Laboratory D — System Property Checker', src:'pp. 11–14, 21',
+{ id:'m2-lab-d', module:'M2', nav:'Laboratory {lab} · Property checker', title:'Laboratory {lab} — System Property Checker', src:'pp. 11–14, 21',
   objective:'Apply the six formal tests to thirteen source systems.',
   keywords:'laboratory system property checker criterion counterexample', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory D', src:'pp. 11–14, 21'},
-  {t:'title', text:'Laboratory D · System Properties'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 11–14, 21'},
+  {t:'title', text:'Laboratory {lab} · System Properties'},
   {t:'lede', text:'Classify each system with a proof or an explicit counterexample. Predict all six results before opening the explanation.'},
   {t:'lab', id:'D'}
 ]},
@@ -420,7 +420,7 @@ const SC = [
     {t:'reveal', at:2, items:[
       {t:'body', html:`<p style="color:var(--graphite)">Module 3 proves this result in three steps. Represent the input as weighted shifted impulses. Use time invariance to shift the impulse response. Then use linearity to pass the weights and sum through the system.</p>`}]}
   ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
+    {t:'raw', html:'<p class="eyebrow hi hi-reflect" style="margin-bottom:14px">Reflection</p>'},
     {t:'lede', text:'A saturating amplifier is time invariant but not linear. A fading radio channel is linear but not time invariant. Both are very common, and neither one has an impulse response. What does that cost you in practice? What do engineers do about it?'},
     {t:'reveal', at:2, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>

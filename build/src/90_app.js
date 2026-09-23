@@ -85,6 +85,39 @@ const RENDER = (() => {
   }
   window.RECALL = { deck: recallDeck };
 
+  /* ---------- project deck ----------
+     Optional projects at the end of a module: a list of cards on the left and,
+     on the right, the brief of the chosen one. All briefs share one grid cell,
+     so the panel keeps the height of the longest and a choice moves nothing.
+     `{t:'raw', html:()=>PROJECTS.deck(id, items)}` with
+     items = [{title, glyph?, aim, learn:[], steps:[], look}]. The choice lasts
+     for the session only. */
+  const PROJ_ON = {};
+  function projectDeck(id, items){
+    const on = PROJ_ON[id]||0;
+    const list = items.map((p,i)=>`<li><button class="recall-card proj-card${i===on?' is-open':''}" type="button"
+        data-proj="${id}:${i}" aria-pressed="${i===on}">
+      <span class="rc-num">${i+1}</span><span class="rc-q">${md(p.title)}</span>
+      ${p.glyph?`<span class="rc-glyph" aria-hidden="true">${p.glyph}</span>`:''}</button></li>`).join('');
+    const briefs = items.map((p,i)=>`<div class="proj-brief${i===on?' is-on':''}" data-proj-brief="${i}">
+      <p class="proj-h hi hi-aim">Aim</p><p class="proj-aim">${md(p.aim)}</p>
+      <p class="proj-h hi hi-practise">You will practise</p><ul class="proj-learn">${p.learn.map(s=>`<li>${md(s)}</li>`).join('')}</ul>
+      <p class="proj-h hi hi-steps">Steps</p><ol class="proj-steps">${p.steps.map(s=>`<li>${md(s)}</li>`).join('')}</ol>
+      <p class="proj-h hi hi-look">What to look for</p><p class="proj-look">${md(p.look)}</p></div>`).join('');
+    return `<div class="proj" data-proj-deck="${id}">
+      <div class="proj-left"><div class="recall-bar"><span>${items.length} projects · MATLAB or Python</span><span>Nothing to hand in</span></div>
+        <ol class="recall-list" style="--rc-cols:1">${list}</ol></div>
+      <div class="proj-right">${briefs}</div></div>`;
+  }
+  function projectPick(card){
+    const [id,i] = card.dataset.proj.split(':'), deck = card.closest('.proj');
+    PROJ_ON[id] = +i;
+    deck.querySelectorAll('[data-proj]').forEach((c,k)=>{
+      c.classList.toggle('is-open', k===+i); c.setAttribute('aria-pressed', String(k===+i)); });
+    deck.querySelectorAll('[data-proj-brief]').forEach((b,k)=>b.classList.toggle('is-on', k===+i));
+  }
+  window.PROJECTS = { deck: projectDeck };
+
   function mountCourseMap(host){
     const panel=host.querySelector('[data-course-map-panel]');
     const path=CONTENT.COURSE_PATH;
@@ -110,11 +143,30 @@ const RENDER = (() => {
     });
   }
 
+  /* ---------- title icons ----------
+     A scene that is not a teaching slide carries a small drawn icon at the
+     left of its title, so its kind reads at a glance: a laboratory, a code
+     page, an "… Around Us" gallery, the practice questions, the quick check.
+     The kind is read from the scene id, so a new scene of that shape takes
+     its icon with no field of its own. One stroke set, 24-unit grid. */
+  const TITLE_ICONS = [
+    [/-lab-/,  'Laboratory', 'M9.5 3.5h5M10.5 3.5v5.2L5.2 17.6a2 2 0 0 0 1.7 3h10.2a2 2 0 0 0 1.7-3l-5.3-8.9V3.5M7.6 14.5h8.8'],
+    [/-code-/, 'Code', 'M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5l-3 14'],
+    [/-real-|^m0-examples$/, 'Around us', 'M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17zM3.5 12h17M12 3.5c2.4 2.4 3.5 5.3 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.3-3.5-8.5S9.6 5.9 12 3.5z'],
+    [/-drill$/, 'Practice', 'M14.5 5.5l4 4L9 19H5v-4zM12.5 7.5l4 4'],
+    [/-quick$/, 'Quick check', 'M13 3 5 13.5h6L10 21l8-10.5h-6z']
+  ];
+  let TITLE_ICON = '';
+  function titleIcon(id){
+    const hit = TITLE_ICONS.find(([re])=>re.test(id||''));
+    return hit ? `<span class="t-icon" title="${hit[1]}" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="${hit[2]}"/></svg></span>` : '';
+  }
+
   /* ---------- block renderers ---------- */
   const B = {
     eyebrow: b => `<p class="eyebrow"><span class="tick"></span>${md(b.text)}
         ${b.src?`<span class="src instr-inline" data-instr>[ref ${b.src}]</span>`:''}</p>`,
-    title:   b => `<h${b.level||2} class="${b.level===1?'display':'title'}">${md(b.text)}</h${b.level||2}>`,
+    title:   b => `<h${b.level||2} class="${b.level===1?'display':'title'}">${b.level===1?'':TITLE_ICON}${md(b.text)}</h${b.level||2}>`,
     sub:     b => `<h3 class="sub">${md(b.text)}</h3>`,
     lede:    b => `<p class="lede">${md(b.text)}</p>`,
     body:    b => `<div class="body ${b.cls||''}">${symLinks(md(b.html))}</div>`,
@@ -132,9 +184,9 @@ const RENDER = (() => {
     fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}${
           b.sketch?' sketch'+(b.sketch.shown?' sk-shown':''):''}"${
           b.grow && typeof b.svg==='function' ? ` data-grow="${GROW.push(b)-1}"` : ''}${
-          b.live||b.listen||b.sketch ? ` data-fx="${FX.push(b)-1}"` : ''}>
+          b.live||b.listen||b.sketch||b.code||b.frames ? ` data-fx="${FX.push(b)-1}"` : ''}>
         ${figSvg(b)}
-        ${b.live||b.listen||b.sketch?`<div class="fxbar">${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}</div>`:''}
+        ${b.live||b.listen||b.sketch||b.code||b.frames?`<div class="fxbar">${b.frames?framesHTML(b):''}${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}${b.code?codeBtnHTML(b.code):''}</div>`:''}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
     grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
         ${b.items.map(it=>`<div class="gcell">${blocks(it)}</div>`).join('')}</div>`,
@@ -159,7 +211,7 @@ const RENDER = (() => {
         const seen = qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
         return `<div class="dr-pager">
           <button class="btn" data-drill="${b.module}" data-step="-1"${i===0?' disabled':''}>&larr; Previous</button>
-          <span class="dr-count">Question ${i+1} <span class="dr-of">of</span> ${qs.length}</span>
+          <span class="dr-count">Question <b class="dr-n">${i+1}</b> <span class="dr-of">of</span> ${qs.length}</span>
           <button class="btn" data-drill="${b.module}" data-step="1"${i===qs.length-1?' disabled':''}>Next &rarr;</button>
           <span class="dr-seen">${seen?`Solutions opened: ${seen} of ${qs.length} on this device.`
                                      :'No solution has been opened on this device yet.'}</span>
@@ -192,7 +244,7 @@ const RENDER = (() => {
     if(!b.live.v){ b.live.v = {}; b.live.controls.forEach(c=>{ b.live.v[c.k] = c.v; }); }
     return b.live.v;
   }
-  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(liveVals(b)) : b.svg;
+  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(b.frames ? {frame:b.frames.t!=null ? b.frames.t : b.frames.i|0} : liveVals(b)) : b.svg;
     return b.sketch ? sketchInk(s, b.sketch) : s; }
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){
@@ -202,6 +254,36 @@ const RENDER = (() => {
         <input type="range" data-live="${c.k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${v[c.k]}">
         <span class="live-v" data-live-v="${c.k}">${liveVal(c, v[c.k])}</span></label>`).join('');
   }
+  /* A figure played frame by frame (`fig.frames` {labels}). Previous and
+     Next step through the frames; svg() takes {frame}. The frame lives on
+     the block, so it survives a redraw of the scene. Between two frames the
+     figure plays the change: svg() is called with a fractional frame that
+     runs from the old index to the new one, so a figure written for a
+     continuous frame animates and one that tests `frame>=k` simply switches.
+     Reduced motion jumps straight to the new frame. */
+  function frameTween(fig, b, from, to){
+    const f = b.frames;
+    if(f.raf) cancelAnimationFrame(f.raf);
+    if(S.motion==='reduced' || from===to){ f.t = null; redrawLive(fig); return; }
+    const ms = (f.ms || 900) * Math.min(Math.abs(to-from), 1.6), t0 = performance.now();
+    const tick = now => {
+      const u = Math.min((now-t0)/ms, 1), e = u<.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2;
+      f.t = u<1 ? from+(to-from)*e : null;
+      if(!fig.isConnected){ f.t = null; f.raf = 0; return; }
+      redrawLive(fig);
+      f.raf = u<1 ? requestAnimationFrame(tick) : 0;
+    };
+    f.raf = requestAnimationFrame(tick);
+  }
+  function frameVal(b){ const f=b.frames, i=f.i|0;
+    const n=f.labels.length, pad=k=>String(k).padStart(2,'0');
+    return `<span class="frame-n"><b>${pad(i+1)}</b> / ${pad(n)}</span>
+      <span class="frame-pips" aria-hidden="true">${f.labels.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</span>
+      <span class="frame-l">${md(f.labels[i])}</span>`; }
+  function framesHTML(b){ const i=b.frames.i|0, n=b.frames.labels.length;
+    return `<button type="button" class="listen-btn frame-btn" data-frame="-1"${i<=0?' disabled':''}>Previous</button>
+      <button type="button" class="listen-btn frame-btn" data-frame="1"${i>=n-1?' disabled':''}>Next</button>
+      <span class="frame-v" data-frame-v>${frameVal(b)}</span>`; }
   function listenHTML(b){
     return b.listen.items.map((it,i)=>
         `<button type="button" class="listen-btn" data-listen="${i}">${md(it.label)}</button>`).join('');
@@ -233,6 +315,186 @@ const RENDER = (() => {
       <button type="button" class="sk-btn" data-sk="show" aria-pressed="${!!b.sketch.shown}">${b.sketch.shown?'Hide the answer':'Show the answer'}</button>
       <button type="button" class="sk-btn" data-sk="clear">Clear</button>`;
   }
+
+  /* ---------- code: programs in MATLAB and Python ----------
+     The programs live in build/src/7?_code_m*.js, one entry a program. Each
+     section closes with a code page (a scene `*-code-*`) that pages through
+     its programs one at a time, as the practice questions do. A figure may
+     carry `code:'<key>'`; its Code button opens the code page on that
+     program. `title`, `what` and `try` go through md(); the code is plain
+     text. The chosen language is kept on the device; the program on show,
+     the reader's edits and the last output last for the session. */
+  /* the code files load after this one, so the library is gathered on first use */
+  const CODE_LIB = {}, CODE_BANKS = {};
+  function codeLoad(){
+    if(codeLoad.done) return; codeLoad.done = true;
+    if(typeof CODE_M1!=='undefined') Object.assign(CODE_LIB, CODE_M1);
+    if(typeof CODE_BANKS_M1!=='undefined') Object.assign(CODE_BANKS, CODE_BANKS_M1);
+  }
+  const CODE_LANGS = [['m','MATLAB'],['py','Python']];
+  let codeLang = (()=>{ try{ return localStorage.getItem('ss-code-lang')==='py'?'py':'m'; }catch(e){ return 'm'; } })();
+  const CODE_AT = {}, DRAFT = {}, OUTPUT = {};
+  const codeBank = key => { codeLoad(); return Object.keys(CODE_BANKS).find(b=>CODE_BANKS[b].includes(key)); };
+  function codeBtnHTML(key){
+    return `<button type="button" class="code-btn" data-code-open="${key}" title="Code in MATLAB and Python" aria-label="Code in MATLAB and Python"><span class="code-lbl">Code</span><small>MATLAB · Python</small></button>`;
+  }
+  const escH = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  /* A small highlighter: comments, strings, keywords and numbers. The code
+     avoids the MATLAB transpose, so an apostrophe opens a string. */
+  const CODE_RE = {
+    m:  /(%.*$)|('(?:[^'\n]|'')*'|"[^"\n]*")|\b(for|end|if|elseif|else|while|break|continue|function|return|switch|case|otherwise|try|catch)\b|(\b\d+\.?\d*(?:e[+-]?\d+)?\b)/gm,
+    py: /(#.*$)|((?:\b[rf]{1,2})?'[^'\n]*'|(?:\b[rf]{1,2})?"[^"\n]*")|\b(import|as|from|def|return|for|in|if|elif|else|while|break|continue|lambda|and|or|not|None|True|False|with)\b|(\b\d+\.?\d*(?:e[+-]?\d+)?\b)/gm
+  };
+  function codeHL(src, lang){
+    let out = '', i = 0;
+    src.replace(CODE_RE[lang], (m, c, s, k, n, at)=>{
+      out += escH(src.slice(i, at)) + `<span class="tk-${c?'c':s?'s':k?'k':'n'}">${escH(m)}</span>`;
+      i = at + m.length; return m; });
+    return (out + escH(src.slice(i))).split('\n').map(l=>`<span class="cl">${l}</span>`).join('\n');
+  }
+
+  /* Python can be run on a code page when the course is opened from its site:
+     the runtime (Pyodide, CPython compiled to WebAssembly) is loaded from the
+     site on the first press of Run, never before. The file opened on its own
+     (file://) makes no request and offers Copy only. On localhost a test may
+     point the runtime elsewhere with ?pyodide=<url>. */
+  const PY_RUN = /^https?:$/.test(location.protocol);
+  const PY_BASE = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+      && new URLSearchParams(location.search).get('pyodide')) || new URL('pyodide/', location.href).href;
+  const PY_PRELUDE = `import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt, io, base64
+plt.show = lambda *a, **k: None
+def _ss_figs():
+    out = []
+    for n in plt.get_fignums():
+        b = io.BytesIO()
+        plt.figure(n).savefig(b, format='png', dpi=96, bbox_inches='tight')
+        out.append(base64.b64encode(b.getvalue()).decode())
+    plt.close('all')
+    return out`;
+  let PY = null;
+  function pyLoad(){
+    if(!PY){
+      PY = new Promise((ok, no)=>{
+        const s = document.createElement('script');
+        s.src = PY_BASE + 'pyodide.js'; s.onload = ok;
+        s.onerror = ()=>no(new Error('Python could not be loaded. Check the connection and press Run again.'));
+        document.head.appendChild(s);
+      }).then(()=>loadPyodide({ indexURL: PY_BASE }))
+        .then(async py=>{ await py.loadPackage(['numpy','matplotlib'], { messageCallback(){} });
+          await py.runPythonAsync(PY_PRELUDE); return py; });
+      PY.catch(()=>{ PY = null; });
+    }
+    return PY;
+  }
+  async function codeRun(btn){
+    const page = btn.closest('.cpage'), key = page.dataset.key;
+    const box = page.querySelector('.cp-out');
+    const src = DRAFT[key] != null ? DRAFT[key] : CODE_LIB[key].py, t0 = performance.now();
+    btn.disabled = true;
+    const first = !PY;
+    box.innerHTML = `<div class="run-status">${first ? 'Loading Python. The first run takes a few seconds.' : 'Running.'}</div>`;
+    const lines = [];
+    try{
+      const py = await pyLoad();
+      if(first) box.querySelector('.run-status').textContent = 'Running.';
+      py.setStdout({ batched: t=>lines.push(t) });
+      py.setStderr({ batched: t=>lines.push(t) });
+      let err = '';
+      try{ await py.runPythonAsync(src, { globals: py.globals.get('dict')() }); }
+      catch(e){ /* keep the traceback from the reader's own code on */
+        const L = String(e.message||e).trim().split('\n'), i = L.findIndex(l=>/File "<exec>"/.test(l));
+        err = (i>=0 ? L.slice(i) : L.slice(-2)).join('\n'); }
+      const figs = py.runPython('_ss_figs()').toJs();
+      const secs = ((performance.now()-t0)/1000).toFixed(1);
+      OUTPUT[key] = `<div class="run-status">Output<span>${secs} s</span></div>
+        ${lines.length?`<pre class="run-text">${escH(lines.join('\n'))}</pre>`:''}
+        ${err?`<pre class="run-text run-err">${escH(err)}</pre>`:''}
+        ${figs.map(f=>`<img class="run-fig" alt="The figure the program draws" src="data:image/png;base64,${f}">`).join('')}`;
+      box.innerHTML = OUTPUT[key];
+    }catch(e){
+      box.innerHTML = `<pre class="run-text run-err">${escH(e.message||String(e))}</pre>`;
+    }
+    btn.disabled = false;
+  }
+
+  /* The Python code is editable when it can be run. A transparent textarea
+     lies over the highlighted text, with the same font, padding and line
+     height, so the reader types into the highlighted code. */
+  function codeEditor(src){
+    return `<div class="code-edit"><pre class="code" aria-hidden="true"><code>${codeHL(src, 'py')}\n</code></pre>
+      <textarea wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Python code, editable">${escH(src)}</textarea></div>`;
+  }
+  /* A code page: the section's programs as numbered tabs, the code on the
+     left, and on the right what it does, a task, and the output. The output
+     box keeps its height before and after a run, so running moves nothing. */
+  function codePage(bank){
+    codeLoad();
+    const keys = CODE_BANKS[bank] || [];
+    const i = Math.min(CODE_AT[bank]|0, keys.length-1), key = keys[i], c = CODE_LIB[key];
+    if(!c) return '';
+    const run = codeLang==='py' && PY_RUN;
+    const src = run && DRAFT[key] != null ? DRAFT[key] : c[codeLang];
+    const out = run ? (OUTPUT[key] || `<div class="run-status">Output</div>
+          <p class="run-idle">Press Run. The first run loads Python, which takes a few seconds.</p>`)
+      : `<div class="run-status">It prints</div><pre class="run-text">${escH(c.out||'')}</pre>
+          <p class="run-idle">${codeLang==='m'
+            ? 'Paste it into the MATLAB command window, or save it as a <code>.m</code> file and run it. No toolbox is needed.'
+            : 'Save it as a <code>.py</code> file and run it, or paste it into a notebook cell. It needs NumPy and Matplotlib.'}</p>`;
+    return `<div class="cpage" data-cpage="${bank}" data-key="${key}">
+      <div class="cp-nav" role="tablist" aria-label="Programs">${keys.map((k,j)=>
+        `<button type="button" role="tab" class="cp-ex" data-cp-go="${j}" aria-selected="${j===i}"><span class="cp-n">${j+1}</span>${md(CODE_LIB[k].title)}</button>`).join('')}</div>
+      <div class="cp-body">
+        <div class="cp-code">
+          <div class="code-bar">
+            <div class="code-tabs" role="tablist" aria-label="Language">${CODE_LANGS.map(([k,l])=>
+              `<button type="button" role="tab" class="code-tab" data-code-lang="${k}" aria-selected="${k===codeLang}">${l}</button>`).join('')}</div>
+            <div class="code-acts">${run?`<button type="button" class="btn code-reset" data-code="reset">Reset</button>
+              <button type="button" class="btn primary code-runbtn" data-code="run">Run</button>`:''}
+              <button type="button" class="btn code-copy" data-code="copy">Copy</button></div>
+          </div>
+          ${run ? codeEditor(src) : `<pre class="code" tabindex="0"><code>${codeHL(src, codeLang)}</code></pre>`}
+        </div>
+        <div class="cp-side">
+          <p class="cp-what">${md(c.what||'')}</p>
+          ${c.try?`<div class="note warn"><span class="note-h">Try it</span>${md(c.try)}</div>`:''}
+          <div class="cp-out${run?' is-run':''}" aria-live="polite">${out}</div>
+        </div>
+      </div></div>`;
+  }
+  window.CODEBANK = { page: codePage };
+  function codeCopy(btn){
+    const key = btn.closest('.cpage').dataset.key;
+    const text = codeLang==='py' && DRAFT[key] != null ? DRAFT[key] : CODE_LIB[key][codeLang];
+    const done = ok=>{ btn.textContent = ok ? 'Copied' : 'Select and copy';
+      setTimeout(()=>{ btn.textContent = 'Copy'; }, 1600); };
+    const fallback = ()=>{ const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+      ta.remove(); done(ok); };
+    if(navigator.clipboard && window.isSecureContext)
+      navigator.clipboard.writeText(text).then(()=>done(true), fallback);
+    else fallback();
+  }
+  /* typing redraws the highlighted layer under the textarea */
+  document.addEventListener('input', e=>{
+    const ta = e.target.closest('.code-edit > textarea'); if(!ta) return;
+    DRAFT[ta.closest('.cpage').dataset.key] = ta.value;
+    ta.previousElementSibling.firstChild.innerHTML = codeHL(ta.value, 'py') + '\n';
+  });
+  document.addEventListener('scroll', e=>{
+    const ta = e.target.closest && e.target.closest('.code-edit > textarea'); if(!ta) return;
+    ta.previousElementSibling.scrollTop = ta.scrollTop; ta.previousElementSibling.scrollLeft = ta.scrollLeft;
+  }, true);
+  document.addEventListener('keydown', e=>{
+    const ta = e.target.closest && e.target.closest('.code-edit > textarea'); if(!ta) return;
+    e.stopPropagation();                               /* the slide keys stay out of the editor */
+    if(e.key==='Enter' && (e.metaKey||e.ctrlKey)){ e.preventDefault(); const r = ta.closest('.cpage').querySelector('.code-runbtn'); if(r && !r.disabled) codeRun(r); }
+    else if(e.key==='Tab' && !e.shiftKey){ e.preventDefault(); document.execCommand('insertText', false, '    '); }
+    else if(e.key==='Escape'){ ta.blur(); }
+  }, true);
 
   /* A prediction. The reason line is laid out from the start and only made
      visible, so answering never moves anything on the slide. Answers are kept
@@ -355,6 +617,8 @@ const RENDER = (() => {
   document.addEventListener('click', e=>{
     const rc = e.target.closest('[data-recall-card]');
     if(rc){ recallSet(rc, !rc.classList.contains('is-open')); recallSync(rc.closest('.recall')); return; }
+    const pj = e.target.closest('[data-proj]');
+    if(pj){ projectPick(pj); return; }
     const ra = e.target.closest('[data-recall-all]');
     if(ra){ const deck = ra.closest('.recall');
       const cards = [...deck.querySelectorAll('[data-recall-card]')];
@@ -379,6 +643,31 @@ const RENDER = (() => {
         sb.setAttribute('aria-pressed', b.sketch.shown);
         sb.textContent = b.sketch.shown ? 'Hide the answer' : 'Show the answer'; }
       else { b.sketch.ink = []; fig.querySelectorAll('.sk-ink').forEach(p=>p.remove()); }
+      return; }
+    const co = e.target.closest('[data-code-open]');
+    if(co){ const key = co.dataset.codeOpen, bank = codeBank(key);
+      if(bank){ CODE_AT[bank] = CODE_BANKS[bank].indexOf(key); APP.goId(bank, 0); }
+      return; }
+    const cg = e.target.closest('[data-cp-go]');
+    if(cg){ CODE_AT[cg.closest('.cpage').dataset.cpage] = +cg.dataset.cpGo; draw(); return; }
+    const cb = e.target.closest('[data-code]');
+    if(cb){ const act = cb.dataset.code;
+      if(act==='copy') codeCopy(cb);
+      else if(act==='run') codeRun(cb);
+      else if(act==='reset'){ const key = cb.closest('.cpage').dataset.key; delete DRAFT[key]; delete OUTPUT[key]; draw(); }
+      return; }
+    const cl = e.target.closest('[data-code-lang]');
+    if(cl){ codeLang = cl.dataset.codeLang;
+      try{ localStorage.setItem('ss-code-lang', codeLang); }catch(e){}
+      draw(); return; }
+    const fb = e.target.closest('[data-frame]');
+    if(fb){ const fig = fb.closest('figure[data-fx]'), b = fig && FX[+fig.dataset.fx];
+      if(b && b.frames){ const n=b.frames.labels.length, from=b.frames.t!=null ? b.frames.t : b.frames.i|0;
+        b.frames.i = Math.min(Math.max((b.frames.i|0) + (+fb.dataset.frame), 0), n-1);
+        fig.querySelector('[data-frame-v]').innerHTML = frameVal(b);
+        fig.querySelectorAll('[data-frame]').forEach(x=>{ const d=+x.dataset.frame;
+          x.disabled = d<0 ? b.frames.i<=0 : b.frames.i>=n-1; });
+        frameTween(fig, b, from, b.frames.i); }
       return; }
     const lb = e.target.closest('[data-listen]');
     if(lb){ const fig = lb.closest('figure[data-fx]'), b = fig && FX[+fig.dataset.fx];
@@ -450,6 +739,7 @@ const RENDER = (() => {
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
+    TITLE_ICON = titleIcon(sc.id);
     GROW = []; FX = [];
     AUDIO.stop();
     host.innerHTML = '<div class="scene-inner">' + blocks(sc.blocks) + '</div>';
@@ -488,6 +778,7 @@ const RENDER = (() => {
     figs.forEach(s => s.style.maxHeight = '');
     delete host.dataset.capped;
     delete host.dataset.grown;
+    APP.fit();                            /* the stage height depends on the scene */
     if(host.querySelector('.dr-page')){   /* a question page scrolls, never scales */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
       delete host.dataset.fit; return; }
@@ -521,6 +812,10 @@ const RENDER = (() => {
     const TARGET = avail - 3;               /* a hair under, so rounding cannot clip */
     let k = 1;
     inner.style.height = 'auto';
+    /* The eyebrow and the title are exempt from the scale: `--hk` = 1/k sizes
+       them up by what the transform takes away, so every scene title reads at
+       the same size whether its scene fits or not. */
+    inner.style.removeProperty('--hk');
     for(let pass=0; pass<8; pass++){
       const need = inner.scrollHeight;      /* in the column as it stands now */
       if(need * k <= TARGET) break;
@@ -528,6 +823,7 @@ const RENDER = (() => {
       const settled = next >= k - 1e-3;
       k = next;
       inner.style.width = (100 / k) + '%';
+      inner.style.setProperty('--hk', (1 / k).toFixed(4));
       if(settled) break;                    /* converged, or resting on the floor */
     }
     /* On the floor a scene can still be too tall, because the part of the column
@@ -620,6 +916,43 @@ const RENDER = (() => {
     inner.style.height = hWas;
   }
 
+  /* Toolbar icons: 24-unit strokes in the button's own colour. A toggle shows
+     its current state; the label and the key stay in the tooltip. */
+  const ICON = {
+    monitor:  '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+    projector:'<rect x="2" y="8" width="20" height="9" rx="2"/><circle cx="8" cy="12.5" r="2.5"/><path d="M14 11h4M14 14h2M5 17v2M19 17v2"/>',
+    laser:    '<path d="M3 21l7-7" stroke-dasharray="2 2.5"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/><circle cx="15" cy="9" r="6"/>',
+    arrow:    '<path d="M5 3l14 7.5-6.2 1.7L10 18.5z"/>',
+    trail:    '<path d="M3 19c3-1 4-5 7-5s3 3 6 2"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
+    trailfade:'<path d="M3 19c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 3"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
+    trailoff: '<path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/><path d="M3 3l18 18"/>',
+    sun:      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon:     '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+    lecture:  '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v3M8 21l4-2 4 2M7 12l3-3 2 2 5-5"/>',
+    study:    '<path d="M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5v13"/>',
+    student:  '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v5"/>',
+    teacher:  '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+    motion:   '<path d="M2 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0"/>',
+    still:    '<path d="M2 12h20"/><path d="M9 8v8M15 8v8"/>',
+  };
+  const ico = n => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICON[n]+'</svg>';
+  function tb(el, on, icon, label, word=label){
+    el.setAttribute('aria-pressed', on);
+    if(el.dataset.icon!==icon+word){ el.innerHTML = ico(icon)+'<span>'+word+'</span>'; el.dataset.icon = icon+word; }
+    if(!el.dataset.tip) el.dataset.tip = el.title;
+    el.setAttribute('aria-label', label);
+    el.title = label+' — '+el.dataset.tip;
+  }
+
+  /* The settings menu opens under its button, right-aligned to it. */
+  const setmenu = document.getElementById('setmenu');
+  if(setmenu) setmenu.addEventListener('beforetoggle', e=>{
+    if(e.newState!=='open') return;
+    const r = document.getElementById('btn-settings').getBoundingClientRect();
+    setmenu.style.top = (r.bottom+6)+'px';
+    setmenu.style.right = (innerWidth-r.right)+'px';
+  });
+
   function chrome(sc){
     const n = APP.scenes().length;
     document.getElementById('progress').style.width = ((S.i+1)/n*100)+'%';
@@ -631,21 +964,26 @@ const RENDER = (() => {
       + (sc.steps?('  ·  step '+S.step+'/'+sc.steps):'');
     document.getElementById('srcref').textContent =
       (S.edition==='instructor' && sc.src) ? ('ref '+sc.src) : '';
-    const bm=document.getElementById('btn-mode'); if(bm){ bm.setAttribute('aria-pressed', S.mode==='lecture');
-      bm.textContent = S.mode==='lecture'?'Lecture mode':'Self-study'; }
-    const be=document.getElementById('btn-edition'); if(be){ be.setAttribute('aria-pressed', S.edition==='instructor');
-      be.textContent = S.edition==='instructor'?'Instructor':'Student'; }
-    const br=document.getElementById('btn-motion'); if(br){ br.setAttribute('aria-pressed', S.motion==='reduced');
-      br.textContent = S.motion==='reduced'?'Motion: reduced':'Motion: full'; }
+    const bm=document.getElementById('btn-mode'); if(bm) tb(bm, S.mode==='lecture',
+      S.mode==='lecture'?'lecture':'study', S.mode==='lecture'?'Lecture mode':'Self-study', S.mode==='lecture'?'Lecture':'Self-study');
+    const be=document.getElementById('btn-edition'); if(be) tb(be, S.edition==='instructor',
+      S.edition==='instructor'?'teacher':'student', S.edition==='instructor'?'Instructor':'Student',
+      S.edition==='instructor'?'Instructor edition':'Student edition');
+    const br=document.getElementById('btn-motion'); if(br) tb(br, S.motion==='reduced',
+      S.motion==='reduced'?'still':'motion', S.motion==='reduced'?'Motion: reduced':'Motion: full', S.motion==='reduced'?'Reduced motion':'Full motion');
     const bs=document.getElementById('sbtoggle'); if(bs) bs.setAttribute('aria-pressed', S.sidebar==='on');
-    const bt=document.getElementById('btn-theme'); if(bt){ bt.setAttribute('aria-pressed', S.theme==='dark');
-      bt.textContent = S.theme==='dark'?'Dark':'Light'; }
-    const bd=document.getElementById('btn-display'); if(bd){ bd.setAttribute('aria-pressed', S.display==='projector');
-      bd.textContent = S.display==='projector'?'Projector':'Normal'; }
-    const bp=document.getElementById('btn-pointer'); if(bp){ bp.setAttribute('aria-pressed', S.pointer==='laser');
-      bp.textContent = S.pointer==='laser'?'Laser':'Arrow'; }
-    const bi=document.getElementById('btn-trail'); if(bi){ bi.setAttribute('aria-pressed', S.trail!=='off');
-      bi.textContent = 'Trail: '+S.trail; bi.disabled = S.pointer!=='laser'; }
+    const bt=document.getElementById('btn-theme'); if(bt){ tb(bt, S.theme==='dark',
+      S.theme==='dark'?'moon':'sun', S.theme==='dark'?'Dark':'Light'); bt.dataset.state = S.theme; }
+    const bd=document.getElementById('btn-display'); if(bd) tb(bd, S.display==='projector',
+      S.display==='projector'?'projector':'monitor', S.display==='projector'?'Projector':'Normal');
+    const bp=document.getElementById('btn-pointer'); if(bp) tb(bp, S.pointer==='laser',
+      S.pointer==='laser'?'laser':'arrow', S.pointer==='laser'?'Laser':'Arrow');
+    const bi=document.getElementById('btn-trail'); if(bi){ tb(bi, S.trail!=='off',
+      S.trail==='off'?'trailoff':S.trail==='fade'?'trailfade':'trail', 'Trail: '+S.trail, 'Trail');
+      bi.disabled = S.pointer!=='laser'; }
+    const tl=document.getElementById('trail-sec'); if(tl){ tl.value=S.trailSec;
+      tl.disabled = S.pointer!=='laser' || S.trail!=='fade';
+      tl.nextElementSibling.textContent = S.trailSec+' s'; }
     APP.buildMap();
     APP.buildSidebar();
   }

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratory I — Module 6  [Source: 65–79]
+   Laboratory 6.7 (key I) — Module 6  [Source: 65–79]
    DTFT Periodicity Explorer. Every panel that shows a spectrum shows more than
    one period of 2*pi and marks the period, because that is the property the
    laboratory exists to make visible. Every displayed number is computed from

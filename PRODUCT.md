@@ -27,12 +27,15 @@ full argument reads the notes; a student in the room reads the slide and listens
 
 - Lecture room, 16:9 projector, read from the back row. `Lecture mode` raises the type scale.
 - Laptop, independent study, either theme, any window shape.
-- Offline. The artifact is one HTML file with no network request.
+- Online, from the course site. Students open the course at its address and do not download it;
+  only the PDF editions are offered as downloads (decided 2026-09-23).
 - Print: four PDF editions made from the notes pipeline.
 
 ## Capabilities and Constraints
 
-- One offline file. No analytics. Progress is stored on the device only.
+- One HTML file, served by the site. It makes no network request of its own; the one exception is
+  the Python runtime, loaded from the course site when a reader presses **Run** in a code drawer.
+  No analytics. Progress is stored on the device only.
 - Fixed 1920×1080 stage, scaled to the window.
 - Every number on a page is recomputed by a verification script; every label in every figure is swept
   for collisions. A design change that a gate cannot check is a change someone has to check by eye.
