@@ -7640,7 +7640,7 @@ const SC = [
       const a=P.Axes({w:560,h:190,xr:[-7,7],yr:[-0.2,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:18,b:30},xtarget:7,ytarget:1});
       a.area(t=>Math.abs(t)<0.5?1:0,-7,7,{color:'rgba(130,194,123,.45)',n:1400});
       a.poly(sq,{color:C.in});
-      a.note(6.8,1.28,'\\text{square wave}',{anchor:'end',color:C.in,fs:14,tex:true});
+      a.note(-6.8,1.28,'\\text{square wave}',{anchor:'start',color:C.in,fs:14,tex:true});
       a.note(0.7,1.28,'\\text{single pulse}',{anchor:'start',color:C.out,fs:14,tex:true});
       return a.svg(); }},
     {t:'fig', frame:true, grow:true, svg:()=>{
