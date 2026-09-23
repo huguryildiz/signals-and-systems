@@ -1,0 +1,28 @@
+name: Report a mistake
+description: A wrong result, a typo, a broken figure or a display problem.
+labels: [errata]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where is it?
+      description: Scene title, laboratory, question number, or PDF page.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong?
+      description: What you see, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and theme
+      description: Only for display problems, e.g. Firefox 131, dark theme.
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: Optional. Drag an image here.

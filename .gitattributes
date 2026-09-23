@@ -1,0 +1,5 @@
+# Generated deliverables: hide from diffs and language statistics.
+dist/** linguist-generated=true
+*.pdf binary
+*.jpg binary
+*.png binary

@@ -1,0 +1,48 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # content_guard.py reads the lecture-notes PDF through pdftotext.
+      - run: sudo apt-get install -y poppler-utils
+
+      - name: Syntax check
+        run: node --check build/src/8*.js build/src/9*.js
+
+      - name: Artifact is rebuilt from its sources
+        run: |
+          cd build && node build.js
+          git diff --exit-code --stat -- ../dist/Signals_and_Systems.html
+
+      - name: Numerical checks
+        working-directory: verify
+        run: |
+          python verify_m1_m3.py
+          python verify_m4_m6.py
+          python verify_drills.py
+
+      - name: Text rules
+        run: |
+          python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/9[2-8]_drill_m*.js" "build/src/91_*.js" "build/src/70_labs.js" "notes/src/*.js"
+          python tools/content_guard.py --source --artifacts
