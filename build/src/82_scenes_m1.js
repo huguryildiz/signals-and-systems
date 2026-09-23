@@ -1486,7 +1486,7 @@ REAL_PERIODIC,
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.25,1.45],xlabel:'t',ylabel:'\\text{weight}',pad:{l:48,r:24,t:22,b:34},xtarget:6,ytarget:2});
       a.impulse(0,1,{color:C.in,labelText:'1'});
-      a.note(1.9,1.2,'\\delta(t)',{anchor:'end',color:C.in,fs:16,tex:true});
+      a.note(0.07,1.3,'\\delta(t)',{anchor:'start',color:C.in,fs:16,tex:true});
       return a.svg(); },
       caption:'The arrow label gives the impulse weight. This weight is its area in an integral, not a function value.'}
   ], right:[
@@ -1504,14 +1504,26 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Picturing the Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.4,4.6],xlabel:'t',ylabel:'\\delta_\\varepsilon(t)',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:3});
-      [[0.8,1.25],[0.4,2.5],[0.2,5]].forEach(([e,h],i)=>{
-        const col=[ '#9BC4CB','#4E9AA6',C.in][i];
-        a.poly([[-e/2,0],[-e/2,Math.min(h,4.4)],[e/2,Math.min(h,4.4)],[e/2,0]],{color:col,width:1.8}); });
-      a.note(1.1,4.1,'\\text{width }\\varepsilon,\\;\\text{height }1/\\varepsilon',{anchor:'end',color:C.muted,fs:13,tex:true});
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\varepsilon=1$','$\\varepsilon=1/2$','$\\varepsilon=1/4$','$\\varepsilon=1/8$','$\\varepsilon\\to 0$: $\\delta(t)$']},
+      svg:v=>{
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.6,9.2],xlabel:'t',ylabel:'\\delta_\\varepsilon(t)',pad:{l:48,r:24,t:22,b:34},xtarget:5,ytarget:4,ytickfmt:()=>''});
+      /* Frames 0-3 narrow the rectangle continuously, eps = 2^-k, height 1/eps;
+         earlier widths stay as faint outlines. Heights are written beside each
+         top, since a narrow rectangle would cover the y tick labels. Going to
+         frame 4 fades the last rectangle into the unit impulse. */
+      const k=v?v.frame:0, m=Math.min(k,3), f=Math.max(0,Math.min(1,k-3));
+      for(let j=0;j<Math.floor(m);j++){ const e=Math.pow(2,-j);
+        a.raw('<g opacity=".45">'); a.poly([[-e/2,0],[-e/2,1/e],[e/2,1/e],[e/2,0]],{color:C.muted,width:1.3});
+        a.note(e/2+0.03,1/e,String(1/e),{anchor:'start',color:C.muted,fs:13}); a.raw('</g>'); }
+      const e=Math.pow(2,-m);
+      if(f<1){ a.raw(`<g opacity="${(0.16*(1-f)).toFixed(3)}">`); a.rect(-e/2,0,e/2,1/e,{fill:C.in}); a.raw('</g>');
+        a.raw(`<g opacity="${(1-f).toFixed(3)}">`); a.poly([[-e/2,0],[-e/2,1/e],[e/2,1/e],[e/2,0]],{color:C.in,width:2});
+        a.note(e/2+0.03,1/e,String(Math.round(1/e*10)/10),{anchor:'start',color:C.in,fs:13}); a.raw('</g>'); }
+      if(f>0){ a.raw(`<g opacity="${f.toFixed(3)}">`); a.impulse(0,1,{top:8.6,color:C.in,labelText:'1'}); a.raw('</g>'); }
+      a.note(1.1,8.2,'\\text{width }\\varepsilon,\\;\\text{height }1/\\varepsilon,\\;\\text{area }1',{anchor:'end',color:C.muted,fs:13,tex:true});
       return a.svg(); },
-      caption:'Each rectangle has unit area. As the width decreases, its integral against a continuous test function approaches the sifting result.'}
+      caption:'Step through the frames. Each rectangle has unit area; as the width decreases, its integral against a continuous test function approaches the sifting result, and the limit is the impulse $\\delta(t)$, drawn as an arrow of weight 1.'}
   ], right:[
     {t:'note', kind:'def', head:'A unit-area picture', html:'A rectangle of width $\\varepsilon$ and height $1/\\varepsilon$ has area 1. As $\\varepsilon\\to 0$, its integral against a continuous test function approaches the sifting result.'}
   ]}
@@ -1538,7 +1550,8 @@ REAL_PERIODIC,
         a.note(2.86,-0.28,'t_0',{anchor:'end',color:d>0?C.coral:C.h,fs:14,tex:true}); });
       g(Math.min(w,1-2*d),()=>a.note(3.14,1.18,'\\delta(t-t_0)',{color:C.h,fs:14,tex:true}));
       g(d,()=>{ a.point(3,x(3),{color:C.coral});
-        a.note(4.55,-0.9,'(x(t_0))',{color:C.coral,fs:14,tex:true}); });
+        a.note(4.4,-0.55,'x(t_0)\\,\\delta(t-t_0)',{anchor:'start',color:C.coral,fs:14,tex:true});
+        a.note(2.86,-0.95,'x(t_0)\\ \\text{is a value}',{anchor:'end',color:C.coral,fs:13,tex:true}); });
       a.note(5.7,1.35,'x(t)',{anchor:'end',color:C.muted,fs:15,tex:true});
       return a.svg(); },
       caption:'Sifting, drawn. Step through the frames: the impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
