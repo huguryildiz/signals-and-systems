@@ -355,7 +355,7 @@ const SC = [
 
 { id:'m1-lab-b', module:'M1', nav:'Laboratory B · Energy and power', title:'Laboratory B — Energy and Power Classifier', src:'pp. 2–3, 7, 16–18',
   objective:'Classify source-grounded signals before seeing the calculation.',
-  keywords:'laboratory classifier energy power neither interactive', steps:0, blocks:[
+  slide:true, keywords:'laboratory classifier energy power neither interactive', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory B', src:'pp. 2–3'},
   {t:'title', text:'Laboratory B · Energy and Power'},
   {t:'lede', text:'Predict the class from the signal shape. Then use the definitions to test the prediction.'},
@@ -498,7 +498,7 @@ const SC = [
 
 { id:'m1-lab-a', module:'M1', nav:'Laboratory A · Transformations', title:'Laboratory A — Signal Transformation Laboratory', src:'pp. 3–4',
   objective:'Explore x(at−b) with live support and critical-point tracking.',
-  keywords:'laboratory transformation shift scale reversal support critical points', steps:0, blocks:[
+  slide:true, keywords:'laboratory transformation shift scale reversal support critical points', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory A', src:'pp. 3–4'},
   {t:'title', text:'Laboratory A · Signal Transformations'},
   {t:'lab', id:'A'}

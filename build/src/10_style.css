@@ -651,8 +651,8 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 .scene.slide .reveal:has(> .note:first-child > .note-h, > .eq:not(.plain):first-child > .eq-label){ margin-top:0; }
 /* a laboratory builds its cards inside its own containers, so they take the
    tab room there */
-.scene.slide .lab :is(.derive, .aper) > .note:has(> .note-h),
-.scene.slide .lab .derive > .eq:not(.plain):has(> .eq-label){
+.scene.slide .lab :is(.derive, .aper, .work) > .note:has(> .note-h),
+.scene.slide .lab :is(.derive, .work) > .eq:not(.plain):has(> .eq-label){
   margin-top:var(--tab-room); border-top-left-radius:0;
 }
 /* the control panel has no tab, so a laboratory column starts at the top */
@@ -660,8 +660,10 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 /* Laboratory C sets p and q side by side, so its cards keep the type floor */
 .scene.slide .lab[data-lab="C"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="C"] .ctrl:is(:first-child, :last-child){ grid-column:1 / -1; }
-.scene.slide .lab[data-lab="C"] .col > :is(.derive, .aper){ margin-top:0; }
-.scene.slide .lab[data-lab="C"] .derive > .eq{ margin-bottom:0; }
+.scene.slide .lab .col > :is(.derive, .aper, .work){ margin-top:0; }
+.scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
+/* Laboratory B keeps its signal, plot and verdict together at the top */
+.scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -782,13 +784,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label,
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .readout dt,
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .note-h{ font-size:calc(16px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .seg button{ font-size:calc(17px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .ctrl label,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .readout dt,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
 .scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="C"]) .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
   font-size:calc(18px * var(--ts));
 }
@@ -803,8 +805,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
 .lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .lab[data-lab="A"] .readout div{ padding:10px 14px; }
-.lab:is([data-lab="A"],[data-lab="C"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
-.lab[data-lab="C"] .lab-eq{ font-size:calc(22px * var(--ts)); }
+.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab:is([data-lab="A"],[data-lab="C"]) .lab-eq, .lab[data-lab="B"] .sig{ font-size:calc(22px * var(--ts)); }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
