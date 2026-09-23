@@ -1151,7 +1151,7 @@ REAL_TRANSFORM,
       a.curve(t=>t*t,{color:C.in}); a.vline(0,{color:C.err,dash:'5 4',width:1.6,opacity:1});
       a.poly([[-0.7,0.49],[0.7,0.49]],{color:C.err,dash:'4 4',width:1.2});
       a.point(-0.7,0.49,{color:C.in}); a.point(0.7,0.49,{color:C.in});
-      a.note(0.04,-0.62,'axis of symmetry, t = 0',{color:C.err,fs:13});
+      a.note(0.04,-0.62,'axis of symmetry',{color:C.err,fs:13});
       return a.svg(); },
       caption:'$t^2$ is even: the graph is its own mirror image about the axis $t=0$.'},
     {t:'fig', frame:true, svg:()=>{
