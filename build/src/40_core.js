@@ -334,6 +334,8 @@ const APP = (() => {
       if(e.target.id!=='trail-sec') return;
       state.trailSec = +e.target.value; e.target.nextElementSibling.textContent = state.trailSec+' s'; persist();
     });
+    /* once set, the slider gives the arrow keys back to the slides */
+    document.addEventListener('change', e=>{ if(e.target.id==='trail-sec') e.target.blur(); });
     document.addEventListener('click', e=>{
       const t = e.target.closest('[data-act]');
       if(!t) return;
