@@ -112,6 +112,13 @@ enforce the wording rules. The browser checks run through `build/pw.js`, which l
 Playwright install (set `PW_PATH` if it is elsewhere). Report the result a run actually printed, not a
 remembered one.
 
+## Reporting errors
+
+If you find a mistake in a scene, a figure, a question or a PDF, please open an issue on
+[GitHub Issues](https://github.com/huguryildiz/signals-and-systems/issues). Say where it is (the scene
+title or the page number), what is wrong, and, if it is a display problem, which browser and theme you
+used. A screenshot helps.
+
 ## Conventions
 
 These are fixed for the whole course and stated in the artifact where a reader first meets them.
