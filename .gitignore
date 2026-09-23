@@ -69,6 +69,8 @@ PRODUCT.md
 # Assembled from dist/ on every deploy; nothing in it is authored by hand.
 site/
 .vercel
+# web/pyodide.js keeps the fetched Python runtime here between builds.
+web/.cache/
 .env*
 
 # Working TODO: local working document, not tracked.

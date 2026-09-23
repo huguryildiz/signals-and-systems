@@ -300,9 +300,14 @@ fs.mkdirSync(path.join(SITE, 'img'));
 for (const f of fs.readdirSync(path.join(__dirname, 'img')).filter(f => f.endsWith('.jpg')))
   copy(path.join(__dirname, 'img', f), path.join('img', f));
 
+/* The Python runtime for the code pages' Run button, fetched and checked
+   against pinned hashes by web/pyodide.js. */
+execFileSync(process.execPath, [path.join(__dirname, 'pyodide.js'), path.join(SITE, 'pyodide')],
+  { stdio: ['ignore', 'inherit', 'inherit'] });
+
 /* ------------------------------------------------------------ 6. last look */
 
-const published = fs.readdirSync(SITE, { recursive: true }).sort();
+const published = fs.readdirSync(SITE, { recursive: true }).filter(f => !f.startsWith('pyodide')).sort();
 const forbidden = published.filter(f => /instructor/i.test(f));
 if (forbidden.length) fail('instructor material reached the site: ' + forbidden.join(', '));
 
