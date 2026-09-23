@@ -289,7 +289,7 @@ result on the right. A documented exception may keep a 5:7 split only when the f
 narrower column to avoid growth-cap or fit failure. Reveal steps stay; a slide builds in the order the
 instructor speaks.
 
-**Figure and card budget — DECIDED 2026-09-23.** A teaching slide carries exactly one figure and two
+**Figure and card budget.** A teaching slide carries exactly one figure and two
 or three information cards. The figure is required. A slide outside the budget states its reason
 in a `budget:'...'` field on its scene. More than three cards means the slide holds more than one
 idea and is split. Laboratories and navy scenes keep their own layout and are outside this budget.
@@ -372,7 +372,7 @@ equation, `Solution` is a green card, and `Check` or `Common error` closes the c
 stays for the property tables, where a row is one `\leftrightarrow` correspondence; its key column is
 136 px, which holds `DIFFERENTIATION` in tracked mono without a mid-word break.
 
-### Inside a card — DECIDED 2026-09-23, one example each in Module 1
+### Inside a card — one example each in Module 1
 
 Seven forms that give a card or an equation a different shape for a different job. None is a block
 of its own: each is a class inside a card's `html`, a TeX construct, or a flag on an `eq` block, so
@@ -396,7 +396,7 @@ breaks the flat surface, the single radius, and the no-shadow rule, and flattene
 card. The lecture notes do not render these scenes, so `notes/src/notes.css` owes the forms only when
 the notes use them.
 
-### Interaction on a slide — DECIDED 2026-09-23, built in Module 1
+### Interaction on a slide — built in Module 1
 
 Three additions to existing blocks. None is a block of its own, so the slide budget still counts one
 figure and two or three cards. Each is rendered in `build/src/90_app.js` and styled at the end of
@@ -446,7 +446,7 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   it with Web Audio, sets one peak level, adds a 6 ms fade at each end and plays it once. A second
   press stops it; changing scene stops it. Nothing is fetched.
 
-- **A sketch on a figure (`fig.sketch`) — DECIDED 2026-09-23, built on `m1-combined-b`.**
+- **A sketch on a figure (`fig.sketch`) — built on `m1-combined-b`.**
   `sketch:{label?}`. The reader draws on the axes with the pointer, then presses *Show the answer*.
   The figure's `svg` marks its data area with an invisible `<rect class="sk-area">` and wraps the
   answer in `<g class="sk-key">`; the answer stays in the markup and is only made transparent, so
@@ -463,7 +463,7 @@ A **quick-check slide** closes a module before its summary: six `note.ask` cards
 each answerable in a few seconds. It carries `budget:` because it has no figure. The module's
 practice questions stay open-ended.
 
-A **module summary is a recall deck** (DECIDED 2026-09-23, built in Modules 1–3). Each result the
+A **module summary is a recall deck** (built in Modules 1–3). Each result the
 module carries forward is one card: the front is a short question in the lede's serif italic, the back
 is the answer in card body type, one or two sentences. The student answers first, then clicks the card
 to check. The scene calls it through a raw block, `{t:'raw', html:()=>RECALL.deck(id, cards, {cols})}`
@@ -486,7 +486,7 @@ through `md()`.
   of the next module stays in the right column, and the method note stays a reveal step under the
   deck.
 
-### Code pages — DECIDED 2026-09-23, built in Module 1, a rule for every section
+### Code pages — built in Module 1, a rule for every section
 
 Each teaching section closes with a code page, after its laboratory: gallery, laboratory, code. The
 page is a scene with the id shape `*-code-*`, which takes the address `<section>.C` (1.3.C). It pages
@@ -528,7 +528,7 @@ program draws its own figure. The scene calls it through a raw block,
   `m1-code-ops` (the reference), 1.4.C `m1-code-periodic`, 1.5.C `m1-code-impulse`, 1.6.C
   `m1-code-cexp`. Ten figures link to their program with `code:'<key>'`.
 
-### Title icons — DECIDED 2026-09-23
+### Title icons
 
 A scene that is not a teaching slide carries a drawn icon at the left of its title, so its kind reads
 at a glance. The icon is a coral stroke (24-unit grid, 1.7 stroke) in a square of 1.04 em with a 1.5 px
@@ -537,7 +537,7 @@ coral border, the one 3 px radius and a 7 % coral tint. It is chosen from the sc
 `m0-examples` a globe, `-drill` a pencil, `-quick` a bolt. Teaching slides, openings and summaries
 have none. The icon is `aria-hidden`; the title carries the meaning.
 
-### Heading icons — DECIDED 2026-09-23
+### Heading icons
 
 Every small mono heading that labels a block inside a panel carries a drawn icon at its left, in
 place of the tick, so the reader finds each part of a brief at a glance. The icon is a coral stroke
@@ -547,7 +547,7 @@ checklist, `hi-steps` a stair, `hi-look` an eye, `hi-reflect` a speech card, `hi
 role adds one `.hi-*` rule to `build/src/10_style.css`; it does not reuse an icon that already means
 something else. The scene eyebrow at the top of a slide keeps its tick and takes no icon.
 
-### A laboratory on a slide — DECIDED 2026-09-23, built for Laboratories 1.2–1.6
+### A laboratory on a slide — built for Laboratories 1.2–1.6
 
 A laboratory scene carries `slide:true` like any other slide, and its text follows the card language
 rather than the plain stack it had before. The rule applies to Module 1 now; the laboratories of Modules 2–7 keep
@@ -570,7 +570,7 @@ their current look until their module is converted.
   height. A laboratory that grows after an answer or a reveal calls `RENDER.fit()` so that state is
   refitted too.
 
-### Practice questions — DECIDED 2026-09-23
+### Practice questions
 
 A module's practice questions show one question at a time under a pager. The page scrolls; it is
 never scaled.
@@ -659,7 +659,7 @@ output. The screen furniture — graticule `#1E2A2E`, shadow mask `#060B0D`, edg
 `#0A0F12` — is registered in `textclash.js` as guide and plate tokens. Nothing else may take these
 colours.
 
-### Module openings are animated — DECIDED 2026-09-23
+### Module openings are animated
 
 Every module opening scene (`mN-open`) animates its signals. A continuous-time trace draws itself in
 (`.mtf-trace`) and a highlight then sweeps it on the 7 s cycle (`.mtf-sparkwrap`, `.mtf-beam`,
