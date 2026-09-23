@@ -34,7 +34,10 @@ const EDITIONS = [
       the two files are joined. */
    if(await p.evaluate(()=>!!document.querySelector('.cover'))){
      const tmp=out.replace(/\.pdf$/,'');
-     await p.pdf(Object.assign({},opts,{path:tmp+'.body.pdf',pageRanges:'2-'}));
+     /* The notes were long printed at about 0.8 because one over-wide equation
+        made Chromium shrink the whole document to fit. No equation overflows
+        now, so the scale that readers know is set here explicitly. */
+     await p.pdf(Object.assign({},opts,{path:tmp+'.body.pdf',pageRanges:'2-',scale:0.8}));
      await p.addStyleTag({content:'@page{margin:0 !important} #doc > .page:not(:first-child){display:none}'});
      await p.pdf({path:tmp+'.cover.pdf',format:'A4',printBackground:true,pageRanges:'1',
        margin:{top:'0',bottom:'0',left:'0',right:'0'}});
