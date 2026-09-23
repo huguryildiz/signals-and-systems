@@ -46,21 +46,30 @@ _to_delete/
 *.tmp
 *.log
 
-# impeccable design hook cache; config.json next to it is tracked.
-.impeccable/hook.cache.json
+# impeccable design tool: config.json is tracked; caches and local overrides are not.
+.impeccable/*
+!.impeccable/config.json
 
-# Local working area. Selected instruction and hook files are explicitly tracked;
-# prompts, reports, source audits, and other working records remain ignored.
-.claude/
+# Local working area. The agent instructions and guards are tracked; prompts,
+# plans, reports, audits, references, and other working records remain ignored.
+.claude/*
+!.claude/README.md
+!.claude/settings.json
+!.claude/rules/
+!.claude/hooks/
 
 # FUSE mount leftovers
 .fuse_hidden*
 
-# Project instruction files are explicitly tracked; ignore other local copies.
+# The root instruction files are tracked; ignore copies anywhere else.
 CLAUDE.md
 AGENTS.md
 DESIGN.md
 PRODUCT.md
+!/CLAUDE.md
+!/AGENTS.md
+!/DESIGN.md
+!/PRODUCT.md
 
 # Editor settings: a local convenience, not a property of the project.
 .vscode/
