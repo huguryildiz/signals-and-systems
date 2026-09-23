@@ -753,7 +753,8 @@ REAL_CONVSUM,
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Check', html:'The branches agree at $t=1,2,3$, where they give $\\tfrac12$, $\\tfrac32$ and $0$. The areas add to $\\tfrac16+1+\\tfrac56=2=\\bigl(\\int x\\bigr)\\bigl(\\int h\\bigr)$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A moving integral', html:'A unit-width rectangle adds up one second of the input. The output rises while the window fills, and falls as the window leaves the ramp.'}]}
+      {t:'note', kind:'warn', head:'A moving integral', html:'A unit-width rectangle adds up one second of the input. The output rises while the window fills, and falls as the window leaves the ramp.'},
+      {t:'instr', head:'Exercise', html:'Repeat with $x(t)=1$ on $0<t<3$ and the same $h$. The window is now <em>wider</em> than the ramp, which changes the middle case. That tests whether the boundary list was understood rather than memorised.'}]}
   ]}
 ]},
 
