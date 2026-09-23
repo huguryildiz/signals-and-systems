@@ -45,15 +45,10 @@ aliasing.
 
 Alongside the scenes, the artifact contains:
 
-- **Laboratories.** Each has controls for a signal or system; moving one updates the plot and the
-  result, such as a classification, a period or a convolution case.
-- **Practice questions.** Open-ended questions for each module, each with a worked solution that checks
-  its own answer a second way.
-- **Projects to try.** Optional projects at the end of a module, to be done in MATLAB or Python on the
-  student's own computer. Each card gives an aim, what it practises, a few steps and what to look for.
-  They carry no grade and nothing is handed in. Module 1 has four so far.
-- **Code pages.** Short Python programs that reproduce a result from the lecture. A reader can run them
-  in the browser from the course site.
+- **Laboratories.** Each has controls for a signal or system; moving one updates the plot and the result, such as a classification, a period or a convolution case.
+- **Practice questions.** Open-ended questions for each module, each with a worked solution that checks its own answer a second way.
+- **Projects to try.** Optional projects at the end of a module, to be done in MATLAB or Python on the student's own computer. Each card gives an aim, what it practises, a few steps and what to look for. They carry no grade and nothing is handed in. Module 1 has four so far.
+- **Code pages.** Short Python programs that reproduce a result from the lecture. A reader can run them in the browser from the course site.
 
 The same content also produces a set of printable PDF editions: the lecture notes, a student workbook
 with the questions only, and a formula reference.
