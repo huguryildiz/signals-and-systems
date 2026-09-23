@@ -403,6 +403,12 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   lede's serif italic (`.ask-prompt`), and each choice led by a mono letter in a ring (A, B, C, D).
   On the answer the letter gives way to the check or the cross in the same width; the other
   choices dim with their letters.
+  **The ringed letter is the one form for a lettered choice anywhere in the artifact** (since
+  2026-09-23): a `note.ask` choice, a laboratory's classification buttons (Laboratory A's
+  energy/power/neither), and any later quiz or drill option. The letter is mono, coral, in a circle
+  with a 55 % coral ring, sized in `em` so it follows the button text; on hover the ring fills coral
+  and the letter turns to paper. A square letter box or a slate letter is not used. A laboratory may
+  keep its own answer colours (green or red on the letter and the frame) after the click.
 - **Sliders under a figure (`fig.live`).** `live:{controls:[{k, label, min, max, step, v, show?}]}`.
   `svg` then takes the current values, `svg:v=>…`, and falls back to the default when `v` is absent.
   A slider redraws the figure at its current, possibly grown, height. The default value is the figure
