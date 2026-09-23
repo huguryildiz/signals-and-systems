@@ -192,7 +192,11 @@ const RENDER = (() => {
         ${figSvg(b)}${lg ? B.legend(lg) : ''}
         ${b.live||b.listen||b.sketch||b.frames?`<div class="fxbar">${b.frames?framesHTML(b):''}${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}</div>`:''}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
-    grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
+    /* The column count is written inline because it is content, not style. The
+       class is what lets the phone layout collapse the block to one column:
+       a stylesheet rule can only beat an inline declaration if it has something
+       to select. */
+    grid:    b => `<div class="gblk" style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
         ${b.items.map(it=>`<div class="gcell">${blocks(it)}</div>`).join('')}</div>`,
     cols:    b => `<div class="cols ${b.ratio||'c-6-6'}${b.fill?' fill':''}" style="${b.style||''}">
         <div class="col ${b.vcenter?'center':''}">${blocks(b.left)}</div>
@@ -774,9 +778,17 @@ def _ss_figs():
 
   /* ---------- scene drawing ---------- */
   function draw(){
+    /* A figure is drawn on its own grid — 480 units wide for a typical one —
+       and printed at whatever width the column gives it. A desktop column is
+       about 700 px, so the drawing is enlarged and its labels come out larger
+       than the size they were written at. A phone column is about 350 px, which
+       halves them instead. The label scale projector mode already uses puts
+       them back where they belong, and it is a scale the figures are known to
+       survive, so the phone borrows it rather than inventing a second one. */
     const sc = APP.scenes()[S.i];
     if(typeof PLOT!=='undefined' && PLOT.setTheme)
-      PLOT.setTheme({ dark: S.theme==='dark', scale: S.display==='projector' ? 1.36 : 1,
+      PLOT.setTheme({ dark: S.theme==='dark',
+        scale: (S.display==='projector' || S.layout==='phone') ? 1.36 : 1,
         emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
@@ -845,6 +857,17 @@ def _ss_figs():
     figs.forEach(s => s.style.maxHeight = '');
     delete host.dataset.capped;
     delete host.dataset.grown;
+    /* A phone has no fixed page to fit a scene into: the scene is as tall as it
+       needs to be and the reader scrolls it. Nothing is scaled, so every inline
+       size this function may have written on a wider screen is cleared, and the
+       figures are given their own treatment instead. */
+    if(S.layout==='phone'){
+      inner.style.transform=''; inner.style.width=''; inner.style.height='';
+      delete host.dataset.fit;
+      phoneFigures(figs);
+      phoneMath(inner);
+      return;
+    }
     APP.fit();                            /* the stage height depends on the scene */
     if(host.querySelector('.dr-page')){   /* a question page scrolls, never scales */
       inner.style.transform=''; inner.style.width=''; inner.style.height='100%';
@@ -934,6 +957,64 @@ def _ss_figs():
       inner.style.height = '100%';
       delete host.dataset.fit;
     }
+  }
+
+  /* ---- figures on a phone ----
+     A drawing that fills its column is legible while the column is wide enough
+     for the labels in it. The tick numbers of a figure are written at 13 units
+     and drawn at the phone's label scale, so a figure w units wide printed
+     p pixels wide shows them at 13 · 1.36 · p/w pixels. Below about 11 px they
+     stop being readable at arm's length, which sets the narrowest the drawing
+     may be printed: p = 13 · 1.36 · w / 11, a little under 0.62 w. Most figures
+     are inside that already and simply fill the column. The wide ones — a long
+     time axis, a two-panel comparison — are printed at that width instead and
+     pan sideways inside their own frame, because a drawing too small to read is
+     worth less than one the reader moves across. */
+  function phoneFigures(figs){
+    figs.forEach(svg=>{
+      svg.style.minWidth = '';
+      const vb = (svg.getAttribute('viewBox')||'').split(/[\s,]+/);
+      const w = parseFloat(vb[2]);
+      if(!isFinite(w) || w<=0) return;
+      const room = svg.parentNode.clientWidth;
+      const need = Math.round(0.62 * w);
+      const fig  = svg.closest('figure.fig');
+      if(fig) fig.classList.toggle('pans', need > room + 1);
+      if(need > room + 1) svg.style.minWidth = need + 'px';
+    });
+  }
+
+  /* ---- displayed mathematics on a phone ----
+     A formula is one object: a reader who can see only two thirds of an
+     equation cannot read it at all, however easy it is to push the rest into
+     view. So a formula wider than the column is set smaller until it fits,
+     down to about seven tenths of the reading size — below that the subscripts
+     go, and a formula that is still too wide at the floor is left to pan with
+     its right edge marked, which is the honest outcome for the two or three
+     longest lines in the course. */
+  function phoneMath(root){
+    root.querySelectorAll('.eq').forEach(eq=>{
+      const k = eq.querySelector('.katex-display');
+      if(!k) return;
+      k.style.fontSize = '';
+      eq.classList.remove('pans');
+      /* the box a formula has to fit in is the content box, and what a scroll
+         container reports as its scrolled width carries the left padding with
+         it; both are taken off, or the closing bracket lands on the border */
+      const cs = getComputedStyle(eq);
+      const padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight);
+      const room = () => eq.clientWidth - padL - padR;
+      const need = () => eq.scrollWidth - padL;
+      let f = 1;
+      for(let pass=0; pass<4; pass++){
+        if(need() <= room()) break;
+        const next = Math.max(0.70, f * room() / need());
+        const settled = next >= f - 0.005;
+        f = next; k.style.fontSize = f.toFixed(3) + 'em';
+        if(settled) break;
+      }
+      if(need() > room() + 1) eq.classList.add('pans');
+    });
   }
 
   /* An svg in a column is width:100% and height:auto, so its height follows its
