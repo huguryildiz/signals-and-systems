@@ -388,7 +388,15 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   it with Web Audio, sets one peak level, adds a 6 ms fade at each end and plays it once. A second
   press stops it; changing scene stops it. Nothing is fetched.
 
-Sliders and sound buttons share one row under the figure (`.fxbar`); the everyday link goes in the
+- **A sketch on a figure (`fig.sketch`) — PILOT 2026-09-23, on `m1-combined-b` only.**
+  `sketch:{label?}`. The reader draws on the axes with the pointer, then presses *Show the answer*.
+  The figure's `svg` marks its data area with an invisible `<rect class="sk-area">` and wraps the
+  answer in `<g class="sk-key">`; the answer stays in the markup and is only made transparent, so
+  the gates and print see the complete figure. The reader's ink is coral, drawn under the answer so
+  the two can be compared, and kept for the session as fractions of the data area, so a grown or
+  redrawn figure keeps it. *Clear* removes it. Print hides the ink and shows the answer.
+
+Sliders, sound and sketch buttons share one row under the figure (`.fxbar`); the everyday link goes in the
 caption, one sentence. Control labels are at least 17 px, values 20 px, all times `--ts`. A focused
 button on the slide keeps its own Space key; the arrow keys still change the scene. Print and PDF
 hide the controls and keep the default figure.

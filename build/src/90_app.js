@@ -129,11 +129,12 @@ const RENDER = (() => {
     legend:  b => `<div class="legend">${b.items.map(([c,l])=>`<i class="lg-${c}">${md(l)}</i>`).join('')}</div>`,
     wex:     b => `<div class="wex">${b.rows.map(([k,v])=>
         `<div class="wex-row"><div class="wex-k">${md(k)}</div><div class="wex-v">${symLinks(md(v))}</div></div>`).join('')}</div>`,
-    fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}"${
+    fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}${
+          b.sketch?' sketch'+(b.sketch.shown?' sk-shown':''):''}"${
           b.grow && typeof b.svg==='function' ? ` data-grow="${GROW.push(b)-1}"` : ''}${
-          b.live||b.listen ? ` data-fx="${FX.push(b)-1}"` : ''}>
+          b.live||b.listen||b.sketch ? ` data-fx="${FX.push(b)-1}"` : ''}>
         ${figSvg(b)}
-        ${b.live||b.listen?`<div class="fxbar">${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}</div>`:''}
+        ${b.live||b.listen||b.sketch?`<div class="fxbar">${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}</div>`:''}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
     grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
         ${b.items.map(it=>`<div class="gcell">${blocks(it)}</div>`).join('')}</div>`,
@@ -191,7 +192,8 @@ const RENDER = (() => {
     if(!b.live.v){ b.live.v = {}; b.live.controls.forEach(c=>{ b.live.v[c.k] = c.v; }); }
     return b.live.v;
   }
-  function figSvg(b){ return typeof b.svg==='function' ? b.svg(liveVals(b)) : b.svg; }
+  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(liveVals(b)) : b.svg;
+    return b.sketch ? sketchInk(s, b.sketch) : s; }
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){
     const v = liveVals(b);
@@ -203,6 +205,33 @@ const RENDER = (() => {
   function listenHTML(b){
     return b.listen.items.map((it,i)=>
         `<button type="button" class="listen-btn" data-listen="${i}">${md(it.label)}</button>`).join('');
+  }
+
+  /* A sketch on a figure (`fig.sketch`). The reader draws the answer on the
+     axes before seeing it. The figure marks its data area with a `.sk-area`
+     rect and its answer with a `.sk-key` group, which stays in the markup and
+     is only made visible, so the gates and print see the complete figure.
+     Strokes are kept as fractions of the data area on the block, so they
+     survive a grown or redrawn figure; they are not stored. */
+  function skArea(el){
+    const r = el.querySelector('.sk-area');
+    return r && ['x','y','width','height'].map(k=>+r.getAttribute(k));
+  }
+  function skPath(st, [x,y,w,h]){
+    return 'M'+st.map(p=>(x+p[0]*w).toFixed(1)+','+(y+p[1]*h).toFixed(1)).join('L');
+  }
+  function sketchInk(markup, sk){
+    if(!sk.ink || !sk.ink.length || !markup) return markup;
+    const m = markup.match(/class="sk-area" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+    if(!m) return markup;
+    const area = m.slice(1).map(Number);
+    /* under the answer, so a shown answer is read against the sketch */
+    return markup.replace('<g class="sk-key">', sk.ink.map(st=>`<path class="sk-ink" d="${skPath(st, area)}"/>`).join('')+'<g class="sk-key">');
+  }
+  function sketchHTML(b){
+    return `<span class="live-k sk-hint">${md(b.sketch.label||'Sketch the answer on the axes.')}</span>
+      <button type="button" class="sk-btn" data-sk="show" aria-pressed="${!!b.sketch.shown}">${b.sketch.shown?'Hide the answer':'Show the answer'}</button>
+      <button type="button" class="sk-btn" data-sk="clear">Clear</button>`;
   }
 
   /* A prediction. The reason line is laid out from the start and only made
@@ -342,6 +371,15 @@ const RENDER = (() => {
       const why = note.querySelector('.ask-why');
       if(why) why.replaceWith(holder.querySelector('.ask-why'));
       return; }
+    const sb = e.target.closest('[data-sk]');
+    if(sb){ const fig = sb.closest('figure[data-fx]'), b = fig && FX[+fig.dataset.fx];
+      if(!b || !b.sketch) return;
+      if(sb.dataset.sk==='show'){ b.sketch.shown = !b.sketch.shown;
+        fig.classList.toggle('sk-shown', b.sketch.shown);
+        sb.setAttribute('aria-pressed', b.sketch.shown);
+        sb.textContent = b.sketch.shown ? 'Hide the answer' : 'Show the answer'; }
+      else { b.sketch.ink = []; fig.querySelectorAll('.sk-ink').forEach(p=>p.remove()); }
+      return; }
     const lb = e.target.closest('[data-listen]');
     if(lb){ const fig = lb.closest('figure[data-fx]'), b = fig && FX[+fig.dataset.fx];
       if(b) AUDIO.play(b.listen.items[+lb.dataset.listen].sound(liveVals(b)), lb);
@@ -372,6 +410,36 @@ const RENDER = (() => {
     fig.querySelector(`[data-live-v="${k}"]`).innerHTML = liveVal(c, +r.value);
     redrawLive(fig);
   });
+
+  /* Drawing on a sketch figure. The pointer is mapped into the svg's own
+     units, so the stage scale and a grown figure need no correction. */
+  let SK = null;
+  document.addEventListener('pointerdown', e=>{
+    const svg = e.target.closest('figure.sketch > svg');
+    const fig = svg && svg.parentNode, b = fig && FX[+fig.dataset.fx];
+    const area = svg && skArea(svg);
+    if(!b || !b.sketch || !area || e.button) return;
+    e.preventDefault();
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('class','sk-ink'); svg.insertBefore(path, svg.querySelector('.sk-key'));
+    SK = { svg, b, area, path, st:[] };
+    svg.setPointerCapture(e.pointerId);
+    skMove(e);
+  });
+  function skMove(e){
+    if(!SK) return;
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(SK.svg.getScreenCTM().inverse());
+    const [x,y,w,h] = SK.area, c = v=>Math.min(1, Math.max(0, v));
+    SK.st.push([c((p.x-x)/w), c((p.y-y)/h)]);
+    SK.path.setAttribute('d', skPath(SK.st, SK.area));
+  }
+  document.addEventListener('pointermove', skMove);
+  const skEnd = ()=>{ if(!SK) return;
+    if(SK.st.length > 1) (SK.b.sketch.ink = SK.b.sketch.ink || []).push(SK.st);
+    else SK.path.remove();
+    SK = null; };
+  document.addEventListener('pointerup', skEnd);
+  document.addEventListener('pointercancel', skEnd);
 
   /* ---------- scene drawing ---------- */
   function draw(){

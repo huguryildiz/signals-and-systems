@@ -1013,14 +1013,21 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
   {t:'title', text:'Plotting $x(3t-5)$'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
+      /* x(t) is the faint reference. The answer is the .sk-key group, which the
+         slide keeps hidden until the reader asks for it. */
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
-      a.curve(t=>x(3*t-5),{color:C.out});
+      a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+      a.curve(x,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
+      a.note(4.3,1.2,'x(t)',{color:C.ink,fs:15,tex:true});
+      a.raw('<g class="sk-key">');
+      a.curve(t=>x(3*t-5),{color:C.out,n:1200});
       a.note(9.6,2.2,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
       [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
+      a.raw('</g>');
       return a.svg(); },
-      caption:'The corners land at $1$, $5/3$, $7/3$ and $3$.'}
+      caption:'The dashed trace is $x(t)$. Draw where each of its corners lands, then show the answer.'}
   ], right:[
     {t:'note', kind:'def', head:'Method', html:'Each original corner $c$ moves to the time that satisfies $3t-5=c$.'},
     {t:'reveal', at:1, items:[
