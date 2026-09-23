@@ -95,7 +95,7 @@ CONTENT.SECTIONS = {
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
         'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
-        'm1-ct-cexp','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
+        'm1-ct-cexp','m1-ct-cexp-grow','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
         'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c',
         'm1-dt-period','m1-dt-period-b','m1-real-cexp','m1-lab-c','m1-code-cexp'] },
     { n:'1.7', title:'A catalogue of common signals',             ids:[
@@ -227,7 +227,7 @@ CONTENT.BOOK = {
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
   'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
-  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
+  'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-grow':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
   'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1',
   'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2',
   'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3',
