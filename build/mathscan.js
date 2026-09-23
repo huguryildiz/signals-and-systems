@@ -16,7 +16,9 @@ const path = require('path');
     if(m) out.raw.push(...[...new Set(m)].slice(0,8).map(x=>'RAW: '+x));
     const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','OL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN',
       /* the title motif blurs its glow with an SVG filter */
-      'FILTER','FEGAUSSIANBLUR']);
+      'FILTER','FEGAUSSIANBLUR',
+      /* a code page shows its program in a pre block, editable in a textarea on the site */
+      'PRE','TEXTAREA']);
     host.querySelectorAll('*').forEach(e=>{ const t=e.tagName.toUpperCase();
       if(!known.has(t)) out.bogus.push(t); });
     out.bogus=[...new Set(out.bogus)];

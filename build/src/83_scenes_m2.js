@@ -74,7 +74,7 @@ const SC = [
   {t:'title', text:'Feedback Gives Memory'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,6.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
       a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
       a.note(4.2,5.6,'y[n]=\\sum_k x[k]',{anchor:'end',color:C.out,fs:14,tex:true});
@@ -127,7 +127,7 @@ const SC = [
       const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.6,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.curve(()=>1,{color:C.in}); a.curve(()=>-1,{color:C.mid});
       a.curve(()=>1,{color:C.err,dash:'7 5',width:3});
-      a.note(5.7,1.28,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
+      a.note(5.7,0.72,'x_1=1\\;\\text{and}\\;y=1',{anchor:'end',color:C.err,fs:14,tex:true});
       a.note(5.7,-1.3,'x_2=-1',{anchor:'end',color:C.mid,fs:14,tex:true});
       return a.svg(); },
       caption:'Two distinct inputs collapse onto one output, so squaring is not invertible.'},
@@ -281,7 +281,7 @@ const SC = [
       a.note(3.6,1.28,'y_2[n]=\\delta[n-1]',{anchor:'end',color:C.err,fs:14,tex:true});
       return a.svg(); },
       caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'},
-    {t:'legend', items:[['out','$y_1[n]$'],['err','$y_2[n]$']]}
+    {t:'legend', items:[['out','$y_1[n]$'],['err','$y_2[n]$']], at:'tl'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?'},
     {t:'reveal', at:1, items:[

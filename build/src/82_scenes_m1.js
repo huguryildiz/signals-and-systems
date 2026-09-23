@@ -338,6 +338,18 @@ const G = (()=>{
     dtper:  sv(ln('M1 23 H91',AX,1)+dots),
     bursts: sv(ln('M1 23 H91',AX,1)+[6,36,66].map(x0=>ln('M'+[...Array(21)].map((_,k)=>
                (x0+k).toFixed(1)+','+(23-15*Math.sin(Math.PI*k/20)*Math.sin(1.6*k)).toFixed(1)).join('L'),CY,1.4)).join('')),
+    evenodd:sv(ln('M22 4 V40 M70 4 V40',AX,1)+ln('M1 38 H43 M49 23 H91',AX,1)
+               +ln('M2 38 Q14 38 22 10 Q30 38 42 38',GR)+ln('M52 23 Q61 40 70 23 T88 23',RD)),
+    stepimp:sv(ln('M1 38 H40 M54 38 H90',AX,1)+[6,14,22,30,38].map(x=>ln(`M${x} 38 V16`,CY,1.4)
+               +`<circle cx="${x}" cy="16" r="2.2" fill="${CY}"/>`).join('')
+               +ln('M43 24 H51 M48 21 L51 24 L48 27',AX,1.4)+ln('M72 38 V16',AM)+`<circle cx="72" cy="16" r="3" fill="${AM}"/>`),
+    sift:   sv(ln('M1 38 H91',AX,1)+ln('M2 30 Q30 4 60 18 T90 26',GR)+ln('M60 38 V8 M55 14 L60 8 L65 14',AM)
+               +`<circle cx="60" cy="18" r="3.2" fill="${CY}"/>`),
+    cexp:   sv(ln('M1 23 H91',AX,1)+ln('M2 5 Q30 17 90 22 M2 41 Q30 29 90 24',AX,1.2)
+               +ln('M'+[...Array(89)].map((_,k)=>(2+k).toFixed(1)+','+(23-18*Math.exp(-k/30)*Math.cos(k/3.2)).toFixed(1)).join('L'),CY,1.6)),
+    alias:  sv(`<circle cx="46" cy="22" r="17" fill="none" stroke="${AX}" stroke-width="1.4"/>`
+               +ln('M46 22 L59 11',AM)+`<circle cx="59" cy="11" r="3" fill="${AM}"/>`
+               +ln('M59.5 5.9 A21 21 0 1 0 65.7 14.8',VI,1.4)+ln('M64.8 19.7 L65.7 14.8 L69.5 18',VI,1.4)),
     wheel:  sv(`<circle cx="46" cy="22" r="19" fill="none" stroke="${AX}" stroke-width="1.4"/>`
                +[1,2,3,4,5].map(k=>{ const a=k*Math.PI/3; return ln(`M46 22 L${(46+19*Math.cos(a)).toFixed(1)} ${(22-19*Math.sin(a)).toFixed(1)}`,AX,1.2); }).join('')
                +ln('M46 22 L65 22',AM)+`<circle cx="65" cy="22" r="3" fill="${AM}"/>`)
@@ -427,7 +439,7 @@ const SC = [
 { id:'m1-def', module:'M1', nav:'Definitions and notation', title:'Definitions and notation', src:'p. 2',
   objective:'Fix the CT/DT notation and the meaning of the independent variable.',
   keywords:'x(t) x[n] notation integer time index continuous discrete stem',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
   {t:'title', text:'Continuous-Time Notation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -441,14 +453,18 @@ const SC = [
       note:'Round brackets. The signal is defined at every real instant.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The brackets state the domain',
-        html:'Writing $x[t]$ states the wrong domain. The domain decides the periodicity test, the convolution limits and the transform.'}]}
+        html:'Writing $x[t]$ states the wrong domain. The domain decides the periodicity test, the convolution limits and the transform.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(\\pi t)$.<div class="nsep"></div>What is $x(0.5)$?',
+        ask:{key:'m1-def', choices:['$0$','$1$','Not defined'], answer:0,
+          why:'A continuous-time signal has a value at every real $t$, and $\\cos(\\pi/2)=0$.'}}]}
   ]}
 ]},
 
 { id:'m1-def-b', module:'M1', nav:'Discrete-time notation', title:'Discrete-time notation', src:'p. 2',
   objective:'Fix discrete-time notation and the meaning of the index n.',
   keywords:'x[n] square brackets integer index stem',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Foundations', src:'p. 2'},
   {t:'title', text:'Discrete-Time Notation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -462,14 +478,18 @@ const SC = [
       note:'Square brackets. The index $n$ is an integer, not a time in seconds.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'err', head:'The brackets state the domain',
-        html:'Writing $x(n)$ states the wrong domain. The dots are the signal. A curve through the dots is a different signal.'}]}
+        html:'Writing $x(n)$ states the wrong domain. The dots are the signal. A curve through the dots is a different signal.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=n^{2}$.<div class="nsep"></div>What is $x[1.5]$?',
+        ask:{key:'m1-def-b', choices:['$2.25$','$0$','Not defined'], answer:2,
+          why:'The index is an integer, so the sequence has no value between $n=1$ and $n=2$.'}}]}
   ]}
 ]},
 
 { id:'m1-power', module:'M1', nav:'Instantaneous power', title:'From circuit power to signal power', src:'p. 2',
   objective:'Derive the normalised energy/power definitions from the physical ones.',
   keywords:'instantaneous power energy resistor normalised R=1 joule watt',
-  slide:true, steps:3, blocks:[
+  budget:'five cards: instantaneous power, energy over a window and the modulus belong to one definition', slide:true, steps:4, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Instantaneous Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -491,24 +511,28 @@ const SC = [
       a.note(4,-0.5,'\\text{Energy}=\\text{Power}\\times\\text{Time}',{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
       a.raw('</g>');
       return a.svg(); },
-      caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
+      caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Normalised convention', html:'From here, set $R=1\\ \\Omega$ and write power as $|x(t)|^{2}$. Restore the factor $1/R$ when the resistance is different.'}]}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}p(t)&=v(t)\\,i(t)\\\\&=v(t)\\left(\\dfrac{v(t)}{R}\\right)\\\\&=\\dfrac{1}{R}v^{2}(t)\\end{aligned}', label:'Instantaneous power',
       note:'Units: watts. The square of the voltage carries the power.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'E=\\int_{t_1}^{t_2}p(t)\\,\\d t=\\int_{t_1}^{t_2}\\dfrac{1}{R}v^{2}(t)\\,\\d t',
         label:'Energy over a window', note:'Integrate the power, because the power varies.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Normalised convention', html:'From here, set $R=1\\ \\Omega$ and write power as $|x(t)|^{2}$. Restore the factor $1/R$ when the resistance is different.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Why the modulus', html:'$|x(t)|^{2}=x(t)\\,x^{*}(t)$ is real and non-negative. Writing $x^{2}(t)$ is correct only for a real signal.'}]}
+      {t:'note', kind:'def', head:'Why the modulus', html:'$|x(t)|^{2}=x(t)\\,x^{*}(t)$ is real and non-negative. Writing $x^{2}(t)$ is correct only for a real signal.'}]},
+    {t:'reveal', at:4, items:[
+      {t:'note', kind:'def', head:'Given', html:'$v(t)=2$ V across $R=4\\ \\Omega$.<div class="nsep"></div>What is the instantaneous power?',
+        ask:{key:'m1-power', choices:['$0.5$ W','$1$ W','$8$ W'], answer:1,
+          why:'$p=v^{2}/R=4/4=1$ W.'}}]}
   ]}
 ]},
 
 { id:'m1-energy-inf', module:'M1', nav:'Total energy', title:'Total energy over an infinite interval', src:'p. 2',
   objective:'State E∞ in both domains and flag non-convergence.',
   keywords:'E infinity total energy integral summation converge',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Total Signal Energy'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -526,14 +550,18 @@ const SC = [
     {t:'eq', key:true, tex:'E_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\sum_{n=-N}^{N}|x[n]|^{2}\\;=\\;\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}',
       label:'Discrete time'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Use a symmetric window', html:'Integrate from $-T$ to $T$, so a two-sided signal is included on both sides. Average power uses the same window.'}]}
+      {t:'note', kind:'def', head:'Use a symmetric window', html:'Integrate from $-T$ to $T$, so a two-sided signal is included on both sides. Average power uses the same window.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=1$ for $n=0,1,2$, and $0$ otherwise.<div class="nsep"></div>What is $E_\\infty$?',
+        ask:{key:'m1-energy-inf', choices:['$1$','$3$','$\\infty$'], answer:1,
+          why:'Three samples each contribute $|1|^{2}=1$.'}}]}
   ]}
 ]},
 
 { id:'m1-energy-div', module:'M1', nav:'Energy that diverges', title:'When total energy diverges', src:'p. 2',
   objective:'Recognise a signal whose total energy has no finite value.',
   keywords:'diverge E infinity cosine average power',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'When Total Energy Diverges'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -549,14 +577,18 @@ const SC = [
       html:'The integral or the sum may not converge. Calculate the finite-window energy before taking its limit.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}E_T&=\\int_{-T}^{T}\\cos^{2}(2t)\\,\\d t\\\\&=\\int_{-T}^{T}\\dfrac{1+\\cos(4t)}{2}\\,\\d t\\\\&=T+\\dfrac{\\sin(4T)}{4}\\;\\longrightarrow\\;\\infty\\end{aligned}',
-        label:'Energy over the window', note:'The sine term stays bounded while $T$ grows.'}]}
+        label:'Energy over the window', note:'The sine term stays bounded while $T$ grows.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=2$ for every $t$.<div class="nsep"></div>What is $E_T$ over $[-T,T]$?',
+        ask:{key:'m1-energy-div', choices:['$2T$','$4T$','$8T$'], answer:2,
+          why:'$\\int_{-T}^{T}2^{2}\\,\\d t=8T$, which grows without limit.'}}]}
   ]}
 ]},
 
 { id:'m1-avgpower', module:'M1', nav:'Average power', title:'Average power', src:'p. 2',
   objective:'State P over a window and P∞ in both domains, with the 2N+1 count.',
   keywords:'average power P infinity 2N+1 time averaged',
-  slide:true, steps:2, blocks:[
+  budget:'two figures and five cards: the running average is read against the signal above it, and the CT and DT definitions are stated together', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 2'},
   {t:'title', text:'Average Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -593,14 +625,18 @@ const SC = [
       {t:'eq', key:true, tex:'P_\\infty\\;\\triangleq\\;\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}',
         label:'Discrete time'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Why the count is 2N+1', html:'$2N+1$ is the number of samples from $-N$ to $N$, with both ends included. Using $2N$ gives the same limit, but the wrong value at a finite $N$.'}]}
+      {t:'note', kind:'def', head:'Why the count is 2N+1', html:'$2N+1$ is the number of samples from $-N$ to $N$, with both ends included. Using $2N$ gives the same limit, but the wrong value at a finite $N$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=(-1)^{n}$.<div class="nsep"></div>What is $P_\\infty$?',
+        ask:{key:'m1-avgpower', choices:['$0$','$1$','$\\infty$'], answer:1,
+          why:'$|x[n]|^{2}=1$ for every $n$, so the average over any window is 1.'}}]}
   ]}
 ]},
 
 { id:'m1-classify', module:'M1', nav:'Energy signals', title:'Energy signals', src:'p. 3',
   objective:'Define an energy signal and show that a finite pulse has finite energy and zero average power.',
   keywords:'energy signal classification finite energy zero power pulse',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Energy Signals'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -617,14 +653,18 @@ const SC = [
       label:'Total energy', note:'The integrand is zero outside $0\\le t\\le 1$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0',
-        label:'Average power', note:'For $T\\ge 1$ the window holds the whole pulse, so $E_T=1$.'}]}
+        label:'Average power', note:'For $T\\ge 1$ the window holds the whole pulse, so $E_T=1$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $0\\le t\\le 3$, and $0$ otherwise.<div class="nsep"></div>What is $E_\\infty$?',
+        ask:{key:'m1-classify', choices:['$1$','$3$','$9$'], answer:1,
+          why:'The integrand is 1 on an interval of length 3.'}}]}
   ]}
 ]},
 
 { id:'m1-classify-b', module:'M1', nav:'Power signals', title:'Power signals', src:'p. 3',
   objective:'Define a power signal and show that a constant has infinite energy and finite average power.',
   keywords:'power signal classification infinite energy finite power constant',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Power Signals'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -644,14 +684,18 @@ const SC = [
       label:'Energy in the window', note:'The energy grows without limit as $T\\to\\infty$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{2T}{2T}=1',
-        label:'Average power', note:'The window length cancels, so the limit is finite.'}]}
+        label:'Average power', note:'The window length cancels, so the limit is finite.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=3$ for every $t$.<div class="nsep"></div>What is $P_\\infty$?',
+        ask:{key:'m1-classify-b', choices:['$3$','$9$','$\\infty$'], answer:1,
+          why:'$|x(t)|^{2}=9$ at every instant, so the average power is 9.'}}]}
   ]}
 ]},
 
 { id:'m1-classify-c', module:'M1', nav:'Neither class', title:'A signal in neither class', src:'p. 3',
   objective:'Show a signal whose energy and average power both diverge.',
   keywords:'neither ramp unbounded infinite energy infinite power classification',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Energy and power', src:'p. 3'},
   {t:'title', text:'Neither an Energy Signal nor a Power Signal'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -667,33 +711,38 @@ const SC = [
       label:'Energy in the window', note:'The lower limit is $0$ because $x(t)=0$ for $t<0$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}=\\infty',
-        label:'Average power', note:'Both quantities diverge, so the ramp is in neither class.'}]}
+        label:'Average power', note:'Both quantities diverge, so the ramp is in neither class.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{t}$ for every $t$.<div class="nsep"></div>Which class is it in?',
+        ask:{key:'m1-classify-c', choices:['Energy','Power','Neither'], answer:2,
+          why:'$|x(t)|^{2}=e^{2t}$ grows without bound, so both $E_\\infty$ and $P_\\infty$ diverge.'}}]}
   ]}
 ]},
 
 { id:'m1-ex-energy', module:'M1', nav:'Worked example · classification', title:'Worked example — classify two signals', src:'p. 3',
   objective:'Reproduce both source examples with full method and sanity checks.',
   keywords:'example rectangular pulse constant sequence energy power worked',
-  slide:true, steps:3, blocks:[
+  budget:'five cards: the energy and the power of one pulse are worked on one slide', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
   {t:'title', text:'Energy and Power Classification Examples'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'energy-pulse', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
       a.note(2.8,1.15,'energy-type',{anchor:'end',color:C.out,fs:15,italic:true});
       return a.svg(); },
-      caption:'The integrand is 1 on $[0,1]$ and 0 elsewhere, so the energy is the length of that interval.'}
+      caption:'The integrand is 1 on $[0,1]$ and 0 elsewhere, so the energy is the length of that interval.'},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'Halving the amplitude divides the energy by four. $\\int_0^1 (1/2)^{2}\\,\\d t=1/4$.'}]}
   ], right:[
-    {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $0\\le t\\le 1$, and $0$ otherwise.<div class="nsep"></div>Is $x(t)$ an energy signal or a power signal?'},
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $0\\le t\\le 1$, and $0$ otherwise.<div class="nsep"></div>Is $x(t)$ an energy signal or a power signal?',
+      ask:{key:'m1-ex-energy', choices:['Energy signal','Power signal','Neither'], answer:0}},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t\\\\&=\\int_{0}^{1}1^{2}\\,\\d t\\\\&=\\left.t\\right|_{0}^{1}=1\\end{aligned}', label:'Total energy'},
       {t:'eq', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{0}^{1}1\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0\\end{aligned}', label:'Average power'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W.<span class="chips"><span class="chip yes">Energy signal</span><span class="chip no">Power signal</span></span>'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Check', html:'Halving the amplitude divides the energy by four. $\\int_0^1 (1/2)^{2}\\,\\d t=1/4$.'}]}
+      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W.<span class="chips"><span class="chip yes">Energy signal</span><span class="chip no">Power signal</span></span>'}]}
   ]},
   {t:'instr', head:'Presenter cue', html:'Ask the class to predict $P_\\infty$ for $x[n]=4$ <em>before</em> revealing step 3. The common guesses are 4 and ∞. Both are worth discussing.'}
 ]},
@@ -770,7 +819,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
   {t:'title', text:'Time Shifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'ops-shift', frame:true, grow:true,
+    {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'t0', label:'$t_0$', min:-4, max:4, step:0.5, v:3, show:v=>'$'+num(v)+'$ s'}]},
       svg:v=>{
       const t0=v?v.t0:3, tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
@@ -811,7 +860,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
   {t:'title', text:'Time Shifting in Discrete Time'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'ops-dt', frame:true, grow:true,
+    {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'n0', label:'$n_0$', min:-4, max:4, step:1, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const n0=v?v.n0:2, x=n=>n>=0&&n<=3?1-n/4:0, pts=f=>{const r=[];for(let n=-7;n<=7;n++)r.push([n,f(n)]);return r;};
@@ -911,11 +960,11 @@ REAL_ENERGY,
 { id:'m1-scale', module:'M1', nav:'Time scaling', title:'Time scaling', src:'pp. 3–4',
   objective:'State time scaling and its effect on the support.',
   keywords:'time scaling compression expansion support width x(at) decimation',
-  slide:true, steps:3, blocks:[
+  budget:'five cards: the CT map and the DT contrast are one idea', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
   {t:'title', text:'Time Scaling'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'ops-scale', frame:true, grow:true,
+    {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const k=v?v.a:2, r=t=>(t>=1&&t<=3)?1:0;
@@ -947,7 +996,7 @@ REAL_ENERGY,
 { id:'m1-scale-b', module:'M1', nav:'Time scaling: a short melody', title:'Time scaling: a short melody', src:'pp. 3–4',
   objective:'Hear time scaling change both the length and the pitch of a signal.',
   keywords:'time scaling melody sound speed pitch octave frequency x(at)',
-  slide:true, steps:2, blocks:[
+  budget:'two figures: the tone and its time-scaled copy, each with its own sound', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
   {t:'title', text:'Time Scaling: a Short Melody'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1027,7 +1076,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
   {t:'title', text:'Plotting $x(3t-5)$'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, code:'ops-combined', svg:()=>{
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
       /* x(t) is the faint reference. The answer is the .sk-key group, which the
          slide keeps hidden until the reader asks for it. */
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
@@ -1142,7 +1191,7 @@ REAL_TRANSFORM,
 { id:'m1-evenodd', module:'M1', nav:'Even and odd', title:'Even and odd parts', src:'pp. 5–6',
   objective:'Define even/odd and the unique decomposition.',
   keywords:'even odd decomposition Ev Od symmetry x(0)=0',
-  slide:true, steps:2, blocks:[
+  budget:'two figures: an even and an odd signal side by side, one card each', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
   {t:'title', text:'Even and Odd Decomposition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1216,7 +1265,7 @@ REAL_TRANSFORM,
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
   {t:'title', text:'Even and Odd Parts'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'evenodd-parts', frame:true, svg:()=>{
+    {t:'fig', frame:true, svg:()=>{
       const x=t=>(t>0&&t<1)?1:0;
       const rows=[
         [t=>x(t),'x(t)',C.h],
@@ -1224,7 +1273,7 @@ REAL_TRANSFORM,
         [t=>0.5*(x(t)-x(-t)),'\\Od\\{x(t)\\}',C.mid]];
       return rows.map(function(r,i){
         const odd=i===2;
-        const a=P.Axes({w:560,h:odd?176:140,xr:[-2,2],yr:odd?[-1.2,1.0]:[-0.25,1.45],xlabel:'t',ylabel:r[1],
+        const a=P.Axes({w:560,h:odd?190:140,xr:[-2,2],yr:odd?[-1.4,1.0]:[-0.25,1.45],xlabel:'t',ylabel:r[1],
           xnameRight:22,xnameDrop:odd?44:40,pad:{l:52,r:24,t:26,b:24},xticksOverride:[-2,-1,1,2],
           yticksOverride:odd?[-0.5,0.5]:[0.5,1],xtickfmt:v=>odd?'':String(v),ytickfmt:()=>''});
         if(i===0) a.curve(t=>x(-t),{color:C.muted,dash:'4 4',n:1600});
@@ -1232,7 +1281,7 @@ REAL_TRANSFORM,
           a.area(t=>0.5,0,1,{color:C.h+'40'});
           a.area(t=>0.5*sg,-1,0,{color:C.muted+'40'});
           a.note(0.5,odd?0.72:0.8,'\\tfrac12\\,x(t)',{anchor:'middle',color:C.h,fs:14,tex:true});
-          a.note(-0.5,odd?-0.9:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true}); }
+          a.note(odd?-0.55:-0.5,odd?-1.08:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true}); }
         a.curve(r[0],{color:r[2],width:2.6,n:1600});
         if(i===0){ a.note(-0.5,1.25,'x(-t)',{anchor:'middle',color:C.muted,fs:13,tex:true});
           a.note(1.08,1,'1',{anchor:'start',color:r[2],fs:14,tex:true}); }
@@ -1275,7 +1324,7 @@ REAL_PERIODIC,
 { id:'m1-dt-impulse', module:'M1', nav:'DT impulse', title:'The discrete-time impulse', src:'p. 6',
   objective:'Define the discrete-time unit impulse δ[n].',
   keywords:'delta[n] unit impulse discrete time sequence',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'Discrete-Time Unit Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1287,14 +1336,18 @@ REAL_PERIODIC,
       caption:'The discrete-time impulse is the sequence that equals 1 at $n=0$ and 0 elsewhere.'}
   ], right:[
     {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
-      note:'An ordinary sequence. Nothing here is infinite.'}
+      note:'An ordinary sequence. Nothing here is infinite.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=\\delta[n-3]$.<div class="nsep"></div>At which $n$ is $x[n]$ non-zero?',
+        ask:{key:'m1-dt-impulse', choices:['$n=-3$','$n=0$','$n=3$'], answer:2,
+          why:'$\\delta[n-3]=1$ only where $n-3=0$, that is at $n=3$.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-step', module:'M1', nav:'DT step', title:'The discrete-time step', src:'p. 6',
   objective:'Define the discrete-time unit step u[n].',
   keywords:'u[n] unit step discrete time sequence',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'Discrete-Time Unit Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1320,19 +1373,23 @@ REAL_PERIODIC,
       if(done) a.note(4.6,1.2,'u[n]',{anchor:'end',color:C.h,fs:16,tex:true});
       return a.svg(); },
       caption:'The discrete-time step equals 1 from $n=0$ onward and 0 before it. Step through the frames to build it one shifted impulse at a time.'},
-    {t:'legend', items:[['h','$u[n]$'],['in','$\\delta[n-m]$']]}
+    {t:'legend', items:[['h','$u[n]$'],['in','$\\delta[n-m]$']], at:'tl'}
   ], right:[
     {t:'eq', tex:'u[n]=\\begin{cases}1,&n\\ge 0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit step',
       note:'The sample at $n=0$ is included: $u[0]=1$.'},
     {t:'eq', tex:'u[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]+\\cdots', label:'A sum of impulses',
-      note:'Each shifted impulse $\\delta[n-m]$ places one unit sample at $n=m$.'}
+      note:'Each shifted impulse $\\delta[n-m]$ places one unit sample at $n=m$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=u[n-2]$.<div class="nsep"></div>What is $x[2]$?',
+        ask:{key:'m1-dt-step', choices:['$x[2]=0$','$x[2]=1$'], answer:1,
+          why:'$x[2]=u[0]$, and the step includes its first sample: $u[0]=1$.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-impulse-b', module:'M1', nav:'First difference', title:'Difference and Running Sum', src:'p. 6',
   objective:'Relate the discrete-time step and impulse by a difference and a sum.',
   keywords:'first difference running sum u[n] delta[n]',
-  slide:true, steps:2, blocks:[
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'Difference and Running Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1360,21 +1417,25 @@ REAL_PERIODIC,
       }
       return a.svg(); },
       caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'},
-    {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']]}
+    {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']], at:'tl'}
   ], right:[
     {t:'eq', key:true, side:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
       note:'The delay cancels the flat part of the step and leaves one sample.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]', label:'Running sum'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The two operations invert each other', html:'A first difference reverses a running sum. A running sum reverses a first difference. They are the discrete-time forms of differentiation and integration.'}]}
+      {t:'note', kind:'def', head:'The two operations invert each other', html:'A first difference reverses a running sum. A running sum reverses a first difference. They are the discrete-time forms of differentiation and integration.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=u[n]-u[n-3]$.<div class="nsep"></div>How many samples of $x[n]$ are non-zero?',
+        ask:{key:'m1-dt-impulse-b', choices:['$1$','$2$','$3$'], answer:2,
+          why:'The delayed step cancels the step from $n=3$ on, so $n=0,1,2$ remain.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-step-rep', module:'M1', nav:'Step as weighted impulses', title:'The step as a sum of weighted impulses', src:'p. 6',
   objective:'Read u[n] as a sum of shifted impulses weighted by its own samples.',
   keywords:'representation u[n] sum u[k] delta[n-k] weighted shifted impulses',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'The Step as Weighted Impulses'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1407,19 +1468,23 @@ REAL_PERIODIC,
       if(done||c>4) a.note(4.6,1.26,'u[n]',{anchor:'end',color:C.h,fs:16,tex:true});
       return a.svg(); },
       caption:'Each term is an impulse at $n=k$ scaled by the sample $u[k]$. Terms with $k<0$ have weight 0; terms with $k\\ge0$ add one unit sample.'},
-    {t:'legend', items:[['h','$u[n]$'],['in','$u[k]\\,\\delta[n-k]$']]}
+    {t:'legend', items:[['h','$u[n]$'],['in','$u[k]\\,\\delta[n-k]$']], at:'tl'}
   ], right:[
     {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation',
       note:'Each shifted impulse places one sample at its index.'},
     {t:'eq', tex:'u[k]\\,\\delta[n-k]=\\begin{cases}\\delta[n-k],&k\\ge0\\\\0,&k<0\\end{cases}', label:'One term',
-      note:'The weights $u[k]$ switch off every term with $k<0$, so only the terms with $k\\ge0$ remain. That is the running sum of the previous slide.'}
+      note:'The weights $u[k]$ switch off every term with $k<0$, so only the terms with $k\\ge0$ remain. That is the running sum of the previous slide.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=2\\delta[n]+\\delta[n-1]$.<div class="nsep"></div>What is $x[1]$?',
+        ask:{key:'m1-dt-step-rep', choices:['$0$','$1$','$2$'], answer:1,
+          why:'At $n=1$ only the term $\\delta[n-1]$ is non-zero, and its weight is 1.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-sift', module:'M1', nav:'Sampling and sifting (DT)', title:'Sampling and sifting properties', src:'pp. 6–7',
   objective:'Distinguish the two properties and verify both on the definition example.',
   keywords:'sampling property sifting property delta n0 x[n0]',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
   {t:'title', text:'Discrete-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1446,7 +1511,11 @@ REAL_PERIODIC,
     {t:'eq', key:true, tex:'x[n_0]=\\sum_{n=-\\infty}^{\\infty}x[n]\\,\\delta[n-n_0]', label:'Sifting property',
       note:'The right-hand side is a number.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Check the type of the result', html:'Sampling gives a sequence. Sifting gives one number. Sifting is sampling followed by a sum.'}]}
+      {t:'note', kind:'err', head:'Check the type of the result', html:'Sampling gives a sequence. Sifting gives one number. Sifting is sampling followed by a sum.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=n^{2}$.<div class="nsep"></div>What is $\\sum_{n}x[n]\\,\\delta[n+1]$?',
+        ask:{key:'m1-dt-sift', choices:['$-1$','$1$','$\\delta[n+1]$'], answer:1,
+          why:'The impulse sits at $n=-1$, so the sum is the number $x[-1]=(-1)^{2}=1$.'}}]}
   ]}
 ]},
 
@@ -1457,7 +1526,7 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
   {t:'title', text:'Sampling and Sifting, Computed'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'impulse-dt-sift', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]\\delta[n-2]',ynameAtAxis:true,pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>n===2?3:0,-1,5),{color:C.out});
       a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true});
@@ -1479,7 +1548,7 @@ REAL_PERIODIC,
 { id:'m1-ct-impulse', module:'M1', nav:'CT impulse and step', title:'The continuous-time impulse', src:'p. 7',
   objective:'Present δ(t) rigorously as a distribution while keeping the definition picture.',
   keywords:'dirac delta distribution generalized function unit step derivative area 1',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Continuous-Time Impulse and Step'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1493,14 +1562,18 @@ REAL_PERIODIC,
     {t:'eq', tex:'\\delta(t)=\\begin{cases}\\infty,&t=0\\\\0,&\\text{otherwise}\\end{cases}\\qquad \\int_{-\\infty}^{\\infty}\\delta(t)\\,\\d t=1',
       label:'Informal picture', note:'A picture only. The arrow\'s weight is area, not a function value.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Define the impulse by its action', html:'An ordinary function that is zero except at one point has integral 0, not 1. The impulse is a distribution, and $\\int x(t)\\,\\delta(t-t_0)\\,\\d t=x(t_0)$.'}]}
+      {t:'note', kind:'err', head:'Define the impulse by its action', html:'An ordinary function that is zero except at one point has integral 0, not 1. The impulse is a distribution, and $\\int x(t)\\,\\delta(t-t_0)\\,\\d t=x(t_0)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=3\\delta(t)$.<div class="nsep"></div>What is $\\int_{-\\infty}^{\\infty}x(t)\\,\\d t$?',
+        ask:{key:'m1-ct-impulse', choices:['$0$','$3$','$\\infty$'], answer:1,
+          why:'The weight 3 is the area under the impulse, so the integral is 3.'}}]}
   ]}
 ]},
 
 { id:'m1-ct-impulse-b', module:'M1', nav:'Impulse as a limit', title:'Picturing the Impulse', src:'p. 7',
   objective:'Picture the impulse as a unit-area rectangle made narrow.',
   keywords:'epsilon rectangle area distribution',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Picturing the Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1525,14 +1598,18 @@ REAL_PERIODIC,
       return a.svg(); },
       caption:'Step through the frames. Each rectangle has unit area; as the width decreases, its integral against a continuous test function approaches the sifting result, and the limit is the impulse $\\delta(t)$, drawn as an arrow of weight 1.'}
   ], right:[
-    {t:'note', kind:'def', head:'A unit-area picture', html:'A rectangle of width $\\varepsilon$ and height $1/\\varepsilon$ has area 1. As $\\varepsilon\\to 0$, its integral against a continuous test function approaches the sifting result.'}
+    {t:'note', kind:'def', head:'A unit-area picture', html:'A rectangle of width $\\varepsilon$ and height $1/\\varepsilon$ has area 1. As $\\varepsilon\\to 0$, its integral against a continuous test function approaches the sifting result.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'A unit-area rectangle has width $\\varepsilon=0.1$.<div class="nsep"></div>What is its height?',
+        ask:{key:'m1-ct-impulse-b', choices:['$0.1$','$1$','$10$'], answer:2,
+          why:'Width times height is 1, so the height is $1/0.1=10$.'}}]}
   ]}
 ]},
 
 { id:'m1-ct-impulse-c', module:'M1', nav:'CT sampling and sifting', title:'Continuous-Time Sampling and Sifting', src:'p. 7',
   objective:'State the continuous-time sampling and sifting properties.',
   keywords:'sampling sifting delta(t) step derivative',
-  slide:true, steps:2, blocks:[
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Continuous-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1562,7 +1639,11 @@ REAL_PERIODIC,
       {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)', label:'Sampling'}]},
     {t:'reveal', at:2, items:[
       {t:'eq', key:true, result:true, tex:'x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\d t', label:'Key result · Sifting',
-        note:'The discrete-time sum is an integral here.'}]}
+        note:'The discrete-time sum is an integral here.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos t$ and $t_0=\\pi$.<div class="nsep"></div>What is $\\int_{-\\infty}^{\\infty}\\cos t\\,\\delta(t-\\pi)\\,\\d t$?',
+        ask:{key:'m1-ct-impulse-c', choices:['$-1$','$0$','$1$'], answer:0,
+          why:'Sifting returns the value at $t=\\pi$, and $\\cos\\pi=-1$.'}}]}
   ]}
 ]},
 
@@ -1589,47 +1670,55 @@ REAL_IMPULSE,
 { id:'m1-ct-cexp', module:'M1', nav:'CT complex exponentials', title:'Continuous-time complex exponentials', src:'pp. 7–9',
   objective:'Build x(t)=Ce^{at} from real to general complex, with Euler and periodicity.',
   keywords:'complex exponential Euler amplitude phase angular frequency growth decay',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'Continuous-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[0,6],yr:[-0.1,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:6,ytarget:3});
-      [[0.5,C.in],[1,C.h],[2,C.out]].forEach(([k,col])=>a.curve(t=>Math.exp(-k*t),{color:col}));
+      [[0.5,C.in,'9 6'],[1,C.h],[2,C.out]].forEach(([k,col,dash])=>a.curve(t=>Math.exp(-k*t),{color:col,dash}));
       return a.svg(); },
       caption:'Real case, $a<0$: decay. A larger $|a|$ decays faster.'},
-    {t:'legend', items:[['in','$e^{-0.5t}$'],['h','$e^{-t}$'],['out','$e^{-2t}$']]}
+    {t:'legend', items:[['in','$e^{-0.5t}$',true],['h','$e^{-t}$'],['out','$e^{-2t}$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{C}', label:'Definition',
       note:'The real and imaginary parts of $a$ decide growth, decay and oscillation.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Both parameters real', html:'If $a<0$ the signal decays. If $a>0$ it grows. If $a=0$ it is the constant $C$. A larger $|a|$ is faster.'}]}
+      {t:'note', kind:'def', head:'Both parameters real', html:'If $a<0$ the signal decays. If $a>0$ it grows. If $a=0$ it is the constant $C$. A larger $|a|$ is faster.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-2t}$.<div class="nsep"></div>At what time does $x(t)$ reach $e^{-1}$?',
+        ask:{key:'m1-ct-cexp', choices:['$t=1/2$','$t=1$','$t=2$'], answer:0,
+          why:'$-2t=-1$ gives $t=1/2$.'}}]}
   ]}
 ]},
 
 { id:'m1-ct-cexp-grow', module:'M1', nav:'Growing exponentials', title:'Growing Real Exponentials', src:'pp. 7–9',
   objective:'See a real exponential grow when a>0, faster for a larger a.',
   keywords:'real exponential growth a positive growing unstable',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'Growing Real Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[0,1.5],yr:[-1,21],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:26,t:20,b:36},xtarget:4,ytarget:4});
-      [[0.5,C.in],[1,C.h],[2,C.out]].forEach(([k,col])=>a.curve(t=>Math.exp(k*t),{color:col}));
+      [[0.5,C.in,'9 6'],[1,C.h],[2,C.out]].forEach(([k,col,dash])=>a.curve(t=>Math.exp(k*t),{color:col,dash}));
       return a.svg(); },
       caption:'Real case, $a>0$: growth. A larger $a$ grows faster.'},
-    {t:'legend', items:[['in','$e^{0.5t}$'],['h','$e^{t}$'],['out','$e^{2t}$']]}
+    {t:'legend', items:[['out','$e^{2t}$'],['h','$e^{t}$'],['in','$e^{0.5t}$',true]], at:'tl-axis'}
   ], right:[
     {t:'eq', key:true, tex:'x(t)=C\\,e^{at},\\qquad C,a\\in\\mathbb{R},\\; a>0', label:'Growth',
-      note:'Every curve starts at $x(0)=C=1$. Each time $t$ advances by $1/a$, the signal is multiplied by $e\\approx 2.72$.'}
+      note:'Every curve starts at $x(0)=C=1$. Each time $t$ advances by $1/a$, the signal is multiplied by $e\\approx 2.72$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{at}$ doubles every second.<div class="nsep"></div>What is $a$?',
+        ask:{key:'m1-ct-cexp-grow', choices:['$a=1/2$','$a=\\ln 2$','$a=2$'], answer:1,
+          why:'$e^{a\\cdot 1}=2$ gives $a=\\ln 2\\approx 0.69$.'}}]}
   ]}
 ]},
 
 { id:'m1-ct-cexp-im', module:'M1', nav:'Imaginary exponent', title:'A Purely Imaginary Exponent', src:'pp. 7–9',
   objective:'Write a purely imaginary exponent as a sinusoid of constant amplitude.',
   keywords:'Euler omega0 amplitude phase rad/s',
-  slide:true, steps:1, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'A Purely Imaginary Exponent'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1641,31 +1730,39 @@ REAL_IMPULSE,
           ({label:'$f_0='+f0+'$ Hz', sound:()=>({f:t=>Math.cos(2*Math.PI*f0*t), dur:1})}))},
       caption:'$x(t)=e^{j0.5\\pi t}$: the real part, $\\cos(0.5\\pi t)$, of constant amplitude. Each tone is $\\cos(2\\pi f_0 t)$ with $\\omega_0=2\\pi f_0$. Doubling $f_0$ halves the period and raises the pitch one octave.'}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}x(t)&=Ce^{j\\omega_0t}\\\\&=Ae^{j\\theta}e^{j\\omega_0t}\\\\&=Ae^{j(\\omega_0t+\\theta)}\\\\&=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)\\end{aligned}', label:'Purely imaginary exponent',
-      note:'$a=j\\omega_0$ and $C=Ae^{j\\theta}$. Here $\\omega_0$ is in rad/s and $\\theta$ is in radians.'},
+    {t:'eq', tex:'\\begin{aligned}x(t)&=Ce^{j\\omega_0t}\\\\&=\\underbrace{Ae^{j\\theta}}_{C}\\,e^{\\overbrace{j\\omega_0}^{\\scriptstyle a}t}\\\\&=Ae^{j(\\omega_0t+\\theta)}\\\\&=A\\cos(\\omega_0t+\\theta)+jA\\sin(\\omega_0t+\\theta)\\end{aligned}', label:'Purely imaginary exponent',
+      note:'$a=j\\omega_0$ and $C=Ae^{j\\theta}$.'},
+    {t:'note', kind:'def', head:'Amplitude, frequency, phase', html:'$A=|C|$ is the amplitude.<br>$\\omega_0$ is the angular frequency, in rad/s.<br>$\\theta=\\angle C$ is the phase, in radians.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Constant amplitude', html:'$|x(t)|=A$ for every $t$. The signal does not grow or decay.'}]}
+      {t:'note', kind:'warn', head:'Constant amplitude', html:'$|x(t)|=A$ for every $t$. The signal does not grow or decay.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=-3e^{j2t}$.<div class="nsep"></div>What are the amplitude and the phase?',
+        ask:{key:'m1-ct-cexp-im', choices:['$A=3,\\;\\theta=\\pi$','$A=-3,\\;\\theta=0$','$A=3,\\;\\theta=0$'], answer:0,
+          why:'$-3=3e^{j\\pi}$, and an amplitude $A=|C|$ is never negative.'}}]}
   ]}
 ]},
 
 { id:'m1-ct-cexp-b', module:'M1', nav:'CT exponentials · period and envelope', title:'Period and envelope', src:'pp. 8–9',
   objective:'Derive the fundamental period and read the general complex case as a sinusoid in an envelope.',
   keywords:'fundamental period T0 2 pi omega envelope damping growing sinusoid second-order',
-  slide:true, steps:3, blocks:[
+  budget:'five cards: the solution and its check stay beside the period condition', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
   {t:'title', text:'Period and Envelope of a Complex Exponential'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'cexp-ct-period', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
       a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
       a.span(0,4,1.12,'T_0=4\\;\\text{s}',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'}
+      caption:'$x(t)=e^{j0.5\\pi t}$: real part, with the fundamental period marked.'},
+    {t:'eq', tex:'e^{j2\\pi}=\\cos(2\\pi)+j\\sin(2\\pi)=1+j0=1', label:'Full turn',
+      note:'The same holds for $e^{j2\\pi k}$ with any integer $k$, so $e^{j\\omega_0T}=1$ forces $\\omega_0T=2\\pi k$.'}
   ], right:[
     {t:'eq', key:true, tex:'\\begin{aligned}x(t+T)&=x(t)\\\\e^{j\\omega_0(t+T)}&=e^{j\\omega_0t}\\\\e^{j\\omega_0T}&=1\\\\\\omega_0T&=2\\pi k\\\\T&=\\dfrac{2\\pi k}{\\omega_0}\\end{aligned}', label:'Period condition',
       note:'The smallest positive choice is $k=1$, so $T_0=2\\pi/\\omega_0$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j0.5\\pi t}$.<div class="nsep"></div>Find the fundamental period. Use $T_0=2\\pi/\\omega_0$.'}]},
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j0.5\\pi t}$.<div class="nsep"></div>Find the fundamental period. Use $T_0=2\\pi/\\omega_0$.',
+        ask:{key:'m1-ct-cexp-b', choices:['$T_0=2$ s','$T_0=4$ s','$T_0=0.5\\pi$ s'], answer:1}}]},
     {t:'reveal', at:2, items:[
       {t:'eq', tex:'T_0=\\dfrac{2\\pi}{\\omega_0}=\\dfrac{2\\pi}{0.5\\pi}=\\dfrac{2}{0.5}=4\\;\\text{s}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
@@ -1676,12 +1773,12 @@ REAL_IMPULSE,
 { id:'m1-ct-cexp-c', module:'M1', nav:'Envelope', title:'Growth, Decay, and an Envelope', src:'pp. 8–9',
   objective:'Read a complex exponent as a sinusoid inside an exponential envelope.',
   keywords:'envelope damping r omega0',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
   {t:'title', text:'Growth, Decay, and an Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'cexp-envelope', frame:true, grow:true,
-      live:{controls:[{k:'r', label:'$r$', min:-1.5, max:0.5, step:0.25, v:-0.5, show:v=>'$'+num(v)+'$'}]},
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'r', label:'$r$', min:-0.5, max:0.5, step:0.1, v:-0.5, show:v=>'$'+num(v)+'$'}]},
       listen:{items:[
           {label:'Play $e^{rt}\\cos(2\\pi\\cdot 440\\,t)$', sound:v=>({f:t=>Math.exp(v.r*t)*Math.cos(2*Math.PI*440*t), dur:3})}]},
       svg:v=>{
@@ -1695,14 +1792,18 @@ REAL_IMPULSE,
     {t:'legend', items:[['in','$\\operatorname{Re}\\{x(t)\\}$'],['err','$\\pm2e^{rt}$']]}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}x(t)&=Ae^{j\\theta}e^{(r+j\\omega_0)t}\\\\&=A\\underbrace{e^{rt}}_{\\text{envelope}}\\,\\underbrace{e^{j(\\omega_0t+\\theta)}}_{\\text{rotation}}\\\\\\operatorname{Re}\\{x(t)\\}&=Ae^{rt}\\cos(\\omega_0t+\\theta)\\end{aligned}', label:'Separate envelope and oscillation'},
-    {t:'note', kind:'warn', head:'Read the envelope', html:'The curves $\\pm Ae^{rt}$ bound the sinusoid. It decays for $r<0$, grows for $r>0$, and is sustained for $r=0$.'}
+    {t:'note', kind:'warn', head:'Read the envelope', html:'The curves $\\pm Ae^{rt}$ bound the sinusoid. It decays for $r<0$, grows for $r>0$, and is sustained for $r=0$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{(-1+j4)t}$.<div class="nsep"></div>How does the real part behave?',
+        ask:{key:'m1-ct-cexp-c', choices:['It decays','It grows','Constant amplitude'], answer:0,
+          why:'$r=\\operatorname{Re}\\{a\\}=-1<0$, so the envelope $e^{-t}$ shrinks.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-cexp', module:'M1', nav:'DT complex exponentials', title:'Discrete-time complex exponentials', src:'pp. 9–10',
   objective:'Introduce x[n]=Cα^n and the three envelope cases.',
   keywords:'discrete complex exponential alpha beta growing decaying envelope',
-  slide:true, steps:2, blocks:[
+  budget:'five cards: the definition, its power form and the two cases of real alpha', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'Discrete-Time Complex Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1718,14 +1819,18 @@ REAL_IMPULSE,
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Real $\\alpha$', html:'If $0<\\alpha<1$ the sequence decreases. If $\\alpha>1$ it increases.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The boundary moved', html:'In continuous time the boundary is $\\operatorname{Re}\\{a\\}=0$. In discrete time it is $|\\alpha|=1$, the unit circle.'}]}
+      {t:'note', kind:'warn', head:'The boundary moved', html:'In continuous time the boundary is $\\operatorname{Re}\\{a\\}=0$. In discrete time it is $|\\alpha|=1$, the unit circle.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=(-0.5)^{n}$ for $n\\ge 0$.<div class="nsep"></div>How does the sequence behave?',
+        ask:{key:'m1-dt-cexp', choices:['Decays, alternating sign','Decays, one sign','Grows'], answer:0,
+          why:'$|\\alpha|=0.5<1$, and a negative $\\alpha$ flips the sign at every step.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-cexp-b', module:'M1', nav:'Growing sequence', title:'A Growing Real Sequence', src:'pp. 9–10',
   objective:'Show a real geometric sequence that grows.',
   keywords:'alpha greater than 1 geometric growth',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'A Growing Real Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1735,33 +1840,46 @@ REAL_IMPULSE,
       return a.svg(); },
       caption:'$y[n]=2^{n}$ increases.'}
   ], right:[
-    {t:'note', kind:'def', head:'A growing sequence', html:'$\\alpha>1$ increases. The sequence drawn here is $2^{n}$.'}
+    {t:'note', kind:'def', head:'A growing sequence', html:'$\\alpha>1$ increases. The sequence drawn here is $2^{n}$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=\\alpha^{n}$ with $x[3]=8$.<div class="nsep"></div>What is $\\alpha$?',
+        ask:{key:'m1-dt-cexp-b', choices:['$\\alpha=2$','$\\alpha=8/3$','$\\alpha=3$'], answer:0,
+          why:'$\\alpha^{3}=8$ gives $\\alpha=2$.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-cexp-c', module:'M1', nav:'Complex envelope', title:'A Discrete-Time Envelope', src:'pp. 9–10',
   objective:'Read the modulus of alpha as growth, decay, or a sustained oscillation.',
   keywords:'alpha modulus envelope omega0 discrete',
-  slide:true, steps:0, blocks:[
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'A Discrete-Time Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-2.6,2.6],xlabel:'n',ylabel:'x[n]',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
-      a.stem(disc(n=>Math.pow(0.95,n)*Math.cos(0.14*Math.PI*n),-20,20),{color:C.mid,r:3.2,width:1.8});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[
+        {k:'m', label:'$|\\alpha|$', min:0.9, max:1.05, step:0.01, v:0.95, show:v=>'$'+num(v)+'$'},
+        {k:'w', label:'$\\omega_0$', min:0, max:2, step:0.02, v:0.14, show:v=>v===0?'$0$':v===1?'$\\pi$':'$'+num(v)+'\\pi$'}]},
+      svg:v=>{
+      const m=v?v.m:0.95, w=v?v.w:0.14, top=1.1*Math.max(Math.pow(m,20),Math.pow(m,-20));
+      const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-top,top],xlabel:'n',ylabel:'x[n]',pad:{l:42,r:18,t:18,b:32},xtarget:4,ytarget:3});
+      a.stem(disc(n=>Math.pow(m,n)*Math.cos(w*Math.PI*n),-20,20),{color:C.mid,r:3.2,width:1.8});
       return a.svg(); },
-      caption:'$|\\alpha|=0.95$ decays. The frequency is $0.14\\pi$ radians per sample.'}
+      caption:'$\\operatorname{Re}\\{\\alpha^n\\}=|\\alpha|^n\\cos(\\omega_0 n)$, starting at $|\\alpha|=0.95$ and $\\omega_0=0.14\\pi$. Drag $\\omega_0$ past $\\pi$: the samples slow down again, and at $2\\pi$ they are the same as at $0$.'}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}x[n]&=C\\alpha^n\\\\&=|C|e^{j\\theta}\\bigl(|\\alpha|e^{j\\omega_0}\\bigr)^n\\\\&=|C||\\alpha|^ne^{j(\\omega_0n+\\theta)}\\\\&=|C||\\alpha|^n\\cos(\\omega_0n+\\theta)\\\\&\\quad+j|C||\\alpha|^n\\sin(\\omega_0n+\\theta)\\end{aligned}',
+    {t:'eq', tex:'\\begin{aligned}x[n]&=C\\alpha^n\\\\&=\\underbrace{|C|e^{j\\theta}}_{C}\\bigl(\\underbrace{|\\alpha|e^{j\\omega_0}}_{\\alpha}\\bigr)^n\\\\&=|C||\\alpha|^ne^{j(\\omega_0n+\\theta)}\\\\&=|C||\\alpha|^n\\cos(\\omega_0n+\\theta)\\\\&\\quad+j|C||\\alpha|^n\\sin(\\omega_0n+\\theta)\\end{aligned}',
       label:'General complex case'},
-    {t:'note', kind:'def', head:'Read $|\\alpha|$', html:'$|\\alpha|=1$ is sustained, $|\\alpha|>1$ grows, and $|\\alpha|<1$ decays. The figure uses $|\\alpha|=0.95$ and $\\omega_0=0.14\\pi$.'}
+    {t:'note', kind:'def', head:'Read $|\\alpha|$', html:'$|\\alpha|=1$ is sustained, $|\\alpha|>1$ grows, and $|\\alpha|<1$ decays.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=\\bigl(1.1e^{j\\pi/3}\\bigr)^{n}$.<div class="nsep"></div>How does the envelope behave?',
+        ask:{key:'m1-dt-cexp-c', choices:['It decays','It grows','It stays at 1'], answer:1,
+          why:'$|\\alpha|=1.1>1$; the angle $\\pi/3$ sets only the oscillation.'}}]}
   ]}
 ]},
 
 { id:'m1-dt-period', module:'M1', nav:'DT periodicity condition', title:'When is a discrete-time exponential periodic?', src:'p. 10',
   objective:'Derive N = 2πk/ω₀ and the rationality condition; work the definition example.',
   keywords:'discrete periodicity rational multiple 2pi N0 integer condition',
-  slide:true, steps:2, blocks:[
+  slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
   {t:'title', text:'Discrete-Time Periodicity Condition'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -1776,7 +1894,11 @@ REAL_IMPULSE,
       {t:'eq', tex:'\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}\\in\\mathbb{Q}', label:'Integer requirement',
         note:'Both $k$ and $N$ are integers. If the ratio is irrational, no integer period exists.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Continuous and discrete time', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$e^{j\\omega_0 t}$ is periodic for every $\\omega_0$, and each $\\omega_0$ gives a different signal.</div><div><span class="cmp-h">Discrete time</span>Periodic only if $\\omega_0/2\\pi$ is rational, and $e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$.</div></div>'}]}
+      {t:'note', kind:'warn', head:'Continuous and discrete time', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$e^{j\\omega_0 t}$ is periodic for every $\\omega_0$, and each $\\omega_0$ gives a different signal.</div><div><span class="cmp-h">Discrete time</span>Periodic only if $\\omega_0/2\\pi$ is rational, and $e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$.</div></div>'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=e^{j2n}$.<div class="nsep"></div>Is $x[n]$ periodic?',
+        ask:{key:'m1-dt-period', choices:['Yes, $N_0=\\pi$','Yes, $N_0=2\\pi$','No'], answer:2,
+          why:'$\\omega_0/2\\pi=1/\\pi$ is irrational, so no integer period exists.'}}]}
   ]}
 ]},
 
@@ -1787,7 +1909,7 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
   {t:'title', text:'Computing a Discrete-Time Period'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', code:'cexp-dt-period', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.5],xlabel:'n',ylabel:'\\operatorname{Re}\\{x[n]\\}',pad:{l:60,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(3*Math.PI*n/5),-20,20),{color:C.in,r:3});
       a.span(0,10,1.24,'N_0=10',{color:C.coral,tex:true});
@@ -1831,35 +1953,54 @@ CAT_WAVE,
 CAT_SOUND,
 CAT_RANDOM,
 
-/* Six short predictions before the summary. Each takes a few seconds and
-   needs no calculation on paper. The module's practice questions stay
-   open-ended; this slide checks recognition only. */
+/* Twelve short predictions before the summary, at least one from each
+   section of the module. Each takes a few seconds and needs no calculation
+   on paper. The module's practice questions stay open-ended; this slide
+   checks recognition only. */
 { id:'m1-quick', module:'M1', nav:'Quick check', title:'Quick check', src:'pp. 2–10',
-  objective:'Check the module ideas with six short predictions.',
-  keywords:'quick check predict energy power shift scaling periodicity',
-  budget:'A set of six prediction cards; the questions carry no figure.',
+  objective:'Check the module ideas with twelve short predictions.',
+  keywords:'quick check predict notation energy power shift scaling order periodicity even odd impulse step sifting complex exponential sign',
+  budget:'A set of twelve prediction cards; the questions carry no figure.',
   slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Quick check', src:'pp. 2–10'},
   {t:'title', text:'Quick Check'},
-  {t:'grid', cols:3, gap:'30px 28px', style:'flex:1;grid-auto-rows:1fr;padding-bottom:8px', items:[
+  {t:'grid', cols:4, gap:'22px 20px', style:'flex:1;grid-auto-rows:1fr;padding-bottom:8px', items:[
+    [{t:'note', kind:'def', head:'Notation', html:'For a sequence $x[n]$, the value at $n=1.5$ is',
+      ask:{key:'m1-qc0', choices:['the average of $x[1]$ and $x[2]$','not defined'], answer:1,
+        why:'A discrete-time signal is defined only at integer $n$.'}}],
     [{t:'note', kind:'def', head:'Energy or power', html:'$x(t)=e^{-|t|}$ is',
-      ask:{key:'m1-q1', choices:['Energy','Power','Neither'], answer:0,
+      ask:{key:'m1-qc1', choices:['Energy','Power','Neither'], answer:0,
         why:'$\\int_{-\\infty}^{\\infty}e^{-2|t|}\\,\\d t=1$ is finite.'}}],
     [{t:'note', kind:'def', head:'Energy or power', html:'$x(t)=5\\cos(3t)$ is',
-      ask:{key:'m1-q2', choices:['Energy','Power','Neither'], answer:1,
+      ask:{key:'m1-qc2', choices:['Energy','Power','Neither'], answer:1,
         why:'Each period adds the same energy, so $E_\\infty\\to\\infty$. The average power is $25/2$.'}}],
     [{t:'note', kind:'def', head:'Time shift', html:'The graph of $x(t+2)$ is the graph of $x(t)$ moved',
-      ask:{key:'m1-q3', choices:['2 to the left','2 to the right'], answer:0,
+      ask:{key:'m1-qc3', choices:['2 to the left','2 to the right'], answer:0,
         why:'$x(t+2)=x(t-t_0)$ with $t_0=-2$. A negative $t_0$ is an advance.'}}],
     [{t:'note', kind:'def', head:'Time scaling', html:'$y[n]=x[2n]$ keeps',
-      ask:{key:'m1-q4', choices:['the even-indexed samples','the odd-indexed samples'], answer:0,
+      ask:{key:'m1-qc4', choices:['the odd-indexed samples','the even-indexed samples'], answer:1,
         why:'$y[n]$ takes the value $x[2n]$, so only $x[0]$, $x[\\pm2]$, $x[\\pm4],\\dots$ remain.'}}],
+    [{t:'note', kind:'def', head:'Shift, then scale', html:'To get $x(2t-4)$, shift $x(t)$ right by',
+      ask:{key:'m1-qc5', choices:['2, then compress by 2','4, then compress by 2'], answer:1,
+        why:'$v(t)=x(t-4)$, then $v(2t)=x(2t-4)$. Shifting by 2 first gives $x(2t-2)$.'}}],
     [{t:'note', kind:'def', head:'Periodicity', html:'Is $x[n]=\\cos(n/4)$ periodic?',
-      ask:{key:'m1-q5', choices:['Yes, $N_0=8\\pi$','Yes, $N_0=8$','No'], answer:2,
+      ask:{key:'m1-qc6', choices:['Yes, $N_0=8\\pi$','Yes, $N_0=8$','No'], answer:2,
         why:'$\\omega_0/2\\pi=1/(8\\pi)$ is irrational, so no integer period exists.'}}],
-    [{t:'note', kind:'def', head:'Periodicity', html:'$x[n]=\\cos(\\pi n/4)$ has fundamental period',
-      ask:{key:'m1-q6', choices:['$N_0=4$','$N_0=8$','$N_0=8\\pi$'], answer:1,
-        why:'$\\omega_0/2\\pi=1/8$, so the sequence repeats first after 8 samples.'}}]
+    [{t:'note', kind:'def', head:'Even and odd', html:'For $t\\neq0$, the even part of $u(t)$ is',
+      ask:{key:'m1-qc7', choices:['$u(t)$','$1/2$','$0$'], answer:1,
+        why:'$\\tfrac12[u(t)+u(-t)]=\\tfrac12$, since exactly one of the two steps is 1.'}}],
+    [{t:'note', kind:'def', head:'Impulse and step', html:'$u[n]-u[n-1]$ equals',
+      ask:{key:'m1-qc8', choices:['$\\delta[n-1]$','$u[n+1]$','$\\delta[n]$'], answer:2,
+        why:'The two steps agree everywhere except at $n=0$, where the difference is 1.'}}],
+    [{t:'note', kind:'def', head:'Sifting', html:'$\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-2)\\,\\d t$ equals',
+      ask:{key:'m1-qc9', choices:['$x(2)$','$x(-2)$','$x(t-2)$'], answer:0,
+        why:'The impulse sits at $t=2$ and picks out the value of $x$ there. The result is a number.'}}],
+    [{t:'note', kind:'def', head:'Complex exponential', html:'$\\operatorname{Re}\\{e^{(-1+j2)t}\\}$ is',
+      ask:{key:'m1-qc10', choices:['a growing oscillation','a decaying oscillation','a pure sinusoid'], answer:1,
+        why:'It equals $e^{-t}\\cos 2t$. The real part $\\sigma=-1$ sets the decay and $\\omega_0=2$ the oscillation.'}}],
+    [{t:'note', kind:'def', head:'Common signals', html:'For $t\\neq0$, $\\operatorname{sgn}(t)$ equals',
+      ask:{key:'m1-qc11', choices:['$2u(t)-1$','$u(t)-1$','$2u(t)$'], answer:0,
+        why:'$2u(t)-1$ is $1$ for $t>0$ and $-1$ for $t<0$.'}}]
   ]}
 ]},
 
@@ -1868,30 +2009,33 @@ CAT_RANDOM,
   keywords:'synthesis summary module 1 review', steps:1, blocks:[
   {t:'eyebrow', text:'Module 1 · Synthesis', src:'pp. 2–10'},
   {t:'title', text:'Module 1 Summary'},
-  {t:'cols', ratio:'c-6-6', left:[
-    /* The five results as prompts: the student answers each one aloud, then
-       opens the card. The sketch on each card is the picture to remember. */
-    {t:'raw', html:()=>RECALL.deck('m1', [
-      {q:'Energy-type, power-type, or neither?', glyph:G.types,
-       a:'$E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.'},
-      {q:'$x(at-b)$: which operation comes first?', glyph:G.shift,
-       a:'<b>Shift, then scale.</b> The other order gives $x(at-ab)$.'},
-      {q:'Which period is the fundamental period?', glyph:G.period,
-       a:'$T_0$ and $N_0$ are the <b>smallest</b> positive periods; $\\omega_0=2\\pi/T_0=2\\pi/N_0$.'},
-      {q:'What kind of object is $\\delta[n]$, and what is $\\delta(t)$?', glyph:G.impulse,
-       a:'$\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.'},
-      {q:'When is a discrete-time exponential periodic?', glyph:G.dtper,
-       a:'If and only if $\\omega_0/2\\pi$ is <b>rational</b>. A continuous-time one always is.'}
-    ])},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Method', html:'<span style="color:var(--graphite)">Use a definition to test each claim. Evaluate the required limit, integral or sum. Use a plot to understand the result, but do not use its appearance as proof. Module 2 applies this method to six system properties.</span>'}]}
-  ], right:[
-    {t:'raw', html:'<p class="eyebrow hi hi-reflect" style="margin-bottom:14px">Reflection</p>'},
-    {t:'lede', text:'Choose average power for a radio transmitter and pulse energy for a radar pulse. Explain why each quantity is finite, and state the time interval required for each measurement.'},
-    {t:'reveal', at:1, items:[
-      {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
-        <span style="color:var(--graphite)">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
-  ]}
+  /* Ten results as prompts, in the order of the module: the student answers
+     each one aloud, then opens the card. The sketch on each card is the
+     picture to remember. */
+  {t:'raw', html:()=>RECALL.deck('m1', [
+    {q:'Energy-type, power-type, or neither?', glyph:G.types,
+     a:'$E_\\infty$ and $P_\\infty$ are limits. Energy-type ⇒ $P_\\infty=0$; power-type ⇒ $E_\\infty\\to\\infty$; unbounded growth ⇒ neither.'},
+    {q:'$x(at-b)$: which operation comes first?', glyph:G.shift,
+     a:'<b>Shift, then scale.</b> The other order gives $x(at-ab)$.'},
+    {q:'Which period is the fundamental period?', glyph:G.period,
+     a:'$T_0$ and $N_0$ are the <b>smallest</b> positive periods; $\\omega_0=2\\pi/T_0=2\\pi/N_0$.'},
+    {q:'How do you split a signal into even and odd parts?', glyph:G.evenodd,
+     a:'$\\Ev\\{x(t)\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x(t)\\}=\\tfrac12[x(t)-x(-t)]$. The odd part is $0$ at $t=0$.'},
+    {q:'How are $\\delta[n]$ and $u[n]$ related?', glyph:G.stepimp,
+     a:'$\\delta[n]=u[n]-u[n-1]$ and $u[n]=\\sum_{k=-\\infty}^{n}\\delta[k]$: a first difference and a running sum.'},
+    {q:'What kind of object is $\\delta[n]$, and what is $\\delta(t)$?', glyph:G.impulse,
+     a:'$\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.'},
+    {q:'Does sifting give a number or a signal?', glyph:G.sift,
+     a:'$\\int x(t)\\,\\delta(t-t_0)\\,\\d t=x(t_0)$ is a <b>number</b>. The product $x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)$ is a <b>signal</b>.'},
+    {q:'In $e^{(\\sigma+j\\omega_0)t}$, what do $\\sigma$ and $\\omega_0$ set?', glyph:G.cexp,
+     a:'$\\sigma$ sets the envelope $e^{\\sigma t}$: growth for $\\sigma>0$, decay for $\\sigma<0$. $\\omega_0$ sets the oscillation.'},
+    {q:'When is a discrete-time exponential periodic?', glyph:G.dtper,
+     a:'If and only if $\\omega_0/2\\pi$ is <b>rational</b>. A continuous-time one always is.'},
+    {q:'Are $e^{j\\omega_0 n}$ and $e^{j(\\omega_0+2\\pi)n}$ different?', glyph:G.alias,
+     a:'<b>No.</b> They are the same sequence, so discrete-time frequencies repeat every $2\\pi$.'}
+  ], {cols:2})},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'ok', head:'Method', html:'<span style="color:var(--graphite)">Use a definition to test each claim. Evaluate the required limit, integral or sum. Use a plot to understand the result, but do not use its appearance as proof. Module 2 applies this method to six system properties.</span>'}]}
 ]},
 
 /* Four optional projects for students who want to try the module on their own

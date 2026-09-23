@@ -401,7 +401,9 @@ const APP = (() => {
     return true;
   }
   /* The practice questions follow the teaching scenes. `row` is given the
-     scene, not a position, so both surfaces place it the same way. */
+     scene, not a position, so both surfaces place it the same way; the third
+     argument marks the practice row so the rail can draw it at heading level,
+     where the chapter heading above already names the module. */
   function chapterRows(ch, row, head, collapse){
     const out = [];
     ch.sections.forEach(sec=>{
@@ -410,7 +412,7 @@ const APP = (() => {
       if(titled) out.push(head(sec, open));
       if(open) sec.scenes.forEach(s=>out.push(row(s, titled)));
     });
-    if(ch.q.drill) out.push(row(ch.q.drill));
+    if(ch.q.drill) out.push(row(ch.q.drill, false, true));
     return out.join('');
   }
 
@@ -440,9 +442,9 @@ const APP = (() => {
       const rows = chapterRows(ch,
         /* A scene inside an open section is marked, so the rail can draw a
            rule down the left of the run and show where the section ends. */
-        (s, inSec) => `<li class="${inSec?'insec':''}"><a data-act="goto" data-id="${s.id}" tabindex="0"
+        (s, inSec, drill) => `<li class="${inSec?'insec':drill?'cdrill':''}"><a data-act="goto" data-id="${s.id}" tabindex="0"
                 class="${s.id===cur.id?'on':''}${state.visited[s.id]?' seen':''}"
-                >${label(s)}</a></li>`,
+                >${drill?`<span class="cnum">${s.sec}</span><span class="ctitle">Practice questions</span>`:label(s)}</a></li>`,
         (sec, open) => `<li class="csec"><button type="button" data-act="sec" data-sec="${sec.n}"
                 aria-expanded="${open}" class="${open?'open':''}"
                 ><span class="cnum">${sec.n}</span><span class="ctitle">${RENDER.md(sec.title)}</span
