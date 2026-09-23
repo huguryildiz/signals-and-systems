@@ -19,6 +19,7 @@
   <img src="https://img.shields.io/badge/Playwright-0b1220?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
   <img src="https://img.shields.io/badge/Vercel-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
   <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/signals--and--systems--tedu.vercel.app-live-4F46E5?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live"></a>
+  <a href="https://github.com/huguryildiz/signals-and-systems/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/huguryildiz/signals-and-systems/checks.yml?branch=main&style=for-the-badge&label=checks" alt="Checks"></a>
 </p>
 
 <h3 align="center">
