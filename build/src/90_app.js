@@ -120,7 +120,7 @@ const RENDER = (() => {
     body:    b => `<div class="body ${b.cls||''}">${symLinks(md(b.html))}</div>`,
     small:   b => `<div class="small">${symLinks(md(b.html))}</div>`,
     rule:    b => `<hr class="rule ${b.short?'short':''}">`,
-    eq:      b => `<div class="eq ${b.plain?'plain':''} ${b.key?'key':''} ${b.size||''}">
+    eq:      b => `<div class="eq ${b.plain?'plain':''} ${b.key?'key':''} ${b.result?'result':''} ${b.side?'side':''} ${b.size||''}">
         ${b.label?`<div class="eq-label">${md(b.label)}</div>`:''}
         ${tex(b.tex,true)}
         ${b.note?`<div class="eq-note">${symLinks(md(b.note))}</div>`:''}</div>`,

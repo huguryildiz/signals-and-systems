@@ -1178,7 +1178,7 @@ body[data-motion=reduced] *{ transition-duration:1ms !important; animation-durat
 .ask-opt:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
 .ask-opt[aria-disabled]{ cursor:default; }
 .ask-opt.is-right{ border-color:var(--sig-out); background:var(--sig-out-soft); font-weight:600; }
-.ask-opt.is-wrong{ border-color:var(--sig-err); background:var(--sig-err-soft); text-decoration:line-through; }
+.ask-opt.is-wrong{ border-color:var(--sig-err); background:var(--sig-err-soft); }
 .ask-opt.is-dim{ color:var(--muted); }
 .ask-opt.is-right::before, .ask-opt.is-wrong::before{
   content:""; width:1em; height:1em; flex:none; background:currentColor;
@@ -1262,3 +1262,58 @@ body[data-theme=dark] .listen-btn{ color:var(--slate); }
 .sk-btn[aria-pressed=true]{ border-color:var(--coral); color:var(--coral); }
 body[data-theme=dark] .sk-btn:not([aria-pressed=true]){ color:var(--slate); }
 @media print{ .fig.sketch .sk-key{ opacity:1 !important; } .sk-ink{ display:none; } }
+
+
+/* ---------- card language additions (DESIGN.md, "Inside a card") ----------
+   Classes used inside a card's html or on an equation block. None is a block
+   of its own, so the slide budget counts them as the card they sit in. */
+
+/* comparison panel: two halves of one card, a hairline between them */
+.scene.slide .cmp{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.scene.slide .cmp > div{ padding-right:20px; }
+.scene.slide .cmp > div + div{ padding:0 0 0 20px; border-left:1px solid var(--rule); }
+.scene.slide .cmp-h{ display:block; margin-bottom:6px;
+  font-family:var(--mono); font-size:calc(13.5px * var(--ts)); letter-spacing:.12em;
+  text-transform:uppercase; font-weight:600; color:var(--slate-deep); }
+body[data-theme=dark] .scene.slide .cmp-h{ color:var(--slate); }
+
+/* property chips: a verdict on a named property, never colour alone */
+.scene.slide .chips{ display:inline-flex; flex-wrap:wrap; gap:8px 10px; margin-left:12px; vertical-align:.1em; }
+.scene.slide .chip{ display:inline-flex; align-items:center; gap:.45em;
+  padding:3px 12px 3px 9px; border:1px solid currentColor; border-radius:var(--radius);
+  font-family:var(--mono); font-size:calc(14.5px * var(--ts)); letter-spacing:.06em;
+  text-transform:uppercase; font-weight:600; line-height:1.5; }
+.scene.slide .chip::before{ content:""; width:1.05em; height:1.05em; background:currentColor;
+  -webkit-mask:var(--chip-i) center/contain no-repeat; mask:var(--chip-i) center/contain no-repeat; }
+.scene.slide .chip.yes{ color:var(--sig-out); background:var(--sig-out-soft);
+  --chip-i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E"); }
+.scene.slide .chip.no{ color:var(--sig-err); background:var(--sig-err-soft);
+  --chip-i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"); }
+
+/* step strip: a numbered procedure, one line a step */
+.scene.slide ol.steps{ list-style:none; counter-reset:st; margin:12px 0 0; padding:0; }
+.scene.slide ol.steps > li{ counter-increment:st; position:relative; padding:0 0 10px 46px; }
+.scene.slide ol.steps > li:last-child{ padding-bottom:0; }
+.scene.slide ol.steps > li::before{ content:counter(st); position:absolute; left:0; top:.1em;
+  width:1.5em; height:1.5em; display:grid; place-items:center;
+  border:1.5px solid var(--coral); border-radius:50%; color:var(--coral);
+  font-family:var(--mono); font-size:calc(15px * var(--ts)); font-weight:600; }
+
+/* key result: the one result a module carries forward; a coral frame all round */
+.scene.slide .eq.result{ border-color:var(--coral);
+  background:linear-gradient(0deg,rgba(190,85,57,.075),rgba(190,85,57,.075)),var(--paper-2); }
+body[data-theme=dark] .scene.slide .eq.result{
+  background:linear-gradient(0deg,rgba(224,154,106,.11),rgba(224,154,106,.11)),rgba(255,255,255,.035); }
+
+/* margin note: the reason for a step, beside the equation instead of under it */
+.scene.slide .eq.side{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.9fr);
+  align-items:center; column-gap:24px; }
+.scene.slide .eq.side > .eq-note{ margin:0; padding-left:20px; border-left:1px solid var(--rule);
+  font-family:var(--serif); font-style:italic; font-size:calc(19.5px * var(--ts)); line-height:1.42; color:var(--muted); }
+
+/* value chip: a result read off as one number and what it is */
+.scene.slide .val{ display:inline-flex; align-items:baseline; gap:14px; margin-left:10px;
+  padding:2px 14px; vertical-align:baseline; background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius); }
+.scene.slide .val > b .katex{ font-size:1.35em; color:var(--ink); }
+.scene.slide .val > small{ font-family:var(--mono); font-size:calc(13.5px * var(--ts));
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
