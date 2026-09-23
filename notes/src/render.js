@@ -2,7 +2,7 @@
 (function(){
   /* Mathematics that does not parse is reported to the console before it falls
      back, so that a broken formula shows up in the build instead of on the page. */
-  const OPT={strict:false,macros:{'\\d':'\\mathrm{d}','\\Ev':'\\mathcal{E}\\mathrm{v}','\\Od':'\\mathcal{O}\\mathrm{d}'}};
+  const OPT={strict:false,macros:{'\\d':'\\mathrm{d}','\\Ev':'\\mathcal{E}\\mathrm{v}','\\Od':'\\mathcal{O}\\mathrm{dd}'}};
   const T=(s,d)=>{ try{ return katex.renderToString(s,Object.assign({displayMode:!!d,throwOnError:true},OPT)); }
       catch(e){ console.error('NOTES: mathematics is not valid TeX: '+s+' — '+e.message);
                 try{ return katex.renderToString(s,Object.assign({displayMode:!!d,throwOnError:false},OPT)); }
