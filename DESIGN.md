@@ -205,7 +205,7 @@ Mono is used for labels and addresses only, never for running text.
 | body | 19 px / 1.55 | max width 900 px |
 | card body | 21.5 px / 1.52 | **new**; was 17.5 px |
 | label / tab | 13.5 px mono, `.12em`, 600 | **new**; was 12.5 px |
-| equation | 15.2 px legacy base; converted slides 19 px and converted-module laboratories 18 px, KaTeX at 1.30 em; slide `lg` 1.68 em | scales with `--ts` |
+| equation | 19 px, KaTeX at 1.30 em, in every scene, laboratory and display mode; no `lg` or `sm` size | scales with `--ts`; see Equation |
 | explanation below a slide equation | 21.5 px / 1.52 | matches the information-card body; legacy equations retain 15 px |
 | figure caption | 18 px / 1.45 on converted slides and converted-module laboratories | legacy scenes remain 14 px |
 
@@ -345,6 +345,12 @@ Raised panel, hairline border, 3 px coral left edge. An equation with a `label` 
 card, in coral, no icon: `Step 1 · Energy`. `.eq.key` adds a faint coral tint. `.eq.plain` has no
 frame.
 
+Every equation block sets its mathematics at one size: 19 px with KaTeX at 1.30 em. A block does not
+choose a larger or smaller size; `size:'lg'` and `size:'sm'` on a block have no effect. An equation
+wider than its column is the one exception: `fitScene()` in `90_app.js` sets it smaller until it fits,
+down to 0.75 em, so it never runs into the figure beside it. A formula that reaches that floor is too
+long for its column and belongs split over two lines.
+
 ### Worked example
 
 Given, Find, Method, Solution, Check (R7). On a slide these are cards, not the rows of a `wex` ladder:
@@ -352,6 +358,67 @@ Given, Find, Method, Solution, Check (R7). On a slide these are cards, not the r
 equation, `Solution` is a green card, and `Check` or `Common error` closes the column. The `wex` block
 stays for the property tables, where a row is one `\leftrightarrow` correspondence; its key column is
 136 px, which holds `DIFFERENTIATION` in tracked mono without a mid-word break.
+
+### Interaction on a slide — DECIDED 2026-09-23, built in Module 1
+
+Three additions to existing blocks. None is a block of its own, so the slide budget still counts one
+figure and two or three cards. Each is rendered in `build/src/90_app.js` and styled at the end of
+`build/src/10_style.css`; every text field goes through `md()`.
+
+- **A prediction in a card (`note.ask`).** A card that already asks a question can carry
+  `ask:{key, q?, choices, answer, why?}`. The choices are buttons under the card text. The first click
+  marks the right choice green with a check and a wrong pick red with a cross and a strike, so colour
+  is never the only signal. `why` is optional. When it is given, its line is laid out from the start
+  and made visible on the answer, so nothing on the slide moves. On a worked example whose reveal
+  steps give the solution, leave `why` out: it costs a line that the slide does not have in lecture
+  mode. Answers last for the session and are not stored.
+  Every teaching slide carries one such card with the head **Given**: the given line, a
+  `.nsep` rule, the question, then the choices. The content rule is in
+  `.claude/rules/content-writing.md`. A prediction card has its own form (`.note.ask`): a coral
+  edge and tab with a question-mark icon, a dashed frame, the question after the rule in the
+  lede's serif italic (`.ask-prompt`), and each choice led by a mono letter in a ring (A, B, C, D).
+  On the answer the letter gives way to the check or the cross in the same width; the other
+  choices dim with their letters.
+- **Sliders under a figure (`fig.live`).** `live:{controls:[{k, label, min, max, step, v, show?}]}`.
+  `svg` then takes the current values, `svg:v=>…`, and falls back to the default when `v` is absent.
+  A slider redraws the figure at its current, possibly grown, height. The default value is the figure
+  the slide showed before it had a slider, and it is the state the gates sweep.
+- **Sound under a figure (`fig.listen`).** `listen:{items:[{label, sound:v=>({f, dur})}]}`. `f` is
+  the signal as a function of seconds, from the same formula the figure draws. The renderer samples
+  it with Web Audio, sets one peak level, adds a 6 ms fade at each end and plays it once. A second
+  press stops it; changing scene stops it. Nothing is fetched.
+
+Sliders and sound buttons share one row under the figure (`.fxbar`); the everyday link goes in the
+caption, one sentence. Control labels are at least 17 px, values 20 px, all times `--ts`. A focused
+button on the slide keeps its own Space key; the arrow keys still change the scene. Print and PDF
+hide the controls and keep the default figure.
+
+A **quick-check slide** closes a module before its summary: six `note.ask` cards in a 3×2 grid,
+each answerable in a few seconds. It carries `budget:` because it has no figure. The module's
+practice questions stay open-ended.
+
+A **module summary is a recall deck** (DECIDED 2026-09-23, built in Modules 1–3). Each result the
+module carries forward is one card: the front is a short question in the lede's serif italic, the back
+is the answer in card body type, one or two sentences. The student answers first, then clicks the card
+to check. The scene calls it through a raw block, `{t:'raw', html:()=>RECALL.deck(id, cards, {cols})}`
+with `cards = [{q, a, tag?, glyph?}]`, so the block schema does not change; `q`, `a` and `tag` go
+through `md()`.
+
+- Both faces share one grid cell, so a card is as tall as its longer face and opening it moves
+  nothing. The open card takes a coral left edge and a coral number; the flip is a short `rotateX`
+  that `data-motion=reduced` and `prefers-reduced-motion` turn off.
+- A bar above the deck counts `Recalled k of N` and holds one `Show all / Hide all` button. Opened
+  cards last for the session, so a reveal step does not close them; nothing is stored.
+- The answer must stand without its question: when the front is only a name (a property, a step),
+  the answer opens with that name in bold, `<b>Causal.</b> …`.
+- `glyph` is an optional inline SVG sketch, about 92×44 in viewBox units, drawn in the dark-page
+  signal tints because summary pages are navy. It is the picture to remember, not a figure: no axes,
+  no labels, and the signal colour semantics still hold. Use it on every card of a deck or on none.
+- `tag` is a short mono label that sorts the cards (for example `Limit` and `LTI`). `cols:2` suits
+  short answers; long answers take one column.
+- The deck replaces the summary's list of results in the left column. The reflection or the preview
+  of the next module stays in the right column, and the method note stays a reveal step under the
+  deck.
 
 ### A laboratory on a slide — DECIDED 2026-09-23, built for Laboratories A–C
 
@@ -367,7 +434,7 @@ their current look until their module is converted.
 - The laboratory builds these cards inside its own containers (`.derive`, `.aper`, `.work`), and the
   tab room applies there as it does in a column. The control panel has no tab, so a laboratory
   column starts at the top edge.
-- Type is the Laboratory A scale: control labels, readout keys and tabs 16 px, control values 20 px,
+- Type is the Laboratory B scale: control labels, readout keys and tabs 16 px, control values 20 px,
   readout values 21 px, card text 19 px, the signal equation at the top 22 px, all times `--ts`.
   Plot text grows by narrowing the viewBox, not by a font override.
 - The laboratory must fit at k = 1 in normal display. When the tabs push it over, shorten it before
@@ -448,6 +515,23 @@ A single green phosphor is what a real tube would have and is wrong here, becaus
 output. The screen furniture — graticule `#1E2A2E`, shadow mask `#060B0D`, edge `#25343A`, face
 `#0A0F12` — is registered in `textclash.js` as guide and plate tokens. Nothing else may take these
 colours.
+
+### Module openings are animated — DECIDED 2026-09-23
+
+Every module opening scene (`mN-open`) animates its signals. A continuous-time trace draws itself in
+(`.mtf-trace`) and a highlight then sweeps it on the 7 s cycle (`.mtf-sparkwrap`, `.mtf-beam`,
+`.mtf-beam-tail`). Discrete-time stems rise in turn (`.mtf-stem`, `--i` = index) and a pop runs along
+their tips (`.mtf-stem-dot`). Reuse these classes; do not add a second motion system. The usual way
+in is `opts.anim` on `curve()` (`{delay, sweep}`, where `sweep` is the highlight colour) and on
+`stem()` (`{delay, step, tip}`); it draws with `pathLength="1"`, `.mtf-sweep` and `.mtf-tip`. A
+dashed curve is not animated, because the draw-in replaces its dash pattern. `m1-open` builds its
+trace with `a.raw()` instead; either is allowed. An opening with no signal figure (`m2-open`) fades
+its items in turn with `.mtf-fade`.
+
+The rules of the title motif hold here too: nothing is displaced and nothing disappears, so the
+resting state is the complete figure, which is what prints and what reduced motion shows. The print
+and reduced-motion overrides for `.mtf-*` already cover it. An opening figure is drawn on a narrower
+canvas than its column (`w:520`) so its labels read at back-row size on the navy page.
 
 ### Contents rail
 

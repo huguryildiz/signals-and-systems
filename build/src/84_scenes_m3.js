@@ -23,8 +23,8 @@ const SC = [
     {t:'fig', svg:()=>{
       const a=P.Axes({w:760,h:430,xr:[-1,9],yr:[-0.4,2.4],grid:false,zeroAxes:false,arrows:false,
         pad:{l:20,r:20,t:20,b:20},xticksOverride:[],yticksOverride:[]});
-      a.stem(disc(n=>(n>=0&&n<=3)?[1,2,1,2][n]:0,-1,9),{color:'#7FC3CE',r:5,width:2.2});
-      a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]*0.5:0,-1,9),{color:'#8FBF8A',r:5,width:2.2});
+      a.stem(disc(n=>(n>=0&&n<=3)?[1,2,1,2][n]:0,-1,9),{color:'#7FC3CE',r:5,width:2.2,anim:{delay:.2,step:.12,tip:true}});
+      a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]*0.5:0,-1,9),{color:'#8FBF8A',r:5,width:2.2,anim:{delay:1.1,step:.12,tip:true}});
       return a.svg(); }}
   ]}
 ]},
@@ -570,12 +570,15 @@ const SC = [
   {t:'eyebrow', text:'Module 3 · Synthesis', src:'pp. 14–21'},
   {t:'title', text:'Module 3 Summary'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)"><b>1.</b> Confirm the system is LTI. Nothing below is valid otherwise.</p>
-      <p style="color:var(--graphite)"><b>2.</b> Choose which signal to flip — the simpler one.</p>
-      <p style="color:var(--graphite)"><b>3.</b> Write the support of each factor as an inequality in the dummy variable.</p>
-      <p style="color:var(--graphite)"><b>4.</b> Equate the moving edges with the fixed edges to list <em>every</em> case boundary before integrating anything.</p>
-      <p style="color:var(--graphite)"><b>5.</b> Integrate or sum case by case.</p>
-      <p style="color:var(--graphite)"><b>6.</b> Check continuity at each boundary, check that supports add, and check that total area (or total sum) multiplies.</p>`},
+    /* The six-step checklist as prompts: recall each step in order, then open it. */
+    {t:'raw', html:()=>RECALL.deck('m3', [
+      {q:'Before you start', a:'Confirm the system is LTI. Nothing below is valid otherwise.'},
+      {q:'Which signal do you flip?', a:'The simpler one.'},
+      {q:'How do you describe each support?', a:'Write the support of each factor as an inequality in the dummy variable.'},
+      {q:'Where are the case boundaries?', a:'Equate the moving edges with the fixed edges. List <b>every</b> case boundary before integrating anything.'},
+      {q:'How do you evaluate?', a:'Integrate or sum case by case.'},
+      {q:'How do you check the result?', a:'Check continuity at each boundary, check that supports add, and check that total area (or total sum) multiplies.'}
+    ])},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'Use each final check for a specific purpose', html:'<span style="color:var(--graphite)">A mismatch at a case boundary indicates an incorrect limit. An incorrect output support indicates an error in a shift, reversal, or support condition. An incorrect total area or sum indicates an error in the integrand or summand.</span>'}]}
   ], right:[

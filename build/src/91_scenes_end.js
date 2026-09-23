@@ -68,7 +68,7 @@ const SC = [
       ]}]}
   ], right:[
     {t:'sub', text:'Where the practice sits'},
-    {t:'body', html:`<p>Laboratories A to J let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
+    {t:'body', html:`<p>Laboratories A to L let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, even and odd parts, the sifting property of the impulse, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
       <p>Every module from 1 to 7 ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'How to practise', html:'Use a laboratory first to connect each control with its plotted effect. Then close the solution panels and answer the module questions. The laboratory shows the behaviour; the questions test whether you can predict it.'}]}

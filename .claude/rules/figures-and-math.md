@@ -15,6 +15,8 @@ Read `DESIGN.md` before changing a scene, figure, or style. Respect its LOCKED d
 
 **R7 — Figures and examples.** Worked examples use Given, Find, Method, Solution, Check. Label every axis. Draw CT signals as curves, DT signals as stems, and impulses as arrows whose height is the weight. Every piece of mathematics in a figure is TeX with `tex:true`, never a plain string, Unicode substitute (`∞ ² ₁ Σ ∫ − τ ω ⇒ → × · ≤ ≥`), or `italic:true`. Double TeX backslashes in JavaScript strings (`'\\;'`, `'\\text{...}'`); a bare `;` or stray tab in a label can indicate a lost backslash. No drawing may cross text; labels must not overlap. An axis name must not touch data, axes, arrowheads, or ticks: widen `pad` rather than moving the name inside. Captions explain meaning, not provenance. A legend is 19 px (21 px in projector mode), set only on `.legend` in `10_style.css`; never size a legend per scene or shrink it below the caption. See `DESIGN.md`, Components and Figures, for mechanics.
 
+**Sticky notes in figures.** A figure may carry a short rule as a sticky note drawn inside the SVG: a `#F3DC7A` rectangle about 56 px high, tilted 2–3 degrees, with an offset `rgba(0,0,0,.28)` shadow, dark `#232B33` TeX text at 15 px, and `--fig-halo:#F3DC7A` on the group. Every sticky note has a red pin at the centre of its top edge: a `#D13B3B` circle of radius 7 with a small white highlight and an elliptical shadow, drawn inside the rotated group. Place the note where it crosses no data or label, and widen the axis range to make room if necessary. The notes in `m1-power` and `m1-periodic-b` (`build/src/82_scenes_m1.js`) are the reference.
+
 **R8 — Typeset mathematics in every student-facing field.** Route eyebrows, equation labels, callout titles, card tabs, worked-example keys, table heads, contents entries, and captions through `md()`. A new block type in `build/src/90_app.js` or `notes/src/render.js` must route every text field through `md()` in the same commit. Keep the `.katex` `text-transform` and `letter-spacing` resets in both stylesheets.
 
 **R9 — Check these rules mechanically.** Run the relevant gates in `build-pipeline.md`. Inspect screenshots after visual changes; gates cannot see every flaw.
@@ -26,6 +28,6 @@ state. Record the projector fit factor and confirm it is at least 0.90 without c
 larger type causes a poor fit, reflow the controls or readouts, or split the scene; do not shrink the
 type back down or apply an unverified font override to every laboratory.
 
-Keep the KaTeX macro lists in `60_plot.js` and `90_app.js` in step. `PLOT` and `APP` are top-level `const`, not `window` properties; use their bare identifiers in Playwright `page.evaluate`.
+Keep the KaTeX macro lists in `60_plot.js`, `90_app.js`, and `notes/src/render.js` in step. The even and odd parts are written `\Ev\{x(t)\}` and `\Od\{x(t)\}`, which render as $\mathcal{E}\mathrm{v}$ and $\mathcal{O}\mathrm{dd}$. Never shorten the odd operator to "Od" in a macro, a plain-text label, or hand-written TeX. `PLOT` and `APP` are top-level `const`, not `window` properties; use their bare identifiers in Playwright `page.evaluate`.
 
 Never run blanket search-and-replace over `build/src/*.js`. JavaScript statement terminators and TeX thin spaces use semicolons differently. Edit labels individually, then run `node --check build/src/8*.js build/src/9*.js`.

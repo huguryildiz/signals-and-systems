@@ -104,10 +104,10 @@ const SC = [
     {t:'fig', svg:()=>{
       const a=P.Axes({w:820,h:430,xr:[-3*PI,3*PI],yr:[-0.55,4.6],grid:false,zeroAxes:false,arrows:false,
         pad:{l:24,r:24,t:24,b:24},xticksOverride:[],yticksOverride:[]});
-      a.curve(w=>twoSide(w,0.6)*0.62+3.0,{color:'#7FC3CE',width:2.4,n:2400});
-      a.curve(w=>dirich(wrap(w),2)*0.16+1.85,{color:'#AC99DC',width:2.2,n:2400});
-      a.curve(w=>geoMag(w,0.7)*0.30+0.75,{color:'#E5B255',width:2.2,n:2400});
-      a.curve(w=>lpf(w,PI/2)*0.55-0.15,{color:'#8FBF8A',width:2.4,n:4000});
+      a.curve(w=>twoSide(w,0.6)*0.62+3.0,{color:'#7FC3CE',width:2.4,n:2400,anim:{delay:0,sweep:'#D9F3F7'}});
+      a.curve(w=>dirich(wrap(w),2)*0.16+1.85,{color:'#AC99DC',width:2.2,n:2400,anim:{delay:.35,sweep:'#E6DEF7'}});
+      a.curve(w=>geoMag(w,0.7)*0.30+0.75,{color:'#E5B255',width:2.2,n:2400,anim:{delay:.7,sweep:'#F7E6C2'}});
+      a.curve(w=>lpf(w,PI/2)*0.55-0.15,{color:'#8FBF8A',width:2.4,n:4000,anim:{delay:1.05,sweep:'#E4F4E1'}});
       for(const m of [-3,-1,1,3]) a.vline(m*PI,{color:'#6D7F8C',dash:'2 6',opacity:.7});
       return a.svg(); },
       caption:'Four different sequences, four different spectra, one shared property: each picture repeats itself every $2\\pi$ along the frequency axis.'}

@@ -122,8 +122,6 @@ body[data-display=projector] .ctrl label,
 body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
 body[data-display=projector] .legend{ font-size:calc(21px * var(--ts)); }
 body[data-display=projector] .eq .katex{ font-size:1.30em; }
-body[data-display=projector] .eq.lg .katex{ font-size:1.58em; }
-body[data-display=projector] .eq.sm .katex{ font-size:1.12em; }
 body[data-display=projector] .katex{ font-size:1.10em; }
 body[data-display=projector]{ --rule:#C2BCB0; }      /* stronger hairlines */
 body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
@@ -399,6 +397,77 @@ h3.sub{
 }
 .card .body{ font-size:calc(17px * var(--ts)); line-height:1.5; }
 
+/* recall deck: a module summary as prompts. A closed card shows the question
+   in the lede's italic; an open card shows the answer in body type and takes a
+   coral edge. Both faces sit in one grid cell, so a card is as tall as its
+   longer face and opening it never moves anything else on the slide. */
+.recall-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  font-family:var(--mono); font-size:calc(14px * var(--ts)); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:14px;
+}
+.recall-count b{ color:var(--coral); font-weight:600; }
+.recall-all{
+  font:inherit; letter-spacing:inherit; text-transform:inherit; color:var(--slate-deep);
+  background:transparent; border:1px solid var(--rule-strong); border-radius:var(--radius);
+  padding:6px 10px; cursor:pointer;
+  transition:background 160ms var(--ease),color 160ms var(--ease),border-color 160ms var(--ease);
+}
+.recall-all:hover,.recall-all:focus-visible{ background:var(--coral); border-color:var(--coral); color:var(--paper); outline:none; }
+.recall-list{
+  list-style:none; margin:0; padding:0;
+  display:grid; grid-template-columns:repeat(var(--rc-cols),minmax(0,1fr)); gap:12px 14px;
+}
+.recall-list > li{ display:flex; }
+.recall-card{
+  flex:1; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:18px;
+  width:100%; margin:0; padding:20px 22px 20px 18px; text-align:left; cursor:pointer;
+  font:inherit; color:var(--ink);
+  background:var(--paper-2); border:1px solid var(--rule); border-left:3px solid var(--rule-strong);
+  border-radius:var(--radius);
+  transition:border-color 220ms var(--ease),background 220ms var(--ease);
+}
+.recall-card:hover{ background:var(--paper-3); border-left-color:var(--slate); }
+.recall-card:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
+.recall-card.is-open{ border-left-color:var(--coral); }
+.rc-num{
+  font-family:var(--mono); font-size:calc(26px * var(--ts)); line-height:1; color:var(--slate);
+  min-width:1.2em; text-align:center; transition:color 220ms var(--ease);
+}
+.recall-card.is-open .rc-num{ color:var(--coral); }
+.rc-faces{ display:grid; perspective:900px; }
+.rc-face{
+  grid-area:1/1; align-self:center; backface-visibility:hidden;
+  transition:transform 380ms var(--ease),opacity 260ms var(--ease),visibility 0s linear 0s;
+}
+.rc-q{
+  font-family:var(--serif); font-style:italic; font-size:calc(25px * var(--ts)); line-height:1.3; color:var(--ink);
+}
+.rc-a{
+  font-family:var(--sans); font-size:calc(20px * var(--ts)); line-height:1.45; color:var(--graphite);
+  opacity:0; visibility:hidden; transform:rotateX(-80deg); transform-origin:50% 0;
+  transition:transform 380ms var(--ease),opacity 260ms var(--ease),visibility 0s linear 380ms;
+}
+.rc-a b{ color:var(--ink); }
+.recall-card.is-open .rc-q{
+  opacity:0; visibility:hidden; transform:rotateX(80deg); transform-origin:50% 100%;
+  transition:transform 380ms var(--ease),opacity 200ms var(--ease),visibility 0s linear 380ms;
+}
+.recall-card.is-open .rc-a{
+  opacity:1; visibility:visible; transform:none;
+  transition:transform 380ms var(--ease),opacity 260ms var(--ease) 60ms,visibility 0s;
+}
+.rc-tag{
+  display:inline-block; margin-right:12px; vertical-align:middle; line-height:1.3;
+  font-family:var(--mono); font-style:normal; font-size:calc(11.5px * var(--ts)); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--slate-deep);
+  border:1px solid var(--rule-strong); border-radius:var(--radius); padding:2px 6px;
+}
+.rc-glyph{ display:block; width:124px; opacity:.92; }
+.rc-glyph svg{ display:block; width:100%; height:auto; overflow:visible; }
+body[data-motion=reduced] .rc-face{ transition:none; transform:none; }
+@media (prefers-reduced-motion:reduce){ .rc-face{ transition:none; transform:none; } }
+
 /* vertical rhythm: two blocks in the same flow never touch. Headings, the lede
    and rules carry their own bottom margin, so nothing is added after them. */
 :where(.scene-inner, .col, .reveal, .gcell, .card)
@@ -409,7 +478,7 @@ h3.sub{
    ========================================================================== */
 .eq{
   position:relative; margin:10px 0; padding:14px 22px 14px 26px;
-  font-size:calc(15.2px * var(--ts));
+  font-size:calc(19px * var(--ts));
   background:var(--paper-2);
   border:1px solid var(--rule);
   border-left:3px solid var(--coral);
@@ -419,8 +488,6 @@ h3.sub{
 .eq.key{ background:linear-gradient(0deg,rgba(190,85,57,.045),rgba(190,85,57,.045)),var(--paper-2); }
 .eq .katex-display{ margin:0; }
 .eq .katex{ font-size:1.30em; }
-.eq.lg .katex{ font-size:1.58em; }
-.eq.sm .katex{ font-size:1.12em; }
 .eq-label{
   font-family:var(--mono); font-size:calc(12px * var(--ts)); letter-spacing:.12em;
   text-transform:uppercase; color:var(--slate); margin-bottom:6px;
@@ -498,8 +565,8 @@ figure.fig{ margin:0; display:flex; flex-direction:column; gap:7px; min-height:0
 figure.fig svg{ display:block; width:100%; height:auto; }
 #scene-host svg{ display:block; width:100%; height:auto; }
 /* an axis name is typeset mathematics inside the figure; the small svg pieces a
-   formula uses for roots and stretched brackets keep their own intrinsic size */
-figure.fig .katex svg, #scene-host .katex svg{ display:inline; width:auto; height:auto; }
+   formula uses for roots and stretched brackets get back KaTeX's own sizing */
+figure.fig .katex svg, #scene-host .katex svg{ display:block; width:100%; height:inherit; }
 /* The rule above makes every svg in a scene a full-width figure. The book icon
    in the eyebrow is not a figure and has to opt out by the same id, or it fills
    the column. */
@@ -630,12 +697,9 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 }
 
 /* An equation takes the card's padding. One with a label is the same card with
-   a coral tab; one without keeps the look it has outside a slide. `:where`
-   keeps the larger `lg` size under the lecture-mode rule, which is larger
-   still and has to win there. */
+   a coral tab; one without keeps the look it has outside a slide. Every
+   equation block sets its mathematics at one size, on a slide or off it. */
 .scene.slide .eq:not(.plain){ padding:16px 22px 16px 24px; }
-:where(.scene.slide) .eq{ font-size:calc(19px * var(--ts)); }
-:where(.scene.slide) .eq.lg .katex{ font-size:1.68em; }
 .scene.slide .eq-note{ font-size:calc(21.5px * var(--ts)); line-height:1.52; }
 
 /* Room for the tab. Only a card with a head and an equation with a label have
@@ -660,9 +724,16 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 /* Laboratory C sets p and q side by side, so its cards keep the type floor */
 .scene.slide .lab[data-lab="C"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="C"] .ctrl:is(:first-child, :last-child){ grid-column:1 / -1; }
+/* Laboratory L sets its two sliders side by side */
+.scene.slide .lab[data-lab="L"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="L"] .ctrl:nth-child(-n+2){ grid-column:1 / -1; }
+/* Laboratory K sets domain and shift side by side, the domain buttons under their label */
+.scene.slide .lab[data-lab="K"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="K"] .ctrl:first-child{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="K"] .ctrl:nth-child(2) label{ flex-direction:column; align-items:flex-start; gap:7px; }
 .scene.slide .lab .col > :is(.derive, .aper, .work){ margin-top:0; }
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
-/* Laboratory B keeps its signal, plot and verdict together at the top */
+/* Laboratory A keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
@@ -767,10 +838,29 @@ body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,b
 .mtf-stem-dot{ animation:mtf-pop 7s var(--ease) calc(2.1s + var(--i) * .1s) infinite; }
 @keyframes mtf-pop{ 0%,50%{ r:4 } 56%{ r:6.6 } 66%,100%{ r:4 } }
 
+/* module openings: the same motion for figures drawn through curve() and stem()
+   with opts.anim. The traces carry pathLength="1", so the sweep is measured in
+   fractions of the trace and needs no drawn length. The tip pop scales the dot
+   instead of setting its radius, so it works for any stem size. */
+.mtf-sweep{
+  stroke-dasharray:.06 3; stroke-dashoffset:.06;
+  animation:mtf-sweep 7s cubic-bezier(.4,0,.5,1) 2.1s infinite;
+}
+@keyframes mtf-sweep{
+  0%      { stroke-dashoffset:.06 }
+  26%,100%{ stroke-dashoffset:-1 }
+}
+.mtf-tip{
+  transform-box:fill-box; transform-origin:center;
+  animation:mtf-tip 7s var(--ease) 2.1s infinite;
+}
+@keyframes mtf-tip{ 0%,50%{ transform:scale(1) } 56%{ transform:scale(1.6) } 66%,100%{ transform:scale(1) } }
+
 /* the highlight is the one purely visual motion here: it stops entirely when
    motion is reduced, and never appears on paper */
 body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 @media (prefers-reduced-motion:reduce){ .mtf-sparkwrap{ display:none; } }
+
 
 /* ==========================================================================
    Reveal sequence
@@ -784,29 +874,26 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .ctrl label,
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .readout dt,
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .note-h{ font-size:calc(16px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .seg button{ font-size:calc(17px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .ctrl label,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .readout dt,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
 .scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .note{ font-size:calc(19px * var(--ts)); }
-.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) .eq{
-  font-size:calc(18px * var(--ts));
-}
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) figcaption{
   font-size:calc(18px * var(--ts));
 }
 .lab > .cols{ height:100%; align-items:stretch; }
 .lab > .cols > .col.stack{ justify-content:space-between; }
-/* Laboratory A needs two columns so longer results can keep the type floor. */
+/* Laboratory B needs two columns so longer results can keep the type floor. */
 .lab[data-lab="A"] .ctrls{ gap:10px 20px; padding:16px 20px; }
 .lab[data-lab="A"] .ctrl{ gap:5px; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
 .lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .lab[data-lab="A"] .readout div{ padding:10px 14px; }
-.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
-.lab:is([data-lab="A"],[data-lab="C"]) .lab-eq, .lab[data-lab="B"] .sig{ font-size:calc(22px * var(--ts)); }
+.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab:is([data-lab="A"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .lab-eq, .lab[data-lab="B"] .sig{ font-size:calc(22px * var(--ts)); }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -863,7 +950,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .btn:disabled{ opacity:.42; cursor:not-allowed; }
 .btn.ghost{ border-color:transparent; }
 
-/* Laboratory B keeps its own classification choices after quiz options were removed. */
+/* Laboratory A keeps its own classification choices after quiz options were removed. */
 .lab[data-lab="B"] .opts{ display:grid; gap:10px; }
 .lab[data-lab="B"] .opt{
   display:flex; align-items:center; gap:16px; width:100%; min-height:68px;
@@ -909,7 +996,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .quiz{ display:flex; flex-direction:column; gap:var(--s2); max-width:1180px; }
 .qid{ font-family:var(--mono); font-size:12.5px; letter-spacing:.12em; color:var(--faint); }
 .qstem{ font-size:calc(21px * var(--ts)); line-height:1.55; color:var(--ink); }
-/* The question bank has no answer options or hint ladder. Laboratory B's
+/* The question bank has no answer options or hint ladder. Laboratory A's
    classification choices and feedback are styled above, within the lab. */
 
 /* instructor-only material */
@@ -942,6 +1029,12 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 }
 #chrome button:hover{ color:var(--ink); background:var(--paper-3); }
 #chrome button[aria-pressed=true]{ color:var(--coral); }
+#chrome .navarrow{ font-size:16px; line-height:1; padding:4px 10px; letter-spacing:0; }
+#pagebox{ font:inherit; color:var(--ink); text-align:right; min-width:3ch;
+  background:transparent; border:1px solid var(--rule); border-radius:var(--radius);
+  padding:3px 4px; }
+#pagebox:hover{ border-color:var(--muted); }
+#pagebox:focus{ outline:none; border-color:var(--coral); background:var(--paper-3); }
 
 .overlay{
   position:fixed; inset:0; background:rgba(20,18,15,.55);
@@ -1061,6 +1154,93 @@ body[data-motion=reduced] *{ transition-duration:1ms !important; animation-durat
     page-break-after:always; break-after:page; }
   .reveal{ opacity:1 !important; transform:none !important; }
   .mtf-sparkwrap{ display:none !important; }
-  .mtf-trace,.mtf-fade,.mtf-stem,.mtf-box,.mtf-stem-dot,
+  .mtf-trace,.mtf-fade,.mtf-stem,.mtf-box,.mtf-stem-dot,.mtf-tip,
   .mtf-wire-in,.mtf-wire-out{ animation:none !important; opacity:1 !important; }
 }
+
+/* ==========================================================================
+   Interaction on a slide: a prediction inside a card (`note.ask`), sliders
+   under a figure (`fig.live`) and sounds under a figure (`fig.listen`).
+   Sizes follow the laboratory type floor and scale with --ts.
+   ========================================================================== */
+.ask-q{ margin-top:10px; }
+.ask-q:empty{ display:none; }
+.ask-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+.ask-opt{
+  display:inline-flex; align-items:center; gap:.5em;
+  font-family:var(--sans); font-size:calc(18px * var(--ts)); line-height:1.3;
+  padding:8px 16px; min-height:calc(44px * var(--ts));
+  color:var(--ink); background:var(--paper-2);
+  border:1px solid var(--rule-strong); border-radius:var(--radius);
+  cursor:pointer; transition:background 140ms var(--ease),border-color 140ms var(--ease);
+}
+.ask-opt:hover:not([aria-disabled]){ border-color:var(--slate); background:var(--paper-3); }
+.ask-opt:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
+.ask-opt[aria-disabled]{ cursor:default; }
+.ask-opt.is-right{ border-color:var(--sig-out); background:var(--sig-out-soft); font-weight:600; }
+.ask-opt.is-wrong{ border-color:var(--sig-err); background:var(--sig-err-soft); text-decoration:line-through; }
+.ask-opt.is-dim{ color:var(--muted); }
+.ask-opt.is-right::before, .ask-opt.is-wrong::before{
+  content:""; width:1em; height:1em; flex:none; background:currentColor;
+  -webkit-mask:var(--ask-icon) center/contain no-repeat; mask:var(--ask-icon) center/contain no-repeat;
+}
+.ask-opt.is-right{ --ask-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E"); }
+.ask-opt.is-wrong{ --ask-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"); }
+.ask-why{ margin-top:12px; font-size:calc(18px * var(--ts)); line-height:1.45; color:var(--graphite); }
+.ask-why[aria-hidden]{ visibility:hidden; }
+
+/* A prediction card on a slide has its own form: a coral edge and tab with a
+   question mark, a dashed frame that reads as "your turn", the question in the
+   lede's serif italic, and lettered choices. The letter gives way to the check
+   or the cross once the card is answered, in the same width. */
+.scene.slide .note.ask{
+  --nc:var(--coral); --ntab:var(--coral); --ntint:5%;
+  border-style:dashed; border-color:var(--rule-strong); border-left:3px solid var(--nc);
+}
+.scene.slide .note.ask > .note-h::before{
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.3-2.6 4'/%3E%3Cpath d='M12 17.2v.1'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.3-2.6 4'/%3E%3Cpath d='M12 17.2v.1'/%3E%3C/svg%3E");
+}
+.note.ask .ask-prompt{
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--rule);
+  font-family:var(--serif); font-style:italic; color:var(--ink);
+  font-size:1.08em; line-height:1.4;
+}
+.note.ask .ask-prompt .katex{ font-style:normal; }
+.ask-k{
+  display:inline-grid; place-items:center; flex:none;
+  width:1.45em; height:1.45em; border-radius:50%;
+  font-family:var(--mono); font-size:.78em; font-weight:600; font-style:normal;
+  color:var(--coral); border:1px solid color-mix(in srgb, var(--coral) 55%, transparent);
+}
+.ask-opt:hover:not([aria-disabled]) .ask-k{ background:var(--coral); color:var(--paper); }
+.ask-opt:hover:not([aria-disabled]){ border-color:var(--coral); }
+.ask-opt:focus-visible{ outline-color:var(--coral); }
+.ask-opt.is-right .ask-k, .ask-opt.is-wrong .ask-k{ display:none; }
+.ask-opt.is-dim .ask-k{ color:var(--muted); border-color:var(--rule-strong); }
+.ask-opt.is-right::before, .ask-opt.is-wrong::before{ width:1.13em; height:1.13em; }
+.ask-why b{ color:var(--ink); }
+
+.fxbar{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:10px; }
+.live-ctrl{ flex:1 1 280px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:14px; }
+.live-k{ font-size:calc(19px * var(--ts)); color:var(--ink); }
+.live-v{ font-size:calc(20px * var(--ts)); color:var(--coral); text-align:right; font-weight:600; }
+
+.listen-btn{
+  display:inline-flex; align-items:center; gap:.55em;
+  font-family:var(--sans); font-size:calc(17px * var(--ts)); line-height:1.3;
+  padding:8px 16px 8px 12px; min-height:calc(42px * var(--ts));
+  color:var(--slate-deep); background:var(--paper-2);
+  border:1px solid var(--rule-strong); border-radius:var(--radius); cursor:pointer;
+  transition:background 140ms var(--ease),border-color 140ms var(--ease);
+}
+.listen-btn::before{
+  content:""; flex:none; width:0; height:0;
+  border-left:.62em solid currentColor; border-top:.38em solid transparent; border-bottom:.38em solid transparent;
+}
+.listen-btn:hover{ border-color:var(--slate); background:var(--paper-3); }
+.listen-btn:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
+.listen-btn.is-playing{ border-color:var(--coral); color:var(--coral); }
+.listen-btn.is-playing::before{ width:.62em; height:.62em; border:0; background:currentColor; }
+body[data-theme=dark] .listen-btn{ color:var(--slate); }
+@media print{ .fxbar, .ask-row, .ask-why{ display:none !important; } }

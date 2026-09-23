@@ -60,7 +60,7 @@ const PLOT = (() => {
      prints the backslash on the page — the same mathematics reads as type in a
      paragraph and as source in a figure. The two renderers must agree. */
   const TEXOPT = { throwOnError:true, strict:false, output:'html',
-    macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{d}' } };
+    macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{dd}' } };
   function texName(src, opts){
     const { xRight, xLeft, xMid, baseline, size } = opts;
     const ink = opts.color || COL.ink;
@@ -204,10 +204,12 @@ const PLOT = (() => {
     const CLIP_PAD = 4*STRW;
     const clipId = 'pclip'+(++CLIPN);
     const clip = ` clip-path="url(#${clipId})"`;
-    const parts=[];
+    const parts=[], underParts=[];
     const api={
       o, sx, sy, W, H, x0, x1, y0, y1,
       raw(s){ parts.push(s); return api; },
+      /* markup drawn above the grid but below the axes and tick numbers */
+      under(s){ underParts.push(s); return api; },
       /* ---- continuous curve from a function ---- */
       curve(f, opts={}){
         const n = opts.n||520, col=opts.color||COL.in, wdt=(opts.width||(EMPH?2.4:2.2))*STRW;
@@ -220,12 +222,19 @@ const PLOT = (() => {
           cur.push([sx(t),sy(yv)]);
         }
         if(cur.length) seg.push(cur);
+        /* opts.anim {delay, sweep}: the trace draws itself in after delay seconds,
+           and sweep, a colour, sends a highlight along it on the 7 s cycle */
+        const an=opts.anim;
         seg.forEach(s=>{
           if(s.length<2) return;
           const d='M'+s.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join('L');
-          parts.push(`<path d="${d}"${clip} fill="none" stroke="${col}" stroke-width="${wdt}"
+          const mv=an?` class="mtf-trace" pathLength="1" style="--len:1;animation-delay:${an.delay||0}s"`:'';
+          parts.push(`<path d="${d}"${clip}${mv} fill="none" stroke="${col}" stroke-width="${wdt}"
             stroke-linejoin="round" stroke-linecap="round"${opts.dash?` stroke-dasharray="${opts.dash}"`:''}
             ${opts.opacity?` opacity="${opts.opacity}"`:''}/>`);
+          if(an && an.sweep)
+            parts.push(`<g class="mtf-sparkwrap"${clip}><path class="mtf-sweep" pathLength="1" d="${d}" fill="none"
+              stroke="${an.sweep}" stroke-width="${wdt*1.3}" stroke-linejoin="round" stroke-linecap="round"/></g>`);
         });
         return api;
       },
@@ -262,15 +271,21 @@ const PLOT = (() => {
       /* ---- discrete-time stems ---- */
       stem(pairs, opts={}){
         const col=opts.color||COL.in, r=(opts.r||(EMPH?4:3.6))*STRW;
+        /* opts.anim {delay, step, tip}: stem i rises at delay + i*step seconds;
+           tip makes a pop run along the tips on the 7 s cycle */
+        const an=opts.anim; let i=0;
         pairs.forEach(([n,v])=>{
           if(n<xa-1e-9||n>xb+1e-9) return;
           const X=sx(n).toFixed(2);
+          if(an) parts.push(`<g class="mtf-stem" style="transform-origin:${X}px ${sy(0).toFixed(2)}px;animation-delay:${((an.delay||0)+i*(an.step??.085)).toFixed(3)}s">`);
+          const tip=an&&an.tip?` class="mtf-tip" style="animation-delay:${(2.1+i*(an.step??.085)).toFixed(3)}s"`:'';
           parts.push(`<line x1="${X}" y1="${sy(0).toFixed(2)}" x2="${X}" y2="${sy(v).toFixed(2)}"
             stroke="${col}" stroke-width="${(opts.width||(EMPH?2:1.8))*STRW}"/>`);
           if(Math.abs(v)>1e-12 || opts.showZero)
-            parts.push(`<circle cx="${X}" cy="${sy(v).toFixed(2)}" r="${r}" fill="${col}"/>`);
+            parts.push(`<circle${tip} cx="${X}" cy="${sy(v).toFixed(2)}" r="${r}" fill="${col}"/>`);
           else
             parts.push(`<circle cx="${X}" cy="${sy(0).toFixed(2)}" r="${r*0.62}" fill="${col}" opacity=".55"/>`);
+          if(an){ parts.push('</g>'); i++; }
         });
         return api;
       },
@@ -348,6 +363,7 @@ const PLOT = (() => {
           xt.forEach(v=>g.push(`<line x1="${sx(v).toFixed(2)}" y1="${y1}" x2="${sx(v).toFixed(2)}" y2="${y0}" stroke="${CH.grid}" stroke-width="1"/>`));
           yt.forEach(v=>g.push(`<line x1="${x0}" y1="${sy(v).toFixed(2)}" x2="${x1}" y2="${sy(v).toFixed(2)}" stroke="${CH.grid}" stroke-width="1"/>`));
         }
+        g.push(...underParts);
         /* zero axes */
         const yz = (ya<=0&&yb>=0)? sy(0) : null;
         const xz = (xa<=0&&xb>=0)? sx(0) : null;

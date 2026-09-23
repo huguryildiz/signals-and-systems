@@ -45,17 +45,17 @@ const SC = [
       const a=P.Axes({w:800,h:430,xr:[-9,9],yr:[-0.6,7.2],grid:false,zeroAxes:false,arrows:false,
         pad:{l:20,r:20,t:20,b:20},xticksOverride:[],yticksOverride:[]});
       /* the same envelope, sampled ever more finely as the period grows */
-      a.curve(w=>rectFT(w,1)*0.55+5.4,{color:'#7FC3CE',width:2.4,n:1600});
-      [[4,'#AC99DC',3.4],[8,'#E5B255',1.6]].forEach(([T,col,base])=>{
+      a.curve(w=>rectFT(w,1)*0.55+5.4,{color:'#7FC3CE',width:2.4,n:1600,anim:{delay:0,sweep:'#D9F3F7'}});
+      [[4,'#AC99DC',3.4,.5,.07],[8,'#E5B255',1.6,.9,.035]].forEach(([T,col,base,dl,sp])=>{
         const st=[]; const w0=2*PI/T;
         for(let k=-Math.floor(9/w0);k<=Math.floor(9/w0);k++) st.push([k*w0, 2*PI*aSq(k,T,1)*0.55]);
         a.curve(w=>rectFT(w,1)*0.55+base,{color:col,width:1.1,dash:'3 5',opacity:.5,n:1200});
-        a.stem(st.map(([x,y])=>[x,y+base]),{color:col,r:3.2,width:1.7,showZero:true});
+        a.stem(st.map(([x,y])=>[x,y+base]),{color:col,r:3.2,width:1.7,showZero:true,anim:{delay:dl,step:sp,tip:true}});
       });
       const stf=[]; const w0f=2*PI/24;
       for(let k=-Math.floor(9/w0f);k<=Math.floor(9/w0f);k++) stf.push([k*w0f, 2*PI*aSq(k,24,1)*0.55]);
-      a.stem(stf,{color:'#8FBF8A',r:1.8,width:1.1,showZero:true});
-      a.curve(w=>rectFT(w,1)*0.55,{color:'#8FBF8A',width:2.2,n:1600});
+      a.stem(stf,{color:'#8FBF8A',r:1.8,width:1.1,showZero:true,anim:{delay:1.3,step:.015,tip:true}});
+      a.curve(w=>rectFT(w,1)*0.55,{color:'#8FBF8A',width:2.2,n:1600,anim:{delay:1.8,sweep:'#E4F4E1'}});
       return a.svg(); },
       caption:'The same envelope is sampled at $\\omega_0=2\\pi/T$. Increasing the period decreases the spacing between samples.'}
   ]}

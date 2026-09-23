@@ -211,12 +211,191 @@ function courseMapPanel(){
   </section>`;
 }
 
+/* --- circuit sketches for the black-box slide. Each returns SVG path data in
+       figure coordinates; the wiring is drawn in the ink colour, so the boxes
+       read as the same kind of object whatever sits inside them. */
+const CK = {
+  wire:(x1,y1,x2,y2)=>`M${x1},${y1}L${x2},${y2}`,
+  res:(x,y,L)=>{ let d=`M${x},${y}h8`; const n=6, s=(L-16)/n;
+    for(let i=0;i<n;i++) d+=`l${(s/2).toFixed(2)},${i%2?7:-7}l${(s/2).toFixed(2)},${i%2?-7:7}`; return d+'h8'; },
+  resV:(x,y,L)=>{ let d=`M${x},${y}v8`; const n=6, s=(L-16)/n;
+    for(let i=0;i<n;i++) d+=`l${i%2?7:-7},${(s/2).toFixed(2)}l${i%2?-7:7},${(s/2).toFixed(2)}`; return d+'v8'; },
+  cap:(x,y,L)=>{ const m=x+L/2; return `M${x},${y}H${m-4}M${m-4},${y-11}v22M${m+4},${y-11}v22M${m+4},${y}H${x+L}`; },
+  capV:(x,y,L)=>{ const m=y+L/2; return `M${x},${y}V${m-4}M${x-11},${m-4}h22M${x-11},${m+4}h22M${x},${m+4}V${y+L}`; },
+  indV:(x,y,L)=>{ const r=(L-8)/8; let d=`M${x},${y}v4`; for(let i=0;i<4;i++) d+=`a${r},${r} 0 0 1 0,${2*r}`; return d+'v4'; },
+  gnd:(x,y)=>`M${x},${y}v6M${x-10},${y+6}h20M${x-6},${y+10}h12M${x-2},${y+14}h4`,
+  dot:(x,y)=>`M${x-2},${y}a2,2 0 1 0 4,0a2,2 0 1 0 -4,0`
+};
+
+function blackBoxFig(){
+  const bx=150, bw=420, rows=[90,255,420], it=[];
+  const L=d=>it.push({t:'line',d}), T=(x,y,label,o)=>it.push(Object.assign({t:'text',x,y,label,tex:true,fs:14},o||{}));
+  rows.forEach((cy,k)=>{
+    it.push({t:'arrow',x1:30,y1:cy,x2:bx,y2:cy}, {t:'arrow',x1:bx+bw,y1:cy,x2:690,y2:cy});
+    it.push({t:'box',x:bx,y:cy-45,w:bw,h:110});
+    T(90,cy-16,'x(t)',{fs:18}); T(630,cy-16,'y(t)',{fs:18});
+    it.push({t:'text',x:bx+6,y:cy-54,label:['Low-pass filter','High-pass filter','A complicated circuit'][k],fs:14,anchor:'start'});
+  });
+  /* low-pass: series R, shunt C */
+  let cy=rows[0];
+  L(CK.wire(bx,cy,250,cy)); L(CK.res(250,cy,70)); L(CK.wire(320,cy,bx+bw,cy));
+  L(CK.dot(390,cy)); L(CK.capV(390,cy,36)); L(CK.gnd(390,cy+36));
+  T(285,cy-16,'R'); T(416,cy+22,'C');
+  /* high-pass: series C, shunt R */
+  cy=rows[1];
+  L(CK.wire(bx,cy,250,cy)); L(CK.cap(250,cy,70)); L(CK.wire(320,cy,bx+bw,cy));
+  L(CK.dot(390,cy)); L(CK.resV(390,cy,40)); L(CK.gnd(390,cy+40));
+  T(285,cy-20,'C'); T(416,cy+24,'R');
+  /* a tangle: two RC sections, a coil, an op-amp buffer with feedback, an output RC */
+  cy=rows[2];
+  L(CK.wire(bx,cy,168,cy)); L(CK.res(168,cy,50)); L(CK.wire(218,cy,262,cy));
+  L(CK.dot(240,cy)); L(CK.indV(240,cy,36)); L(CK.gnd(240,cy+36));
+  L(CK.capV(240,cy-32,32)); L(CK.wire(240,cy-32,425,cy-32));
+  L(CK.res(262,cy,46)); L(CK.wire(308,cy,345,cy));
+  L(CK.dot(322,cy)); L(CK.capV(322,cy,30)); L(CK.gnd(322,cy+30));
+  L(`M345,${cy-16}V${cy+34}L400,${cy+9}Z`);
+  L(CK.wire(335,cy+22,345,cy+22)); L(`M335,${cy+22}V${cy+56}H425V${cy+9}`);
+  L(CK.wire(400,cy+9,425,cy+9)); L(CK.wire(425,cy-32,425,cy+9)); L(CK.dot(425,cy+9));
+  L(CK.wire(425,cy,440,cy)); L(CK.res(440,cy,50)); L(CK.wire(490,cy,bx+bw,cy));
+  L(CK.dot(522,cy)); L(CK.capV(522,cy,30)); L(CK.gnd(522,cy+30));
+  T(193,cy+24,'R_1'); T(285,cy-16,'R_2'); T(465,cy-16,'R_3');
+  T(224,cy-18,'C_1',{anchor:'end'}); T(258,cy+26,'L',{anchor:'start'});
+  T(296,cy+26,'C_2',{anchor:'end'}); T(540,cy+22,'C_3',{anchor:'start'});
+  T(352,cy+1,'+',{fs:12,anchor:'start'}); T(352,cy+24,'-',{fs:12,anchor:'start'});
+  return P.blocks({w:720,h:500,items:it});
+}
+
+/* --- everyday signals for the CT/DT examples slide. The shapes are schematic;
+       each keeps the feature a student would recognise on a real trace. */
+function signalExamples(){
+  const opt=(o)=>Object.assign({w:520,h:250,pad:{l:56,r:26,t:24,b:40},ytarget:3},o);
+  const beat=t=>{ const u=((t%0.8)+0.8)%0.8, g=(c,w,a)=>a*Math.exp(-(((u-c)/w)**2));
+    return g(0.16,0.035,0.15)-g(0.285,0.008,0.12)+g(0.30,0.011,1.1)-g(0.318,0.01,0.25)+g(0.52,0.05,0.3); };
+  const a=P.Axes(opt({xr:[0,2.4],yr:[-0.4,1.3],xlabel:'t\\;(\\text{s})',ylabel:'v(t)\\;(\\text{mV})',xstep:0.8}));
+  a.curve(beat,{color:C.in,n:1200});
+  const voice=t=>Math.sin(2*Math.PI*t/8)**2*(Math.sin(2*Math.PI*0.5*t)+0.6*Math.sin(2*Math.PI*1.5*t+1)+0.35*Math.sin(2*Math.PI*2.5*t+2));
+  const b=P.Axes(opt({xr:[0,8],yr:[-2,2],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)',xstep:2}));
+  b.curve(voice,{color:C.in,n:900});
+  const temp=n=>18+4*Math.sin(2*Math.PI*(n-3)/14)+1.6*Math.sin(2.7*n)+0.9*Math.cos(5.1*n);
+  const c=P.Axes(opt({xr:[0,30],yr:[0,28],xlabel:'n\\;(\\text{day})',ylabel:'T[n]\\;(^\\circ\\text{C})',xstep:10,ytarget:3}));
+  const pc=[]; for(let n=1;n<=30;n++) pc.push([n,temp(n)]); c.stem(pc,{color:C.mid});
+  const d=P.Axes(opt({xr:[0,32],yr:[-2,2],xlabel:'n',ylabel:'p[n]=p(nT)',xstep:8}));
+  const pd=[]; for(let n=0;n<=32;n++) pd.push([n,voice(n*0.25)]); d.stem(pd,{color:C.mid});
+  return {a:a.svg(),b:b.svg(),c:c.svg(),d:d.svg()};
+}
+
 function ctdtPair(){
   const a=P.Axes({w:560,h:230,xr:[0,20],yr:[-1.4,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:24,t:22,b:34},xtarget:6,ytarget:3});
   a.curve(t=>Math.cos(t),{color:C.in});
   const b=P.Axes({w:560,h:230,xr:[0,20],yr:[-1.4,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:44,r:24,t:22,b:34},xtarget:6,ytarget:3});
   const pts=[]; for(let n=0;n<=20;n++) pts.push([n,Math.cos(n)]); b.stem(pts,{color:C.mid});
   return {a:a.svg(), b:b.svg()};
+}
+
+/* --- signals of one, two and three independent variables, on one figure.
+       1-D: the air pressure of a spoken vowel, made the way a voice makes it:
+       a pulse from the vocal folds every pitch period, each one ringing the
+       three resonances of the mouth and throat. The same formula is drawn and
+       played, so what the reader hears is the trace on the page.
+       2-D: the brightness of a small landscape image, one square a pixel.
+       3-D: a video of the same landscape with a ball bouncing across it, drawn
+       as a stack of frames along t. The slider picks the frame that is shown. --- */
+const VOWEL = { f0:120, F:[730,1090,2440], B:[90,110,170], g:[1,0.5,0.25] };
+function vowelRaw(t){
+  const T0 = 1/VOWEL.f0, tau = ((t % T0) + T0) % T0;
+  let y = 0;
+  for(let m=0;m<3;m++){ const s = tau + m*T0;
+    for(let i=0;i<3;i++) y += VOWEL.g[i]*Math.exp(-Math.PI*VOWEL.B[i]*s)*Math.sin(2*Math.PI*VOWEL.F[i]*s); }
+  return y;
+}
+const VOWEL_PEAK = (()=>{ let p=0; for(let i=0;i<4000;i++) p=Math.max(p,Math.abs(vowelRaw(i/(4000*VOWEL.f0)))); return p; })();
+const vowel = t => vowelRaw(t)/VOWEL_PEAK;
+
+/* brightness in [0,1] at (u,v), u left to right, v bottom to top; `ball` is
+   the ball's position in the same coordinates, or null for the still image */
+const hash = (i,j) => { const s = Math.sin(i*12.9898 + j*78.233)*43758.5453; return s - Math.floor(s); };
+function scene2d(u, v, i, j, ball){
+  const r1 = 0.40 + 0.07*Math.sin(2*Math.PI*(1.3*u+0.1)) + 0.04*Math.sin(2*Math.PI*(3.1*u+0.6));
+  const r2 = 0.20 + 0.06*Math.sin(2*Math.PI*(0.8*u+0.3));
+  let I;
+  if(v > r1){
+    const d = Math.hypot(u-0.74, (v-0.78)*0.75);
+    I = 0.42 + 0.36*(1-(v-r1)/(1-r1)) + 0.30*Math.exp(-((d/0.16)**2));
+    if(d < 0.07) I = 0.98;
+  } else if(v > r2) I = 0.30 + 0.10*(v-r2)/(r1-r2) + 0.06*hash(i,j);
+  else I = 0.12 + 0.08*hash(i+7,j+3);
+  if(ball){ const db = Math.hypot(u-ball[0], (v-ball[1])*0.75);
+    if(db < 0.09) I = 1; else if(db < 0.12) I = 0.05; }
+  return Math.max(0, Math.min(1, I));
+}
+const ballAt = t => [0.12 + 0.72*t, 0.24 + 0.46*Math.abs(Math.cos(Math.PI*1.2*t))];
+/* An image is a record of light, so its pixels are grey on either page; the
+   brightness is the value of the signal and does not follow the theme. */
+const grey = I => { const c = Math.round(18 + 225*I); return `rgb(${c},${c},${c})`; };
+function pixels(x0, yTop, nx, ny, cell, ball){
+  const o = [];
+  for(let j=0;j<ny;j++) for(let i=0;i<nx;i++){
+    const I = scene2d((i+0.5)/nx, 1-(j+0.5)/ny, i, j, ball);
+    o.push(`<rect x="${(x0+i*cell).toFixed(2)}" y="${(yTop+j*cell).toFixed(2)}" width="${(cell+0.6).toFixed(2)}"
+      height="${(cell+0.6).toFixed(2)}" fill="${grey(I)}"/>`);
+  }
+  return `<g shape-rendering="crispEdges">${o.join('')}</g>`;
+}
+function arrowLine(xa, ya, xb, yb){
+  const ang = Math.atan2(yb-ya, xb-xa), L = 9, W = 4.5;
+  const p = (a,b) => `${(xb - L*Math.cos(ang) + b*Math.sin(ang)).toFixed(2)},${(yb - L*Math.sin(ang) - b*Math.cos(ang)).toFixed(2)}`;
+  return `<line x1="${xa.toFixed(2)}" y1="${ya.toFixed(2)}" x2="${(xb-L*0.8*Math.cos(ang)).toFixed(2)}" y2="${(yb-L*0.8*Math.sin(ang)).toFixed(2)}"
+      stroke="${C.axis}" stroke-width="1.5"/>
+    <path d="M${xb.toFixed(2)},${yb.toFixed(2)} L${p(0,W)} L${p(0,-W)} Z" fill="${C.axis}"/>`;
+}
+function dimensionsFigure(v){
+  P.hOverride = null;                    /* the height below is fixed by the layout */
+  const t = v ? v.t : 0.4, W = 1000, H = 668;
+  const k = Math.round(t/0.2);
+  const g = [];
+  const name = (src, at, base, size, color) => g.push(P.texName(src,
+    Object.assign({ baseline:base, size:size||15, color:color||C.ink, figW:W }, at)));
+  /* ---- 1-D: sound ---- */
+  /* the trace crosses its zero line everywhere, so the time numbers are set
+     under the data area instead of on the axis */
+  const a = P.Axes({w:W, h:268, xr:[0,25], yr:[-1.3,1.3], xlabel:'t\\;(\\text{ms})', ylabel:'x(t)',
+    pad:{l:56,r:30,t:22,b:38}, xtarget:6, ytarget:3, xtickfmt:()=>''});
+  a.curve(tt=>vowel(tt/1000), {color:C.in, n:900});
+  [5,10,15,20].forEach(m => a.note(m, -1.3, String(m), {dy:20, anchor:'middle', fs:13.5}));
+  const tp = 11.6;
+  a.point(tp, vowel(tp/1000), {color:C.coral});
+  a.note(tp+0.5, -1.05, '\\text{one instant}\\to\\text{one value}', {fs:14, color:C.coral, tex:true});
+  g.push(a.svg().replace(/^<svg[^>]*>/, '<g>').replace(/<\/svg>$/, '</g>'));
+  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, 22, 16);
+  /* ---- 2-D: image ---- */
+  const Y0 = 284, NX = 48, NY = 36, CELL = 8.25;
+  const ix = 62, iy = Y0 + 44, iw = NX*CELL, ih = NY*CELL;
+  name('\\text{2-D}\\quad I(x,y)\\text{: brightness of an image}', {xMid:ix+iw/2}, Y0+22, 16);
+  g.push(pixels(ix, iy, NX, NY, CELL, null));
+  g.push(arrowLine(ix, iy+ih, ix+iw+26, iy+ih), arrowLine(ix, iy+ih, ix, iy-20));
+  name('x', {xMid:ix+iw+20}, iy+ih+28, 16);
+  name('y', {xRight:ix-12}, iy-4, 16);
+  /* ---- 3-D: video, frames stacked along t ---- */
+  const NF = 6, FX = 30, FY = 22, FC = 8, fw = FX*FC, fh = FY*FC, dx = 30, dy = -20;
+  const fx0 = 560, fyB = iy + ih;                      /* bottom-left corner of the frame at t = 0 */
+  const corner = m => [fx0 + m*dx, fyB + m*dy];
+  const outline = (m, col, wd) => { const [cx, cy] = corner(m);
+    return `<rect x="${cx}" y="${cy-fh}" width="${fw}" height="${fh}" fill="none" stroke="${col}" stroke-width="${wd}"/>`; };
+  name('\\text{3-D}\\quad I(x,y,t)\\text{: a video}', {xMid:fx0 + (fw + (NF-1)*dx)/2}, Y0+22, 16);
+  for(let m=NF-1;m>k;m--) g.push(outline(m, C.muted, 1.2));
+  const [sxk, syk] = corner(k);
+  g.push(pixels(sxk, syk-fh, FX, FY, FC, ballAt(k*0.2)));
+  g.push(outline(k, C.coral, 2.4));
+  for(let m=k-1;m>=0;m--) g.push(outline(m, C.muted, 1.2));
+  g.push(arrowLine(fx0, fyB, fx0+fw+24, fyB), arrowLine(fx0, fyB, fx0, fyB-fh-22));
+  const [ex, ey] = corner(NF-1);
+  g.push(arrowLine(fx0+fw, fyB, ex+fw+34, ey-23));
+  name('x', {xMid:fx0+fw+18}, fyB+28, 16);
+  name('y', {xRight:fx0-12}, fyB-fh-6, 16);
+  name('t', {xLeft:ex+fw+30}, ey-24, 16);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"
+    aria-label="A spoken vowel as a function of time, an image as a function of two space variables, and a video as a stack of images along time."
+    font-family="Inter,-apple-system,'Segoe UI',sans-serif">${g.join('')}</svg>`;
 }
 
 const SC = [
@@ -235,15 +414,12 @@ const SC = [
   keywords:'signal definition independent variable information', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
   {t:'title', text:'Signal Representation'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,10],yr:[-1.6,1.6],xlabel:'t',ylabel:'x(t)',
-        pad:{l:52,r:26,t:22,b:38},xtarget:6,ytarget:4});
-      a.curve(t=>Math.sin(1.9*t)*Math.exp(-0.12*t)+0.25*Math.sin(6.4*t),{color:C.in});
-      a.point(3.2, Math.sin(1.9*3.2)*Math.exp(-0.12*3.2)+0.25*Math.sin(6.4*3.2),{color:C.coral});
-      a.note(3.35,1.15,'\\text{one instant}\\to\\text{one value}',{fs:14,color:C.coral,tex:true});
-      return a.svg();
-    }, caption:'Here time is the independent variable. An image uses two space variables, and a video adds time.'}
+  {t:'cols', ratio:'c-7-5', fill:true, left:[
+    {t:'fig', frame:true, svg:dimensionsFigure,
+      live:{controls:[{k:'t', label:'video time $t$', min:0, max:1, step:0.2, v:0.4,
+        show:v=>'$'+v.toFixed(1)+'\\ \\text{s}$'}]},
+      listen:{items:[{label:'Play the vowel $x(t)$', sound:()=>({f:vowel, dur:1.2})}]},
+      caption:'Sound has one independent variable, an image two, and a video three. Each frame of the video is an image at one time $t$.'}
   ], right:[
     {t:'note', kind:'def', head:'Definition', html:'A signal is a <b>physical variation that carries information</b>. As mathematics, it is a <b>function of one or more independent variables</b>.'},
     {t:'reveal', at:1, items:[
@@ -278,6 +454,23 @@ const SC = [
   ]}
 ]},
 
+{ id:'m0-blackbox', module:'M0', nav:'The system as a black box', title:'The system as a black box', src:'p. 11',
+  objective:'Show that very different hardware sits behind the same input–output picture.',
+  keywords:'black box low-pass high-pass filter circuit op-amp input output', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 11'},
+  {t:'title', text:'The System as a Black Box'},
+  {t:'cols', ratio:'c-7-5', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:blackBoxFig,
+      caption:'Three boxes with different wiring inside. From outside, each one only takes $x(t)$ in and gives $y(t)$ out.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Inside the box', html:'An RC low-pass filter, a CR high-pass filter and a tangle of resistors, capacitors, a coil and an op-amp are all systems.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Seen from outside', html:'We close the lid. Only the input $x(t)$ and the output $y(t)$ are visible, and the course studies the rule $S$ that links them.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Same rule, same system', html:'Two different circuits that give the same output for every input are the same system for us. The wiring matters only when we build it.'}]}
+  ]}
+]},
+
 { id:'m0-ctdt', module:'M0', nav:'Continuous and discrete time', title:'Two viewpoints, one theory', src:'p. 2',
   objective:'Fix the CT/DT notational split that persists through the whole course.',
   keywords:'continuous discrete time stem MATLAB integer index', slide:true, steps:2, blocks:[
@@ -299,6 +492,27 @@ const SC = [
       {t:'note', kind:'def', head:'Discrete time', html:'$x[n]$ is defined only at integers $n\\in\\mathbb{Z}$. We draw its values as stems, as <code>stem(·)</code> does in MATLAB.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Integrals and sums', html:'Most continuous-time results use integrals. The matching discrete-time results use sums.'}]}
+  ]}
+]},
+
+{ id:'m0-examples', module:'M0', nav:'Signals around us', title:'Signals around us', src:'p. 2',
+  objective:'Connect the CT/DT split to signals students already know.',
+  keywords:'examples ECG heartbeat speech microphone temperature daily sampling digital audio',
+  budget:'A gallery of four everyday signals, two continuous and two discrete; each figure is one example.',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 0 · Orientation', src:'p. 2'},
+  {t:'title', text:'Signals Around Us'},
+  {t:'cols', ratio:'c-8-4', fill:true, left:[
+    {t:'grid', cols:2, gap:'18px 22px', items:[
+      [{t:'fig', frame:true, svg:()=>signalExamples().a, caption:'Heartbeat (ECG): the voltage between two electrodes on the chest.'}],
+      [{t:'fig', frame:true, svg:()=>signalExamples().b, caption:'Speech: the air pressure at a microphone while a vowel is sung.'}],
+      [{t:'fig', frame:true, svg:()=>signalExamples().c, caption:'Daily high temperature over one month: one number per day.'}],
+      [{t:'fig', frame:true, svg:()=>signalExamples().d, caption:'Digital audio: the same speech signal read every $T$ seconds.'}]
+    ]}
+  ], right:[
+    {t:'note', kind:'def', head:'Continuous time', html:'A heartbeat and a voice exist at every instant. Voltages, pressures and positions measured by a sensor are continuous-time signals $x(t)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Discrete time', html:'A daily temperature, a monthly bill or a digital audio file holds one value per step, so it is a sequence $x[n]$. Many such sequences come from reading a continuous signal every $T$ seconds: $x[n]=x(nT)$.'}]}
   ]}
 ]},
 
