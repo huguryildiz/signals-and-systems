@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this course material, please cite it as below."
+title: "Signals and Systems"
+type: software
+authors:
+  - family-names: "Yıldız"
+    given-names: "Hüseyin Uğur"
+url: "https://signals-and-systems-tedu.vercel.app"
+repository-code: "https://github.com/huguryildiz/signals-and-systems"
+license: CC-BY-NC-SA-4.0
+version: "1.8"
+date-released: "2026-08-03"
+keywords:
+  - signals and systems
+  - engineering education
+  - open educational resources
+  - Fourier transform
+  - LTI systems
