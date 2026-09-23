@@ -33,7 +33,7 @@ const APP = (() => {
     display: 'normal',  // 'normal' | 'projector'
     pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
     trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
-    trailSec: 3,        // seconds a faded trail stays fully visible
+    trailSec: 1,        // seconds a faded trail stays fully visible
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
     drillPage: {},      // module id -> index of the drill question on screen
     secOpen: {}         // section number -> the reader's own open/closed choice
@@ -54,7 +54,7 @@ const APP = (() => {
       display: saved.display || 'normal',
       pointer: saved.pointer || 'laser',
       trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
-      trailSec: saved.trailSec || 3,
+      trailSec: saved.trailLen || 1,
       visited: saved.visited || {},
       quiz: saved.quiz || {},
       drillPage: saved.drillPage || {}
@@ -70,7 +70,7 @@ const APP = (() => {
 
   function persist(){
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.sidebar,
-                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailSec:state.trailSec,
+                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
@@ -161,6 +161,8 @@ const APP = (() => {
       drawing=true; head={x:e.clientX,y:e.clientY}; strokes.push([head]); tick();
     }
     function up(){ if(!drawing) return; drawing=false; released=performance.now(); tick(); }
+    /* a picture or a link would otherwise start a native drag and cut the stroke */
+    function nodrag(e){ e.preventDefault(); }
     function leave(){ if(drawing){ drawing=false; released=performance.now(); } head=null; tick(); }
     function start(){
       if(on || !window.matchMedia || !matchMedia('(pointer:fine)').matches) return;
@@ -170,12 +172,13 @@ const APP = (() => {
       window.addEventListener('pointerdown',down,{passive:true});
       window.addEventListener('pointerup',up,{passive:true});
       window.addEventListener('pointercancel',up,{passive:true});
+      window.addEventListener('dragstart',nodrag);
       document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',size);
     }
     function stop(){
       if(!on) return;
       on=false; window.removeEventListener('pointermove',move); window.removeEventListener('pointerdown',down);
-      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up);
+      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag);
       document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',size);
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave(); if(cv) cv.style.display='none';
     }
