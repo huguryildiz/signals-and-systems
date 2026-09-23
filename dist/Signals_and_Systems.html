@@ -2664,6 +2664,8 @@ const APP = (() => {
       if(e.target.id!=='trail-sec') return;
       state.trailSec = +e.target.value; e.target.nextElementSibling.textContent = state.trailSec+' s'; persist();
     });
+    /* once set, the slider gives the arrow keys back to the slides */
+    document.addEventListener('change', e=>{ if(e.target.id==='trail-sec') e.target.blur(); });
     document.addEventListener('click', e=>{
       const t = e.target.closest('[data-act]');
       if(!t) return;
@@ -5606,7 +5608,7 @@ Object.assign(LABS, (function(){
       else  { for(let t=-40.0037;t<=40;t+=0.01){ mE=Math.max(mE,Math.abs(ev(t))); mO=Math.max(mO,Math.abs(od(t))); } }
       const kind = mO<1e-9 ? 'even' : mE<1e-9 ? 'odd' : 'neither';
       const xr=[-6,6];
-      const ax = o=> PLOT.Axes(Object.assign({w:640,h:160,xr,yr:Pr.yr,xlabel:v,ylabel:'\\text{amplitude}',
+      const ax = o=> PLOT.Axes(Object.assign({w:640,h:280,xr,yr:Pr.yr,xlabel:v,ylabel:'\\text{amplitude}',
         pad:{l:46,r:24,t:16,b:34},xtarget:7,ytarget:3},o));
       const disc = f=>{ const p=[]; for(let n=xr[0];n<=xr[1];n++) p.push([n,f(n)]); return p; };
       const A1=ax({}), A2=ax({});
@@ -5693,7 +5695,7 @@ Object.assign(LABS, (function(){
       const Pr = protos[st.proto], dt = st.dt, f = Pr.f;
       if(dt) st.t0 = Math.round(st.t0);
       const t0 = st.t0, e = st.eps, xr=[-4,4];
-      const ax = o=> PLOT.Axes(Object.assign({w:640,h:160,xr,pad:{l:52,r:24,t:16,b:34},xtarget:9,ytarget:3},o));
+      const ax = o=> PLOT.Axes(Object.assign({w:640,h:280,xr,pad:{l:52,r:24,t:16,b:34},xtarget:9,ytarget:3},o));
       const L = (c,l)=>`<i class="lg-${c}">${T(l,false)}</i>`;
       let html;
       if(dt){
@@ -8633,7 +8635,7 @@ REAL_PERIODIC,
       return a.svg(); },
       caption:'Sifting, drawn. Step through the frames: the impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
   ], right:[
-    {t:'eq', tex:'\\delta(t)=\\dfrac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau',
+    {t:'eq', tex:'\\begin{aligned}\\delta(t)&=\\dfrac{\\d}{\\d t}u(t)\\\\[6pt]u(t)&=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau\\end{aligned}',
       label:'Step and impulse', note:'The pair $\\delta[n]=u[n]-u[n-1]$ is the discrete-time analogue.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)', label:'Sampling'}]},
