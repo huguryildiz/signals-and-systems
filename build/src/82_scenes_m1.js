@@ -960,7 +960,7 @@ const SC = [
 
 { id:'m1-lab-c', module:'M1', nav:'Laboratory C · Periodicity', title:'Laboratory C — Periodicity Explorer', src:'pp. 5, 8, 10',
   objective:'Compare CT and DT periodicity with an exact rationality test.',
-  keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
+  slide:true, keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory C', src:'pp. 5, 8, 10'},
   {t:'title', text:'Laboratory C · Periodicity'},
   {t:'lede', text:'Enter $\\omega_0$ as a rational multiple of $\\pi$. The laboratory can then apply the discrete-time rationality test exactly. A rounded decimal cannot prove that a number is rational.'},
