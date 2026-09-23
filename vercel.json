@@ -17,6 +17,18 @@
         { "key": "Content-Type", "value": "application/pdf" },
         { "key": "Content-Disposition", "value": "inline; filename=\"Lecture_Notes.pdf\"" }
       ]
+    },
+    {
+      "source": "/pyodide/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/pyodide/(.*).wasm",
+      "headers": [
+        { "key": "Content-Type", "value": "application/wasm" }
+      ]
     }
   ]
 }

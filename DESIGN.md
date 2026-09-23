@@ -514,8 +514,10 @@ program draws its own figure. The scene calls it through a raw block,
   from the reader's own code, and each figure it draws; it keeps its height, so a run moves nothing.
   Edits and the last output last for the session. Opened as a file (`file://`) the page offers Copy
   and the expected output only, and makes no request. MATLAB has no Run: it does not run in a
-  browser. The site build must place the Pyodide files under `pyodide/`; until it does, Run on the
-  site reports that Python could not be loaded.
+  browser. `web/pyodide.js`, run by the site build, fetches the runtime (5 core files and the 12
+  packages NumPy and Matplotlib need, 24 MB) from the Pyodide release on jsDelivr into
+  `site/pyodide/v0.29.3/`, checks each file against a pinned SHA-256, and caches it in `web/.cache/`.
+  The site serves it with a one-year immutable cache header, so a student downloads it once.
 - **Look.** Highlighting uses the ink ramp, slate for keywords and terracotta for strings; the signal
   colours keep their figure meanings. Code type grows less than prose in projector mode
   (`--code-fs`), so a 21-line program fits the stage at k = 1. The chosen language is kept on the

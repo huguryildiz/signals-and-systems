@@ -3668,7 +3668,7 @@ const RENDER = (() => {
      point the runtime elsewhere with ?pyodide=<url>. */
   const PY_RUN = /^https?:$/.test(location.protocol);
   const PY_BASE = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)
-      && new URLSearchParams(location.search).get('pyodide')) || new URL('pyodide/', location.href).href;
+      && new URLSearchParams(location.search).get('pyodide')) || new URL('pyodide/v0.29.3/', location.href).href;   /* web/pyodide.js places it there */
   const PY_PRELUDE = `import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt, io, base64
