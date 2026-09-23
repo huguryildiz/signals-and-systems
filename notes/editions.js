@@ -42,8 +42,6 @@ const doc = (title, builder, extra = '') => `<!DOCTYPE html><html lang="en"><hea
 .qcard .key{ border-left:2px solid var(--accent); padding-left:8pt; margin-top:6pt; }
 .qcard .why{ margin-top:4pt; }
 .workspace{ border:1px dashed var(--rule2); height:58pt; margin-top:6pt; border-radius:2px; }
-.gloss dt{ font-family:var(--mono); font-size:9pt; margin-top:5pt; }
-.gloss dd{ margin:0 0 0 22pt; }
 </style></head><body><div id="doc"></div>
 <script>${g(R('30_katex.js'))}</script>
 <script>${g(R('60_plot.js'))}</script>
@@ -162,10 +160,10 @@ B.push.apply(B, APP.filter(b=>b.t!=='title'));
 B.push({t:'page'});
 B.push({t:'h1', num:'PART 3', text:'Notation'});
 B.push({t:'p', lead:true, text:'Every symbol the course defines, with the chapter that defines it. A symbol is never reused for a second meaning.'});
-B.push({t:'raw', html:'<dl class="gloss">' + Object.keys(CONTENT.GLOSS).map(k=>{
+B.push({t:'table', head:['Symbol','Meaning'], rows: Object.keys(CONTENT.GLOSS).map(k=>{
   const e = CONTENT.GLOSS[k];
-  return '<dt>' + renderInline('$' + (e.s||'').replace(/\\$/g,'') + '$') + '</dt><dd>' + renderInline(e.d||'') + '</dd>';
-}).join('') + '</dl>'});
+  return ['$' + (e.s||'').replace(/\\$/g,'') + '$', e.d||''];
+})});
 B.push({t:'colophon', doc:'Formula and Notation Reference'});
 renderNotes(B, document.getElementById('doc'));`;
 
