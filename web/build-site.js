@@ -207,12 +207,8 @@ art = replaceExactly(art,
 /* The help scene described two editions. On the published copy there is one,
    so the card says what is actually true of it. */
 art = replaceExactly(art,
-  `    [{t:'card', head:'Two editions', items:[
-      {t:'body', html:\`<p>The <b>student edition</b> hides solutions until you request them. It also hides teaching comments. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.</p>\`}
-    ]}],`,
-  `    [{t:'card', head:'Worked solutions', items:[
-      {t:'body', html:\`<p>Every practice question carries a full worked solution, and it stays hidden until you ask for it. Work the question first, then open the solution and compare the method, not only the answer.</p>\`}
-    ]}],`,
+  `    [{t:'note', kind:'def', head:'Two editions', html:'The <b>student edition</b> hides solutions until you ask for them. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.'}],`,
+  `    [{t:'note', kind:'def', head:'Worked solutions', html:'Every practice question carries a full worked solution, and it stays hidden until you ask for it. Work the question first, then open the solution and compare the method, not only the answer.'}],`,
   1, 'help scene editions card');
 
 /* The teaching note behind each question is gone with its `teach` field, so
