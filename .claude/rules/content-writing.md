@@ -25,7 +25,7 @@ Every derivation is explicit. Start from the governing definition, substitute th
 
 Practice-question solutions (`sol:` in `build/src/9[2-8]_drill_m*.js`) show every step, with no exceptions. Write each antiderivative and evaluate it at its limits (`[t³/3]_0^2 = 8/3 − 0`). Name every substitution and give its new limits (`s = 5 − t, ds = −dt, t=3 ↦ s=2`). For a geometric series, state the ratio and the condition `|r|<1`. Get each lcm from the prime factorisations. Name each trigonometric identity where it is used. Solve support inequalities one at a time, and say where a negative divisor reverses the inequality. Tabulate index maps, even and odd parts, and running sums region by region. Put a chain of equalities in a `\begin{aligned}` block, with one equality per line. A Check step evaluates the integrals and sums it uses instead of quoting their values. The Module 1 solutions (D1-01 … D1-30) are the reference for this level of detail.
 
-For a content review, use the manual checklist and coverage record in `.claude/reference/derivation-review.md`. This review is editorial; it is not a CI gate or an automated claim that every intermediate step is present.
+A derivation review is editorial; it is not a CI gate or an automated claim that every intermediate step is present.
 
 Say what an idea is for before developing it. Name each move (for example, "take the transform of both sides"). Explain steps students commonly get wrong and the reason for a definition that otherwise looks arbitrary. Worked examples and solutions use **Given, Find, Method, Solution, Check**, including why the method fits. A slide card holds one or two sentences; the notes provide the full explanation.
 

@@ -103,8 +103,7 @@ def advisory_message(root: Path, session_id: str | None = None):
         f"Changed mathematical content needs derivation review: {locations}{extra}. "
         "Follow the governing definition through substitutions, limits or indices, "
         "calculation and algebra; compare the slide sequence with the lecture notes. "
-        "This is a candidate list, not a correctness or completeness verdict. "
-        "See .claude/reference/derivation-review.md."
+        "This is a candidate list, not a correctness or completeness verdict."
     )
 
 
