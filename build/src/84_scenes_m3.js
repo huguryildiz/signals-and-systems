@@ -469,11 +469,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m3-lab-e', module:'M3', nav:'Laboratory E · Convolution', title:'Laboratory E — Graphical Convolution Explorer', src:'pp. 15–20',
+{ id:'m3-lab-e', module:'M3', nav:'Laboratory {lab} · Convolution', title:'Laboratory {lab} — Graphical Convolution Explorer', src:'pp. 15–20',
   objective:'See flip, shift, multiply and accumulate for four source cases.',
   keywords:'laboratory convolution explorer flip shift multiply overlap', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory E', src:'pp. 15–20'},
-  {t:'title', text:'Laboratory E · Convolution'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 15–20'},
+  {t:'title', text:'Laboratory {lab} · Convolution'},
   {t:'lede', text:'This laboratory shows the four convolution examples from the module. Move the shift control. At each position, compare the overlap, the product, and the accumulated output. Note the positions where an overlap edge changes; these are the case boundaries used in the calculation.'},
   {t:'lab', id:'E'}
 ]},
@@ -582,7 +582,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'Use each final check for a specific purpose', html:'<span style="color:var(--graphite)">A mismatch at a case boundary indicates an incorrect limit. An incorrect output support indicates an error in a shift, reversal, or support condition. An incorrect total area or sum indicates an error in the integrand or summand.</span>'}]}
   ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Where Module 4 begins</p>'},
+    {t:'raw', html:'<p class="eyebrow hi hi-next" style="margin-bottom:14px">Where Module 4 begins</p>'},
     {t:'lede', text:'Convolution applies to every input of an LTI system, but piecewise calculations become long. Module 4 therefore asks whether some inputs pass through an LTI system without changing form.'},
     {t:'reveal', at:2, items:[
       {t:'body', html:`<p style="color:var(--graphite)">There is. Put $x(t)=e^{st}$ into the convolution integral:</p>`},

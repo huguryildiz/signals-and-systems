@@ -1194,11 +1194,11 @@ const SC = [
 ]},
 
 /* -------------------------------------------------------------- laboratory */
-{ id:'m7-lab-j', module:'M7', nav:'Laboratory J · Sampling studio', title:'Laboratory J — Sampling and Aliasing Studio', src:'pp. 80–88',
+{ id:'m7-lab-j', module:'M7', nav:'Laboratory {lab} · Sampling studio', title:'Laboratory {lab} — Sampling and Aliasing Studio', src:'pp. 80–88',
   objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
-  keywords:'laboratory J sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory J', src:'pp. 80–88'},
-  {t:'title', text:'Laboratory J · Sampling and Aliasing'},
+  keywords:'laboratory {lab} sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 80–88'},
+  {t:'title', text:'Laboratory {lab} · Sampling and Aliasing'},
   {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
   {t:'lab', id:'J'}
 ]}

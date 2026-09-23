@@ -335,7 +335,12 @@ const G = (()=>{
                +ln('M2 9 V4 H32 V9',AM,1.6)),
     impulse:sv(ln('M2 38 H40 M52 38 H90',AX,1)+ln('M21 38 V14',CY)+`<circle cx="21" cy="14" r="3" fill="${CY}"/>`
                +ln('M71 38 V8 M66 14 L71 8 L76 14',AM)),
-    dtper:  sv(ln('M1 23 H91',AX,1)+dots)
+    dtper:  sv(ln('M1 23 H91',AX,1)+dots),
+    bursts: sv(ln('M1 23 H91',AX,1)+[6,36,66].map(x0=>ln('M'+[...Array(21)].map((_,k)=>
+               (x0+k).toFixed(1)+','+(23-15*Math.sin(Math.PI*k/20)*Math.sin(1.6*k)).toFixed(1)).join('L'),CY,1.4)).join('')),
+    wheel:  sv(`<circle cx="46" cy="22" r="19" fill="none" stroke="${AX}" stroke-width="1.4"/>`
+               +[1,2,3,4,5].map(k=>{ const a=k*Math.PI/3; return ln(`M46 22 L${(46+19*Math.cos(a)).toFixed(1)} ${(22-19*Math.sin(a)).toFixed(1)}`,AX,1.2); }).join('')
+               +ln('M46 22 L65 22',AM)+`<circle cx="65" cy="22" r="3" fill="${AM}"/>`)
   };
 })();
 /* Sounds for the slides that play their signal. Each function is the signal
@@ -372,7 +377,7 @@ const SC = [
   {t:'title', level:1, text:'Signal Foundations'},
   {t:'lede', text:'This module gives the signal descriptions needed before we study systems. It defines energy and power, explains changes to the time axis, tests periodicity and introduces complex exponential signals.'},
   {t:'cols', ratio:'c-6-6', vcenter:true, left:[
-    {t:'stack', style:'--ts:1.3;gap:30px', items:[
+    {t:'stack', style:'--ts:1.6;gap:34px', items:[
     {t:'note', kind:'warn', head:'Result 1', html:'<span style="color:var(--graphite)">A signal is <em>energy-type</em>, <em>power-type</em>, or <em>neither</em>. These are not opposites and the third case is real.</span>'},
     {t:'note', kind:'warn', head:'Result 2', html:'<span style="color:var(--graphite)">A discrete-time sinusoid is periodic only when $\\omega_0/2\\pi$ is rational. Continuous-time sinusoids carry no such condition.</span>'}
     ]}
@@ -469,21 +474,21 @@ const SC = [
   {t:'title', text:'Instantaneous Signal Power'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',ylabel:'p(t)',pad:{l:52,r:26,t:20,b:38},xtarget:5,ytarget:3});
+      const a=P.Axes({w:560,h:442,xr:[0,8],yr:[-0.15,1.62],xlabel:'t',ylabel:'p(t)',pad:{l:52,r:26,t:20,b:100},xtarget:5,ytarget:3});
       a.area(t=>Math.pow(Math.cos(1.7*t),2),1.2,4.4,{color:'rgba(190,85,57,.18)'});
       a.curve(t=>Math.pow(Math.cos(1.7*t),2),{color:C.coral});
       a.vline(1.2,{color:C.coral}); a.vline(4.4,{color:C.coral});
       a.note(7.8,1.05,'p(t)=v^{2}(t)\\;\\;(R=1)',{anchor:'end',color:C.coral,fs:15,tex:true});
       a.span(1.2,4.4,1.30,'\\text{energy}=\\text{shaded area}',{color:C.coral,tex:true});
-      /* a sticky note: the constant-power rule the integral generalises */
-      const nx=a.sx(6.55), ny=a.sy(1.43);
-      a.raw(`<g transform="rotate(-3 ${nx} ${ny})" style="--fig-halo:#F3DC7A">
-        <rect x="${nx-104}" y="${ny-26}" width="212" height="56" rx="2" fill="rgba(0,0,0,.28)"/>
-        <rect x="${nx-108}" y="${ny-30}" width="212" height="56" rx="2" fill="#F3DC7A"/>
-        <ellipse cx="${nx+1}" cy="${ny-25}" rx="6" ry="3" fill="rgba(0,0,0,.3)"/>
-        <circle cx="${nx-2}" cy="${ny-29}" r="7" fill="#D13B3B"/>
-        <circle cx="${nx-4.2}" cy="${ny-31.2}" r="2.2" fill="rgba(255,255,255,.55)"/>`);
-      a.note(6.55,1.43,'\\text{Energy}=\\text{Power}\\times\\text{Time}',{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
+      /* a sticky note below the plot: the constant-power rule the integral generalises */
+      const nx=a.sx(4), ny=a.sy(-0.5), nw=212*P.labelScale();   /* the text grows with the label scale */
+      a.raw(`<g style="--fig-halo:#F3DC7A">
+        <rect x="${nx-nw/2+4}" y="${ny-26}" width="${nw}" height="56" rx="2" fill="rgba(0,0,0,.28)"/>
+        <rect x="${nx-nw/2}" y="${ny-30}" width="${nw}" height="56" rx="2" fill="#F3DC7A"/>
+        <ellipse cx="${nx+3}" cy="${ny-25}" rx="6" ry="3" fill="rgba(0,0,0,.3)"/>
+        <circle cx="${nx}" cy="${ny-29}" r="7" fill="#D13B3B"/>
+        <circle cx="${nx-2.2}" cy="${ny-31.2}" r="2.2" fill="rgba(255,255,255,.55)"/>`);
+      a.note(4,-0.5,'\\text{Energy}=\\text{Power}\\times\\text{Time}',{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
       a.raw('</g>');
       return a.svg(); },
       caption:'Energy over a time interval is the area under the instantaneous-power curve. Total energy is finite only if this area approaches a finite value as the interval grows.'}
@@ -673,7 +678,7 @@ const SC = [
   {t:'eyebrow', text:'Module 1 · Worked example', src:'p. 3'},
   {t:'title', text:'Energy and Power Classification Examples'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', code:'energy-pulse', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-2,3],yr:[-0.3,1.4],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:24,t:20,b:36},xtarget:6,ytarget:3});
       a.area(t=>(t>=0&&t<=1)?1:0,0,1,{color:'rgba(74,122,70,.18)'});
       a.curve(t=>(t>=0&&t<=1)?1:0,{color:C.out});
@@ -740,13 +745,22 @@ const SC = [
 
 REAL_ENERGY,
 
-{ id:'m1-lab-b', module:'M1', nav:'Laboratory A · Energy and power', title:'Laboratory A — Energy and Power Classifier', src:'pp. 2–3, 7, 16–18',
+{ id:'m1-lab-b', module:'M1', nav:'Laboratory {lab} · Energy and power', title:'Laboratory {lab} — Energy and Power Classifier', src:'pp. 2–3, 7, 16–18',
   objective:'Classify source-grounded signals before seeing the calculation.',
   slide:true, keywords:'laboratory classifier energy power neither interactive', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory B', src:'pp. 2–3'},
-  {t:'title', text:'Laboratory A · Energy and Power'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 2–3'},
+  {t:'title', text:'Laboratory {lab} · Energy and Power'},
   {t:'lede', text:'Predict the class from the signal shape. Then use the definitions to test the prediction.'},
   {t:'lab', id:'B'}
+]},
+
+{ id:'m1-code-energy', module:'M1', nav:'Code · Energy and power', title:'Energy and Power in Code', src:'pp. 2–3',
+  objective:'Compute energy and average power in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python program energy power pulse constant sequence run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 1 · Energy and power in code', src:'pp. 2–3'},
+  {t:'title', text:'Energy and Power in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m1-code-energy')}
 ]},
 
 { id:'m1-shift', module:'M1', nav:'Time shifting', title:'Time shifting', src:'p. 3',
@@ -756,7 +770,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
   {t:'title', text:'Time Shifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
+    {t:'fig', code:'ops-shift', frame:true, grow:true,
       live:{controls:[{k:'t0', label:'$t_0$', min:-4, max:4, step:0.5, v:3, show:v=>'$'+num(v)+'$ s'}]},
       svg:v=>{
       const t0=v?v.t0:3, tri=t=>Math.abs(t)<=1?1-Math.abs(t):0;
@@ -797,7 +811,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 3'},
   {t:'title', text:'Time Shifting in Discrete Time'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
+    {t:'fig', code:'ops-dt', frame:true, grow:true,
       live:{controls:[{k:'n0', label:'$n_0$', min:-4, max:4, step:1, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const n0=v?v.n0:2, x=n=>n>=0&&n<=3?1-n/4:0, pts=f=>{const r=[];for(let n=-7;n<=7;n++)r.push([n,f(n)]);return r;};
@@ -901,7 +915,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'pp. 3–4'},
   {t:'title', text:'Time Scaling'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
+    {t:'fig', code:'ops-scale', frame:true, grow:true,
       live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const k=v?v.a:2, r=t=>(t>=1&&t<=3)?1:0;
@@ -1013,7 +1027,7 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
   {t:'title', text:'Plotting $x(3t-5)$'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, code:'ops-combined', svg:()=>{
       /* x(t) is the faint reference. The answer is the .sk-key group, which the
          slide keeps hidden until the reader asks for it. */
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
@@ -1039,12 +1053,21 @@ REAL_ENERGY,
 
 REAL_TRANSFORM,
 
-{ id:'m1-lab-a', module:'M1', nav:'Laboratory B · Transformations', title:'Laboratory B — Signal Transformation Laboratory', src:'pp. 3–4',
+{ id:'m1-lab-a', module:'M1', nav:'Laboratory {lab} · Transformations', title:'Laboratory {lab} — Signal Transformation Laboratory', src:'pp. 3–4',
   objective:'Explore x(at−b) with live support and critical-point tracking.',
   slide:true, keywords:'laboratory transformation shift scale reversal support critical points', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory A', src:'pp. 3–4'},
-  {t:'title', text:'Laboratory B · Signal Transformations'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 3–4'},
+  {t:'title', text:'Laboratory {lab} · Signal Transformations'},
   {t:'lab', id:'A'}
+]},
+
+{ id:'m1-code-ops', module:'M1', nav:'Code · Signal operations', title:'Signal Operations in Code', src:'pp. 3–4',
+  objective:'Shift, reverse and scale a signal in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python program shift reversal scaling x(3t-5) run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 1 · Signal operations in code', src:'pp. 3–4'},
+  {t:'title', text:'Signal Operations in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m1-code-ops')}
 ]},
 
 { id:'m1-periodic', module:'M1', nav:'Periodicity', title:'Periodicity', src:'p. 5',
@@ -1084,10 +1107,10 @@ REAL_TRANSFORM,
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const f=n=>{const u=((n%8)+8)%8; return [1,3,5,3,1,0,-1,0][u];};
-      const a=P.Axes({w:560,h:380,xr:[-16,16],yr:[-1.8,9],xlabel:'n',ylabel:'y[n]',pad:{l:56,r:26,t:22,b:36},xtarget:9,ytarget:4});
+      const a=P.Axes({w:560,h:460,xr:[-16,16],yr:[-1.8,7],xlabel:'n',ylabel:'y[n]',pad:{l:56,r:26,t:22,b:100},xtarget:9,ytarget:4});
       a.stem(disc(f,-16,16),{color:C.mid});
       a.span(0,8,5.4,'N_0=8',{color:C.coral,tex:true});
-      /* sticky notes: the period is an integer; N0 is the smallest one */
+      /* sticky notes below the plot: the period is an integer; N0 is the smallest one */
       const sticky=(x,y,w,rot,tex)=>{
         const nx=a.sx(x), ny=a.sy(y);
         a.raw(`<g transform="rotate(${rot} ${nx} ${ny})" style="--fig-halo:#F3DC7A">
@@ -1098,8 +1121,8 @@ REAL_TRANSFORM,
           <circle cx="${nx-2.2}" cy="${ny-31.2}" r="2.2" fill="rgba(255,255,255,.55)"/>`);
         a.note(x,y,tex,{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
         a.raw('</g>'); };
-      sticky(-9,7.7,196,-3,'N\\text{ must be an integer}');
-      sticky(10,7.7,196,2,'N_0=\\text{smallest }N>0');
+      sticky(-8,-3.2,210,0,'N\\text{ must be an integer}');
+      sticky(8,-3.2,210,0,'N_0=\\text{smallest }N>0');
       return a.svg(); },
       caption:'Periods $N=8,16,24,\\dots$; the fundamental period is $N_0=8$.'}
   ], right:[
@@ -1193,27 +1216,29 @@ REAL_TRANSFORM,
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
   {t:'title', text:'Even and Odd Parts'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, svg:()=>{
+    {t:'fig', code:'evenodd-parts', frame:true, svg:()=>{
       const x=t=>(t>0&&t<1)?1:0;
       const rows=[
         [t=>x(t),'x(t)',C.h],
-        [t=>0.5*(x(t)+x(-t)),'\\Ev\\{x\\}(t)',C.in],
-        [t=>0.5*(x(t)-x(-t)),'\\Od\\{x\\}(t)',C.mid]];
+        [t=>0.5*(x(t)+x(-t)),'\\Ev\\{x(t)\\}',C.in],
+        [t=>0.5*(x(t)-x(-t)),'\\Od\\{x(t)\\}',C.mid]];
       return rows.map(function(r,i){
         const odd=i===2;
-        const a=P.Axes({w:560,h:odd?150:140,xr:[-2,2],yr:odd?[-0.8,0.8]:[-0.25,1.45],xlabel:'t',ylabel:r[1],
+        const a=P.Axes({w:560,h:odd?176:140,xr:[-2,2],yr:odd?[-1.2,1.0]:[-0.25,1.45],xlabel:'t',ylabel:r[1],
           xnameRight:22,xnameDrop:odd?44:40,pad:{l:52,r:24,t:26,b:24},xticksOverride:[-2,-1,1,2],
           yticksOverride:odd?[-0.5,0.5]:[0.5,1],xtickfmt:v=>odd?'':String(v),ytickfmt:()=>''});
         if(i===0) a.curve(t=>x(-t),{color:C.muted,dash:'4 4',n:1600});
+        if(i>0){ const sg=odd?-1:1;
+          a.area(t=>0.5,0,1,{color:C.h+'40'});
+          a.area(t=>0.5*sg,-1,0,{color:C.muted+'40'});
+          a.note(0.5,odd?0.72:0.8,'\\tfrac12\\,x(t)',{anchor:'middle',color:C.h,fs:14,tex:true});
+          a.note(-0.5,odd?-0.9:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true}); }
         a.curve(r[0],{color:r[2],width:2.6,n:1600});
         if(i===0){ a.note(-0.5,1.25,'x(-t)',{anchor:'middle',color:C.muted,fs:13,tex:true});
           a.note(1.08,1,'1',{anchor:'start',color:r[2],fs:14,tex:true}); }
-        if(i===1) a.note(1.08,0.5,'\\dfrac12',{anchor:'start',color:r[2],fs:15,tex:true});
-        if(odd){ a.note(1.08,0.5,'+\\dfrac12',{anchor:'start',color:r[2],fs:15,tex:true});
-          a.note(-1.12,-0.62,'-\\dfrac12',{anchor:'end',color:r[2],fs:15,tex:true}); }
         return a.svg(); }).join(''); },
-      caption:'A unit pulse on $0<t<1$ and its mirror $x(-t)$ (dashed). The even part is a pulse of height $\\tfrac12$ on $|t|<1$; the odd part is $+\\tfrac12$ on the right and $-\\tfrac12$ on the left. Adding the second and third rows gives back the first at every $t$.'},
-    {t:'legend', items:[['h','$x(t)$'],['in','$\\Ev\\{x\\}(t)$'],['mid','$\\Od\\{x\\}(t)$']]}
+      caption:'A unit pulse on $0<t<1$ and its mirror $x(-t)$ (dashed). The shaded blocks are the two halves: $\\tfrac12 x(t)$ on the right and $\\tfrac12 x(-t)$ on the left. The even part adds them; the odd part subtracts the mirror, so the left block flips below the axis. Adding the second and third rows gives back the first at every $t$.'},
+    {t:'legend', items:[['h','$x(t)$'],['in','$\\Ev\\{x(t)\\}$'],['mid','$\\Od\\{x(t)\\}$']]}
   ], right:[
     {t:'eq', tex:'\\Ev\\{x(t)\\}=\\tfrac12 x(t)+\\tfrac12 x(-t)', label:'Even part'},
     {t:'eq', tex:'\\Od\\{x(t)\\}=\\tfrac12 x(t)-\\tfrac12 x(-t)', label:'Odd part'},
@@ -1229,21 +1254,30 @@ REAL_TRANSFORM,
 
 REAL_PERIODIC,
 
-{ id:'m1-lab-k', module:'M1', nav:'Laboratory K · Even and odd', title:'Laboratory K — Even and Odd Parts', src:'pp. 5–6',
+{ id:'m1-lab-k', module:'M1', nav:'Laboratory {lab} · Even and odd', title:'Laboratory {lab} — Even and Odd Parts', src:'pp. 5–6',
   objective:'Build the even and odd parts of a shifted signal and read its symmetry from them.',
   slide:true, keywords:'laboratory even odd parts decomposition symmetry shift origin', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory K', src:'pp. 5–6'},
-  {t:'title', text:'Laboratory K · Even and Odd Parts'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 5–6'},
+  {t:'title', text:'Laboratory {lab} · Even and Odd Parts'},
   {t:'lede', text:'Shift the signal. Its even and odd parts come from $x(t)$ and $x(-t)$, not from the look of the graph.'},
   {t:'lab', id:'K'}
 ]},
 
-{ id:'m1-dt-impulse', module:'M1', nav:'DT impulse and step', title:'The discrete-time impulse and step', src:'p. 6',
-  objective:'Define δ[n], u[n], the first difference and the running sum.',
-  keywords:'delta[n] u[n] unit impulse step first difference running sum representation',
-  slide:true, steps:1, blocks:[
+{ id:'m1-code-periodic', module:'M1', nav:'Code · Periodicity and symmetry', title:'Periodicity and Symmetry in Code', src:'pp. 5–6',
+  objective:'Find a period and split a signal into even and odd parts in MATLAB and in Python.',
+  keywords:'code matlab python program period even odd parts run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity and symmetry in code', src:'pp. 5–6'},
+  {t:'title', text:'Periodicity and Symmetry in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m1-code-periodic')}
+]},
+
+{ id:'m1-dt-impulse', module:'M1', nav:'DT impulse', title:'The discrete-time impulse', src:'p. 6',
+  objective:'Define the discrete-time unit impulse δ[n].',
+  keywords:'delta[n] unit impulse discrete time sequence',
+  slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
-  {t:'title', text:'Discrete-Time Impulse and Step'},
+  {t:'title', text:'Discrete-Time Unit Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.35],xlabel:'n',ylabel:'\\delta[n]',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
@@ -1253,25 +1287,77 @@ REAL_PERIODIC,
       caption:'The discrete-time impulse is the sequence that equals 1 at $n=0$ and 0 elsewhere.'}
   ], right:[
     {t:'eq', tex:'\\delta[n]=\\begin{cases}1,&n=0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit impulse',
-      note:'An ordinary sequence. Nothing here is infinite.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'u[n]=\\begin{cases}1,&n\\ge 0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit step'}]}
+      note:'An ordinary sequence. Nothing here is infinite.'}
+  ]}
+]},
+
+{ id:'m1-dt-step', module:'M1', nav:'DT step', title:'The discrete-time step', src:'p. 6',
+  objective:'Define the discrete-time unit step u[n].',
+  keywords:'u[n] unit step discrete time sequence',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
+  {t:'title', text:'Discrete-Time Unit Step'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$u[n]$','$\\delta[n]$','$\\delta[n]+\\delta[n-1]$',
+        '$\\delta[n]+\\cdots+\\delta[n-2]$','$\\delta[n]+\\cdots+\\delta[n-3]$',
+        '$\\delta[n]+\\cdots+\\delta[n-4]$','$\\delta[n]+\\cdots+\\delta[n-5]$']},
+      svg:v=>{
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.45],xlabel:'n',ylabel:'u[n]',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      /* Frame 0 is the printed step. Going to frame 1 lowers every sample but
+         n=0, which is delta[n]; from there delta[n-m] rises while the frame
+         runs from m to m+1 and keeps the impulse colour until the next one
+         starts. Frame 6 is the step again. */
+      const k=v?v.frame:0, done=k<=1e-9||k>=6-1e-9;
+      const cur=done?-1:k<=1?0:Math.ceil(k-1e-9)-1;
+      a.stem(disc(()=>0,-3,5),{color:C.h,showZero:false});
+      for(let m=0;m<=5;m++){
+        const f=m===0?1:k<=1?1-k:Math.max(0,Math.min(1,k-m));
+        if(f<=0) continue;
+        a.stem([[m,f]],{color:m===cur?C.in:C.h});
+      }
+      if(cur>=0) a.note(cur<5?cur:5.2,1.26,cur?'\\delta[n-'+cur+']':'\\delta[n]',{anchor:cur<5?'middle':'end',color:C.in,fs:15,tex:true});
+      if(done) a.note(4.6,1.2,'u[n]',{anchor:'end',color:C.h,fs:16,tex:true});
+      return a.svg(); },
+      caption:'The discrete-time step equals 1 from $n=0$ onward and 0 before it. Step through the frames to build it one shifted impulse at a time.'},
+    {t:'legend', items:[['h','$u[n]$'],['in','$\\delta[n-m]$']]}
+  ], right:[
+    {t:'eq', tex:'u[n]=\\begin{cases}1,&n\\ge 0\\\\0,&\\text{otherwise}\\end{cases}', label:'Unit step',
+      note:'The sample at $n=0$ is included: $u[0]=1$.'},
+    {t:'eq', tex:'u[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]+\\cdots', label:'A sum of impulses',
+      note:'Each shifted impulse $\\delta[n-m]$ places one unit sample at $n=m$.'}
   ]}
 ]},
 
 { id:'m1-dt-impulse-b', module:'M1', nav:'First difference', title:'Difference and Running Sum', src:'p. 6',
   objective:'Relate the discrete-time step and impulse by a difference and a sum.',
   keywords:'first difference running sum u[n] delta[n]',
-  slide:true, steps:3, blocks:[
+  slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
   {t:'title', text:'Difference and Running Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$u[n]$ and $-u[n-1]$','cancel $n=1$','cancel through $n=2$','cancel through $n=3$',
+        'cancel through $n=4$','$n=0$ is left: $\\delta[n]$']},
+      svg:v=>{
       const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-1.35,1.35],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
-      a.stem(disc(n=>n>=0?1:0,-3,5),{color:C.h});
-      a.stem(disc(n=>n>=1?-1:0,-3,5),{color:C.mid});
-      a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
-      a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
+      /* The frames collapse the pairs u[n], -u[n-1] onto the axis one index at
+         a time. Pair n shrinks while the frame runs from n-1 to n; once every
+         pair is gone the sample left at n=0 is marked as delta[n]. Frame 0 is
+         the printed figure. */
+      const k=v?v.frame:0, done=k>=5-1e-9;
+      a.stem(disc(n=>n>=0&&n<1?1:0,-3,0),{color:done?C.out:C.h,width:done?2.6:undefined});
+      a.stem(disc(()=>0,-3,0),{color:C.mid});
+      for(let n=1;n<=5;n++){
+        const f=Math.max(0,Math.min(1,n-k));
+        if(f>0){ a.stem([[n,f]],{color:C.h}); a.stem([[n,-f]],{color:C.mid}); }
+        else a.raw(`<circle cx="${a.sx(n).toFixed(2)}" cy="${a.sy(0).toFixed(2)}" r="4.2" fill="none" stroke="${C.muted}" stroke-width="1.6"/>`);
+      }
+      if(done) a.note(0.25,1.15,'\\delta[n]',{color:C.out,fs:16,tex:true});
+      else {
+        a.note(4.6,1.15,'u[n]',{anchor:'end',color:C.h,fs:15,tex:true});
+        a.note(-2.85,-1.1,'-u[n-1]',{color:C.mid,fs:15,tex:true});
+      }
       return a.svg(); },
       caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'},
     {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']]}
@@ -1281,10 +1367,52 @@ REAL_PERIODIC,
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]', label:'Running sum'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The two operations invert each other', html:'A first difference reverses a running sum. A running sum reverses a first difference. They are the discrete-time forms of differentiation and integration.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation',
-        note:'Each shifted impulse places one sample at its index.'}]}
+      {t:'note', kind:'def', head:'The two operations invert each other', html:'A first difference reverses a running sum. A running sum reverses a first difference. They are the discrete-time forms of differentiation and integration.'}]}
+  ]}
+]},
+
+{ id:'m1-dt-step-rep', module:'M1', nav:'Step as weighted impulses', title:'The step as a sum of weighted impulses', src:'p. 6',
+  objective:'Read u[n] as a sum of shifted impulses weighted by its own samples.',
+  keywords:'representation u[n] sum u[k] delta[n-k] weighted shifted impulses',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 6'},
+  {t:'title', text:'The Step as Weighted Impulses'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$u[n]$','$k=-2$: $u[-2]\\,\\delta[n+2]=0$','$k=-1$: $u[-1]\\,\\delta[n+1]=0$',
+        '$k=0$: $u[0]\\,\\delta[n]$','$k=1$: $u[1]\\,\\delta[n-1]$','$k=2$: $u[2]\\,\\delta[n-2]$',
+        '$k=3$: $u[3]\\,\\delta[n-3]$','$k=4$: $u[4]\\,\\delta[n-4]$','$\\sum_k u[k]\\,\\delta[n-k]=u[n]$']},
+      svg:v=>{
+      const a=P.Axes({w:560,h:380,xr:[-3,5],yr:[-0.25,1.45],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:2});
+      /* Frame 0 and the last frame show u[n]. In between, frame i adds the
+         term k=i-3: an impulse at n=k scaled by u[k]. For k<0 the weight is
+         0, so the term is marked by an open circle on the axis and adds
+         nothing; for k>=0 it rises to 1 while the frame runs from i-1 to i. */
+      const k=v?v.frame:0, last=8, done=k<=1e-9||k>=last-1e-9;
+      const c=Math.ceil(k-1e-9)-3, cur=done||c>4?null:c;
+      a.stem(disc(()=>0,-3,5),{color:C.h,showZero:false});
+      for(let m=-2;m<=4;m++){
+        const f=done?1:Math.max(0,Math.min(1,k-(m+2)));
+        if(f<=0) continue;
+        const w=m>=0?1:0, col=m===cur?C.in:C.h;
+        if(w) a.stem([[m,f]],{color:col});
+        else if(m===cur) a.raw(`<circle cx="${a.sx(m).toFixed(2)}" cy="${a.sy(0).toFixed(2)}" r="5" fill="none" stroke="${C.in}" stroke-width="2" opacity="${f.toFixed(3)}"/>`);
+      }
+      const f5=done?1:Math.max(0,Math.min(1,k-7));
+      if(f5>0) a.stem([[5,f5]],{color:C.h});
+      if(cur!=null){
+        const lab=cur===0?'u[0]\\,\\delta[n]':cur<0?'u['+cur+']\\,\\delta[n+'+(-cur)+']=0':'u['+cur+']\\,\\delta[n-'+cur+']';
+        a.note(cur<3?cur:3.2,cur<0?0.32:1.26,lab,{anchor:cur<3?'middle':'end',color:C.in,fs:15,tex:true});
+      }
+      if(done||c>4) a.note(4.6,1.26,'u[n]',{anchor:'end',color:C.h,fs:16,tex:true});
+      return a.svg(); },
+      caption:'Each term is an impulse at $n=k$ scaled by the sample $u[k]$. Terms with $k<0$ have weight 0; terms with $k\\ge0$ add one unit sample.'},
+    {t:'legend', items:[['h','$u[n]$'],['in','$u[k]\\,\\delta[n-k]$']]}
+  ], right:[
+    {t:'eq', key:true, tex:'u[n]=\\sum_{k=-\\infty}^{\\infty}u[k]\\,\\delta[n-k]', label:'Representation',
+      note:'Each shifted impulse places one sample at its index.'},
+    {t:'eq', tex:'u[k]\\,\\delta[n-k]=\\begin{cases}\\delta[n-k],&k\\ge0\\\\0,&k<0\\end{cases}', label:'One term',
+      note:'The weights $u[k]$ switch off every term with $k<0$, so only the terms with $k\\ge0$ remain. That is the running sum of the previous slide.'}
   ]}
 ]},
 
@@ -1295,12 +1423,23 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
   {t:'title', text:'Discrete-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$','multiply by $\\delta[n-2]$','$x[n]\\,\\delta[n-2]=3\\,\\delta[n-2]$']},
+      svg:v=>{
       const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
-      a.stem(disc(n=>[1,2,3][n]!==undefined&&n>=0&&n<=2?[1,2,3][n]:0,-1,5),{color:C.in});
-      a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true});
+      /* Frame 0 shows x[n], the printed figure. Going to frame 1 fades the
+         window delta[n-2] in over n=2; going to frame 2 lowers every other
+         sample to zero and turns the kept one into the output. */
+      const k=v?v.frame:0, cl=u=>Math.max(0,Math.min(1,u)), w=cl(k), d=cl(k-1);
+      const g=(o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
+      g(w,()=>a.rect(1.72,0,2.28,3.4,{fill:C.h+'1F',stroke:C.h,width:1.6,dash:'5 4'}));
+      a.stem(disc(n=>n>=0&&n<=1?(n+1)*(1-d):0,-1,5).filter(([n])=>n!==2),{color:C.in});
+      a.stem([[2,3]],{color:d>0?C.out:C.in,width:d>0?2.6:undefined});
+      g(Math.min(w,1-2*d),()=>a.note(2.45,3.2,'\\delta[n-2]',{color:C.h,fs:16,tex:true}));
+      g(2*d-1,()=>a.note(2.45,3.2,'3\\,\\delta[n-2]',{color:C.out,fs:16,tex:true}));
+      g(1-d,()=>a.note(4.6,3.2,'x[n]',{anchor:'end',color:C.in,fs:15,tex:true}));
       return a.svg(); },
-      caption:'The sequence used below. Sampling keeps the sample at $n=2$.'}
+      caption:'Multiplying by $\\delta[n-2]$ keeps the sample at $n=2$ and sets every other sample to zero.'}
   ], right:[
     {t:'eq', key:true, tex:'x[n]\\,\\delta[n-n_0]=x[n_0]\\,\\delta[n-n_0]', label:'Sampling property',
       note:'Both sides are sequences. The impulse keeps one sample and drops the rest.'},
@@ -1318,7 +1457,7 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'pp. 6–7'},
   {t:'title', text:'Sampling and Sifting, Computed'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', code:'impulse-dt-sift', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-1,5],yr:[-0.3,3.6],xlabel:'n',ylabel:'x[n]\\delta[n-2]',ynameAtAxis:true,pad:{l:48,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>n===2?3:0,-1,5),{color:C.out});
       a.note(4.6,3.2,'x[n]\\cdot\\delta[n-2]=3\\delta[n-2]',{anchor:'end',color:C.out,fs:15,tex:true});
@@ -1385,17 +1524,24 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Continuous-Time Sampling and Sifting'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$','multiply by $\\delta(t-t_0)$','$x(t_0)\\,\\delta(t-t_0)$']},
+      svg:v=>{
       const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-1.1,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:22,b:34},xtarget:7,ytarget:3});
+      /* Frame 0 is x(t), the printed figure. Going to frame 1 fades in a unit
+         impulse at t0; going to frame 2 scales its weight from 1 to x(t0). */
       const x=t=>0.75*Math.cos(1.2*t-0.5);
+      const k=v?v.frame:0, cl=u=>Math.max(0,Math.min(1,u)), w=cl(k), d=cl(k-1);
+      const g=(o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
       a.curve(x,{color:C.muted,width:1.6});
-      a.impulse(3, x(3), {color:C.coral, label:false});
-      a.point(3,x(3),{color:C.coral});
-      a.note(4.55,-0.9,'(x(t_0))',{color:C.coral,fs:14,tex:true});
+      g(w,()=>{ a.impulse(3, 1+(x(3)-1)*d, {color:d>0?C.coral:C.h, label:false});
+        a.note(2.86,-0.28,'t_0',{anchor:'end',color:d>0?C.coral:C.h,fs:14,tex:true}); });
+      g(Math.min(w,1-2*d),()=>a.note(3.14,1.18,'\\delta(t-t_0)',{color:C.h,fs:14,tex:true}));
+      g(d,()=>{ a.point(3,x(3),{color:C.coral});
+        a.note(4.55,-0.9,'(x(t_0))',{color:C.coral,fs:14,tex:true}); });
       a.note(5.7,1.35,'x(t)',{anchor:'end',color:C.muted,fs:15,tex:true});
-      a.note(2.86,-0.28,'t_0',{anchor:'end',color:C.coral,fs:14,tex:true});
       return a.svg(); },
-      caption:'Sifting, drawn. The impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
+      caption:'Sifting, drawn. Step through the frames: the impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
   ], right:[
     {t:'eq', tex:'\\delta(t)=\\dfrac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau',
       label:'Step and impulse', note:'The pair $\\delta[n]=u[n]-u[n-1]$ is the discrete-time analogue.'},
@@ -1409,13 +1555,22 @@ REAL_PERIODIC,
 
 REAL_IMPULSE,
 
-{ id:'m1-lab-l', module:'M1', nav:'Laboratory L · Sifting', title:'Laboratory L — Sifting with a Narrowing Pulse', src:'pp. 6–7',
+{ id:'m1-lab-l', module:'M1', nav:'Laboratory {lab} · Sifting', title:'Laboratory {lab} — Sifting with a Narrowing Pulse', src:'pp. 6–7',
   objective:'See the sifting integral approach x(t0) as a unit-area pulse narrows, and compare the exact discrete-time sum.',
   slide:true, keywords:'laboratory impulse sifting unit area pulse epsilon limit delta', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory L', src:'pp. 6–7'},
-  {t:'title', text:'Laboratory L · Sifting'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 6–7'},
+  {t:'title', text:'Laboratory {lab} · Sifting'},
   {t:'lede', text:'Replace $\\delta(t)$ by a pulse of width $\\varepsilon$ and height $1/\\varepsilon$. Narrow the pulse and watch the integral approach $x(t_0)$. In discrete time the sum is exact at once.'},
   {t:'lab', id:'L'}
+]},
+
+{ id:'m1-code-impulse', module:'M1', nav:'Code · Impulses and steps', title:'Impulses and Steps in Code', src:'pp. 6–7',
+  objective:'Build the step from the impulse and check the sifting property in MATLAB and in Python.',
+  keywords:'code matlab python program impulse step running sum first difference sifting run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulses and steps in code', src:'pp. 6–7'},
+  {t:'title', text:'Impulses and Steps in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m1-code-impulse')}
 ]},
 
 { id:'m1-ct-cexp', module:'M1', nav:'CT complex exponentials', title:'Continuous-time complex exponentials', src:'pp. 7–9',
@@ -1468,7 +1623,7 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
   {t:'title', text:'Period and Envelope of a Complex Exponential'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', code:'cexp-ct-period', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[0,12],yr:[-1.3,1.3],xlabel:'t',ylabel:'\\operatorname{Re}\\{x(t)\\}',pad:{l:60,r:26,t:20,b:36},xtarget:7,ytarget:3});
       a.curve(t=>Math.cos(0.5*Math.PI*t),{color:C.in});
       a.span(0,4,1.12,'T_0=4\\;\\text{s}',{color:C.coral,tex:true});
@@ -1493,7 +1648,7 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–9'},
   {t:'title', text:'Growth, Decay, and an Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
+    {t:'fig', code:'cexp-envelope', frame:true, grow:true,
       live:{controls:[{k:'r', label:'$r$', min:-1.5, max:0.5, step:0.25, v:-0.5, show:v=>'$'+num(v)+'$'}]},
       listen:{items:[
           {label:'Play $e^{rt}\\cos(2\\pi\\cdot 440\\,t)$', sound:v=>({f:t=>Math.exp(v.r*t)*Math.cos(2*Math.PI*440*t), dur:3})}]},
@@ -1600,7 +1755,7 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
   {t:'title', text:'Computing a Discrete-Time Period'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', code:'cexp-dt-period', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-20,20],yr:[-1.35,1.5],xlabel:'n',ylabel:'\\operatorname{Re}\\{x[n]\\}',pad:{l:60,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.stem(disc(n=>Math.cos(3*Math.PI*n/5),-20,20),{color:C.in,r:3});
       a.span(0,10,1.24,'N_0=10',{color:C.coral,tex:true});
@@ -1620,13 +1775,22 @@ REAL_IMPULSE,
 
 REAL_CEXP,
 
-{ id:'m1-lab-c', module:'M1', nav:'Laboratory C · Periodicity', title:'Laboratory C — Periodicity Explorer', src:'pp. 5, 8, 10',
+{ id:'m1-lab-c', module:'M1', nav:'Laboratory {lab} · Periodicity', title:'Laboratory {lab} — Periodicity Explorer', src:'pp. 5, 8, 10',
   objective:'Compare CT and DT periodicity with an exact rationality test.',
   slide:true, keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory C', src:'pp. 5, 8, 10'},
-  {t:'title', text:'Laboratory C · Periodicity'},
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 5, 8, 10'},
+  {t:'title', text:'Laboratory {lab} · Periodicity'},
   {t:'lede', text:'Enter $\\omega_0$ as a rational multiple of $\\pi$. The laboratory can then apply the discrete-time rationality test exactly. A rounded decimal cannot prove that a number is rational.'},
   {t:'lab', id:'C'}
+]},
+
+{ id:'m1-code-cexp', module:'M1', nav:'Code · Complex exponentials', title:'Complex Exponentials in Code', src:'pp. 7–10',
+  objective:'Compute periods and envelopes of complex exponentials in MATLAB and in Python.',
+  keywords:'code matlab python program complex exponential period envelope aperiodic run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials in code', src:'pp. 7–10'},
+  {t:'title', text:'Complex Exponentials in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m1-code-cexp')}
 ]},
 
 CAT_BLOCKS,
@@ -1690,12 +1854,63 @@ CAT_RANDOM,
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'Method', html:'<span style="color:var(--graphite)">Use a definition to test each claim. Evaluate the required limit, integral or sum. Use a plot to understand the result, but do not use its appearance as proof. Module 2 applies this method to six system properties.</span>'}]}
   ], right:[
-    {t:'raw', html:'<p class="eyebrow" style="margin-bottom:14px"><span class="tick"></span>Reflection</p>'},
+    {t:'raw', html:'<p class="eyebrow hi hi-reflect" style="margin-bottom:14px">Reflection</p>'},
     {t:'lede', text:'Choose average power for a radio transmitter and pulse energy for a radar pulse. Explain why each quantity is finite, and state the time interval required for each measurement.'},
     {t:'reveal', at:1, items:[
       {t:'raw', html:`<div class="instr"><div class="instr-panel"><span class="note-h">Discussion guidance</span>
         <span style="color:var(--graphite)">A continuous transmitter is specified by average power in watts, because its energy is unbounded. A radar or ultrasound pulse is specified by pulse energy in joules, because its power only has meaning inside the pulse. The measurement follows. A power meter integrates over a window that is long compared with the signal. An energy meter integrates over the whole transient.</span></div></div>`}]}
   ]}
+]},
+
+/* Four optional projects for students who want to try the module on their own
+   computer. They carry no grade and no code: each card gives an aim, what it
+   practises, a few steps and what to look for. The briefs state no numerical
+   answer, so they need no line in verify/. */
+{ id:'m1-projects', module:'M1', nav:'Projects to try', title:'Projects to Try', src:'pp. 2–10',
+  dark:true, objective:'Offer four optional projects that use the module on real and computed signals.',
+  keywords:'projects matlab python energy power time scaling periodicity complex exponential wagon wheel',
+  steps:0, blocks:[
+  {t:'eyebrow', text:'Module 1 · Projects', src:'pp. 2–10'},
+  {t:'title', text:'Projects to Try'},
+  {t:'raw', html:()=>PROJECTS.deck('m1', [
+    {title:'Find the loud parts of a recording', glyph:G.bursts,
+     aim:'Use average power to find where a recording has sound and where it is silent.',
+     learn:['The energy and the average power of a sequence.',
+            'Average power over a short window of samples.',
+            'A threshold that turns a number into a decision.'],
+     steps:['Record a few seconds of your voice with pauses between the words.',
+            'Cut the recording into windows of 20 ms. In each window compute $P=\\frac{1}{N}\\sum_{n}|x[n]|^2$, where $N$ is the number of samples in the window.',
+            'Plot $P$ against time. Choose a threshold and mark each window as sound or silence.',
+            'Repeat with windows of 5 ms and 200 ms.'],
+     look:'Short windows follow the words closely but flicker. Long windows are smooth but blur where each word starts and ends. Ask why the total energy of the recording cannot answer the question.'},
+    {title:'Play a word backwards, faster and later', glyph:G.shift,
+     aim:'Hear the time operations on a real signal and check the order of shift and scale.',
+     learn:['Reversal $x[-n]$, delay $x[n-n_0]$ and compression $x[2n]$ on recorded samples.',
+            'The order rule for $x(at-b)$.',
+            'Why compression in discrete time loses samples.'],
+     steps:['Record one word as $x[n]$. Play $x[-n]$. Then play $x[2n]$ at the same sampling rate.',
+            'Build $y(t)=x(2t-1)$ in two orders: delay by 1 s and then compress by 2, or compress by 2 and then delay by 0.5 s. Subtract the two results.',
+            'Rebuild a signal from $x[2n]$ by repeating each sample twice. Play it and compare it with $x[n]$.'],
+     look:'The two orders give the same samples. $x[2n]$ is shorter and higher in pitch. The rebuilt signal is not the original, because half of the samples are gone and no rule can return them.'},
+    {title:'Hunt for the fundamental period', glyph:G.period,
+     aim:'Find the fundamental period by hand and by program, and test the rational rule for discrete-time sinusoids.',
+     learn:['The period of a sum of sinusoids from the least common multiple.',
+            'The test that $\\omega_0/2\\pi$ is rational.',
+            'A search for the smallest $N$ with $x[n+N]=x[n]$.'],
+     steps:['Write a function that searches $N=1,2,\\dots,1000$ for the smallest $N$ with $x[n+N]=x[n]$ on a long range of $n$, up to rounding error.',
+            'Predict on paper, then test: $\\cos(\\pi n/6)$, $\\cos(\\pi n/6)+\\sin(\\pi n/4)$, $\\cos(3\\pi n/10)$, $\\cos(n/2)$ and $e^{j2\\pi n/7}$.',
+            'Sample $x(t)=\\cos(2\\pi t)$ with step $T_s=0.1$ s and with step $T_s=1/\\pi$ s. Test both sequences.'],
+     look:'A continuous-time signal can be periodic while its samples are not. The program can only report that it found no period up to 1000. It cannot prove that none exists; the rational test can.'},
+    {title:'Make a wagon wheel turn backwards', glyph:G.wheel,
+     aim:'See why $e^{j\\omega_0 n}$ and $e^{j(\\omega_0+2\\pi)n}$ are the same sequence.',
+     learn:['A discrete-time complex exponential as a point that moves on the unit circle.',
+            'Frequency in rad/sample, taken modulo $2\\pi$.',
+            'The rotation that the samples appear to show.'],
+     steps:['Draw a wheel with one marked spoke. In frame $n$, turn it to the angle $\\omega_0 n$, as a camera would photograph it.',
+            'Increase $\\omega_0$ slowly from $0$ to $4\\pi$ rad/sample and watch the marked spoke.',
+            'For each $\\omega_0$, measure the angle the spoke seems to turn in one frame, taken between $-\\pi$ and $\\pi$. Plot it against $\\omega_0$.'],
+     look:'The wheel seems to stop at $\\omega_0=2\\pi$ and to turn backwards just below it. The plot is a sawtooth. The wheels of a car in a film show the same effect.'}
+  ])}
 ]}
 ];
 window.SCENES_M1 = SC;

@@ -1,7 +1,7 @@
 /* ==========================================================================
    COURSE CONTENT — verified against `lecture notes.pdf`.
    This file holds course data only (modules, notation glossary, the system
-   catalogue used by Laboratory D, and the property criteria).
+   catalogue used by Laboratory 2.3, and the property criteria).
    Every entry carries its source page.
    ========================================================================== */
 const CONTENT = {
@@ -40,7 +40,7 @@ const CONTENT = {
     dt:{ s:'\\delta(t)', d:'Continuous-time unit impulse (Dirac delta). It is not an ordinary function. It is defined by its sifting action.', go:'m1-ct-impulse' },
     dn:{ s:'\\delta[n]', d:'Discrete-time unit impulse: $1$ at $n=0$, zero elsewhere. An ordinary sequence.', go:'m1-dt-impulse' },
     ut:{ s:'u(t)', d:'Continuous-time unit step: $1$ for $t\\ge 0$, $0$ otherwise.', go:'m1-ct-impulse' },
-    un:{ s:'u[n]', d:'Discrete-time unit step: $1$ for $n\\ge 0$, $0$ otherwise.', go:'m1-dt-impulse' },
+    un:{ s:'u[n]', d:'Discrete-time unit step: $1$ for $n\\ge 0$, $0$ otherwise.', go:'m1-dt-step' },
     Einf:{ s:'E_\\infty', d:'Total energy over an infinite interval ($R=1$ normalisation).', go:'m1-energy-inf' },
     Pinf:{ s:'P_\\infty', d:'Time-averaged power over an infinite interval.', go:'m1-power' },
     T0:{ s:'T_0', d:'Fundamental period of a continuous-time periodic signal: the smallest $T>0$ with $x(t)=x(t+T)$.', go:'m1-fundamental' },
@@ -52,7 +52,7 @@ const CONTENT = {
     S:{ s:'S', d:'System operator mapping an input signal to an output signal.', go:'m2-abstraction' }
   },
 
-  /* ---- property criteria used by Laboratory D ---- */
+  /* ---- property criteria used by Laboratory 2.3 ---- */
   PROPS: [
     { k:'mem',  name:'Memoryless',
       crit:'The output at time $t$ (or $n$) uses only the input at that same time. If it uses $x(t\\pm\\tau)$ with $\\tau\\neq0$, or a past output, the system has memory.' },
@@ -68,7 +68,7 @@ const CONTENT = {
       crit:'$a x_1 + b x_2 \\to a y_1 + b y_2$ for all $a,b\\in\\mathbb{C}$. This is additivity and homogeneity together.' }
   ],
 
-  /* ---- system catalogue for Laboratory D; every entry  ---- */
+  /* ---- system catalogue for Laboratory 2.3; every entry  ---- */
   SYSTEMS: [
     { tex:'y(t)=\\bigl[\\,2x(t)-x^{2}(t)\\,\\bigr]^{2}', src:'p. 11', p:{
       mem:{v:true, arg:'Only $x(t)$ appears. There is no $x(t+1)$, no $x(t-2)$ and no integral. The output at $t$ is a fixed function of the input at $t$.'},

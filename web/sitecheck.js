@@ -173,8 +173,9 @@ const note = m => console.log('  ' + m);
          + (bg.w ? ' · canvas ' + bg.w + '×' + bg.h : ''));
     if (!bg.ok) problems.push('the backdrop shader is not running: ' + bg.why);
 
-    /* The four document photographs loaded, and each card downloads a file
-       the site publishes. No card may point at the instructor edition. */
+    /* The three document photographs loaded, and each card downloads a PDF
+       the site publishes. The course itself is opened on the site, never
+       offered as a download, and no card may point at the instructor edition. */
     const cards = await page.evaluate(() => [...document.querySelectorAll('.doc')].map(a => ({
       href: a.getAttribute('href'),
       download: a.hasAttribute('download'),
@@ -183,11 +184,12 @@ const note = m => console.log('  ' + m);
     note('cover cards ' + cards.length + ' · photographs loaded '
          + cards.filter(c => c.img > 0).length + ' · download links '
          + cards.filter(c => c.download).length);
-    if (cards.length !== 4) problems.push('the cover shows ' + cards.length + ' document cards, not 4');
+    if (cards.length !== 3) problems.push('the cover shows ' + cards.length + ' document cards, not 3');
     for (const c of cards) {
       if (!c.img) problems.push('the photograph on the ' + c.href + ' card did not load');
       if (!c.download) problems.push('the ' + c.href + ' card is not a download link');
       if (/instructor/i.test(c.href)) problems.push('a cover card links the instructor edition');
+      if (!/\.pdf$/i.test(c.href)) problems.push('the ' + c.href + ' card offers a file that is not a PDF');
     }
 
     if (errors.length) problems.push('cover console error(s): ' + errors[0]);

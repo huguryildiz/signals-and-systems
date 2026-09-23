@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratory J — Module 7  [Source: 80–88]
+   Laboratory 7.4 (key J) — Module 7  [Source: 80–88]
    Every displayed number is computed from the definitions at interaction time.
    ========================================================================== */
 Object.assign(LABS, (function(){

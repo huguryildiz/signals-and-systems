@@ -2126,11 +2126,11 @@ const SC = [
   ]}
 ]},
 
-{ id:'m5-lab-h', module:'M5', nav:'Laboratory H · Time and frequency', title:'Laboratory H — CTFT Time–Frequency Explorer', src:'pp. 45–61',
+{ id:'m5-lab-h', module:'M5', nav:'Laboratory {lab} · Time and frequency', title:'Laboratory {lab} — CTFT Time–Frequency Explorer', src:'pp. 45–61',
   objective:'Change a signal in time and observe the corresponding transform, with and without a carrier.',
-  keywords:'laboratory H CTFT explorer time frequency width bandwidth modulation carrier sidebands overlap', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory H', src:'pp. 45–61'},
-  {t:'title', text:'Laboratory H · Time and Frequency'},
+  keywords:'laboratory {lab} CTFT explorer time frequency width bandwidth modulation carrier sidebands overlap', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 45–61'},
+  {t:'title', text:'Laboratory {lab} · Time and Frequency'},
   {t:'small', html:'Change the signal width or decay rate and compare the resulting transform. Then enable the carrier. Modulation creates two half-height spectral copies, and decreasing the carrier frequency moves them toward overlap.'},
   {t:'lab', id:'H'}
 ]}

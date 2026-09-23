@@ -77,7 +77,7 @@ CONTENT.CHAPTERS = [
 CONTENT.SECTIONS = {
 
   M0: [
-    { n:'0', ids:['m0-signal','m0-system','m0-blackbox','m0-ctdt','m0-examples','m0-map','m0-howto'] }
+    { n:'0', ids:['m0-signal','m0-system','m0-blackbox','m0-ctdt','m0-examples','m0-apps','m0-books','m0-map','m0-howto'] }
   ],
 
   M1: [
@@ -86,21 +86,21 @@ CONTENT.SECTIONS = {
     { n:'1.2', title:'Energy and power',                           ids:[
         'm1-power','m1-energy-inf','m1-energy-div','m1-avgpower',
         'm1-classify','m1-classify-b','m1-classify-c',
-        'm1-ex-energy','m1-ex-energy-b','m1-ex-energy-c','m1-real-energy','m1-lab-b'] },
+        'm1-ex-energy','m1-ex-energy-b','m1-ex-energy-c','m1-real-energy','m1-lab-b','m1-code-energy'] },
     { n:'1.3', title:'Signal operations', ids:[
-        'm1-shift','m1-shift-dt','m1-reverse','m1-reverse-b','m1-scale','m1-scale-b','m1-combined','m1-combined-b','m1-real-transform','m1-lab-a'] },
+        'm1-shift','m1-shift-dt','m1-reverse','m1-reverse-b','m1-scale','m1-scale-b','m1-combined','m1-combined-b','m1-real-transform','m1-lab-a','m1-code-ops'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:[
-        'm1-periodic','m1-periodic-b','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-real-periodic','m1-lab-k'] },
+        'm1-periodic','m1-periodic-b','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
-        'm1-dt-impulse','m1-dt-impulse-b','m1-dt-sift','m1-dt-sift-b',
-        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l'] },
+        'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
         'm1-ct-cexp','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
         'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c',
-        'm1-dt-period','m1-dt-period-b','m1-real-cexp','m1-lab-c'] },
+        'm1-dt-period','m1-dt-period-b','m1-real-cexp','m1-lab-c','m1-code-cexp'] },
     { n:'1.7', title:'A catalogue of common signals',             ids:[
         'm1-cat-blocks','m1-cat-pulse','m1-cat-wave','m1-cat-sound','m1-cat-random'] },
-    { n:'1.8', title:'Summary',                                    ids:['m1-quick','m1-synth'] }
+    { n:'1.8', title:'Summary',                                    ids:['m1-quick','m1-synth','m1-projects'] }
   ],
 
   M2: [
@@ -218,21 +218,21 @@ CONTENT.BOOK = {
   'm1-avgpower':'1.1.2',
   'm1-classify':'1.1.2', 'm1-classify-b':'1.1.2', 'm1-classify-c':'1.1.2',
   'm1-ex-energy':'1.1.2', 'm1-ex-energy-b':'1.1.2', 'm1-ex-energy-c':'1.1.2',
-  'm1-lab-b':'1.1.2', 'm1-real-energy':'1.1.2',
+  'm1-lab-b':'1.1.2', 'm1-code-energy':'1.1.2', 'm1-real-energy':'1.1.2',
   'm1-shift':'1.2.1', 'm1-shift-dt':'1.2.1', 'm1-real-transform':'1.2.1', 'm1-reverse':'1.2.1', 'm1-reverse-b':'1.2.1', 'm1-scale':'1.2.1', 'm1-scale-b':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
-  'm1-lab-a':'1.2.1',
+  'm1-lab-a':'1.2.1', 'm1-code-ops':'1.2.1',
   'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2',
-  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3',
-  'm1-dt-impulse':'1.4.1', 'm1-dt-impulse-b':'1.4.1',
+  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
+  'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
-  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2',
+  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
   'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
   'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1',
   'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2',
   'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3',
-  'm1-lab-c':'1.3.3', 'm1-real-cexp':'1.3',
-  'm1-quick':'1.7', 'm1-synth':'1.7',
+  'm1-lab-c':'1.3.3', 'm1-code-cexp':'1.3.3', 'm1-real-cexp':'1.3',
+  'm1-quick':'1.7', 'm1-synth':'1.7', 'm1-projects':'1.7',
 
   'm2-abstraction':'1.5.1',
   'm2-memory':'1.6.1', 'm2-memory-b':'1.6.1',
@@ -318,17 +318,30 @@ CONTENT.BOOK = {
    written down twice, so a section that gains a scene renumbers by itself and
    cannot drift out of step with the declaration.
 
-   Three id shapes take a space of their own rather than an ordinal, because
-   they are not teaching scenes: a laboratory (`*-lab-*`) takes `L`, and the
-   two question scenes of a module take `Q1` and `Q2`. Each counts from 1
-   within its chapter. */
+   Four id shapes take a space of their own rather than an ordinal, because
+   they are not teaching scenes: a laboratory (`*-lab-*`) takes `L` after its
+   section, a code page (`*-code-*`) takes `C`, and the two question scenes of a module take `Q1` and `Q2`, which
+   count from 1 within their chapter.
+
+   A laboratory is named after the section it closes: the one in section 1.2 is
+   Laboratory 1.2 and has the address 1.2.L. Two laboratories in one section
+   take a and b in declared order (4.6a, 4.6b). The number is written nowhere
+   else: a scene file writes `{lab}` where the number goes, in `nav`, `title`,
+   `keywords` and the text of its blocks, and it is filled in here. The
+   single letters the laboratories carry in code (`{t:'lab', id:'B'}`,
+   `data-lab="B"`) are internal keys and are never shown. */
+function nameLab(s){
+  const fill = t => typeof t === 'string' ? t.split('{lab}').join(s.lab) : t;
+  s.nav = fill(s.nav); s.title = fill(s.title); s.keywords = fill(s.keywords);
+  (s.blocks||[]).forEach(b=>{ if(b.text) b.text = fill(b.text); });
+}
+
 window.applyNumbering = function(scenes){
   const byId = {};
   scenes.forEach(s=>{ byId[s.id] = s; });
 
   return CONTENT.CHAPTERS.map(ch=>{
     const secs = CONTENT.SECTIONS[ch.module] || [];
-    let labN = 0;
     const out = { n:ch.n, title:ch.title, module:ch.module, flat:!!ch.flat, sections:[] };
 
     /* Each teaching module closes with one practice-question scene. */
@@ -337,13 +350,19 @@ window.applyNumbering = function(scenes){
 
     secs.forEach(sec=>{
       const entries = [];
-      let ord = 0;
+      let ord = 0, labK = 0;
+      const labs = sec.ids.filter(id=>/-lab-/.test(id)).length;
       sec.ids.forEach(id=>{
         const s = byId[id];
         if(!s){ console.error('numbering: no scene with id '+id); return; }
-        s.sec  = /-lab-/.test(id) ? ch.n+'.L'+(++labN)
-               : ch.flat          ? ch.n+'.'+(++ord)
-               :                    sec.n+'.'+(++ord);
+        if(/-lab-/.test(id)){
+          const suf = labs > 1 ? 'abcdefgh'[labK++] : '';
+          s.lab = sec.n+suf;
+          s.sec = sec.n+'.L'+suf;
+          nameLab(s);
+        }
+        else if(/-code-/.test(id)) s.sec = sec.n+'.C';
+        else s.sec = ch.flat ? ch.n+'.'+(++ord) : sec.n+'.'+(++ord);
         s.book = CONTENT.BOOK[id];
         entries.push(s);
       });

@@ -297,7 +297,7 @@ const PLOT = (() => {
         const dir = Y1<Y0 ? -1 : 1;
         parts.push(`<line x1="${X.toFixed(2)}" y1="${Y0.toFixed(2)}" x2="${X.toFixed(2)}" y2="${(Y1-dir*0).toFixed(2)}"
           stroke="${col}" stroke-width="${(opts.width||2.1)*STRW}"/>`);
-        parts.push(`<path d="M${X.toFixed(2)},${Y1.toFixed(2)} l${(-5.2*STRW).toFixed(2)},${(dir*9*STRW).toFixed(2)} l${(10.4*STRW).toFixed(2)},0 Z" fill="${col}"/>`);
+        parts.push(`<path d="M${X.toFixed(2)},${Y1.toFixed(2)} l${(-5.2*STRW).toFixed(2)},${(-dir*9*STRW).toFixed(2)} l${(10.4*STRW).toFixed(2)},0 Z" fill="${col}"/>`);
         if(opts.label!==false)
           parts.push(`<text x="${(X+8).toFixed(2)}" y="${(Y1+(dir<0?-4:14)).toFixed(2)}" ${halo()}
             font-family="var(--sans)" font-size="${(opts.fs||13)*LBLS}" fill="${col}">(${opts.labelText||fmt(weight,3)})</text>`);
@@ -380,10 +380,14 @@ const PLOT = (() => {
            A full-width signal plot gets the larger lecture-slide size. */
         const TICK_SIZE = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13) * LBLS;
         const yBase = yz!=null? yz : y0;
+        /* x tick numbers sit below the axis, where a negative stem or curve runs.
+           They are drawn after the data, so the halo interrupts the trace and the
+           number stays readable. */
+        const tl=[];
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
-          g.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
+          tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         const xBase = xz!=null? xz : x0;
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
@@ -405,7 +409,7 @@ const PLOT = (() => {
           : { xLeft:(xz!=null?xz+9:x0), baseline:y1-7, size:NAME_SIZE,
               color:CH.name, role:'axisname', figW:W }));
         return `<svg viewBox="0 0 ${W} ${H}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,'Segoe UI',sans-serif">`
-          + g.join('') + parts.join('') + names.join('') + `</svg>`;
+          + g.join('') + parts.join('') + tl.join('') + names.join('') + `</svg>`;
       }
     };
     return api;
@@ -453,6 +457,7 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null };
+  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null,
+    labelScale:()=>LBLS };
   return API;
 })();

@@ -32,19 +32,23 @@
 </svg>
     <span class="brand">Signals and Systems</span>
     <span class="spacer"></span>
-    <button data-act="search" title="Search (/)">Search</button>
-    <button data-act="gloss" title="Notation (G)">Notation</button>
+    <button data-act="search" title="Search (/)" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg><span>Search</span></button>
+    <button data-act="gloss" title="Notation (G)" aria-label="Notation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5H7l6 7-6 7h10"/></svg><span>Notation</span></button>
     <span class="sep"></span>
     <button id="btn-display" data-act="display" title="Normal / projector (P)">Normal</button>
     <button id="btn-pointer" class="proj-only" data-act="pointer" title="Laser pointer / system arrow">Laser</button>
     <button id="btn-trail" class="proj-only" data-act="trail" title="Ink: fade, hold, off (T) — hold the mouse button to draw, C clears">Trail: fade</button>
+    <label id="trail-len" class="proj-only" title="How long a faded trail stays visible"><input id="trail-sec" type="range" min="1" max="15" step="1" value="3" aria-label="Trail duration in seconds"><output for="trail-sec">3 s</output></label>
     <span class="sep proj-only"></span>
     <button id="btn-theme" data-act="theme" title="Light / dark (D)">Light</button>
     <span class="sep"></span>
     <button id="btn-mode" data-act="mode" title="Lecture / self-study (L)">Self-study</button>
-    <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>
-    <button id="btn-motion" data-act="motion" title="Reduced motion (R)">Motion: full</button>
-    <button data-act="help" title="Help (?)">?</button>
+    <button id="btn-settings" popovertarget="setmenu" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></button>
+    <div id="setmenu" popover>
+      <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>
+      <button id="btn-motion" data-act="motion" title="Reduced motion (R)">Motion: full</button>
+    </div>
+    <button data-act="help" title="Help (?)" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg><span>Help</span></button>
   </header>
 
   <aside id="sidebar" aria-label="Contents">

@@ -1543,20 +1543,20 @@ const SC = [
   ]}
 ]},
 
-{ id:'m4-lab-f', module:'M4', nav:'Laboratory F · Reconstruction', title:'Laboratory F — Fourier-Series Reconstruction Studio', src:'pp. 29–35',
+{ id:'m4-lab-f', module:'M4', nav:'Laboratory {lab} · Reconstruction', title:'Laboratory {lab} — Fourier-Series Reconstruction Studio', src:'pp. 29–35',
   objective:'Compare a partial sum with the waveform and measure the Gibbs overshoot.',
-  keywords:'laboratory F reconstruction partial sum harmonics MSE gibbs overshoot square sawtooth triangle', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory F', src:'pp. 29–35'},
-  {t:'title', text:'Laboratory F · Fourier-Series Reconstruction'},
+  keywords:'laboratory {lab} reconstruction partial sum harmonics MSE gibbs overshoot square sawtooth triangle', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 29–35'},
+  {t:'title', text:'Laboratory {lab} · Fourier-Series Reconstruction'},
   {t:'lede', text:'Choose a waveform and a number of harmonics. The panels show the partial sum against the true signal, the coefficients as stems, and the two numbers that decide whether the approximation is good: the mean-square error, and the overshoot beside the jump.'},
   {t:'lab', id:'F'}
 ]},
 
-{ id:'m4-lab-g', module:'M4', nav:'Laboratory G · Frequency response', title:'Laboratory G — LTI Frequency-Response Demonstrator', src:'pp. 37–41',
+{ id:'m4-lab-g', module:'M4', nav:'Laboratory {lab} · Frequency response', title:'Laboratory {lab} — LTI Frequency-Response Demonstrator', src:'pp. 37–41',
   objective:'Follow one signal through the chain a_k → H → b_k → y and expose the pairing step.',
-  keywords:'laboratory G frequency response filtering chain b_k = a_k H cutoff low pass high pass reassembly', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory G', src:'pp. 37–41'},
-  {t:'title', text:'Laboratory G · LTI Frequency Response'},
+  keywords:'laboratory {lab} frequency response filtering chain b_k = a_k H cutoff low pass high pass reassembly', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 37–41'},
+  {t:'title', text:'Laboratory {lab} · LTI Frequency Response'},
   {t:'lede', text:'Pick a system and a cutoff. The four panels follow the same signal through the whole chain, and the last step can be shown with or without the factor of two, so the size of that error is visible rather than described.'},
   {t:'lab', id:'G'}
 ]},

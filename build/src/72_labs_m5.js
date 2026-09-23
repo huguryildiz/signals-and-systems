@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratory H — Module 5  [Source: 45–61]
+   Laboratory 5.7 (key H) — Module 5  [Source: 45–61]
    CTFT Time–Frequency Explorer, with a modulation state.
    Every displayed number is computed from the definitions at interaction time.
    ========================================================================== */
