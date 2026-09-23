@@ -359,6 +359,30 @@ equation, `Solution` is a green card, and `Check` or `Common error` closes the c
 stays for the property tables, where a row is one `\leftrightarrow` correspondence; its key column is
 136 px, which holds `DIFFERENTIATION` in tracked mono without a mid-word break.
 
+### Inside a card — DECIDED 2026-09-23, one example each in Module 1
+
+Seven forms that give a card or an equation a different shape for a different job. None is a block
+of its own: each is a class inside a card's `html`, a TeX construct, or a flag on an `eq` block, so
+the slide budget counts it as the card it sits in and `md()` still reads every text field. Styles are
+at the end of `build/src/10_style.css`, scoped to `.scene.slide`.
+
+| Form | Markup | Use it for | Module 1 example |
+| --- | --- | --- | --- |
+| Annotated equation | `\underbrace{…}_{\text{name}}` in the TeX | naming the parts of one formula; at most two braces a line | `m1-ct-cexp-c`: envelope and rotation |
+| Comparison panel | `<div class="cmp"><div><span class="cmp-h">A</span>…</div><div>…</div></div>` | two cases read side by side, above all continuous against discrete time; one or two sentences a side | `m1-dt-period`: CT and DT periodicity |
+| Property chips | `<span class="chips"><span class="chip yes">…</span><span class="chip no">…</span></span>` | a verdict on named properties, after the sentence that proves it; the check or cross carries the verdict, never colour alone | `m1-ex-energy`: energy signal, not power signal |
+| Step strip | `<ol class="steps"><li>…</li></ol>` | a procedure of two to four moves, one line a move, in a `Method` card | `m1-combined-b`: map the corners of $x(3t-5)$ |
+| Key result | `eq` with `result:true` and a label that begins `Key result ·` | the one result a module carries forward; at most one a slide, and only on the slide that states it | `m1-ct-impulse-c`: sifting |
+| Margin note | `eq` with `side:true` and a `note` | the reason for a short equation, set beside it in serif italic; the equation must fit half the column | `m1-dt-impulse-b`: the first difference |
+| Value chip | `<span class="val"><b>$…$</b><small>what it is</small></span>` | a single number the slide ends on, with its name | `m1-dt-period-b`: $N_0=10$ |
+
+The key result's coral frame is 1 px all round, so it stays inside the stroke rule under **Shapes**.
+Colours come from existing tokens: the chips take the `ok` and `err` card colours, the rest coral and
+the rule tones. A **sticky note** (tilted, shadowed, paper yellow) was considered and rejected: it
+breaks the flat surface, the single radius, and the no-shadow rule, and flattened it is the `warn`
+card. The lecture notes do not render these scenes, so `notes/src/notes.css` owes the forms only when
+the notes use them.
+
 ### Interaction on a slide — DECIDED 2026-09-23, built in Module 1
 
 Three additions to existing blocks. None is a block of its own, so the slide budget still counts one

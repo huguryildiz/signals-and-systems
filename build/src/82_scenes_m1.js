@@ -686,7 +686,7 @@ const SC = [
       {t:'eq', tex:'\\begin{aligned}E_\\infty&=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t\\\\&=\\int_{0}^{1}1^{2}\\,\\d t\\\\&=\\left.t\\right|_{0}^{1}=1\\end{aligned}', label:'Total energy'},
       {t:'eq', tex:'\\begin{aligned}P_\\infty&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}\\int_{0}^{1}1\\,\\d t\\\\&=\\lim_{T\\to\\infty}\\dfrac{1}{2T}=0\\end{aligned}', label:'Average power'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W, so $x(t)$ is an energy signal.'}]},
+      {t:'note', kind:'ok', head:'Solution', html:'$E_\\infty=1$ J and $P_\\infty=0$ W.<span class="chips"><span class="chip yes">Energy signal</span><span class="chip no">Power signal</span></span>'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'Halving the amplitude divides the energy by four. $\\int_0^1 (1/2)^{2}\\,\\d t=1/4$.'}]}
   ]},
@@ -1029,7 +1029,7 @@ REAL_ENERGY,
       return a.svg(); },
       caption:'The dashed trace is $x(t)$. Draw where each of its corners lands, then show the answer.'}
   ], right:[
-    {t:'note', kind:'def', head:'Method', html:'Each original corner $c$ moves to the time that satisfies $3t-5=c$.'},
+    {t:'note', kind:'def', head:'Method', html:'Each original corner $c$ moves to the time that satisfies $3t-5=c$.<ol class="steps"><li>Read the corners of $x(t)$: $c=-2,0,2,4$.</li><li>Solve $3t-5=c$ for $t$ at each corner.</li><li>Carry each height to its new time and join the points.</li></ol>'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}3t-5&=c\\\\t&=\\dfrac{c+5}{3}\\\\c=-2,0,2,4&\\;\\Longrightarrow\\;t=1,\\dfrac53,\\dfrac73,3\\end{aligned}', label:'Map every corner'}]},
     {t:'reveal', at:2, items:[
@@ -1276,8 +1276,8 @@ REAL_PERIODIC,
       caption:'The two sequences cancel for every $n\\ge1$. Only $n=0$ survives, and it gives $\\delta[n]$.'},
     {t:'legend', items:[['h','$u[n]$'],['mid','$-u[n-1]$']]}
   ], right:[
-    {t:'eq', key:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
-      note:'A delay of one sample cancels the flat part of the step and leaves a single sample.'},
+    {t:'eq', key:true, side:true, tex:'\\delta[n]=u[n]-u[n-1]', label:'First difference',
+      note:'The delay cancels the flat part of the step and leaves one sample.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]', label:'Running sum'}]},
     {t:'reveal', at:2, items:[
@@ -1402,7 +1402,7 @@ REAL_PERIODIC,
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)', label:'Sampling'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\d t', label:'Sifting',
+      {t:'eq', key:true, result:true, tex:'x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\,\\delta(t-t_0)\\,\\d t', label:'Key result · Sifting',
         note:'The discrete-time sum is an integral here.'}]}
   ]}
 ]},
@@ -1507,7 +1507,7 @@ REAL_IMPULSE,
       caption:'Drag $r$, with $A=2$ and $\\omega_0=2\\pi$ rad/s. The sinusoid stays inside $\\pm Ae^{rt}$. The tone uses the same $r$; a plucked string sounds like $r<0$.'},
     {t:'legend', items:[['in','$\\operatorname{Re}\\{x(t)\\}$'],['err','$\\pm2e^{rt}$']]}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}x(t)&=Ae^{j\\theta}e^{(r+j\\omega_0)t}\\\\&=Ae^{rt}e^{j(\\omega_0t+\\theta)}\\\\\\operatorname{Re}\\{x(t)\\}&=Ae^{rt}\\cos(\\omega_0t+\\theta)\\end{aligned}', label:'Separate envelope and oscillation'},
+    {t:'eq', tex:'\\begin{aligned}x(t)&=Ae^{j\\theta}e^{(r+j\\omega_0)t}\\\\&=A\\underbrace{e^{rt}}_{\\text{envelope}}\\,\\underbrace{e^{j(\\omega_0t+\\theta)}}_{\\text{rotation}}\\\\\\operatorname{Re}\\{x(t)\\}&=Ae^{rt}\\cos(\\omega_0t+\\theta)\\end{aligned}', label:'Separate envelope and oscillation'},
     {t:'note', kind:'warn', head:'Read the envelope', html:'The curves $\\pm Ae^{rt}$ bound the sinusoid. It decays for $r<0$, grows for $r>0$, and is sustained for $r=0$.'}
   ]}
 ]},
@@ -1589,7 +1589,7 @@ REAL_IMPULSE,
       {t:'eq', tex:'\\dfrac{\\omega_0}{2\\pi}=\\dfrac{k}{N}\\in\\mathbb{Q}', label:'Integer requirement',
         note:'Both $k$ and $N$ are integers. If the ratio is irrational, no integer period exists.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A shift of $2\\pi$', html:'$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$. Frequencies that differ by $2\\pi$ are the same sequence.'}]}
+      {t:'note', kind:'warn', head:'Continuous and discrete time', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$e^{j\\omega_0 t}$ is periodic for every $\\omega_0$, and each $\\omega_0$ gives a different signal.</div><div><span class="cmp-h">Discrete time</span>Periodic only if $\\omega_0/2\\pi$ is rational, and $e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$ for every integer $n$.</div></div>'}]}
   ]}
 ]},
 
@@ -1612,7 +1612,7 @@ REAL_IMPULSE,
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}N&=\\dfrac{2\\pi k}{\\omega_0}\\\\&=\\dfrac{2\\pi k}{3\\pi/5}\\\\&=\\dfrac{10}{3}k\\end{aligned}', label:'Substitute the frequency'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'The smallest such $k$ is 3, so $N_0=10$.'}]},
+      {t:'note', kind:'ok', head:'Solution', html:'The smallest such $k$ is 3, so<span class="val"><b>$N_0=10$</b><small>fundamental period</small></span>'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'$\\omega_0 N_0=6\\pi=2\\pi\\cdot 3$. The phase advances three full turns in ten samples.'}]}
   ]}
