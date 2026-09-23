@@ -1140,7 +1140,8 @@ REAL_TRANSFORM,
       return a.svg(); },
       caption:'$t^3$ is odd: a half-turn about the origin maps the graph onto itself, so $x(0)=0$.'}
   ], right:[
-    {t:'note', kind:'def', head:'Definitions', html:'Even: $x(t)=x(-t)$. Odd: $x(t)=-x(-t)$. The same two tests apply to $x[n]$, with $n$ in place of $t$.'},
+    {t:'note', kind:'def', head:'Even signal', html:'$x(t)=x(-t)$ for every $t$. In discrete time, $x[n]=x[-n]$.'},
+    {t:'note', kind:'def', head:'Odd signal', html:'$x(t)=-x(-t)$ for every $t$. In discrete time, $x[n]=-x[-n]$.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'warn', head:'Check the origin', html:'An odd signal satisfies $x(0)=-x(0)$, so $x(0)=0$. A signal with $x(0)\\neq 0$ is not odd.'}]},
     {t:'reveal', at:2, items:[
