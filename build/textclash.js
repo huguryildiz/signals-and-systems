@@ -78,7 +78,8 @@ const AXIS = ['#8A939C', '#7C858F'];
           /* a light fill is a background plate (box interior, node disc): a label
              sitting on it is by design, not a collision */
           const LIGHTFILL = ['#FFFFFF', '#FAF8F4', '#F2EFE8', '#C2BCB0', '#DCD7CC', '#E5E1D8',
-                             '#1A2634', '#0E1621', '#12314E', '#1B4066', '#0A0F12', 'NONE', ''];
+                             '#1A2634', '#0E1621', '#12314E', '#1B4066', '#0A0F12',
+                             '#F3DC7A' /* sticky note paper (figures-and-math.md) */, 'NONE', ''];
           /* isPointInStroke answers about the path, not about what is painted, so a
              clipped trace still reports a hit outside its clip. Read the clip
              rectangle and drop any hit that falls outside it. */

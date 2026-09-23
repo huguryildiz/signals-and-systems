@@ -1,8 +1,9 @@
 /* Slide budget — DESIGN.md, Layout › A slide › "Figure and card budget".
 
    A teaching slide (a scene with slide:true) carries exactly one figure ({t:'fig'})
-   and two or three information cards ({t:'note'}). The check reads the scene list
-   off the built artifact once and counts blocks; it does not navigate or render.
+   and two to four tabbed cards: every {t:'note'} and every {t:'eq'} with a label.
+   The check reads the scene list off the built artifact once and counts blocks;
+   it does not navigate or render.
 
    Outside the budget: navy scenes (dark:true, module openings and synthesis),
    scenes holding a laboratory, and any scene that states its reason in a
@@ -31,11 +32,12 @@ const STRICT = process.argv.includes('--strict');
       window.SCENES_M6 || [], window.SCENES_M7 || [], window.SCENES_END || []
     );
     return S.filter(s => s && s.slide).map(s => {
-      const n = { fig: 0, note: 0, lab: 0 };
+      const n = { fig: 0, note: 0, lab: 0, card: 0 };
       const walk = list => (list || []).forEach(x => {
         if (Array.isArray(x)) return walk(x);
         if (!x || typeof x !== 'object') return;
         if (x.t in n) n[x.t]++;
+        if (x.t === 'note' || (x.t === 'eq' && x.label)) n.card++;
         ['left', 'right', 'items', 'blocks'].forEach(k => { if (Array.isArray(x[k])) walk(x[k]); });
       });
       walk(s.blocks);
@@ -51,7 +53,7 @@ const STRICT = process.argv.includes('--strict');
     checked++;
     const why = [];
     if (r.fig !== 1) why.push(`figures=${r.fig}`);
-    if (r.note < 2 || r.note > 3) why.push(`cards=${r.note}`);
+    if (r.card < 2 || r.card > 4) why.push(`cards=${r.card}`);
     if (why.length) bad.push(`${r.id}: ${why.join(' ')}`);
   }
   bad.forEach(l => console.log('  ' + l));

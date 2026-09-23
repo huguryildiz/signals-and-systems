@@ -93,8 +93,17 @@ This file holds every visual decision for the project. `CLAUDE.md` holds how to 
 stop; do not pick one silently.
 
 **Status of each part.** Sections marked **LOCKED** describe what is built and may not be changed
-without the owner saying so. The section marked **DECIDED 2026-09-21, NOT YET BUILT** is the slide
-language the owner approved from a mockup. It opens two earlier locks, and it names them.
+without the owner saying so. The slide language (the sections from *Rollout* to *A laboratory on a
+slide*) is built in Module 1 and is locked with it; see *Module 1 is the reference* below.
+
+### Module 1 is the reference — LOCKED 2026-09-23
+
+The owner reviewed Module 1 as a whole on 2026-09-23 (fonts, cards, prediction cards, figures,
+laboratories, code pages, practice questions) and locked it. Every other module is converted to
+match it from this file and `.claude/rules/`, with no design decision of its own. Where a module
+needs something Module 1 does not show, stop and ask; where this file and Module 1 disagree, Module 1
+is the evidence and this file is corrected. The reference scene for each element is named where the
+element is described.
 
 ## Overview
 
@@ -111,7 +120,7 @@ what a curve *is*, and the card colours say what a card *does*.
 
 **Key characteristics**
 
-- One slide, one figure, two or three cards. See "A slide" under Layout.
+- One slide, one figure, two to four tabbed cards. See "A slide" under Layout.
 - One idea a card, one or two short sentences a card.
 - The stage is full: nothing top-heavy, nothing clipped.
 - The same slide works in both themes and in lecture mode without a second design.
@@ -204,8 +213,8 @@ Mono is used for labels and addresses only, never for running text.
 | scene title `h2` | 45 px serif 400 | topic-style heading, never a sentence |
 | lede | 23.5 px serif italic | one sentence under a title, used sparingly |
 | body | 19 px / 1.55 | max width 900 px |
-| card body | 21.5 px / 1.52 | **new**; was 17.5 px |
-| label / tab | 13.5 px mono, `.12em`, 600 | **new**; was 12.5 px |
+| card body | 21.5 px / 1.52 | slide cards (`.scene.slide .note`) |
+| label / tab | 13.5 px mono, `.12em`, 600 | card and equation tabs |
 | equation | 19 px, KaTeX at 1.30 em, in every scene, laboratory and display mode; no `lg` or `sm` size | scales with `--ts`; see Equation |
 | explanation below a slide equation | 21.5 px / 1.52 | matches the information-card body; legacy equations retain 15 px |
 | figure caption | 18 px / 1.45 on converted slides and converted-module laboratories | legacy scenes remain 14 px |
@@ -231,8 +240,9 @@ font-size override is not a substitute for checking each laboratory's fit.
 
 **A label frame does not rewrite the mathematics it carries (R8).** The label classes are uppercase
 with wide tracking, and both are inherited: `text-transform` turns `a_k` into `A_K` and
-`letter-spacing` pulls an expression apart. Every label class resets both on `.katex`. A new label
-class, a card tab included, carries the same reset in the same commit.
+`letter-spacing` pulls an expression apart. One global rule in `10_style.css`,
+`.katex{text-transform:none; letter-spacing:normal}`, resets both for every label class at once.
+Do not remove it, and do not set either property on a `.katex` subtree.
 
 ## Layout
 
@@ -252,6 +262,9 @@ class, a card tab included, carries the same reset in the same commit.
   floor, what is left is taken from the figures in proportion to their height, and a scene that gives
   up more than 3% of its figure height marks itself `data-capped`. `qa.js` names both under `dense`.
   Reaching that rescue is the signal to split the scene.
+  Module 1 keeps three approved slides on the floor, `m1-power`, `m1-avgpower` and `m1-evenodd-b`
+  (locked 2026-09-23). They are not a precedent: a converted slide in another module that reaches
+  the floor is split.
 - **Radial and orbital compositions** are reserved for course maps and synthesis scenes.
 
 ### Rollout: a scene opts in — DECIDED 2026-09-21
@@ -264,38 +277,35 @@ at once it would push many of them under the 0.90 fit line before their text is 
 module is converted, one final change removes the flag and edits the base rules. Until then the new
 rules out-specify the old ones and do not replace them.
 
-### Filling the stage — DECIDED 2026-09-21, NOT YET BUILT
+### Filling the stage — built in Module 1
 
-A sparse scene used to sit at the top of the stage with a third of it empty, because `fitScene()` only
-ever scales down. The slide language fixes this in two parts:
+A sparse scene would sit at the top of the stage with a third of it empty, because a plain fit only
+scales down. Two parts fix this:
 
-1. A `cols` block can be marked `fill`. Its columns then stretch to the full height of the content box
-   and distribute their children over it (`justify-content:space-between`), so the air is shared
-   between the cards and not left under them. In the mockup this rode on the `ratio` string
-   (`'c-5-7 fill'`); the build gives `cols` its own `fill` key.
-2. The figure is the child that takes the slack. The mockup tuned two viewBox heights by hand
-   (700×519 and 700×581). That does not scale to 234 scenes. `fitScene()` needs a second half that
-   grows `figure.fig > svg` into the room that is left, up to a cap, and marks the scene when it does,
-   the way `data-capped` marks the opposite case.
-
-Measured on the mockup: the scene needs 899 px of the 952 px content box (94%), with no `data-fit` and
-no `data-capped`.
+1. Every teaching slide's `cols` block carries `fill:true`. Its columns stretch to the full height of
+   the content box and distribute their children over it (`justify-content:space-between`), so the air
+   is shared between the cards and not left under them.
+2. The figure takes the slack. A `fig` with `grow:true` is grown by `growFigures()` (called from
+   `fitScene()` in `90_app.js`) into the room that is left, up to a cap, only at k = 1 on a slide
+   scene; `data-capped` marks the opposite case.
 
 ### A slide
 
 Title, then a full-width hairline under it with a 150 px coral segment, 2 px, at its left end. Then two
-equal columns by default: the given data and the figure on the left, the method, the steps and the
-result on the right. A documented exception may keep a 5:7 split only when the figure itself needs a
-narrower column to avoid growth-cap or fit failure. Reveal steps stay; a slide builds in the order the
-instructor speaks.
+columns in the ratio 5:7, written `{t:'cols', ratio:'c-5-7', fill:true, left:[…], right:[…]}`: the
+figure (with `frame:true, grow:true`) and its caption on the left, the given data, the method, the steps
+and the result on the right. Every Module 1 teaching slide uses this split. The gallery keeps `c-8-4` for its
+2×2 grid, and the navy opening keeps `c-6-6`. Reveal steps stay; a slide builds in the order the instructor speaks.
 
-**Figure and card budget.** A teaching slide carries exactly one figure and two
-or three information cards. The figure is required. A slide outside the budget states its reason
-in a `budget:'...'` field on its scene. More than three cards means the slide holds more than one
-idea and is split. Laboratories and navy scenes keep their own layout and are outside this budget.
-`build/slidebudget.js` counts `fig` and `note` blocks on every `slide:true` scene and lists the
-slides outside the budget; it is advisory until the existing slides comply, then runs with
-`--strict`.
+**Figure and card budget.** A teaching slide carries exactly one figure and two to four tabbed
+cards. A tabbed card is every `note` (the prediction card included) and every `eq` with a `label`;
+an unlabelled `eq` is free. The figure is required. A slide outside the budget states its reason in a
+`budget:'...'` field on its scene; Module 1 has eight such slides, with two figures or five cards,
+and each names why (`m1-power`, `m1-avgpower` and others). More than that means the slide holds more
+than one idea and is split. Laboratories, galleries, code pages and navy scenes keep their own layout
+and are outside this budget. `build/slidebudget.js` counts figures and tabbed cards on every
+`slide:true` scene and lists the slides outside the budget; Module 1 has none. It is advisory until
+every module complies, then runs with `--strict`.
 
 A laboratory uses the full remaining stage height. Its main columns stretch to the bottom of the
 scene, and stacked controls, readouts and explanations distribute through that height. Do not leave a
@@ -320,7 +330,7 @@ figure has no fill at all; the label halo does the separating.
 
 ## Components
 
-### Information card — DECIDED 2026-09-21, NOT YET BUILT
+### Information card — built in Module 1
 
 The card is a restyle of the existing `note` block, so the roughly 340 notes in the course take it with
 no content change. The markup stays `<div class="note KIND"><span class="note-h">HEAD</span>…</div>`.
@@ -339,6 +349,16 @@ no content change. The markup stays `<div class="note KIND"><span class="note-h"
 | `ok` | green | check | Solution, a result |
 | `warn` | amber; tab fill `#8A5E12` in the light theme | lightbulb | an interpretation, a thing to notice |
 | `err` | red; tint 8% | warning triangle | Common error, a misconception |
+
+**No two cards on a slide share a colour.** A slide holds at most four cards, and each takes its own
+colour. A card keeps its kind's colour while that colour is still free on the slide; a repeat takes the
+first free tone in the order slate, plum (`#8B3A62`, dark `#D98CB3`), graphite (`#5E5850`, dark
+`#C4BDB2`), then amber and coral for a fifth card. Green and red are never handed out this way, because they mean a solution and an error. A
+labelled equation has a tab like a card, so it counts as one: the first keeps coral, and a second
+equation or a prediction card on the same slide takes a neutral tone. The kind,
+its icon and its meaning do not change; only the colour does. `draw()` in `build/src/90_app.js` applies
+this through `toneCards()`, which sets `data-tone` on the repeat, so scene data never names a colour.
+A quick-check grid of six cards keeps its own form and is outside the rule.
 
 Tab text is white in the light theme and the canvas colour in the dark theme, where every token is a
 light tint. Computed contrast: white on slate 7.5:1, on green 5.0:1, on red 6.4:1, on `#8A5E12` 5.7:1,
@@ -381,7 +401,7 @@ at the end of `build/src/10_style.css`, scoped to `.scene.slide`.
 
 | Form | Markup | Use it for | Module 1 example |
 | --- | --- | --- | --- |
-| Annotated equation | `\underbrace{…}_{\text{name}}` in the TeX | naming the parts of one formula; at most two braces a line | `m1-ct-cexp-c`: envelope and rotation |
+| Annotated equation | `\underbrace{…}_{\text{name}}` in the TeX | naming the parts of one formula; at most two braces a line. A derivation line that writes a symbol in its expanded form (such as $C$ as $|C|e^{j\theta}$) puts a brace under the expansion, labelled with that symbol, instead of stating the substitution in a separate card | `m1-ct-cexp-c`: envelope and rotation; `m1-dt-cexp-c`: $C$ and $\alpha$ |
 | Comparison panel | `<div class="cmp"><div><span class="cmp-h">A</span>…</div><div>…</div></div>` | two cases read side by side, above all continuous against discrete time; one or two sentences a side | `m1-dt-period`: CT and DT periodicity |
 | Property chips | `<span class="chips"><span class="chip yes">…</span><span class="chip no">…</span></span>` | a verdict on named properties, after the sentence that proves it; the check or cross carries the verdict, never colour alone | `m1-ex-energy`: energy signal, not power signal |
 | Step strip | `<ol class="steps"><li>…</li></ol>` | a procedure of two to four moves, one line a move, in a `Method` card | `m1-combined-b`: map the corners of $x(3t-5)$ |
@@ -409,7 +429,8 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   and made visible on the answer, so nothing on the slide moves. On a worked example whose reveal
   steps give the solution, leave `why` out: it costs a line that the slide does not have in lecture
   mode. Answers last for the session and are not stored.
-  Every teaching slide carries one such card with the head **Given**: the given line, a
+  Every teaching slide carries one such card with the head **Given** (exceptions in
+  `.claude/rules/content-writing.md`): the given line, a
   `.nsep` rule, the question, then the choices. The content rule is in
   `.claude/rules/content-writing.md`. A prediction card has its own form (`.note.ask`): a coral
   edge and tab with a question-mark icon, a dashed frame, the question after the rule in the
@@ -504,9 +525,8 @@ program draws its own figure. The scene calls it through a raw block,
   both. 10 to 21 lines, the section's variable names, English comments. MATLAB uses no toolbox; Python
   uses NumPy and Matplotlib only, with mathtext axis labels. No MATLAB transpose (`'`), so the
   highlighter can read an apostrophe as a string.
-- **Figures link to it.** A figure may carry `code:'<key>'`: a **Code** button at the right end of
-  the row under it opens the code page on that program. Beside sliders or sketch buttons the button
-  keeps only its `</>` glyph, so the row does not wrap. `m1-combined-b` is the reference.
+- **Figures do not link to it.** A figure carries no Code button; the code page is reached as the
+  last scene of its section, from the contents rail or the arrow keys.
 - **Run (Python).** When the course is opened from its site, the Python tab is editable and has
   **Run** and **Reset**. Run loads Pyodide 0.29.3 (CPython compiled to WebAssembly, with NumPy and
   Matplotlib) from `pyodide/` on the site at the first press: about 18 MB and about 5 s on a fast
@@ -526,7 +546,7 @@ program draws its own figure. The scene calls it through a raw block,
   what each prints with `out`. It needs a Python with Matplotlib (here `/usr/bin/python3`).
 - **Built in Module 1.** Five code pages, 17 programs: 1.2.C `m1-code-energy`, 1.3.C
   `m1-code-ops` (the reference), 1.4.C `m1-code-periodic`, 1.5.C `m1-code-impulse`, 1.6.C
-  `m1-code-cexp`. Ten figures link to their program with `code:'<key>'`.
+  `m1-code-cexp`.
 
 ### Title icons
 
@@ -569,6 +589,10 @@ their current look until their module is converted.
   a verdict under the figure where the column has spare height, or lower a stacked plot's viewBox
   height. A laboratory that grows after an answer or a reveal calls `RENDER.fit()` so that state is
   refitted too.
+- The lecture-mode floor of 0.90 is the target for every new laboratory. Module 1's laboratories
+  were locked below it on 2026-09-23 (lecture mode, 1920×1080: A 0.85, C 0.80, K 0.70, L 0.84; B
+  fits), and `m1-lab-c` also scales to 0.95 in normal display. That is recorded debt, not the
+  pattern: a new laboratory is reflowed until it meets the floor.
 
 ### Practice questions
 
@@ -583,8 +607,24 @@ never scaled.
 - **The counter is a pill.** `Question 13 of 30` sits in a rounded pill (`.dr-count`): mono 16 px,
   muted, on `--paper-2` with a `--rule-strong` border. The current number (`.dr-n`) is coral,
   semibold and 1.2 em. The note on opened solutions (`.dr-seen`) is 16 px. All sizes are times `--ts`.
+- **The current number is a field.** `.dr-n` is a number input (`data-drill-go`), not static text:
+  the reader types a question number and Enter, or leaving the field, jumps there. A number out of
+  range is clamped to the first or last question; anything else restores the current number. The
+  field keeps the coral numeral, sits on `--paper` with a `--rule-strong` border and 6 px corners,
+  shows no spinner, and takes a coral border and ring on hover and focus. Slide keys stay out of it.
+  Every module's pager gets it from the one `drill` block in `90_app.js`; never add a per-module one.
 - **The question's code is a coral pill.** `D1-13` above the statement (`.drill .qid`) is mono
   15 px semibold, coral, on a 12 % coral fill with a 45 % coral border, as wide as its text.
+- **Every question sits on a card.** The question (`.dr-page .quiz.drill`) is one raised panel,
+  the same as `.card`: `--paper-2` fill, `--rule` border, `--radius` corners, 24/28/26 px padding,
+  full width of the pager. Statement, figure, parts, button and worked solution all stay inside it.
+  A practice question is never laid out as bare text on the page background.
+- **The worked solution is a column of information cards.** `solCards()` in `90_app.js` splits
+  `sol` at its `<b>Given.</b>`, `Find`, `Method`, `Solution — …`, `Check` heads and draws each as
+  the slide card (`.dr-sol`, same rules as `.scene.slide .note`): Given with Find under a hairline
+  (slate), Method (slate), one green card per `Solution` head with `figSol` in the last, Check
+  (slate), and `err` as a red `Common error` card. Question data is unchanged. The one-colour-a-slide
+  rule does not apply here.
 
 ### Eyebrow
 
@@ -632,7 +672,21 @@ systems apart. `#scene-host svg` makes every SVG a full-width figure, so
   not replace it.
 - **Legend type.** A legend is set at 19 px (21 px in projector mode), a step above the 18 px slide
   caption, so the TeX in each entry reads at the size of the caption beside it. The swatch is 26 px.
-  Size is set once on `.legend` in `10_style.css`; no scene sets its own legend size.
+  Size is set once on `.legend` in `10_style.css`; no scene sets its own legend size. On the light
+  page the swatch carries the signal colour and the label is set in graphite. Where a cyan and a green
+  curve of the same family run close together and differ only in colour, the cyan one is dashed (`dash:'9 6'`) and its legend item takes a third entry,
+  `true`, which draws a dashed swatch.
+- **Legend placement.** A legend sits inside the plot it keys, as a small card (paper fill, rule
+  border) in a corner of the data area that the traces and annotations leave free. A scene writes it
+  as a `legend` block right after its `fig`; the renderer draws it inside that figure. `at` picks the
+  corner: `'tr'` (default), `'tl'`, or `'tl-axis'` for a plot whose vertical axis is its left edge
+  (`m1-ct-cexp-grow`). A laboratory panel wraps each plot and its legend in
+  `.plot-wrap`, where the card lies in one row in the strip above the data area. No legend sits
+  below or beside a plot, and no card may cover a trace, tick label or annotation in either display
+  mode; move the card or widen the axis range instead. In the dark theme the card fill is a light
+  step above the figure card (`--paper-2` mixed with 10% white) with a `--rule-strong` border, so the
+  card reads as raised; it is never darker than the plot behind it. Both theme fills are set once on
+  `.legend.in-plot` in `10_style.css`; no scene colours its own legend card.
 - Signal traces use the semantic palette, never arbitrary series colours: input cyan, system amber,
   output green, intermediate violet and error red. Projector readability comes from adequate stroke,
   stem and marker weight, not from changing those meanings from one figure to the next.

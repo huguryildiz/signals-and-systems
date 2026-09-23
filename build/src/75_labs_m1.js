@@ -52,7 +52,7 @@ Object.assign(LABS, (function(){
       else  { for(let t=-40.0037;t<=40;t+=0.01){ mE=Math.max(mE,Math.abs(ev(t))); mO=Math.max(mO,Math.abs(od(t))); } }
       const kind = mO<1e-9 ? 'even' : mE<1e-9 ? 'odd' : 'neither';
       const xr=[-6,6];
-      const ax = o=> PLOT.Axes(Object.assign({w:640,h:280,xr,yr:Pr.yr,xlabel:v,ylabel:'\\text{amplitude}',
+      const ax = o=> PLOT.Axes(Object.assign({w:640,h:190,xr,yr:Pr.yr,xlabel:v,ylabel:'\\text{amplitude}',
         pad:{l:46,r:24,t:16,b:34},xtarget:7,ytarget:3},o));
       const disc = f=>{ const p=[]; for(let n=xr[0];n<=xr[1];n++) p.push([n,f(n)]); return p; };
       const A1=ax({}), A2=ax({});
@@ -64,8 +64,8 @@ Object.assign(LABS, (function(){
       A1.vline(0,{color:PLOT.COL.coral,dash:'4 4'}); A2.vline(0,{color:PLOT.COL.coral,dash:'4 4'});
       const L = (c,l)=>`<i class="lg-${c}">${T(l,false)}</i>`;
       root.querySelector('.plots').innerHTML =
-        A1.svg() + `<div class="legend">${L('in',dt?'x[n]':'x(t)')}${L('h',dt?'x[-n]':'x(-t)')}</div>`
-      + A2.svg() + `<div class="legend">${L('out',`${EV}\\{x\\}`)}${L('mid',`${OD}\\{x\\}`)}</div>`;
+        `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L('in',dt?'x[n]':'x(t)')}${L('h',dt?'x[-n]':'x(-t)')}</div></div>`
+      + `<div class="plot-wrap">${A2.svg()}<div class="legend in-plot lg-at-tr">${L('out',`${EV}\\{x\\}`)}${L('mid',`${OD}\\{x\\}`)}</div></div>`;
       root.querySelector('.lab-eq').innerHTML =
         T(dt ? `x[n]=${Pr.tex('n',s,true)}` : `x(t)=${Pr.tex('t',s,false)}`, true);
       /* the check is made at one point away from every jump */
@@ -75,10 +75,9 @@ Object.assign(LABS, (function(){
         <div><dt>Odd peak</dt><dd>${fmt(mO,3)}</dd></div>
         <div><dt>Symmetry</dt><dd class="${kind==='neither'?'':'okv'}">${kind}</dd></div>`;
       root.querySelector('.derive').innerHTML = M(`
-        <div class="eq"><span class="eq-label">Even part at ${v} = ${p}</span>${
-          T(`${EV}\\{x\\}${A}=\\tfrac12\\big[x${A}+x${B}\\big]=\\tfrac12\\big[${N(a)}+${P(b)}\\big]=${N(ev(p))}`,true)}</div>
-        <div class="eq"><span class="eq-label">Odd part at ${v} = ${p}</span>${
-          T(`${OD}\\{x\\}${A}=\\tfrac12\\big[x${A}-x${B}\\big]=\\tfrac12\\big[${N(a)}-${P(b)}\\big]=${N(od(p))}`,true)}</div>
+        <div class="eq"><span class="eq-label">Even and odd parts at ${v} = ${p}</span>${
+          T(`\\begin{aligned}${EV}\\{x\\}${A}&=\\tfrac12\\big[x${A}+x${B}\\big]=\\tfrac12\\big[${N(a)}+${P(b)}\\big]=${N(ev(p))}\\\\`
+          + `${OD}\\{x\\}${A}&=\\tfrac12\\big[x${A}-x${B}\\big]=\\tfrac12\\big[${N(a)}-${P(b)}\\big]=${N(od(p))}\\end{aligned}`,true)}</div>
         <div class="note ok"><span class="note-h">Verdict</span>${
           kind==='even' ? 'The odd part is zero at every $' + v + '$, so $x$ is even.'
           : kind==='odd' ? 'The even part is zero at every $' + v + '$, so $x$ is odd.'
@@ -140,7 +139,7 @@ Object.assign(LABS, (function(){
       const Pr = protos[st.proto], dt = st.dt, f = Pr.f;
       if(dt) st.t0 = Math.round(st.t0);
       const t0 = st.t0, e = st.eps, xr=[-4,4];
-      const ax = o=> PLOT.Axes(Object.assign({w:640,h:280,xr,pad:{l:52,r:24,t:16,b:34},xtarget:9,ytarget:3},o));
+      const ax = o=> PLOT.Axes(Object.assign({w:640,h:175,xr,pad:{l:52,r:24,t:16,b:34},xtarget:9,ytarget:3},o));
       const L = (c,l)=>`<i class="lg-${c}">${T(l,false)}</i>`;
       let html;
       if(dt){
@@ -149,8 +148,8 @@ Object.assign(LABS, (function(){
         A1.stem(disc(f),{color:PLOT.COL.in}); A1.vline(t0,{color:PLOT.COL.coral,dash:'4 4'});
         const A2 = ax({yr:Pr.yr,xlabel:'n',ylabel:`x[n]\\delta[${sh('n',t0)}]`,ynameAtAxis:true});
         A2.stem(disc(n=> n===t0 ? f(n) : 0),{color:PLOT.COL.out});
-        html = A1.svg() + `<div class="legend">${L('in','x[n]')}</div>`
-             + A2.svg() + `<div class="legend">${L('out',`x[n]\\,\\delta[${sh('n',t0)}]`)}</div>`;
+        html = `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L('in','x[n]')}</div></div>`
+             + `<div class="plot-wrap">${A2.svg()}<div class="legend in-plot lg-at-tr">${L('out',`x[n]\\,\\delta[${sh('n',t0)}]`)}</div></div>`;
       } else {
         const I = avg(f,t0,e);
         const A1 = ax({yr:Pr.yr,xlabel:'t',ylabel:'x(t)'});
@@ -163,12 +162,12 @@ Object.assign(LABS, (function(){
         const es=[]; for(let i=0;i<=120;i++) es.push(4*i/120);
         const Is = es.map(w=>avg(f,t0,w));
         let lo=Math.min(f(t0),...Is), hi=Math.max(f(t0),...Is), m=Math.max(0.12,(hi-lo)*0.2);
-        const A2 = ax({xr:[0,4.1],yr:[lo-m,hi+m],xlabel:'\\varepsilon',ylabel:'\\text{integral}',xtarget:7,ytarget:3});
+        const A2 = ax({xr:[0,4.1],yr:[lo-m,hi+m],xlabel:'\\varepsilon',ylabel:'\\text{integral}',xtarget:7,ytarget:2});
         A2.hline(f(t0),{color:PLOT.COL.coral,dash:'5 4',opacity:1});
         A2.poly(es.map((w,i)=>[w,Is[i]]),{color:PLOT.COL.out});
         A2.point(e,I,{color:PLOT.COL.out});
-        html = A1.svg() + `<div class="legend">${L('in','x(t)')}${L('out','\\text{window average}')}</div>`
-             + A2.svg() + `<div class="legend">${L('out','\\textstyle\\int x(t)\\,\\delta_\\varepsilon(t-t_0)\\,\\mathrm{d}t')}${L('err','x(t_0)')}</div>`;
+        html = `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L('in','x(t)')}${L('out','\\text{window average}')}</div></div>`
+             + `<div class="plot-wrap">${A2.svg()}<div class="legend in-plot lg-at-tr">${L('out','\\textstyle\\int x(t)\\,\\delta_\\varepsilon(t-t_0)\\,\\mathrm{d}t')}${L('err','x(t_0)')}</div></div>`;
       }
       root.querySelector('.plots').innerHTML = html;
       root.querySelector('.lab-eq').innerHTML = T(dt ? `x[n]=${Pr.tex('n')}` : `x(t)=${Pr.tex('t')}`, true);

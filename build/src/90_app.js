@@ -100,10 +100,10 @@ const RENDER = (() => {
       <span class="rc-num">${i+1}</span><span class="rc-q">${md(p.title)}</span>
       ${p.glyph?`<span class="rc-glyph" aria-hidden="true">${p.glyph}</span>`:''}</button></li>`).join('');
     const briefs = items.map((p,i)=>`<div class="proj-brief${i===on?' is-on':''}" data-proj-brief="${i}">
-      <p class="proj-h hi hi-aim">Aim</p><p class="proj-aim">${md(p.aim)}</p>
-      <p class="proj-h hi hi-practise">You will practise</p><ul class="proj-learn">${p.learn.map(s=>`<li>${md(s)}</li>`).join('')}</ul>
-      <p class="proj-h hi hi-steps">Steps</p><ol class="proj-steps">${p.steps.map(s=>`<li>${md(s)}</li>`).join('')}</ol>
-      <p class="proj-h hi hi-look">What to look for</p><p class="proj-look">${md(p.look)}</p></div>`).join('');
+      <section class="proj-sec proj-sec-aim"><p class="proj-h hi hi-aim">Aim</p><p class="proj-aim">${md(p.aim)}</p></section>
+      <section class="proj-sec"><p class="proj-h hi hi-practise">You will practise</p><ul class="proj-learn">${p.learn.map(s=>`<li>${md(s)}</li>`).join('')}</ul></section>
+      <section class="proj-sec"><p class="proj-h hi hi-steps">Steps</p><ol class="proj-steps">${p.steps.map(s=>`<li>${md(s)}</li>`).join('')}</ol></section>
+      <section class="proj-sec"><p class="proj-h hi hi-look">What to look for</p><p class="proj-look">${md(p.look)}</p></section></div>`).join('');
     return `<div class="proj" data-proj-deck="${id}">
       <div class="proj-left"><div class="recall-bar"><span>${items.length} projects · MATLAB or Python</span><span>Nothing to hand in</span></div>
         <ol class="recall-list" style="--rc-cols:1">${list}</ol></div>
@@ -178,15 +178,19 @@ const RENDER = (() => {
         ${b.note?`<div class="eq-note">${symLinks(md(b.note))}</div>`:''}</div>`,
     note:    b => `<div class="note ${b.kind||'def'}${b.ask?' ask':''}">${b.head?`<span class="note-h">${md(b.head)}</span>`:''}
         ${b.ask?askBody(b.html):symLinks(md(b.html))}${b.ask?askHTML(b.ask):''}</div>`,
-    legend:  b => `<div class="legend">${b.items.map(([c,l])=>`<i class="lg-${c}">${md(l)}</i>`).join('')}</div>`,
+    /* A legend is drawn inside the plot it keys, as a small card in a corner
+       (`at`: 'tr' by default, 'tl', or 'tl-axis' for a plot whose vertical
+       axis is its left edge). A third item entry marks a dashed trace. blocks() hands the legend that follows a
+       fig to that fig, so the scene data keeps writing it as its own block. */
+    legend:  b => `<div class="legend in-plot lg-at-${b.at||'tr'}">${b.items.map(([c,l,dash])=>`<i class="lg-${c}${dash?' lg-dash':''}">${md(l)}</i>`).join('')}</div>`,
     wex:     b => `<div class="wex">${b.rows.map(([k,v])=>
         `<div class="wex-row"><div class="wex-k">${md(k)}</div><div class="wex-v">${symLinks(md(v))}</div></div>`).join('')}</div>`,
-    fig:     b => `<figure class="fig ${b.frame?'fig-frame':''}${
+    fig:     (b, lg) => `<figure class="fig ${b.frame?'fig-frame':''}${
           b.sketch?' sketch'+(b.sketch.shown?' sk-shown':''):''}"${
           b.grow && typeof b.svg==='function' ? ` data-grow="${GROW.push(b)-1}"` : ''}${
-          b.live||b.listen||b.sketch||b.code||b.frames ? ` data-fx="${FX.push(b)-1}"` : ''}>
-        ${figSvg(b)}
-        ${b.live||b.listen||b.sketch||b.code||b.frames?`<div class="fxbar">${b.frames?framesHTML(b):''}${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}${b.code?codeBtnHTML(b.code):''}</div>`:''}
+          b.live||b.listen||b.sketch||b.frames ? ` data-fx="${FX.push(b)-1}"` : ''}>
+        ${figSvg(b)}${lg ? B.legend(lg) : ''}
+        ${b.live||b.listen||b.sketch||b.frames?`<div class="fxbar">${b.frames?framesHTML(b):''}${b.live?liveHTML(b):''}${b.listen?listenHTML(b):''}${b.sketch?sketchHTML(b):''}</div>`:''}
         ${b.caption?`<figcaption>${md(b.caption)}</figcaption>`:''}</figure>`,
     grid:    b => `<div style="display:grid;grid-template-columns:repeat(${b.cols||2},minmax(0,1fr));gap:${b.gap||'28px'};${b.style||''}">
         ${b.items.map(it=>`<div class="gcell">${blocks(it)}</div>`).join('')}</div>`,
@@ -211,7 +215,9 @@ const RENDER = (() => {
         const seen = qs.filter(q=>(S.quiz[q.id]||{}).revealed).length;
         return `<div class="dr-pager">
           <button class="btn" data-drill="${b.module}" data-step="-1"${i===0?' disabled':''}>&larr; Previous</button>
-          <span class="dr-count">Question <b class="dr-n">${i+1}</b> <span class="dr-of">of</span> ${qs.length}</span>
+          <label class="dr-count">Question <input class="dr-n" type="number" inputmode="numeric"
+            min="1" max="${qs.length}" value="${i+1}" data-drill-go="${b.module}"
+            aria-label="Go to question number"> <span class="dr-of">of</span> ${qs.length}</label>
           <button class="btn" data-drill="${b.module}" data-step="1"${i===qs.length-1?' disabled':''}>Next &rarr;</button>
           <span class="dr-seen">${seen?`Solutions opened: ${seen} of ${qs.length} on this device.`
                                      :'No solution has been opened on this device yet.'}</span>
@@ -319,10 +325,8 @@ const RENDER = (() => {
   /* ---------- code: programs in MATLAB and Python ----------
      The programs live in build/src/7?_code_m*.js, one entry a program. Each
      section closes with a code page (a scene `*-code-*`) that pages through
-     its programs one at a time, as the practice questions do. A figure may
-     carry `code:'<key>'`; its Code button opens the code page on that
-     program. `title`, `what` and `try` go through md(); the code is plain
-     text. The chosen language is kept on the device; the program on show,
+     its programs one at a time, as the practice questions do. `title`,
+     `what` and `try` go through md(); the code is plain text. The chosen language is kept on the device; the program on show,
      the reader's edits and the last output last for the session. */
   /* the code files load after this one, so the library is gathered on first use */
   const CODE_LIB = {}, CODE_BANKS = {};
@@ -334,10 +338,6 @@ const RENDER = (() => {
   const CODE_LANGS = [['m','MATLAB'],['py','Python']];
   let codeLang = (()=>{ try{ return localStorage.getItem('ss-code-lang')==='py'?'py':'m'; }catch(e){ return 'm'; } })();
   const CODE_AT = {}, DRAFT = {}, OUTPUT = {};
-  const codeBank = key => { codeLoad(); return Object.keys(CODE_BANKS).find(b=>CODE_BANKS[b].includes(key)); };
-  function codeBtnHTML(key){
-    return `<button type="button" class="code-btn" data-code-open="${key}" title="Code in MATLAB and Python" aria-label="Code in MATLAB and Python"><span class="code-lbl">Code</span><small>MATLAB · Python</small></button>`;
-  }
   const escH = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   /* A small highlighter: comments, strings, keywords and numbers. The code
      avoids the MATLAB transpose, so an apostrophe opens a string. */
@@ -529,8 +529,9 @@ def _ss_figs():
   }
 
   /* Sound. The samples are computed from the same formula the figure uses and
-     played once; a second press on the playing button stops it. Nothing is
-     fetched. The peak is set to one level so that loudness says nothing. */
+     played once; a second press on the playing button stops it. Moving a
+     slider of the figure while it plays restarts the sound with the new
+     values. Nothing is fetched. The peak is set to one level so that loudness says nothing. */
   const AUDIO = (() => {
     let ctx = null, src = null, btn = null;
     function stop(){
@@ -561,7 +562,7 @@ def _ss_figs():
       src = s; btn = el;
       el.classList.add('is-playing'); el.setAttribute('aria-pressed','true');
     }
-    return { play, stop };
+    return { play, stop, playing: () => btn };
   })();
 
   function redrawLive(fig){
@@ -580,8 +581,11 @@ def _ss_figs():
 
   function blocks(list){
     if(!list) return '';
-    return list.map(b=>{
+    return list.map((b,i)=>{
       if(!b) return '';
+      /* a legend right after a figure is drawn inside it, by the fig renderer */
+      if(b.t==='legend' && list[i-1] && list[i-1].t==='fig') return '';
+      if(b.t==='fig') return B.fig(b, list[i+1] && list[i+1].t==='legend' ? list[i+1] : null);
       if(b.t==='reveal'){
         const on = S.step >= b.at;
         return `<div class="reveal ${on?'shown':''}" ${on?'':'aria-hidden="true"'}
@@ -597,6 +601,29 @@ def _ss_figs():
      figure, lettered parts, and a worked solution that is drawn only once the
      reader asks for it. The revealed flag is the same field the question bank
      uses, so persistence and the reset action need no new code. */
+  /* The worked solution is written as one string of `<b>Head.</b>` sections
+     (R7). It is drawn as cards: Given and Find share one, Method and Check are
+     slate, each solved part is green, and the common error closes the column.
+     The solution figure sits in the last green card. */
+  function solCards(q){
+    const parts = [];
+    q.sol.split(/(?:<br>)?<b>(Given|Find|Method|Solution(?: — [^<]*)?|Check|Contrast with discrete time)\.<\/b>\s*/)
+      .forEach((s,i,a)=>{ if(i%2) parts.push({head:s, html:a[i+1].replace(/(<br>\s*)+$/,'')}); });
+    const card = (kind, head, html) =>
+      `<div class="note ${kind}"><span class="note-h">${md(head)}</span>${symLinks(md(html))}</div>`;
+    const fig = q.figSol ? `<figure class="fig">${typeof q.figSol==='function'?q.figSol():q.figSol}</figure>` : '';
+    const lastOk = parts.map(p=>p.head.startsWith('Solution')).lastIndexOf(true);
+    const given = parts.filter(p=>p.head==='Given'||p.head==='Find').map(p=>p.html).join('<div class="nsep"></div>');
+    const out = [card('def','Given', given)];
+    parts.forEach((p,i)=>{
+      if(p.head==='Given'||p.head==='Find') return;
+      const kind = p.head.startsWith('Solution') ? 'ok' : p.head==='Contrast with discrete time' ? 'warn' : 'def';
+      out.push(card(kind, p.head, p.html).replace(/<\/div>$/, (i===lastOk?fig:'')+'</div>'));
+    });
+    if(q.err) out.push(card('err','Common error', q.err));
+    return `<div class="dr-sol">${out.join('')}</div>`;
+  }
+
   function drillHTML(q){
     const st = S.quiz[q.id] || {};
     return `<div class="quiz drill" data-qid="${q.id}">
@@ -605,11 +632,7 @@ def _ss_figs():
       ${q.figure?`<figure class="fig">${typeof q.figure==='function'?q.figure():q.figure}</figure>`:''}
       <ol class="dr-parts">${(q.parts||[]).map(p=>`<li>${symLinks(md(p))}</li>`).join('')}</ol>
       <div><button class="btn" data-sol="${q.id}">${st.revealed?'Hide worked solution':'Show worked solution'}</button></div>
-      ${st.revealed?`<div class="note ok" style="margin-top:6px">
-          <span class="note-h">Worked solution</span>${symLinks(md(q.sol))}
-          ${q.figSol?`<figure class="fig">${typeof q.figSol==='function'?q.figSol():q.figSol}</figure>`:''}
-          ${q.err?`<div style="margin-top:12px" class="note err"><span class="note-h">Most likely student error</span>${md(q.err)}</div>`:''}
-        </div>`:''}
+      ${st.revealed?solCards(q):''}
       ${q.teach?`<div class="instr"><div class="instr-panel"><span class="note-h">Teaching note</span>${md(q.teach)}</div></div>`:''}
     </div>`;
   }
@@ -643,10 +666,6 @@ def _ss_figs():
         sb.setAttribute('aria-pressed', b.sketch.shown);
         sb.textContent = b.sketch.shown ? 'Hide the answer' : 'Show the answer'; }
       else { b.sketch.ink = []; fig.querySelectorAll('.sk-ink').forEach(p=>p.remove()); }
-      return; }
-    const co = e.target.closest('[data-code-open]');
-    if(co){ const key = co.dataset.codeOpen, bank = codeBank(key);
-      if(bank){ CODE_AT[bank] = CODE_BANKS[bank].indexOf(key); APP.goId(bank, 0); }
       return; }
     const cg = e.target.closest('[data-cp-go]');
     if(cg){ CODE_AT[cg.closest('.cpage').dataset.cpage] = +cg.dataset.cpGo; draw(); return; }
@@ -688,6 +707,18 @@ def _ss_figs():
           setTimeout(()=>el.style.background='',1400);} },40); }
   });
 
+  /* The pager's number is a field: a typed number jumps to that question on
+     Enter or on leaving the field. A number out of range is clamped; anything
+     else puts the current number back. */
+  document.addEventListener('change', e=>{
+    const g = e.target.closest('input[data-drill-go]'); if(!g) return;
+    const m = g.dataset.drillGo, n = (CONTENT.DRILL||[]).filter(q=>q.module===m).length;
+    const k = parseInt(g.value, 10);
+    if(!Number.isFinite(k)){ g.value = (S.drillPage[m]|0) + 1; return; }
+    S.drillPage[m] = Math.min(Math.max(k-1, 0), n-1);
+    APP.persist(); draw();
+  });
+
   /* A slider redraws its figure at the height it has now, grown or not. */
   document.addEventListener('input', e=>{
     const r = e.target.closest('input[data-live]');
@@ -698,6 +729,15 @@ def _ss_figs():
     liveVals(b)[k] = +r.value;
     fig.querySelector(`[data-live-v="${k}"]`).innerHTML = liveVal(c, +r.value);
     redrawLive(fig);
+    const pb = AUDIO.playing();
+    if(pb && fig.contains(pb)){
+      clearTimeout(fig._replay);
+      fig._replay = setTimeout(()=>{
+        if(AUDIO.playing() !== pb) return;
+        AUDIO.stop();
+        AUDIO.play(b.listen.items[+pb.dataset.listen].sound(liveVals(b)), pb);
+      }, 150);
+    }
   });
 
   /* Drawing on a sketch figure. The pointer is mapped into the svg's own
@@ -763,8 +803,33 @@ def _ss_figs():
       else el.innerHTML = '<div class="note warn">Laboratory not available in this build.</div>';
     });
     mountCourseMap(host);
+    if(sc.slide) toneCards(host);
     fitScene();
     chrome(sc);
+  }
+
+  /* No two cards on a slide share a colour (DESIGN.md, Information card). A
+     labelled equation has a tab like a card, so it counts as one. Each keeps
+     its own colour (coral for an equation or a prediction) while that colour
+     is free on the slide; a repeat takes the first free neutral tone. A
+     quick-check grid of more than four cards has its own form and is left
+     alone. */
+  function toneCards(host){
+    const out = el => !el.closest('.instr, .instr-inline, [data-lab]');
+    const notes = Array.from(host.querySelectorAll('.note')).filter(out);
+    if(notes.length > 4) return;
+    const cards = Array.from(host.querySelectorAll('.note, .eq:not(.plain)'))
+      .filter(el => out(el) && (el.classList.contains('note')
+        || (el.querySelector(':scope > .eq-label') && !el.closest('.note'))));
+    const own = n => n.classList.contains('eq') || n.classList.contains('ask') ? 'coral'
+      : n.classList.contains('ok') ? 'green' : n.classList.contains('err') ? 'red'
+      : n.classList.contains('warn') ? 'amber' : 'slate';
+    const used = new Set(), later = [];
+    cards.forEach(n => { const t = own(n); if(used.has(t)) later.push(n); else used.add(t); });
+    later.forEach(n => {
+      const t = ['slate','plum','graphite','amber','coral'].find(x => !used.has(x));
+      if(t){ used.add(t); n.dataset.tone = t; }
+    });
   }
 
   /* ---- deterministic fit-to-scene: never clip, never reflow unpredictably.

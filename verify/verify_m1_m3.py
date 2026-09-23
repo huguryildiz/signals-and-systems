@@ -100,13 +100,51 @@ chk("M1 predict (-1)^n has N0 = 2",
     min(N for N in range(1, 10) if all((-1)**(m+N) == (-1)**m for m in range(-10, 10))) == 2)
 chk("M1 predict t sin t is even", sp.simplify((-t)*sp.sin(-t) - t*sp.sin(t)) == 0)
 chk("M1 predict Od{t+1} = t", sp.simplify(sp.Rational(1,2)*((t+1) - (-t+1)) - t) == 0)
+chk("M1 predict cos(pi t) at t=0.5 is 0", sp.cos(sp.pi*sp.Rational(1,2)) == 0)
+chk("M1 predict v=2 V across 4 ohm gives 1 W", sp.Rational(2**2, 4) == 1)
+chk("M1 predict three unit samples have E = 3", sum(1**2 for m in range(3)) == 3)
+chk("M1 predict x(t)=2 has E_T = 8T", sp.integrate(4, (t, -T, T)) == 8*T)
+chk("M1 predict (-1)^n has P = 1",
+    sp.limit(sp.summation(((-1)**k)**2, (k, -Nn, Nn))/(2*Nn+1), Nn, sp.oo) == 1)
+chk("M1 predict unit pulse on [0,3] has E = 3", sp.integrate(1, (t, 0, 3)) == 3)
+chk("M1 predict x(t)=3 has P = 9", sp.limit(sp.integrate(9, (t, -T, T))/(2*T), T, sp.oo) == 9)
+chk("M1 predict e^t is neither: E and P diverge",
+    sp.limit(sp.integrate(sp.exp(2*t), (t, -T, T)), T, sp.oo) == sp.oo and
+    sp.limit(sp.integrate(sp.exp(2*t), (t, -T, T))/(2*T), T, sp.oo) == sp.oo)
+d_ = lambda m: 1 if m == 0 else 0
+u_ = lambda m: 1 if m >= 0 else 0
+chk("M1 predict delta[n-3] is non-zero only at n=3", [m for m in range(-10, 11) if d_(m-3)] == [3])
+chk("M1 predict u[n-2] at n=2 is 1", u_(2-2) == 1)
+chk("M1 predict u[n]-u[n-3] has 3 non-zero samples", sum(u_(m) - u_(m-3) != 0 for m in range(-10, 11)) == 3)
+chk("M1 predict 2delta[n]+delta[n-1] at n=1 is 1", 2*d_(1) + d_(1-1) == 1)
+chk("M1 predict sum n^2 delta[n+1] = 1", sum(m**2*d_(m+1) for m in range(-10, 11)) == 1)
+chk("M1 predict int 3 delta(t) dt = 3", sp.integrate(3*sp.DiracDelta(t), (t, -sp.oo, sp.oo)) == 3)
+chk("M1 predict unit-area rectangle of width 0.1 has height 10", 1/sp.Rational(1,10) == 10)
+chk("M1 predict int cos t delta(t-pi) dt = -1",
+    sp.integrate(sp.cos(t)*sp.DiracDelta(t-sp.pi), (t, -sp.oo, sp.oo)) == -1)
+chk("M1 predict e^{-2t} reaches e^{-1} at t=1/2", sp.solve(sp.Eq(-2*t, -1), t) == [sp.Rational(1,2)])
+chk("M1 predict e^{at} doubling each second has a = ln 2", sp.solve(sp.exp(sp.Symbol("a", real=True))-2) == [sp.log(2)])
+chk("M1 predict -3e^{j2t}: A = 3, theta = pi", sp.Abs(-3) == 3 and sp.arg(-3) == sp.pi)
+chk("M1 predict e^{(-1+j4)t} decays: Re a = -1 < 0", sp.re(-1+4*sp.I) < 0)
+chk("M1 predict (-0.5)^n decays and alternates",
+    all(abs((-0.5)**(m+1)) < abs((-0.5)**m) and (-0.5)**(m+1)*(-0.5)**m < 0 for m in range(10)))
+chk("M1 predict alpha^3 = 8 gives alpha = 2", sp.real_roots(sp.Symbol('z')**3 - 8) == [2])
+chk("M1 predict |1.1 e^{j pi/3}| = 1.1 > 1", sp.Abs(sp.Rational(11,10)*sp.exp(sp.I*sp.pi/3)) == sp.Rational(11,10))
+chk("M1 predict e^{j2n} is aperiodic, since 1/pi is irrational", (1/sp.pi).is_rational is False)
+chk("M1 predict e^{j0.5 pi t} has T0 = 4", 2*sp.pi/(sp.pi/2) == 4)
 chk("M1 quick: e^{-|t|} has E = 1", sp.integrate(sp.exp(-2*sp.Abs(t)), (t, -sp.oo, sp.oo)) == 1)
 P5 = sp.limit(sp.integrate(25*sp.cos(3*t)**2, (t, -T, T))/(2*T), T, sp.oo)
 chk("M1 quick: 5cos(3t) has P = 25/2", P5 == sp.Rational(25,2), f"P={P5}")
 chk("M1 quick: cos(n/4) is aperiodic, since 1/(8 pi) is irrational",
     (1/(8*sp.pi)).is_rational is False)
-chk("M1 quick: cos(pi n/4) has N0 = 8",
-    min(N for N in range(1, 50) if (sp.Rational(1,8)*N).is_integer) == 8)
+chk("M1 quick: the even part of u(t) is 1/2 for t != 0",
+    all((sp.Heaviside(v) + sp.Heaviside(-v))/2 == sp.Rational(1,2) for v in (-3, -1, 2, 5)))
+chk("M1 quick: u[n] - u[n-1] = delta[n]",
+    all((int(m >= 0) - int(m - 1 >= 0)) == int(m == 0) for m in range(-5, 6)))
+chk("M1 quick: Re e^{(-1+j2)t} = e^{-t} cos 2t",
+    sp.simplify(sp.re(sp.exp((-1 + 2*sp.I)*t)) - sp.exp(-t)*sp.cos(2*t)) == 0)
+chk("M1 quick: sgn(t) = 2u(t) - 1 for t != 0",
+    all(sp.sign(v) == 2*sp.Heaviside(v) - 1 for v in (-3, -1, 2, 5)))
 
 # 1.7 catalogue of common signals
 a_ = sp.Symbol('a', positive=True); A_, T0_ = sp.symbols('A T0', positive=True)

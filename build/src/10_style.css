@@ -305,11 +305,19 @@ body[data-sidebar=off] #sidebar{ display:none; }
   border-left:1px solid var(--rule); border-right:1px solid var(--rule);
 }
 #sidenav li.csec + li.insec{ padding-top:4px; }
-#sidenav li.insec:has(+ li.csec), #sidenav li.insec:last-child{
+#sidenav li.insec:has(+ li.csec), #sidenav li.insec:has(+ li.cdrill), #sidenav li.insec:last-child{
   border-bottom:1px solid var(--rule); border-radius:0 0 5px 5px;
   padding-bottom:5px; margin-bottom:10px;
 }
 #sidenav li.insec a:hover, #sidenav li.insec a.on{ background:var(--paper-3); }
+/* The practice questions close the chapter at section level, so the row is set
+   like a section heading, without a caret: it opens a scene, not a group. */
+#sidenav li.cdrill{ margin-top:9px; }
+#sidenav li.cdrill a{
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  padding:4px 8px 4px 10px; border-radius:2px;
+}
+#sidenav li.cdrill a:not(.on){ color:var(--muted); }
 .cnum{ font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--slate); }
 #sidenav a.on .cnum{ color:var(--coral); }
 /* The label frame is uppercase mono with wide tracking, and both properties
@@ -509,16 +517,21 @@ h3.sub{
    so choosing another project moves nothing. */
 .proj{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:40px; align-items:start; }
 .proj-right{ display:grid; }
-.proj-brief{ grid-area:1/1; opacity:0; visibility:hidden; transition:opacity 220ms var(--ease),visibility 0s linear 220ms; }
+.proj-brief{ grid-area:1/1; display:flex; flex-direction:column; gap:12px; opacity:0; visibility:hidden; transition:opacity 220ms var(--ease),visibility 0s linear 220ms; }
 .proj-brief.is-on{ opacity:1; visibility:visible; transition:opacity 220ms var(--ease),visibility 0s; }
 .proj-h{
   font-family:var(--mono); font-size:calc(14px * var(--ts)); letter-spacing:.12em; text-transform:uppercase;
   color:var(--slate); margin:0 0 6px;
 }
-.proj-h:not(:first-child){ margin-top:18px; }
+/* each block of a brief sits in its own card, the recall card's surface;
+   the aim takes the coral edge of the chosen project. */
+.proj-sec{ background:var(--paper-2); border:1px solid var(--rule); border-left:3px solid var(--rule-strong);
+  border-radius:var(--radius); padding:16px 22px 18px 18px; }
+.proj-sec-aim{ border-left-color:var(--coral); }
 .proj-aim{ font-family:var(--serif); font-style:italic; font-size:calc(24px * var(--ts)); line-height:1.35; color:var(--ink); margin:0; }
 .proj-learn,.proj-steps,.proj-look{ font-family:var(--sans); font-size:calc(18px * var(--ts)); line-height:1.45; color:var(--graphite); margin:0; }
 .proj-learn,.proj-steps{ padding-left:1.3em; }
+.proj-steps{ padding-left:1.8em; }
 .proj-learn li+li,.proj-steps li+li{ margin-top:4px; }
 .proj-steps li::marker{ font-family:var(--mono); color:var(--coral); }
 /* heading icons: a small mono heading over a block of a panel (a project
@@ -624,9 +637,32 @@ body[data-motion=reduced] .rc-face{ transition:none; transform:none; }
 .legend{ display:flex; flex-wrap:wrap; gap:18px 30px; font-size:calc(19px * var(--ts)); color:var(--muted); }
 .legend i{ display:inline-flex; align-items:center; gap:8px; font-style:normal; }
 .legend i::before{ content:""; width:26px; height:3px; border-radius:2px; background:currentColor; }
-.lg-in{ color:var(--sig-in); } .lg-h{ color:var(--sig-h); }
-.lg-out{ color:var(--sig-out); } .lg-mid{ color:var(--sig-mid); }
-.lg-err{ color:var(--sig-err); }
+/* In a plot the legend is a small card over the data area, in a corner the
+   traces leave free; the figure is its positioning box. */
+figure.fig, .plot-wrap{ position:relative; }
+.legend.in-plot{ position:absolute; top:10px; right:14px; z-index:1;
+  flex-direction:column; gap:5px; padding:8px 13px 9px;
+  background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius);
+  box-shadow:0 1px 3px rgba(0,0,0,.08); pointer-events:none; }
+.legend.in-plot.lg-at-tl{ right:auto; left:72px; top:calc(44px * var(--ts)); }
+.fig-frame > .legend.in-plot{ top:24px; right:34px; }
+.fig-frame > .legend.in-plot.lg-at-tl{ right:auto; left:92px; top:calc(58px * var(--ts)); }
+/* when the vertical axis is the plot's left edge, the card sits in the data
+   area to its right; the axis pad scales with the figure, so the offset does too */
+.fig-frame > .legend.in-plot.lg-at-tl-axis{ right:auto; left:calc(16px + 14%); top:74px; }
+/* a laboratory panel redraws its traces anywhere in the data area, so its
+   legend sits in one row in the strip above it, beside the axis name */
+.plot-wrap > .legend.in-plot{ flex-direction:row; gap:4px 18px; top:2px; right:14px; padding:3px 10px 4px; }
+body[data-theme=dark] .legend.in-plot{ background:color-mix(in srgb, var(--paper-2) 90%, #fff); border-color:var(--rule-strong, var(--rule)); box-shadow:0 1px 4px rgba(0,0,0,.25); }
+.lg-in{ color:var(--sig-in); --lg-c:var(--sig-in); } .lg-h{ color:var(--sig-h); --lg-c:var(--sig-h); }
+.lg-out{ color:var(--sig-out); --lg-c:var(--sig-out); } .lg-mid{ color:var(--sig-mid); --lg-c:var(--sig-mid); }
+.lg-err{ color:var(--sig-err); --lg-c:var(--sig-err); }
+/* on the light page a coloured label is thin on paper: the swatch carries the
+   colour and the label is set in graphite */
+body:not([data-theme=dark]) .legend i{ color:var(--graphite); }
+body:not([data-theme=dark]) .legend i::before{ background:var(--lg-c, currentColor); }
+/* a dashed trace gets a dashed swatch */
+body .legend i.lg-dash::before{ background:repeating-linear-gradient(90deg, var(--lg-c, currentColor) 0 7px, transparent 7px 11px); }
 
 /* ==========================================================================
    Figures
@@ -688,13 +724,16 @@ figcaption b{ color:var(--graphite); font-weight:600; }
    A tab is one line of label type and 8 px of padding tall, and the room kept
    above a card follows it: 30 px in normal display, more in lecture mode, where
    a fixed 30 px would be shorter than the tab it has to hold. */
-.scene.slide{
+.scene.slide, .dr-sol{
   --tab-ink:#FFFFFF;
   --tab-amber:#8A5E12;
+  --card-plum:#8B3A62;      /* two card tones that are not signal colours, */
+  --card-graphite:#5E5850;  /* for a second or third neutral card on a slide */
   --tab-room:calc(22px * var(--ts) + 8px);
   --card-gap:14px;   /* clear space between a card and the tab of the next */
 }
-body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--sig-h); }
+body[data-theme=dark] :is(.scene.slide, .dr-sol){ --tab-ink:var(--paper); --tab-amber:var(--sig-h);
+  --card-plum:#D98CB3; --card-graphite:#C4BDB2; }
 
 /* the title: a full-width hairline under it, a short coral segment at its left */
 .scene.slide .scene-inner > h2.title{ position:relative; margin:0 0 calc(26px * var(--hk,1)); padding-bottom:calc(16px * var(--hk,1)); }
@@ -710,7 +749,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
    with the colour of its kind; the head becomes a filled tab on the top-left
    edge, outside the reading column. The base rules for `.note.err` and for the
    head colour of each kind are out-specified here, not restated. */
-.scene.slide .note{
+:is(.scene.slide, .dr-sol) .note{
   --nc:var(--slate); --ntab:var(--slate); --ntint:4%;
   position:relative;
   background:color-mix(in srgb, var(--nc) var(--ntint), var(--paper-2));
@@ -719,18 +758,18 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
   padding:17px 22px 16px;
   font-size:calc(21.5px * var(--ts)); line-height:1.52; color:var(--graphite);
 }
-.scene.slide .note.ok  { --nc:var(--sig-out); --ntab:var(--sig-out); }
-.scene.slide .note.warn{ --nc:var(--sig-h);   --ntab:var(--tab-amber); }
-.scene.slide .note.err { --nc:var(--sig-err); --ntab:var(--sig-err); --ntint:8%; }
-.scene.slide .note b, .scene.slide .note strong{ color:var(--ink); font-weight:650; }
+:is(.scene.slide, .dr-sol) .note.ok  { --nc:var(--sig-out); --ntab:var(--sig-out); }
+:is(.scene.slide, .dr-sol) .note.warn{ --nc:var(--sig-h);   --ntab:var(--tab-amber); }
+:is(.scene.slide, .dr-sol) .note.err { --nc:var(--sig-err); --ntab:var(--sig-err); --ntint:8%; }
+:is(.scene.slide, .dr-sol) .note b, :is(.scene.slide, .dr-sol) .note strong{ color:var(--ink); font-weight:650; }
 /* a hairline inside a card, between the given data and the question */
-.scene.slide .note .nsep{ height:1px; background:var(--rule); margin:13px 0 12px; }
+:is(.scene.slide, .dr-sol) .note .nsep{ height:1px; background:var(--rule); margin:13px 0 12px; }
 
 /* The tab of a card and the tab of a labelled equation are one rule. It also
    sets the size of a tab in lecture mode: this selector out-specifies the
    `body[data-display=projector] .note-h` floor, so a slide's tab is
    13.5 px times the type scale in both displays and is set once. */
-.scene.slide .note > .note-h,
+:is(.scene.slide, .dr-sol) .note > .note-h,
 .scene.slide .eq:not(.plain) > .eq-label{
   position:absolute; bottom:calc(100% - 1px); left:-3px;
   display:inline-flex; align-items:center; gap:.46em;
@@ -743,31 +782,31 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 }
 .scene.slide .eq:not(.plain) > .eq-label{ --ntab:var(--coral); padding:4px 12px; }
 /* a tab is a label frame, and a label frame never rewrites its mathematics */
-.scene.slide .note > .note-h .katex,
+:is(.scene.slide, .dr-sol) .note > .note-h .katex,
 .scene.slide .eq > .eq-label .katex{ text-transform:none; letter-spacing:normal; }
 
 /* the tab's icon: one drawn set, 1.6 px stroke, masked so it takes the tab ink
    and sized in em so it follows the tab in lecture mode */
-.scene.slide .note > .note-h::before{
+:is(.scene.slide, .dr-sol) .note > .note-h::before{
   content:""; flex:none; width:1.11em; height:1.11em;
   background:currentColor;
   -webkit-mask-position:center; mask-position:center;
   -webkit-mask-size:contain;    mask-size:contain;
   -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
 }
-.scene.slide .note.def > .note-h::before{                     /* bookmark */
+:is(.scene.slide, .dr-sol) .note.def > .note-h::before{                     /* bookmark */
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h11v17l-5.5-4.2-5.5 4.2z'/%3E%3C/svg%3E");
           mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h11v17l-5.5-4.2-5.5 4.2z'/%3E%3C/svg%3E");
 }
-.scene.slide .note.ok > .note-h::before{                      /* check */
+:is(.scene.slide, .dr-sol) .note.ok > .note-h::before{                      /* check */
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E");
           mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.6l5.1 5.1L19.7 6.6'/%3E%3C/svg%3E");
 }
-.scene.slide .note.warn > .note-h::before{                    /* lightbulb */
+:is(.scene.slide, .dr-sol) .note.warn > .note-h::before{                    /* lightbulb */
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0-3.4 10.9c.6.5 1 1.2 1 1.9v.4h4.8v-.4c0-.7.4-1.4 1-1.9A6 6 0 0 0 12 3z'/%3E%3Cpath d='M9.8 19h4.4M10.6 21.4h2.8'/%3E%3C/svg%3E");
           mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3a6 6 0 0 0-3.4 10.9c.6.5 1 1.2 1 1.9v.4h4.8v-.4c0-.7.4-1.4 1-1.9A6 6 0 0 0 12 3z'/%3E%3Cpath d='M9.8 19h4.4M10.6 21.4h2.8'/%3E%3C/svg%3E");
 }
-.scene.slide .note.err > .note-h::before{                     /* warning triangle */
+:is(.scene.slide, .dr-sol) .note.err > .note-h::before{                     /* warning triangle */
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.6 21.2 20H2.8z'/%3E%3Cpath d='M12 9.6v4.6M12 17.4v.1'/%3E%3C/svg%3E");
           mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.6 21.2 20H2.8z'/%3E%3Cpath d='M12 9.6v4.6M12 17.4v.1'/%3E%3C/svg%3E");
 }
@@ -819,7 +858,7 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
 .scene.slide :is(.scene-inner, .col, .reveal, .gcell) > * + figure.fig{ margin-top:var(--tab-room); }
 
 /* the figure frame keeps the card's rhythm; the caption reads from the back */
-.scene.slide figcaption{ font-size:calc(18px * var(--ts)); line-height:1.45; }
+.scene.slide figcaption{ font-size:calc(21.5px * var(--ts)); line-height:1.45; }
 
 /* a grid of cards on a slide: a card fills its cell, so a row of cards reads as
    one band and the rows share the height of the stage */
@@ -1194,6 +1233,15 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
   color:var(--muted); padding:8px 18px; border-radius:999px;
   background:var(--paper-2); border:1px solid var(--rule-strong); white-space:nowrap; }
 .dr-count .dr-n{ color:var(--coral); font-weight:600; font-size:1.2em; margin:0 2px; }
+/* the number is a field the reader can type a question number into */
+.dr-count input.dr-n{ font-family:inherit; letter-spacing:inherit; width:2.4ch; padding:1px 3px;
+  text-align:center; background:var(--paper); border:1px solid var(--rule-strong); border-radius:6px;
+  -moz-appearance:textfield; appearance:textfield; cursor:text; }
+.dr-count input.dr-n::-webkit-inner-spin-button,
+.dr-count input.dr-n::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+.dr-count input.dr-n:hover{ border-color:var(--coral); }
+.dr-count input.dr-n:focus{ outline:none; border-color:var(--coral);
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--coral) 30%, transparent); }
 .dr-count .dr-of{ color:var(--faint); }
 .dr-seen{ margin-left:auto; font-size:calc(16px * var(--ts)); color:var(--sig-out); }
 /* the question's own number, set as a coral pill above its statement */
@@ -1211,6 +1259,10 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 .dr-page::-webkit-scrollbar{ width:9px; }
 .dr-page::-webkit-scrollbar-thumb{ background:var(--rule-strong); border-radius:6px; }
 .dr-page .quiz{ max-width:1560px; }
+/* the question sits on a card, the same raised panel as .card, so the
+   statement, its parts and the solution read as one unit apart from the pager */
+.dr-page .quiz.drill{ max-width:none; background:var(--paper-2); border:1px solid var(--rule);
+  border-radius:var(--radius); padding:24px 28px 26px; box-sizing:border-box; }
 /* Examination parts are lettered a), b), c) — not numbered, because the numbers
    would read as steps of one method rather than as separate questions. */
 .drill .dr-parts{ margin:0; padding-left:30px; list-style:none; counter-reset:drpart;
@@ -1222,6 +1274,11 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
   content:counter(drpart,lower-alpha) ")"; position:absolute; left:-30px; top:1px;
   font-family:var(--mono); font-size:.78em; color:var(--slate); }
 .drill .note.ok figure.fig{ margin-top:14px; }
+/* The worked solution is a column of the slide cards: Given with Find under a
+   hairline, Method, one green card per solved part, Check, the common error.
+   The card rules above are shared with .scene.slide; the tab room is set here. */
+.dr-sol{ display:flex; flex-direction:column; }
+.dr-sol > .note:has(> .note-h){ margin-top:calc(var(--tab-room) + var(--card-gap)); border-top-left-radius:0; }
 /* two figures a question shows together — the input and the impulse response,
    or an input-output pair. Each keeps its own column and scales inside it. */
 .dr-pair{ display:flex; gap:16px; align-items:flex-start; }
@@ -1301,6 +1358,20 @@ body[data-motion=reduced] *{ transition-duration:1ms !important; animation-durat
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.3-2.6 4'/%3E%3Cpath d='M12 17.2v.1'/%3E%3C/svg%3E");
           mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.4 9.3a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.3-2.6 4'/%3E%3Cpath d='M12 17.2v.1'/%3E%3C/svg%3E");
 }
+/* No two cards on a slide share a colour. A card keeps the colour of its kind
+   unless an earlier card on the slide already holds it; then draw() gives it
+   the first free neutral tone (slate, plum, graphite). A labelled equation
+   counts as a card. Green and red are never
+   handed out this way, because they mean a solution and an error. These rules
+   follow the kind and prediction rules so they out-rank them. */
+.scene.slide :is(.note,.eq)[data-tone=slate]   { --nc:var(--slate);         --ntab:var(--slate);         --ntint:4%; }
+.scene.slide :is(.note,.eq)[data-tone=plum]    { --nc:var(--card-plum);     --ntab:var(--card-plum);     --ntint:4%; }
+.scene.slide :is(.note,.eq)[data-tone=graphite]{ --nc:var(--card-graphite); --ntab:var(--card-graphite); --ntint:4%; }
+.scene.slide :is(.note,.eq)[data-tone=amber]   { --nc:var(--sig-h);         --ntab:var(--tab-amber);     --ntint:4%; }
+.scene.slide :is(.note,.eq)[data-tone=coral]   { --nc:var(--coral);         --ntab:var(--coral);         --ntint:4%; }
+.scene.slide .eq[data-tone]{ border-left-color:var(--nc); }
+.scene.slide .eq.result[data-tone]{ border-color:var(--nc); }
+.scene.slide .eq[data-tone] > .eq-label{ --ntab:inherit; }
 .note.ask .ask-prompt{
   margin-top:14px; padding-top:12px; border-top:1px solid var(--rule);
   font-family:var(--serif); font-style:italic; color:var(--ink);
@@ -1445,29 +1516,10 @@ body[data-theme=dark] #scene-host h2.title .t-icon, #scene-host .scene.dark h2.t
   stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
 
 /* ---------- code: programs in MATLAB and Python ----------
-   A figure's Code button sits at the right end of the row under it and opens
-   the section's code page. The page is a scene: numbered program tabs, the
-   code on the left, and what it does, a task and the output on the right.
+   Each section closes with a code page. The page is a scene: numbered
+   program tabs, the code on the left, and what it does, a task and the output on the right.
    Highlighting uses the ink ramp, slate and terracotta only: the signal
    colours keep their figure meanings. */
-.code-btn{
-  margin-left:auto; display:inline-flex; align-items:baseline; gap:.6em;
-  font-family:var(--sans); font-size:calc(17px * var(--ts)); line-height:1.3;
-  padding:8px 16px 8px 12px; min-height:calc(42px * var(--ts));
-  color:var(--slate-deep); background:var(--paper-2);
-  border:1px solid var(--rule-strong); border-radius:var(--radius); cursor:pointer;
-  transition:background 140ms var(--ease),border-color 140ms var(--ease);
-}
-.code-btn::before{ content:"</>"; font-family:var(--mono); font-weight:600; font-size:.9em; color:var(--coral); }
-.code-btn small{ font-family:var(--mono); font-size:calc(12.5px * var(--ts)); letter-spacing:.1em;
-  text-transform:uppercase; color:var(--muted); }
-/* beside sliders or sketch buttons the button keeps only its glyph, so the row does not wrap */
-.fxbar > .code-btn:not(:only-child){ padding:5px 12px; min-height:0; align-items:center; }
-.fxbar > .code-btn:not(:only-child) :is(.code-lbl, small){ display:none; }
-.fxbar:has(> .code-btn) > .live-ctrl{ flex-basis:200px; min-width:0; }
-.code-btn:hover{ border-color:var(--slate); background:var(--paper-3); }
-.code-btn:focus-visible{ outline:2px solid var(--slate); outline-offset:2px; }
-body[data-theme=dark] .code-btn{ color:var(--slate); }
 
 /* code grows less than prose in projector mode: a program is 15 to 21 lines and must fit the stage */
 .cpage{ display:flex; flex-direction:column; gap:22px; --code-fs:calc(12px + 5px * var(--ts)); }

@@ -6,7 +6,7 @@
    toolbox; Python uses NumPy and Matplotlib only.
    `title`, `what` and `try` are student text and go through md(); the code
    is plain text. Each section closes with a code page (`CODE_BANKS_M1`) that
-   pages through its programs; a figure may open one with `code:'<key>'`.
+   pages through its programs.
    verify/code_check.py runs every entry in both languages and compares what
    it prints with `out`.
    ========================================================================== */
@@ -545,13 +545,11 @@ plt.show()`},
 dt = 1e-4;
 t  = -2:dt:3;
 x  = double(t >= 0 & t <= 1);
-
 % Total energy: the integral of |x(t)|^2, as a sum
 E = sum(abs(x).^2) * dt;
 fprintf('E = %.3f\\n', E)
 
-% Average power over [-T, T]: x is zero outside [0, 1],
-% so the integral is E for every T >= 1
+% Average power over [-T, T]: the integral is E for every T >= 1
 T = [10 100 1000];
 P = E ./ (2*T);
 fprintf('P = %.4f  %.4f  %.4f\\n', P)
@@ -565,13 +563,11 @@ import matplotlib.pyplot as plt
 dt = 1e-4
 t = np.arange(-2, 3 + dt, dt)
 x = ((t >= 0) & (t <= 1)).astype(float)
-
 # Total energy: the integral of |x(t)|^2, as a sum
 E = np.sum(np.abs(x)**2) * dt
 print(f'E = {E:.3f}')
 
-# Average power over [-T, T]: x is zero outside [0, 1],
-# so the integral is E for every T >= 1
+# Average power over [-T, T]: the integral is E for every T >= 1
 T = np.array([10, 100, 1000])
 P = E / (2*T)
 print('P = ' + '  '.join(f'{p:.4f}' for p in P))
