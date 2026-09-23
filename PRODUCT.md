@@ -45,10 +45,14 @@ full argument reads the notes; a student in the room reads the slide and listens
 
 ## Brand Commitments
 
-Calm, rigorous and editorial. The interface makes a demanding technical course feel navigable, and
-never competes with the mathematics. The artifact should read as the same publication as
-`huguryildiz.github.io`. The public cover page shares its stylesheet, unchanged, with the sibling
-course in `~/Documents/GitHub/digital-communications`.
+The artifact is calm, rigorous and editorial. The interface makes a demanding technical course feel
+navigable, and never competes with the mathematics. The artifact should read as the same publication
+as `huguryildiz.github.io`.
+
+The public cover page is the exception. It is dark and cinematic: one pinned frame in which Figure 1
+builds as the reader scrolls, under a large serif title that changes with each step, and a row of
+facts below it. It keeps its own inline styles and shares no stylesheet with the sibling course in
+`~/Documents/GitHub/digital-communications`. `DESIGN.md`, "The public cover page", has the details.
 
 The language is plain academic English. No promotional tone, no slogans, no sentence written to sound
 impressive. `.claude/rules/content-writing.md` R1–R5 is the standard.

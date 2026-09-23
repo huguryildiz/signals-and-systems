@@ -292,8 +292,9 @@ copy(path.join(DIST, 'Lecture_Notes.pdf'), 'Lecture_Notes.pdf');
 copy(path.join(DIST, 'Student_Workbook.pdf'), 'Student_Workbook.pdf');
 copy(path.join(DIST, 'Formula_Reference.pdf'), 'Formula_Reference.pdf');
 
-/* The cover page, its backdrop, and the four document photographs. */
-for (const f of ['index.html', 'backdrop.js'])
+/* The cover page, its backdrop, Figure 1, and the cover and inside page of
+   each PDF, rendered from the PDFs themselves. */
+for (const f of ['index.html', 'backdrop.js', 'fig.js'])
   copy(path.join(__dirname, f), f);
 copy(path.join(ROOT, 'assets', 'icon.svg'), 'icon.svg');
 fs.mkdirSync(path.join(SITE, 'img'));
