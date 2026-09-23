@@ -4,7 +4,6 @@ This file is authoritative for routine work. `AGENTS.md` links to it so Codex an
 
 ## Communication and authority
 
-- Speak to the owner in Turkish. Write deliverables and internal repository records in plain academic English.
 - Be exact about what was verified. Do not invent source content, references, results, or gate outcomes.
 - The build pipeline, content schema, and sections of `DESIGN.md` marked LOCKED are locked. If a requested change needs one of them to change, report the issue before modifying it.
 - Use `TODO.md` for current work and release state. Read the relevant plan and latest report in `.claude/plans/slides/` when working on the slide redesign. Older kickoff files are historical when their status conflicts with `TODO.md` or a later report.

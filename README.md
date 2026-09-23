@@ -8,7 +8,7 @@
 
 <p align="center">
   <strong>Interactive Lecture Artifact</strong><br>
-  <sub>Step through a scene and watch the mathematics build itself — lectures, laboratories and practice in one page.</sub>
+  <sub>An interactive deck for the undergraduate signals and systems course I have taught to electrical engineering students for many years.</sub>
 </p>
 
 <p align="center">
@@ -17,8 +17,7 @@
   <img src="https://img.shields.io/badge/Pyodide-0b1220?style=for-the-badge&logo=python&logoColor=3776AB" alt="Pyodide">
   <img src="https://img.shields.io/badge/NumPy_%C2%B7_SymPy-0b1220?style=for-the-badge&logo=numpy&logoColor=4DABCF" alt="NumPy and SymPy">
   <img src="https://img.shields.io/badge/Playwright-0b1220?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
-  <img src="https://img.shields.io/badge/Vercel-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
-  <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/signals--and--systems--tedu.vercel.app-live-4F46E5?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live"></a>
+  <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/signals--and--systems--tedu.vercel.app-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Live"></a>
   <a href="https://github.com/huguryildiz/signals-and-systems/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/huguryildiz/signals-and-systems/checks.yml?branch=main&style=for-the-badge&label=checks" alt="Checks"></a>
 </p>
 
@@ -104,6 +103,27 @@ The numerical checks use a local Python environment:
 /opt/homebrew/bin/python3.12 -m venv .venv && .venv/bin/pip install numpy sympy
 ```
 
+## Python on the site
+
+The site is hosted on Vercel as static files. Vercel runs no Python: the code pages run Python in the
+reader's browser through [Pyodide](https://pyodide.org), a build of CPython compiled to WebAssembly.
+
+1. On Vercel, the build command `node web/build-site.js` calls `web/pyodide.js`. That script downloads
+   Pyodide 0.29.3 from jsDelivr, together with NumPy, Matplotlib and their dependencies, and checks
+   every file against a pinned SHA-256. A mismatch stops the build. This is the one step that uses the
+   network; the artifact and the notes still build offline.
+2. The files are published under `pyodide/v0.29.3/` on the course site itself, so a reader's browser
+   never contacts a third-party server. `vercel.json` serves them with a one-year immutable cache and
+   the `application/wasm` content type.
+3. Nothing is loaded when the page opens. The first press of **Run** loads the runtime and the two
+   packages, which takes a few seconds; later runs reuse it.
+4. Each program runs in a fresh namespace. Printed output appears under the code, and Matplotlib
+   figures are drawn to PNG and shown in place of a window.
+
+The code sent to Python never leaves the reader's browser. A copy of the artifact opened as a local
+file (`file://`) makes no request and offers Copy only. For an offline local site build, set
+`SKIP_PYODIDE=1`; the site then has no runtime, and Run reports that Python could not be loaded.
+
 ## Checks
 
 Before a release, the sources pass a chain of checks. Browser checks render every scene and look for
@@ -141,6 +161,26 @@ The audience, purpose and constraints are in [`PRODUCT.md`](PRODUCT.md). Current
 The content is written from the course's own handwritten lecture notes. A standard textbook is used
 only to cross-check transform conventions, convergence conditions and scale factors; it is never
 quoted, reproduced or redistributed.
+
+## Citing
+
+If you use this material in teaching or research, please cite it. The citation metadata is in
+[`CITATION.cff`](CITATION.cff), and GitHub's **Cite this repository** button in the repository sidebar
+gives it in APA and BibTeX. In BibTeX:
+
+```bibtex
+@misc{yildiz_signals_systems,
+  author       = {Y{\i}ld{\i}z, H{\"u}seyin U{\u{g}}ur},
+  title        = {Signals and Systems: An Interactive Lecture Artifact},
+  year         = {2026},
+  version      = {1.8},
+  howpublished = {\url{https://signals-and-systems-tedu.vercel.app}},
+  note         = {Source: \url{https://github.com/huguryildiz/signals-and-systems}}
+}
+```
+
+Please cite the version you used. When a new version is released, the version number in
+`CITATION.cff` changes with it.
 
 ## License
 

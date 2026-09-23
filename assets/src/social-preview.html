@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>Signals and Systems social preview</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; margin: 0; overflow: hidden; }
+  body { background: #05090d; color: #f4f6f6; -webkit-font-smoothing: antialiased; }
+  .card { position: relative; width: 1280px; height: 640px; overflow: hidden; font-family: Arial, Helvetica, sans-serif; }
+  .photo { position: absolute; inset: 0; background: url('./social-bg.png') center / cover no-repeat; }
+  .veil { position: absolute; inset: 0; background: linear-gradient(90deg, #05090d 0%, #05090d 25%, rgba(5,9,13,.98) 36%, rgba(5,9,13,.86) 48%, rgba(5,9,13,.32) 67%, rgba(5,9,13,.04) 85%); }
+  .brand { position: absolute; left: 64px; top: 62px; display: flex; align-items: center; gap: 22px; }
+  .tile { width: 76px; height: 76px; border: 1px solid #294047; border-radius: 21px; background: #0a0f12; display: grid; place-items: center; overflow: hidden; }
+  .tile img { width: 76px; height: 76px; display: block; }
+  .brand-copy { display: flex; flex-direction: column; gap: 13px; white-space: nowrap; }
+  .brand-name { font-size: 16px; line-height: 1; font-weight: 700; letter-spacing: .20em; color: #dce4e9; }
+  .brand-sub { font-size: 13px; line-height: 1; font-weight: 600; letter-spacing: .16em; color: #8199a7; }
+  h1 { position: absolute; left: 64px; top: 192px; margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 75px; line-height: .96; font-weight: 700; letter-spacing: -.035em; color: #fafbfd; }
+  .rule { position: absolute; left: 67px; top: 354px; width: 91px; height: 5px; border-radius: 5px; background: #4fbece; }
+  .subtitle { position: absolute; left: 64px; top: 382px; margin: 0; color: #d1dbe1; font-size: 20px; font-weight: 600; line-height: 1.4; letter-spacing: -.02em; }
+  .chips { position: absolute; left: 64px; top: 492px; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .chip { height: 35px; display: inline-flex; align-items: center; gap: 9px; border: 1px solid #275764; border-radius: 20px; background: rgba(11, 24, 29, .82); padding: 0 13px; color: #c8d5dc; font-size: 12px; font-weight: 600; letter-spacing: .065em; }
+  .chip:nth-child(3) { border-color: #385876; }
+  .chip:nth-child(4) { border-color: #39557d; }
+  .dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #4fbece; }
+  .chip:nth-child(2) .dot { background: #73c7a2; }
+  .chip:nth-child(3) .dot { background: #85b9fc; }
+  .chip:nth-child(4) .dot { background: #b1a0e0; }
+  .footer { position: absolute; bottom: 46px; color: #96aab7; font-size: 13px; font-weight: 600; letter-spacing: .14em; white-space: nowrap; }
+  .footer.left { left: 260px; }
+  .footer.right { right: 64px; }
+  .bottom-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: linear-gradient(90deg, #57d2b4, #4fbece 48%, #5188d0); }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="photo"></div><div class="veil"></div>
+  <div class="brand">
+    <div class="tile"><img src="../icon.svg" alt=""></div>
+    <div class="brand-copy"><span class="brand-name">SIGNALS-AND-SYSTEMS</span><span class="brand-sub">INTERACTIVE COURSE MATERIAL</span></div>
+  </div>
+  <h1>Signals and<br>Systems</h1>
+  <div class="rule"></div>
+  <p class="subtitle">Step through a scene and watch the<br>mathematics build itself. Lectures,<br>laboratories and practice in one page.</p>
+  <div class="chips">
+    <span class="chip"><i class="dot"></i>LECTURE DECK</span>
+    <span class="chip"><i class="dot"></i>LABORATORIES</span>
+    <span class="chip"><i class="dot"></i>WORKED PROBLEMS</span>
+    <span class="chip"><i class="dot"></i>CODE</span>
+  </div>
+  <div class="footer left">OPEN · BROWSER-BASED · STATIC</div>
+  <div class="footer right">ELECTRICAL ENGINEERING</div>
+  <div class="bottom-bar"></div>
+</main>
+</body>
+</html>
