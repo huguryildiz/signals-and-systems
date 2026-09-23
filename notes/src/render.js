@@ -35,35 +35,53 @@
      its main lobe at xc and zero crossings every T; the coral stems are its
      samples at spacing T/2, so every dot sits on the teal curve. */
   const COVER_ART = ()=>{
-    const y0=222, xc=105, T=15, A=58, f=v=>v.toFixed(2);
+    const y0=222, xc=105, T=15, A=58, f=v=>v.toFixed(2), f3=v=>v.toFixed(3);
     const sinc=u=>u===0?1:Math.sin(Math.PI*u)/(Math.PI*u);
-    const path=(g,a,z,n=420)=>{ let d=''; for(let i=0;i<=n;i++){ const x=a+(z-a)*i/n;
-      d+=(i?'L':'M')+f(x)+' '+f(g(x)); } return d; };
-    const sp=path(x=>y0-A*sinc((x-xc)/T),-5,215);
-    const dc=path(x=>{const t=x+5; return y0-30*Math.exp(-t/85)*Math.cos(2*Math.PI*t/31);},-5,215);
+    const sy=x=>y0-A*sinc((x-xc)/T);
+    const dy=x=>{const t=x+5; return y0-30*Math.exp(-t/85)*Math.cos(2*Math.PI*t/31);};
+    /* Everything is plain vector with constant-opacity strokes, so PDF viewers
+       draw the cover at once. Masks, blur filters and translucent gradients all
+       make Chrome's print path emit bitmaps or soft masks that render slowly.
+       So the fades are stepped opacities and the glow is a stack of wide strokes. */
+    const lerp=(st,t)=>{ for(let i=1;i<st.length;i++) if(t<=st[i][0]){ const [t0,v0]=st[i-1],[t1,v1]=st[i];
+      return v0+(v1-v0)*(t-t0)/(t1-t0); } return st[st.length-1][1]; };
+    const hw=x=>lerp([[0,0],[29.4,1],[180.6,1],[210,0]],Math.min(210,Math.max(0,x)));  /* side fade */
+    const vw=y=>lerp([[0,.25],[148.5,.6],[237.6,1],[297,.2]],y);                       /* grid fade */
+    const bins=[]; for(let x=0;x<29.4-1e-6;x+=2.1) bins.push([x,x+2.1]);
+    bins.push([29.4,180.6]); for(let x=180.6;x<210-1e-6;x+=2.1) bins.push([x,x+2.1]);
+    /* one path per bin, each with the fade weight at its centre (mid bin weight 1) */
+    /* the first and last edge of each piece is 0.01 mm long, so neighbouring
+       butt ends meet at the same angle and wide strokes leave no wedge between them */
+    const pieces=g=>bins.map(([a,z])=>{ const n=Math.max(2,Math.ceil((z-a)/0.5)); const xs=[a,a+.01];
+      for(let i=1;i<n;i++) xs.push(a+(z-a)*i/n); xs.push(z-.01,z);
+      return [xs.map((x,i)=>(i?'L':'M')+f3(x)+' '+f3(g(x))).join(''),hw((a+z)/2)]; });
+    /* The glow is wider than the curve's bend at its peaks, so cutting it into
+       pieces would fold neighbouring pieces over each other. Each fade bin draws
+       it whole (padded past the bin) and clips it to the bin's strip instead. */
+    const clips=bins.map(([a,z],i)=>`<clipPath id="cv-c${i}"><rect x="${a}" y="0" width="${f(z-a)}" height="297"/></clipPath>`).join('');
+    const glowd=(g,a,z)=>{ let d=''; for(let x=a;x<=z+1e-6;x+=.5) d+=(d?'L':'M')+f(x)+' '+f(g(x)); return d; };
+    const trace=(g,c,o,w,glow)=>{ let s='';
+      if(glow) s+=bins.map(([a,z],i)=>{ const d=glowd(g,a-4,z+4), h=hw((a+z)/2);
+        return `<g clip-path="url(#cv-c${i})">`+[[7,.06],[6,.07],[5,.08],[4.2,.09],[3.4,.1],[2.6,.11],[1.9,.12],[1.3,.13]]
+          .map(([gw,k])=>`<path d="${d}" stroke="${c[1]}" stroke-opacity="${f3(glow*k*h)}" stroke-width="${gw}"/>`).join('')+'</g>'; }).join('');
+      return s+pieces(g).map(([d,h])=>`<path d="${d}" stroke="${c[0]}" stroke-opacity="${f3(o*h)}" stroke-width="${w}"/>`).join(''); };
     let grid='', stems='';
-    for(let x=0;x<=210;x+=7.5) grid+=`<line x1="${x}" y1="0" x2="${x}" y2="297"/>`;
-    for(let y=y0%7.5;y<=297;y+=7.5) grid+=`<line x1="0" y1="${f(y)}" x2="210" y2="${f(y)}"/>`;
-    for(let x=xc-13*T/2;x<=xc+13*T/2+1e-6;x+=T/2){ const y=y0-A*sinc((x-xc)/T);
-      stems+=`<line x1="${f(x)}" y1="${y0}" x2="${f(x)}" y2="${f(y)}"/><circle cx="${f(x)}" cy="${f(y)}" r="0.9"/>`; }
+    for(let x=0;x<=210;x+=7.5) for(let y=0;y<297;y+=15)
+      grid+=`<line x1="${x}" y1="${y}" x2="${x}" y2="${Math.min(297,y+15)}" stroke-opacity="${f3(.075*vw(y+7.5))}"/>`;
+    for(let y=y0%7.5;y<=297;y+=7.5) grid+=`<line x1="0" y1="${f(y)}" x2="210" y2="${f(y)}" stroke-opacity="${f3(.075*vw(y))}"/>`;
+    for(let x=xc-13*T/2;x<=xc+13*T/2+1e-6;x+=T/2){ const y=sy(x), h=hw(x);
+      stems+=`<line x1="${f(x)}" y1="${y0}" x2="${f(x)}" y2="${f(y)}" stroke-opacity="${f3(.85*h)}"/><circle cx="${f(x)}" cy="${f(y)}" r="0.9" fill-opacity="${f3(h)}" stroke-opacity="${f3(.85*h)}"/>`; }
     return `<svg class="cv-art" viewBox="0 0 210 297" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
 <defs>
-<radialGradient id="cv-bg" cx="50%" cy="68%" r="75%"><stop offset="0" stop-color="#173C5E"/><stop offset=".55" stop-color="#0F2640"/><stop offset="1" stop-color="#08121E"/></radialGradient>
-<linearGradient id="cv-gfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset=".5" stop-color="#fff" stop-opacity=".6"/><stop offset=".8" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity=".2"/></linearGradient>
-<mask id="cv-gmask"><rect width="210" height="297" fill="url(#cv-gfade)"/></mask>
-<linearGradient id="cv-hfade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".14" stop-color="#fff"/><stop offset=".86" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<mask id="cv-tmask"><rect width="210" height="297" fill="url(#cv-hfade)"/></mask>
-<filter id="cv-glow" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="1.6"/></filter>
+<radialGradient id="cv-bg" cx="50%" cy="68%" r="75%"><stop offset="0" stop-color="#173C5E"/><stop offset=".55" stop-color="#0F2640"/><stop offset="1" stop-color="#08121E"/></radialGradient>${clips}
 </defs>
 <rect width="210" height="297" fill="url(#cv-bg)"/>
-<g mask="url(#cv-gmask)" stroke="#9FB6CC" stroke-opacity=".075" stroke-width=".18">${grid}</g>
-<g mask="url(#cv-tmask)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-<line x1="0" y1="${y0}" x2="210" y2="${y0}" stroke="#C9D4DE" stroke-opacity=".32" stroke-width=".25"/>
-<path d="${dc}" stroke="#E0B070" stroke-opacity=".35" stroke-width="2.2" filter="url(#cv-glow)"/>
-<path d="${dc}" stroke="#E0B070" stroke-opacity=".78" stroke-width=".42"/>
-<g stroke="#E09A6A" stroke-opacity=".85" stroke-width=".38" fill="#F2B48A">${stems}</g>
-<path d="${sp}" stroke="#6FC3CF" stroke-opacity=".45" stroke-width="2.6" filter="url(#cv-glow)"/>
-<path d="${sp}" stroke="#8AD6E0" stroke-width=".55"/>
+<g stroke="#9FB6CC" stroke-width=".18">${grid}</g>
+<g fill="none" stroke-linejoin="round">
+${trace(()=>y0,['#C9D4DE'],.32,.25)}
+${trace(dy,['#E0B070','#E0B070'],.78,.42,.35)}
+<g stroke="#E09A6A" stroke-width=".38" fill="#F2B48A">${stems}</g>
+${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
 </g>
 </svg>`;
   };
