@@ -388,7 +388,7 @@ figure and two or three cards. Each is rendered in `build/src/90_app.js` and sty
   it with Web Audio, sets one peak level, adds a 6 ms fade at each end and plays it once. A second
   press stops it; changing scene stops it. Nothing is fetched.
 
-- **A sketch on a figure (`fig.sketch`) — PILOT 2026-09-23, on `m1-combined-b` only.**
+- **A sketch on a figure (`fig.sketch`) — DECIDED 2026-09-23, built on `m1-combined-b`.**
   `sketch:{label?}`. The reader draws on the axes with the pointer, then presses *Show the answer*.
   The figure's `svg` marks its data area with an invisible `<rect class="sk-area">` and wraps the
   answer in `<g class="sk-key">`; the answer stays in the markup and is only made transparent, so
