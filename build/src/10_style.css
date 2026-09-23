@@ -692,6 +692,7 @@ figcaption b{ color:var(--graphite); font-weight:600; }
   --tab-ink:#FFFFFF;
   --tab-amber:#8A5E12;
   --tab-room:calc(22px * var(--ts) + 8px);
+  --card-gap:14px;   /* clear space between a card and the tab of the next */
 }
 body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--sig-h); }
 
@@ -785,14 +786,14 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
    of one column starts level with the card body at the top of the other. */
 .scene.slide :is(.scene-inner, .col, .reveal, .gcell) > .note:has(> .note-h),
 .scene.slide :is(.scene-inner, .col, .reveal, .gcell) > .eq:not(.plain):has(> .eq-label){
-  margin:var(--tab-room) 0 0; border-top-left-radius:0;
+  margin:calc(var(--tab-room) + var(--card-gap)) 0 0; border-top-left-radius:0;
 }
 .scene.slide .reveal:has(> .note:first-child > .note-h, > .eq:not(.plain):first-child > .eq-label){ margin-top:0; }
 /* a laboratory builds its cards inside its own containers, so they take the
    tab room there */
 .scene.slide .lab :is(.derive, .aper, .work) > .note:has(> .note-h),
 .scene.slide .lab :is(.derive, .work) > .eq:not(.plain):has(> .eq-label){
-  margin-top:var(--tab-room); border-top-left-radius:0;
+  margin-top:calc(var(--tab-room) + var(--card-gap)); border-top-left-radius:0;
 }
 /* the control panel has no tab, so a laboratory column starts at the top */
 .scene.slide .lab > .cols > .col > :first-child:not(.reveal){ margin-top:0; }

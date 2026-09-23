@@ -1556,7 +1556,7 @@ REAL_PERIODIC,
       return a.svg(); },
       caption:'Sifting, drawn. Step through the frames: the impulse at $t_0$ is scaled by the value of $x$ there, and integration returns that single number.'}
   ], right:[
-    {t:'eq', tex:'\\delta(t)=\\dfrac{\\d}{\\d t}u(t),\\qquad u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau',
+    {t:'eq', tex:'\\begin{aligned}\\delta(t)&=\\dfrac{\\d}{\\d t}u(t)\\\\[6pt]u(t)&=\\int_{-\\infty}^{t}\\delta(\\tau)\\,\\d\\tau\\end{aligned}',
       label:'Step and impulse', note:'The pair $\\delta[n]=u[n]-u[n-1]$ is the discrete-time analogue.'},
     {t:'reveal', at:1, items:[
       {t:'eq', key:true, tex:'x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)', label:'Sampling'}]},
