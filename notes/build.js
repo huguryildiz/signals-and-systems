@@ -17,7 +17,7 @@ const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <script>${g(S('src/c6.js'))}</script>
 <script>${g(S('src/c7.js'))}</script>
 <script>${g(S('src/ca.js'))}</script>
-<script>renderNotes(C1.concat(C23,C4,C5,C6,C7,CA), document.getElementById('doc')); document.title=document.title;</script>
+<script>renderNotes(C1.concat(C23,C4,C5,C6,C7,CA,[{t:'colophon',doc:'Lecture Notes'}]), document.getElementById('doc')); document.title=document.title;</script>
 </body></html>`;
 fs.mkdirSync(path.join(__dirname,'..','dist'),{recursive:true});
 fs.writeFileSync(path.join(__dirname,'..','dist','Lecture_Notes.html'), html);

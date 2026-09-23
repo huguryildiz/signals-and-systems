@@ -11,6 +11,9 @@
       .replace(/\$\$([^$]+)\$\$/g,(m,a)=>T(a,true))
       .replace(/\$([^$]+)\$/g,(m,a)=>T(a,false));
 
+  /* One version for every printed document. It appears on the last page of each. */
+  window.DOC_VERSION = 'v0';
+
   const LOGO = `<svg class="eelogo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
 <defs>
 <linearGradient id="eelogo-gf" gradientUnits="userSpaceOnUse" x1="10" y1="6" x2="56" y2="60"><stop offset="0"    stop-color="#6EE7A5"/><stop offset="0.36" stop-color="#6AA8F7"/><stop offset="0.68" stop-color="#A78BE8"/><stop offset="1"    stop-color="#F2A25C"/></linearGradient>
@@ -78,6 +81,11 @@
        ${b.sub?`<p class="cv-sub">${md(b.sub)}</p>`:''}</div>
        <div class="cv-foot">${b.foot?`<div class="cv-ed">${md(b.foot)}</div>`:''}
        <div class="cv-credit">© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div></div></div>`,
+    /* Last-page colophon: document name, version, licence. */
+    colophon: b=>`<div class="colophon"><div class="mark">${LOGO}</div>
+       <p><b>Signals and Systems &middot; ${md(b.doc)}</b></p>
+       <p>Version ${window.DOC_VERSION}</p>
+       <p>© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></p></div>`,
     h1:     b=>`<h1>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h1>${b.rule!==false?'<hr class="thick">':''}`,
     h2:     b=>`<h2>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h2>`,
     h3:     b=>`<h3>${md(b.text)}</h3>`,

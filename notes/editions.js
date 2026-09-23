@@ -63,11 +63,10 @@ const GROUP = `const BY = {};
 const workbook = `
 ${MODULE_TITLE}${GROUP}
 const B = [
- {t:'title', kicker:'Signals and Systems', text:'Student Workbook',
-  sub:'Every question in the course, with no answer and no solution. Work each one on the page, then check it against the artifact or against the instructor edition.',
-  meta:[['Contains', CONTENT.DRILL.length + ' questions across ' + MODS.length + ' modules'],
-        ['Level','Undergraduate'],
-        ['Answers','Not printed in this edition']]},
+ {t:'cover', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis', sub:'Student Workbook', foot:CONTENT.DRILL.length + ' questions &middot; Modules 1&ndash;7'},
+ {t:'page'},
+ {t:'h1', text:'Contents', rule:false},
+ {t:'p', lead:true, text:'Every question in the course, with no answer and no solution. Work each one on the page, then check it against the artifact or against the instructor edition.'},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'h3', text:'How to use it'},
  {t:'p', text:'The questions are in the order the course meets them, and each has a stable question number. Only the statement and its lettered parts are printed; the reasoning stays for you to supply. The question numbers are shared with every other edition, so D5-04 is the same question in the artifact, in this workbook and in the instructor solutions.'},
@@ -86,17 +85,17 @@ MODS.forEach((id,i)=>{
   });
   if(i < MODS.length-1) B.push({t:'page'});
 });
+B.push({t:'colophon', doc:'Student Workbook'});
 renderNotes(B, document.getElementById('doc'));`;
 
 /* ------------------------------------------------------ instructor solutions */
 const solutions = `
 ${MODULE_TITLE}${GROUP}
 const B = [
- {t:'title', kicker:'Signals and Systems', text:'Instructor Solutions',
-  sub:'Every question with its worked solution, the error it is built to catch, and a teaching note. Not for distribution to students.',
-  meta:[['Contains', CONTENT.DRILL.length + ' questions, fully worked'],
-        ['Edition', CONTENT.META.version],
-        ['Distribution','Instructor only']]},
+ {t:'cover', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis', sub:'Instructor Solutions', foot:'Instructor edition'},
+ {t:'page'},
+ {t:'h1', text:'Contents', rule:false},
+ {t:'p', lead:true, text:'Every question with its worked solution, the error it is built to catch, and a teaching note. Not for distribution to students.'},
  {t:'box', kind:'warn', hd:'Instructor edition', html:'This document prints the worked solution and the source pages behind every question. The student workbook contains the same questions with none of it. Question ids are shared, so a number quoted in class resolves in either document.'},
  {t:'toc', items: MODS.map(id=>[id.replace('M',''), MT[id], BY[id].length + ' questions'])},
  {t:'page'}
@@ -118,16 +117,19 @@ MODS.forEach((id,i)=>{
   });
   if(i < MODS.length-1) B.push({t:'page'});
 });
+B.push({t:'colophon', doc:'Instructor Solutions'});
 renderNotes(B, document.getElementById('doc'));`;
 
 /* -------------------------------------------------------- formula reference */
 const reference = `
 const B = [
- {t:'title', kicker:'Signals and Systems', text:'Formula and Notation Reference',
-  sub:'The conventions used throughout the course, every formula it establishes, and every symbol it defines. Nothing here is derived; the derivations are in the lecture notes.',
-  meta:[['Contains','Conventions, formulas, notation'],
-        ['Edition','v1.0'],
-        ['Companion','Lecture notes, Chapters 1 to 7']]},
+ {t:'cover', kicker:'Signals and Systems', text:'Signals, Systems and<br>Frequency-Domain Analysis', sub:'Formula and Notation Reference', foot:'Conventions &middot; formulas &middot; notation'},
+ {t:'page'},
+ {t:'h1', text:'Contents', rule:false},
+ {t:'p', lead:true, text:'The conventions used throughout the course, every formula it establishes, and every symbol it defines. Nothing here is derived; the derivations are in the lecture notes.'},
+ {t:'toc', items:[['1','Conventions','Units, brackets, the imaginary unit, sinc, sampling, and the two transform pairs.',''],
+   ['2','Summary of formulas','Everything the course establishes, in the order it establishes it.',''],
+   ['3','Notation','Every symbol the course defines.','']]},
  {t:'h3', text:'How to read it'},
  {t:'p', text:'Part 1 states the conventions and the two transform pairs. Part 2 is the summary of formulas, in the order the course establishes them. Part 3 defines every symbol. Nothing here is derived: where a result needs an argument, the argument is in the lecture notes chapter named beside it.'},
  {t:'page'},
@@ -164,6 +166,7 @@ B.push({t:'raw', html:'<dl class="gloss">' + Object.keys(CONTENT.GLOSS).map(k=>{
   const e = CONTENT.GLOSS[k];
   return '<dt>' + renderInline('$' + (e.s||'').replace(/\\$/g,'') + '$') + '</dt><dd>' + renderInline(e.d||'') + '</dd>';
 }).join('') + '</dl>'});
+B.push({t:'colophon', doc:'Formula and Notation Reference'});
 renderNotes(B, document.getElementById('doc'));`;
 
 const OUT = path.join(__dirname, '..', 'dist');

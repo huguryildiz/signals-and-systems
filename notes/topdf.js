@@ -7,14 +7,14 @@ const path=require('path');
 const {execFileSync}=require('child_process');
 
 const EDITIONS = [
-  ['Lecture_Notes',        'Signals and Systems — Lecture Notes'],
+  ['Lecture_Notes',        'Signals and Systems — Lecture Notes', 0.8],
   ['Student_Workbook',     'Signals and Systems — Student Workbook'],
   ['Instructor_Solutions', 'Signals and Systems — Instructor Solutions'],
   ['Formula_Reference',    'Signals and Systems — Formula and Notation Reference']
 ];
 
 (async()=>{ const b=await chromium.launch(); let bad=0;
- for(const [name,footer] of EDITIONS){
+ for(const [name,footer,scale=1] of EDITIONS){
    const p=await b.newPage();
    const errs=[]; p.on('pageerror',e=>errs.push(e.message));
    p.on('console',m=>{ if(m.type()==='error') errs.push('CONSOLE: '+m.text()); });
@@ -34,10 +34,10 @@ const EDITIONS = [
       the two files are joined. */
    if(await p.evaluate(()=>!!document.querySelector('.cover'))){
      const tmp=out.replace(/\.pdf$/,'');
-     /* The notes were long printed at about 0.8 because one over-wide equation
-        made Chromium shrink the whole document to fit. No equation overflows
-        now, so the scale that readers know is set here explicitly. */
-     await p.pdf(Object.assign({},opts,{path:tmp+'.body.pdf',pageRanges:'2-',scale:0.8}));
+     /* The lecture notes were long printed at about 0.8 because one over-wide
+        equation made Chromium shrink the whole document to fit. No equation
+        overflows now, so that scale is set explicitly in EDITIONS. */
+     await p.pdf(Object.assign({},opts,{path:tmp+'.body.pdf',pageRanges:'2-',scale}));
      await p.addStyleTag({content:'@page{margin:0 !important} #doc > .page:not(:first-child){display:none}'});
      await p.pdf({path:tmp+'.cover.pdf',format:'A4',printBackground:true,pageRanges:'1',
        margin:{top:'0',bottom:'0',left:'0',right:'0'}});

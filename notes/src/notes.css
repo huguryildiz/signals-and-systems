@@ -153,6 +153,14 @@ td:last-child,th:last-child{ padding-right:0; }
 .cover .cv-sub{ font-family:var(--serif); font-style:italic; font-size:15pt; color:#D9D2C4; margin:0; }
 .cover .cv-foot{ margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end;
   gap:14pt; font-size:8.4pt; color:#A9B7C6; }
-.cover .cv-ed{ font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; }
+.cover .cv-ed{ font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
 .cover .cv-credit{ text-align:right; }
 .cover a{ color:inherit; text-decoration:none; }
+
+/* last-page colophon */
+.colophon{ margin-top:36pt; padding-top:12pt; border-top:0.7pt solid var(--rule);
+  font-size:9pt; color:var(--muted); line-height:1.5; break-inside:avoid; }
+.colophon .mark .eelogo{ width:22pt; height:22pt; display:block; margin-bottom:8pt; }
+.colophon p{ margin:0 0 2pt; }
+.colophon b{ color:var(--body); font-weight:650; }
+.colophon a{ color:var(--slate); text-decoration:none; }
