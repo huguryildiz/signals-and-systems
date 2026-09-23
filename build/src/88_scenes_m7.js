@@ -97,8 +97,8 @@ const SC = [
         const pk=1.05;
         for(let k=-3;k<=3;k++)
           a.curve(w=>{ const v=tri(w-k*ws,WM,pk); return isFinite(v)? v+base : NaN; },
-            {color:k===0?'#7FC3CE':(Math.abs(k)===1?'#AC99DC':C.slate),width:i===2?1.3:2.2,dash:i===2?'4 4':null,n:1400});
-        if(i===2) a.curve(w=>{ const v=rep(w,WM,pk,ws,4); return v>0.002? v+base : NaN; },{color:'#E8785F',width:2.6,n:1800});
+            {color:k===0?'#7FC3CE':(Math.abs(k)===1?'#AC99DC':C.slate),width:i===2?1.3:2.2,dash:i===2?'4 4':null,n:1400,anim:i===2?null:{delay:i*.6}});
+        if(i===2) a.curve(w=>{ const v=rep(w,WM,pk,ws,4); return v>0.002? v+base : NaN; },{color:'#E8785F',width:2.6,n:1800,anim:{delay:1.4,sweep:'#FFD9CE'}});
       });
       return a.svg(); }}
   ]}

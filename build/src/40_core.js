@@ -271,6 +271,8 @@ const APP = (() => {
       const typing = tag==='input'||tag==='textarea';
       if(e.key==='Escape'){ closeAll(); return; }
       if(typing) return;
+      /* a focused button on the slide (a prediction, a sound) takes its own Space */
+      if(e.key===' ' && tag==='button' && e.target.closest('#scene-host')) return;
       switch(e.key){
         case 'ArrowRight': case 'PageDown': case ' ': e.preventDefault(); next(); break;
         case 'ArrowLeft': case 'PageUp': e.preventDefault(); prev(); break;
@@ -344,6 +346,19 @@ const APP = (() => {
     document.querySelectorAll('.overlay').forEach(ov=>{
       ov.addEventListener('click', e=>{ if(e.target===ov) closeAll(); });
     });
+    /* page box in the footer: type a number, Enter jumps, Escape restores */
+    const pb = document.getElementById('pagebox');
+    if(pb){
+      pb.addEventListener('focus', ()=>pb.select());
+      pb.addEventListener('keydown', e=>{
+        if(e.key==='Enter'){
+          const k = parseInt(pb.value,10);
+          if(k>=1 && k<=SCENES.length) go(k-1);
+          pb.blur();
+        } else if(e.key==='Escape') pb.blur();
+      });
+      pb.addEventListener('blur', ()=>{ pb.value = state.i+1; });
+    }
   }
 
   /* ---------- contents, shared by the rail and the map ----------
@@ -361,13 +376,11 @@ const APP = (() => {
          + `<span class="ctitle">${RENDER.md(s.nav||s.title||s.id)}</span>`;
   }
 
-  /* A section is open when the reader has said so, and otherwise when the scene
-     on screen is inside it. That keeps the rail short enough to scan while never
-     hiding where the reader currently stands. */
+  /* A section is open unless the reader has closed it, so the whole contents
+     are visible on arrival. */
   function secIsOpen(n){
     if(n in state.secOpen) return state.secOpen[n];
-    const cur = SCENES[state.i];
-    return !!(cur && cur.sec && cur.sec.indexOf(n+'.') === 0);
+    return true;
   }
   /* The practice questions follow the teaching scenes. `row` is given the
      scene, not a position, so both surfaces place it the same way. */

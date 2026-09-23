@@ -14,7 +14,7 @@ const SC = [
   {t:'lede', text:'This module gives tests for memory, invertibility, causality, stability, time invariance and linearity. These tests describe a system by its input and output signals.'},
   {t:'raw', html:`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin:auto 0;max-width:1500px">
     ${['Memoryless','Invertible','Causal','BIBO stable','Time invariant','Linear'].map((n,i)=>
-      `<div style="border-top:2px solid ${i>=4?'var(--coral)':'rgba(233,236,242,.35)'};padding-top:14px">
+      `<div class="mtf-fade" style="animation-delay:${(.2+i*.16).toFixed(2)}s;border-top:2px solid ${i>=4?'var(--coral)':'rgba(233,236,242,.35)'};padding-top:14px">
         <div style="font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--slate)">0${i+1}</div>
         <div style="font-family:var(--serif);font-size:25px;margin-top:6px;color:var(--ink)">${n}</div>
         ${i>=4?'<div style="font-size:14px;color:var(--terracotta);margin-top:8px">required for convolution</div>':''}
@@ -405,8 +405,16 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Synthesis', src:'pp. 11–14'},
   {t:'title', text:'Module 2 Summary'},
   {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:`<p style="color:var(--graphite)">Memory, causality, stability and invertibility describe limits on a system.</p>
-      <p style="color:var(--graphite)">Linearity and time invariance give an additional result: one impulse response determines the output for every input.</p>`},
+    {t:'body', html:`<p style="color:var(--graphite)">Memory, causality, stability and invertibility describe limits on a system. Linearity and time invariance give an additional result: one impulse response determines the output for every input.</p>`},
+    /* The six properties as prompts: name the test, then open the card. */
+    {t:'raw', html:()=>RECALL.deck('m2', [
+      {tag:'Limit', q:'Memoryless', a:'<b>Memoryless.</b> $y(t)$ uses only $x(t)$ at the same time.'},
+      {tag:'Limit', q:'Causal', a:'<b>Causal.</b> $y(t)$ uses only $x(\\tau)$ for $\\tau\\le t$.'},
+      {tag:'Limit', q:'Stable', a:'<b>Stable.</b> Every bounded input gives a bounded output.'},
+      {tag:'Limit', q:'Invertible', a:'<b>Invertible.</b> Different inputs give different outputs.'},
+      {tag:'LTI', q:'Linear', a:'<b>Linear.</b> $ax_1+bx_2\\;\\to\\;ay_1+by_2$.'},
+      {tag:'LTI', q:'Time invariant', a:'<b>Time invariant.</b> $x(t-t_0)\\;\\to\\;y(t-t_0)$.'}
+    ], {cols:2})},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'The claim Module 3 proves', html:'<span style="color:var(--graphite)">If a system is linear and time invariant, then its response to <b>one</b> input, the unit impulse, determines its response to <b>every</b> input. The system reduces from an infinite-dimensional map to one function $h$.</span>'}]},
     {t:'reveal', at:2, items:[

@@ -51,10 +51,10 @@ const SC = [
     {t:'fig', svg:()=>{
       const a=P.Axes({w:800,h:430,xr:[-4,4],yr:[-0.35,4.1],grid:false,zeroAxes:false,arrows:false,
         pad:{l:20,r:20,t:20,b:20},xticksOverride:[],yticksOverride:[]});
-      a.curve(t=>rectWave(t,4,1)+3,{color:'#7FC3CE',width:2.4,n:2400});
-      a.curve(t=>rectPS(t,1,4,1)+2,{color:'#AC99DC',width:2.2});
-      a.curve(t=>rectPS(t,5,4,1)+1,{color:'#E5B255',width:2.2});
-      a.curve(t=>rectPS(t,25,4,1),{color:'#8FBF8A',width:2.2,n:2400});
+      a.curve(t=>rectWave(t,4,1)+3,{color:'#7FC3CE',width:2.4,n:2400,anim:{delay:0,sweep:'#D9F3F7'}});
+      a.curve(t=>rectPS(t,1,4,1)+2,{color:'#AC99DC',width:2.2,anim:{delay:.4}});
+      a.curve(t=>rectPS(t,5,4,1)+1,{color:'#E5B255',width:2.2,anim:{delay:.8}});
+      a.curve(t=>rectPS(t,25,4,1),{color:'#8FBF8A',width:2.2,n:2400,anim:{delay:1.2,sweep:'#E4F4E1'}});
       return a.svg(); }}
   ]}
 ]},

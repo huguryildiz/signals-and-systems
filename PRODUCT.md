@@ -50,6 +50,10 @@ course in `~/Documents/GitHub/digital-communications`.
 The language is plain academic English. No promotional tone, no slogans, no sentence written to sound
 impressive. `.claude/rules/content-writing.md` R1–R5 is the standard.
 
+The course should also be fun to use. The look stays calm, but a slide should still invite the reader
+to try something. A student who is tired of algebra should still find a reason to press a button. The
+Engagement Rules below say how.
+
 ## Evidence on Hand
 
 - The handwritten lecture notes and the course textbook in `source/` (not in git, never reproduced).
@@ -65,6 +69,31 @@ impressive. `.claude/rules/content-writing.md` R1–R5 is the standard.
 3. Use interaction to disclose relationships, not to hide required content.
 4. Keep every figure sparse enough to read at lecture distance.
 5. Difficulty belongs to the mathematics, never to the English or the layout carrying it.
+
+## Engagement Rules
+
+These seven rules apply to every module. Module 1 is the worked example; the mechanics are in
+`DESIGN.md`, "Interaction on a slide".
+
+1. **Intuition before algebra.** A student first sees, hears or guesses what a signal does. The
+   calculation comes after that, not first.
+2. **Predict first.** Where a card already asks a question, it offers two to four choices
+   (`note.ask`). The student commits to an answer before the reveal step shows the working.
+3. **Move it.** When a parameter changes what the figure shows (a shift, a scale factor, a decay
+   rate), the figure gets a slider (`fig.live`). The default slider value draws the figure the slide
+   had before.
+4. **Hear it.** When the signal can be heard, the figure gets a play button (`fig.listen`). Good
+   candidates are time scaling, reversal, frequency, envelopes, filtering and aliasing. The sound is
+   computed from the same formula the figure draws.
+5. **Connect it to everyday life.** One sentence ties the signal to something the student already
+   knows: a voice message at double speed, a plucked string, a musical octave. The sentence goes in
+   the caption.
+6. **Close with a quick check.** Before its summary, each module has one slide of six short
+   predictions. None needs a calculation on paper, and each shows a one-sentence reason after the
+   answer.
+7. **Keep the rigour.** Interaction never replaces a derivation. Every derivation is still shown in
+   full, and the practice questions stay open-ended. A slide must keep a fit of at least 0.90 in
+   lecture mode, or it loses the interaction.
 
 ## Accessibility & Inclusion
 

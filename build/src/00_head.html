@@ -65,9 +65,9 @@
     <span class="crumb" id="crumb"></span>
     <span class="srcref" id="srcref"></span>
     <span class="spacer"></span>
-    <button data-act="prev" title="Previous (←)">Prev</button>
-    <button data-act="next" title="Next (→)">Next</button>
-    <span id="counter"></span>
+    <button class="navarrow" data-act="prev" title="Previous (←)" aria-label="Previous">&larr;</button>
+    <button class="navarrow" data-act="next" title="Next (→)" aria-label="Next">&rarr;</button>
+    <span id="counter"><input id="pagebox" type="text" inputmode="numeric" aria-label="Go to page" title="Type a page number and press Enter"><span id="pagetotal"></span></span>
   </footer>
 
   <!-- overlays sit above the whole window, not inside the scaled stage -->
