@@ -111,8 +111,11 @@ function stripField(code, name) {
     const lead = m[1];
     const fieldStart = m.index + lead.length;
     const valStart = m.index + m[0].length;
-    if (code[valStart] !== "'") fail(name + ' field is not a plain string literal at ' + valStart);
-    const end = eatComma(code, endOfString(code, valStart));
+    /* A scene factory may pass the field through, as `src:cfg.src`; the
+       literal at its call site is stripped, so the pass-through goes too. */
+    const pass = new RegExp('^[A-Za-z_$][\\w$]*\\.' + name + '(?![\\w$])').exec(code.slice(valStart));
+    if (!pass && code[valStart] !== "'") fail(name + ' field is not a plain string literal at ' + valStart);
+    const end = eatComma(code, pass ? valStart + pass[0].length : endOfString(code, valStart));
     out += code.slice(last, fieldStart);
     last = end;
     hits++;
