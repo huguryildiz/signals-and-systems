@@ -8,6 +8,7 @@
      Student_Workbook.html    every question, no answers and no solutions
      Instructor_Solutions.html every question with its full solution, plus provenance
      Formula_Reference.html   the conventions, the summary of formulas, the glossary
+     PDF_VERSIONS.md          the version history of the PDFs, as a table
 
    The renderer, the stylesheet and the KaTeX build are the ones the lecture notes
    use, so the four documents are one typographic family.
@@ -177,3 +178,13 @@ write('Student_Workbook.html', doc('Signals and Systems — Student Workbook', w
 write('Instructor_Solutions.html', doc('Signals and Systems — Instructor Solutions', solutions));
 write('Formula_Reference.html', doc('Signals and Systems — Formula and Notation Reference', reference,
   `<script>${g(S('src/ca.js'))}</script>`));
+
+/* The version history of the PDFs, as a table beside them. The rows are read
+   from DOC_HISTORY in render.js, the list each PDF prints on its last page, so
+   the two cannot disagree. */
+const HIST = require('vm').runInNewContext(
+  S('src/render.js').match(/window\.DOC_HISTORY\s*=\s*(\[[\s\S]*?\]);/)[1]);
+write('PDF_VERSIONS.md', '# PDF version history\n\n' +
+  'Applies to Lecture_Notes.pdf, Student_Workbook.pdf, Instructor_Solutions.pdf and Formula_Reference.pdf. Newest first.\n\n' +
+  '| Version | Date | Description |\n| --- | --- | --- |\n' +
+  HIST.map(r => '| ' + r.join(' | ') + ' |').join('\n') + '\n');
