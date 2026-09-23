@@ -177,13 +177,25 @@ const PLOT = (() => {
        further down; the name above its own baseline is one line tall. Leaving the
        name 62 below the axis keeps a clear gap between the two, so the last tick
        number and the name never touch even at the right-hand edge, where they
-       share the same column. */
-    const XNAME_DROP = o.xnameDrop ?? (EMPH ? 66 : 62);
+       share the same column.
+       Every one of those distances is a label size, so all of them are measured
+       in labels: the tick row is set at 20·LBLS and the name is one NAMEBOX
+       tall, and a drop left at a flat 45 closes the gap as soon as the labels
+       are enlarged. At the ordinary label scale the numbers below are exactly
+       the ones above, so nothing on a normal screen or in print moves; what
+       they fix is the phone, where the labels are drawn larger still and the
+       name was landing on the last tick number. Desktop normal and the
+       projector keep the flat 62 this figure family has always used, so
+       neither moves; only the phone's own label scale opens the extra room
+       the enlarged labels need. A slide or a laboratory (EMPH) sets its tick
+       numbers and names larger, so its name sits lower. */
+    const XSCALE = (typeof APP!=='undefined' && APP.state.layout==='phone') ? LBLS : 1;
+    const XNAME_DROP = o.xnameDrop ?? (EMPH ? 66 : 62)*XSCALE;
     const xnameY = (Pb) => {
       const yy0 = H - Pb;
       if(!zeroInside) return yy0 + XNAME_DROP + 1;
       const zeroPx = (0-ya)/(yb-ya)*(H - P.t - Pb);
-      return Math.max(yy0 + 16, yy0 - zeroPx + XNAME_DROP);
+      return Math.max(yy0 + 16*XSCALE, yy0 - zeroPx + XNAME_DROP);
     };
     if(o.xlabel){
       P.b = Math.max(P.b, 24);
@@ -355,7 +367,7 @@ const PLOT = (() => {
       svg(){
         const g=[];
         g.push(`<clipPath id="${clipId}"><rect x="${(x0-CLIP_PAD).toFixed(2)}" y="${(y1-CLIP_PAD).toFixed(2)}"
-          width="${(x1-x0+2*CLIP_PAD).toFixed(2)}" height="${(y0-y1+2*CLIP_PAD).toFixed(2)}"/></clipPath>`);
+          width="${Math.max(0,x1-x0+2*CLIP_PAD).toFixed(2)}" height="${Math.max(0,y0-y1+2*CLIP_PAD).toFixed(2)}"/></clipPath>`);
         /* grid */
         const xt = o.xticksOverride || ticks(xa,xb,o.xtarget,o.xstep);
         const yt = o.yticksOverride || ticks(ya,yb,o.ytarget,o.ystep);
@@ -375,7 +387,7 @@ const PLOT = (() => {
         }
         /* frame when zero axes are outside the view */
         if(yz==null||xz==null)
-          g.push(`<rect x="${x0}" y="${y1}" width="${x1-x0}" height="${y0-y1}" fill="none" stroke="${CH.axis}" stroke-width="1"/>`);
+          g.push(`<rect x="${x0}" y="${y1}" width="${Math.max(0,x1-x0)}" height="${Math.max(0,y0-y1)}" fill="none" stroke="${CH.axis}" stroke-width="1"/>`);
         /* Tick labels on compact two-up plots stay at the established size.
            A full-width signal plot gets the larger lecture-slide size. */
         const TICK_SIZE = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13) * LBLS;
