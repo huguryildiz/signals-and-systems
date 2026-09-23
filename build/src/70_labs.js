@@ -240,12 +240,12 @@ const LABS = (() => {
         T(st.dt? `x[n]=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}n+\\tfrac{${st.th}\\pi}{4}\\right)`
                : `x(t)=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}t+\\tfrac{${st.th}\\pi}{4}\\right)`, true);
       root.querySelector('.derive').innerHTML = M(st.dt ? `
-        <div class="eq">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
+        <div class="eq"><span class="eq-label">Period condition</span>${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
         <div class="note ${'ok'}"><span class="note-h">Rationality test</span>
           ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}. The control values make this ratio rational, so the
           discrete-time cosine is periodic. Choose the smallest $k$ that makes $N$ an integer.
           Here ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
-        : `<div class="eq">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
+        : `<div class="eq"><span class="eq-label">Fundamental period</span>${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
            <div class="note ok"><span class="note-h">Continuous time has no rationality test</span>
              Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. Calculate its period directly from $T_0=2\\pi/\\omega_0$.</div>`);
       root.querySelector('.ro').innerHTML = st.dt ? `

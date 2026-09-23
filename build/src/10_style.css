@@ -649,6 +649,19 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
   margin:var(--tab-room) 0 0; border-top-left-radius:0;
 }
 .scene.slide .reveal:has(> .note:first-child > .note-h, > .eq:not(.plain):first-child > .eq-label){ margin-top:0; }
+/* a laboratory builds its cards inside its own containers, so they take the
+   tab room there */
+.scene.slide .lab :is(.derive, .aper) > .note:has(> .note-h),
+.scene.slide .lab .derive > .eq:not(.plain):has(> .eq-label){
+  margin-top:var(--tab-room); border-top-left-radius:0;
+}
+/* the control panel has no tab, so a laboratory column starts at the top */
+.scene.slide .lab > .cols > .col > :first-child:not(.reveal){ margin-top:0; }
+/* Laboratory C sets p and q side by side, so its cards keep the type floor */
+.scene.slide .lab[data-lab="C"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="C"] .ctrl:is(:first-child, :last-child){ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="C"] .col > :is(.derive, .aper){ margin-top:0; }
+.scene.slide .lab[data-lab="C"] .derive > .eq{ margin-bottom:0; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
