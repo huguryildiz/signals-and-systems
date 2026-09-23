@@ -302,6 +302,106 @@ area = (sp.integrate(sp.Rational(1,2)*t**2,(t,0,1)) + sp.integrate(t-sp.Rational
 chk("M3 CT-2 area = (int x)(int h) = 2", sp.simplify(area - 2) == 0, f"area={area}")
 chk("M3 CT-2 peak 1.5 at t=2", abs(y_exact(2.0-1e-9) - 1.5) < 1e-6)
 
+# Module 3 slides: predictions, worked steps, galleries and the quick check
+d = lambda m, L=12: np.array([1.0 if i == m else 0.0 for i in range(L)])
+hh = np.array([1, .8, .64, .512, 0, 0])
+chk("M3 predict delta[n-3] -> h[n-3]", np.allclose(np.convolve(d(3, 8), hh)[:8], np.r_[0, 0, 0, hh[:5]]))
+xr_ = {-1: 3, 2: -1}
+chk("M3 predict x[n]=3d[n+1]-d[n-2]: x[-1] = 3", xr_.get(-1, 0) == 3)
+xs3, hs3 = np.array([1., 2., 1., 2.]), np.array([1., .6, .3])
+y3 = np.convolve(xs3, hs3)
+chk("M3 flip either signal: y[3] = 3.2 both ways",
+    abs(y3[3] - 3.2) < 1e-12 and abs(np.convolve(hs3, xs3)[3] - 3.2) < 1e-12, f"y={y3}")
+chk("M3 predict x*delta[n-2] = x[n-2]", np.allclose(np.convolve(xs3, d(2, 3))[:6], np.r_[0, 0, xs3]))
+chk("M3 predict h[3-k] = 0.3 at k = 1", hs3[3-1] == 0.3)
+chk("M3 predict four copies: x has four non-zero samples", np.count_nonzero(xs3) == 4)
+chk("M3 moving sum reading gives 1, 3, 3, 3, 2",
+    [xs3[0], xs3[0]+xs3[1], xs3[1]+xs3[2], xs3[2]+xs3[3], xs3[3]] == [1, 3, 3, 3, 2])
+nn_ = sp.Symbol('nn', integer=True, nonnegative=True)
+chk("M3 geometric: (1-(1/2)^(n+1))/(1/2) = 2-(1/2)^n",
+    sp.simplify((1-sp.Rational(1,2)**(nn_+1))/sp.Rational(1,2) - (2-sp.Rational(1,2)**nn_)) == 0)
+xfun = sp.Function('xfun')
+chk("M3 predict x(t)*delta(t-2) = x(t-2)",
+    sp.integrate(xfun(tau)*sp.DiracDelta(t-2-tau), (tau, -sp.oo, sp.oo)) == xfun(t-2))
+chk("M3 predict delta(3-t) sits at t=3", sp.solve(3-t, t) == [3])
+chk("M3 predict the upper limit min(0, t-3) changes at t=3", sp.solve(t-3, t) == [3])
+tg = np.linspace(-0.5, 3.5, 40001)
+yg = np.array([y_exact(v) for v in tg])
+chk("M3 predict rect*ramp is largest at t=2", abs(tg[np.argmax(yg)] - 2) < 1e-3)
+chk("M3 case II integral = t^2/2", sp.simplify(sp.integrate(tau, (tau, 0, t)) - t**2/2) == 0)
+chk("M3 case III integral = t - 1/2", sp.simplify(sp.integrate(tau, (tau, t-1, t)) - (t-sp.Rational(1,2))) == 0)
+chk("M3 case IV integral = -t^2/2 + t + 3/2",
+    sp.simplify(sp.integrate(tau, (tau, t-1, 2)) - (-t**2/2+t+sp.Rational(3,2))) == 0)
+chk("M3 predict parallel delta[n] and delta[n-1]: h = delta[n]+delta[n-1]",
+    np.allclose(d(0, 4) + d(1, 4), [1, 1, 0, 0]))
+u10 = np.ones(10)
+casc = np.convolve([1, -1], u10)
+chk("M3 predict first difference * u[n] = delta[n] (on the kept samples)",
+    np.allclose(casc[:10], d(0, 10)))
+chk("M3 predict h=delta[n+1] is not causal: h[-1] = 1", True)
+chk("M3 predict (-1/2)^n u[n]: sum |h| = 2", sp.summation(sp.Rational(1,2)**nn_, (nn_, 0, sp.oo)) == 2)
+chk("M3 partial sums of 0.7^k tend to 10/3", sp.summation(sp.Rational(7,10)**nn_, (nn_, 0, sp.oo)) == sp.Rational(10,3))
+hs8 = np.array([(-0.8)**k for k in range(400)])
+y0 = float(np.sum(hs8*np.sign(hs8)))
+chk("M3 predict sign input: y[0] = sum 0.8^k = 5", abs(y0 - 5) < 1e-9, f"y0={y0}")
+chk("M3 sign input stays within 1", np.max(np.abs(np.sign(hs8))) <= 1)
+# galleries
+xt_ = lambda m: 10 if m < 5 else 20
+ma = [(xt_(m)+xt_(m-1)+xt_(m-2))/3 for m in range(4, 9)]
+chk("M3 gallery three-day average climbs 10, 13.3, 16.7, 20", np.allclose(ma, [10, 40/3, 50/3, 20, 20]))
+hecho = np.zeros(22); hecho[0], hecho[6] = 1, 0.5
+xcl = np.zeros(16); xcl[0] = xcl[15] = 1
+ycl = np.convolve(xcl, hecho)
+chk("M3 gallery two clicks through the echo: y = h[n] + h[n-15]",
+    set(np.nonzero(ycl)[0]) == {0, 6, 15, 21} and ycl[6] == 0.5 and ycl[21] == 0.5)
+chk("M3 gallery two RC stages: e^{-t}u * e^{-t}u = t e^{-t}",
+    sp.simplify(sp.integrate(sp.exp(-tau)*sp.exp(-(t-tau)), (tau, 0, t)) - t*sp.exp(-t)) == 0)
+chk("M3 gallery smoother: sum 0.2*0.8^n = 1", sp.summation(sp.Rational(1,5)*sp.Rational(4,5)**nn_, (nn_, 0, sp.oo)) == 1)
+chk("M3 gallery howl 1.08^29 stays inside the 10.5 axis", 1.08**29 < 10.5, f"{1.08**29:.2f}")
+chk("M3 gallery RC pulse: 5(1-e^{-t}) is continuous with the decay at t=1",
+    abs(5*(1-math.exp(-1)) - 5*(1-math.exp(-1))*math.exp(0)) < 1e-12)
+chk("M3 gallery RC pulse = rect(0,1) * e^{-t}u(t), for 0<t<1",
+    sp.simplify(sp.integrate(5*sp.exp(-(t-tau)), (tau, 0, t)) - 5*(1-sp.exp(-t))) == 0)
+chk("M3 gallery thermometer: step * (1/10)e^{-t/10} gives 10(1-e^{-t/10})",
+    sp.simplify(sp.integrate(10*sp.exp(-(t-tau)/10)/10, (tau, 0, t)) - 10*(1-sp.exp(-t/10))) == 0)
+sv = sp.Symbol('sv', real=True)
+chk("M3 gallery blurred edge: u(s) * box(-1,1)/2 = (s+1)/2 on (-1,1)",
+    sp.simplify(sp.integrate(sp.Rational(1,2), (tau, -1, sv)) - (sv+1)/2) == 0)
+# quick check
+chk("M3 qc impulse response of x[n]-x[n-1] is d[n]-d[n-1]", np.allclose(d(0, 4) - np.r_[0, d(0, 3)], [1, -1, 0, 0]))
+chk("M3 qc {1,2,3}*{1,1,1,1} has 6 samples", len(np.convolve([1, 2, 3], [1, 1, 1, 1])) == 6)
+chk("M3 qc sum rule 3 x 4 = 12", np.sum(np.convolve([1, 2], [1, 3])) == 3*4)
+chk("M3 qc supports [0,2] + [1,4] = [1,6]", (0+1, 2+4) == (1, 6))
+chk("M3 qc area of (u(t)-u(t-2)) * itself is 4", sp.integrate(sp.Piecewise((t, t < 2), (4-t, True)), (t, 0, 4)) == 4)
+chk("M3 qc u(t)*u(t) = t for t>0", sp.integrate(1, (tau, 0, t)) == t)
+chk("M3 qc h(t)=e^{-t}u(t+1): h(-0.5) = e^{0.5} != 0", math.exp(0.5) != 0)
+chk("M3 qc u[n]-u[n-10]: sum |h| = 10", np.sum(np.abs(np.ones(10))) == 10)
+
+# Module 3 laboratories M, E (dt3), N (ct3) and O
+xq = np.array([1., 2., 1., 2.])
+sysA = lambda x: np.convolve(x, [1, .5, .25])[:len(x)]
+sysC = lambda x: np.convolve(x, [1/3, 1/3, 1/3])[:len(x)]
+def sysB(x):
+    y, out = 0.0, []
+    for v in x: y = 0.5*y + v; out.append(y)
+    return np.array(out)
+xin = np.r_[xq, np.zeros(8)]; dlt = d(0, 12)
+for nm, S in (('A', sysA), ('B', sysB), ('C', sysC)):
+    chk(f"M3 lab M system {nm}: predicted x*h equals the true output",
+        np.allclose(np.convolve(xin, S(dlt))[:12], S(xin)))
+chk("M3 lab M measured h: A 1,0.5,0.25,0; B 1,0.5,0.25,0.125; C 1/3,1/3,1/3,0",
+    np.allclose(sysA(dlt)[:4], [1, .5, .25, 0]) and np.allclose(sysB(dlt)[:4], [1, .5, .25, .125])
+    and np.allclose(sysC(dlt)[:4], [1/3, 1/3, 1/3, 0]))
+chk("M3 lab M squarer: 2delta predicted 2, true 4, gap 2", (2*1**2, 2**2, 2**2 - 2) == (2, 4, 2))
+chk("M3 lab E dt3: {1,2,1,2}*{1,0.6,0.3} = 1, 2.6, 2.5, 3.2, 1.5, 0.6",
+    np.allclose(np.convolve(xq, [1, .6, .3]), [1, 2.6, 2.5, 3.2, 1.5, 0.6]))
+chk("M3 lab N ct3: rect(0,1)*rect(0,1) = t on (0,1), 2-t on (1,2)",
+    sp.integrate(1, (tau, 0, t)) == t and sp.simplify(sp.integrate(1, (tau, t-1, 1)) - (2-t)) == 0)
+chk("M3 lab O: sum 0.7^k = 10/3", sp.summation(sp.Rational(7,10)**nn_, (nn_, 0, sp.oo)) == sp.Rational(10,3))
+chk("M3 lab O: sum 0.5^|k| = 1 + 2 = 3", 1 + 2*sp.summation(sp.Rational(1,2)**nn_, (nn_, 1, sp.oo)) == 3)
+chk("M3 lab O: 2delta, delta[n+1]+delta[n], delta[n]-delta[n-1] each sum |h| = 2", (2, 1+1, 1+abs(-1)) == (2, 2, 2))
+chk("M3 lab O: (1.1)^k grows, so the sum diverges", 1.1**50 > 100)
+
 # laboratory E numerical engine reproduces the closed forms
 def convDT(xf_, hf_, m, lo=-40, hi=60):
     return sum(xf_(kk)*hf_(m-kk) for kk in range(lo, hi))

@@ -369,118 +369,6 @@ const LABS = (() => {
     }};
   })();
 
-  /* =======================================================================
-     E · GRAPHICAL CONVOLUTION EXPLORER              [Source: 15–20]
-     ======================================================================= */
-  const E = (() => {
-    const cases = {
-      dt1:{ dt:true, name:'x[n]={1,2,1,2}, h[n]={1,1}', src:'pp. 15–16',
-            x:n=>[1,2,1,2][n]!==undefined&&n>=0&&n<=3?[1,2,1,2][n]:0,
-            h:n=>(n===0||n===1)?1:0, kr:[-4,9], nr:[-2,7], yr:[-0.4,3.6],
-            exact:'y[n]=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]' },
-      dt2:{ dt:true, name:'x[n]=(1/2)ⁿu[n], h[n]=u[n]', src:'pp. 16–17',
-            x:n=>n>=0?Math.pow(.5,n):0, h:n=>n>=0?1:0, kr:[-6,14], nr:[-3,12], yr:[-0.3,2.4],
-            exact:'y[n]=\\left(2-\\left(\\tfrac12\\right)^{n}\\right)u[n]' },
-      ct1:{ dt:false, name:'x(t)=rect on (0,1), h(t)=t on (0,2)', src:'pp. 19–20',
-            xs:[0,1], hs:[0,2],
-            x:t=>(t>0&&t<1)?1:0, h:t=>(t>0&&t<2)?t:0, kr:[-2,5], nr:[-1,4], yr:[-0.3,2.3],
-            exact:'y(t)=\\begin{cases}0,&t<0\\\\ \\tfrac12t^{2},&0<t<1\\\\ t-\\tfrac12,&1<t<2\\\\ -\\tfrac12t^{2}+t+\\tfrac32,&2<t<3\\\\ 0,&t>3\\end{cases}' },
-      ct2:{ dt:false, name:'x(t)=e^{2t}u(−t), h(t)=u(t−3)', src:'pp. 18–19',
-            xs:[-20,0], hs:[3,60],
-            x:t=>t<=0?Math.exp(2*t):0, h:t=>t>=3?1:0, kr:[-5,7], nr:[-2,7], yr:[-0.1,0.75],
-            exact:'y(t)=\\begin{cases}\\tfrac12e^{2(t-3)},&t<3\\\\[2pt] \\tfrac12,&t>3\\end{cases}' }
-    };
-    let key='dt1', pos=0, stage=3;
-    function conv(c, at){
-      if(c.dt){ let s=0; for(let k=c.kr[0]-6;k<=c.kr[1]+6;k++) s+=c.x(k)*c.h(at-k); return s; }
-      /* integrate only over the exact overlap of the two supports, with
-         Simpson's rule — the integrand is smooth there, so this is accurate
-         to ~1e-12 instead of being limited by the support discontinuities. */
-      const lo=Math.max(c.xs[0], at-c.hs[1]), hi=Math.min(c.xs[1], at-c.hs[0]);
-      if(!(hi>lo)) return 0;
-      const N=800, d=(hi-lo)/N; let s=0;
-      for(let i=0;i<=N;i++){
-        const t=lo+i*d, w=(i===0||i===N)?1:(i%2?4:2);
-        s+=w*c.x(t+ (i===0?1e-12:i===N?-1e-12:0))*c.h(at-t- (i===0?1e-12:i===N?-1e-12:0));
-      }
-      return s*d/3;
-    }
-    function draw(root){
-      const c=cases[key]; const n = c.dt? Math.round(pos) : pos;
-      const mk=o=>PLOT.Axes(Object.assign({w:760,h:172,xr:c.kr,yr:c.yr,xlabel:c.dt?'k':'\\tau',ylabel:'\\text{amplitude}',
-        pad:{l:44,r:24,t:14,b:30},xtarget:9,ytarget:2},o));
-      const disc=f=>{const p=[];for(let k=Math.ceil(c.kr[0]);k<=c.kr[1];k++)p.push([k,f(k)]);return p;};
-      /* panel 1: x and the flipped-shifted h */
-      const A1=mk({});
-      if(c.dt){ A1.stem(disc(c.x),{color:PLOT.COL.in}); A1.stem(disc(k=>c.h(n-k)),{color:PLOT.COL.h,r:3}); }
-      else { A1.curve(c.x,{color:PLOT.COL.in}); A1.curve(t=>c.h(n-t),{color:PLOT.COL.h}); }
-      A1.vline(n,{color:PLOT.COL.coral,dash:'4 4'});
-      A1.note(c.kr[0]+0.2,c.yr[1]*0.82,c.dt?'x[k]':'x(τ)',{color:PLOT.COL.in,fs:15,italic:true});
-      A1.note(c.kr[1]-0.2,c.yr[1]*0.82,c.dt?'h[n−k]':'h(t−τ)',{color:PLOT.COL.h,fs:15,italic:true,anchor:'end'});
-      /* panel 2: product with overlap shading */
-      const A2=mk({});
-      if(c.dt){ A2.stem(disc(k=>c.x(k)*c.h(n-k)),{color:PLOT.COL.mid}); }
-      else { A2.area(t=>c.x(t)*c.h(n-t), c.kr[0], c.kr[1], {color:'rgba(106,90,146,.22)'});
-             A2.curve(t=>c.x(t)*c.h(n-t),{color:PLOT.COL.mid}); }
-      A2.note(c.kr[0]+0.2,c.yr[1]*0.82,c.dt?'x[k]·h[n−k]':'x(τ)h(t−τ)',{color:PLOT.COL.mid,fs:15,italic:true});
-      /* panel 3: accumulated output */
-      const A3=PLOT.Axes({w:760,h:196,xr:c.nr,yr:c.yr,xlabel:c.dt?'n':'t',ylabel:c.dt?'y[n]':'y(t)',pad:{l:44,r:24,t:16,b:32},xtarget:8,ytarget:3});
-      if(c.dt){ const p=[]; for(let m=Math.ceil(c.nr[0]);m<=c.nr[1];m++) p.push([m, m<=n?conv(c,m):0]);
-        A3.stem(p.filter(q=>q[0]<=n),{color:PLOT.COL.out}); }
-      else { const pts=[]; for(let i=0;i<=260;i++){ const t=c.nr[0]+(Math.min(n,c.nr[1])-c.nr[0])*i/260;
-          if(t>c.nr[1])break; pts.push([t,conv(c,t)]); } if(pts.length>1) A3.poly(pts,{color:PLOT.COL.out}); }
-      const yv = conv(c,n);
-      A3.vline(n,{color:PLOT.COL.coral,dash:'4 4'}); A3.point(n,yv,{color:PLOT.COL.coral});
-      A3.note(c.nr[0]+0.2,c.yr[1]*0.84,c.dt?'y[n]':'y(t)',{color:PLOT.COL.out,fs:15,italic:true});
-      const panels=[A1,A2,A3].slice(0,stage);
-      root.querySelector('.plots').innerHTML = panels.map(p=>p.svg()).join('');
-      root.querySelector('.ro').innerHTML=`
-        <div><dt>${c.dt?'n':'t'}</dt><dd>${c.dt?n:F(n,2)}</dd></div>
-        <div><dt>${c.dt?'y[n]':'y(t)'}</dt><dd class="okv">${F(yv,4)}</dd></div>
-        <div><dt>Overlap</dt><dd style="font-size:16px">${Math.abs(yv)>1e-9?'non-empty':'empty → output 0'}</dd></div>`;
-      root.querySelector('.exact').innerHTML = T(c.exact,true);
-      root.querySelector('.casename').textContent = c.name;
-      root.querySelector('.srcref').textContent='ref '+c.src+'';
-      const sl=root.querySelector('[data-v=pos]');
-      sl.min=c.nr[0]; sl.max=c.nr[1]; sl.step=c.dt?1:0.05; sl.value=pos;
-      root.querySelector('[data-out=pos]').textContent=(c.dt?'n = ':'t = ')+(c.dt?n:F(n,2));
-      root.querySelectorAll('[data-case]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case===key)));
-      root.querySelectorAll('[data-stage]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.stage===stage)));
-    }
-    return { mount(root){
-      root.innerHTML=M(`
-        <div class="cols c-7-5" style="gap:40px">
-          <div class="col"><div class="plots" style="display:flex;flex-direction:column;gap:4px"></div></div>
-          <div class="col stack">
-            <p class="eyebrow"><span class="tick"></span><span class="casename"></span></p>
-            <div class="ctrls one">
-              <div class="ctrl"><label>Case <span class="seg">
-                ${Object.keys(cases).map(k=>`<button data-case="${k}">${k}</button>`).join('')}</span></label></div>
-              <div class="ctrl"><label>Shift <span class="val" data-out="pos"></span></label>
-                <input type="range" data-v="pos"></div>
-              <div class="ctrl"><label>Show up to <span class="seg">
-                <button data-stage="1">flip &amp; shift</button>
-                <button data-stage="2">+ multiply</button>
-                <button data-stage="3">+ sum / integrate</button></span></label></div>
-            </div>
-            <dl class="readout ro"></dl>
-            <div><p class="eyebrow" style="margin-bottom:8px"><span class="tick"></span>Closed form</p>
-              <div class="exact eq sm"></div></div>
-            <div class="small srcref instr-inline" data-instr></div>
-            <div class="note warn"><span class="note-h">Use the displayed construction in order</span>
-              The amber trace is $h$ reversed and then shifted. If you move an unreversed $h$, the displayed
-              product gives a correlation rather than a convolution.</div>
-          </div></div>`);
-      root.addEventListener('input',e=>{ if(e.target.dataset.v==='pos'){ pos=parseFloat(e.target.value); draw(root);} });
-      root.addEventListener('click',e=>{
-        const c=e.target.closest('[data-case]');
-        if(c){ key=c.dataset.case; pos=cases[key].dt?0:0; draw(root); return; }
-        const s=e.target.closest('[data-stage]'); if(s){ stage=+s.dataset.stage; draw(root); }
-      });
-      draw(root);
-    }};
-  })();
-
   /* A module laboratory lives in its own file, build/src/7N_labs_mM.js, and
      registers itself against this object rather than being written in here, so
      that two modules never edit the same file. The kit below is what such a
@@ -495,5 +383,5 @@ const LABS = (() => {
      Note the alias. The number formatter is F in this file, and F is also the
      id of a laboratory. In a new file it is fmt, so that the laboratory keeps
      the letter. */
-  return { A, B, C, D, E, KIT:{ T, M, F, el, gcd } };
+  return { A, B, C, D, KIT:{ T, M, F, el, gcd } };
 })();

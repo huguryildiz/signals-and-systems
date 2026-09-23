@@ -846,6 +846,15 @@ body[data-theme=dark] :is(.scene.slide, .dr-sol){ --tab-ink:var(--paper); --tab-
 .scene.slide .lab[data-lab="K"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
 .scene.slide .lab[data-lab="K"] .ctrl:first-child{ grid-column:1 / -1; }
 .scene.slide .lab[data-lab="K"] .ctrl:nth-child(2) label{ flex-direction:column; align-items:flex-start; gap:7px; }
+/* Laboratories 3.2 and 3.3 stack three tall plots, so their control panel and
+   derive stack take the tighter Laboratory 1.4 spacing to keep the fit up */
+.scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .ctrls.one{ gap:10px; padding:16px 20px; }
+.scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .ctrls.one{ gap:6px; padding:10px 14px; }
+body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .plots{ gap:2px !important; }
+body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack .eq{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .readout.ro div{ padding:8px 12px; }
 .scene.slide .lab .col > :is(.derive, .aper, .work){ margin-top:0; }
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
@@ -1003,13 +1012,13 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
    Controls & laboratories
    ========================================================================== */
 .lab{ display:flex; flex-direction:column; gap:var(--s3); flex:1; min-height:0; }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .ctrl label,
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .readout dt,
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .note-h{ font-size:calc(16px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .seg button{ font-size:calc(17px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .ctrl label,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .readout dt,
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .ctrl label .val{ font-size:calc(20px * var(--ts)); }
 .scene .lab[data-lab="A"] .small{ font-size:calc(18px * var(--ts)); }
-.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .note{ font-size:calc(19px * var(--ts)); }
 .lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"]) figcaption{
   font-size:calc(18px * var(--ts));
 }
@@ -1021,8 +1030,8 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 .lab[data-lab="A"] .seg button{ padding:8px 12px; }
 .lab[data-lab="A"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .lab[data-lab="A"] .readout div{ padding:10px 14px; }
-.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
-.lab:is([data-lab="A"],[data-lab="C"],[data-lab="K"],[data-lab="L"]) .lab-eq, .lab[data-lab="B"] .sig{ font-size:calc(22px * var(--ts)); }
+.lab:is([data-lab="A"],[data-lab="B"],[data-lab="C"],[data-lab="D"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"],[data-lab="O"]) .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.lab:is([data-lab="A"],[data-lab="C"],[data-lab="K"],[data-lab="L"],[data-lab="M"],[data-lab="E"],[data-lab="N"]) .lab-eq, .lab[data-lab="B"] .sig{ font-size:calc(22px * var(--ts)); }
 .ctrls{
   display:grid; gap:18px 28px; grid-template-columns:repeat(2,minmax(0,1fr));
   background:var(--paper-2); border:1px solid var(--rule);
@@ -1080,8 +1089,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
 .btn.ghost{ border-color:transparent; }
 
 /* Laboratory 1.2 keeps its own classification choices after quiz options were removed. */
-.lab:is([data-lab="B"],[data-lab="D"]) .opts{ display:grid; gap:10px; }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt{
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opts{ display:grid; gap:10px; }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt{
   display:flex; align-items:center; gap:16px; width:100%; min-height:68px;
   padding:12px 18px; text-align:left;
   font-family:var(--sans); font-size:calc(18px * var(--ts)); line-height:1.4;
@@ -1089,35 +1098,35 @@ input[type=range]:focus-visible::-webkit-slider-thumb{ box-shadow:0 0 0 4px rgba
   border:1px solid var(--rule-strong); border-radius:var(--radius);
   cursor:pointer; transition:background 140ms var(--ease),border-color 140ms var(--ease);
 }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt .k{
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt .k{
   flex:none; display:grid; place-items:center; width:1.45em; height:1.45em; border-radius:50%;
   font-family:var(--mono); font-size:.78em; font-weight:600;
   color:var(--coral); border:1px solid color-mix(in srgb, var(--coral) 55%, transparent);
 }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt:hover:not(:disabled){ background:var(--paper-3); border-color:var(--coral); }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt:hover:not(:disabled) .k{ background:var(--coral); color:var(--paper); }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt:disabled{ cursor:default; opacity:1; }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt.correct{ background:var(--sig-out-soft); border-color:var(--sig-out); }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt.correct .k{ color:var(--sig-out); border-color:var(--sig-out); }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt.wrong{ background:var(--sig-err-soft); border-color:var(--sig-err); }
-.lab:is([data-lab="B"],[data-lab="D"]) .opt.wrong .k{ color:var(--sig-err); border-color:var(--sig-err); }
-/* Laboratory 2.3: one row a property, its name and the two answers */
-.lab[data-lab="D"] .plist{ display:grid; gap:6px; }
-.lab[data-lab="D"] .prow{ display:grid; grid-template-columns:minmax(0,1fr) 108px 108px; gap:8px; align-items:stretch; }
-.lab[data-lab="D"] .pname{
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt:hover:not(:disabled){ background:var(--paper-3); border-color:var(--coral); }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt:hover:not(:disabled) .k{ background:var(--coral); color:var(--paper); }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt:disabled{ cursor:default; opacity:1; }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt.correct{ background:var(--sig-out-soft); border-color:var(--sig-out); }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt.correct .k{ color:var(--sig-out); border-color:var(--sig-out); }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt.wrong{ background:var(--sig-err-soft); border-color:var(--sig-err); }
+.lab:is([data-lab="B"],[data-lab="D"],[data-lab="O"]) .opt.wrong .k{ color:var(--sig-err); border-color:var(--sig-err); }
+/* Laboratory 2.3 and Laboratory 3.4: one row a property, its name and the two answers */
+.lab:is([data-lab="D"],[data-lab="O"]) .plist{ display:grid; gap:6px; }
+.lab:is([data-lab="D"],[data-lab="O"]) .prow{ display:grid; grid-template-columns:minmax(0,1fr) 108px 108px; gap:8px; align-items:stretch; }
+.lab:is([data-lab="D"],[data-lab="O"]) .pname{
   text-align:left; padding:8px 14px; cursor:pointer;
   font-family:var(--mono); font-size:calc(16px * var(--ts)); font-weight:600; letter-spacing:.1em; text-transform:uppercase;
   color:var(--slate); background:var(--paper-2); border:1px solid var(--rule-strong); border-radius:var(--radius);
 }
-.lab[data-lab="D"] .prow.on .pname{ border-color:var(--coral); border-left:3px solid var(--coral); color:var(--coral); }
-.lab[data-lab="D"] .pname:hover{ border-color:var(--coral); }
-.lab[data-lab="D"] .opt{ min-height:0; padding:7px 12px; gap:10px; font-size:calc(17px * var(--ts)); }
+.lab:is([data-lab="D"],[data-lab="O"]) .prow.on .pname{ border-color:var(--coral); border-left:3px solid var(--coral); color:var(--coral); }
+.lab:is([data-lab="D"],[data-lab="O"]) .pname:hover{ border-color:var(--coral); }
+.lab:is([data-lab="D"],[data-lab="O"]) .opt{ min-height:0; padding:7px 12px; gap:10px; font-size:calc(17px * var(--ts)); }
 .lab[data-lab="D"] .sys{ background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius); padding:6px 12px; }
-.lab[data-lab="D"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
-.lab[data-lab="D"] .dnav{ display:flex; gap:10px; align-items:center; }
-.lab[data-lab="D"] .dnav .btn{ font-size:calc(17px * var(--ts)); }
-.lab[data-lab="D"] .small{ font-size:calc(16px * var(--ts)); }
-.scene.slide .lab[data-lab="D"] > .cols > .col:last-child{ justify-content:flex-start; }
+.lab:is([data-lab="D"],[data-lab="O"]) .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.lab:is([data-lab="D"],[data-lab="O"]) .dnav{ display:flex; gap:10px; align-items:center; }
+.lab:is([data-lab="D"],[data-lab="O"]) .dnav .btn{ font-size:calc(17px * var(--ts)); }
+.lab:is([data-lab="D"],[data-lab="O"]) .small{ font-size:calc(16px * var(--ts)); }
+.scene.slide .lab:is([data-lab="D"],[data-lab="O"]) > .cols > .col:last-child{ justify-content:flex-start; }
 .scene.slide .lab[data-lab="D"] .aper{ margin-top:auto; }
 .lab[data-lab="B"] .fb{
   padding:14px 18px; font-size:calc(17.5px * var(--ts)); line-height:1.5;
