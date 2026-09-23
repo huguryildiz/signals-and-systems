@@ -120,7 +120,7 @@ body[data-display=projector] .wex-k,
 body[data-display=projector] .qid,
 body[data-display=projector] .ctrl label,
 body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
-body[data-display=projector] .legend{ font-size:calc(17px * var(--ts)); }
+body[data-display=projector] .legend{ font-size:calc(21px * var(--ts)); }
 body[data-display=projector] .eq .katex{ font-size:1.30em; }
 body[data-display=projector] .eq.lg .katex{ font-size:1.58em; }
 body[data-display=projector] .eq.sm .katex{ font-size:1.12em; }
@@ -484,9 +484,9 @@ h3.sub{
 .wex-v .eq{ margin:8px 0; }
 
 /* legend */
-.legend{ display:flex; flex-wrap:wrap; gap:18px 26px; font-size:calc(15px * var(--ts)); color:var(--muted); }
+.legend{ display:flex; flex-wrap:wrap; gap:18px 30px; font-size:calc(19px * var(--ts)); color:var(--muted); }
 .legend i{ display:inline-flex; align-items:center; gap:8px; font-style:normal; }
-.legend i::before{ content:""; width:22px; height:3px; border-radius:2px; background:currentColor; }
+.legend i::before{ content:""; width:26px; height:3px; border-radius:2px; background:currentColor; }
 .lg-in{ color:var(--sig-in); } .lg-h{ color:var(--sig-h); }
 .lg-out{ color:var(--sig-out); } .lg-mid{ color:var(--sig-mid); }
 .lg-err{ color:var(--sig-err); }

@@ -397,6 +397,9 @@ systems apart. `#scene-host svg` makes every SVG a full-width figure, so
   height is the weight. Negative frequencies are shown when they exist. Every quantitative axis is
   labelled. A multi-trace plot also carries a legend; an in-plot annotation may supplement but does
   not replace it.
+- **Legend type.** A legend is set at 19 px (21 px in projector mode), a step above the 18 px slide
+  caption, so the TeX in each entry reads at the size of the caption beside it. The swatch is 26 px.
+  Size is set once on `.legend` in `10_style.css`; no scene sets its own legend size.
 - Signal traces use the semantic palette, never arbitrary series colours: input cyan, system amber,
   output green, intermediate violet and error red. Projector readability comes from adequate stroke,
   stem and marker weight, not from changing those meanings from one figure to the next.

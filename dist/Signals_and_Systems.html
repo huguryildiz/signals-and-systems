@@ -133,7 +133,7 @@ body[data-display=projector] .wex-k,
 body[data-display=projector] .qid,
 body[data-display=projector] .ctrl label,
 body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
-body[data-display=projector] .legend{ font-size:calc(17px * var(--ts)); }
+body[data-display=projector] .legend{ font-size:calc(21px * var(--ts)); }
 body[data-display=projector] .eq .katex{ font-size:1.30em; }
 body[data-display=projector] .eq.lg .katex{ font-size:1.58em; }
 body[data-display=projector] .eq.sm .katex{ font-size:1.12em; }
@@ -497,9 +497,9 @@ h3.sub{
 .wex-v .eq{ margin:8px 0; }
 
 /* legend */
-.legend{ display:flex; flex-wrap:wrap; gap:18px 26px; font-size:calc(15px * var(--ts)); color:var(--muted); }
+.legend{ display:flex; flex-wrap:wrap; gap:18px 30px; font-size:calc(19px * var(--ts)); color:var(--muted); }
 .legend i{ display:inline-flex; align-items:center; gap:8px; font-style:normal; }
-.legend i::before{ content:""; width:22px; height:3px; border-radius:2px; background:currentColor; }
+.legend i::before{ content:""; width:26px; height:3px; border-radius:2px; background:currentColor; }
 .lg-in{ color:var(--sig-in); } .lg-h{ color:var(--sig-h); }
 .lg-out{ color:var(--sig-out); } .lg-mid{ color:var(--sig-mid); }
 .lg-err{ color:var(--sig-err); }
@@ -662,6 +662,19 @@ body[data-theme=dark] .scene.slide{ --tab-ink:var(--paper); --tab-amber:var(--si
   margin:var(--tab-room) 0 0; border-top-left-radius:0;
 }
 .scene.slide .reveal:has(> .note:first-child > .note-h, > .eq:not(.plain):first-child > .eq-label){ margin-top:0; }
+/* a laboratory builds its cards inside its own containers, so they take the
+   tab room there */
+.scene.slide .lab :is(.derive, .aper) > .note:has(> .note-h),
+.scene.slide .lab .derive > .eq:not(.plain):has(> .eq-label){
+  margin-top:var(--tab-room); border-top-left-radius:0;
+}
+/* the control panel has no tab, so a laboratory column starts at the top */
+.scene.slide .lab > .cols > .col > :first-child:not(.reveal){ margin-top:0; }
+/* Laboratory C sets p and q side by side, so its cards keep the type floor */
+.scene.slide .lab[data-lab="C"] .ctrls{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="C"] .ctrl:is(:first-child, :last-child){ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="C"] .col > :is(.derive, .aper){ margin-top:0; }
+.scene.slide .lab[data-lab="C"] .derive > .eq{ margin-bottom:0; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -2518,12 +2531,12 @@ const LABS = (() => {
         T(st.dt? `x[n]=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}n+\\tfrac{${st.th}\\pi}{4}\\right)`
                : `x(t)=\\cos\\!\\left(\\tfrac{${st.p}\\pi}{${st.q}}t+\\tfrac{${st.th}\\pi}{4}\\right)`, true);
       root.querySelector('.derive').innerHTML = M(st.dt ? `
-        <div class="eq">${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
+        <div class="eq"><span class="eq-label">Period condition</span>${T(`N=\\frac{2\\pi}{\\omega_0}k=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}k=\\frac{${2*st.q}}{${st.p}}k`,true)}</div>
         <div class="note ${'ok'}"><span class="note-h">Rationality test</span>
           ${T(`\\frac{\\omega_0}{2\\pi}=\\frac{${st.p}}{${2*st.q}}\\in\\mathbb{Q}`,false)}. The control values make this ratio rational, so the
           discrete-time cosine is periodic. Choose the smallest $k$ that makes $N$ an integer.
           Here ${T(`k=${kmin}`,false)}, giving ${T(`N_0=${N0}`,false)}.</div>`
-        : `<div class="eq">${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
+        : `<div class="eq"><span class="eq-label">Fundamental period</span>${T(`T_0=\\frac{2\\pi}{\\omega_0}=\\frac{2\\pi}{\\tfrac{${st.p}\\pi}{${st.q}}}=\\frac{${2*st.q}}{${st.p}}=${F(T0,4)}`,true)}</div>
            <div class="note ok"><span class="note-h">Continuous time has no rationality test</span>
              Every continuous-time sinusoid with $\\omega_0\\neq0$ is periodic. Calculate its period directly from $T_0=2\\pi/\\omega_0$.</div>`);
       root.querySelector('.ro').innerHTML = st.dt ? `
@@ -4980,7 +4993,7 @@ const SC = [
       return a.svg(); },
       caption:'The constant $x(t)=1$. The energy in the window grows with the window, so the total energy is infinite.'}
   ], right:[
-    {t:'note', kind:'warn', head:'Power signal', html:'A signal with finite, non-zero average power, $0<P_\\infty<\\infty$. Its total energy then diverges, $E_\\infty\\to\\infty$.'},
+    {t:'note', kind:'warn', head:'Power signal', html:'A signal with finite, non-zero average power, $0<P_\\infty<\\infty$. Its total energy is then infinite, $E_\\infty=\\infty$.'},
     {t:'eq', tex:'E_T=\\int_{-T}^{T}1^{2}\\,\\d t=2T\\;\\to\\;\\infty',
       label:'Energy in the window', note:'The energy grows without limit as $T\\to\\infty$.'},
     {t:'reveal', at:1, items:[
@@ -5689,7 +5702,7 @@ const SC = [
 
 { id:'m1-lab-c', module:'M1', nav:'Laboratory C · Periodicity', title:'Laboratory C — Periodicity Explorer', src:'pp. 5, 8, 10',
   objective:'Compare CT and DT periodicity with an exact rationality test.',
-  keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
+  slide:true, keywords:'laboratory periodicity explorer rational frequency N0 T0', steps:0, blocks:[
   {t:'eyebrow', text:'Interactive laboratory C', src:'pp. 5, 8, 10'},
   {t:'title', text:'Laboratory C · Periodicity'},
   {t:'lede', text:'Enter $\\omega_0$ as a rational multiple of $\\pi$. The laboratory can then apply the discrete-time rationality test exactly. A rounded decimal cannot prove that a number is rational.'},
@@ -14278,7 +14291,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> Energy, power and class for each.<br>'
      +'<b>Method.</b> In discrete time,$$E_\\infty=\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2},\\qquad P_\\infty=\\lim_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}.$$'
      +'<b>Solution — part (a).</b>$$E_\\infty=\\sum_{n=0}^{\\infty}\\left(\\tfrac25\\right)^{\\!2n}=\\sum_{n=0}^{\\infty}\\left(\\tfrac{4}{25}\\right)^{\\!n}=\\frac{1}{1-\\tfrac{4}{25}}=\\frac{25}{21},$$which is finite, so $P_\\infty=0$.<br>'
-     +'<b>Solution — part (b).</b> $|x_2[n]|^{2}=9\\,u[n]$, so the energy sum diverges: $E_\\infty\\to\\infty$. For the power, the window $-N\\le n\\le N$ contains $N+1$ non-zero samples out of $2N+1$, each contributing $9$, so$$P_\\infty=\\lim_{N\\to\\infty}\\frac{9(N+1)}{2N+1}=\\frac92=4.5.$$'
+     +'<b>Solution — part (b).</b> $|x_2[n]|^{2}=9\\,u[n]$, so the energy sum diverges: $E_\\infty=\\infty$. For the power, the window $-N\\le n\\le N$ contains $N+1$ non-zero samples out of $2N+1$, each contributing $9$, so$$P_\\infty=\\lim_{N\\to\\infty}\\frac{9(N+1)}{2N+1}=\\frac92=4.5.$$'
      +'<b>Solution — part (c).</b> $x_1$ is an <b>energy signal</b>; $x_2$ is a <b>power signal</b>.<br>'
      +'<b>Check.</b> The counting argument gives $P_\\infty=A^{2}/2$ for a constant sequence of amplitude $A$ that begins at $n=0$. With $A=3$, this gives $9/2$, as in part (b). In part (a), the first term is $1$ and all later terms are positive and smaller, so $25/21\\approx1.19$ is consistent with the sequence.',
   err:'Writing $P_\\infty=9$ for $x_2$ by evaluating the sum only over $n\\ge0$ and dividing by $N+1$ instead of $2N+1$. The window is symmetric about the origin, and the zeros on the negative side count in the denominator.',
