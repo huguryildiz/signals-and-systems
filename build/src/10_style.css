@@ -859,14 +859,14 @@ body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"])
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
-/* The plot column of the Module 3, 4 and 5 laboratories: the viewBoxes are drawn
+/* The plot column of the Module 3, 4, 5 and 6 laboratories: the viewBoxes are drawn
    tall enough to fill it in normal display. The plots take only the height the
    column has, so in projector display, where the widened column would draw them
    taller, they shrink inside it instead of forcing the scene to scale down. */
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -1988,3 +1988,21 @@ body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .eq,
 body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .note{ padding:10px 16px 10px 20px; }
 body[data-display=projector] .scene.slide .lab[data-lab="X"] .ctrls{ padding:14px 20px; gap:10px 24px; }
 body[data-display=projector] .scene.slide .lab[data-lab="X"] .readout.ro div{ padding:8px 12px; }
+
+/* <m6-s1-css> */
+/* </m6-s1-css> */
+
+/* <m6-s2-css> */
+/* </m6-s2-css> */
+
+/* <m6-s3-css> */
+/* </m6-s3-css> */
+
+/* <m6-s4-css> */
+/* </m6-s4-css> */
+
+/* <m6-s5-css> */
+/* </m6-s5-css> */
+
+/* <m6-s6-css> */
+/* </m6-s6-css> */

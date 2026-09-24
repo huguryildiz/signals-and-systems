@@ -28,10 +28,13 @@ def chk(name, got, want):
     (P if ok else F).append(name)
     print(("PASS  " if ok else "FAIL  ") + name + ("" if ok else f"\n      want: {want!r}\n      got:  {got!r}"))
 
+# Optional arguments name key prefixes; only those entries are run.
+ONLY = sys.argv[1:]
 ML = matlab_bin()
 tmp = tempfile.mkdtemp()
 for f in FILES:
     for sid, e in load(f).items():
+        if ONLY and not any(sid.startswith(p) for p in ONLY): continue
         r = subprocess.run([sys.executable, '-c', e['py']], capture_output=True, text=True,
                            env=dict(os.environ, MPLBACKEND='Agg'))
         chk(f"{sid} · Python", r.stdout if r.returncode == 0 else r.stderr, e['out'])

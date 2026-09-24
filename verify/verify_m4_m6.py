@@ -889,6 +889,28 @@ chk("M5 projects: a 4 kHz band on a 3 kHz carrier overlaps on |f| < 1 kHz; at 10
     (4 - 3) > 0 and (10 - 4) > 4)
 
 
+# <m6-s1-verify> 6.1 building the transform
+# </m6-s1-verify>
+
+# <m6-s2-verify> 6.2 the standard pairs
+# </m6-s2-verify>
+
+# <m6-s3-verify> 6.3 periodic sequences
+# </m6-s3-verify>
+
+# <m6-s4-verify> 6.4 properties
+# </m6-s4-verify>
+
+# <m6-s5-verify> 6.5 convolution and multiplication
+# </m6-s5-verify>
+
+# <m6-s6-verify> 6.6 difference equations
+# </m6-s6-verify>
+
+# <m6-s7-verify> 6.7 quick check and projects
+# </m6-s7-verify>
+
+
 print("\n%d passed, %d failed" % (len(P), len(F)))
 if F:
     print("FAILURES:", F)
