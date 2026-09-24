@@ -730,6 +730,58 @@ chk("LabJ2 at T3 the cosine copy lands on w_M: 3 pi - pi = 2 pi, and |sum| = sqr
     abs(3*PI - PI - 2*PI) < 1e-12 and abs(abs(_a[round(2*PI/(PI/1000))]) - np.sqrt(2)*PI*1.5) < 1e-9)
 chk("LabJ2 copy height 1/T = w_s/2pi is 2.5, 2 and 1.5 at the presets",
     all(abs(k*_U/(2*PI) - h) < 1e-12 for k, h in [(25, 2.5), (20, 2), (15, 1.5)]))
+
+# --- m7-bandpass: the band 8 pi < |w| < 10 pi, width B = 2 pi (beyond the source)
+def _s2bp(ws, L=8*PI, H=10*PI):
+    """the slide's verdict: 1 apart, 0 touching, -1 overlapping"""
+    B = H - L
+    if ws < 2*B - 1e-9:
+        return -1
+    m = lambda x: x - np.floor(x/ws)*ws
+    d = m(m(-H) - m(L)); g = min(d, ws - d) - B
+    return 1 if g > 1e-9 else (0 if g > -1e-9 else -1)
+def _s2bp_count(ws, L=8*PI, H=10*PI, span=30*PI, N=300001):
+    """brute force: how many copies of the two halves cover each point of a grid"""
+    w = np.linspace(-span, span, N); cnt = np.zeros_like(w)
+    K = int(np.ceil((span + H)/ws)) + 1
+    for k in range(-K, K + 1):
+        c = w - k*ws
+        cnt += ((c > L + 1e-9) & (c < H - 1e-9)).astype(float) + ((-c > L + 1e-9) & (-c < H - 1e-9)).astype(float)
+    return w, cnt
+_bL, _bH = 8*PI, 10*PI; _bB = _bH - _bL
+chk("M7 7.2 bandpass: B = 2 pi, the lower edge 8 pi is 4B, 2B = 4 pi and 2 w_H = 20 pi, five times 4 pi",
+    abs(_bB - 2*PI) < 1e-12 and abs(_bL - 4*_bB) < 1e-12 and abs(2*_bB - 4*PI) < 1e-12
+    and abs(2*_bH - 20*PI) < 1e-12 and abs(2*_bH/(2*_bB) - 5) < 1e-12)
+chk("M7 7.2 bandpass: at 4 pi, [8 pi, 10 pi] - 2 w_s = [0, 2 pi] and [-10 pi, -8 pi] + 3 w_s = [2 pi, 4 pi]",
+    abs(8*PI - 2*4*PI) < 1e-12 and abs(10*PI - 2*4*PI - 2*PI) < 1e-12
+    and abs(-10*PI + 3*4*PI - 2*PI) < 1e-12 and abs(-8*PI + 3*4*PI - 4*PI) < 1e-12)
+_w, _c = _s2bp_count(4*PI)
+chk("M7 7.2 bandpass: at w_s = 4 pi the copies fill the axis with no overlap (one copy almost everywhere)",
+    _c.max() == 1 and np.mean(_c == 1) > 0.999)
+_band = (np.abs(_w) > _bL + 1e-6) & (np.abs(_w) < _bH - 1e-6)
+_k0 = ((_w > _bL) & (_w < _bH)) | ((-_w > _bL) & (-_w < _bH))
+chk("M7 7.2 bandpass: inside 8 pi < |w| < 10 pi only the band itself (k = 0) is present, so a band-pass filter returns x(t)",
+    np.all(_c[_band] == 1) and np.all(_k0[_band]))
+_grid = np.round(np.arange(3, 22.0001, 0.1), 10)
+chk("M7 7.2 bandpass: the slider verdict agrees with a brute-force count at every slider step 3..22 pi",
+    all((_s2bp(v*PI) < 0) == (_s2bp_count(v*PI)[1].max() >= 2) for v in _grid))
+chk("M7 7.2 bandpass: verdicts 4 pi touch, 7 pi apart, 9 pi overlap, 12 pi apart, 17 pi overlap, 22 pi apart",
+    [_s2bp(v*PI) for v in [4, 7, 9, 12, 17, 22]] == [0, 1, -1, 1, -1, 1])
+_W = [(4, 4), (5, 16/3), (20/3, 8), (10, 16), (20, 23)]
+_fine = np.arange(3, 23.0001, 0.001)
+chk("M7 7.2 bandpass: the copies fit exactly on 4 pi, [5, 16/3] pi, [20/3, 8] pi, [10, 16] pi and from 20 pi up",
+    all((_s2bp(v*PI) >= 0) == any(p - 1e-9 <= v <= q + 1e-9 for p, q in _W) for v in _fine)
+    and all(_s2bp(v*PI) == 0 for v in [4, 5, 16/3, 20/3, 8, 10, 16, 20]))
+chk("M7 7.2 bandpass: the window ends read 5.33 pi = 16/3 pi and 6.67 pi = 20/3 pi",
+    f"{16/3:.2f}" == "5.33" and f"{20/3:.2f}" == "6.67")
+chk("M7 7.2 bandpass: the default slider value 4 pi shows the copies touching", _s2bp(4*PI) == 0)
+_lo = [v for v in np.arange(0.5, 30.0001, 0.01) if _s2bp(v*PI, 12*PI, 14*PI) >= 0]
+chk("M7 7.2 bandpass prediction: for 12 pi < |w| < 14 pi (lower edge 6B) the lowest fitting rate is 4 pi = 2B",
+    abs(12*PI - 6*2*PI) < 1e-12 and abs(_lo[0] - 4) < 1e-9 and _s2bp(4*PI, 12*PI, 14*PI) == 0
+    and _s2bp_count(4*PI, 12*PI, 14*PI)[1].max() == 1 and abs(2*14 - 28) < 1e-12)
+chk("M7 7.2 bandpass code: the six printed verdicts are touching, apart, overlapping, apart, overlapping, apart",
+    [{1: 'apart', 0: 'touching', -1: 'overlapping'}[_s2bp(v*PI)] for v in [4, 7, 9, 12, 17, 22]]
+    == ['touching', 'apart', 'overlapping', 'apart', 'overlapping', 'apart'])
 # </m7-s2-verify>
 
 # <m7-s3-verify> 7.3 reconstruction
@@ -1141,12 +1193,417 @@ chk("LabJ4 every slider tone and its fold share the samples",
 chk("LabJ4 a tone at or below fs/2 folds to itself",
     all(abs(s4_fold(f, fs) - f) < 1e-9 for fs in np.arange(2, 12.01, 0.5)
         for f in np.arange(0.2, fs/2 + 1e-9, 0.1)))
+
+# --- m7-chirp: x(t) = cos(2 pi 1000 t^2) sampled at 4 kHz (beyond the source)
+_ts = sp.symbols('t', positive=True)
+_fi = sp.diff(2*sp.pi*1000*_ts**2, _ts)/(2*sp.pi)
+chk("M7 7.4 chirp: f(t) = (1/2 pi) d/dt (2 pi 1000 t^2) = 2000 t Hz", sp.simplify(_fi - 2000*_ts) == 0)
+chk("M7 7.4 chirp: in 3 s it rises from 0 to 6 kHz, 2 kHz each second",
+    _fi.subs(_ts, 0) == 0 and _fi.subs(_ts, 3) == 6000 and _fi.subs(_ts, 1) == 2000)
+_tt = np.linspace(0, 3, 30001); _fa = np.array([s4_fold(2*x, 4) for x in _tt])
+_d = np.diff(_fa)
+chk("M7 7.4 chirp: at f_s = 4 kHz the heard pitch rises on 0 < t < 1 s, falls on 1 < t < 2 s, rises on 2 < t < 3 s",
+    np.all(_d[_tt[:-1] < 1 - 1e-6] > 0) and np.all(_d[(_tt[:-1] > 1 + 1e-6) & (_tt[:-1] < 2 - 1e-6)] < 0)
+    and np.all(_d[_tt[:-1] > 2 + 1e-6] > 0))
+chk("M7 7.4 chirp: heard 2 kHz = f_s/2 at t = 1 s, 0 at t = 2 s where f = f_s, 2 kHz again at t = 3 s",
+    s4_fold(2, 4) == 2 and s4_fold(4, 4) == 0 and 2*2 == 4 and s4_fold(6, 4) == 2 and 4/2 == 2)
+chk("M7 7.4 chirp: the heard pitch stays in the kept band 0..2 kHz", _fa.min() >= 0 and _fa.max() <= 2 + 1e-12)
+chk("M7 7.4 chirp: default t = 1.5 s gives the tone at 3 kHz, heard at 1 kHz", 2*1.5 == 3 and s4_fold(3, 4) == 1)
+chk("M7 7.4 chirp prediction: at f_s = 3 kHz, t = 2 s, the 4 kHz tone is heard at |4 - 3| = 1 kHz, inside 0..1.5 kHz",
+    2*2 == 4 and s4_fold(4, 3) == 1 and 1 <= 3/2)
+def _s4rec(x, fs, t, L=32):
+    """the slide's playback: sum x[n] sinc(pi(fs t - n)) under the taper (1 - (d/L)^2)^2"""
+    N = int(np.ceil(3*fs)); xs = x(np.arange(N + 1)/fs)
+    u = t*fs; n0 = np.floor(u).astype(int); y = np.zeros_like(t)
+    for j in range(-L + 1, L + 1):
+        n = n0 + j; ok = (n >= 0) & (n <= N); d = u - n
+        with np.errstate(divide='ignore', invalid='ignore'):
+            k = np.where(np.abs(d) < 1e-12, 1.0, np.sin(PI*d)/(PI*d))
+        y += np.where(ok, xs[np.clip(n, 0, N)]*(1 - (d/L)**2)**2*k, 0.0)
+    return y
+_ch = lambda t: np.cos(2*PI*1000*t**2)
+_sr = 48000
+def _peak(tc, fs=4000):
+    t = tc - 0.05 + np.arange(int(0.1*_sr))/_sr
+    y = _s4rec(_ch, fs, t)*np.hanning(t.size)
+    F = np.abs(np.fft.rfft(y, 8*t.size)); fr = np.fft.rfftfreq(8*t.size, 1/_sr)
+    return fr[np.argmax(F)]
+_pk = {tc: _peak(tc) for tc in [0.5, 0.75, 1.5, 2.5, 2.75]}
+chk("M7 7.4 chirp sound: the played x_r(t) peaks at the folded pitch (1, 1.5, 1, 1, 1.5 kHz at t = 0.5, 0.75, 1.5, 2.5, 2.75 s)",
+    all(abs(_pk[tc] - 1000*s4_fold(2*tc, 4)) < 25 for tc in _pk), str({k: round(v) for k, v in _pk.items()}))
+_tn = np.arange(1, 11999)/4000
+chk("M7 7.4 chirp sound: the played x_r(t) passes through every sample x(n/4000)",
+    np.max(np.abs(_s4rec(_ch, 4000, _tn) - _ch(_tn))) < 1e-9)
+
+# --- m7-aa-band, m7-aa-band-b: the transition band and 44.1 kHz (beyond the source)
+_D, _fs = sp.symbols('Delta f_s', positive=True)
+chk("M7 7.4 aa-band: f_s - (20 + D) >= 20 + D  <=>  f_s >= 2(20 + D) = 40 + 2D kHz",
+    sp.solve(sp.Eq(_fs - (20 + _D), 20 + _D), _fs) == [40 + 2*_D] and sp.expand(2*(20 + _D)) == 40 + 2*_D)
+def _s4ov(D, fs=44.1, N=200001):
+    """largest sum of the baseband and the copy at fs, from the trapezoids on a grid"""
+    f = np.linspace(0, fs, N)
+    tr = lambda g: np.clip((20 + D - np.abs(g))/D, 0, 1) if D > 0 else (np.abs(g) <= 20).astype(float)
+    both = (tr(f) > 1e-12) & (tr(f - fs) > 1e-12)
+    return both.any()
+chk("M7 7.4 aa-band: at f_s = 44.1 kHz the copies overlap exactly when D > 2.05 kHz, on the slider grid 0..5",
+    all(_s4ov(D) == (D > 2.05 + 1e-9) for D in np.round(np.arange(0, 5.0001, 0.05), 10)))
+chk("M7 7.4 aa-band: the default D = 2.05 kHz needs f_s >= 40 + 4.1 = 44.1 kHz", abs(40 + 2*2.05 - 44.1) < 1e-12)
+chk("M7 7.4 aa-band: the copy at f_s = 44.1 starts at 44.1 - 22.05 = 22.05 = f_s/2 when D = 2.05",
+    abs(44.1 - (20 + 2.05) - 22.05) < 1e-12 and abs(44.1/2 - 22.05) < 1e-12)
+chk("M7 7.4 aa-band prediction: D = 3 kHz needs f_s >= 2(20 + 3) = 46 kHz, and 44.1 kHz overlaps",
+    2*(20 + 3) == 46 and _s4ov(3.0) and not _s4ov(3.0, fs=46))
+chk("M7 7.4 aa-band-b: D = f_s/2 - 20 gives 0, 2.05 (22.05 - 20) and 4 (24 - 20) kHz at 40, 44.1, 48 kHz",
+    40/2 - 20 == 0 and abs(44.1/2 - 20 - 2.05) < 1e-12 and 48/2 - 20 == 4 and abs(44.1/2 - 22.05) < 1e-12)
+chk("M7 7.4 aa-band-b: the frames D = 0, 2.05, 4 land on 40, 44.1, 48 kHz, inside the axis 38..51.5",
+    [round(40 + 2*D, 10) for D in [0, 2.05, 4]] == [40, 44.1, 48] and 40 + 2*5.25 <= 51.5)
+chk("M7 7.4 aa-band-b prediction: a telephone at 8 kHz keeping 3.4 kHz leaves D = 4 - 3.4 = 0.6 kHz",
+    abs(8/2 - 3.4 - 0.6) < 1e-12 and abs(8 - 3.4 - 4.6) < 1e-12 and abs(2*0.6 - 1.2) < 1e-12)
 # </m7-s4-verify>
 
 # <m7-s5-verify> 7.5 discrete-time processing of continuous-time signals
+# Notation of the section: omega in rad/s, Omega = omega T in rad/sample.
+_T5 = 0.25                                     # the worked T of the section
+_wM5 = 2*PI                                    # band edge of the running signal
+def _tri5(w): return np.maximum(0, 1 - np.abs(w)/_wM5)
+
+# the frequency map and the band edge
+chk("M7 7.5 w_s T = 2 pi at T = 0.25, 0.2 and 0.5 s", all(abs(ws_of(T)*T - 2*PI) < 1e-12 for T in [0.25, 0.2, 0.5]))
+chk("M7 7.5 Omega_M = w_M T: 0.5 pi at T = 0.25 s, 0.4 pi at T = 0.2 s", abs(_wM5*0.25 - PI/2) < 1e-12 and abs(_wM5*0.2 - 0.4*PI) < 1e-12)
+chk("M7 7.5 the copies of X_d overlap once T passes 0.5 s (Omega_M > pi)",
+    [_wM5*T > PI + 1e-12 for T in [0.1, 0.25, 0.5, 0.51, 0.7]] == [False, False, False, True, True])
+chk("M7 7.5 at T = 0.5 s the copy k = 1 sits at Omega = 2 pi", abs(ws_of(0.5)*0.5 - 2*PI) < 1e-12)
+chk("M7 7.5 Omega = pi corresponds to omega = pi/T = 4 pi rad/s at T = 0.25 s", abs(PI/_T5 - 4*PI) < 1e-12)
+# X_d(e^{jOmega}) = X_p(j Omega/T) = (1/T) sum_k X_c(j(Omega - 2 pi k)/T), checked on a grid
+_W = np.linspace(-3*PI, 3*PI, 1201)
+_Xd = sum(_tri5((_W - 2*PI*k)/_T5) for k in range(-4, 5))/_T5
+_Xp = sum(_tri5(_W/_T5 - k*ws_of(_T5)) for k in range(-4, 5))/_T5
+chk("M7 7.5 X_d(e^{jOmega}) = X_p(j Omega/T), both sums agree", np.max(np.abs(_Xd - _Xp)) < 1e-12)
+chk("M7 7.5 X_d is periodic in 2 pi", np.allclose(sum(_tri5((_W + 2*PI - 2*PI*k)/_T5) for k in range(-5, 6)),
+                                               sum(_tri5((_W - 2*PI*k)/_T5) for k in range(-5, 6))))
+# DTFT of the samples against the copy sum, at a few Omega
+_n5 = np.arange(-4000, 4001)
+_xs = np.sinc(_n5*_T5)**2                      # x_c(t) = sinc^2(t): triangle spectrum, w_M = 2 pi, X_c(0) = 1
+_Wt = np.array([0, PI/4, PI/2, 0.9*PI])
+_dtft = np.array([np.sum(_xs*np.exp(-1j*Wv*_n5)).real for Wv in _Wt])
+chk("M7 7.5 DTFT of x_c(nT) equals (1/T) sum_k X_c(j(Omega - 2 pi k)/T) (sinc^2 input, T = 0.25 s)",
+    np.allclose(_dtft, sum(_tri5((_Wt - 2*PI*k)/_T5) for k in range(-3, 4))/_T5, atol=1e-3), f"{_dtft}")
+
+# the equivalent system, with the three-point average H_d = (1 + cos Omega)/2
+_W = sp.symbols('Omega', real=True)
+_Havg = sp.Rational(1, 4)*sp.exp(sp.I*_W) + sp.Rational(1, 2) + sp.Rational(1, 4)*sp.exp(-sp.I*_W)
+chk("M7 7.5 (1/4, 1/2, 1/4) average has H_d = (1 + cos Omega)/2", sp.simplify(sp.expand_complex(_Havg) - (1 + sp.cos(_W))/2) == 0)
+_wg = np.linspace(-4*PI + 1e-6, 4*PI - 1e-6, 801)             # |omega| < omega_s/2 at T = 0.25 s
+_TXd = sum(_tri5((_wg*_T5 - 2*PI*k)/_T5) for k in range(-4, 5))  # T X_d(e^{j omega T})
+_Hg = 0.5*(1 + np.cos(_wg*_T5))
+chk("M7 7.5 H_eff(j omega) = H_d(e^{j omega T}): T H_d X_d(e^{j omega T}) = H_d X_c(j omega) inside the band",
+    np.allclose(_Hg*_TXd, _Hg*_tri5(_wg)))
+chk("M7 7.5 at T = 0.25 s, omega_s/2 = 4 pi and omega = 6 pi is removed", abs(ws_of(_T5)/2 - 4*PI) < 1e-12 and 6*PI > ws_of(_T5)/2)
+chk("M7 7.5 H_d(e^{j omega T}) at omega = 6 pi is 1/2, which D/C discards", abs(0.5*(1 + np.cos(6*PI*_T5)) - 0.5) < 1e-12)
+
+# a digital cutoff in hertz
+def _fc(Wc, fs): return Wc/(2*PI)*fs
+chk("M7 7.5 Omega_c = pi/4 at 8 kHz: omega_c = 2000 pi rad/s, f_c = 1 kHz",
+    abs((PI/4)*8000 - 2000*PI) < 1e-9 and abs(_fc(PI/4, 8000) - 1000) < 1e-9)
+chk("M7 7.5 Omega_c = pi/4 at 44.1 kHz: f_c = 5.5125 kHz", abs(_fc(PI/4, 44100) - 5512.5) < 1e-9)
+chk("M7 7.5 Omega_c = pi/4 gives f_c = f_s/8 at every rate", all(abs(_fc(PI/4, f) - f/8) < 1e-9 for f in [4000, 8000, 16000, 48000]))
+chk("M7 7.5 Omega_c = pi/2 at 16 kHz: f_c = (1/4)16 = 4 kHz", abs(_fc(PI/2, 16000) - 4000) < 1e-9)
+
+# the digital differentiator
+chk("M7 7.5 differentiator: |H_d| = |Omega|/T ramps to pi/T = 4 pi at T = 0.25 s", abs(PI/_T5 - 4*PI) < 1e-12)
+chk("M7 7.5 differentiator: |H_d| at Omega = pi/2, T = 0.25 s is 2 pi", abs((PI/2)/_T5 - 2*PI) < 1e-12)
+chk("M7 7.5 differentiator: H_d jumps from j pi/T to -j pi/T across Omega = pi (periodic extension)",
+    abs(1j*PI/_T5 - 1j*(PI - 2*PI)/_T5 - 2j*PI/_T5) < 1e-12)
+_om0 = 2*PI*100
+chk("M7 7.5 100 Hz tone: omega_0 = 200 pi = 628.3 rad/s, peak 0.628 per ms",
+    abs(_om0 - 200*PI) < 1e-12 and round(_om0, 1) == 628.3 and round(_om0/1000, 3) == 0.628)
+_Om0 = _om0/1000; _n = np.arange(50)
+chk("M7 7.5 one tone: (Omega_0/T) cos(Omega_0 n + pi/2) = -omega_0 sin(omega_0 n T)",
+    np.allclose(_Om0*1000*np.cos(_Om0*_n + PI/2), -_om0*np.sin(_om0*_n/1000)))
+chk("M7 7.5 700 Hz at 1 kHz folds to 300 Hz, so y_c peaks at 2 pi 300 = 1885 s^-1, not 2 pi 700",
+    abs(abs(700 - 1000*np.floor(700/1000 + 0.5)) - 300) < 1e-12 and round(2*PI*300) == 1885)
+chk("M7 7.5 the band edge of the tone slide is f_s/2 = 500 Hz", 1000/2 == 500)
+_N = 100; _nn = np.arange(_N); _Wb = 2*PI*_nn/_N; _Wb[_Wb >= PI] -= 2*PI
+_y = np.real(np.fft.ifft(np.fft.fft(np.sin(_om0*_nn/1000))*(1j*_Wb*1000)))
+chk("M7 7.5 j Omega/T on the samples of a 100 Hz sine at 1 kHz gives dx_c/dt at nT (DFT)",
+    np.allclose(_y, _om0*np.cos(_om0*_nn/1000), atol=1e-6))
+
+# the half-sample delay
+chk("M7 7.5 half delay: e^{-j (Omega/T)(T/2)} = e^{-j Omega/2}, |H_d| = 1",
+    sp.simplify(sp.exp(-sp.I*(_W/sp.Symbol('T', positive=True))*(sp.Symbol('T', positive=True)/2)) - sp.exp(-sp.I*_W/2)) == 0)
+chk("M7 7.5 half delay: cos(2 pi 250 t), T = 1 ms: y_d[0] = cos(-pi/4) = 0.707",
+    abs(np.cos(2*PI*250*(-0.5e-3)) - np.cos(-PI/4)) < 1e-12 and round(np.cos(PI/4), 3) == 0.707)
+_N = 40; _nn = np.arange(_N); _Wb = 2*PI*_nn/_N; _Wb[_Wb >= PI] -= 2*PI
+_y = np.real(np.fft.ifft(np.fft.fft(np.cos(2*PI*250*_nn*1e-3))*np.exp(-1j*_Wb/2)))
+chk("M7 7.5 e^{-j Omega/2} on the samples gives x_c((n - 1/2)T) (DFT)", np.allclose(_y, np.cos(2*PI*250*(_nn - 0.5)*1e-3)))
+chk("M7 7.5 sinc input sin(pi t/T)/(pi t) has samples (1/T) delta[n]",
+    abs(1/_T5 - 4) < 1e-12 and all(abs(np.sin(PI*k)/(PI*k*_T5)) < 1e-12 for k in range(1, 8)))
+_nh = np.arange(-6, 8)
+_h = np.sin(PI*(_nh - 0.5))/(PI*(_nh - 0.5))
+chk("M7 7.5 h[n] = T x_c(nT - T/2) = sin(pi(n - 1/2))/(pi(n - 1/2))",
+    np.allclose(_h, _T5*np.sin(PI*(_nh*_T5 - _T5/2)/_T5)/(PI*(_nh*_T5 - _T5/2))))
+chk("M7 7.5 sin(pi(n - 1/2)) = (-1)^{n+1}, so h[n] is never zero", np.allclose(np.sin(PI*(_nh - 0.5)), (-1.0)**(_nh + 1)) and np.all(np.abs(_h) > 0))
+chk("M7 7.5 h[0] = h[1] = 2/pi", abs(_h[_nh == 0][0] - 2/PI) < 1e-12 and abs(_h[_nh == 1][0] - 2/PI) < 1e-12)
+chk("M7 7.5 h[n] decays like 1/n: |h[n]| (n - 1/2) pi = 1", np.allclose(np.abs(_h)*PI*np.abs(_nh - 0.5), 1))
+_Hh = np.array([np.sum(np.sin(PI*(np.arange(-20000, 20001) - 0.5))/(PI*(np.arange(-20000, 20001) - 0.5))*np.exp(-1j*Wv*np.arange(-20000, 20001))) for Wv in [0.3, 1.2, 2.5]])
+chk("M7 7.5 the DTFT of h[n] is e^{-j Omega/2} (40001 terms)", np.allclose(_Hh, np.exp(-1j*np.array([0.3, 1.2, 2.5])/2), atol=2e-3), f"{np.abs(_Hh - np.exp(-1j*np.array([0.3, 1.2, 2.5])/2))}")
+
+# quantization
+def _q5(x, B):
+    D = 2/2**B
+    return np.clip(D*(np.floor(x/D) + 0.5), -1 + D/2, 1 - D/2)
+chk("M7 7.5 B bits over [-1, 1]: 2^B levels, Delta = 2/2^B", all(len(np.unique(_q5(np.linspace(-1, 1, 200001), B))) == 2**B for B in [1, 2, 3, 4, 8]))
+chk("M7 7.5 B = 3: Delta = 1/4; B = 4: Delta = 1/8, |e| <= 1/16",
+    2/2**3 == 0.25 and 2/2**4 == 1/8 and np.max(np.abs(_q5(np.linspace(-1, 1, 200001), 4) - np.linspace(-1, 1, 200001))) <= 1/16 + 1e-12)
+_e, _D = sp.symbols('e Delta', positive=True)
+chk("M7 7.5 noise power (1/Delta) int e^2 de over [-Delta/2, Delta/2] = Delta^2/12",
+    sp.simplify(sp.integrate(_e**2, (_e, -_D/2, _D/2))/_D - _D**2/12) == 0)
+_Bs = sp.symbols('B', positive=True, integer=True)
+chk("M7 7.5 SNR = 10 log10((1/2)/(Delta^2/12)) = 10 log10(1.5 * 2^(2B)) with Delta = 2/2^B",
+    sp.simplify(sp.Rational(1, 2)/((2/2**_Bs)**2/12) - sp.Rational(3, 2)*2**(2*_Bs)) == 0)
+chk("M7 7.5 10 log10 1.5 = 1.76 dB and 20 log10 2 = 6.02 dB", round(10*np.log10(1.5), 2) == 1.76 and round(20*np.log10(2), 2) == 6.02)
+_rule = lambda B: 6.02*B + 1.76
+chk("M7 7.5 rule: 19.8 dB at 3 bits, 49.9 at 8, 98.1 at 16",
+    [round(_rule(B), 1) for B in [3, 8, 16]] == [19.8, 49.9, 98.1])
+_x = np.sin(2*PI*0.0123456789*np.arange(200000))
+_snr = {B: 10*np.log10(np.sum(_x**2)/np.sum((_q5(_x, B) - _x)**2)) for B in [1, 2, 3, 4, 8, 12, 16]}
+chk("M7 7.5 measured SNR lies within 1 dB of the rule from 3 bits up",
+    all(abs(_snr[B] - _rule(B)) < 1 for B in [3, 4, 8, 12, 16]), ", ".join(f"B={B}: {_snr[B]:.2f}" for B in _snr))
+chk("M7 7.5 measured SNR at 1 bit is more than 1 dB from the rule", abs(_snr[1] - _rule(1)) > 1, f"{_snr[1]:.2f} vs {_rule(1):.2f}")
+_x8 = _x                                        # the figure uses the same 200 000 samples
+chk("M7 7.5 the figure dots (every B) stay within 1 dB of the rule from 3 bits up",
+    all(abs(10*np.log10(np.sum(_x8**2)/np.sum((_q5(_x8, B) - _x8)**2)) - _rule(B)) < 1 for B in range(3, 17)))
+chk("M7 7.5 12 to 14 bits adds 2 x 6.02 = 12 dB", round(_rule(14) - _rule(12)) == 12)
+chk("M7 7.5 the quantization figure: a 1 kHz sine is sin(2 pi t) with t in ms, 16 samples a cycle at 16 kHz", 1000*1e-3 == 1 and 16000/1000 == 16)
+
+# the gallery
+_n = np.arange(0, 21)
+chk("M7 7.5 gallery phone: 800 Hz at 8 kHz is Omega = 0.2 pi and 50 Hz is 0.0125 pi, both inside |Omega| < pi",
+    abs(2*PI*800/8000 - 0.2*PI) < 1e-12 and abs(2*PI*50/8000 - 0.0125*PI) < 1e-12)
+chk("M7 7.5 gallery phone: y[n] = sin(2 pi 800 n/8000) is the 800 Hz part of x(t) = sin(2 pi 800 t) + 0.8 sin(2 pi 50 t) at t = n/8000 s (n/8 ms)",
+    np.allclose(np.sin(2*PI*0.8*(_n/8)), np.sin(2*PI*800*_n/8000)))
+chk("M7 7.5 gallery equaliser: gain 2 at 100 Hz and 1 at 1 kHz turns cos(2 pi 100 t) + cos(2 pi 1000 t) into 2 cos(2 pi 100 t) + cos(2 pi 1000 t); both under 24 kHz",
+    max(100, 1000) < 48000/2)
+_z = lambda W: np.sum(np.exp(-1j*W*np.arange(4)))/4
+chk("M7 7.5 gallery ABS: the four-sample average has zeros at Omega = pi/2 and pi", abs(_z(PI/2)) < 1e-12 and abs(_z(PI)) < 1e-12 and abs(_z(0) - 1) < 1e-12)
+chk("M7 7.5 gallery ABS: at f_s = 400 Hz, Omega = pi/2 and pi are 100 Hz and 200 Hz", abs(PI/2/(2*PI)*400 - 100) < 1e-12 and abs(PI/(2*PI)*400 - 200) < 1e-12)
+_Ta = 1/400; _t = np.arange(3, 21)*_Ta
+_v = lambda t: 20 - 8*t + 1.5*np.sin(2*PI*100*t)
+_ya = sum(_v(_t - k*_Ta) for k in range(4))/4
+chk("M7 7.5 gallery ABS: y[n] = (1/4) sum v[n-k] removes the 100 Hz ripple and keeps the ramp (delayed by 1.5 T)",
+    np.allclose(_ya, 20 - 8*(_t - 1.5*_Ta)), f"max dev {np.max(np.abs(_ya - (20 - 8*(_t - 1.5*_Ta)))):.1e}")
+chk("M7 7.5 gallery ABS: the curve and y[n] stay inside the drawn range 17.8 to 24.8 m/s on 0 to 0.05 s",
+    np.min(_v(np.linspace(0, 0.05, 5001))) > 17.8 and np.max(_v(np.linspace(0, 0.05, 5001))) < 24.8)
+_Hc = lambda W: 5 - 4*np.cos(W)
+chk("M7 7.5 gallery camera: y[n] = 5b[n] - 2(b[n-1] + b[n+1]) keeps flat regions (gain 1 at Omega = 0) and boosts fine detail (gain 9 at pi)",
+    abs(_Hc(0) - 1) < 1e-12 and abs(_Hc(PI) - 9) < 1e-12)
+
+# laboratory J5: the readouts at the default state (f1 = 1, f2 = 3, fs = 8 kHz, Omega_c = 0.5 pi)
+_fsL = 8000; _wcL = 0.5
+chk("M7 7.5 lab J5 default: equivalent omega_c = 4000 pi rad/s, f_c = 2000 Hz, f_s/2 = 4 kHz",
+    abs(_wcL*PI*_fsL - 4000*PI) < 1e-9 and abs(_fc(_wcL*PI, _fsL) - 2000) < 1e-9 and _fsL/2 == 4000)
+chk("M7 7.5 lab J5 default: 1 kHz passes (Omega = 0.25 pi < 0.5 pi), 3 kHz is removed (0.75 pi), both band-limited",
+    2*PI*1000/_fsL < _wcL*PI < 2*PI*3000/_fsL and 3000 < _fsL/2)
+chk("M7 7.5 lab J5: band edge omega_s/2 = pi f_s = 8000 pi rad/s at 8 kHz; differentiator gain at 1 kHz = 2000 pi s^-1; delay T/2 = 62.5 us",
+    abs(PI*_fsL - 8000*PI) < 1e-9 and abs(2*PI*1000 - 2000*PI) < 1e-9 and abs(0.5/_fsL*1e6 - 62.5) < 1e-9)
+_foldL = lambda f, fs: abs(f - fs*np.floor(f/fs + 0.5))
+chk("M7 7.5 lab J5: a 5 kHz tone at 8 kHz is not band-limited and reaches the filter as 3 kHz; 4 kHz sits on the band edge",
+    abs(_foldL(5, 8) - 3) < 1e-12 and 5 > 8/2 and abs(_foldL(4, 8) - 4) < 1e-12)
 # </m7-s5-verify>
 
 # <m7-s6-verify> 7.6 decimation and interpolation
+# The numbers of section 7.6: the slides, their prediction cards, the sound
+# figures, the gallery captions and the fixed numbers of Laboratory J6.
+# The running sequence is x[n] = (sin(pi n/8)/(pi n/8))^2 with x[0] = 1; its
+# transform is a triangle of peak 8 reaching zero at |w| = pi/4.
+from math import gcd as s6_gcd
+from fractions import Fraction as s6_F
+s6_M = 400000
+s6_n = np.arange(-s6_M, s6_M + 1)
+s6_x = np.sinc(s6_n/8)**2
+def s6_wrap(wv): return wv - 2*PI*np.round(wv/(2*PI))
+def s6_tri(wv, W=PI/4, pk=8.0): return np.maximum(0.0, pk*(1 - np.abs(s6_wrap(wv))/W))
+def s6_dtft(x, n, wv): return float(np.sum(x*np.cos(wv*n)))       # x real and even
+# --- the running sequence and its transform
+chk("7.6 x[0] = 1 for the running sequence", abs(s6_x[s6_M] - 1) < 1e-15)
+for wv in [0, PI/16, PI/8, 3*PI/16, PI/4, PI/2, PI]:
+    got = s6_dtft(s6_x, s6_n, wv)
+    chk(f"7.6 X(e^(j{wv/PI:.4f} pi)) of the running sequence is the triangle {s6_tri(wv):.4f}",
+        abs(got - s6_tri(wv)) < 2e-4, f"got {got:.6f}")
+chk("7.6 the running sequence is zero at n = +-8, +-16 (the time axis of the figures)",
+    np.max(np.abs(s6_x[s6_M + np.array([-16, -8, 8, 16])])) < 1e-12)
+# --- m7-dtsamp: x_p[n] = x[n] p[n] keeps x at multiples of N and is zero elsewhere
+for N in [3, 4]:
+    xp = s6_x*(s6_n % N == 0)
+    chk(f"7.6 N = {N}: x_p[n] = x[n] at n = kN and 0 elsewhere",
+        np.all(xp[s6_n % N == 0] == s6_x[s6_n % N == 0]) and np.all(xp[s6_n % N != 0] == 0))
+chk("7.6 prediction: (0.5)^|n| sampled with N = 3 gives x_p[4] = 0", 4 % 3 != 0)
+chk("7.6 prediction: the distractors (0.5)^4 = 0.0625 and (0.5)^3 = 0.125 are the values x[4], x[3]",
+    abs(0.5**4 - 0.0625) < 1e-15 and abs(0.5**3 - 0.125) < 1e-15)
+# --- m7-dtsamp-b: the sampling sequence in frequency
+for N in [3, 4, 5]:
+    pn = (s6_n % N == 0).astype(float)
+    # the transform of p[n] is (2 pi/N) sum_k delta(w - 2 pi k/N): its synthesis at
+    # n = 0 over one period gives (1/2 pi) * N * (2 pi/N) = 1 = p[0]
+    chk(f"7.6 N = {N}: {N} impulses of weight 2pi/N = {2*PI/N:.4f} in a period give p[0] = 1",
+        abs(N*(2*PI/N)/(2*PI) - 1) < 1e-15 and pn[s6_M] == 1)
+chk("7.6 prediction: N = 4 gives each impulse of P the weight 2 pi/4 = pi/2", abs(2*PI/4 - PI/2) < 1e-15)
+chk("7.6 N = 3: w_s = 2 pi/3; copies centred at 2pi/3 and 4pi/3; height 8/3",
+    abs(2*PI/3*2 - 4*PI/3) < 1e-15 and abs(8/3 - 2.6667) < 1e-4)
+chk("7.6 Step 3: (1/2pi)(2pi/N) = 1/N", sp.simplify(sp.Rational(1, 2)/sp.pi*2*sp.pi/sp.Symbol('N') - 1/sp.Symbol('N')) == 0)
+# --- m7-dtsamp-c: the key result, checked on the running sequence
+def s6_Xp_formula(wv, N):
+    return sum(s6_tri(wv - 2*PI*k/N) for k in range(N))/N
+for N in [3, 5]:
+    xp = s6_x*(s6_n % N == 0)
+    for wv in [0, PI/8, PI/5, PI/4, 2*PI/3, 0.9*PI]:
+        got = s6_dtft(xp, s6_n, wv); want = s6_Xp_formula(wv, N)
+        if abs(got - want) > 3e-4:
+            chk(f"7.6 X_p = (1/N) sum_k X(e^(j(w - k ws))) at N = {N}, w = {wv/PI:.3f} pi", False, f"{got} vs {want}"); break
+    else:
+        chk(f"7.6 key result: X_p(e^jw) = (1/N) sum_(k=0)^(N-1) X(e^(j(w - 2pi k/N))) holds for N = {N}", True)
+for N, over in [(2, False), (3, False), (4, False), (5, True), (6, True)]:
+    chk(f"7.6 slider N = {N}: pi/N = {PI/N:.4f} {'<' if over else '>='} w_M = pi/4, overlap = {over}",
+        (PI/4 > PI/N + 1e-12) == over)
+chk("7.6 N = 4 is the edge: w_M = pi/N, and the copies meet where X = 0", abs(PI/4 - PI/4) < 1e-15 and s6_tri(PI/4) == 0)
+chk("7.6 N = 3: pi/3 > pi/4; N = 5: pi/5 < pi/4", PI/3 > PI/4 > PI/5)
+Nmax = max(N for N in range(1, 50) if 2*PI/7 < PI/N)
+chk("7.6 prediction: X = 0 for 2pi/7 <= |w| <= pi allows N < 3.5, so N = 3", Nmax == 3 and abs(PI/(2*PI/7) - 3.5) < 1e-12)
+chk("7.6 w_s > 2 w_M <=> 2pi/N > 2 w_M <=> w_M < pi/N (symbolic)",
+    sp.simplify(2*sp.pi/sp.Symbol('N', positive=True)/2 - sp.pi/sp.Symbol('N', positive=True)) == 0)
+# --- m7-dtsamp-rec: gain N, cutoff pi/N recovers X
+for N in [2, 3]:
+    ok = True
+    for wv in np.linspace(-PI, PI, 721):
+        Hr = N if abs(wv) < PI/N else 0
+        if abs(Hr*s6_Xp_formula(wv, N) - s6_tri(wv)) > 1e-12: ok = False; break
+    chk(f"7.6 N = {N}: N * X_p * (|w| < pi/N) = X over a whole period", ok)
+chk("7.6 N = 3: pi/3 lies in (w_M, w_s - w_M) = (pi/4, 5pi/12)", PI/4 < PI/3 < 2*PI/3 - PI/4)
+chk("7.6 with no aliasing pi/N always lies in (w_M, 2pi/N - w_M)",
+    all(W < PI/N < 2*PI/N - W for N in range(2, 7) for W in np.linspace(0.01, PI/N - 1e-3, 20)))
+chk("7.6 prediction: N = 2, w_M = pi/4 needs pi/4 < w_c < 3pi/4: pi/2 inside, pi/8 and 7pi/8 outside",
+    PI/4 < PI/2 < 3*PI/4 and not (PI/4 < PI/8 < 3*PI/4) and not (PI/4 < 7*PI/8 < 3*PI/4))
+# time domain: x_p filtered by h[n] = 3 sin(pi n/3)/(pi n) returns x[n] (N = 3)
+_k = np.arange(-60000, 60001); _xk = np.sinc(3*_k/8)**2
+for n0 in [0, 1, 2, 5]:
+    d = n0 - 3*_k
+    h = np.where(d == 0, 1.0, 3*np.sin(PI*d/3)/(PI*np.where(d == 0, 1, d)))
+    chk(f"7.6 N = 3: the filtered samples give x_r[{n0}] = x[{n0}] = {np.sinc(n0/8)**2:.5f}",
+        abs(np.sum(_xk*h) - np.sinc(n0/8)**2) < 1e-4, f"{np.sum(_xk*h):.6f}")
+# --- m7-decim and m7-decim-b
+chk("7.6 prediction: x[n] = n, N = 4 gives x_b[2] = x[8] = 8", list(range(12))[2*4] == 8)
+chk("7.6 x_b[n] = x_p[nN] = x[nN] for the running sequence, N = 3",
+    np.all((s6_x*(s6_n % 3 == 0))[s6_M + 3*np.arange(-50, 51)] == s6_x[s6_M + 3*np.arange(-50, 51)]))
+_xb = np.sinc(3*np.arange(-100000, 100001)/8)**2; _nb = np.arange(-100000, 100001)
+for wv in [0, PI/4, PI/2, 3*PI/4, PI]:
+    chk(f"7.6 X_b(e^(j{wv/PI:.2f} pi)) = X_p(e^(j w/3)) for N = 3",
+        abs(s6_dtft(_xb, _nb, wv) - s6_Xp_formula(wv/3, 3)) < 5e-4, f"{s6_dtft(_xb, _nb, wv):.5f} vs {s6_Xp_formula(wv/3, 3):.5f}")
+chk("7.6 N = 3: the band pi/4 widens to 3pi/4 and the copies 2pi/3, 4pi/3 move to 2pi, 4pi",
+    abs(3*PI/4 - 3*(PI/4)) < 1e-15 and abs(3*(2*PI/3) - 2*PI) < 1e-12 and abs(3*(4*PI/3) - 4*PI) < 1e-12)
+chk("7.6 Step 2: w k = (w/N)(kN)", sp.simplify(sp.Symbol('w')*sp.Symbol('k') - (sp.Symbol('w')/sp.Symbol('N'))*(sp.Symbol('k')*sp.Symbol('N'))) == 0)
+chk("7.6 prediction: N = 2, w_M = pi/4 gives the band edge N w_M = pi/2", abs(2*PI/4 - PI/2) < 1e-15)
+# --- m7-decim-c: 500 Hz + 3 kHz at 8 kHz
+fs1 = 8000
+chk("7.6 500 Hz at 8 kHz is w = pi/8, 3 kHz is w = 3pi/4",
+    abs(2*PI*500/fs1 - PI/8) < 1e-15 and abs(2*PI*3000/fs1 - 3*PI/4) < 1e-15)
+_m = np.arange(0, 400)
+_xd = np.cos(PI*2*_m/8) + np.cos(3*PI*2*_m/4)
+chk("7.6 decimated by 2: x[2m] = cos(pi m/4) + cos(pi m/2), i.e. 500 Hz and 1 kHz at 4 kHz",
+    np.max(np.abs(_xd - (np.cos(PI*_m/4) + np.cos(PI*_m/2)))) < 1e-9
+    and abs(PI/4*4000/(2*PI) - 500) < 1e-9 and abs(PI/2*4000/(2*PI) - 1000) < 1e-9)
+chk("7.6 2 * 3pi/4 = 3pi/2, which is -pi/2 in the next period", abs(s6_wrap(2*3*PI/4) + PI/2) < 1e-12)
+chk("7.6 the prefilter at pi/2 keeps pi/8 and removes 3pi/4", PI/8 < PI/2 < 3*PI/4)
+chk("7.6 prefiltered then decimated: cos(pi (2m)/8) = cos(pi m/4), 500 Hz alone",
+    np.max(np.abs(np.cos(PI*2*_m/8) - np.cos(PI*_m/4))) < 1e-12)
+chk("7.6 a tone line keeps the weight pi after decimation: (1/N) * pi * N = pi", abs((1/2)*PI*2 - PI) < 1e-15)
+chk("7.6 prediction: N = 4 gives the rate 2 kHz; 4 pi/8 = pi/2 < pi keeps 500 Hz; 4 * 3pi/4 = 3pi does not",
+    fs1/4 == 2000 and 4*PI/8 < PI and 4*3*PI/4 >= PI and abs(PI/2*2000/(2*PI) - 500) < 1e-9)
+# --- m7-upsamp
+_nb2 = np.arange(-30000, 30001)
+_xb2 = np.sinc(_nb2/8)**2
+for n0 in [1, 2, 4, 7]:
+    d = n0 - 3*_nb2
+    h = np.where(d == 0, 1.0, 3*np.sin(PI*d/3)/(PI*np.where(d == 0, 1, d)))
+    chk(f"7.6 N = 3: the low-pass fills y[{n0}] = (sin(pi n/24)/(pi n/24))^2 = {np.sinc(n0/24)**2:.5f}",
+        abs(np.sum(_xb2*h) - np.sinc(n0/24)**2) < 2e-4, f"{np.sum(_xb2*h):.6f}")
+chk("7.6 h[n] = N sin(pi n/N)/(pi n) is 1 at n = 0 and 0 at the other multiples of N, so y[kN] = x_b[k]",
+    all(abs(3*np.sin(PI*k*3/3)/(PI*k*3)) < 1e-15 for k in range(1, 20)) and abs(np.sinc(0) - 1) < 1e-15)
+chk("7.6 y[3m] = x_b[m] for the figure", np.max(np.abs(np.sinc(3*np.arange(-6, 7)/24)**2 - np.sinc(np.arange(-6, 7)/8)**2)) < 1e-15)
+chk("7.6 prediction: N = 4 puts N - 1 = 3 zeros in each gap", 4 - 1 == 3)
+# --- m7-upsamp-b: cos(pi n/4) at 4 kHz, up by 2
+_n = np.arange(0, 400)
+_xe = np.where(_n % 2 == 0, np.cos(PI*(_n//2)/4), 0.0)
+chk("7.6 zeros inserted: x_(2)[n] = 0.5 cos(pi n/8) + 0.5 cos(7pi n/8)",
+    np.max(np.abs(_xe - (0.5*np.cos(PI*_n/8) + 0.5*np.cos(7*PI*_n/8)))) < 1e-12)
+chk("7.6 at 8 kHz, pi/8 is 500 Hz and 7pi/8 is 3.5 kHz; at 4 kHz, pi/4 is 500 Hz",
+    abs(PI/8*8000/(2*PI) - 500) < 1e-9 and abs(7*PI/8*8000/(2*PI) - 3500) < 1e-9 and abs(PI/4*4000/(2*PI) - 500) < 1e-9)
+chk("7.6 compressed by 2: pi/4 + 2pi m moves to pi/8 + pi m, and m = +-1 gives the images +-7pi/8",
+    abs((PI/4 + 2*PI)/2 - 9*PI/8) < 1e-12 and abs(s6_wrap(9*PI/8) + 7*PI/8) < 1e-12)
+chk("7.6 the filter of gain 2 keeps 0.5 cos(pi n/8) and returns cos(pi n/8)", abs(2*0.5 - 1) < 1e-15 and PI/8 < PI/2 < 7*PI/8)
+chk("7.6 X_b(e^(jNw)) repeats every 2pi/N (N = 2: pi)", abs(s6_tri(2*(0.3 + PI)) - s6_tri(2*0.3)) < 1e-12)
+chk("7.6 prediction: N = 4 puts 4 copies in a period, the wanted one and 3 images", 2*PI/(2*PI/4) == 4)
+# --- m7-rational
+chk("7.6 gcd(44100, 48000) = 300", s6_gcd(44100, 48000) == 300)
+chk("7.6 44100/48000 = 147/160, so L = 147, M = 160", s6_F(44100, 48000) == s6_F(147, 160) and 44100//300 == 147 and 48000//300 == 160)
+chk("7.6 the filter runs at 48 * 147 = 7056 kHz", 48*147 == 7056)
+chk("7.6 its cutoff is min(pi/147, pi/160) = pi/160", min(PI/147, PI/160) == PI/160)
+chk("7.6 prediction: 44.1 kHz to 48 kHz uses L/M = 48000/44100 = 160/147", s6_F(48000, 44100) == s6_F(160, 147))
+_x3 = np.cos(PI*np.arange(30)/5); _v = np.zeros(90); _v[::3] = _x3
+_H = 3*((np.arange(90) < 15) | (np.arange(90) > 75)); _v = np.real(np.fft.ifft(np.fft.fft(_v)*_H))
+chk("7.6 L/M = 3/2 on cos(pi n/5): up 3, filter, down 2 gives y[m] = cos(2pi m/15)",
+    np.max(np.abs(_v[::2] - np.cos(2*PI*np.arange(45)/15))) < 1e-9)
+chk("7.6 L/M = 3/2: the output sits at t = 2m/3, three samples in every two units", s6_F(2, 3)*3 == 2)
+chk("7.6 L/M = 3/2: cutoff min(pi/3, pi/2) = pi/3, the bins 15 and 75 of 90", min(PI/3, PI/2) == PI/3 and 90*(1/3)/2 == 15)
+# --- m7-real-rate: the factors and formulas of the gallery
+chk("7.6 gallery: the four factors are 147/160, 1/4, 4 and 1/10",
+    s6_F(44100, 48000) == s6_F(147, 160) and s6_F(1, 4) == s6_F(8, 32) and 120//30 == 4 and s6_F(1, 10) == s6_F(10, 100))
+chk("7.6 gallery: 30 to 120 frames/s puts 4 - 1 = 3 new frames in each gap", 120//30 - 1 == 3)
+_bi = lambda x: 0.5 + 0.25*np.cos(2*PI*x/32) + 0.15*np.cos(2*PI*x/3)
+_bt = np.array([np.mean(_bi(4*m + np.arange(4))) for m in range(8)])
+chk("7.6 gallery: the mean of four keeps the 3-pixel stripes at a quarter of their depth or less",
+    np.max(np.abs(_bt - np.array([np.mean(0.5 + 0.25*np.cos(2*PI*(4*m + np.arange(4))/32)) for m in range(8)]))) <= 0.15/4 + 1e-12)
+chk("7.6 gallery: a 1 kHz tone at 44.1 kHz has 44.1 samples a period (45 stems over 1 ms)", abs(44100/1000 - 44.1) < 1e-12)
+_th = lambda n: 1.2 + 0.8*np.sin(2*PI*n/200) + 0.5*np.cos(2*PI*0.37*n)
+_att = abs(np.sum(np.exp(2j*PI*0.37*np.arange(10))))/10
+chk("7.6 gallery: the mean of ten cuts the 0.37 Hz wobble to about 9 % (0.5 -> 0.044 C)",
+    abs(_att - 0.0881) < 5e-4, f"{_att:.4f}")
+# --- Laboratory J6: its formulas and the fixed numbers its cards state
+def s6_xt(n, W): return W/(2*PI)*np.sinc(W*n/(2*PI))**2
+def s6_xtc(n, W, c):
+    if c >= W - 1e-12: return s6_xt(n, W)
+    if n == 0: return (c - c*c/(2*W))/PI
+    return (np.sin(c*n)/n - (c*np.sin(c*n)/n + (np.cos(c*n) - 1)/(n*n))/W)/PI
+_w = np.linspace(0, PI, 200001)
+for W, c, n0 in [(0.9*PI, PI/5, 0), (0.9*PI, PI/5, 3), (0.5*PI, PI/3, 7), (0.3*PI, PI/2, 4)]:
+    num = np.trapezoid(np.maximum(0, 1 - _w/W)*(_w < c)*np.cos(_w*n0), _w)/PI
+    chk(f"J6 the cut triangle in closed form: W = {W/PI:.1f} pi, c = {c/PI:.3f} pi, n = {n0}",
+        abs(num - s6_xtc(n0, W, c)) < 2e-5, f"{num:.7f} vs {s6_xtc(n0, W, c):.7f}")
+for W in [0.1*PI, 0.3*PI, 0.9*PI]:
+    num = np.trapezoid(np.maximum(0, 1 - _w/W)*np.cos(_w*5), _w)/PI
+    chk(f"J6 x[n] = (W/2pi)(sin(Wn/2)/(Wn/2))^2 has the triangle of peak 1 to W = {W/PI:.1f} pi",
+        abs(num - s6_xt(5, W)) < 1e-6)
+chk("J6 x[0] = W/2pi: 0.15 at the default W = 0.3 pi", abs(s6_xt(0, 0.3*PI) - 0.15) < 1e-15)
+chk("J6 default: N w_M = 3 * 0.3 pi = 0.9 pi < pi, clean; pi/N = 0.33 pi", abs(3*0.3 - 0.9) < 1e-15 and 0.9 < 1 and round(1/3, 2) == 0.33)
+# interpolation with the filter returns x at n/N (band-limited interpolation)
+for W, N, n0 in [(0.6*PI, 3, 2), (0.9*PI, 5, 7)]:
+    kk = np.arange(-40000, 40001); d = n0 - N*kk
+    h = np.where(d == 0, 1.0, N*np.sin(PI*d/N)/(PI*np.where(d == 0, 1, d)))
+    chk(f"J6 interpolation with the filter: y[{n0}] = x({n0}/{N}) for W = {W/PI:.1f} pi",
+        abs(np.sum(s6_xt(kk, W)*h) - s6_xt(n0/N, W)) < 1e-5)
+chk("J6 slider grid: N w_M = pi happens at (0.5, 2), (0.25, 4), (0.2, 5): the edge verdict",
+    all(abs(W*N - 1) < 1e-12 for W, N in [(0.5, 2), (0.25, 4), (0.2, 5)]))
+chk("J6 images: a period holds the wanted copy and N - 1 images", all(len([k for k in range(N) if k % N]) == N - 1 for N in range(2, 6)))
+chk("J6 two tones cos(w_M n/2) + cos(w_M n): decimation lands each at wrap(N w)",
+    np.max(np.abs(np.cos(0.7*PI*3*np.arange(50)) - np.cos(s6_wrap(0.7*PI*3)*np.arange(50)))) < 1e-9)
+# --- the code page
+chk("7.6 code: sum of x[n] = 8.0000 and of x_p[n] (N = 3) = 2.6667",
+    f"{np.sum(np.sinc(np.arange(-600000, 600001)/8)**2):.4f}" == "8.0000"
+    and f"{np.sum(np.sinc(3*np.arange(-200000, 200001)/8)**2):.4f}" == "2.6667")
+chk("7.6 code try: N = 4 gives X_p(e^j0) = 8/4 = 2", abs(np.sum(np.sinc(4*np.arange(-150000, 150001)/8)**2) - 2) < 1e-4)
+chk("7.6 code try: 2.5 kHz at 8 kHz decimated by 2 lands at 4000 - 2500 = 1500 Hz",
+    abs(abs(s6_wrap(2*5*PI/8))*4000/(2*PI) - 1500) < 1e-9)
+chk("7.6 code try: a 1 kHz tone at 4 kHz put up by 2 has its image at 8000/2 + ... = 3000 Hz",
+    abs((PI - (PI/2)/2)*8000/(2*PI) - 3000) < 1e-9)
+chk("7.6 code try: fin = 32000 gives gcd 100, L = 441, M = 320", s6_gcd(44100, 32000) == 100 and 44100//100 == 441 and 32000//100 == 320)
 # </m7-s6-verify>
 
 # <m7-s7-verify> 7.7 quick check and projects
