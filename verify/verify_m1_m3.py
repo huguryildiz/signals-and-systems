@@ -244,6 +244,24 @@ env_ = np.abs(np.cos(np.pi*4*np.linspace(0.1, 1.1, 100001)))  # one second, off 
 chk("M1 cat: 440 + 444 Hz loudness peaks 4 times a second",
     int(np.sum((env_[1:-1] > env_[:-2]) & (env_[1:-1] >= env_[2:]) & (env_[1:-1] > 0.999))) == 4)
 
+# M1 period of a sum, and products of even and odd signals
+xs_ = lambda v: np.cos(2*np.pi*v/3) + np.sin(np.pi*v/2)
+tv_ = np.linspace(0, 24, 4801)
+chk("M1 periodic-sum: T1 = 3, T2 = 4, lcm = 12", (2*sp.pi/(2*sp.pi/3), 2*sp.pi/(sp.pi/2), sp.ilcm(3, 4)) == (3, 4, 12))
+chk("M1 periodic-sum: x(t+12) = x(t), and no T in 0.05..11.95 (step 0.05) works",
+    np.allclose(xs_(tv_ + 12), xs_(tv_))
+    and all(np.max(np.abs(xs_(tv_ + T_) - xs_(tv_))) > 1e-3 for T_ in np.arange(0.05, 11.96, 0.05)))
+chk("M1 periodic-sum: sqrt(2) is irrational (cos t + cos(sqrt2 t) aperiodic)", not sp.sqrt(2).is_rational)
+x46 = lambda v: np.cos(4*v) + np.cos(6*v)
+chk("M1 periodic-sum prediction: cos4t + cos6t has T0 = pi = 2(pi/2) = 3(pi/3)",
+    np.allclose(x46(tv_ + np.pi), x46(tv_)) and not np.allclose(x46(tv_ + np.pi/2), x46(tv_))
+    and sp.pi == 2*(sp.pi/2) == 3*(sp.pi/3))
+chk("M1 evenodd-rules: t cos(pi t) is odd and integrates to 0 on [-2, 2]",
+    sp.simplify((t*sp.cos(sp.pi*t)).subs(t, -t) + t*sp.cos(sp.pi*t)) == 0
+    and sp.integrate(t*sp.cos(sp.pi*t), (t, -2, 2)) == 0)
+chk("M1 evenodd-rules prediction: int_{-pi}^{pi} t^3 cos t dt = 0",
+    sp.simplify(sp.integrate(t**3*sp.cos(t), (t, -sp.pi, sp.pi))) == 0)
+
 # ---------------------------------------------------------------- Module 2
 xs = sp.Function('x')
 a_, b_ = sp.symbols('a b')

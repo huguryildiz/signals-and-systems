@@ -1221,6 +1221,36 @@ REAL_TRANSFORM,
   ]}
 ]},
 
+{ id:'m1-periodic-sum', module:'M1', nav:'Period of a sum', title:'The Period of a Sum', src:'p. 5',
+  objective:'Find the fundamental period of a sum of two periodic signals from the least common multiple, and say when none exists.',
+  keywords:'sum of periodic signals least common multiple lcm rational ratio irrational aperiodic fundamental period',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
+  {t:'title', text:'The Period of a Sum'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const x=t=>Math.cos(2*Math.PI*t/3)+Math.sin(Math.PI*t/2);
+      const a=P.Axes({w:560,h:380,xr:[0,24],yr:[-2.3,2.9],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
+      a.curve(x,{color:C.in,n:2400});
+      a.vline(12,{color:C.coral,dash:'4 4'});
+      a.span(0,12,2.35,'T_0=12',{color:C.coral,tex:true});
+      return a.svg(); },
+      caption:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$. The pattern on $[0,12]$ repeats on $[12,24]$, and no shorter piece repeats.'}
+  ], right:[
+    {t:'eq', tex:'T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}', label:'A common period',
+      note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0$ is the least common multiple of $T_1$ and $T_2$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}T_1&=\\frac{2\\pi}{2\\pi/3}=3,\\qquad T_2=\\frac{2\\pi}{\\pi/2}=4\\\\T_0&=\\operatorname{lcm}(3,4)=3\\cdot4=12\\end{aligned}', label:'For the signal on the left',
+        note:'$3$ and $4=2^2$ share no prime factor, so the lcm is their product: four periods of the cosine and three of the sine.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'When no period exists', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$\\cos t+\\cos(\\sqrt2\\,t)$ is aperiodic: $T_1/T_2=\\sqrt2$ is irrational.</div><div><span class="cmp-h">Discrete time</span>A sum of periodic sequences is always periodic, because $N_1$ and $N_2$ are integers.</div></div>'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(4t)+\\cos(6t)$.<div class="nsep"></div>What is its fundamental period?',
+        ask:{key:'m1-periodic-sum', choices:['$\\pi$','$\\pi/2$','$2\\pi$'], answer:0,
+          why:'$T_1=\\pi/2$ and $T_2=\\pi/3$, and the smallest common multiple is $\\pi=2T_1=3T_2$.'}}]}
+  ]}
+]},
+
 { id:'m1-evenodd', module:'M1', nav:'Even and odd', title:'Even and odd parts', src:'pp. 5–6',
   objective:'Define even/odd and the unique decomposition.',
   keywords:'even odd decomposition Ev Od symmetry x(0)=0',
@@ -1331,6 +1361,38 @@ REAL_TRANSFORM,
       {t:'note', kind:'def', head:'Given', html:'$x(t)=t+1$.<div class="nsep"></div>What is $\\Od\\{x(t)\\}$?',
         ask:{key:'m1-evenodd-b', choices:['$t$','$1$','$t+1$'], answer:0,
           why:'$\\tfrac12(t+1)-\\tfrac12(-t+1)=t$.'}}]}
+  ]}
+]},
+
+{ id:'m1-evenodd-rules', module:'M1', nav:'Products of even and odd', title:'Products of Even and Odd Signals', src:'pp. 5–6',
+  objective:'Give the symmetry of a product of even and odd signals, and show that an odd signal sums to zero over a symmetric interval.',
+  keywords:'even times odd product symmetry odd integral zero symmetric interval sum cancel',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
+  {t:'title', text:'Products of Even and Odd Signals'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const y=t=>t*Math.cos(Math.PI*t);
+      const a=P.Axes({w:560,h:380,xr:[-2.2,2.2],yr:[-2.4,2.4],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:5,yticksLeft:true});
+      a.area(y,-2,2,{color:'rgba(106,90,146,.18)'});
+      a.curve(t=>Math.cos(Math.PI*t),{color:C.in,dash:'6 5',n:1200});
+      a.curve(t=>t,{color:C.h,dash:'6 5',n:400});
+      a.curve(y,{color:C.mid,n:1600});
+      return a.svg(); },
+      caption:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Each shaded lobe on $[0,2]$ has a lobe of opposite sign on $[-2,0]$, so the total area is $0$.'},
+    {t:'legend', at:'tl', items:[['in','$\\cos(\\pi t)$',true],['h','$t$',true],['mid','$t\\cos(\\pi t)$']]}
+  ], right:[
+    {t:'eq', tex:'y(-t)=x_e(-t)\\,x_o(-t)=x_e(t)\\bigl(-x_o(t)\\bigr)=-y(t)', label:'Even $\\times$ odd is odd',
+      note:'Here $y=x_e\\,x_o$ with $x_e$ even and $x_o$ odd. The same step shows that even $\\times$ even and odd $\\times$ odd are even.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\int_{-a}^{a}x_o(t)\\,\\d t=\\underbrace{\\int_{-a}^{0}x_o(t)\\,\\d t}_{=\\,-\\int_0^a x_o(t)\\,\\d t}+\\int_{0}^{a}x_o(t)\\,\\d t=0', label:'An odd signal cancels',
+        note:'In the left half put $t=-s$, so $\\d t=-\\d s$ and $x_o(-s)=-x_o(s)$. In discrete time, $\\sum_{n=-N}^{N}x_o[n]=0$ for the same reason.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Why it helps', html:'Many integrals of a product are zero by symmetry alone, with no calculation. Module 4 uses this for the Fourier coefficients of even and odd signals.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=t^{3}\\cos t$.<div class="nsep"></div>What is $\\int_{-\\pi}^{\\pi}x(t)\\,\\d t$?',
+        ask:{key:'m1-evenodd-rules', choices:['$0$','$2\\pi^{3}$','$\\pi^{4}/2$'], answer:0,
+          why:'$t^{3}$ is odd and $\\cos t$ is even, so the product is odd and its integral over $[-\\pi,\\pi]$ is $0$.'}}]}
   ]}
 ]},
 
