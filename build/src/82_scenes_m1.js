@@ -380,6 +380,10 @@ const waveBand=(a,f,t0,t1,col)=>{
 };
 /* a number as the slides print it: 0.5, 1.25, -2 */
 const num=v=>String(Math.round(v*100)/100);
+/* A multiple of pi, given in units of pi on a 1/12 grid, as TeX: 1/3 -> \pi/3. */
+const piTex=v=>{ const n=Math.round(v*12); if(n===0) return '0';
+  const G=(x,y)=>y?G(y,x%y):x, d=G(Math.abs(n),12), p=n/d, q=12/d, pa=Math.abs(p);
+  return (p<0?'-':'')+(pa===1?'':pa)+'\\pi'+(q===1?'':'/'+q); };
 /* Axes with one unit the same length on both axes, for figures in the complex
    plane. A probe call measures the data area at the height the slide gives the
    figure, then the real call widens the x range about its centre to match. */
@@ -1201,14 +1205,20 @@ REAL_TRANSFORM,
   {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
   {t:'title', text:'A Repeating Shape That Is Not Periodic'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const x=t=>t<0?Math.sin(Math.PI*t):Math.cos(Math.PI*t);
-      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-1.4,1.7],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T', label:'shift $T$', min:0, max:4, step:0.1, v:2, show:v=>'$T='+num(v)+'$'}]},
+      svg:v=>{
+      /* x(t) and the copy x(t+T). Each side lines up for T = 2, 4, but the
+         copy carries its jump to t = -T, where x(t) has none. */
+      const T=v?v.T:2, x=t=>t<0?Math.sin(Math.PI*t):Math.cos(Math.PI*t);
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-1.4,2.3],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.curve(x,{color:C.in,n:1600});
+      a.curve(t=>x(t+T),{color:C.out,dash:'7 5',n:1600});
       a.point(0,1,{color:C.coral});
       a.note(0.18,1.42,'\\text{jump at }t=0',{anchor:'start',color:C.coral,fs:14,tex:true});
       return a.svg(); },
-      caption:'$x(t)=\\sin(\\pi t)$ for $t<0$ and $x(t)=\\cos(\\pi t)$ for $t\\ge 0$. Each side repeats every 2, but the jump at $t=0$ happens only once.'}
+      caption:'Drag $T$ to shift the whole signal. At $T=2$ both sides line up, but the copy has its jump at $t=-2$, where $x(t)$ has none. No $T$ makes the two graphs agree everywhere.'},
+    {t:'legend', items:[['in','$x(t)$'],['out','$x(t+T)$',true]]}
   ], right:[
     {t:'note', kind:'def', head:'Test the whole signal', html:'Shift the whole graph by $T$. The signal is periodic only if the shifted graph lies on the original at every $t$, across the joint as well.'},
     {t:'reveal', at:1, items:[
@@ -1758,15 +1768,20 @@ REAL_PERIODIC,
   {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
   {t:'title', text:'Scaling the Impulse'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.25,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,yticksLeft:true});
-      a.poly([[-0.5,0],[-0.5,1],[0.5,1],[0.5,0]],{color:C.muted,width:1.6,dash:'6 5'});
-      a.raw('<g opacity=".18">'); a.rect(-0.25,0,0.25,1,{fill:C.out}); a.raw('</g>');
-      a.poly([[-0.25,0],[-0.25,1],[0.25,1],[0.25,0]],{color:C.out,width:2.2});
-      a.note(0.56,1.18,'\\delta_\\varepsilon(t):\\ \\text{area }1',{anchor:'start',color:C.muted,fs:14,tex:true});
-      a.note(-0.3,1.18,'\\delta_\\varepsilon(2t):\\ \\text{area }\\tfrac12',{anchor:'end',color:C.out,fs:14,tex:true});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'scale $a$', min:0.5, max:4, step:0.25, v:2, show:v=>'$a='+num(v)+'$'}]},
+      svg:v=>{
+      /* delta_eps(t) has width 1 and height 1. delta_eps(at) keeps the height
+         and has width 1/a, so its area is 1/a. */
+      const k=v?v.a:2, w=0.5/k;
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.25,1.75],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,yticksLeft:true});
+      a.poly([[-0.5,0],[-0.5,1],[0.5,1],[0.5,0]],{color:C.in,width:1.6,dash:'6 5'});
+      a.raw('<g opacity=".18">'); a.rect(-w,0,w,1,{fill:C.out}); a.raw('</g>');
+      a.poly([[-w,0],[-w,1],[w,1],[w,0]],{color:C.out,width:2.2});
+      a.note(-1.12,1.5,'\\text{area of }\\delta_\\varepsilon(at)=1/a='+num(1/k),{anchor:'start',color:C.out,fs:15,tex:true});
       return a.svg(); },
-      caption:'A unit-area rectangle $\\delta_\\varepsilon(t)$ of width $\\varepsilon=1$, dashed, and $\\delta_\\varepsilon(2t)$. Compressing by 2 halves the width and keeps the height, so the area becomes $\\tfrac12$.'}
+      caption:'Drag $a$. The rectangle $\\delta_\\varepsilon(at)$ keeps its height and has width $1/a$ times the original, so its area is $1/a$. The dashed rectangle is $\\delta_\\varepsilon(t)$, of area 1.'},
+    {t:'legend', items:[['in','$\\delta_\\varepsilon(t)$',true],['out','$\\delta_\\varepsilon(at)$']]}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\int_{-\\infty}^{\\infty}\\delta(at)\\,\\d t&=\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\dfrac{\\d s}{a}\\\\&=\\dfrac{1}{a}\\end{aligned}', label:'Area for $a>0$',
       note:'Substitute $s=at$, so $\\d t=\\d s/a$ and the limits stay $\\mp\\infty$. For $a<0$ the limits swap, and the area is $1/|a|$.'},
@@ -1840,20 +1855,24 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'Complex Numbers in Polar Form'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=eqAxes({w:560,h:380,xr:[-0.8,2.8],yr:[-0.5,2.4],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:4});
-      const X=1, Y=Math.sqrt(3);
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[
+        {k:'r', label:'$r$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'},
+        {k:'th', label:'$\\theta$', min:-1, max:1, step:1/12, v:1/3, show:v=>'$'+piTex(v)+'$'}]},
+      svg:v=>{
+      const r=v?v.r:2, th=(v?v.th:1/3)*Math.PI, X=r*Math.cos(th), Y=r*Math.sin(th);
+      const a=eqAxes({w:560,h:380,xr:[-2.8,2.8],yr:[-2.8,2.8],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:7,ytarget:5});
       a.poly([[X,0],[X,Y]],{color:C.muted,width:1.3,dash:'5 5'});
       a.poly([[0,Y],[X,Y]],{color:C.muted,width:1.3,dash:'5 5'});
-      const arc=[]; for(let i=0;i<=40;i++){ const p=Math.PI/3*i/40; arc.push([0.5*Math.cos(p),0.5*Math.sin(p)]); }
+      const arc=[]; for(let i=0;i<=48;i++){ const p=th*i/48; arc.push([0.5*Math.cos(p),0.5*Math.sin(p)]); }
       a.poly(arc,{color:C.coral,width:1.8});
       a.poly([[0,0],[X,Y]],{color:C.in,width:2.6});
       a.point(X,Y,{color:C.in});
-      a.note(X+0.1,Y+0.08,'z=1+j\\sqrt{3}',{anchor:'start',color:C.in,fs:15,tex:true});
-      a.note(0.3,1.12,'r=2',{anchor:'end',color:C.in,fs:15,tex:true});
-      a.note(0.58,0.2,'\\theta=\\pi/3',{anchor:'start',color:C.coral,fs:14,tex:true});
+      const sg=Y<-0.005?'-':'+', lab='z='+num(X)+sg+'j'+num(Math.abs(Y));
+      a.note(X+(X>=0?0.12:-0.12),Y+(Y>=0?0.18:-0.3),lab,{anchor:X>=0?'start':'end',color:C.in,fs:15,tex:true});
+      if(Math.abs(th)>0.2) a.note(0.8*Math.cos(th/2),0.8*Math.sin(th/2)-0.06,'\\theta',{anchor:'middle',color:C.coral,fs:15,tex:true});
       return a.svg(); },
-      caption:'The number $z=1+j\\sqrt{3}$ is the point $(1,\\sqrt{3})$. Its distance from the origin is $r=2$ and its angle from the real axis is $\\theta=\\pi/3$, so $z=2e^{j\\pi/3}$.'}
+      caption:'Drag $r$ and $\\theta$. The point $z=re^{j\\theta}$ has real part $r\\cos\\theta$ and imaginary part $r\\sin\\theta$. It starts at $z=2e^{j\\pi/3}=1+j\\sqrt{3}\\approx1+j1.73$.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}z&=x+jy\\\\&=re^{j\\theta}\\\\&=r\\cos\\theta+jr\\sin\\theta\\end{aligned}', label:'Two forms of one number',
       note:'Euler\'s relation $e^{j\\theta}=\\cos\\theta+j\\sin\\theta$ links the two forms.'},
@@ -2008,12 +2027,16 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
   {t:'title', text:'Factoring a Sum of Two Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-2.4,2.9],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:4});
-      a.curve(t=>2*Math.cos(t)*Math.cos(4*t),{color:C.in,width:1.5,opacity:.55,n:1600});
-      a.curve(t=>2*Math.abs(Math.cos(t)),{color:C.out,n:1600});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'d', label:'half gap $d$', min:0.25, max:2, step:0.25, v:1, show:v=>'$d='+num(v)+'$'}]},
+      svg:v=>{
+      /* x(t) = e^{j(4-d)t} + e^{j(4+d)t} = 2 e^{j4t} cos(dt). */
+      const d=v?v.d:1;
+      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-2.4,3.1],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:4});
+      a.curve(t=>2*Math.cos(d*t)*Math.cos(4*t),{color:C.in,width:1.5,opacity:.55,n:1600});
+      a.curve(t=>2*Math.abs(Math.cos(d*t)),{color:C.out,n:1600});
       return a.svg(); },
-      caption:'$x(t)=e^{j3t}+e^{j5t}$. Its magnitude $|x(t)|=2|\\cos t|$ is a full-wave rectified cosine with period $\\pi$. The real part $2\\cos t\\cos 4t$ oscillates inside it.'},
+      caption:'Drag $d$: $x(t)=e^{j(4-d)t}+e^{j(4+d)t}=2e^{j4t}\\cos(dt)$, and $d=1$ gives $e^{j3t}+e^{j5t}$. The magnitude $2|\\cos(dt)|$ repeats every $\\pi/d$, so a smaller gap makes it change more slowly.'},
     {t:'legend', items:[['out','$|x(t)|$'],['in','$\\operatorname{Re}\\{x(t)\\}$']]}
   ], right:[
     {t:'note', kind:'def', head:'The idea', html:'Take out the exponential at the average frequency, $(3+5)/2=4$. What is left is two exponentials with opposite frequencies, and Euler\'s relation turns them into a cosine.'},
@@ -2195,17 +2218,24 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
   {t:'title', text:'A Sampled Sinusoid Has Its Own Period'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const w=6*Math.PI/17;
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['one cycle','two cycles','three cycles']},
+      svg:v=>{
+      /* Frame m moves the marker to the end of m+1 cycles of the curve,
+         t = (m+1)17/3. Only the third lands on a sample, n = 17. */
+      const w=6*Math.PI/17, m=v?v.frame:0, te=(m+1)*17/3, i=Math.round(m), at=Math.abs(m-i)<0.02;
       const a=P.Axes({w:560,h:380,xr:[-1,35],yr:[-1.4,2.1],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:3});
       a.curve(t=>Math.cos(w*t),{color:C.muted,width:1.4,dash:'5 5',n:1400});
       a.stem(disc(n=>Math.cos(w*n),0,35),{color:C.in,r:3});
       a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
-      a.span(0,17,1.85,'N_0=17',{color:C.coral,tex:true});
+      a.vline(te,{color:C.coral,opacity:.9,width:1.6,dash:'6 4'});
+      if(at){ const txt=['t=17/3\\approx5.67\\text{: no sample}','t=34/3\\approx11.33\\text{: no sample}','t=17\\text{: a sample}'][i];
+        a.note(te+0.5,1.75,txt,{anchor:'start',color:C.coral,fs:14,tex:true});
+        if(i===2){ a.point(17,1,{color:C.coral}); } }
       return a.svg(); },
-      caption:'The stems are $x[n]=\\cos(6\\pi n/17)$. The dashed curve $\\cos(6\\pi t/17)$ repeats every $17/3$, but the stems repeat only every 17.'}
+      caption:'Step through the frames. The dashed line marks the end of one, two and three cycles of $\\cos(6\\pi t/17)$. Only after three cycles does it fall on a sample, so $N_0=17$.'}
   ], right:[
-    {t:'note', kind:'def', head:'Samples of a curve', html:'$x[n]$ takes the values of $\\cos(6\\pi t/17)$ at integer $t$. The curve repeats every $T_0=17/3$. No sample falls at $t=17/3$.'},
+    {t:'note', kind:'def', head:'Samples of a curve', html:'$x[n]$ takes the values of $\\cos(6\\pi t/17)$ at integer $t$. The curve repeats every $T_0=17/3$ units of time, and no sample falls at the end of that first cycle.'},
     {t:'eq', tex:'\\begin{aligned}N&=\\dfrac{2\\pi k}{\\omega_0}=\\dfrac{2\\pi k}{6\\pi/17}=\\dfrac{17}{3}k\\\\k&=3\\;\\Longrightarrow\\;N_0=17=3T_0\\end{aligned}', label:'The first period that is an integer',
       note:'The sequence repeats after the curve has made 3 full cycles.'},
     {t:'reveal', at:1, items:[
@@ -2224,13 +2254,18 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–10'},
   {t:'title', text:'Harmonically Related Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$k=1$','$k=1,2$','$k=1,2,3$']},
+      svg:v=>{
+      /* Each frame fades in the next harmonic; all of them end one period at T0. */
+      const f=v?v.frame:0;
       const a=P.Axes({w:560,h:380,xr:[0,2],yr:[-1.35,1.75],xlabel:'t',ylabel:'\\operatorname{Re}\\{\\phi_k(t)\\}',pad:{l:60,r:24,t:22,b:34},xtarget:5,ytarget:3});
-      [[1,C.in,'9 6'],[2,C.h],[3,C.out]].forEach(([k,col,dash])=>a.curve(t=>Math.cos(2*Math.PI*k*t),{color:col,dash,n:1200}));
+      [[1,C.in,'9 6'],[2,C.h],[3,C.out]].forEach(([k,col,dash],j)=>{ const o=Math.max(0,Math.min(1,f-j+1));
+        if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); a.curve(t=>Math.cos(2*Math.PI*k*t),{color:col,dash,n:1200}); a.raw('</g>'); });
       a.vline(1,{color:C.coral,opacity:.7});
       a.span(0,1,1.45,'T_0=1',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'The harmonics $k=1,2,3$ with $T_0=1$. The $k$-th makes $k$ full cycles in $T_0$, so all three start together again at $t=T_0$.'},
+      caption:'Step through the frames: the harmonics $k=1,2,3$ with $T_0=1$. The $k$-th makes $k$ full cycles in $T_0$, so all of them start together again at $t=T_0$.'},
     {t:'legend', items:[['in','$k=1$',true],['h','$k=2$'],['out','$k=3$']]}
   ], right:[
     {t:'note', kind:'def', head:'Why a family', html:'Module 4 builds a periodic signal as a weighted sum of exponentials that share its period. This slide names that set.'},
@@ -2253,13 +2288,19 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'Geometric Sums'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-0.5,10.5],yr:[-0.1,2.5],xlabel:'N',ylabel:'S_N',pad:{l:52,r:24,t:22,b:34},xtarget:6,ytarget:3,yticksLeft:true});
-      a.hline(2,{color:C.coral,dash:'6 5',opacity:.9});
-      a.stem(disc(N=>2*(1-Math.pow(0.5,N)),0,10),{color:C.in,r:3.4,showZero:true});
-      a.note(10.3,2.2,'1/(1-0.5)=2',{anchor:'end',color:C.coral,fs:14,tex:true});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'al', label:'$\\alpha$', min:-0.9, max:0.9, step:0.1, v:0.5, show:v=>'$\\alpha='+num(v)+'$'}]},
+      svg:v=>{
+      /* Partial sums S_N = (1-alpha^N)/(1-alpha) against the limit 1/(1-alpha). */
+      const al=v?v.al:0.5, L=1/(1-al), S=N=>(1-Math.pow(al,N))/(1-al);
+      const vals=[0,L]; for(let N=0;N<=10;N++) vals.push(S(N));
+      const lo=Math.min(...vals), hi=Math.max(...vals), pad=0.18*(hi-lo||1);
+      const a=P.Axes({w:560,h:380,xr:[-0.5,10.5],yr:[lo-0.05*(hi-lo||1),hi+pad],xlabel:'N',ylabel:'S_N',pad:{l:52,r:24,t:22,b:34},xtarget:6,ytarget:4,yticksLeft:true});
+      a.hline(L,{color:C.coral,dash:'6 5',opacity:.9});
+      a.stem(disc(N=>S(N),0,10),{color:C.in,r:3.4,showZero:true});
+      a.note(10.3,hi+0.6*pad,'1/(1-\\alpha)='+num(L),{anchor:'end',color:C.coral,fs:14,tex:true});
       return a.svg(); },
-      caption:'Partial sums $S_N=\\sum_{n=0}^{N-1}(0.5)^n$. Each term halves the remaining gap, and the sums approach $1/(1-0.5)=2$.'}
+      caption:'Drag $\\alpha$. The stems are the partial sums $S_N=\\sum_{n=0}^{N-1}\\alpha^n$ and the dashed line is $1/(1-\\alpha)$. For $\\alpha<0$ the sums swing above and below it. Near $|\\alpha|=1$ they approach it slowly.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}S_N&=1+\\alpha+\\dots+\\alpha^{N-1}\\\\\\alpha S_N&=\\alpha+\\alpha^2+\\dots+\\alpha^{N}\\\\S_N-\\alpha S_N&=1-\\alpha^N\\\\S_N&=\\dfrac{1-\\alpha^N}{1-\\alpha},\\quad\\alpha\\neq1\\end{aligned}', label:'Finite sum',
       note:'The subtraction cancels every middle term. For $\\alpha=1$, $S_N=N$ because every term is 1.'},
@@ -2280,16 +2321,23 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
   {t:'title', text:'Summing One Harmonic over a Period'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=eqAxes({w:560,h:380,xr:[-1.6,1.6],yr:[-1.45,1.55],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,xtickfmt:()=>'',ytickfmt:()=>''});
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$k=0$','$k=1$','$k=2$','$k=3$','$k=4$','$k=5$','$k=6$']},
+      svg:v=>{
+      /* The six terms e^{jk(2pi/6)n} for the frame's k. Between frames k moves
+         continuously, so the points slide round the circle. */
+      const k=v?v.frame:0, ki=Math.round(k), at=Math.abs(k-ki)<0.02;
+      const a=eqAxes({w:560,h:380,xr:[-1.6,1.6],yr:[-1.45,1.75],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,xtickfmt:()=>'',ytickfmt:()=>''});
       const c=[]; for(let i=0;i<=120;i++){ const p=2*Math.PI*i/120; c.push([Math.cos(p),Math.sin(p)]); }
       a.poly(c,{color:C.muted,width:1.2,dash:'4 5'});
-      for(let m=0;m<6;m++){ const p=2*Math.PI*m/6, X=Math.cos(p), Y=Math.sin(p);
-        a.poly([[0,0],[X,Y]],{color:C.in,width:1.8}); a.point(X,Y,{color:C.in});
-        a.note(1.2*X,1.2*Y+(Math.abs(Y)<0.1?0.12:-0.04),'n='+m,{anchor:'middle',color:C.in,fs:14,tex:true}); }
+      const pts=[]; for(let m=0;m<6;m++){ const p=2*Math.PI*k*m/6; pts.push([Math.cos(p),Math.sin(p)]); }
+      pts.forEach(([X,Y])=>{ a.poly([[0,0],[X,Y]],{color:C.in,width:1.8}); a.point(X,Y,{color:C.in}); });
+      if(at){ const groups={}; pts.forEach(([X,Y],m)=>{ const key=Math.round(X*100)+','+Math.round(Y*100); (groups[key]=groups[key]||{X,Y,ns:[]}).ns.push(m); });
+        Object.values(groups).forEach(({X,Y,ns})=>a.note(X>0.3?1.1*X+0.06:X<-0.3?1.1*X-0.06:X,Y>0.3?1.12*Y+0.04:Y<-0.3?1.12*Y-0.1:Y+0.12,'n='+(ns.length===6?'0,\\dots,5':ns.join(',')),{anchor:X>0.3?'start':X<-0.3?'end':'middle',color:C.in,fs:14,tex:true}));
+        a.note(a.o.xr[0]+0.08,1.62,'\\textstyle\\sum_{n=0}^{5}e^{jk(2\\pi/6)n}='+(ki%6===0?'6':'0'),{anchor:'start',color:C.coral,fs:15,tex:true}); }
       a.point(0,0,{color:C.coral});
       return a.svg(); },
-      caption:'The six terms $e^{j(2\\pi/6)n}$, $n=0,\\dots,5$, are equally spaced on the unit circle. Their vectors cancel, so the sum is 0.'}
+      caption:'Step through $k=0,\\dots,6$ with $N=6$. For $k=0$ and $k=6$ all six terms sit at 1 and add to 6. For every other $k$ the terms spread evenly over the circle and add to 0.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\sum_{n=0}^{N-1}e^{jk(2\\pi/N)n}&=\\sum_{n=0}^{N-1}\\alpha^n,\\qquad\\alpha=e^{jk2\\pi/N}\\\\&=\\dfrac{1-\\alpha^N}{1-\\alpha}=\\dfrac{1-e^{jk2\\pi}}{1-\\alpha}=0\\end{aligned}', label:'Use the finite sum',
       note:'This holds when $\\alpha\\neq1$, that is when $k$ is not a multiple of $N$.'},
