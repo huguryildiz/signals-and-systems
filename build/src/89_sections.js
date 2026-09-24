@@ -136,7 +136,7 @@ CONTENT.SECTIONS = {
         'm4-lab-p','m4-code-eigen'] },
     { n:'4.2', title:'Synthesis and analysis',               ids:[
         'm4-fs-exist','m4-fs-synth','m4-fs-synth-b','m4-period','m4-period-ex','m4-fs-coef',
-        'm4-fs-proof','m4-dc','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
+        'm4-fs-proof','m4-dc','m4-trig','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
     { n:'4.3', title:'Series worked out',                    ids:[
         'm4-rect','m4-rect-b','m4-rect-sample','m4-howmany','m4-howmany-b','m4-saw','m4-saw-b',
         'm4-imptrain','m4-real-series','m4-lab-f','m4-code-series'] },
@@ -148,8 +148,8 @@ CONTENT.SECTIONS = {
         'm4-props-conv','m4-props-mult','m4-props-calc','m4-props-dt-calc','m4-parseval',
         'm4-parseval-b','m4-real-props','m4-lab-s','m4-code-props'] },
     { n:'4.6', title:'A periodic input through an LTI system', ids:[
-        'm4-lti','m4-pairing','m4-lpf','m4-lpf-b','m4-hpf','m4-hpf-b','m4-dt-filt','m4-dt-filt-b',
-        'm4-dt-filt-c','m4-real-lti','m4-lab-g','m4-code-lti'] },
+        'm4-lti','m4-pairing','m4-lpf','m4-lpf-b','m4-hpf','m4-hpf-b','m4-ideal','m4-shaping',
+        'm4-dt-filt','m4-dt-filt-b','m4-dt-filt-c','m4-dt-rec','m4-dt-rec-b','m4-dt-rec-c','m4-real-lti','m4-lab-g','m4-code-lti'] },
     { n:'4.7', title:'Summary',                              ids:[
         'm4-tables','m4-tables-dt','m4-quick','m4-synth','m4-projects'] }
   ],
@@ -276,8 +276,9 @@ CONTENT.BOOK = {
   'm4-props-scale':'3.7', 'm4-props-conv':'3.5, 3.7', 'm4-props-mult':'3.5.5, 3.7.1',
   'm4-props-calc':'3.5', 'm4-props-dt-calc':'3.7.2', 'm4-parseval':'3.5.7, 3.7.3',
   'm4-parseval-b':'3.5.7', 'm4-real-props':'3.5', 'm4-lti':'3.8', 'm4-pairing':'3.8', 'm4-lpf':'3.9.2',
-  'm4-lpf-b':'3.9.2', 'm4-hpf':'3.10.2', 'm4-hpf-b':'3.10.2', 'm4-dt-filt':'3.11.1',
-  'm4-dt-filt-b':'3.11.1', 'm4-dt-filt-c':'3.11.1', 'm4-real-lti':'3.9', 'm4-lab-p':'3.2',
+  'm4-lpf-b':'3.9.2', 'm4-hpf':'3.10.2', 'm4-hpf-b':'3.10.2', 'm4-dt-filt':'3.11.2',
+  'm4-dt-filt-b':'3.11.2', 'm4-dt-filt-c':'3.11.2', 'm4-trig':'3.3.1', 'm4-ideal':'3.9.2',
+  'm4-shaping':'3.9.1', 'm4-dt-rec':'3.11.1', 'm4-dt-rec-b':'3.11.1', 'm4-dt-rec-c':'3.11.1', 'm4-real-lti':'3.9', 'm4-lab-p':'3.2',
   'm4-code-eigen':'3.2', 'm4-lab-q':'3.3.2', 'm4-code-synth':'3.3.2', 'm4-lab-f':'3.4',
   'm4-code-series':'3.3.2', 'm4-lab-r':'3.6', 'm4-code-dtfs':'3.6', 'm4-lab-s':'3.5',
   'm4-code-props':'3.5', 'm4-lab-g':'3.9', 'm4-code-lti':'3.8', 'm4-tables':'3.5.8',
