@@ -15,6 +15,15 @@ const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f
 const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
 /* the standard slide axes: one figure in the left column of a 5:7 slide */
 const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o));
+/* two axes in one figure, the upper panel over the lower one. Each builder
+   takes a height and returns an svg; the halves are placed as nested svgs. A
+   grown figure hands its height through P.hOverride, which is taken here and
+   split, so that neither panel claims the whole of it. */
+const stack2 = (top,bot)=>{
+  const H = P.hOverride || 380, h = H/2; P.hOverride = null;
+  return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+    + top(h).replace('<svg ',`<svg x="0" y="0" width="560" height="${h}" `)
+    + bot(h).replace('<svg ',`<svg x="0" y="${h}" width="560" height="${h}" `) + '</svg>'; };
 
 /* the periodic rectangular wave of this module: 1 on |t| < T1, zero to T/2 */
 const rectWave = (t,T,T1)=>{ let u = t - T*Math.round(t/T); return Math.abs(u) < T1 ? 1 : 0; };
@@ -571,13 +580,16 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'—'},
   {t:'title', text:'Real Signals: Cosine and Sine Forms'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$2B_1\\cos\\pi t$','$\\text{add }-2C_1\\sin\\pi t$','$\\text{sum: }2A_1\\cos(\\pi t+\\theta_1)$']},
+      svg:v=>{
+      const k=v?v.frame:0, s=cl(k), m=cl(k-1);
       const a=AX({xr:[0,4],yr:[-1.4,2.3],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
-      a.curve(t=>0.8*Math.cos(Math.PI*t),{color:C.in,dash:'8 5',n:1600});
-      a.curve(t=>-0.6*Math.sin(Math.PI*t),{color:C.mid,dash:'3 5',n:1600});
-      a.curve(t=>Math.cos(Math.PI*t+Math.atan2(0.3,0.4)),{color:C.out,n:1600});
+      fade(a,1-0.6*m,()=>a.curve(t=>0.8*Math.cos(Math.PI*t),{color:C.in,dash:'8 5',n:1600}));
+      fade(a,s*(1-0.6*m),()=>a.curve(t=>-0.6*Math.sin(Math.PI*t),{color:C.mid,dash:'3 5',n:1600}));
+      fade(a,m,()=>a.curve(t=>Math.cos(Math.PI*t+Math.atan2(0.3,0.4)),{color:C.out,n:1600}));
       return a.svg(); },
-      caption:'$a_1=0.4+j0.3$ with $\\omega_0=\\pi$: $B_1=0.4$, $C_1=0.3$, $A_1=0.5$, $\\theta_1=0.644$ rad. The cosine and the sine add to one cosine of amplitude $2A_1=1$.'},
+      caption:'$a_1=0.4+j0.3$ with $\\omega_0=\\pi$: $B_1=0.4$, $C_1=0.3$, $A_1=0.5$, $\\theta_1=0.644$ rad. Step through: the cosine and the sine add to one cosine of amplitude $2A_1=1$.'},
     {t:'legend', items:[['in','$2B_1\\cos\\pi t$',true],['mid','$-2C_1\\sin\\pi t$',true],['out','$2A_1\\cos(\\pi t+\\theta_1)$']]}
   ], right:[
     {t:'eq', key:true, tex:'x(t)=a_0+\\sum_{k=1}^{\\infty}\\bigl(a_ke^{jk\\omega_0t}+a_k^{*}e^{-jk\\omega_0t}\\bigr)=a_0+2\\sum_{k=1}^{\\infty}\\operatorname{Re}\\bigl\\{a_ke^{jk\\omega_0t}\\bigr\\}', label:'Real signal',
@@ -1756,22 +1768,22 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Ideal Frequency-Selective Filtering'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$H(j\\omega)\\text{ and }|a_k|$','$x(t)\\text{ and }y(t)$']},
+      live:{controls:[{k:'wc', label:'$\\omega_c$', min:0.5, max:6.5, step:1, v:3.5, show:v=>'$'+v+'\\pi$ rad/s'}]},
       svg:v=>{
-      const f=v?Math.round(v.frame):0;
-      if(!f){ const a=AX({yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.3],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega),\\ |a_k|',xtarget:13,ytarget:4});
-        a.poly([[-6.6,0],[-3.5,0],[-3.5,1],[3.5,1],[3.5,0],[6.6,0]],{color:C.h});
-        a.stem(D(k=>Math.abs(aq(k)),-3,3),{color:C.out,r:4});
-        a.stem(D(k=>Math.abs(aq(k)),-6,-4).concat(D(k=>Math.abs(aq(k)),4,6)),{color:C.err,r:4});
-        a.note(3.6,1.12,'\\omega_c=3.5\\pi',{anchor:'start',color:C.h,fs:15,tex:true});
-        return a.svg(); }
-      const a=AX({xr:[-2,2],yr:[-0.4,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
-      a.curve(t=>rectWave(t,2,0.5),{color:C.ink,opacity:.35,dash:'6 5',n:3000});
-      a.curve(t=>0.5+2/Math.PI*Math.cos(Math.PI*t)-2/(3*Math.PI)*Math.cos(3*Math.PI*t),{color:C.out,n:1600});
-      a.note(-1.95,1.25,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
-      a.note(1.95,1.25,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
-      return a.svg(); },
-      caption:'A rectangular wave with $T_0=2$, so $\\omega_0=\\pi$. The cutoff $\\omega_c=3.5\\pi$ keeps $|k|\\le3$ and removes the rest. Step to the output beside the input.'}
+      const wc=v?v.wc:3.5, K=Math.floor(wc), ab=k=>Math.abs(aq(k));
+      return stack2(h=>{
+        const f=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.35],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega),\\ |a_k|',xtarget:13,ytarget:2});
+        f.poly([[-6.6,0],[-wc,0],[-wc,1],[wc,1],[wc,0],[6.6,0]],{color:C.h});
+        f.stem(D(ab,-K,K),{color:C.out,r:4});
+        if(K<6) f.stem(D(ab,-6,-K-1).concat(D(ab,K+1,6)),{color:C.err,r:4});
+        return f.svg(); }, h=>{
+        const g=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-2,2],yr:[-0.35,1.55],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8,ytarget:2});
+        g.curve(t=>rectWave(t,2,0.5),{color:C.ink,opacity:.35,dash:'6 5',n:3000});
+        g.curve(t=>rectPS(t,K,2,0.5),{color:C.out,n:1600});
+        g.note(1.4,1.42,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+        g.note(1.95,1.42,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+        return g.svg(); }); },
+      caption:'A rectangular wave with $T_0=2$, so $\\omega_0=\\pi$. Drag $\\omega_c$: the harmonics inside the passband pass unchanged, the rest are removed, and the lower panel shows the partial sum they form.'}
   ], right:[
     {t:'eq', key:true, tex:'H(j\\omega)=\\begin{cases}1, & |\\omega|<\\omega_c\\\\ 0, & |\\omega|>\\omega_c\\end{cases}', label:'Ideal low-pass filter',
       note:'$|\\omega|<\\omega_c$ is the passband, the rest is the stopband, and $\\omega_c$ is the cutoff frequency. A real filter can only approach this shape.'},
@@ -1795,9 +1807,16 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Frequency-Shaping Filters'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x(t)$','$y(t)=\\d x/\\d t$']},
+      frames:{labels:['$|H(j\\omega)|=|\\omega|$','$x(t)$','$y(t)=\\d x/\\d t$']},
       svg:v=>{
-      const f=cl(v?v.frame:0);
+      const k=v?v.frame:0;
+      if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:5,ytarget:4});
+        a.curve(w=>w,{color:C.h,n:200});
+        a.point(1,1,{color:C.coral,r:5}); a.point(3,3,{color:C.coral,r:5});
+        a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true});
+        a.note(3.12,2.72,'k=3:\\ \\text{gain }3',{anchor:'start',color:C.coral,fs:15,tex:true});
+        return a.svg(); }
+      const f=cl(k-1);
       const a=AX({xr:[0,12.6],yr:[-1.6,1.9],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
       fade(a,1-f,()=>{ a.curve(t=>Math.cos(3*t)/9,{color:C.mid,dash:'3 5',n:1600});
         a.curve(t=>Math.cos(t)+Math.cos(3*t)/9,{color:C.in,n:1600});
@@ -1806,7 +1825,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
         a.curve(t=>-Math.sin(t)-Math.sin(3*t)/3,{color:C.out,n:1600});
         a.note(12.4,1.6,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true}); });
       return a.svg(); },
-      caption:'The dotted trace is the third harmonic. It is small in $x(t)$ and three times larger, relative to the first, in $y(t)$.'}
+      caption:'Step through the gain, the input and the output, with $\\omega_0=1$ rad/s. The dotted trace is the third harmonic: relative to the first, it is three times larger in $y(t)$.'}
   ], right:[
     {t:'note', kind:'def', head:'Frequency shaping', html:'A frequency-shaping filter changes the relative size of the harmonics instead of passing or stopping whole bands. An audio equaliser is one: it raises or lowers the bass and the treble.'},
     {t:'reveal', at:1, items:[
@@ -1921,15 +1940,18 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'eyebrow', text:'Module 4 · Periodic inputs to LTI systems', src:'—'},
   {t:'title', text:'First-Order Recursive Filters'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,3.9],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:4,
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:-0.8, max:0.8, step:0.1, v:0.6, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      const g=v?v.a:0.6;
+      const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,5.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:5,
         xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
-      const Hm=(w,g)=>1/Math.sqrt(1-2*g*Math.cos(w)+g*g);
-      a.curve(w=>Hm(w,0.6),{color:C.out,n:900});
-      a.curve(w=>Hm(w,-0.6),{color:C.err,dash:'8 5',n:900});
+      const Hm=w=>1/Math.sqrt(1-2*g*Math.cos(w)+g*g);
+      a.hline(1,{color:C.muted,dash:'4 5'});
+      a.curve(Hm,{color:g<0?C.err:C.out,n:900});
+      [-Math.PI,0,Math.PI].forEach(w=>a.point(w,Hm(w),{color:C.coral,r:5}));
       return a.svg(); },
-      caption:'$|H(e^{j\\omega})|$ for $a=0.6$ and $a=-0.6$. Each curve is the other one mirrored about $\\omega=\\pi/2$.'},
-    {t:'legend', items:[['out','$a=0.6$'],['err','$a=-0.6$',true]]}
+      caption:'Drag $a$. For $a>0$ the gain peaks at $\\omega=0$: low-pass. For $a<0$ the peak moves to $\\omega=\\pm\\pi$: high-pass. At $a=0$ every gain is $1$, the dashed line.'}
   ], right:[
     {t:'eq', key:true, tex:'y[n]-a\\,y[n-1]=x[n],\\qquad |a|<1', label:'Recursive filter',
       note:'Each output uses the previous output, so the filter is recursive. The two-tap filters used inputs only: they are nonrecursive.'},
@@ -1952,11 +1974,16 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Recursive Filtering of an Impulse Train'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x[n]$','$|H(e^{j\\omega})|$']},
+      frames:{labels:['$x[n]$','$|H(e^{j\\omega})|$','$|b_k|$']},
       svg:v=>{
       const f=v?Math.round(v.frame):0;
       if(!f){ const a=AX({yticksLeft:true,xr:[-13,13],yr:[-0.2,1.35],xlabel:'n',ylabel:'x[n]',xtarget:9,ytarget:2});
         a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.in,r:3.2,showZero:true});
+        return a.svg(); }
+      if(f===2){ const bm=[0.5,Math.sqrt(0.05),1/6,Math.sqrt(0.05)];
+        const a=AX({yticksLeft:true,xr:[-6.6,6.6],yr:[0,0.65],xlabel:'k',ylabel:'|b_k|',xtarget:13,ytarget:3});
+        a.stem(D(k=>bm[((k%4)+4)%4],-6,6),{color:C.out,r:4});
+        a.note(0.45,0.56,'b_0=\\tfrac12',{anchor:'start',color:C.out,fs:15,tex:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,2.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:3,
         xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
@@ -1964,7 +1991,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       a.curve(Hm,{color:C.h,n:900});
       [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
       return a.svg(); },
-      caption:'One impulse every four samples. Step to the gain of the filter with $a=0.5$, with the harmonics $k\\omega_0$, $\\omega_0=\\pi/2$, marked.'}
+      caption:'One impulse every four samples. Step to the gain of the filter with $a=0.5$, with the harmonics $k\\omega_0$, $\\omega_0=\\pi/2$, marked, and then to the output coefficients, which repeat every $4$.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=\\sum_{m}\\delta[n-4m]$ into $y[n]-0.5\\,y[n-1]=x[n]$. Find $y[n]$.<div class="nsep"></div>What is the average of $y[n]$?',
       ask:{key:'m4-dt-rec-b', choices:['$\\tfrac12$','$\\tfrac14$','$2$'], answer:0}},

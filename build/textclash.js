@@ -37,16 +37,19 @@ const AXIS = ['#8A939C', '#7C858F'];
         const svgs = Array.from(document.querySelectorAll('#scene-host svg'));
         svgs.forEach((svg, si) => {
           if (svg.closest('.katex')) return;
+          /* A figure may stack panels as nested svgs, each with its own
+             coordinates. Every nested svg is swept on its own, so an element
+             counts only in the svg that directly holds it. */
           /* labels: plain svg text, plus the typeset mathematics */
           const labels = Array.from(svg.querySelectorAll('text'))
-            .filter(t => !t.closest('foreignObject'))
+            .filter(t => !t.closest('foreignObject') && t.closest('svg') === svg)
             .map(t => ({ el: t, text: t.textContent, halo: t.getAttribute('paint-order') === 'stroke',
                          role: t.getAttribute('data-role') || '',
                          box: (() => { try { return t.getBBox(); } catch (e) { return null; } })() }));
           const ctm = svg.getScreenCTM();
           const inv = ctm && ctm.inverse();
           svg.querySelectorAll('foreignObject[data-texlabel] .katex').forEach(k => {
-            if (!inv) return;
+            if (!inv || k.closest('foreignObject').closest('svg') !== svg) return;
             /* .base carries the strut, so its box is the height-and-depth box of
                the formula — the same tight measure getBBox gives a <text> */
             const bs = Array.from(k.querySelectorAll('.base'));
@@ -66,7 +69,7 @@ const AXIS = ['#8A939C', '#7C858F'];
           /* a clip path or any other definition shapes what is drawn; it is not
              itself drawn, so it is not geometry a label can collide with */
           const geos = Array.from(svg.querySelectorAll('path,line,circle,rect,polyline,polygon'))
-            .filter(el => !el.closest('foreignObject') && !el.closest('clipPath,defs,mask,marker,pattern'));
+            .filter(el => !el.closest('foreignObject') && !el.closest('clipPath,defs,mask,marker,pattern') && el.closest('svg') === svg);
           const cls = el => {
             const st = (el.getAttribute('stroke') || '').toUpperCase();
             const fl = (el.getAttribute('fill') || '').toUpperCase();

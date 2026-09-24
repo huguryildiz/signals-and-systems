@@ -481,6 +481,7 @@ chk("M4 shaping: d/dt [cos t + cos(3t)/9] = -sin t - sin(3t)/3",
     sp.simplify(sp.diff(sp.cos(_ts) + sp.cos(3*_ts)/9, _ts) - (-sp.sin(_ts) - sp.sin(3*_ts)/3)) == 0)
 chk("M4 shaping: differentiator gain 4 pi / 2 pi = 2 for cos 2 pi t + cos 4 pi t",
     _near(abs(1j*4*_pi)/abs(1j*2*_pi), 2, 1e-12))
+chk("M4 shaping figure: |j w| is 1 at k = 1 and 3 at k = 3 for w0 = 1", abs(1j*1) == 1 and abs(1j*3) == 3)
 _Hr = lambda w, a: 1/(1 - a*np.exp(-1j*w))
 _wr = np.linspace(-_pi, _pi, 721)
 chk("M4 dt-rec: |H| for a = -0.6 is |H| for a = 0.6 mirrored about pi/2",
@@ -493,6 +494,11 @@ chk("M4 dt-rec-b: gains 2, 1/(1+0.5j), 2/3 and b_0 = 1/2, b_1 = 0.2236 e^{-j0.46
     _near(_Hr(0, 0.5), 2, 1e-12) and _near(_Hr(_pi/2, 0.5), 1/(1+0.5j), 1e-12) and _near(_Hr(_pi, 0.5), 2/3, 1e-12)
     and _near(_brec[0], 0.5, 1e-12) and _near(abs(_brec[1]), 0.2236) and _near(np.angle(_brec[1]), -0.464)
     and _near(_brec[2], 1/6, 1e-12) and _near(abs(1+0.5j), 1.118) and _near(np.arctan(0.5), 0.464))
+chk("M4 dt-rec-b figure: |b_k| = 1/2, sqrt(0.05), 1/6, sqrt(0.05), repeating every 4",
+    np.allclose(np.abs(_brec), [0.5, np.sqrt(0.05), 1/6, np.sqrt(0.05)])
+    and np.allclose(np.abs([_ad[k % 4]*_Hr(k*_pi/2, 0.5) for k in range(-6, 7)]),
+                    [[0.5, np.sqrt(0.05), 1/6, np.sqrt(0.05)][k % 4] for k in range(-6, 7)]))
+chk("M4 dt-rec figure: a = 0 gives unit gain at every w", np.allclose(np.abs(_Hr(np.linspace(-_pi, _pi, 9), 0.0)), 1))
 _yr = np.zeros(400); _xr = np.tile([1, 0, 0, 0.], 100)
 for _i in range(400):
     _yr[_i] = _xr[_i] + 0.5*(_yr[_i-1] if _i else 0)
