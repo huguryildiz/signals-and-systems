@@ -246,6 +246,43 @@ chk("M2 code superposition difference for the square is 18",
 sav = sum(100*1.01**k for k in range(25))       # y[24] of y[n] = 1.01 y[n-1] + 100 from rest
 chk("M2 gallery savings: 25 deposits of 100 at 1 % stay inside the 3400 axis", sav < 3400, f"y[24] = {sav:.0f}")
 
+# Module 2 additions: one form, interconnection, inverse, time scaling, Re{x}, incrementally linear
+Rs, Cs, rho, m_ = sp.symbols('R C rho m', positive=True)
+tau_ = sp.Symbol('tau', positive=True)
+chk("M2 models: step response of dy/dt + y/tau = x/tau from rest is 1 - e^{-t/tau}",
+    sp.simplify(sp.diff(1 - sp.exp(-t/tau_), t) + (1 - sp.exp(-t/tau_))/tau_ - 1/tau_) == 0)
+chk("M2 models: RC gives tau = RC, car gives tau = m/rho", sp.simplify(1/(1/(Rs*Cs)) - Rs*Cs) == 0
+    and sp.simplify(1/(rho/m_) - m_/rho) == 0)
+chk("M2 predict savings: y[n] - 1.01 y[n-1] = x[n] gives a = -1.01, b = 1",
+    sp.Rational(-101, 100) == -sp.Rational(101, 100))
+xs_ = np.random.default_rng(5).normal(size=12)
+chk("M2 predict series delay then gain 2 equals 2 x[n-1]",
+    np.allclose(2*np.concatenate(([0], xs_[:-1])), 2*np.roll(xs_, 1)*(np.arange(12) > 0)))
+chk("M2 order in series: square then double 2x^2, double then square 4x^2",
+    sp.expand(2*xv**2) != sp.expand((2*xv)**2) and sp.expand((2*xv)**2) == 4*xv**2)
+chk("M2 inverse: first difference undoes the accumulator",
+    np.allclose(np.diff(np.concatenate(([0], np.cumsum(xs_)))), xs_))
+chk("M2 predict inverse of 3 x(t-2) is (1/3) y(t+2)",
+    sp.simplify(sp.Rational(1, 3)*(3*x0((t + 2) - 2)) - x0(t)) == 0)
+p_x1 = lambda v: 1.0 if abs(v) < 2 else 0.0                  # x1(t) = 1 for |t| < 2
+tt_ = np.linspace(-2.5, 4.5, 7001)
+y2_ = np.array([p_x1(2*v - 2) for v in tt_])                 # path 1: x1(2t - t0), t0 = 2
+y1s = np.array([p_x1(2*(v - 2)) for v in tt_])               # path 2: y1(t - t0)
+sup = lambda y: (round(tt_[y > 0].min(), 2), round(tt_[y > 0].max(), 2))
+chk("M2 ti-c: path 1 pulse on 0<t<2, path 2 pulse on 1<t<3, so x(2t) is not time invariant",
+    np.allclose(sup(y2_), (0, 2), atol=0.01) and np.allclose(sup(y1s), (1, 3), atol=0.01),
+    f"{sup(y2_)} {sup(y1s)}")
+chk("M2 Re{x}: x1 = 2+j gives y1 = 2; j x1 = -1+2j gives y2 = -1, not a y1 = 2j",
+    (2+1j).real == 2 and (1j*(2+1j)) == (-1+2j) and (1j*(2+1j)).real == -1 and 1j*2 != -1)
+chk("M2 Re{x} is additive for random complex inputs",
+    (lambda u, v: np.allclose((u + v).real, u.real + v.real))(
+        np.random.default_rng(6).normal(size=8) + 1j*np.random.default_rng(7).normal(size=8),
+        np.random.default_rng(8).normal(size=8) + 1j*np.random.default_rng(9).normal(size=8)))
+aff = lambda v: 3*v + 2
+chk("M2 inclinear: y1 = 5, y2 = 8, y3 = 11, y1 + y2 = 13",
+    (aff(1), aff(2), aff(1 + 2), aff(1) + aff(2)) == (5, 8, 11, 13))
+chk("M2 inclinear: y1 - y2 = 3 (x1 - x2)", sp.simplify(aff(x1) - aff(x2) - 3*(x1 - x2)) == 0)
+
 # ---------------------------------------------------------------- Module 3
 # p.15-16 finite convolution
 x = np.array([1., 2., 1., 2.]); h = np.array([1., 1.])

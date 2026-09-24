@@ -127,6 +127,82 @@ const SC = [
   ]}
 ]},
 
+{ id:'m2-models', module:'M2', nav:'One equation, many systems', title:'One Equation, Many Systems', src:'p. 11',
+  objective:'Show that different physical systems share one input–output equation.',
+  keywords:'RC circuit car friction savings first-order differential difference equation model idealization',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
+  {t:'title', text:'One Equation, Many Systems'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-0.6,5],yr:[-0.15,1.75],xlabel:'t/\\tau',ylabel:'\\text{normalized amplitude}',
+        pad:{l:52,r:24,t:20,b:40},xstep:1,ytarget:3});
+      a.curve(t=>t>=0?1:0,{color:C.in,dash:'9 6',n:900});
+      a.curve(t=>t>=0?1-Math.exp(-t):0,{color:C.out});
+      return a.svg(); },
+      caption:'A constant input switched on at rest. The capacitor voltage, with $\\tau=RC$, and the speed of the car, with $\\tau=m/\\rho$, follow the same curve.'},
+    {t:'legend', items:[['in','input',true],['out','$1-e^{-t/\\tau}$']]}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}\\frac{dv_C(t)}{dt}+\\frac{1}{RC}\\,v_C(t)&=\\frac{1}{RC}\\,v_s(t)\\\\\\frac{dv(t)}{dt}+\\frac{\\rho}{m}\\,v(t)&=\\frac{1}{m}\\,f(t)\\end{aligned}', label:'Two systems',
+      note:'RC circuit: voltage $v_s$ in, $v_C$ out. Car of mass $m$: force $f$ in, speed $v$ out, friction $\\rho v$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}\\frac{dy(t)}{dt}+a\\,y(t)&=b\\,x(t)\\\\y[n]+a\\,y[n-1]&=b\\,x[n]\\end{aligned}', label:'One form',
+        note:'Both systems have the first line, and a savings account the second. One method serves every system of a form.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A model has limits', html:'Ohm\'s law and linear friction are idealizations. An analysis holds only while the signals stay in the range where the model is accurate.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A savings account with 1 % interest a month: $y[n]=1.01\\,y[n-1]+x[n]$.<div class="nsep"></div>Written as $y[n]+a\\,y[n-1]=b\\,x[n]$, what is $a$?',
+        ask:{key:'m2-models', choices:['$-1.01$','$1.01$','$0.01$'], answer:0,
+          why:'Move $1.01\\,y[n-1]$ to the left: $y[n]-1.01\\,y[n-1]=x[n]$, so $a=-1.01$ and $b=1$.'}}]}
+  ]}
+]},
+
+{ id:'m2-interconnect', module:'M2', nav:'Connecting systems', title:'Connecting Systems', src:'p. 11',
+  objective:'Define series, parallel and feedback connections of systems.',
+  keywords:'interconnection series cascade parallel feedback block diagram accumulator',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
+  {t:'title', text:'Connecting Systems'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const head=(x,y,d)=>`<path d="M${x},${y} ${d}" fill="${C.ink}"/>`;
+      const s=P.blocks({w:560,h:440,items:[
+        {t:'text',x:35,y:26,label:'SERIES',fs:13,anchor:'start',color:C.slate},
+        {t:'arrow',x1:35,y1:78,x2:120,y2:78},{t:'box',x:120,y:52,w:100,h:52,label:'S_1',tex:true},
+        {t:'arrow',x1:220,y1:78,x2:320,y2:78},{t:'box',x:320,y:52,w:100,h:52,label:'S_2',tex:true},
+        {t:'arrow',x1:420,y1:78,x2:525,y2:78},
+        {t:'text',x:70,y:62,label:'x',tex:true,fs:17},{t:'text',x:480,y:62,label:'y',tex:true,fs:17},
+        {t:'text',x:35,y:146,label:'PARALLEL',fs:13,anchor:'start',color:C.slate},
+        {t:'line',d:'M35 215 H90 M90 185 V245'},
+        {t:'arrow',x1:90,y1:185,x2:200,y2:185},{t:'box',x:200,y:163,w:100,h:44,label:'S_1',tex:true},
+        {t:'arrow',x1:90,y1:245,x2:200,y2:245},{t:'box',x:200,y:223,w:100,h:44,label:'S_2',tex:true},
+        {t:'line',d:'M300 185 H410 V201 M300 245 H410 V229'},{t:'sum',x:410,y:215},
+        {t:'arrow',x1:424,y1:215,x2:525,y2:215},
+        {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17},
+        {t:'text',x:35,y:296,label:'FEEDBACK',fs:13,anchor:'start',color:C.slate},
+        {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
+        {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
+        {t:'arrow',x1:300,y1:345,x2:525,y2:345},
+        {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
+        {t:'text',x:58,y:329,label:'x',tex:true,fs:17},{t:'text',x:480,y:329,label:'y',tex:true,fs:17}
+      ]});
+      return s.replace('</svg>', head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z')
+        +head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z')+'</svg>'); },
+      caption:'Three ways to connect two systems. The circle adds the signals that enter it.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Series and parallel', html:'In a series connection, or cascade, the output of $S_1$ is the input of $S_2$. In a parallel connection, both systems get the same input and their outputs add.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback',
+        note:'The output of $S_2$ returns and adds to the input. With $S_1$ passing its input and $S_2$ a one-sample delay, the loop is the accumulator of the memory slides.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Order matters', html:'The order in a series connection can change the result. Squaring and then doubling gives $2x^2$. Doubling and then squaring gives $4x^2$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$S_1$: $y[n]=x[n-1]$, followed in series by $S_2$: $y[n]=2\\,x[n]$.<div class="nsep"></div>What is the overall rule?',
+        ask:{key:'m2-interconnect', choices:['$y[n]=2\\,x[n-1]$','$y[n]=x[n-1]+2\\,x[n]$','$y[n]=2\\,x[n]$'], answer:0,
+          why:'$S_1$ delays the input by one sample, and $S_2$ doubles the delayed signal.'}}]}
+  ]}
+]},
+
 { id:'m2-memory', module:'M2', nav:'Memory', title:'Memoryless systems and systems with memory', src:'p. 11',
   objective:'Define memorylessness and test it on the definition examples.',
   keywords:'memoryless memory instantaneous resistor capacitor accumulator', slide:true, steps:3, blocks:[
@@ -223,6 +299,41 @@ const SC = [
         note:'The inputs are distinct, but their outputs are equal. The sign is lost.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'Not an inverse', html:'$x(t)=\\sqrt{y(t)}$ keeps only one of the two inputs. An inverse must recover the actual input.'}]}
+  ]}
+]},
+
+{ id:'m2-inverse', module:'M2', nav:'Inverse systems', title:'Inverse Systems', src:'pp. 11–12',
+  objective:'Show that an invertible system has an inverse that undoes it in series.',
+  keywords:'inverse system cascade identity accumulator first difference encoder decoder',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
+  {t:'title', text:'Inverse Systems'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
+      {t:'text',x:20,y:50,label:'INVERT A GAIN',fs:13,anchor:'start',color:C.slate},
+      {t:'arrow',x1:20,y1:120,x2:110,y2:120},{t:'box',x:110,y:90,w:140,h:60,label:'\\times 2',tex:true},
+      {t:'arrow',x1:250,y1:120,x2:320,y2:120},{t:'box',x:320,y:90,w:150,h:60,label:'\\times\\tfrac{1}{2}',tex:true},
+      {t:'arrow',x1:470,y1:120,x2:545,y2:120},
+      {t:'text',x:62,y:104,label:'x(t)',tex:true,fs:16},{t:'text',x:285,y:104,label:'y(t)',tex:true,fs:16},
+      {t:'text',x:508,y:104,label:'w(t)',tex:true,fs:16},
+      {t:'text',x:20,y:230,label:'INVERT THE ACCUMULATOR',fs:13,anchor:'start',color:C.slate},
+      {t:'arrow',x1:20,y1:300,x2:110,y2:300},{t:'box',x:110,y:265,w:140,h:70,label:'\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15},
+      {t:'arrow',x1:250,y1:300,x2:320,y2:300},{t:'box',x:320,y:270,w:150,h:60,label:'y[n]-y[n-1]',tex:true,fs:15},
+      {t:'arrow',x1:470,y1:300,x2:545,y2:300},
+      {t:'text',x:62,y:284,label:'x[n]',tex:true,fs:16},{t:'text',x:285,y:284,label:'y[n]',tex:true,fs:16},
+      {t:'text',x:508,y:284,label:'w[n]',tex:true,fs:16}
+    ]}), caption:'Each system is followed by its inverse. The output $w$ of the pair equals the input $x$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Inverse system', html:'An invertible system $S$ has an inverse system. Placed in series after $S$, the inverse returns the input: $w=x$ for every $x$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}y[n]-y[n-1]&=\\sum_{k=-\\infty}^{n}x[k]-\\sum_{k=-\\infty}^{n-1}x[k]\\\\&=x[n]\\end{aligned}', label:'Undo the accumulator',
+        note:'Every term except $x[n]$ is in both sums and cancels. The first difference is the inverse of the accumulator.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Where it is used', html:'A lossless encoder must be invertible. The decoder is its inverse system and recovers the message exactly.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y(t)=3\\,x(t-2)$.<div class="nsep"></div>Which system is its inverse?',
+        ask:{key:'m2-inverse', choices:['$w(t)=\\tfrac{1}{3}\\,y(t+2)$','$w(t)=\\tfrac{1}{3}\\,y(t-2)$','$w(t)=3\\,y(t+2)$'], answer:0,
+          why:'Advance by 2 to undo the delay, then divide by 3: $\\tfrac{1}{3}\\,y(t+2)=\\tfrac{1}{3}\\cdot3\\,x(t)=x(t)$.'}}]}
   ]}
 ]},
 
@@ -380,6 +491,37 @@ const SC = [
   ]}
 ]},
 
+{ id:'m2-ti-c', module:'M2', nav:'Time invariance · time scaling', title:'Time Scaling Breaks Time Invariance', src:'p. 13',
+  objective:'Show that a scaled argument breaks time invariance without an explicit time variable.',
+  keywords:'time invariance time scaling compression x(2t) reversal counterexample two paths',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
+  {t:'title', text:'Time Scaling Breaks Time Invariance'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-2.5,4.5],yr:[-0.3,1.6],xlabel:'t',ylabel:'\\text{amplitude}',
+        pad:{l:50,r:24,t:20,b:34},xstep:1,ytarget:2});
+      const p1=t=>(t>0&&t<2)?1:0, p2=t=>(t>1&&t<3)?1:0;
+      a.area(p1,0,2,{color:'rgba(166,59,42,.12)'});
+      a.area(p2,1,3,{color:'rgba(74,122,70,.14)'});
+      a.curve(p1,{color:C.err,n:1400});
+      a.curve(p2,{color:C.out,dash:'8 5',n:1400});
+      return a.svg(); },
+      caption:'With $x_1(t)=1$ for $|t|<2$ and $t_0=2$, path 1 gives a pulse on $0<t<2$ and path 2 a pulse on $1<t<3$.'},
+    {t:'legend', items:[['err','$y_2(t)$'],['out','$y_1(t-2)$',true]], at:'tl'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$y(t)=x(2t)$.<div class="nsep"></div>Is the system time invariant?',
+      ask:{key:'m2-ti-c', choices:['Time invariant','Not time invariant'], answer:1}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}x_2(t)&=x_1(t-t_0)\\\\y_2(t)&=x_2(2t)=x_1(2t-t_0)\\end{aligned}', label:'Path 1 · shift the input'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}y_1(t)&=x_1(2t)\\\\y_1(t-t_0)&=x_1\\bigl(2(t-t_0)\\bigr)=x_1(2t-2t_0)\\end{aligned}', label:'Path 2 · shift the output',
+        note:'The shifts differ, $t_0$ against $2t_0$. The system is not time invariant.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'A second pattern', html:'The rule has no explicit $t$. The failure comes from the argument: a scale such as $x(2t)$ or a reversal such as $x[-n]$ changes the size or the direction of every shift.'}]}
+  ]}
+]},
+
 { id:'m2-linear', module:'M2', nav:'Linearity', title:'Linearity', src:'p. 14',
   objective:'State superposition and work one example in full.',
   keywords:'linearity superposition additive homogeneous scalable cross term', slide:true, steps:2, blocks:[
@@ -442,6 +584,76 @@ const SC = [
   ]}
 ]},
 
+{ id:'m2-linear-c', module:'M2', nav:'Complex scale factors', title:'Complex Scale Factors', src:'p. 14',
+  objective:'Separate additivity from homogeneity with a system that passes one and fails the other.',
+  keywords:'linearity additivity homogeneity complex scalar real part Re',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
+  {t:'title', text:'Complex Scale Factors'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-3.2,3.2],yr:[-0.6,2.7],xlabel:'\\mathrm{Re}',ylabel:'\\mathrm{Im}',
+        pad:{l:50,r:24,t:20,b:34},xstep:1,ystep:1});
+      a.poly([[2,1],[2,0]],{color:C.in,dash:'4 4',width:1.4});
+      a.poly([[-1,2],[-1,0]],{color:C.mid,dash:'4 4',width:1.4});
+      a.poly([[0,0],[2,1]],{color:C.in});
+      a.poly([[0,0],[-1,2]],{color:C.mid});
+      a.point(2,1,{color:C.in}); a.point(-1,2,{color:C.mid});
+      a.point(2,0,{color:C.out}); a.point(0,2,{color:C.out}); a.point(-1,0,{color:C.err});
+      a.note(2,1,'x_1=2+j',{tex:true,anchor:'middle',dy:-16,color:C.in,fs:15});
+      a.note(-1,2,'j\\,x_1=-1+2j',{tex:true,anchor:'end',dx:-10,color:C.mid,fs:15});
+      a.note(0,2,'a\\,y_1=2j',{tex:true,dx:10,dy:-12,color:C.out,fs:15});
+      a.note(2,0,'y_1=2',{tex:true,dx:8,dy:-12,color:C.out,fs:15});
+      a.note(-1,0,'y_2=-1',{tex:true,dx:8,dy:-12,color:C.err,fs:15});
+      return a.svg(); },
+      caption:'One sample, $x_1=2+j$, scaled by $a=j$. The output $y_2=-1$ is not $a\\,y_1=2j$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Two conditions', html:'Linearity is two conditions. Additivity: $x_1+x_2\\to y_1+y_2$. Homogeneity: $a\\,x\\to a\\,y$ for every complex $a$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y[n]=\\mathrm{Re}\\{x[n]\\}$, with complex inputs.<div class="nsep"></div>Is the system linear?',
+        ask:{key:'m2-linear-c', choices:['Linear','Not linear'], answer:1}}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}x_1[n]&=r[n]+j\\,s[n],\\qquad y_1[n]=r[n]\\\\x_2[n]&=j\\,x_1[n]=-s[n]+j\\,r[n]\\\\y_2[n]&=-s[n]\\neq j\\,r[n]=a\\,y_1[n]\\end{aligned}', label:'Scale by $a=j$',
+        note:'$r[n]$ and $s[n]$ are the real and imaginary parts of $x_1[n]$. Homogeneity fails, so the system is not linear.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'Additive, not homogeneous', html:'The real part of a sum is the sum of the real parts, so the system is additive. It also passes the test with a real $a$. Only a complex $a$ shows the failure.'}]}
+  ]}
+]},
+
+{ id:'m2-inclinear', module:'M2', nav:'Incrementally linear systems', title:'Incrementally Linear Systems', src:'p. 14',
+  objective:'Show that a linear rule plus a constant is not linear, and split it into a linear part and a zero-input response.',
+  keywords:'incrementally linear zero-input response offset affine additivity',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
+  {t:'title', text:'Incrementally Linear Systems'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const s=P.blocks({w:560,h:380,items:[
+        {t:'text',x:225,y:132,label:'linear system',fs:13,color:C.slate},
+        {t:'arrow',x1:30,y1:200,x2:150,y2:200},{t:'box',x:150,y:160,w:150,h:80,label:'\\times 3',tex:true},
+        {t:'arrow',x1:300,y1:200,x2:386,y2:200},{t:'sum',x:400,y:200},
+        {t:'arrow',x1:414,y1:200,x2:535,y2:200},
+        {t:'line',d:'M400 104 V186'},
+        {t:'text',x:400,y:84,label:'y_0[n]=2',tex:true,fs:16},
+        {t:'text',x:90,y:184,label:'x[n]',tex:true,fs:17},{t:'text',x:475,y:184,label:'y[n]',tex:true,fs:17},
+        {t:'text',x:343,y:184,label:'3\\,x[n]',tex:true,fs:15,color:C.slate}
+      ]});
+      return s.replace('</svg>', `<path d="M400,186 l-4.5,-9 h9 Z" fill="${C.ink}"/></svg>`); },
+      caption:'$y[n]=3\\,x[n]+2$ drawn as a linear system plus the zero-input response $y_0[n]=2$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$y[n]=3\\,x[n]+2$, with $x_1[n]=1$ and $x_2[n]=2$.<div class="nsep"></div>Does $x_1+x_2$ give $y_1+y_2$?',
+      ask:{key:'m2-inclinear', choices:['Yes','No'], answer:1}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}y_1[n]&=3\\cdot1+2=5\\\\y_2[n]&=3\\cdot2+2=8\\\\y_3[n]&=3\\cdot(1+2)+2=11\\neq5+8\\end{aligned}', label:'Test additivity',
+        note:'The constant is added once to $y_3$ but twice to $y_1+y_2=13$. The system is not linear.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'y[n]=\\underbrace{3\\,x[n]}_{\\text{linear}}+\\underbrace{2}_{y_0[n]}', label:'Split the output',
+        note:'$y_0[n]$ is the zero-input response, the output when $x[n]=0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'Incrementally linear', html:'The difference of two outputs is linear in the difference of the inputs: $y_1[n]-y_2[n]=3\\bigl(x_1[n]-x_2[n]\\bigr)$. Such a system is incrementally linear.'}]}
+  ]}
+]},
+
 { id:'m2-workflow', module:'M2', nav:'Classification workflow', title:'A workflow you can defend', src:'pp. 11–14',
   objective:'Give a repeatable order of attack for classifying an unfamiliar system.',
   keywords:'workflow classification order strategy checklist', slide:true, steps:2, blocks:[
@@ -472,7 +684,7 @@ const SC = [
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
     }, caption:'Each column is one property. The rows show why the tests are separate.'}
   ], right:[
-    {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Look for an explicit $t$ or $n$: test time invariance.</li><li>Test linearity with one scalar and one sum.</li><li>Read every input argument for memory and causality.</li><li>Test stability, then invertibility.</li></ol>'},
+    {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Look for an explicit $t$ or $n$, or a scaled or reversed argument: test time invariance.</li><li>Test linearity with one scalar and one sum.</li><li>Read every input argument for memory and causality.</li><li>Test stability, then invertibility.</li></ol>'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'One implication', html:'Memoryless implies causal. A causal system need not be stable, and a linear system need not be time invariant.'}]},
     {t:'reveal', at:2, items:[
