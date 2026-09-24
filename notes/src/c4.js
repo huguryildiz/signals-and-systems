@@ -871,7 +871,7 @@ window.C4 = [
  tex:['T_0a_k=E(k\\omega_0)\\quad\\xrightarrow{\\;T_0\\to\\infty\\;}\\quad X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t'],
  after:'In the limit the stems merge into the curve they were always sampling. That curve is the Fourier transform, a continuous spectrum for a signal that does not repeat.'},
 
-{t:'h2', num:'4.8', text:'Exercises'},
+{t:'h3', text:'Exercises'},
 {t:'q', n:'4.1', text:'Two periodic signals have fundamental periods $2/9$ s and $8/21$ s. Find the fundamental period of their sum, and check it by division.', ans:'$T_0=\\operatorname{LCM}(2,8)/\\operatorname{GCD}(9,21)=8/3$ s. Check: $(8/3)/(2/9)=12$ and $(8/3)/(8/21)=7$, both whole, and $\\gcd(12,7)=1$.'},
 {t:'q', n:'4.2', text:'For $x(t)=1+\\tfrac12\\cos(2\\pi t)+\\sin(3\\pi t)$, state $a_0$ and explain in one sentence why it is not zero.', ans:'$a_0=1$: the constant term is the $k=0$ harmonic, and it is also the average of the signal, since both sinusoids complete whole cycles in one period.'},
 {t:'q', n:'4.3', text:'A rectangular wave has $T_0=8T_1$. Find $a_0$ and $a_2$.', ans:'$a_0=2T_1/T_0=1/4$ and $a_2=\\sin(\\pi/2)/(2\\pi)=1/(2\\pi)=0.159$.'},
