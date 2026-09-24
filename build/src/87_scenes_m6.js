@@ -86,7 +86,84 @@ Object.assign(CONTENT.GLOSS, {
   expan:{ s:'x_{(k)}[n]', d:'Time expansion of $x[n]$ by an integer factor $k$: $x[n/k]$ when $n$ is a multiple of $k$, and zero otherwise.', go:'m6-expansion' }
 });
 
+const cl = u=>Math.max(0,Math.min(1,u));
+/* a group drawn at an opacity: the faint given signal on a sketch slide, or a
+   state fading in or out while a figure plays between frames */
+const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
+/* the invisible data area a sketch is drawn in */
+const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+/* the standard slide axes: one figure in the left column of a 5:7 slide.
+   A spectrum drawn about the origin puts its tick numbers on the left edge
+   (yticksLeft), so they do not sit on the central peak. */
+const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
+/* the same axes for a spectrum over omega, with the tick row in multiples of pi */
+const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+
+/* ---- everyday signals, one gallery slide at the end of each teaching
+       section. The traces are schematic; each keeps the feature its section
+       is about. A figure with two traces carries its legend as a third entry. */
+const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+function realGallery(cfg){
+  return { id:cfg.id, module:'M6', nav:cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    budget:cfg.budget||'A gallery of four everyday signals; each figure is one example.',
+    slide:true, steps:cfg.notes.length-1, blocks:[
+    {t:'eyebrow', text:cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'cols', ratio:'c-8-4', fill:true, left:[
+      {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg,at])=>
+        [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[Object.assign({t:'legend', items:lg}, at?{at}:{})]:[]))}
+    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+  ]};
+}
+/* a laboratory scene: the title, then the laboratory itself */
+function labScene(cfg){
+  return { id:cfg.id, module:'M6', nav:'Laboratory {lab} · '+cfg.nav, title:'Laboratory {lab} — '+cfg.title, src:cfg.src,
+    objective:cfg.objective, slide:true, keywords:cfg.keywords, steps:0, blocks:[
+    {t:'eyebrow', text:'Interactive laboratory', src:cfg.src},
+    {t:'title', text:'Laboratory {lab} · '+cfg.nav},
+    {t:'lab', id:cfg.lab}
+  ]};
+}
+/* a code page: the programs of one section, paged one at a time */
+function codeScene(cfg){
+  return { id:cfg.id, module:'M6', nav:'Code · '+cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+    {t:'eyebrow', text:'Module 6 · '+cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'raw', html:()=>CODEBANK.page(cfg.id)}
+  ]};
+}
+
+/* Helpers that belong to one section only. Each section keeps its own between
+   its markers. */
+/* <m6-s1-helpers> */
+/* </m6-s1-helpers> */
+
+/* <m6-s2-helpers> */
+/* </m6-s2-helpers> */
+
+/* <m6-s3-helpers> */
+/* </m6-s3-helpers> */
+
+/* <m6-s4-helpers> */
+/* </m6-s4-helpers> */
+
+/* <m6-s5-helpers> */
+/* </m6-s5-helpers> */
+
+/* <m6-s6-helpers> */
+/* </m6-s6-helpers> */
+
+/* Small sketches for the summary and project cards. Both pages are navy, so
+   they are drawn in the dark-page signal tints. */
+/* <m6-s7-helpers> */
+const G = {};
+/* </m6-s7-helpers> */
+
 const SC = [
+
 
 /* ============================================================ opening ==== */
 { id:'m6-open', module:'M6', nav:'Module 6 opening', title:'Discrete-Time Fourier Transform', src:'pp. 64–79',
@@ -94,16 +171,18 @@ const SC = [
   {t:'eyebrow', text:'Module 6 · Discrete-Time Fourier Transform', src:'pp. 64–79'},
   {t:'title', level:1, text:'The Discrete-Time Fourier Transform'},
   {t:'lede', text:'The discrete-time Fourier transform describes the frequency content of an aperiodic sequence. Its spectrum is a continuous function of frequency, but it repeats every $2\\pi$. This module develops the transform and uses that periodicity in each property.'},
-  {t:'cols', ratio:'c-5-7', left:[
+  {t:'cols', ratio:'c-6-6', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]\\,e^{-j\\omega n}', label:'Analysis'},
     {t:'eq', tex:'x[n]=\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\omega})\\,e^{j\\omega n}\\,\\d\\omega', label:'Synthesis'},
     {t:'note', kind:'ok', head:'Why the second line has a finite range', html:'<span style="color:var(--graphite)">The spectrum repeats every $2\\pi$, so it carries no information outside one period. Integrating over one period recovers the whole sequence; integrating over all frequencies would count the same information again and again.</span>'}
   ], right:[
+    /* Four spectra over three periods. The canvas is narrower than the
+       column, so the traces read at back-row size on the navy page. */
     {t:'fig', svg:()=>{
-      const a=P.Axes({w:820,h:430,xr:[-3*PI,3*PI],yr:[-0.55,4.6],grid:false,zeroAxes:false,arrows:false,
-        pad:{l:24,r:24,t:24,b:24},xticksOverride:[],yticksOverride:[]});
+      const a=P.Axes({w:520,h:330,xr:[-3*PI,3*PI],yr:[-0.55,4.6],grid:false,zeroAxes:false,arrows:false,
+        pad:{l:14,r:14,t:14,b:14},xticksOverride:[],yticksOverride:[]});
       a.curve(w=>twoSide(w,0.6)*0.62+3.0,{color:'#7FC3CE',width:2.4,n:2400,anim:{delay:0,sweep:'#D9F3F7'}});
       a.curve(w=>dirich(wrap(w),2)*0.16+1.85,{color:'#AC99DC',width:2.2,n:2400,anim:{delay:.35,sweep:'#E6DEF7'}});
       a.curve(w=>geoMag(w,0.7)*0.30+0.75,{color:'#E5B255',width:2.2,n:2400,anim:{delay:.7,sweep:'#F7E6C2'}});
@@ -113,6 +192,9 @@ const SC = [
       caption:'Four different sequences, four different spectra, one shared property: each picture repeats itself every $2\\pi$ along the frequency axis.'}
   ]}
 ]},
+
+/* <m6-s1> ============================================ 6.1 building the transform */
+
 
 /* ============================================== from the series to the transform */
 { id:'m6-derive', module:'M6', nav:'Construction of the DTFT', title:'Construction of the DTFT', src:'p. 64',
@@ -326,6 +408,12 @@ const SC = [
         caption:'The three marked points are the same value of the spectrum, read at $\\omega$, $\\omega+2\\pi$ and $\\omega-2\\pi$.'}]}
   ]}
 ]},
+
+
+/* </m6-s1> */
+
+/* <m6-s2> ============================================ 6.2 the standard pairs */
+
 
 /* ============================================================ shifted sample */
 { id:'m6-ex-shift', module:'M6', nav:'Worked example · shifted sample', title:'Worked example — a shifted unit sample', src:'p. 65',
@@ -601,7 +689,7 @@ const SC = [
 ]},
 
 /* ============================================================ real vs zero phase */
-{ id:'m6-real-phase', module:'M6', nav:'Real is not zero-phase', title:'A real spectrum does not have zero phase', src:'p. 67',
+{ id:'m6-phase-real', module:'M6', nav:'Real is not zero-phase', title:'A real spectrum does not have zero phase', src:'p. 67',
   objective:'Separate real from non-negative and give the phase of a sign-changing real spectrum.',
   keywords:'real spectrum phase zero or pi misconception magnitude absolute value dirichlet negative sign change', steps:3, blocks:[
   {t:'eyebrow', text:'Module 6 · Magnitude and sign', src:'p. 67'},
@@ -700,6 +788,22 @@ const SC = [
         caption:'The same construction with $W=\\pi/2$: $x[0]=0.5$, $x[1]=0.318310$, $x[2]=0$, $x[3]=-0.106103$. Twice the band, half the width in time.'}]}
   ]}
 ]},
+
+/* ============================================================ laboratory */
+{ id:'m6-lab-i', module:'M6', nav:'Laboratory {lab} · Periodicity', title:'Laboratory {lab} — DTFT Periodicity Explorer', src:'pp. 65–79',
+  objective:'See a sequence and its spectrum together, over more than one period, at every step.',
+  keywords:'laboratory {lab} DTFT periodicity explorer sequences magnitude phase shift wrap difference equation pole radius', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 65–79'},
+  {t:'title', text:'Laboratory {lab} · Discrete-Time Periodicity'},
+  {t:'lede', text:'Choose a sequence and a parameter. The panels show the sequence as stems and its transform over three periods of $2\\pi$, with one period marked. The frequency-shift state slides the spectrum and lets what leaves a period come back at the other end.'},
+  {t:'lab', id:'I'}
+]},
+
+
+/* </m6-s2> */
+
+/* <m6-s3> ============================================ 6.3 periodic sequences */
+
 
 /* ============================================================ complex exponential */
 { id:'m6-cexp', module:'M6', nav:'Transform of a complex exponential', title:'The transform of $e^{j\\omega_0 n}$', src:'p. 68',
@@ -1008,6 +1112,12 @@ const SC = [
       ]}]}
   ]}
 ]},
+
+
+/* </m6-s3> */
+
+/* <m6-s4> ============================================ 6.4 properties */
+
 
 /* ============================================================ properties 1 */
 { id:'m6-props-1', module:'M6', nav:'Properties · shifts', title:'Linearity, time shift, frequency shift', src:'p. 72',
@@ -1341,6 +1451,59 @@ const SC = [
   ]}
 ]},
 
+/* ============================================================ duality */
+{ id:'m6-duality', module:'M6', nav:'Duality', title:'Which dualities hold, and which does not', src:'p. 77',
+  objective:'Rule out a DTFT self-duality and state the two dualities that do hold.',
+  keywords:'duality DFS self dual DTFT CTFS coefficients x[-k] no duality analysis synthesis square wave', steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Duality', src:'p. 77'},
+  {t:'title', text:'Duality Property'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'note', kind:'err', head:'No duality inside the DTFT pair', html:'The analysis equation is a <b>sum</b> over an integer $n$; the synthesis equation is an <b>integral</b> over a continuous $\\omega$. The two have different shapes, so no relabelling turns one into the other. Every other transform in this course has such a duality; this one does not, and the reason is that its two domains are of different kinds.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'x[n]\\;\\longleftrightarrow\\;a_k\\qquad\\Longrightarrow\\qquad a[n]\\;\\longleftrightarrow\\;\\frac{1}{N}\\,x[-k]',
+        label:'Duality in the discrete-time Fourier series',
+        note:'Here both domains are discrete and both objects are periodic with the same period $N$, so the coefficients may be read as a sequence and transformed again.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}\\quad\\text{is a }2\\pi\\text{-periodic function of }\\omega',
+        label:'Duality between the DTFT and the continuous-time series',
+        note:'A $2\\pi$-periodic function of a continuous variable has a continuous-time Fourier series. Comparing the two synthesis equations term by term identifies its coefficients as $x[-k]$: the spectrum of a sequence is a periodic signal whose series coefficients are the sequence itself, reversed.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'wex', rows:[
+        ['Worked check','Take the $2\\pi$-periodic square wave in $\\omega$: $X(e^{j\\omega})=1$ for $|\\omega|\\le\\pi/2$, zero over the rest of the period.'],
+        ['Its series coefficients','$a_k=\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\pi}^{\\pi}X(e^{j\\omega})e^{-jk\\omega}\\d\\omega=\\dfrac{\\sin(k\\pi/2)}{k\\pi}$: $a_0=0.5$, $a_1=1/\\pi=0.3183$, $a_2=0$, $a_3=-1/(3\\pi)=-0.1061$.'],
+        ['And the sequence','Its inverse transform is $x[n]=\\sin(\\pi n/2)/(\\pi n)$, which is the same list of numbers. So $a_k=x[-k]$, and here $x$ is even so $a_k=x[k]$ as well.']
+      ]}]}
+  ], right:[
+    {t:'fig', frame:true, svg:()=>{
+      const a=P.Axes({w:840,h:200,xr:[-3*PI,3*PI],yr:[-0.30,1.68],xlabel:'\\omega',ylabel:'X(e^{j\\omega})',
+        pad:{l:62,r:30,t:30,b:38},xticksOverride:wTicks(-3*PI,3*PI,PI/2),xtickfmt:piTick,ytarget:2});
+      a.curve(w=>lpf(w,PI/2),{color:C.in,n:9000});
+      markPeriod(a,1.28);
+      return a.svg(); },
+      caption:'A $2\\pi$-periodic square wave, read as a signal in the variable $\\omega$.'},
+    {t:'reveal', at:3, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:840,h:210,xr:[-11,11],yr:[-0.22,0.68],xlabel:'k',ylabel:'a_k',
+          pad:{l:62,r:30,t:30,b:34},xtarget:8,yticksOverride:[-0.1061,0,0.3183,0.5],ytickfmt:v=>v.toFixed(4)});
+        a.stem(D(k=>lpfInv(k,PI/2),-11,11),{color:C.mid,showZero:true});
+        return a.svg(); },
+        caption:'Its continuous-time series coefficients: $0.5$, $0.3183$, $0$, $-0.1061$, … — the same numbers as the sequence whose transform it is.'}]},
+    {t:'reveal', at:1, items:[
+      {t:'fig', frame:true, svg:()=>{
+        const a=P.Axes({w:840,h:210,xr:[-24,24],yr:[-0.02,0.075],xlabel:'k',ylabel:'a_k',
+          pad:{l:70,r:30,t:30,b:34},xtarget:8,yticksOverride:[0,1/21],ytickfmt:v=>v.toFixed(4)});
+        a.stem(D(k=>k%21===0?1/21:0,-24,24),{color:C.h,showZero:true});
+        return a.svg(); },
+        caption:'The series duality at work: the impulse train with $N=21$ has coefficients all equal to $1/21=0.0476$, and reading those constants back as a sequence returns an impulse train.'}]}
+  ]}
+]},
+
+
+/* </m6-s4> */
+
+/* <m6-s5> ============================================ 6.5 convolution and multiplication */
+
+
 /* ============================================================ convolution */
 { id:'m6-conv', module:'M6', nav:'Properties · convolution', title:'Convolution in time is multiplication in frequency', src:'p. 73',
   objective:'State the convolution property and separate the magnitude and phase statements.',
@@ -1662,124 +1825,11 @@ const SC = [
   ]}
 ]},
 
-/* ============================================================ summary */
-{ id:'m6-tables', module:'M6', nav:'Property summary', title:'The properties in one place', src:'p. 76',
-  objective:'Collect every property of the discrete-time Fourier transform for reference.',
-  keywords:'summary table properties list reference linearity shift expansion convolution multiplication accumulation symmetry parseval', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 6 · Summary', src:'p. 76'},
-  {t:'title', text:'DTFT Property Summary'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Operations on the sequence'},
-    {t:'wex', rows:[
-      ['Linearity','$a\\,x_1[n]+b\\,x_2[n]\\leftrightarrow a\\,X_1+b\\,X_2$'],
-      ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
-      ['Frequency shift','$e^{j\\omega_0n}x[n]\\leftrightarrow X(e^{j(\\omega-\\omega_0)})$'],
-      ['Conjugation','$x^{*}[n]\\leftrightarrow X^{*}(e^{-j\\omega})$'],
-      ['Time reversal','$x[-n]\\leftrightarrow X(e^{-j\\omega})$'],
-      ['Time expansion','$x_{(k)}[n]\\leftrightarrow X(e^{jk\\omega})$'],
-      ['Convolution','$x[n]*h[n]\\leftrightarrow X(e^{j\\omega})H(e^{j\\omega})$'],
-      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$']
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Two names that must not be exchanged', html:'<b>Differencing</b> is the time-domain operation $x[n]-x[n-1]$; <b>differentiation</b> is the frequency-domain derivative $\\d X/\\d\\omega$. The first is a difference because $n$ is an integer; the second is a genuine derivative because $\\omega$ is not.'}]}
-  ], right:[
-    {t:'sub', text:'Difference, sum, symmetry and energy'},
-    {t:'wex', rows:[
-      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
-      ['Accumulation','$\\displaystyle\\sum_{m=-\\infty}^{n}x[m]\\leftrightarrow\\frac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\sum_k\\delta(\\omega-2\\pi k)$'],
-      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
-      ['Real sequence','$X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so $|X|$ is even and $\\angle X$ is odd'],
-      ['Real and even','$X(e^{j\\omega})$ real and even'],
-      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd'],
-      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
-      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'The one row with a condition', html:'Accumulation carries an impulse train, and the weight $\\pi X(e^{j0})=\\pi\\sum_n x[n]$ is the total of the sequence. Differencing destroys any constant offset in a running sum, so the impulse train is what puts the offset back. Where the sequence sums to zero the term vanishes on its own.'}]}
-  ]}
-]},
 
-{ id:'m6-pairs', module:'M6', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 76',
-  objective:'Collect every standard discrete-time transform pair the course uses.',
-  keywords:'transform pairs table reference unit sample step exponential rectangular sinc impulse train cosine sine sinc convention', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 6 · Reference', src:'p. 76'},
-  {t:'title', text:'DTFT Pairs'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'sub', text:'Aperiodic sequences'},
-    {t:'wex', rows:[
-      ['Unit sample','$\\delta[n]\\leftrightarrow1$'],
-      ['Shifted sample','$\\delta[n-n_0]\\leftrightarrow e^{-j\\omega n_0}$'],
-      ['Unit step','$u[n]\\leftrightarrow\\dfrac{1}{1-e^{-j\\omega}}+\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
-      ['One-sided exponential','$a^{n}u[n]\\leftrightarrow\\dfrac{1}{1-ae^{-j\\omega}}$, $|a|<1$'],
-      ['Repeated pole','$(n+1)a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}}$, $|a|<1$'],
-      ['Pole of order $r$','$\\dfrac{(n+r-1)!}{n!\\,(r-1)!}a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{r}}$, $|a|<1$'],
-      ['Two-sided exponential','$a^{|n|}\\leftrightarrow\\dfrac{1-a^{2}}{1-2a\\cos\\omega+a^{2}}$, $|a|<1$'],
-      ['Rectangular pulse','$x[n]=1$ on $|n|\\le N_1$ $\\leftrightarrow\\dfrac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$']
-    ]}
-  ], right:[
-    {t:'sub', text:'Periodic sequences and impulse trains'},
-    {t:'wex', rows:[
-      ['Constant','$1\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
-      ['Complex exponential','$e^{j\\omega_0n}\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-\\omega_0-2\\pi k)$'],
-      ['Cosine','$\\cos\\omega_0n\\leftrightarrow\\pi\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)+\\delta(\\omega+\\omega_0-2\\pi k)]$'],
-      ['Sine','$\\sin\\omega_0n\\leftrightarrow\\dfrac{\\pi}{j}\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)-\\delta(\\omega+\\omega_0-2\\pi k)]$'],
-      ['Any periodic sequence','$\\displaystyle\\sum_{k=\\langle N\\rangle}a_ke^{jk(2\\pi/N)n}\\leftrightarrow2\\pi\\sum_k a_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$'],
-      ['Impulse train','$\\sum_k\\delta[n-kN]\\leftrightarrow\\dfrac{2\\pi}{N}\\sum_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$']
-    ]}
-  ]},
-  {t:'reveal', at:1, items:[
-    {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]},
-  {t:'reveal', at:2, items:[
-    {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]}
-]},
+/* </m6-s5> */
 
-/* ============================================================ duality */
-{ id:'m6-duality', module:'M6', nav:'Duality', title:'Which dualities hold, and which does not', src:'p. 77',
-  objective:'Rule out a DTFT self-duality and state the two dualities that do hold.',
-  keywords:'duality DFS self dual DTFT CTFS coefficients x[-k] no duality analysis synthesis square wave', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 6 · Duality', src:'p. 77'},
-  {t:'title', text:'Duality Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'err', head:'No duality inside the DTFT pair', html:'The analysis equation is a <b>sum</b> over an integer $n$; the synthesis equation is an <b>integral</b> over a continuous $\\omega$. The two have different shapes, so no relabelling turns one into the other. Every other transform in this course has such a duality; this one does not, and the reason is that its two domains are of different kinds.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'x[n]\\;\\longleftrightarrow\\;a_k\\qquad\\Longrightarrow\\qquad a[n]\\;\\longleftrightarrow\\;\\frac{1}{N}\\,x[-k]',
-        label:'Duality in the discrete-time Fourier series',
-        note:'Here both domains are discrete and both objects are periodic with the same period $N$, so the coefficients may be read as a sequence and transformed again.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'X(e^{j\\omega})=\\sum_{n=-\\infty}^{\\infty}x[n]e^{-j\\omega n}\\quad\\text{is a }2\\pi\\text{-periodic function of }\\omega',
-        label:'Duality between the DTFT and the continuous-time series',
-        note:'A $2\\pi$-periodic function of a continuous variable has a continuous-time Fourier series. Comparing the two synthesis equations term by term identifies its coefficients as $x[-k]$: the spectrum of a sequence is a periodic signal whose series coefficients are the sequence itself, reversed.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Worked check','Take the $2\\pi$-periodic square wave in $\\omega$: $X(e^{j\\omega})=1$ for $|\\omega|\\le\\pi/2$, zero over the rest of the period.'],
-        ['Its series coefficients','$a_k=\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\pi}^{\\pi}X(e^{j\\omega})e^{-jk\\omega}\\d\\omega=\\dfrac{\\sin(k\\pi/2)}{k\\pi}$: $a_0=0.5$, $a_1=1/\\pi=0.3183$, $a_2=0$, $a_3=-1/(3\\pi)=-0.1061$.'],
-        ['And the sequence','Its inverse transform is $x[n]=\\sin(\\pi n/2)/(\\pi n)$, which is the same list of numbers. So $a_k=x[-k]$, and here $x$ is even so $a_k=x[k]$ as well.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:840,h:200,xr:[-3*PI,3*PI],yr:[-0.30,1.68],xlabel:'\\omega',ylabel:'X(e^{j\\omega})',
-        pad:{l:62,r:30,t:30,b:38},xticksOverride:wTicks(-3*PI,3*PI,PI/2),xtickfmt:piTick,ytarget:2});
-      a.curve(w=>lpf(w,PI/2),{color:C.in,n:9000});
-      markPeriod(a,1.28);
-      return a.svg(); },
-      caption:'A $2\\pi$-periodic square wave, read as a signal in the variable $\\omega$.'},
-    {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:840,h:210,xr:[-11,11],yr:[-0.22,0.68],xlabel:'k',ylabel:'a_k',
-          pad:{l:62,r:30,t:30,b:34},xtarget:8,yticksOverride:[-0.1061,0,0.3183,0.5],ytickfmt:v=>v.toFixed(4)});
-        a.stem(D(k=>lpfInv(k,PI/2),-11,11),{color:C.mid,showZero:true});
-        return a.svg(); },
-        caption:'Its continuous-time series coefficients: $0.5$, $0.3183$, $0$, $-0.1061$, … — the same numbers as the sequence whose transform it is.'}]},
-    {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:840,h:210,xr:[-24,24],yr:[-0.02,0.075],xlabel:'k',ylabel:'a_k',
-          pad:{l:70,r:30,t:30,b:34},xtarget:8,yticksOverride:[0,1/21],ytickfmt:v=>v.toFixed(4)});
-        a.stem(D(k=>k%21===0?1/21:0,-24,24),{color:C.h,showZero:true});
-        return a.svg(); },
-        caption:'The series duality at work: the impulse train with $N=21$ has coefficients all equal to $1/21=0.0476$, and reading those constants back as a sequence returns an impulse train.'}]}
-  ]}
-]},
+/* <m6-s6> ============================================ 6.6 difference equations */
+
 
 /* ============================================================ frequency response */
 { id:'m6-freqresp', module:'M6', nav:'Difference equations', title:'The frequency response of a difference equation', src:'pp. 77–78',
@@ -1950,15 +2000,86 @@ const SC = [
   ]}
 ]},
 
-/* ============================================================ laboratory */
-{ id:'m6-lab-i', module:'M6', nav:'Laboratory {lab} · Periodicity', title:'Laboratory {lab} — DTFT Periodicity Explorer', src:'pp. 65–79',
-  objective:'See a sequence and its spectrum together, over more than one period, at every step.',
-  keywords:'laboratory {lab} DTFT periodicity explorer sequences magnitude phase shift wrap difference equation pole radius', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 65–79'},
-  {t:'title', text:'Laboratory {lab} · Discrete-Time Periodicity'},
-  {t:'lede', text:'Choose a sequence and a parameter. The panels show the sequence as stems and its transform over three periods of $2\\pi$, with one period marked. The frequency-shift state slides the spectrum and lets what leaves a period come back at the other end.'},
-  {t:'lab', id:'I'}
-]}
+
+/* </m6-s6> */
+
+/* <m6-s7> ============================================ 6.7 summary */
+
+
+/* ============================================================ summary */
+{ id:'m6-tables', module:'M6', nav:'Property summary', title:'The properties in one place', src:'p. 76',
+  objective:'Collect every property of the discrete-time Fourier transform for reference.',
+  keywords:'summary table properties list reference linearity shift expansion convolution multiplication accumulation symmetry parseval', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Summary', src:'p. 76'},
+  {t:'title', text:'DTFT Property Summary'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Operations on the sequence'},
+    {t:'wex', rows:[
+      ['Linearity','$a\\,x_1[n]+b\\,x_2[n]\\leftrightarrow a\\,X_1+b\\,X_2$'],
+      ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
+      ['Frequency shift','$e^{j\\omega_0n}x[n]\\leftrightarrow X(e^{j(\\omega-\\omega_0)})$'],
+      ['Conjugation','$x^{*}[n]\\leftrightarrow X^{*}(e^{-j\\omega})$'],
+      ['Time reversal','$x[-n]\\leftrightarrow X(e^{-j\\omega})$'],
+      ['Time expansion','$x_{(k)}[n]\\leftrightarrow X(e^{jk\\omega})$'],
+      ['Convolution','$x[n]*h[n]\\leftrightarrow X(e^{j\\omega})H(e^{j\\omega})$'],
+      ['Multiplication','$x[n]y[n]\\leftrightarrow\\frac{1}{2\\pi}\\int_{2\\pi}X(e^{j\\theta})Y(e^{j(\\omega-\\theta)})\\d\\theta$']
+    ]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Two names that must not be exchanged', html:'<b>Differencing</b> is the time-domain operation $x[n]-x[n-1]$; <b>differentiation</b> is the frequency-domain derivative $\\d X/\\d\\omega$. The first is a difference because $n$ is an integer; the second is a genuine derivative because $\\omega$ is not.'}]}
+  ], right:[
+    {t:'sub', text:'Difference, sum, symmetry and energy'},
+    {t:'wex', rows:[
+      ['Differencing in time','$x[n]-x[n-1]\\leftrightarrow(1-e^{-j\\omega})X(e^{j\\omega})$'],
+      ['Accumulation','$\\displaystyle\\sum_{m=-\\infty}^{n}x[m]\\leftrightarrow\\frac{X(e^{j\\omega})}{1-e^{-j\\omega}}+\\pi X(e^{j0})\\sum_k\\delta(\\omega-2\\pi k)$'],
+      ['Differentiation in frequency','$n\\,x[n]\\leftrightarrow j\\,\\d X(e^{j\\omega})/\\d\\omega$'],
+      ['Real sequence','$X(e^{-j\\omega})=X^{*}(e^{j\\omega})$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Real and even','$X(e^{j\\omega})$ real and even'],
+      ['Real and odd','$X(e^{j\\omega})$ purely imaginary and odd'],
+      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
+    ]},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'The one row with a condition', html:'Accumulation carries an impulse train, and the weight $\\pi X(e^{j0})=\\pi\\sum_n x[n]$ is the total of the sequence. Differencing destroys any constant offset in a running sum, so the impulse train is what puts the offset back. Where the sequence sums to zero the term vanishes on its own.'}]}
+  ]}
+]},
+
+{ id:'m6-pairs', module:'M6', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 76',
+  objective:'Collect every standard discrete-time transform pair the course uses.',
+  keywords:'transform pairs table reference unit sample step exponential rectangular sinc impulse train cosine sine sinc convention', steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Reference', src:'p. 76'},
+  {t:'title', text:'DTFT Pairs'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Aperiodic sequences'},
+    {t:'wex', rows:[
+      ['Unit sample','$\\delta[n]\\leftrightarrow1$'],
+      ['Shifted sample','$\\delta[n-n_0]\\leftrightarrow e^{-j\\omega n_0}$'],
+      ['Unit step','$u[n]\\leftrightarrow\\dfrac{1}{1-e^{-j\\omega}}+\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
+      ['One-sided exponential','$a^{n}u[n]\\leftrightarrow\\dfrac{1}{1-ae^{-j\\omega}}$, $|a|<1$'],
+      ['Repeated pole','$(n+1)a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{2}}$, $|a|<1$'],
+      ['Pole of order $r$','$\\dfrac{(n+r-1)!}{n!\\,(r-1)!}a^{n}u[n]\\leftrightarrow\\dfrac{1}{\\bigl(1-ae^{-j\\omega}\\bigr)^{r}}$, $|a|<1$'],
+      ['Two-sided exponential','$a^{|n|}\\leftrightarrow\\dfrac{1-a^{2}}{1-2a\\cos\\omega+a^{2}}$, $|a|<1$'],
+      ['Rectangular pulse','$x[n]=1$ on $|n|\\le N_1$ $\\leftrightarrow\\dfrac{\\sin(\\omega(N_1+\\frac12))}{\\sin(\\omega/2)}$'],
+      ['Ideal low-pass band','$\\dfrac{\\sin(Wn)}{\\pi n}\\leftrightarrow1$ on $|\\omega|\\le W$, $0$ on $W<|\\omega|\\le\\pi$']
+    ]}
+  ], right:[
+    {t:'sub', text:'Periodic sequences and impulse trains'},
+    {t:'wex', rows:[
+      ['Constant','$1\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
+      ['Complex exponential','$e^{j\\omega_0n}\\leftrightarrow2\\pi\\sum_k\\delta(\\omega-\\omega_0-2\\pi k)$'],
+      ['Cosine','$\\cos\\omega_0n\\leftrightarrow\\pi\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)+\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Sine','$\\sin\\omega_0n\\leftrightarrow\\dfrac{\\pi}{j}\\sum_k[\\delta(\\omega-\\omega_0-2\\pi k)-\\delta(\\omega+\\omega_0-2\\pi k)]$'],
+      ['Any periodic sequence','$\\displaystyle\\sum_{k=\\langle N\\rangle}a_ke^{jk(2\\pi/N)n}\\leftrightarrow2\\pi\\sum_k a_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$'],
+      ['Impulse train','$\\sum_k\\delta[n-kN]\\leftrightarrow\\dfrac{2\\pi}{N}\\sum_k\\delta\\bigl(\\omega-\\tfrac{2\\pi k}{N}\\bigr)$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'def', head:'Which domain is which', html:'A <b>periodic</b> sequence has a discrete set of coefficients; an <b>aperiodic</b> sequence has a continuous spectrum. Both spectra are periodic in $\\omega$ with period $2\\pi$, because time is discrete in both cases. Discreteness in one domain is periodicity in the other, and that single sentence organises the whole table.'}]},
+  {t:'reveal', at:2, items:[
+    {t:'note', kind:'ok', head:'The sinc convention, once more', html:'Where the ideal low-pass sequence is written with a sinc, the convention is the unnormalised one, $\\operatorname{sinc}\\theta=\\sin\\theta/\\theta$, so the pair reads $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wn)$ with no $\\pi$ inside the argument. Any table using the other convention has a $\\pi$ there and different zero crossings.'}]}
+]},
+
+
+/* </m6-s7> */
 ];
 
 window.SCENES_M6 = SC;

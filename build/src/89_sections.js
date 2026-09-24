@@ -186,20 +186,36 @@ CONTENT.SECTIONS = {
 
   M6: [
     { n:'6.0', title:'Opening',                                  ids:['m6-open'] },
-    { n:'6.1', title:'Building the transform',                   ids:[
+    /* <m6-s1-sec> */
+    { n:'6.1', title:'Building the transform', ids:[
         'm6-derive','m6-dtfs-link','m6-limit','m6-pair','m6-periodic'] },
-    { n:'6.2', title:'The standard pairs',                       ids:[
+    /* </m6-s1-sec> */
+    /* <m6-s2-sec> */
+    { n:'6.2', title:'The standard pairs', ids:[
         'm6-ex-shift','m6-ex-anun','m6-ex-anun-b','m6-ex-absn','m6-ex-rect',
-        'm6-ex-rect-b','m6-real-phase','m6-ex-lpf'] },
-    { n:'6.3', title:'Periodic sequences',                       ids:[
+        'm6-ex-rect-b','m6-phase-real','m6-ex-lpf','m6-lab-i'] },
+    /* </m6-s2-sec> */
+    /* <m6-s3-sec> */
+    { n:'6.3', title:'Periodic sequences', ids:[
         'm6-cexp','m6-dt-periodic','m6-sqwave','m6-ex-imptrain','m6-ex-cos','m6-ex-cos-b'] },
-    { n:'6.4', title:'Properties',                               ids:[
-        'm6-props-1','m6-props-2','m6-props-evenodd','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval'] },
-    { n:'6.5', title:'Convolution and multiplication',           ids:[
+    /* </m6-s3-sec> */
+    /* <m6-s4-sec> */
+    { n:'6.4', title:'Properties', ids:[
+        'm6-props-1','m6-props-2','m6-props-evenodd','m6-expansion','m6-expansion-b','m6-props-3','m6-parseval',
+        'm6-duality'] },
+    /* </m6-s4-sec> */
+    /* <m6-s5-sec> */
+    { n:'6.5', title:'Convolution and multiplication', ids:[
         'm6-conv','m6-conv-ex','m6-conv-lpf','m6-conv-lpf-b','m6-mult','m6-mult-b','m6-mult-ex'] },
-    { n:'6.6', title:'Property summary and duality',             ids:['m6-tables','m6-pairs','m6-duality'] },
-    { n:'6.7', title:'Difference equations',                     ids:[
-        'm6-freqresp','m6-ex-diff','m6-ex-pair','m6-ex-diff-b','m6-lab-i'] }
+    /* </m6-s5-sec> */
+    /* <m6-s6-sec> */
+    { n:'6.6', title:'Difference equations', ids:[
+        'm6-freqresp','m6-ex-diff','m6-ex-pair','m6-ex-diff-b'] },
+    /* </m6-s6-sec> */
+    /* <m6-s7-sec> */
+    { n:'6.7', title:'Summary', ids:[
+        'm6-tables','m6-pairs'] }
+    /* </m6-s7-sec> */
   ],
 
   M7: [
@@ -321,20 +337,33 @@ CONTENT.BOOK = {
   'm5-lab-v':'4.2', 'm5-code-periodic':'4.2', 'm5-lab-w':'4.3', 'm5-code-props':'4.3',
   'm5-lab-x':'4.4, 4.5', 'm5-code-conv':'4.4, 4.5', 'm5-lab-y':'4.7', 'm5-code-diffeq':'4.7',
 
+  /* <m6-s1-book> */
   'm6-derive':'5.1.1', 'm6-dtfs-link':'5.1.1', 'm6-limit':'5.1.1',
   'm6-pair':'5.1.1', 'm6-periodic':'5.3.1',
+  /* </m6-s1-book> */
+  /* <m6-s2-book> */
   'm6-ex-shift':'5.1.2', 'm6-ex-anun':'5.1.2', 'm6-ex-anun-b':'5.1.2',
   'm6-ex-absn':'5.1.2', 'm6-ex-rect':'5.1.2', 'm6-ex-rect-b':'5.1.2',
-  'm6-real-phase':'5.3.4', 'm6-ex-lpf':'5.1.3',
+  'm6-phase-real':'5.3.4', 'm6-ex-lpf':'5.1.3', 'm6-lab-i':'5.1.2',
+  /* </m6-s2-book> */
+  /* <m6-s3-book> */
   'm6-cexp':'5.2', 'm6-dt-periodic':'5.2', 'm6-sqwave':'5.2',
   'm6-ex-imptrain':'5.2', 'm6-ex-cos':'5.2', 'm6-ex-cos-b':'5.2',
+  /* </m6-s3-book> */
+  /* <m6-s4-book> */
   'm6-props-1':'5.3.3', 'm6-props-2':'5.3.4', 'm6-props-evenodd':'5.3.4', 'm6-expansion':'5.3.7',
-  'm6-expansion-b':'5.3.7', 'm6-props-3':'5.3.5', 'm6-parseval':'5.3.9',
+  'm6-expansion-b':'5.3.7', 'm6-props-3':'5.3.5', 'm6-parseval':'5.3.9', 'm6-duality':'5.7',
+  /* </m6-s4-book> */
+  /* <m6-s5-book> */
   'm6-conv':'5.4', 'm6-conv-ex':'5.4.1', 'm6-conv-lpf':'5.4.1',
   'm6-conv-lpf-b':'5.4.1', 'm6-mult':'5.5', 'm6-mult-b':'5.5', 'm6-mult-ex':'5.5',
-  'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-duality':'5.7',
-  'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-pair':'5.8',
-  'm6-ex-diff-b':'5.8', 'm6-lab-i':'5.3.1',
+  /* </m6-s5-book> */
+  /* <m6-s6-book> */
+  'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-pair':'5.8', 'm6-ex-diff-b':'5.8',
+  /* </m6-s6-book> */
+  /* <m6-s7-book> */
+  'm6-tables':'5.6', 'm6-pairs':'5.6',
+  /* </m6-s7-book> */
 
   'm7-sampler':'7.1.1', 'm7-rates':'7.1', 'm7-freq':'7.1.1',
   'm7-replicas':'7.1.1', 'm7-three':'7.1.1',

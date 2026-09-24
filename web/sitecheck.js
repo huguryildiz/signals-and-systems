@@ -38,7 +38,7 @@ const note = m => console.log('  ' + m);
     facts = await page.evaluate(() => ({
       modules: CONTENT.MODULES.length,
       scenes: APP.scenes().length,
-      labs: APP.scenes().filter(s => /-lab-[a-z]$/.test(s.id)).length,
+      labs: APP.scenes().filter(s => /-lab-[a-z][0-9]?$/.test(s.id)).length,
       questions: CONTENT.DRILL.length
     }));
     if (scenes.length < 200) problems.push('only ' + scenes.length + ' scenes loaded');
