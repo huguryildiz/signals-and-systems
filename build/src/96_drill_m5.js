@@ -26,8 +26,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{0}^{\\infty}e^{-4t}e^{-j\\omega t}\\,\\d t=\\frac{1}{4+j\\omega}.$$The integral converges because the real part of the exponent, $-4$, is negative.<br>'
      +'<b>Solution — part (b).</b> $|X(j3)|=\\dfrac{1}{\\sqrt{16+9}}=\\dfrac{1}{5}=0.2$, and $\\angle X(j3)=-\\arctan\\!\\left(\\dfrac34\\right)=-0.6435$ rad. The curve $|X(j\\omega)|=1/\\sqrt{16+\\omega^{2}}$ peaks at $\\omega=0$ and falls off as $1/|\\omega|$.<br>'
      +'<b>Check.</b> $X(0)=\\dfrac14=0.25$, and directly $\\displaystyle\\int_{0}^{\\infty}e^{-4t}\\,\\d t=\\dfrac14$. They agree.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.02,0.28],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:0.05});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.02,0.28],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|X(j\\omega)|',
+      pad:{l:58,r:28,t:34,b:40},ystep:0.05});
     a.curve(w=>1/Math.sqrt(16+w*w),{color:C.mid});
     a.point(3,0.2,{color:C.coral});
     a.note(3.4,0.235,'|X(j3)|=0.2',{color:C.coral,fs:13,tex:true});
@@ -46,8 +46,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{0}^{\\infty}t\\,e^{-(3+j\\omega)t}\\,\\d t=\\frac{1}{(3+j\\omega)^{2}}.$$'
      +'<b>Solution — part (b).</b> Since $|z^{2}|=|z|^{2}$ for any complex $z$,$$|X(j\\omega)|=\\frac{1}{9+\\omega^{2}},$$which peaks at $\\omega=0$ with value $1/9$ and decreases monotonically on either side.<br>'
      +'<b>Check.</b> $X(0)=\\dfrac19$, and directly $\\displaystyle\\int_{0}^{\\infty}t\\,e^{-3t}\\,\\d t=\\dfrac{1}{3^{2}}=\\dfrac19$, using the same standard integral with $\\omega=0$. They agree.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.01,0.13],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:0.02});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.01,0.13],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|X(j\\omega)|',
+      pad:{l:58,r:28,t:34,b:40},ystep:0.02});
     a.curve(w=>1/(9+w*w),{color:C.mid});
     a.point(0,1/9,{color:C.coral});
     return a.svg();},
@@ -68,8 +68,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{-2}^{2}3e^{-j\\omega t}\\,\\d t=3\\cdot\\frac{2\\sin(2\\omega)}{\\omega}=\\frac{6\\sin(2\\omega)}{\\omega}=12\\operatorname{sinc}(2\\omega).$$'
      +'<b>Solution — part (b).</b> $X(j\\omega)=0$ when $\\sin(2\\omega)=0$ and $\\omega\\neq0$, that is at$$\\omega=\\pm\\frac{\\pi}{2},\\pm\\pi,\\pm\\frac{3\\pi}{2},\\dots$$'
      +'<b>Check.</b> Taking the limit, $X(0)=12$, and the area of the pulse is $3\\cdot4=12$. They agree. $X$ is real and even, as it must be for a real even signal, and the first zero at $\\omega=\\pi/2$ is $2\\pi$ divided by the pulse width $4$, the usual reciprocal spacing.',
-  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-12.6,12.6],yr:[-3.2,13.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:3});
+  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-12.6,12.6],yr:[-3.2,13.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:58,r:28,t:34,b:40},ystep:3});
     a.curve(w=>Math.abs(w)<1e-9?12:6*Math.sin(2*w)/w,{color:C.mid,n:1600});
     return a.svg();},
   err:'Reporting $X(j\\omega)=\\dfrac{3\\sin(2\\omega)}{\\omega}$, by integrating correctly but forgetting the factor $2$ that comes from $e^{j2\\omega}-e^{-j2\\omega}=2j\\sin(2\\omega)$.',
@@ -91,8 +91,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> The impulse weight is $2\\pi a_k$, which simplifies to $2\\sin(k\\pi/2)/k$ for $k\\neq0$ and $\\pi$ at $k=0$:$$X(j\\omega)=\\pi\\,\\delta(\\omega)+\\sum_{k\\neq0}\\frac{2\\sin(k\\pi/2)}{k}\\,\\delta\\!\\left(\\omega-\\frac{k\\pi}{2}\\right).$$Numerically: weight $\\pi=3.1416$ at $\\omega=0$; weight $2$ at $\\omega=\\pm\\pi/2$; weight $0$ at $\\omega=\\pm\\pi$; weight $-2/3=-0.6667$ at $\\omega=\\pm3\\pi/2$.<br>'
      +'<b>Solution — part (c).</b> The impulses at $k=\\pm2$ (that is, at $\\omega=\\pm\\pi$) vanish, because $\\sin(\\pi)=0$; the impulse at $k=\\pm3$ points downward, since $\\sin(3\\pi/2)=-1$. The spectrum is symmetric about $\\omega=0$, with the negative-frequency impulses carrying the same real weights as their positive-frequency partners.<br>'
      +'<b>Check.</b> $a_0$ must equal the average value of $x(t)$ over one period, which is $\\text{width}/\\text{period}=2/4=0.5$ — read directly off the picture, with no series involved. Independently, taking the limit of the general formula for $a_k$ as $k\\to0$ gives $\\sin(k\\omega_0)/(2k\\omega_0)\\to\\omega_0k/(2k\\omega_0)=1/2$ by l\u2019H\u00f4pital, the same number by a route that never used the average-value picture.',
-  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-7,7],yr:[-1.3,4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:58,r:28,t:34,b:40},xstep:1,ystep:1});
+  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-7,7],yr:[-1.3,4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:58,r:28,t:34,b:40},ystep:1});
     for(let k=-4;k<=4;k++){ const wt = k===0?Math.PI:2*Math.sin(k*Math.PI/2)/k; if(Math.abs(wt)<1e-9) continue;
       a.impulse(k*Math.PI/2, wt, {color:C.mid,labelText:wt.toFixed(2)}); }
     return a.svg();},
@@ -210,8 +210,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D5-12', module:'M5', type:'ft-dual', src:'MT2 Q3',
   stem:'Let $x(t)=\\dfrac{\\sin(\\pi t)}{\\pi t}$, whose transform is $X(j\\omega)=1$ on $|\\omega|<\\pi$, $0$ elsewhere. Let $$z(t)=e^{j3t}x(t).$$',
-  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-6,6],yr:[-0.3,1.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:28,t:32,b:36},xstep:1,ystep:1});
+  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-6,6],yr:[-0.3,1.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'X(j\\omega)',
+      pad:{l:56,r:28,t:32,b:36},ystep:1});
     a.poly([[-6,0],[-Math.PI,0],[-Math.PI,1],[Math.PI,1],[Math.PI,0],[6,0]],{color:C.in}); return a.svg();},
   parts:['State the frequency-shift property in the form used here, naming what is fixed and what is being multiplied.',
          'Apply it to find $Z(j\\omega)$ and sketch it, giving the band edges numerically.',
@@ -421,11 +421,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The exponent is $-2t-j10\\pi t$, so this is $e^{-2t}u(t)$ multiplied by $e^{-j10\\pi t}$:$$X(j\\omega)=\\frac{1}{2+j(\\omega+10\\pi)},\\qquad|X(j\\omega)|=\\frac{1}{\\sqrt{4+(\\omega+10\\pi)^{2}}},$$the usual one-pole magnitude, but centred at $\\omega=-10\\pi$ instead of at the origin.<br>'
      +'<b>Check.</b> In (b), $X(j0)=6$ must be the area under the rectangle, and it is: height $1$ times width $6$. In (c) the peak value is $\\tfrac12$ at $\\omega=-10\\pi$, which is what $\\left|X\\right|$ gives when the bracket vanishes, and it matches the area $\\int_0^{\\infty}e^{-2t}\\,\\d t=\\tfrac12$ of the unmodulated signal. In (a) the impulses carry the average of the one-sided cosine, and the rational part is odd in $\\omega$, as the transform of a real signal that is neither even nor odd must be in its imaginary part.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-1,6.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-1,6.8],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*Math.PI/3,ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>Math.abs(w)<1e-6?6:2*Math.sin(3*w)/w,{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-46,-16],yr:[-0.05,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:56,r:26,t:28,b:38},xstep:10,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-46,-16],yr:[-0.05,0.62],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*Math.PI,ylabel:'|X(j\\omega)|',
+      pad:{l:56,r:26,t:28,b:38},ystep:0.25});
       a.curve(w=>1/Math.sqrt(4+Math.pow(w+10*Math.PI,2)),{color:C.mid}); return a.svg();})()),
   err:'Dropping the impulses in part (a) and reporting only $\\dfrac{j\\omega}{4-\\omega^{2}}$. The step has a non-zero average, so its transform carries an impulse at the origin, and shifting that impulse to $\\pm2$ is what the two carriers do to it.',
   teach:'For part (c), separate $-2t$ from $-j10\\pi t$ before selecting a formula. This identifies a standard exponential pair followed by a frequency shift, so direct integration is unnecessary.' },
@@ -443,11 +443,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> By Parseval,$$E=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|Y(j\\omega)|^{2}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}4\\pi^{2}e^{-6|\\omega|}\\,\\d\\omega=2\\pi\\cdot\\frac{2}{6}=\\frac{2\\pi}{3}\\approx2.094\\;\\text{J}.$$'
      +'<b>Check.</b> Compute the energy in the time domain instead:$$E=\\int_{-\\infty}^{\\infty}\\left(\\frac{6}{9+t^{2}}\\right)^{2}\\d t=36\\int_{-\\infty}^{\\infty}\\frac{\\d t}{(9+t^{2})^{2}}=36\\cdot\\frac{\\pi}{2\\cdot3^{3}}=\\frac{2\\pi}{3},$$using $\\int_{-\\infty}^{\\infty}\\dfrac{\\d t}{(a^{2}+t^{2})^{2}}=\\dfrac{\\pi}{2a^{3}}$. The two agree. A second check: $Y(j0)=2\\pi$ must be the area under $y(t)$, and $\\int\\dfrac{6\\,\\d t}{9+t^{2}}=6\\cdot\\dfrac{\\pi}{3}=2\\pi$.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.08,0.78],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.08,0.78],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:0.25});
       a.curve(w=>6/(9+w*w),{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.7,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:1,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.7,7.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/4,ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>2*Math.PI*Math.exp(-3*Math.abs(w)),{color:C.out}); return a.svg();})()),
   err:'Answering (b) with $e^{-3|\\omega|}$ and losing the factor $2\\pi$. Duality is not a symmetry of the transform pair: going from $X(t)$ back to a signal costs a factor of $2\\pi$, and it shows up in the energy as a factor of $4\\pi^{2}$.',
   teach:'Ask why the reflection $x(-\\omega)$ in the duality statement does not change this result. It does not change the result because $x$ is even.' },
@@ -513,11 +513,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The filter is a sinc of bandwidth $2\\pi$ shifted by $-3\\pi$:$$H(j\\omega)=\\begin{cases}1,&-5\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$Multiplying, $Z=YH$. The copy on $-14\\pi<\\omega<-6\\pi$ misses the passband entirely. The copy on $-2\\pi<\\omega<6\\pi$ meets it on $-2\\pi<\\omega<-\\pi$. So$$Z(j\\omega)=\\begin{cases}\\tfrac12,&-2\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$'
      +'<b>Check.</b> Widths account for themselves at every stage. $X$ is $8\\pi$ wide; $Y$ is two copies of that width at half height, so its total area is unchanged; $Z$ keeps only a slice of width $\\pi$, one eighth of one copy. The filter passband is $4\\pi$ wide but only $\\pi$ of it holds any signal, which is why the output band is narrower than the filter.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-16,10],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Y(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-16,10],yr:[-0.12,0.75],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'Y(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:4,ystep:0.25});
       a.poly([[-16,0],[-14,0],[-14,0.5],[-6,0.5],[-6,0],[-2,0],[-2,0.5],[6,0.5],[6,0],[10,0]],{color:C.mid});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,4],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Z(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,4],yr:[-0.12,0.75],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'Z(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
       a.poly([[-8,0],[-2,0],[-2,0.5],[-1,0.5],[-1,0],[4,0]],{color:C.out}); return a.svg();})()),
   err:'Assuming the two copies in part (b) are symmetric about the origin because a cosine was used. They are symmetric about $\\pm6\\pi$, not about zero, and since $X$ was one-sided to begin with, the result is one-sided about each carrier too.',
@@ -569,11 +569,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> A trapezoid flat on $|t|\\le1$ and vanishing at $|t|=3$ is the convolution of a rectangle of half-width $2$ with one of half-width $1$: the total half-width is $2+1=3$ and the flat top has half-width $2-1=1$, both as required. Choosing unit heights makes the peak $2\\cdot\\min(2,1)=2$, which matches. So$$X_3(j\\omega)=\\frac{2\\sin(2\\omega)}{\\omega}\\cdot\\frac{2\\sin\\omega}{\\omega}=\\frac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}.$$'
      +'<b>Check.</b> Each transform at $\\omega=0$ must be the area of its signal. For $x_2$: $\\tfrac12\\cdot4\\cdot2=4$, and $4\\left(\\tfrac{\\sin\\omega}{\\omega}\\right)^{2}\\to4$. For $x_3$: the flat part contributes $2\\cdot2=4$ and the two sloping ends $2\\cdot\\tfrac12\\cdot2\\cdot2=4$, total $8$; and $\\dfrac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}\\to4\\cdot2\\cdot1=8$. Both match.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.5,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.5,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X_2(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:1});
       a.curve(w=>Math.abs(w)<1e-6?4:4*Math.pow(Math.sin(w)/w,2),{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-2.2,8.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_3(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-2.2,8.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X_3(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>Math.abs(w)<1e-6?8:4*Math.sin(2*w)*Math.sin(w)/(w*w),{color:C.out}); return a.svg();})()),
   err:'Building the trapezoid from rectangles of half-widths $3$ and $1$, reading the two numbers straight off the plot. The half-widths add to give the total and subtract to give the flat top, so they are $2$ and $1$, not $3$ and $1$.',
   teach:'Each part uses a different known structure: the impulse-train pair, a rectangle convolved with itself, and two unequal rectangles convolved together. Ask which parts could also be calculated by direct integration and compare the required steps.' },
@@ -590,7 +590,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> With $\\omega_c=10\\pi$,$$S(j\\omega)=\\tfrac12X(j(\\omega-10\\pi))+\\tfrac12X(j(\\omega+10\\pi)),$$so$$S(j\\omega)=\\pi\\left[\\delta(\\omega-10\\pi)+\\delta(\\omega+10\\pi)\\right]+\\tfrac{3\\pi}{2}\\left[\\delta(\\omega-12\\pi)+\\delta(\\omega-8\\pi)+\\delta(\\omega+8\\pi)+\\delta(\\omega+12\\pi)\\right].$$Six impulses in all: a pair at the carrier and a pair of sidebands on each side of it.<br>'
      +'<b>Solution — part (c).</b> The spectrum of $x$ extends to $\\omega_M=2\\pi$, so a copy centred at $\\omega_c$ occupies $\\omega_c\\pm2\\pi$ and the copy centred at $-\\omega_c$ occupies $-\\omega_c\\pm2\\pi$. They stay apart as long as$$\\omega_c-2\\pi>-\\omega_c+2\\pi\\quad\\Longleftrightarrow\\quad\\omega_c>2\\pi.$$Below that the upper sideband of the negative copy crosses the lower sideband of the positive one, the two add, and the original cannot be recovered by filtering — the components that overlap can no longer be told apart.<br>'
      +'<b>Check.</b> The total weight is preserved in the right way. Each impulse of $X$ has been halved and duplicated, so the sum of all weights in $S$ is the same as in $X$: $2\\pi+3\\pi+3\\pi=8\\pi$ before, and $\\pi+\\pi+4\\cdot\\tfrac{3\\pi}{2}=8\\pi$ after. With $\\omega_c=10\\pi$ the copies run over $8\\pi$ to $12\\pi$ and $-12\\pi$ to $-8\\pi$, comfortably clear of each other, consistent with part (c).',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega/\\pi',ylabel:'S(j\\omega)',
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'S(j\\omega)',
       pad:{l:52,r:28,t:30,b:38},xstep:2,ystep:2});
     [[-12,1.5*Math.PI],[-10,Math.PI],[-8,1.5*Math.PI],[8,1.5*Math.PI],[10,Math.PI],[12,1.5*Math.PI]]
       .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
@@ -610,8 +610,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Multiplication by $t$ is differentiation in frequency: if $g(t)=e^{-3t}u(t)$ has $G=\\dfrac{1}{3+j\\omega}$, then$$X(j\\omega)=j\\frac{\\d G}{\\d\\omega}=j\\cdot\\frac{-j}{(3+j\\omega)^{2}}=\\frac{1}{(3+j\\omega)^{2}}.$$'
      +'<b>Solution — part (c).</b> Convolution in time is multiplication in frequency. The rectangle of height $1$ on $|t|<2$ has transform $\\dfrac{2\\sin(2\\omega)}{\\omega}$, so$$X(j\\omega)=\\left(\\frac{2\\sin(2\\omega)}{\\omega}\\right)^{2}=\\frac{4\\sin^{2}(2\\omega)}{\\omega^{2}}.$$In the time domain this is a triangle of height $4$ on $|t|<4$.<br>'
      +'<b>Check.</b> Part (a) at $\\omega=0$ gives $\\dfrac{e^{-6}}{3}$, which is $\\int_2^{\\infty}e^{-3t}\\,\\d t$ exactly. Part (b) at $\\omega=0$ gives $\\tfrac19$, and $\\int_0^{\\infty}te^{-3t}\\,\\d t=\\tfrac1{9}$. Part (c) at $\\omega=0$ gives $16$, the area of a triangle of height $4$ and base $8$, $\\tfrac12\\cdot8\\cdot4=16$; it is also the product of the two rectangle areas, $4\\cdot4$, as the convolution rule requires.',
-  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-5,5],yr:[-1.5,17.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)\\;\\text{of part (c)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:4});
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-5,5],yr:[-1.5,17.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'X(j\\omega)\\;\\text{of part (c)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:4});
     a.curve(w=>Math.abs(w)<1e-6?16:4*Math.pow(Math.sin(2*w)/w,2),{color:C.out}); return a.svg();},
   err:'Writing the answer to (a) as $\\dfrac{e^{-j2\\omega}}{3+j\\omega}$, keeping the shift and dropping the amplitude. Delaying $e^{-3t}u(t)$ by two gives $e^{-3(t-2)}u(t-2)$, which is $e^{6}$ times the signal asked for, so the factor $e^{-6}$ has to appear somewhere.',
   teach:'Parts (a) and (b) both look like the same table entry and use different properties. Ask which property each needs before either is computed; naming them first is what stops the two from being confused.' },

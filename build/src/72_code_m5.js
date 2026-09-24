@@ -41,7 +41,8 @@ end
 
 w = linspace(-10, 10, 800);
 plot(w, 2*sin(w*T1)./w, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -60,6 +61,7 @@ for T in [4, 16]:
 w = np.linspace(-10, 10, 800)
 plt.plot(w, 2*np.sin(w*T1)/w, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -121,7 +123,8 @@ end
 k = -50:50; w0 = 0.2*pi;
 Xk = 2*sin(k*w0*T1) ./ (k*w0); Xk(k==0) = 2*T1;
 stem(k*w0, Xk, 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jkw0)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jkw0)')
+xticks(pi*(-9:3:9)); xticklabels({'-9\\pi','-6\\pi','-3\\pi','0','3\\pi','6\\pi','9\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -141,7 +144,7 @@ kk = np.where(k == 0, 1, k)
 Xk = np.where(k == 0, 2*T1, 2*np.sin(kk*w0*T1)/(kk*w0))
 plt.stem(k*w0, Xk)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(jk\\omega_0)$')
-plt.grid(True)
+plt.xticks(np.pi*np.arange(-9, 10, 3), [r'$-9\\pi$', r'$-6\\pi$', r'$-3\\pi$', '0', r'$3\\pi$', r'$6\\pi$', r'$9\\pi$']); plt.grid(True)
 plt.show()`},
 
 'tr-exist': {
@@ -205,7 +208,8 @@ fprintf('numeric X(j2) = %.4f   formula = %.4f\\n', real(Xnum), Xfor)
 
 wv = linspace(-12, 12, 1200);
 plot(wv, 2*T1*sin(wv*T1)./(wv*T1), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -225,7 +229,7 @@ print(f'numeric X(j2) = {Xnum.real:.4f}   formula = {Xfor:.4f}')
 wv = np.linspace(-12, 12, 1200)
 plt.plot(wv, 2*T1*np.sin(wv*T1)/(wv*T1), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
-plt.grid(True)
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'pr-phase': {
@@ -243,7 +247,8 @@ fprintf('-arctan(w/a) = %.4f\\n', phf)
 
 wv = linspace(-6, 6, 600);
 plot(wv, angle(1./(a + 1j*wv)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('angle X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('angle X(jw)')
+xticks(pi*(-1.5:0.5:1.5)); xticklabels({'-3\\pi/2','-\\pi','-\\pi/2','0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -258,6 +263,7 @@ print(f'-arctan(w/a) = {phf:.4f}')
 wv = np.linspace(-6, 6, 600)
 plt.plot(wv, np.angle(1/(a + 1j*wv)), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$\\angle X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-1.5, 1.6, 0.5), [r'$-3\\pi/2$', r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -278,7 +284,8 @@ wm = w(mask);
 fprintf('first side lobe = %.4f at w = %.4f\\n', lobe, wm(idx))
 
 plot(w, X, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(0:0.5:2)); xticklabels({'0','\\pi/2','\\pi','3\\pi/2','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -296,6 +303,7 @@ print(f'first side lobe = {lobe:.4f} at w = {wm:.4f}')
 
 plt.plot(w, X, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(0, 2.1, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -313,7 +321,8 @@ end
 
 w = linspace(0.01, 15, 2000);
 plot(w, 2*sin(w*0.25)./w, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(0:4)); xticklabels({'0','\\pi','2\\pi','3\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -326,6 +335,7 @@ for T1 in [1, 0.25]:
 w = np.linspace(0.01, 15, 2000)
 plt.plot(w, 2*np.sin(w*0.25)/w, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(0, 5), ['0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -344,7 +354,8 @@ fprintf('weight at origin = %.4f\\n', 2*pi*a0)
 k = -6:6;
 ak = sin(2*pi*k*T1/T) ./ (pi*k); ak(k==0) = a0;
 stem(k*w0, 2*pi*ak, 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/s)'), ylabel('2 pi a_k')
+xticks(pi*(-1.5:0.5:1.5)); xticklabels({'-3\\pi/2','-\\pi','-\\pi/2','0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -360,6 +371,7 @@ kk = np.where(k == 0, 1, k)
 ak = np.where(k == 0, a0, np.sin(2*np.pi*kk*T1/T)/(np.pi*kk))
 plt.stem(k*w0, 2*np.pi*ak)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.pi*np.arange(-1.5, 1.6, 0.5), [r'$-3\\pi/2$', r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -443,7 +455,8 @@ end
 
 k = -4:4; T = 1;
 stem(k*2*pi/T, (2*pi/T)*ones(size(k)), 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-8:4:8)); xticklabels({'-8\\pi','-4\\pi','0','4\\pi','8\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -456,6 +469,7 @@ for T in [1, 2]:
 k = np.arange(-4, 5); T = 1
 plt.stem(k*2*np.pi/T, (2*np.pi/T)*np.ones(k.size))
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-8, 9, 4), [r'$-8\\pi$', r'$-4\\pi$', '0', r'$4\\pi$', r'$8\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -513,7 +527,8 @@ fprintf('new band edge = %.4f\\n', newEdge)
 
 w = linspace(-15, 15, 1000);
 plot(w, newHeight*(abs(w) < newEdge), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('0.5X(jw/2)')`,
+xlabel('frequency (rad/s)'), ylabel('0.5X(jw/2)')
+xticks(pi*(-4:2:4)); xticklabels({'-4\\pi','-2\\pi','0','2\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -527,6 +542,7 @@ print(f'new band edge = {newEdge:.4f}')
 w = np.linspace(-15, 15, 1000)
 plt.plot(w, newHeight*(np.abs(w) < newEdge), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$0.5X(j\\omega/2)$')
+plt.xticks(np.pi*np.arange(-4, 5, 2), [r'$-4\\pi$', r'$-2\\pi$', '0', r'$2\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -668,7 +684,8 @@ fprintf('y(0) = %.4f\\n', y0)
 
 w = linspace(-15, 15, 1000);
 plot(w, Ay*(abs(w) <= Wy), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('Y(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('Y(jw)')
+xticks(pi*(-4:2:4)); xticklabels({'-4\\pi','-2\\pi','0','2\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -687,6 +704,7 @@ print(f'y(0) = {y0:.4f}')
 w = np.linspace(-15, 15, 1000)
 plt.plot(w, Ay*(np.abs(w) <= Wy), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Y(j\\omega)$')
+plt.xticks(np.pi*np.arange(-4, 5, 2), [r'$-4\\pi$', r'$-2\\pi$', '0', r'$2\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -769,7 +787,8 @@ fprintf('|H(j100)| = %.4f\\n', abs(H(100)))
 
 w = linspace(-10, 10, 1000);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H(jw)|')`,
+xlabel('frequency (rad/s)'), ylabel('|H(jw)|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -785,6 +804,7 @@ print(f'|H(j100)| = {abs(H(100)):.4f}')
 w = np.linspace(-10, 10, 1000)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 

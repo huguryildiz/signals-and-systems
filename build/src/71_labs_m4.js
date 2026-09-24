@@ -247,7 +247,7 @@ Object.assign(LABS, (function(){
       const wmax = c.dt ? Math.PI : 4*Math.PI;
       const A2 = PLOT.Axes({w:760,h:191,xr:[-wmax,wmax],yr:[-0.12,1.45],
         xlabel:c.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xtarget:5,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2});
       A2.curve(w=>cabs(c.dt?Hdt(w,c.hp):Hct(w,par,c.hp)),{color:PLOT.COL.h,n:1400});
       for(let k=-m.K;k<=m.K;k++){ const w=k*m.w0; if(Math.abs(w)>wmax) continue;
         A2.point(w, cabs(m.H(k)), {color:PLOT.COL.coral,r:4}); }
@@ -375,7 +375,7 @@ Object.assign(LABS, (function(){
       /* panel 2 — |H(w)| with the current point marked */
       const A2 = PLOT.Axes({w:760,h:267,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
         xlabel:s.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xtarget:6,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2});
       A2.curve(v=>cabs(s.H(v)),{color:PLOT.COL.h,n:1200});
       A2.point(w,mag,{color:PLOT.COL.coral,r:5});
 

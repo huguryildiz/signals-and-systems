@@ -213,7 +213,8 @@ const AXIS = ['#8A939C', '#7C858F'];
      margin, so it has no reason to touch anything: a hit on the data, on the axis
      line, on the arrowhead at its end or on a tick mark is a collision. This is the
      clearance R7 asks for, checked rather than trusted. */
-  const numeric = t => /^[-−]?[\d.,]+$/.test(t.trim());
+  /* a tick number: digits, or a multiple of pi such as -3π/2 on a frequency axis */
+  const numeric = t => /^[-−]?([\d.,]+|\d*π(\/\d+)?)$/.test(t.trim());
   const isAxisName = r => r.role === 'axisname';
   const isSoft = r => r.halo && !r.tt && !r.cut && !isAxisName(r)
     && (numeric(r.text) || r.text.trim().length <= 2);

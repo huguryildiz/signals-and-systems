@@ -862,7 +862,8 @@ fprintf('b0 = %.4f\\n', real(b0))
 
 w = linspace(-15, 15, 601);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H|')`,
+xlabel('frequency (rad/s)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -881,7 +882,7 @@ print(f'b0 = {(a[0] * H(0)).real:.4f}')
 
 w = np.linspace(-15, 15, 601)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$'); plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -907,7 +908,8 @@ fprintf('b0 = %.4f\\n', real(b0))
 
 w = linspace(-15, 15, 601);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H|')`,
+xlabel('frequency (rad/s)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -926,7 +928,7 @@ print(f'b0 = {(a[0] * H(0)).real:.4f}')
 
 w = np.linspace(-15, 15, 601)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$'); plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 

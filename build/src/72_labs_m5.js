@@ -97,7 +97,7 @@ Object.assign(LABS, (function(){
       if(s.real){
         const A2 = PLOT.Axes({w:760,h:236,xr:[-wmax,wmax],yr:[-0.55*topMag,1.28*topMag],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-          pad:{l:64,r:24,t:32,b:36},xtarget:7,ytarget:3});
+          pad:{l:64,r:24,t:32,b:36},xpi:true,xtarget:10,ytarget:3});
         A2.curve(w=>s.X(w,par).re,{color:PLOT.COL.mid,width:2.3,n:2400});
         panels = [A1,A2];
         root.querySelector('.plots').innerHTML =
@@ -106,11 +106,11 @@ Object.assign(LABS, (function(){
       } else {
         const A2 = PLOT.Axes({w:760,h:128,xr:[-wmax,wmax],yr:[-0.1*topMag,1.28*topMag],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-          pad:{l:64,r:24,t:28,b:32},xtarget:7,ytarget:3});
+          pad:{l:64,r:24,t:28,b:32},xpi:true,xtarget:10,ytarget:3});
         A2.curve(w=>cabs(s.X(w,par)),{color:PLOT.COL.mid,width:2.3,n:2400});
         const A3 = PLOT.Axes({w:760,h:140,xr:[-wmax,wmax],yr:[-1.9,1.9],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
-          pad:{l:70,r:24,t:26,b:34},xtarget:7,
+          pad:{l:70,r:24,t:26,b:34},xpi:true,xtarget:10,
           yticksOverride:[-1.5708,0,1.5708],ytickfmt:v=>v.toFixed(2)});
         A3.curve(w=>carg(s.X(w,par)),{color:PLOT.COL.mid,width:2,n:2400});
         panels = [A1,A2,A3];
@@ -232,7 +232,7 @@ Object.assign(LABS, (function(){
       topc = Math.max(topc, 0.2);
       const A2 = PLOT.Axes({w:760,h:212,xr:[-wmax,wmax],yr:[-0.55*topc,1.28*topc],
         xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'T\\,a_k\\ \\text{and}\\ X(j\\omega)',
-        pad:{l:64,r:24,t:30,b:36},xtarget:7,ytarget:3});
+        pad:{l:64,r:24,t:30,b:36},xpi:true,xtarget:10,ytarget:3});
       A2.curve(w=>sh.X(w),{color:PLOT.COL.coral,width:1.6,dash:'6 5',n:1600});
       A2.stem(stems,{color:PLOT.COL.in,r:3.2,showZero:true});
 

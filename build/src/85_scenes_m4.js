@@ -706,7 +706,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
       svg:v=>{
       /* a_k placed at w = k w0, with the envelope E(w)/T0 they sample; T1 = 1 */
       const f=cl(v?v.frame:0), E=w=>Math.abs(w)<1e-9?2:2*Math.sin(w)/w;
-      const a=AX({yticksLeft:true,xr:[-10,10],yr:[-0.16,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'a_k',xtarget:9,ytarget:4});
+      const a=AX({yticksLeft:true,xr:[-10,10],yr:[-0.16,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'a_k',xpi:Math.PI,ytarget:4});
       const one=T0=>{ const w0=2*Math.PI/T0;
         a.curve(w=>E(w)/T0,{color:C.mid,dash:'6 5',n:900});
         const pts=[]; for(let k=-20;k<=20;k++){ const w=k*w0; if(Math.abs(w)<=10) pts.push([w,E(w)/T0]); }
@@ -1664,7 +1664,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=AX({xr:[0,12],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:7,ytarget:3,
-        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1+w*w);
       a.curve(Hm,{color:C.h,n:900});
       [0,1,2,3].forEach(k=>a.point(k*Math.PI,Hm(k*Math.PI),{color:C.coral,r:5}));
@@ -1719,7 +1719,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=AX({xr:[0,12],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:7,ytarget:3,
-        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:P.piTick});
       const Hm=w=>w/Math.sqrt(1+w*w);
       a.curve(Hm,{color:C.h,n:900});
       [0,1,2,3].forEach(k=>a.point(k*Math.PI,Hm(k*Math.PI),{color:C.coral,r:5}));
@@ -1776,7 +1776,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const wc=v?v.wc:3.5, K=Math.floor(wc), ab=k=>Math.abs(aq(k));
       return stack2(h=>{
-        const f=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.35],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega),\\ |a_k|',xtarget:13,ytarget:2});
+        const f=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.35],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'H(j\\omega),\\ |a_k|',xstep:1,xtickfmt:v=>P.piTick(v*Math.PI),ytarget:2});
         f.poly([[-6.6,0],[-wc,0],[-wc,1],[wc,1],[wc,0],[6.6,0]],{color:C.h});
         f.stem(D(ab,-K,K),{color:C.out,r:4});
         if(K<6) f.stem(D(ab,-6,-K-1).concat(D(ab,K+1,6)),{color:C.err,r:4});
@@ -1814,7 +1814,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$|H(j\\omega)|=|\\omega|$','$x(t)$','$y(t)=\\d x/\\d t$']},
       svg:v=>{
       const k=v?v.frame:0;
-      if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:5,ytarget:4});
+      if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xpi:Math.PI/4,ytarget:4});
         a.curve(w=>w,{color:C.h,n:200});
         a.point(1,1,{color:C.coral,r:5}); a.point(3,3,{color:C.coral,r:5});
         a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true});
@@ -1859,7 +1859,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
         a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.in,r:3.2,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H_1(e^{j\\omega})|',xtarget:5,ytarget:3,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>Math.abs(Math.sin(w/2));
       a.curve(Hm,{color:C.h,n:900});
       [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
@@ -1917,7 +1917,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const f=v?Math.round(v.frame):0;
       if(!f){ const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H_2(e^{j\\omega})|',xtarget:5,ytarget:3,
-          xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+          xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
         const Hm=w=>Math.abs(Math.cos(w/2));
         a.curve(Hm,{color:C.h,n:900});
         [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
@@ -1949,7 +1949,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const g=v?v.a:0.6;
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,5.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:5,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1-2*g*Math.cos(w)+g*g);
       a.hline(1,{color:C.muted,dash:'4 5'});
       a.curve(Hm,{color:g<0?C.err:C.out,n:900});
@@ -1990,7 +1990,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
         a.note(0.45,0.56,'b_0=\\tfrac12',{anchor:'start',color:C.out,fs:15,tex:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,2.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:3,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1.25-Math.cos(w));
       a.curve(Hm,{color:C.h,n:900});
       [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));

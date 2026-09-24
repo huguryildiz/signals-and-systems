@@ -61,7 +61,8 @@ for m = n
     X = X + exp(-1j*w*m);             % the analysis sum, term by term
 end
 plot(w/pi, real(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X(e^{jw})')`,
+xlabel('frequency (rad/sample)'), ylabel('X(e^{jw})')
+xticks(-2:1:2); xticklabels({'-2\\pi','-\\pi','0','\\pi','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -78,7 +79,8 @@ for N in [9, 20]:
 w = np.linspace(-2*np.pi, 2*np.pi, 801)
 X = sum(np.exp(-1j*w*m) for m in n)   # the analysis sum, term by term
 plt.plot(w/np.pi, X.real, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-2, 3), [r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -99,7 +101,8 @@ fprintf('formula = %.4f - %.4fj\\n', real(Xfor), abs(imag(Xfor)))
 
 wv = linspace(-2*pi, 2*pi, 801);
 plot(wv/pi, abs(1./(1 - 0.5*exp(-1j*wv))), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jw})|')
+xticks(-2:1:2); xticklabels({'-2\\pi','-\\pi','0','\\pi','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -115,7 +118,8 @@ print(f'formula = {Xfor.real:.4f} - {abs(Xfor.imag):.4f}j')
 
 wv = np.linspace(-2*np.pi, 2*np.pi, 801)
 plt.plot(wv/np.pi, np.abs(1/(1 - 0.5*np.exp(-1j*wv))), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(-2, 3), [r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -137,7 +141,8 @@ end
 N = 16; w0 = 2*pi/N; k = 0:N-1;
 Xk = 1 ./ (1 - 0.5*exp(-1j*k*w0));
 stem(k*w0/pi, abs(Xk), 'filled'), grid on
-xlabel('frequency / pi'), ylabel('|X(e^{jkw0})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jkw0})|')
+xticks(0:0.5:1.5); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -153,7 +158,8 @@ for N in [8, 64]:
 N = 16; w0 = 2*np.pi/N; k = np.arange(N)
 Xk = 1/(1 - 0.5*np.exp(-1j*k*w0))
 plt.stem(k*w0/np.pi, np.abs(Xk))
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{jk\\omega_0})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{jk\\omega_0})|$')
+plt.xticks(np.arange(0, 1.6, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -177,7 +183,8 @@ for m = n
     X = X + exp(-1j*wv*m);
 end
 plot(wv/pi, real(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X(e^{jw})')`,
+xlabel('frequency (rad/sample)'), ylabel('X(e^{jw})')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -193,7 +200,8 @@ print(f'at w = 0.9 + 2pi: X = {X2.real:.4f}')
 wv = np.linspace(-3*np.pi, 3*np.pi, 1201)
 X = sum(np.exp(-1j*wv*m) for m in n)
 plt.plot(wv/np.pi, X.real, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 'dtr-dft': {
@@ -216,7 +224,8 @@ w = linspace(0, 2*pi, 801);
 X = sum(exp(-1j*n(:)*w));                  % the DTFT of the four ones
 plot(w/pi, abs(X), 'LineWidth', 1.5), hold on, grid on
 stem((0:31)/16, abs(fft(x, 32)), 'filled')   % N = 32
-xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jw})|')
+xticks(0:0.5:2); xticklabels({'0','\\pi/2','\\pi','3\\pi/2','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -233,7 +242,8 @@ w = np.linspace(0, 2*np.pi, 801)
 X = sum(np.exp(-1j*w*n) for n in range(4))   # the DTFT of the four ones
 plt.plot(w/np.pi, np.abs(X), linewidth=1.5)
 plt.stem(np.arange(32)/16, np.abs(np.fft.fft(x, 32)))   # N = 32
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(0, 2.1, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 /* </m6-s1-code> */
@@ -255,7 +265,8 @@ fprintf('-n0*w = %.4f rad\\n', -n0*w)
 % the phase over three periods: a sawtooth of period 2*pi/n0
 wv = linspace(-3*pi, 3*pi, 3000);
 plot(wv/pi, angle(exp(-1j*wv*n0)), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('angle X (rad)')`,
+xlabel('frequency (rad/sample)'), ylabel('angle X (rad)')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -270,7 +281,8 @@ print(f'-n0*w = {-n0*w:.4f} rad')
 # the phase over three periods: a sawtooth of period 2*pi/n0
 wv = np.linspace(-3*np.pi, 3*np.pi, 3000)
 plt.plot(wv/np.pi, np.angle(np.exp(-1j*wv*n0)), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$\\angle X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$\\angle X(e^{j\\omega})$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -290,7 +302,8 @@ fprintf('|X| smallest = %.4f   1/(1+a) = %.4f\\n', min(abs(X)), 1/(1+a))
 fprintf('largest |angle X| = %.4f   arcsin(a) = %.4f\\n', max(abs(angle(X))), asin(a))
 
 plot(w/pi, abs(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|X|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X|')
+xticks(-1:0.5:1); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -305,7 +318,8 @@ print(f'|X| smallest = {np.min(abs(X)):.4f}   1/(1+a) = {1/(1+a):.4f}')
 print(f'largest |angle X| = {np.max(abs(np.angle(X))):.4f}   arcsin(a) = {np.arcsin(a):.4f}')
 
 plt.plot(w/np.pi, abs(X), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(-1, 1.1, 0.5), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -329,7 +343,8 @@ Xv = real(sum(exp(-1j*wv(:)*n), 2));
 fprintf('least value = %.4f\\n', min(Xv))
 
 plot(wv/pi, Xv, 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X')`,
+xlabel('frequency (rad/sample)'), ylabel('X')
+xticks(-1:0.5:1); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -348,8 +363,8 @@ Xv = np.sum(np.exp(-1j*np.outer(wv, n)), axis=1).real
 print(f'least value = {np.min(Xv):.4f}')
 
 plt.plot(wv/np.pi, Xv, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
-plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-1, 1.1, 0.5), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dpr-lpf': {
@@ -447,7 +462,8 @@ fprintf('2*pi*a_1 = %.4f\\n', 2*pi*a(2))
 fprintf('2*pi*a_3 = %.4f\\n', 2*pi*a(4))
 
 stem(2*pi*n/N, 2*pi*a, 'filled'), grid on
-xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')
+xticks(0:pi/2:1.5*pi); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -462,6 +478,7 @@ print(f'2*pi*a_3 = {2*np.pi*a[3]:.4f}')
 
 plt.stem(2*np.pi*n/N, 2*np.pi*a)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.arange(0, 1.6*np.pi, np.pi/2), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -483,7 +500,8 @@ fprintf('largest weight = %.4f\\n', max(w))
 fprintf('sum over one period = %.4f\\n', sum(w))
 
 stem(2*pi*n/N, w, 'filled'), grid on
-xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')
+xticks(0:pi/2:1.5*pi); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -498,6 +516,7 @@ print(f'sum over one period = {w.sum():.4f}')
 
 plt.stem(2*np.pi*n/N, w)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.arange(0, 1.6*np.pi, np.pi/2), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -596,7 +615,8 @@ w  = linspace(-3*pi, 3*pi, 2001);
 Yw = zeros(size(w));
 for i = 1:numel(w), Yw(i) = Y2(w(i)); end
 plot(w/pi, Yw, 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|Y_{(2)}|')`,
+xlabel('frequency (rad/sample)'), ylabel('|Y_{(2)}|')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -611,7 +631,8 @@ print(f'|Y2| at w = pi/2: {Y2(np.pi/2):.4f}')
 
 w = np.linspace(-3*np.pi, 3*np.pi, 2001)
 plt.plot(w/np.pi, [Y2(v) for v in w], linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|Y_{(2)}(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|Y_{(2)}(e^{j\\omega})|$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -665,7 +686,8 @@ X2 = 1 ./ abs(1 - a*exp(-1j*w)).^2;
 fprintf('energy from the integral = %.4f\\n', mean(X2))   % mean = integral / 2pi
 
 plot(w, X2, 'LineWidth', 1.5), xlim([-pi pi]), grid on
-xlabel('frequency (rad/sample)'), ylabel('|X|^2')`,
+xlabel('frequency (rad/sample)'), ylabel('|X|^2')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -683,6 +705,7 @@ print(f'energy from the integral = {np.mean(X2):.4f}')   # mean = integral / 2pi
 plt.plot(w, X2, linewidth=1.5)
 plt.xlim(-np.pi, np.pi)
 plt.xlabel(r'$\\omega$ (rad/sample)'); plt.ylabel(r'$|X(e^{j\\omega})|^2$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -743,7 +766,8 @@ for n = 0:2
 end
 
 plot(w, Y, 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('Y')`,
+xlabel('w (rad/sample)'), ylabel('Y')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -762,6 +786,7 @@ for n in range(3):
 
 plt.plot(w, Y, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Y(e^{j\\omega})$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -784,7 +809,8 @@ fprintf('area/(2pi) = %.4f   x[0]*y[0] = %.4f\\n', sum(Z)*dw/(2*pi), 0.75*0.5)
 
 w = m*dw;  w(w >= pi) = w(w >= pi) - 2*pi;
 plot(w, Z, '.'), grid on
-xlabel('w (rad/sample)'), ylabel('Z')`,
+xlabel('w (rad/sample)'), ylabel('Z')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -803,6 +829,7 @@ print(f'area/(2pi) = {Z.sum()*dw/(2*np.pi):.4f}   x[0]*y[0] = {0.75*0.5:.4f}')
 w = np.where(m*dw >= np.pi, m*dw - 2*np.pi, m*dw)
 plt.plot(w, Z, '.')
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Z(e^{j\\omega})$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -827,7 +854,8 @@ for n = [0 3]
 end
 
 plot(w, Z, 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('Z')`,
+xlabel('w (rad/sample)'), ylabel('Z')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -847,7 +875,7 @@ for n in (0, 3):
 
 plt.plot(w, Z, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Z(e^{j\\omega})$')
-plt.grid(True)
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$']); plt.grid(True)
 plt.show()`},
 /* </m6-s5-code> */
 
@@ -868,7 +896,8 @@ d = max(abs(H(w + 2*pi) - H(w)));
 fprintf('largest change after a shift by 2pi = %.4f\\n', d)
 
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('|H|')`,
+xlabel('w (rad/sample)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -885,7 +914,8 @@ d = np.max(np.abs(H(w + 2*np.pi) - H(w)))
 print(f'largest change after a shift by 2pi = {d:.4f}')
 
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(e^{j\\omega})|$'); plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(e^{j\\omega})|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dde-partial': {
@@ -953,7 +983,8 @@ d = max(abs(X - 1./(1 - a*exp(-1j*w)).^2));
 fprintf('largest difference from the pair = %.4f\\n', d)
 
 plot(w, abs(X), 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('|X|')`,
+xlabel('w (rad/sample)'), ylabel('|X|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -972,7 +1003,8 @@ d = np.max(np.abs(X - 1/(1 - a*np.exp(-1j*w))**2))
 print(f'largest difference from the pair = {d:.4f}')
 
 plt.plot(w, np.abs(X), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$'); plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dde-output': {
