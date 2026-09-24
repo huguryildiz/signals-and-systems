@@ -98,7 +98,7 @@ window.C23 = [
 
 {t:'h3', text:'Memory'},
 {t:'box', html:'<span class="t">Criterion</span>A system is <b>memoryless</b> if the output at time $t$, or at $n$, depends only on the input at that same time.'},
-{t:'table', head:['System','Verdict','Reason'], rows:[
+{t:'table', cap:'Memory: verdicts for example systems.', head:['System','Verdict','Reason'], rows:[
  ['$y(t)=\\bigl[2x(t)-x^{2}(t)\\bigr]^{2}$','memoryless','Only $x(t)$ appears. There is no $x(t+1)$ or $x(t-2)$ term.'],
  ['$y[n]=x[n]$','memoryless','The identity system.'],
  ['$y[n]=x[n-1]$','has memory','The output at $n$ uses the sample at $n-1$.'],
@@ -152,7 +152,7 @@ window.C23 = [
 
 {t:'h3', text:'Causality'},
 {t:'box', html:'<span class="t">Criterion</span>A system is <b>causal</b> if the output at time $t$, or at $n$, depends only on inputs at times up to $t$: the present and the past.'},
-{t:'table', head:['System','Verdict','Reason'], rows:[
+{t:'table', cap:'Causality: verdicts for example systems.', head:['System','Verdict','Reason'], rows:[
  ['$y[n]=x[n-1]$','causal','Uses only a past sample.'],
  ['$y[n]=x[n]+x[n+1]$','not causal','$x[n+1]$ is a future sample.'],
  ['$y(t)=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau$','causal','The upper limit is $t$, so only $\\tau\\le t$ contributes.'],
@@ -300,7 +300,7 @@ window.C23 = [
  '<b>Stability, then invertibility.</b> Assume $|x|\\le B$ and derive a finite output bound, or find a bounded input with an unbounded output. Then find an inverse formula, or two distinct inputs with the same output.'
 ]},
 {t:'box', kind:'ok', html:'<span class="t">One general implication</span><b>Memoryless implies causal</b>, because a memoryless system uses only the present input. The converse fails: $y[n]=x[n-1]$ is causal and has memory. A causal system need not be stable, and a linear system need not be time invariant.'},
-{t:'table', head:['System','Memoryless','Invertible','Causal','Stable','Time inv.','Linear'], rows:[
+{t:'table', cap:'Six properties of seven example systems.', head:['System','Memoryless','Invertible','Causal','Stable','Time inv.','Linear'], rows:[
  ['$y(t)=2\\pi x(t)$','yes','yes','yes','yes','yes','yes'],
  ['$y[n]=x[n-1]$','no','yes','yes','yes','yes','yes'],
  ['$y(t)=x^{2}(t)$','yes','no','yes','yes','yes','no'],
@@ -313,7 +313,7 @@ window.C23 = [
 {t:'p', text:'Everyday systems carry the same properties. An RC circuit, $v_C(t)=5\\,(1-e^{-t/\\tau})$ for a supply switched to 5 V, is causal and has memory. A guitar overdrive, $y(t)=\\tanh\\bigl(2x(t)\\bigr)$, is memoryless and not linear. A savings account with 1 % a month, $y[n]=1.01\\,y[n-1]+x[n]$, is linear and time invariant, but a deposit of 100 each month makes its balance grow without bound. A digital echo, $y[n]=x[n]+0.6\\,x[n-8]$, is linear and time invariant.'},
 
 {t:'h2', num:'2.4', text:'Summary'},
-{t:'table', head:['Property','Definition','How to disprove it'], rows:[
+{t:'table', cap:'The six system properties: the definition of each and how to disprove it.', head:['Property','Definition','How to disprove it'], rows:[
  ['Memoryless','The output at $t$ uses only the input at the same $t$.','Find an output that uses the input at another time.'],
  ['Invertible','Distinct inputs give distinct outputs.','Find two distinct inputs with the same output.'],
  ['Causal','The output at $t$ uses only $x(\\tau)$ for $\\tau\\le t$.','Find an output that uses a future input.'],
@@ -512,7 +512,7 @@ window.C23 = [
 {t:'box', kind:'ok', html:'<span class="t">What each check finds</span>A mismatch at a case boundary points to a wrong limit. A wrong output support points to an error in a shift, a reversal or a support condition. A wrong total area or sum points to an error in the integrand or the summand.'},
 
 {t:'h2', num:'3.4', text:'Properties of convolution'},
-{t:'table', head:['Property','Statement','What it means for interconnections'], rows:[
+{t:'table', cap:'Properties of convolution and what they mean for interconnections.', head:['Property','Statement','What it means for interconnections'], rows:[
  ['Commutative','$x*h=h*x$','The input and the impulse response play the same role in the algebra.'],
  ['Distributive','$x*(h_1+h_2)=x*h_1+x*h_2$','Two systems in <b>parallel</b>, outputs added, act as one system with impulse response $h_1+h_2$.'],
  ['Associative','$x*(h_1*h_2)=(x*h_1)*h_2$','Two systems in <b>cascade</b> act as one system with impulse response $h_1*h_2$.']
@@ -550,7 +550,7 @@ window.C23 = [
 
 {t:'h3', text:'System properties from the impulse response'},
 {t:'p', text:'For an LTI system, each property test of Chapter 2 becomes a test on $h$.'},
-{t:'table', head:['Property','Criterion','Reason'], rows:[
+{t:'table', cap:'System properties read from the impulse response of an LTI system.', head:['Property','Criterion','Reason'], rows:[
  ['Memoryless','$h[n]=a\\,\\delta[n]$, or $h(t)=a\\,\\delta(t)$','Then $y[n]=a\\,x[n]$, a pure gain.'],
  ['Invertible','$h*g=\\delta$ for some $g$','$g$ is the impulse response of the inverse system.'],
  ['Causal','$h[n]=0$ for $n<0$, or $h(t)=0$ for $t<0$','The output uses only present and past inputs.'],
@@ -691,7 +691,7 @@ window.C23 = [
   .replace(/<\/svg>\s*$/,`<circle cx="340" cy="100" r="3.5" fill="${C.ink}"/><circle cx="840" cy="100" r="3.5" fill="${C.ink}"/></svg>`),
  cap:'Left: $y[n]=b\\,x[n]+a\\,y[n-1]$ with an adder, two gains and a unit delay. Right: $y^{\\prime}(t)=b\\,x(t)-a\\,y(t)$, where an integrator takes the place of the delay.'},
 {t:'p', text:'Every linear constant-coefficient difference equation can be drawn with adders, gains and unit delays. The diagram is also a program: one pass of the loop computes one sample. With $x[n]=\\delta[n]$, $b=1$ and $a=\\tfrac12$, the passes give the impulse response of Example 3.7:'},
-{t:'table', head:['$n$','$x[n]$','$y[n-1]$','$a\\,y[n-1]$','$y[n]=x[n]+a\\,y[n-1]$'], rows:[
+{t:'table', cap:'The recursion $y[n]=x[n]+a\\,y[n-1]$ computed one sample at a time, with $x[n]=\\delta[n]$ and $a=\\tfrac12$.', head:['$n$','$x[n]$','$y[n-1]$','$a\\,y[n-1]$','$y[n]=x[n]+a\\,y[n-1]$'], rows:[
  ['$0$','$1$','$0$','$0$','$1$'],
  ['$1$','$0$','$1$','$\\tfrac12$','$\\tfrac12$'],
  ['$2$','$0$','$\\tfrac12$','$\\tfrac14$','$\\tfrac14$'],
@@ -740,7 +740,7 @@ window.C23 = [
 ]},
 
 {t:'h2', num:'3.6', text:'Summary'},
-{t:'table', head:['Result','Statement'], rows:[
+{t:'table', cap:'The results of Chapter 3.', head:['Result','Statement'], rows:[
  ['Impulse response','The output $h$ when the input is $\\delta[n]$, or $\\delta(t)$.'],
  ['Representation','$x[n]=\\sum_k x[k]\\,\\delta[n-k]$, and $x(t)=\\int x(\\tau)\\,\\delta(t-\\tau)\\,\\d\\tau$.'],
  ['Convolution','$y[n]=\\sum_k x[k]\\,h[n-k]$ and $y(t)=\\int x(\\tau)\\,h(t-\\tau)\\,\\d\\tau$, for LTI systems only.'],
