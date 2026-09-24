@@ -234,23 +234,31 @@ CONTENT.SECTIONS = {
     { n:'7.0', title:'Opening',                                  ids:['m7-open'] },
     /* <m7-s1-sec> */
     { n:'7.1', title:'The sampler and the sampled spectrum', ids:[
-        'm7-sampler','m7-rates','m7-freq','m7-replicas','m7-three'] },
+        'm7-sampler','m7-sampler-b','m7-rates','m7-freq','m7-freq-b','m7-replicas','m7-three',
+        'm7-real-sampler','m7-lab-j1','m7-code-sampler'] },
     /* </m7-s1-sec> */
     /* <m7-s2-sec> */
     { n:'7.2', title:'Aliasing and the sampling theorem', ids:[
-        'm7-aliasing','m7-theorem','m7-boundary','m7-ex-rates','m7-ex-73a',
-        'm7-ex-73b','m7-ex-73c'] },
+        'm7-aliasing','m7-aliasing-b','m7-theorem','m7-theorem-b','m7-boundary',
+        'm7-boundary-b','m7-ex-rates','m7-ex-rates-b','m7-ex-73a','m7-ex-73a-b',
+        'm7-ex-73b','m7-ex-73b-b','m7-ex-73c','m7-ex-73c-b','m7-real-nyquist',
+        'm7-lab-j2','m7-code-nyquist'] },
     /* </m7-s2-sec> */
     /* <m7-s3-sec> */
     { n:'7.3', title:'Reconstruction', ids:[
-        'm7-recon','m7-interp','m7-zoh','m7-foh','m7-perfect','m7-lab-j'] },
+        'm7-recon','m7-recon-b','m7-interp','m7-interp-b','m7-interp-c','m7-zoh','m7-zoh-b',
+        'm7-zoh-hear','m7-zoh-c','m7-foh','m7-foh-b','m7-foh-c','m7-perfect',
+        'm7-real-recon','m7-lab-j','m7-code-recon'] },
     /* </m7-s3-sec> */
     /* <m7-s4-sec> */
     { n:'7.4', title:'Aliasing in practice', ids:[
-        'm7-alias-cos','m7-ex-alias','m7-hw-alias','m7-antialias','m7-temporal',
-        'm7-spatial'] }
+        'm7-alias-cos','m7-alias-cos-b','m7-ex-alias','m7-ex-alias-b','m7-hw-alias',
+        'm7-hw-alias-b','m7-antialias','m7-antialias-b','m7-temporal','m7-temporal-b',
+        'm7-spatial','m7-spatial-b','m7-real-alias','m7-lab-j4','m7-code-alias'] },
     /* </m7-s4-sec> */
     /* <m7-s5-sec> */
+    { n:'7.5', title:'Summary', ids:[
+        'm7-tables','m7-quick','m7-synth','m7-projects'] }
     /* </m7-s5-sec> */
   ],
 
@@ -403,22 +411,31 @@ CONTENT.BOOK = {
   /* </m6-s7-book> */
 
   /* <m7-s1-book> */
-  'm7-sampler':'7.1.1', 'm7-rates':'7.1', 'm7-freq':'7.1.1',
-  'm7-replicas':'7.1.1', 'm7-three':'7.1.1',
+  'm7-sampler':'7.1.1', 'm7-sampler-b':'7.1.1', 'm7-rates':'7.1', 'm7-freq':'7.1.1',
+  'm7-freq-b':'7.1.1', 'm7-replicas':'7.1.1', 'm7-three':'7.1.1',
+  'm7-real-sampler':'7.1', 'm7-lab-j1':'7.1.1', 'm7-code-sampler':'7.1',
   /* </m7-s1-book> */
   /* <m7-s2-book> */
-  'm7-aliasing':'7.3', 'm7-theorem':'7.1', 'm7-boundary':'7.1',
-  'm7-ex-rates':'7.1', 'm7-ex-73a':'7.1', 'm7-ex-73b':'7.1', 'm7-ex-73c':'7.1',
+  'm7-aliasing':'7.3', 'm7-aliasing-b':'7.3', 'm7-theorem':'7.1', 'm7-theorem-b':'7.1',
+  'm7-boundary':'7.1', 'm7-boundary-b':'7.1', 'm7-ex-rates':'7.1', 'm7-ex-rates-b':'7.1',
+  'm7-ex-73a':'7.1', 'm7-ex-73a-b':'7.1', 'm7-ex-73b':'7.1', 'm7-ex-73b-b':'7.1',
+  'm7-ex-73c':'7.1', 'm7-ex-73c-b':'7.1', 'm7-real-nyquist':'7.1, 7.3', 'm7-lab-j2':'7.1, 7.3',
+  'm7-code-nyquist':'7.1',
   /* </m7-s2-book> */
   /* <m7-s3-book> */
-  'm7-recon':'7.2', 'm7-interp':'7.2', 'm7-zoh':'7.1.2', 'm7-foh':'7.2',
-  'm7-perfect':'7.2', 'm7-lab-j':'7.2',
+  'm7-recon':'7.2', 'm7-recon-b':'7.2', 'm7-interp':'7.2', 'm7-interp-b':'7.2', 'm7-interp-c':'7.2',
+  'm7-zoh':'7.1.2', 'm7-zoh-b':'7.1.2', 'm7-zoh-hear':'7.1.2', 'm7-zoh-c':'7.1.2',
+  'm7-foh':'7.2', 'm7-foh-b':'7.2', 'm7-foh-c':'7.2', 'm7-perfect':'7.2',
+  'm7-real-recon':'7.2', 'm7-lab-j':'7.2', 'm7-code-recon':'7.2',
   /* </m7-s3-book> */
   /* <m7-s4-book> */
-  'm7-alias-cos':'7.3', 'm7-ex-alias':'7.3', 'm7-hw-alias':'7.3',
-  'm7-antialias':'7.3', 'm7-temporal':'7.3', 'm7-spatial':'7.3',
+  'm7-alias-cos':'7.3', 'm7-alias-cos-b':'7.3', 'm7-ex-alias':'7.3', 'm7-ex-alias-b':'7.3',
+  'm7-hw-alias':'7.3', 'm7-hw-alias-b':'7.3', 'm7-antialias':'7.3', 'm7-antialias-b':'7.3',
+  'm7-temporal':'7.3', 'm7-temporal-b':'7.3', 'm7-spatial':'7.3', 'm7-spatial-b':'7.3',
+  'm7-real-alias':'7.3', 'm7-lab-j4':'7.3', 'm7-code-alias':'7.3',
   /* </m7-s4-book> */
   /* <m7-s5-book> */
+  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
   /* </m7-s5-book> */
 };
 

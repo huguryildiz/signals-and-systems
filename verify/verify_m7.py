@@ -387,116 +387,850 @@ chk("M7 the grid samples of the 9 and the 1 cycle/mm gratings agree",
 chk("M7 stripes at 1.0 mm and 1.1 mm beat with a period of 11 mm",
     abs(1/(1/1.0 - 1/1.1) - 11.0) < 1e-9, f"{1/(1/1.0 - 1/1.1):.6f} mm")
 
-# =====================================================================
-# 14. Laboratory J — the model, at every preset
-#     x(t) = 1 + cos(wM t/2) + sin(wM t), reconstructed from the surviving
-#     lines with the filter gain T and the cutoff w_s/2.
-# =====================================================================
-def lab_lines(wM):
-    return [(0.0, 2*PI+0j), (wM/2, PI+0j), (-wM/2, PI+0j),
-            (wM, -1j*PI), (-wM, 1j*PI)]
-
-def lab_replicas(wM, ws, span):
-    K = min(60, int(np.ceil(span/ws)) + 1)
-    tol = ws*1e-9
-    agg = {}
-    for k in range(-K, K+1):
-        for pos0, c in lab_lines(wM):
-            pos = pos0 + k*ws
-            if abs(pos) > span: continue
-            key = round(pos/tol)
-            if key in agg:
-                agg[key] = (agg[key][0], agg[key][1] + c)
-            else:
-                agg[key] = (pos, c)
-    return agg
-
-def lab_x(tt, wM): return 1 + np.cos(wM*tt/2) + np.sin(wM*tt)
-
-def lab_ideal(wM, ws):
-    wc = ws/2
-    span = max(2.4*ws, 3.2*wM)
-    agg = lab_replicas(wM, ws, span)
-    keep = [(p, c) for p, c in agg.values() if abs(p) < wc - 1e-9]
-    def rec(x):
-        s = 0.0
-        for p, c in keep:
-            s += c.real*np.cos(p*x) - c.imag*np.sin(p*x)
-        return s/(2*PI)
-    return rec
-
-def lab_rms(rec, wM, win, N=1600):
-    xs = win*np.arange(N)/N
-    return float(np.sqrt(np.mean((np.array([rec(x) for x in xs]) - lab_x(xs, wM))**2)))
-
-presets = {'over': (3, 12, 'ideal'), 'crit': (3, 6, 'ideal'), 'under': (3, 4.5, 'ideal'),
-           'zoh': (3, 12, 'zoh'), 'foh': (3, 12, 'foh'), 'ideal': (3, 12, 'ideal')}
-lab_err = {}
-for name, (fM, fS, mode) in presets.items():
-    wM, ws, Tp = 2*PI*fM, 2*PI*fS, 1/fS
-    win = min(8.0, 4*PI/(wM/2))
-    if mode == 'ideal':
-        rec = lab_ideal(wM, ws)
-    elif mode == 'zoh':
-        rec = lambda x, Tp=Tp, wM=wM: float(lab_x(np.floor(x/Tp)*Tp, wM))
-    else:
-        def rec(x, Tp=Tp, wM=wM):
-            n = np.floor(x/Tp); u = x/Tp - n
-            return float((1-u)*lab_x(n*Tp, wM) + u*lab_x((n+1)*Tp, wM))
-    lab_err[name] = lab_rms(rec, wM, win)
-    chk(f"LabJ preset '{name}' produces a finite reconstruction error",
-        np.isfinite(lab_err[name]), f"rms = {lab_err[name]:.6f}")
-
-chk("LabJ oversampling guard band is 12 pi rad/s",
-    abs((2*PI*12 - 2*2*PI*3) - 12*PI) < 1e-9, f"{(2*PI*12 - 12*PI)/PI:.2f} pi")
-chk("LabJ oversampling recovers the signal exactly",
-    lab_err['over'] < 1e-9, f"rms = {lab_err['over']:.3e}")
-chk("LabJ 'ideal' and 'over' are the same setting and agree",
-    abs(lab_err['ideal'] - lab_err['over']) < 1e-12)
-chk("LabJ critical preset sits exactly at w_s = 2 w_M",
-    abs(2*PI*6 - 2*(2*PI*3)) < 1e-9)
-chk("LabJ critical guard band is exactly zero", abs(2*PI*6 - 2*2*PI*3) < 1e-9)
-chk("LabJ at the critical preset every sample of the band-edge sine is zero",
-    np.max(np.abs(np.sin(2*PI*3*np.arange(-30, 31)/6))) < 1e-9,
-    f"max |sample| = {np.max(np.abs(np.sin(2*PI*3*np.arange(-30, 31)/6))):.2e}")
-chk("LabJ the critical preset loses exactly the band-edge sine, rms = 1/sqrt(2)",
-    abs(lab_err['crit'] - 1/np.sqrt(2)) < 1e-6, f"rms = {lab_err['crit']:.6f}")
-chk("LabJ undersampling preset is below the Nyquist rate",
-    2*PI*4.5 < 2*(2*PI*3), f"{2*PI*4.5/PI:.1f} pi < {2*2*PI*3/PI:.0f} pi")
-chk("LabJ undersampling guard band is -3 pi rad/s",
-    abs((2*PI*4.5 - 2*2*PI*3) + 3*PI) < 1e-9, f"{(2*PI*4.5 - 12*PI)/PI:+.2f} pi")
-chk("LabJ the undersampled band edge returns at |w_s - w_M| = 3 pi rad/s",
-    abs(abs(2*PI*4.5 - 2*PI*3) - 3*PI) < 1e-9, f"{abs(2*PI*4.5 - 2*PI*3)/PI:.2f} pi")
-chk("LabJ that alias is 1.5 Hz against a 3 Hz component",
-    abs(abs(4.5 - 3.0) - 1.5) < 1e-12)
-chk("LabJ the undersampled reconstruction error is exactly 1",
-    abs(lab_err['under'] - 1.0) < 1e-6, f"rms = {lab_err['under']:.6f}")
-chk("LabJ both holds leave a non-zero error at a rate far above the Nyquist rate",
-    lab_err['zoh'] > 1e-3 and lab_err['foh'] > 1e-3,
-    f"zoh {lab_err['zoh']:.4f}, foh {lab_err['foh']:.4f}")
-chk("LabJ the first-order hold is the better of the two approximations",
-    lab_err['foh'] < lab_err['zoh'], f"{lab_err['foh']:.4f} < {lab_err['zoh']:.4f}")
-chk("LabJ the copy height at the oversampling preset is 1/T = 12",
-    abs(1/(1/12) - 12) < 1e-12)
-chk("LabJ the rate control agrees in both units at every preset",
-    all(abs(2*PI*fS - 2*PI*(1/(1/fS))) < 1e-9 for _, (_, fS, _) in presets.items()))
-chk("LabJ the copies are generated at every preset, overlapping or not",
-    all(len(lab_replicas(2*PI*fM, 2*PI*fS, max(2.4*2*PI*fS, 3.2*2*PI*fM))) >= 5
-        for _, (fM, fS, _) in presets.items()))
-
 # <m7-s1-verify> 7.1 the sampler and the sampled spectrum
+WM1 = 2*PI                                   # the running signal: w_M = 2 pi rad/s
+def s1_x(tt):
+    tt = np.asarray(tt, dtype=float); u = PI*tt
+    safe = np.where(np.abs(u) < 1e-12, 1.0, u)
+    return np.where(np.abs(u) < 1e-12, 1.0, (np.sin(safe)/safe)**2)
+def s1_X(wv):                                # its transform: a triangle of peak 1
+    wv = np.asarray(wv, dtype=float)
+    return np.where(np.abs(wv) <= WM1, 1 - np.abs(wv)/WM1, 0.0)
+def s1_Xp_copies(wv, T, K=40):               # (1/T) sum_k X(j(w - k w_s))
+    return sum(s1_X(wv - k*2*PI/T) for k in range(-K, K+1))/T
+def s1_Xp_samples(wv, T, N=200000):          # transform of sum_n x(nT) delta(t - nT)
+    n = np.arange(-N, N+1)
+    return float(np.real(np.sum(s1_x(n*T)*np.exp(-1j*wv*n*T))))
+
+# m7-sampler: the frames use T = 0.25 s; the prediction card
+chk("7.1 sampler: cos(2 pi t) at t = 0.5 s is -1, the weight of that impulse",
+    abs(np.cos(2*PI*0.5) + 1) < 1e-12)
+chk("7.1 sampler: t = 0.5 s is a sampling instant for T = 0.25 s (n = 2)",
+    abs(0.5/0.25 - 2) < 1e-12)
+# sifting, symbolically: x(t) delta(t - nT) = x(nT) delta(t - nT) under the integral
+nT = sp.symbols('nT', real=True)
+chk("7.1 sampler: int x(t) delta(t - nT) dt = x(nT) (sifting)",
+    sp.integrate(sp.cos(t)*sp.DiracDelta(t - nT), (t, -sp.oo, sp.oo)) == sp.cos(nT))
+
+# m7-sampler-b: the prediction card, T = 0.2 s
+first_zero = next(n for n in range(1, 50) if abs(s1_x(n*0.2)) < 1e-20)
+chk("7.1 sampler-b: with T = 0.2 s the first zero sample after n = 0 is n = 5",
+    first_zero == 5, f"n = {first_zero}")
+chk("7.1 sampler-b: x(t) is zero at every nonzero integer t and nowhere else among the samples",
+    all(abs(s1_x(k)) < 1e-20 for k in [1, 2, 3]) and all(s1_x(n*0.2) > 1e-6 for n in range(1, 5)))
+chk("7.1 sampler-b: T = 0.25 s puts the first zero at n = 4 (code page, T = 0.25)",
+    next(n for n in range(1, 50) if abs(s1_x(n*0.25)) < 1e-20) == 4)
+chk("7.1 code try: T = 0.125 s puts the first zero at n = 8",
+    next(n for n in range(1, 50) if abs(s1_x(n*0.125)) < 1e-20) == 8)
+for n, want in [(0, 1.0), (1, 0.8106), (2, 0.4053), (3, 0.0901), (4, 0.0)]:
+    chk(f"7.1 code: x[{n}] = x({n}*0.25) = {want:.4f}", abs(float(s1_x(n*0.25)) - want) < 5e-5)
+
+# m7-rates: the live readout (T in ms), the error card and the prediction
+for Tm in [0.1, 0.25, 0.5, 1.0]:
+    T = Tm*1e-3
+    chk(f"7.1 rates: T = {Tm} ms gives w_s = {2000/Tm:g} pi rad/s and f_s = {1000/Tm:g} Hz",
+        abs(2*PI/T - 2000/Tm*PI) < 1e-6 and abs(1/T - 1000/Tm) < 1e-9)
+chk("7.1 rates: cos(w_s t) has period T (one turn of 2 pi between samples)",
+    abs(np.cos(2*PI/0.25e-3*(0.3e-3 + 0.25e-3)) - np.cos(2*PI/0.25e-3*0.3e-3)) < 1e-9)
+chk("7.1 rates: 200 samples per second is w_s = 400 pi rad/s", abs(2*PI*200 - 400*PI) < 1e-9)
+chk("7.1 rates: T = 0.25 ms gives 4 samples per ms", abs(1e-3/0.25e-3 - 4) < 1e-12)
+chk("7.1 code try: T = 0.5 ms gives 4000 pi rad/s and 2000 Hz",
+    abs(2*PI/0.5e-3 - 4000*PI) < 1e-6 and abs(1/0.5e-3 - 2000) < 1e-9)
+
+# m7-freq: the transform of the impulse train, the slider range and the prediction
+chk("7.1 freq: T = 0.4 s gives w_s = 5 pi and impulse weight 2 pi/T = 5 pi",
+    abs(2*PI/0.4 - 5*PI) < 1e-12)
+chk("7.1 freq: T = 0.1 s puts the impulses of P 20 pi rad/s apart", abs(2*PI/0.1 - 20*PI) < 1e-9)
+chk("7.1 freq: over T in [0.25, 1] s the weight 2 pi/T stays in [2 pi, 8 pi], inside the drawn range 34",
+    abs(2*PI/1 - 2*PI) < 1e-12 and 2*PI/0.25 < 34 - 1.5)
+# numerically: the Fourier series of the impulse train has every coefficient 1/T,
+# so P(jw) = (2 pi / T) sum_k delta(w - k w_s)
+Tt = 0.4; tt = np.linspace(-Tt/2, Tt/2, 400001)
+g = np.exp(-tt**2/(2*(1e-4)**2))/(np.sqrt(2*PI)*1e-4)         # a narrow unit-area pulse
+ak = [np.trapezoid(g*np.exp(-1j*k*2*PI/Tt*tt), tt)/Tt for k in (0, 1, 3)]
+chk("7.1 freq: every series coefficient of p(t) is 1/T, so each impulse of P has weight 2 pi/T",
+    all(abs(a - 1/Tt) < 1e-3 for a in ak), ", ".join(f"{abs(a):.4f}" for a in ak))
+
+# m7-freq-b: the derivation, the frames and the prediction
+Ts_ = sp.symbols('T', positive=True)
+chk("7.1 freq-b: (1/2pi)(2pi/T) = 1/T", sp.simplify(1/(2*sp.pi)*2*sp.pi/Ts_ - 1/Ts_) == 0)
+chk("7.1 freq-b: T = 0.4 s gives 1/T = 2.5", abs(1/0.4 - 2.5) < 1e-12)
+chk("7.1 freq-b: X(j0) = 2 and T = 0.05 s give X_p(j0) = 40", abs(2/0.05 - 40) < 1e-12)
+for wv in [0.0, PI, 2.5*PI, 4*PI, 5*PI]:
+    a_, b_ = s1_Xp_samples(wv, 0.4), float(s1_Xp_copies(wv, 0.4))
+    chk(f"7.1 freq-b: at w = {wv/PI:.1f} pi the samples and the copies give the same X_p (T = 0.4)",
+        abs(a_ - b_) < 1e-4, f"{a_:.6f} vs {b_:.6f}")
+chk("7.1 code: X_p(j pi) = X_p(j 4 pi) = 1.25 and X_p(j 2.5 pi) = 0 at T = 0.4 s",
+    abs(float(s1_Xp_copies(PI, 0.4)) - 1.25) < 1e-12 and abs(float(s1_Xp_copies(4*PI, 0.4)) - 1.25) < 1e-12
+    and abs(float(s1_Xp_copies(2.5*PI, 0.4))) < 1e-12)
+chk("7.1 code try: T = 0.25 s gives X_p(j pi) = 2", abs(float(s1_Xp_copies(PI, 0.25)) - 2.0) < 1e-12)
+
+# m7-replicas: the slider range stays above the Nyquist rate; the prediction
+chk("7.1 replicas: over T in [0.25, 0.48] s every rate is above 4 pi, so the copies stay apart",
+    2*PI/0.48 > 2*WM1 and 2*PI/0.25 > 2*WM1, f"w_s from {2/0.48:.3f} pi to {2/0.25:.0f} pi")
+chk("7.1 replicas: halving T doubles both the spacing 2 pi/T and the height 1/T",
+    sp.simplify((2*sp.pi/(Ts_/2))/(2*sp.pi/Ts_)) == 2 and sp.simplify((1/(Ts_/2))/(1/Ts_)) == 2)
+
+# m7-three: the three frames and the prediction
+for ws_pi, gap_pi, pk in [(5, 1, 2.5), (4, 0, 2.0), (3, -1, 1.5)]:
+    chk(f"7.1 three: w_s = {ws_pi} pi gives guard band {gap_pi} pi and copy height {pk}",
+        abs((ws_pi*PI - 2*WM1) - gap_pi*PI) < 1e-12 and abs(ws_pi*PI/(2*PI) - pk) < 1e-12)
+chk("7.1 three: at w_s = 3 pi the sum of the copies peaks at 1.5 and dips to 0.75",
+    abs(float(s1_Xp_copies(0.0, 2/3)) - 1.5) < 1e-12 and abs(float(s1_Xp_copies(1.5*PI, 2/3)) - 0.75) < 1e-12)
+chk("7.1 three: at w_s = 4 pi the copies touch at 2 pi, where both are zero",
+    abs(float(s1_X(2*PI))) < 1e-12 and abs(float(s1_X(2*PI - 4*PI))) < 1e-12)
+chk("7.1 three: w_M = 3 pi and w_s = 8 pi give a guard band of 2 pi", abs(8*PI - 2*3*PI - 2*PI) < 1e-12)
+chk("7.1 code: T = 0.4, 0.5, 2/3 s give guard bands pi, 0 and -pi",
+    all(abs((2*PI/T - 2*WM1) - g*PI) < 1e-12 for T, g in [(0.4, 1), (0.5, 0), (2/3, -1)]))
+chk("7.1 code try: T = 0.25 s gives a guard band of 4 pi", abs(2*PI/0.25 - 2*WM1 - 4*PI) < 1e-12)
+
+# m7-real-sampler: the four rates and the samples per change
+chk("7.1 gallery: once a minute is T = 60 s, f_s = 1/60 Hz", abs(1/60 - 1/60.0) < 1e-15)
+chk("7.1 gallery: 44.1 kHz is T = 22.7 us", abs(1/44100 - 22.68e-6) < 1e-8, f"{1e6/44100:.2f} us")
+chk("7.1 gallery: 500 samples/s is T = 2 ms", abs(1/500 - 2e-3) < 1e-15)
+chk("7.1 gallery: a 2 kHz tone at 44.1 kHz gets about 22 samples a cycle", round(44100/2000) == 22, f"{44100/2000:.2f}")
+chk("7.1 gallery: a 1 Hz pendulum at 24 frames/s gets 24 frames a swing", 24/1 == 24)
+chk("7.1 gallery: 20 sin(4 pi t), t in ms, is a 2 kHz tone", abs(4*PI/(2*PI)*1000 - 2000) < 1e-9)
+chk("7.1 gallery: the cooling oven starts at 180 C and ends near 33 C after 20 min",
+    abs(20 + 160 - 180) < 1e-12 and abs(20 + 160*np.exp(-20/8) - 33.13) < 0.01)
+
+# Laboratory J1: default T = 0.25 s, both spectra, and the boundary at T = 0.5 s
+T0 = 0.25
+chk("LabJ1 T = 0.25 s: w_s = 8 pi, f_s = 4 Hz, 1/T = 4, guard band 4 pi",
+    abs(2*PI/T0 - 8*PI) < 1e-12 and abs(1/T0 - 4) < 1e-12 and abs(2*PI/T0 - 2*WM1 - 4*PI) < 1e-12)
+chk("LabJ1 the copies touch at T = 0.5 s: w_s = 2 w_M = 4 pi, guard band 0",
+    abs(2*PI/0.5 - 4*PI) < 1e-12 and abs(2*PI/0.5 - 2*WM1) < 1e-12)
+chk("LabJ1 at the slider end T = 0.8 s the guard band is -1.5 pi (overlap)",
+    abs((2*PI/0.8 - 2*WM1) + 1.5*PI) < 1e-12)
+chk("LabJ1 at the slider start T = 0.12 s the first copy sits at 16.67 pi, inside the drawn 18 pi",
+    abs(2/0.12 - 16.6667) < 1e-3 and 2/0.12 - 2 < 18)
+tt2 = np.linspace(-400, 400, 4000001)
+xr = np.where(np.abs(tt2) < 1e-12, 2.0, np.sin(2*PI*tt2)/(PI*np.where(np.abs(tt2) < 1e-12, 1.0, tt2)))
+for wv, want in [(0.0, 1.0), (PI, 1.0), (1.5*PI, 1.0), (2.5*PI, 0.0), (3*PI, 0.0)]:
+    got = np.trapezoid(xr*np.cos(wv*tt2), tt2)
+    chk(f"LabJ1 sin(2 pi t)/(pi t) has X(j{wv/PI:.1f} pi) = {want} (rectangle of height 1, |w| < 2 pi)",
+        abs(got - want) < 2e-2, f"got {got:.4f}")
+chk("LabJ1 sin(2 pi t)/(pi t) is 2 at t = 0", abs(2*PI/PI - 2) < 1e-12)
 # </m7-s1-verify>
 
 # <m7-s2-verify> 7.2 aliasing and the sampling theorem
+# Every number stated by the 7.2 slides, predictions, gallery and laboratory J2
+# that is not already checked in sections 1-10 above.
+_s2wM = 2*PI                                   # the running triangle, rad/s
+def _s2tri(w, wm, pk):
+    return np.where(np.abs(w) <= wm, pk*(1 - np.abs(w)/wm), 0.0)
+def _s2rep(w, wm, pk, ws, K=8):
+    return sum(_s2tri(w - k*ws, wm, pk) for k in range(-K, K + 1))
+def _s2ov(ws, wm=_s2wM):
+    """the overlap interval of copies 0 and 1, and its width (ws >= wm)"""
+    return (ws - wm, wm, max(0.0, 2*wm - ws))
+def _s2both(w, wm, ws):
+    """True where the baseband and a neighbouring copy are both non-zero"""
+    return (np.abs(w) < wm) & ((np.abs(w - ws) < wm) | (np.abs(w + ws) < wm))
+
+# m7-aliasing: copies 1/T = ws/2pi tall; default 2.6 pi; prediction at 3.5 pi
+chk("M7 7.2 aliasing: at w_s = 2.6 pi each copy is 1/T = 1.3 tall", abs(2.6*PI/(2*PI) - 1.3) < 1e-12)
+_lo, _hi, _wd = _s2ov(2.6*PI)
+chk("M7 7.2 aliasing: at w_s = 2.6 pi the overlap runs from 0.6 pi to 2 pi",
+    abs(_lo - 0.6*PI) < 1e-12 and abs(_hi - 2*PI) < 1e-12)
+_lo, _hi, _wd = _s2ov(3.5*PI)
+chk("M7 7.2 aliasing prediction: at w_s = 3.5 pi the overlap runs 1.5 pi to 2 pi, width 0.5 pi",
+    abs(_lo - 1.5*PI) < 1e-12 and abs(_hi - 2*PI) < 1e-12 and abs(_wd - 0.5*PI) < 1e-12)
+_w = np.linspace(-6*PI, 6*PI, 240001)
+_m = _s2both(_w, _s2wM, 3.5*PI) & (_w > 0) & (_w < 3.5*PI)
+chk("M7 7.2 aliasing prediction: the measured overlap near w_s/2 is 0.5 pi wide",
+    abs((_w[_m].max() - _w[_m].min()) - 0.5*PI) < 1e-3)
+chk("M7 7.2 aliasing: overlap exists exactly when w_s < 2 w_M (checked on a grid of rates)",
+    all((_s2ov(k*PI/10)[2] > 0) == (k*PI/10 < 4*PI - 1e-12) for k in range(20, 61)))
+_ws = 2.6*PI; _pk = _ws/(2*PI)
+_u = np.linspace(0.6*PI + 1e-6, 2*PI - 1e-6, 50)
+chk("M7 7.2 aliasing: inside the overlap the stored sum is flat at pk (2 - w_s/w_M) = 0.91",
+    np.allclose(_s2rep(_u, _s2wM, _pk, _ws), _pk*(2 - _ws/_s2wM)) and abs(_pk*(2 - _ws/_s2wM) - 0.91) < 1e-12)
+
+# m7-aliasing-b: prediction at 3.4 pi
+chk("M7 7.2 aliasing-b prediction: at w_s = 3.4 pi the nearest copy starts at 1.4 pi",
+    abs(3.4*PI - _s2wM - 1.4*PI) < 1e-12)
+_w = np.linspace(-2*PI, 2*PI, 400001)
+_alone = ~_s2both(_w, _s2wM, 3.4*PI) & (np.abs(_w) < _s2wM)
+chk("M7 7.2 aliasing-b prediction: X_p = X/T alone exactly on |w| < 1.4 pi",
+    abs(np.abs(_w[_alone]).max() - 1.4*PI) < 1e-4)
+
+# m7-theorem: omega_s = 6 pi, T = 1/3, copies 3 tall, default cutoff 3 pi; prediction at 7 pi
+chk("M7 7.2 theorem: w_s = 6 pi gives T = 1/3 s and copies 3 tall",
+    abs(2*PI/(6*PI) - 1/3) < 1e-15 and abs(1/(1/3) - 3) < 1e-12)
+chk("M7 7.2 theorem: the admissible cutoffs at w_s = 6 pi are 2 pi < w_c < 4 pi, and 3 pi is inside",
+    2*PI < 3*PI < 6*PI - 2*PI)
+_w = np.linspace(-3*PI, 3*PI, 60001)
+_rec = np.where(np.abs(_w) < 3*PI, (1/3)*_s2rep(_w, _s2wM, 3, 6*PI), 0)
+chk("M7 7.2 theorem: gain T and cutoff 3 pi return X(jw) exactly at w_s = 6 pi",
+    np.allclose(_rec, _s2tri(_w, _s2wM, 1)))
+chk("M7 7.2 theorem slider: cutoffs below 2 pi cut the baseband, above 4 pi pass part of a copy",
+    _s2tri(np.array([1.9*PI]), _s2wM, 1)[0] > 0 and _s2rep(np.array([4.1*PI]), _s2wM, 3, 6*PI)[0] > 0)
+chk("M7 7.2 theorem prediction: at w_s = 7 pi the interval is 2 pi < w_c < 5 pi",
+    abs(7*PI - _s2wM - 5*PI) < 1e-12)
+chk("M7 7.2 theorem prediction: 4 pi lies inside; 1.5 pi and 5.5 pi do not",
+    (2*PI < 4*PI < 5*PI) and not (2*PI < 1.5*PI < 5*PI) and not (2*PI < 5.5*PI < 5*PI))
+
+# m7-theorem-b: the interval closes; prediction with a transition band of pi
+for _k, _wd in [(6, 2), (5, 1), (4, 0)]:
+    chk(f"M7 7.2 theorem-b: at w_s = {_k} pi the cutoff interval is {_wd} pi wide",
+        abs((_k*PI - _s2wM) - _s2wM - _wd*PI) < 1e-12)
+chk("M7 7.2 theorem-b: at w_s = 2 w_M the interval w_M < w_c < w_M is empty",
+    not any(_s2wM < c < 4*PI - _s2wM for c in np.linspace(0, 4*PI, 4001)))
+chk("M7 7.2 theorem-b prediction: a gap of pi needs w_s - 4 pi >= pi, so w_s >= 5 pi",
+    abs((4*PI + PI) - 5*PI) < 1e-12 and (4.5*PI - 4*PI) < PI and (4*PI - 4*PI) < PI)
+
+# m7-boundary: the sine lines of j X_p at +-4000 pi, from the copies k = 0, +-1
+_T = 1/4000; _ws = 8000*PI
+_lines = {}
+for _k in (-1, 0, 1):
+    for _w0, _c in [(4000*PI, PI/1j), (-4000*PI, -PI/1j)]:
+        _p = round((_w0 + _k*_ws)/PI)
+        _lines[_p] = _lines.get(_p, 0) + _c/_T
+chk("M7 7.2 boundary: j times the k = 0 line at +4000 pi is +4000 pi, the k = 1 line brought there is -4000 pi",
+    abs(1j*(PI/1j)/_T - 4000*PI) < 1e-6 and abs(1j*(-PI/1j)/_T + 4000*PI) < 1e-6)
+chk("M7 7.2 boundary: the sine lines at +-4000 pi add to zero",
+    abs(_lines[4000]) < 1e-6 and abs(_lines[-4000]) < 1e-6)
+chk("M7 7.2 boundary: the copies k = +-1 move a line by w_s = 8000 pi, from -4000 pi to +4000 pi",
+    abs(-4000*PI + _ws - 4000*PI) < 1e-9)
+
+# m7-boundary-b: samples at the zeros, the repair, the cosine prediction, the slider
+_n = np.arange(0, 200)
+chk("M7 7.2 boundary-b: with T = 1/4000 s every sample sin(pi n) is zero (n = 0..199)",
+    np.max(np.abs(np.sin(4000*PI*_n/4000))) < 1e-10)
+chk("M7 7.2 boundary-b: w_s = 2 w_M + 1000 pi = 9000 pi and T = 1/4500 s = 222.2 us",
+    abs(8000*PI + 1000*PI - 9000*PI) < 1e-9 and abs(2*PI/(9000*PI) - 1/4500) < 1e-15
+    and abs(1e6/4500 - 222.2) < 0.05)
+chk("M7 7.2 boundary-b: at 9000 pi the largest sample is sin(4 pi/9) = 0.9848",
+    abs(np.max(np.abs(np.sin(4000*PI*_n/4500))) - np.sin(4*PI/9)) < 1e-12 and abs(np.sin(4*PI/9) - 0.9848) < 5e-5)
+chk("M7 7.2 boundary-b prediction: cos(4000 pi n/4000) = cos(pi n) = (-1)^n",
+    np.allclose(np.cos(4000*PI*_n/4000), (-1.0)**_n))
+chk("M7 7.2 boundary-b slider: 8000 pi to 10000 pi rad/s is 4000 to 5000 samples a second (500 v Hz)",
+    abs(8*1000*PI/(2*PI) - 500*8) < 1e-9 and abs(10*1000*PI/(2*PI) - 500*10) < 1e-9)
+chk("M7 7.2 boundary-b slider: every rate above 8000 pi on the slider gives a non-zero sample",
+    all(np.max(np.abs(np.sin(4000*PI*_n/(500*v)))) > 0.3 for v in np.arange(8.25, 10.01, 0.25)))
+chk("M7 7.2 boundary-b: the tone sin(4000 pi t) is 2 kHz", abs(4000*PI/(2*PI) - 2000) < 1e-9)
+
+# m7-ex-rates, m7-ex-rates-b
+chk("M7 7.2 ex-rates: only T1 = 0.40 s leaves a positive guard band",
+    [2*PI/T - 4*PI > 1e-12 for T in (0.4, 0.5, 2/3)] == [True, False, False])
+chk("M7 7.2 ex-rates: at T3 = 2/3 s the copies overlap by pi rad/s",
+    abs(_s2ov(3*PI)[2] - PI) < 1e-12)
+chk("M7 7.2 ex-rates-b: w_s T = 2 pi for 5 pi x 0.4, 4 pi x 0.5, 3 pi x 2/3",
+    all(abs(a*b - 2*PI) < 1e-12 for a, b in [(5*PI, 0.4), (4*PI, 0.5), (3*PI, 2/3)]))
+chk("M7 7.2 ex-rates-b: spacing falls from 5 pi to 3 pi and height from 2.5 to 1.5",
+    abs(2*PI/0.4 - 5*PI) < 1e-12 and abs(2*PI/(2/3) - 3*PI) < 1e-12 and abs(1/0.4 - 2.5) < 1e-12 and abs(1.5 - 1/(2/3)) < 1e-12)
+chk("M7 7.2 ex-rates-b prediction: T = 0.25 s gives w_s = 8 pi and a guard band of 4 pi",
+    abs(2*PI/0.25 - 8*PI) < 1e-12 and abs(2*PI/0.25 - 4*PI - 4*PI) < 1e-12)
+
+# m7-ex-73a-b: hertz, the inversion check, the prediction
+chk("M7 7.2 ex-73a-b: 4000 pi rad/s is 2000 Hz and 8000 pi rad/s is 4000 Hz",
+    abs(4000*PI/(2*PI) - 2000) < 1e-9 and abs(8000*PI/(2*PI) - 4000) < 1e-9)
+chk("M7 7.2 ex-73a-b: x(t) = 1 + cos(2000 pi t) + sin(4000 pi t) repeats every 1 ms",
+    np.allclose(1 + np.cos(2000*PI*(_n*1e-5 + 1e-3)) + np.sin(4000*PI*(_n*1e-5 + 1e-3)),
+                1 + np.cos(2000*PI*_n*1e-5) + np.sin(4000*PI*_n*1e-5)))
+chk("M7 7.2 ex-73a-b: the figure ticks 0.25, 0.75, 1.25, 1.75 ms sit where x(t) = 1",
+    np.allclose(1 + np.cos(2000*PI*np.array([2.5e-4, 7.5e-4, 1.25e-3, 1.75e-3]))
+                + np.sin(4000*PI*np.array([2.5e-4, 7.5e-4, 1.25e-3, 1.75e-3])), 1))
+_tt, _s2w = sp.symbols('t omega', real=True)
+chk("M7 7.2 ex-73a-b check: (pi/(2 pi j)) 2j sin(4000 pi t) = sin(4000 pi t)",
+    sp.simplify(sp.pi/(2*sp.pi*sp.I)*2*sp.I*sp.sin(4000*sp.pi*_tt) - sp.sin(4000*sp.pi*_tt)) == 0)
+chk("M7 7.2 ex-73a-b prediction: sin(6000 pi t) moves the Nyquist rate to 12000 pi rad/s",
+    abs(2*max(0, 2000*PI, 6000*PI) - 12000*PI) < 1e-9)
+
+# m7-ex-73b: the sinc signal of part (b), its rectangle and its copies
+_W = 4000*sp.pi
+chk("M7 7.2 ex-73b: (1/2pi) int_{-4000pi}^{4000pi} e^{jwt} dw = sin(4000 pi t)/(pi t)",
+    sp.simplify(sp.integrate(sp.exp(sp.I*_s2w*_tt), (_s2w, -_W, _W), conds='none').rewrite(sp.sin)/(2*sp.pi)
+                - sp.sin(_W*_tt)/(sp.pi*_tt)) == 0)
+chk("M7 7.2 ex-73b: at the Nyquist rate the copies of the rectangle stand 1/T = 4000 tall and touch at +-4000 pi",
+    abs(1/(2*PI/(8000*PI)) - 4000) < 1e-9 and abs((8000*PI - 4000*PI) - 4000*PI) < 1e-9)
+chk("M7 7.2 ex-73b: f_s = 1/T = 4000 Hz", abs(1/2.5e-4 - 4000) < 1e-9)
+chk("M7 7.2 ex-73b prediction: 1/w_s = 39.8 us is the distractor",
+    abs(1/(8000*PI)*1e6 - 39.8) < 0.05)
+
+# m7-ex-73b-b
+chk("M7 7.2 ex-73b-b: 0.25 s is four samples a second", abs(1/0.25 - 4) < 1e-12)
+chk("M7 7.2 ex-73b-b: T = 0.25 s later is 500 cycles of a 2000 Hz tone", abs(0.25*2000 - 500) < 1e-9)
+chk("M7 7.2 ex-73b-b: the sample instants every 0.25 ms fall on cos(4000 pi t) = +-1",
+    np.allclose(np.abs(np.cos(4000*PI*np.arange(9)*2.5e-4)), 1))
+chk("M7 7.2 ex-73b-b prediction: w_s = 12000 pi gives T = 1/6000 s = 166.7 us",
+    abs(2*PI/(12000*PI) - 1/6000) < 1e-15 and abs(1e6/6000 - 166.7) < 0.05)
+chk("M7 7.2 ex-73b-b prediction: 1/w_s = 26.5 us and 0.1667 s are the distractors",
+    abs(1e6/(12000*PI) - 26.5) < 0.05 and abs(1000/6000 - 0.1667) < 5e-5)
+
+# m7-ex-73c: the scrubber and the peak
+def _s2area(shift, Wr=4000*PI):
+    """area of the overlap of two unit rectangles of half-width Wr, one shifted"""
+    return max(0.0, 2*Wr - abs(shift))
+chk("M7 7.2 ex-73c: the overlap area at zero shift is 8000 pi and X(j0) = 4000",
+    abs(_s2area(0) - 8000*PI) < 1e-9 and abs(_s2area(0)/(2*PI) - 4000) < 1e-9)
+chk("M7 7.2 ex-73c slider: X(jw) = (8000 - 1000|v|) pi / 2 pi, 2000 at the default -4000 pi",
+    all(abs(_s2area(v*1000*PI)/(2*PI) - max(0, 8000 - 1000*abs(v))/2) < 1e-9 for v in np.arange(-10, 10.01, 0.5))
+    and abs(_s2area(-4000*PI)/(2*PI) - 2000) < 1e-9)
+_dw = 10*PI; _g = -6000*PI + _dw*(np.arange(1200) + 0.5)
+_R = (np.abs(_g) <= 4000*PI).astype(float)
+_Xc = np.convolve(_R, _R)*_dw/(2*PI)
+chk("M7 7.2 ex-73c: the numerical convolution peaks at 4000 and ends at 8000 pi",
+    abs(_Xc.max() - 4000) < 1e-6 and abs((_Xc > 1e-9).sum()*_dw - 16000*PI) < 2*_dw)
+
+# m7-ex-73c-b
+chk("M7 7.2 ex-73c-b: w_M = 2 x 4000 pi and T = 2 pi / 16000 pi = 125 us",
+    abs(2*4000*PI - 8000*PI) < 1e-9 and abs(2*PI/(16000*PI) - 125e-6) < 1e-18)
+chk("M7 7.2 ex-73c-b: 125 us is half of 0.25 ms, and w_s T = 16000 pi x 1.25e-4 = 2 pi",
+    abs(0.25e-3/125e-6 - 2) < 1e-12 and abs(16000*PI*1.25e-4 - 2*PI) < 1e-12)
+chk("M7 7.2 ex-73c-b prediction: at 32000 pi, X_max/T = 4000 x 16000 = 6.4e7",
+    abs(4000/(2*PI/(32000*PI)) - 6.4e7) < 1e-3 and abs(4000*16000 - 6.4e7) < 1e-6)
+chk("M7 7.2 ex-73c-b: the distractors 3.2e7 and 1.6e7 are the Nyquist-rate height and its half",
+    abs(4000*8000 - 3.2e7) < 1e-6 and abs(3.2e7/2 - 1.6e7) < 1e-6)
+
+# m7-real-nyquist: the four everyday rates
+chk("M7 7.2 gallery: telephone 2 x 3.4 kHz = 6.8 kHz < 8 kHz", abs(2*3.4 - 6.8) < 1e-12 and 6.8 < 8)
+chk("M7 7.2 gallery: 2 pi 0.5 = pi and 2 pi 3.4 = 6.8 pi (t in ms, f in kHz)",
+    abs(2*PI*0.5 - PI) < 1e-12 and abs(2*PI*3.4 - 6.8*PI) < 1e-12)
+chk("M7 7.2 gallery: CD 44.1 kHz against 2 x 20 kHz, 2.2 samples a cycle of 20 kHz, cos(40 pi t)",
+    44.1 > 40 and abs(round(44.1/20, 1) - 2.2) < 1e-12 and abs(2*PI*20 - 40*PI) < 1e-12)
+chk("M7 7.2 gallery: heart rate 0.2 Hz < 0.5 Hz and 2 pi 0.2 = 0.4 pi",
+    0.2 < 0.5 and abs(2*PI*0.2 - 0.4*PI) < 1e-12)
+chk("M7 7.2 gallery: temperature 1/24 per hour < 0.5 per hour and 2 pi (t - 15)/24 = pi (t - 15)/12",
+    1/24 < 0.5 and abs(2*PI/24 - PI/12) < 1e-12)
+chk("M7 7.2 gallery: margins 8 - 6.8 = 1.2 kHz and 44.1 - 40 = 4.1 kHz, both positive",
+    abs(8 - 6.8 - 1.2) < 1e-12 and abs(44.1 - 40 - 4.1) < 1e-9)
+
+# Laboratory J2: the slider, the presets and the line spectrum
+_U = PI/5
+chk("LabJ2 the slider runs k = 11..40 in steps of pi/5: 2.2 pi to 8 pi rad/s, Nyquist rate at k = 20",
+    abs(11*_U - 2.2*PI) < 1e-12 and abs(40*_U - 8*PI) < 1e-12 and abs(20*_U - 4*PI) < 1e-12)
+chk("LabJ2 presets T1, T2, T3 are k = 25, 20, 15, that is 5 pi, 4 pi, 3 pi",
+    all(abs(k*_U - 2*PI/T) < 1e-12 for k, T in [(25, 0.4), (20, 0.5), (15, 2/3)]))
+chk("LabJ2 at every slider step w_s >= w_M, so only neighbouring copies overlap",
+    all(k*_U >= _s2wM for k in range(11, 41)))
+chk("LabJ2 overlap width 2 w_M - w_s matches the measured overlap at every overlapping step",
+    all(abs(_s2ov(k*_U)[2] - (4*PI - k*_U)) < 1e-12 for k in range(11, 20)))
+chk("LabJ2 the gap from w_M to w_s - w_M is (k - 10) pi/5 - w_M wide",
+    all(abs((k*_U - _s2wM) - (k - 10)*_U) < 1e-12 for k in range(11, 41)))
+_lines = [(0, 2*PI), (PI, PI), (-PI, PI), (2*PI, PI/1j), (-2*PI, -PI/1j)]
+chk("LabJ2 the three-line signal 1 + cos(pi t) + sin(2 pi t) has these five lines and w_M = 2 pi",
+    max(abs(p) for p, _ in _lines) == 2*PI
+    and np.allclose(sum(c*np.exp(1j*p*_n*0.01) for p, c in _lines)/(2*PI),
+                    1 + np.cos(PI*_n*0.01) + np.sin(2*PI*_n*0.01)))
+def _s2agg(ws, span=10*PI):
+    agg = {}
+    K = int(np.ceil(span/ws)) + 1
+    for k in range(-K, K + 1):
+        for p, c in _lines:
+            q = round((p + k*ws)/(PI/1000))
+            agg[q] = agg.get(q, 0) + c*ws/(2*PI)
+    return agg
+_a = _s2agg(4*PI)
+chk("LabJ2 at the Nyquist rate the sine lines at +-2 pi cancel",
+    abs(_a[round(2*PI/(PI/1000))]) < 1e-9 and abs(_a[round(-2*PI/(PI/1000))]) < 1e-9)
+_a = _s2agg(3*PI)
+chk("LabJ2 at T3 the cosine copy lands on w_M: 3 pi - pi = 2 pi, and |sum| = sqrt(2) pi/T",
+    abs(3*PI - PI - 2*PI) < 1e-12 and abs(abs(_a[round(2*PI/(PI/1000))]) - np.sqrt(2)*PI*1.5) < 1e-9)
+chk("LabJ2 copy height 1/T = w_s/2pi is 2.5, 2 and 1.5 at the presets",
+    all(abs(k*_U/(2*PI) - h) < 1e-12 for k, h in [(25, 2.5), (20, 2), (15, 1.5)]))
 # </m7-s2-verify>
 
 # <m7-s3-verify> 7.3 reconstruction
+# Every number the 7.3 slides, the gallery and Laboratory J state. The
+# kernel, the two hold responses and the compensator are also checked as
+# formulas in sections 7 and 8 above.
+def s3_x(tt):
+    """the running signal (sin(pi t)/(pi t))^2"""
+    u = PI*np.asarray(tt, dtype=float)
+    z = np.abs(u) < 1e-12
+    return ((np.sin(u) + z)/(u + z))**2
+def s3_sinc(u):
+    """unnormalised sinc, sin(u)/u"""
+    u = np.asarray(u, dtype=float)
+    z = np.abs(u) < 1e-12
+    return (np.sin(u) + z)/(u + z)
+def s3_interp(tt, T, N=400, wt=None):
+    """band-limited interpolation with w_c = pi/T; wt(n) weights each term"""
+    n = np.arange(-N, N+1)
+    w = np.ones(n.size) if wt is None else np.array([wt(k) for k in n], dtype=float)
+    return np.array([np.sum(w*s3_x(n*T)*s3_sinc(PI*(t0 - n*T)/T)) for t0 in np.atleast_1d(tt)])
+s3_grid = (np.arange(60000) + 0.5)/10000 - 3          # the fine grid of the code page
+
+# ---- m7-recon: the figure and the prediction
+chk("M7s3 recon: T = 1/3 s gives w_s = 6 pi rad/s and copies of height 1/T = 3",
+    abs(2*PI/(1/3) - 6*PI) < 1e-12 and abs(1/(1/3) - 3) < 1e-12)
+chk("M7s3 recon: the cutoff 3 pi lies in (w_M, w_s - w_M) = (2 pi, 4 pi)",
+    2*PI < 3*PI < 6*PI - 2*PI)
+lo, hi = 2*PI, 10*PI - 2*PI
+chk("M7s3 recon Given: w_M = 2 pi, w_s = 10 pi gives the interval (2 pi, 8 pi)",
+    abs(lo - 2*PI) < 1e-12 and abs(hi - 8*PI) < 1e-12)
+chk("M7s3 recon Given: only 5 pi of pi, 5 pi, 9 pi lies in it",
+    [lo < c < hi for c in (PI, 5*PI, 9*PI)] == [False, True, False])
+Tg = 0.25
+chk("M7s3 recon: a filter of gain 1 returns x(t)/T (the baseband copy is X/T)",
+    abs(1*(1/Tg)*1.0 - 1.0/Tg) < 1e-15 and abs(Tg*(1/Tg) - 1) < 1e-15)
+
+# ---- m7-recon-b: the chain in time
+chk("M7s3 recon-b: T = 0.25 s gives w_c = pi/T = 4 pi rad/s, inside (2 pi, 6 pi)",
+    abs(PI/0.25 - 4*PI) < 1e-12 and 2*PI < 4*PI < 8*PI - 2*PI)
+pts = np.array([0.13, -0.41, 0.88, 1.37])
+chk("M7s3 recon-b: the filter output lies on x(t) at T = 0.25 s",
+    np.max(np.abs(s3_interp(pts, 0.25) - s3_x(pts))) < 1e-5,
+    f"max err {np.max(np.abs(s3_interp(pts, 0.25) - s3_x(pts))):.2e}")
+chk("M7s3 recon-b Given: t = nT + T/2 is never a sample instant, so x_p(t) = 0 there",
+    all(abs(((n*0.25 + 0.125)/0.25) - round((n*0.25 + 0.125)/0.25)) > 0.4 for n in range(-8, 9)))
+
+# ---- m7-interp: the kernels one pair at a time, and the doubled sample
+tt = np.linspace(-1.5, 1.5, 61)
+full = s3_interp(tt, 0.25)
+chk("M7s3 interp: every term together lands on x(t), T = 0.25 s",
+    np.max(np.abs(full - s3_x(tt))) < 1e-5, f"max err {np.max(np.abs(full - s3_x(tt))):.2e}")
+part = [np.max(np.abs(s3_interp(tt, 0.25, wt=lambda k, m=m: 1.0 if abs(k) <= m else 0.0) - s3_x(tt)))
+        for m in (0, 1, 2, 3)]
+chk("M7s3 interp: each added pair n = 0, +-1, +-2, +-3 brings the sum closer to x(t)",
+    all(part[i+1] < part[i] for i in range(3)), " > ".join(f"{p:.4f}" for p in part))
+chk("M7s3 interp: the sample values drawn at T = 0.25 s are 1, 0.811, 0.405, 0.090",
+    np.allclose(s3_x(np.array([0, .25, .5, .75])), [1, 0.8106, 0.4053, 0.0901], atol=5e-4))
+d = s3_interp(tt, 0.25, wt=lambda k: 2.0 if k == 0 else 1.0) - full
+chk("M7s3 interp Given: doubling x(0) adds exactly x(0) h_LP(t)",
+    np.max(np.abs(d - s3_x(0.0)*s3_sinc(PI*tt/0.25))) < 1e-12)
+chk("M7s3 interp: the added kernel spreads over all t (non-zero between samples)",
+    abs(s3_sinc(PI*0.1/0.25)) > 0.5)
+
+# ---- m7-interp-b: the kernel at any cutoff, and the choice pi/T
+for c in (0.5, 1.0, 1.5, 2.0):
+    wc = c*PI                                                  # T = 1
+    num = np.trapezoid(np.ones(200001), np.linspace(-wc, wc, 200001))/(2*PI)
+    chk(f"M7s3 interp-b: h_LP(0) = T w_c / pi = {c:g} at w_c = {c:g} pi/T", abs(num - c) < 1e-9)
+chk("M7s3 interp-b Given: w_c = 1.5 pi/T gives h_LP(0) = 1.5, not 1 or 1.5 T",
+    abs(0.3*(1.5*PI/0.3)/PI - 1.5) < 1e-12)
+ok = True
+for wM, ws in [(2*PI, 5*PI), (1.0, 3.0), (3.0, 6.5)]:
+    ok &= abs(ws/2 - (wM + (ws - wM))/2) < 1e-12 and (wM < ws/2 < ws - wM) == (wM < ws/2)
+chk("M7s3 interp-b: pi/T = w_s/2 is the middle of (w_M, w_s - w_M), inside iff w_M < w_s/2", ok)
+chk("M7s3 interp-b: with w_c = pi/T the kernel is 1 at 0 and 0 at every other mT",
+    abs(s3_sinc(0.0) - 1) < 1e-15 and max(abs(s3_sinc(PI*m)) for m in range(1, 6)) < 1e-15)
+
+# ---- m7-interp-c: the kernel with the pi dropped
+bad = lambda u: 1/PI if abs(u) < 1e-12 else np.sin(u)/(PI*u)
+chk("M7s3 interp-c: the damaged kernel is sin(1)/pi = 0.267849 at t = T",
+    abs(bad(1.0) - 0.267849) < 1e-6)
+chk("M7s3 interp-c Given: the damaged kernel at t = 0 is 1/pi = 0.318",
+    abs(bad(1e-9) - 1/PI) < 1e-9 and abs(1/PI - 0.318) < 5e-4)
+chk("M7s3 interp-c: its zeros are at t = m pi T, not at the sample instants",
+    abs(bad(PI)) < 1e-15 and min(abs(bad(m)) for m in range(1, 5)) > 1e-3)
+
+# ---- m7-zoh and m7-foh: the largest gap, and how it scales with T
+def s3_gap(T, kind):
+    if kind == 'zoh':
+        y = s3_x(np.floor(s3_grid/T)*T)
+    else:
+        nT = np.arange(-40, 41)*T
+        y = np.interp(s3_grid, nT, s3_x(nT))
+    return float(np.max(np.abs(y - s3_x(s3_grid))))
+gz = [s3_gap(0.2, 'zoh'), s3_gap(0.1, 'zoh')]
+gf = [s3_gap(0.2, 'foh'), s3_gap(0.1, 'foh')]
+chk("M7s3 zoh: largest ZOH gap 0.3181 at T = 0.2 s and 0.1674 at T = 0.1 s",
+    abs(gz[0] - 0.3181) < 5e-5 and abs(gz[1] - 0.1674) < 5e-5, f"{gz[0]:.4f}, {gz[1]:.4f}")
+chk("M7s3 zoh Given: halving T about halves the ZOH gap (ratio in 0.4 to 0.6)",
+    0.4 < gz[1]/gz[0] < 0.6, f"ratio {gz[1]/gz[0]:.3f}")
+chk("M7s3 foh: largest FOH gap 0.0300 at T = 0.2 s and 0.0080 at T = 0.1 s",
+    abs(gf[0] - 0.0300) < 5e-5 and abs(gf[1] - 0.0080) < 5e-5, f"{gf[0]:.4f}, {gf[1]:.4f}")
+chk("M7s3 foh Given: halving T about quarters the FOH gap (ratio in 0.2 to 0.3)",
+    0.2 < gf[1]/gf[0] < 0.3, f"ratio {gf[1]/gf[0]:.3f}")
+chk("M7s3 foh: the straight lines beat the staircase at the same T",
+    gf[0] < gz[0] and gf[1] < gz[1])
+
+# ---- m7-zoh-b: reading |H_0|
+H0m = lambda w, T: T if abs(w) < 1e-12 else abs(2*np.sin(w*T/2)/w)
+H1v = lambda w, T: T if abs(w) < 1e-12 else (np.sin(w*T/2)/(w/2))**2/T
+chk("M7s3 zoh-b: T = 0.5 s gives w_s = 4 pi and w_s/2 = 2 pi rad/s",
+    abs(2*PI/0.5 - 4*PI) < 1e-12)
+chk("M7s3 zoh-b: |H_0(w_s/2)| = 2T/pi = 0.64 T",
+    abs(H0m(PI/0.5, 0.5)/0.5 - 2/PI) < 1e-12 and abs(2/PI - 0.64) < 5e-3, f"{2/PI:.4f}")
+chk("M7s3 zoh-b Given: T = 0.1 s puts the first zero at 2 pi/T = 20 pi rad/s",
+    abs(H0m(20*PI, 0.1)) < 1e-12 and min(H0m(w, 0.1) for w in np.linspace(0.1, 20*PI - 0.1, 4000)) > 1e-6)
+chk("M7s3 zoh-b Given: 10 pi and pi/10 rad/s are not zeros of H_0 at T = 0.1 s",
+    H0m(10*PI, 0.1) > 1e-3 and H0m(PI/10, 0.1) > 1e-3)
+
+# ---- m7-zoh-hear: the level of the first copy of a held tone
+Hf = lambda f, fs: abs(np.sin(PI*f/fs))/(PI*f)
+for fs, want in [(2000, 0.18), (8000, 0.04)]:
+    r = Hf(fs - 300, fs)/Hf(300, fs)
+    chk(f"M7s3 zoh-hear: at f_s = {fs} Hz the first copy is 300/{fs-300} = {r:.4f}, about {want}",
+        abs(r - 300/(fs - 300)) < 1e-12 and abs(r - want) < 5e-3)
+up = 100
+k = np.arange(2000*up)
+X = np.abs(np.fft.fft(np.cos(2*PI*300*np.floor(k/up)/2000)))
+chk("M7s3 zoh-hear: an FFT of one second of the held tone agrees with f0/(fs - f0)",
+    abs(X[1700]/X[300] - 300/1700) < 1e-3, f"{X[1700]/X[300]:.5f} against {300/1700:.5f}")
+chk("M7s3 zoh-hear: the next copies sit at f_s + 300 and 2 f_s - 300 Hz",
+    X[2300]/X[300] > 0.05 and X[3700]/X[300] > 0.05 and X[1000]/X[300] < 1e-9)
+
+# ---- m7-zoh-c: the compensator's boost
+boost = lambda w, T: T*w/(2*np.sin(w*T/2))
+chk("M7s3 zoh-c: the boost T/|H_0| rises from 1 to pi/2 = 1.57 across |w| < pi/T",
+    abs(boost(1e-6, 0.5) - 1) < 1e-9 and abs(boost(PI/0.5, 0.5) - PI/2) < 1e-12 and abs(PI/2 - 1.57) < 1e-3)
+chk("M7s3 zoh-c Given: with the band stopped at w_s/4 the largest boost is pi/(2 sqrt 2) = 1.11 < pi/2",
+    abs(boost(PI/(2*0.5), 0.5) - PI/(2*np.sqrt(2))) < 1e-12 and abs(PI/(2*np.sqrt(2)) - 1.11) < 5e-3
+    and PI/(2*np.sqrt(2)) < PI/2)
+
+# ---- m7-foh-b: the triangle
+Tt = 0.5
+tau = np.linspace(-2, 2, 400001)
+g = lambda s: (np.abs(s) <= Tt/2).astype(float)
+for t0, want in [(0.0, 0.5), (0.1, 0.4), (0.3, 0.2), (0.6, 0.0)]:
+    val = np.trapezoid(g(tau)*g(t0 - tau), tau)
+    chk(f"M7s3 foh-b: (g*g)({t0:g}) = T - |t| = {want:g} with T = 0.5 s", abs(val - want) < 1e-4, f"{val:.5f}")
+chk("M7s3 foh-b: the triangle has peak T = 0.5 and h_1 = (g*g)/T has peak 1",
+    abs(Tt - 0.5) < 1e-15 and abs(Tt/Tt - 1) < 1e-15)
+chk("M7s3 foh-b Given: T = 0.2 s gives h_1(0.1) = 1 - 0.1/0.2 = 0.5",
+    abs((1 - 0.1/0.2) - 0.5) < 1e-15)
+nT = np.arange(-20, 21)*0.2
+tri1 = lambda s, T: np.maximum(0.0, 1 - np.abs(s)/T)
+ts = np.linspace(-2, 2, 801)
+lin = np.array([np.sum(s3_x(nT)*tri1(t0 - nT, 0.2)) for t0 in ts])
+chk("M7s3 foh-b: the sum of triangles x(nT) h_1(t - nT) is the straight-line join",
+    np.max(np.abs(lin - np.interp(ts, nT, s3_x(nT)))) < 1e-12)
+
+# ---- m7-foh-c: the two holds compared, T = 0.5 s
+chk("M7s3 foh-c: H_1(w_s/2) = 4T/pi^2 = 0.41 T and |H_0(w_s/2)| = 0.64 T",
+    abs(H1v(2*PI, 0.5)/0.5 - 4/PI**2) < 1e-12 and abs(4/PI**2 - 0.41) < 5e-3)
+chk("M7s3 foh-c: both holds start at T", abs(H0m(0, 0.5) - 0.5) < 1e-15 and abs(H1v(0, 0.5) - 0.5) < 1e-15)
+chk("M7s3 foh-c Given: |H_0(j6pi)| = 1/(3 pi) = 0.106 is larger than H_1(j6pi) = 2/(9 pi^2) = 0.023",
+    abs(H0m(6*PI, 0.5) - 1/(3*PI)) < 1e-12 and abs(H1v(6*PI, 0.5) - 2/(9*PI**2)) < 1e-12
+    and abs(1/(3*PI) - 0.106) < 5e-4 and abs(2/(9*PI**2) - 0.023) < 5e-4 and H0m(6*PI, 0.5) > H1v(6*PI, 0.5))
+peaks0 = [H0m((2*k+1)*PI/0.5, 0.5) for k in (2, 4)]
+peaks1 = [H1v((2*k+1)*PI/0.5, 0.5) for k in (2, 4)]
+chk("M7s3 foh-c: the side lobes fall as 1/w for the ZOH and 1/w^2 for the FOH",
+    abs(peaks0[0]/peaks0[1] - 9/5) < 1e-9 and abs(peaks1[0]/peaks1[1] - (9/5)**2) < 1e-9)
+
+# ---- m7-perfect: the pulse, its transform, and the prediction
+wv = np.array([0.7, 3.1, 9.4])
+num = np.array([np.trapezoid(np.cos(w*np.linspace(-0.5, 0.5, 200001)), np.linspace(-0.5, 0.5, 200001)) for w in wv])
+chk("M7s3 perfect: the pulse on |t| <= 0.5 s has X(jw) = 2 sin(w/2)/w",
+    np.max(np.abs(num - 2*np.sin(wv/2)/wv)) < 1e-9)
+chk("M7s3 perfect: its zeros are isolated points 2 pi k, not an interval",
+    all(abs(2*np.sin(w/2)/w) > 1e-4 for w in np.linspace(2*PI + 0.01, 4*PI - 0.01, 500)))
+chk("M7s3 perfect: T = 0.25 s gives copies of height 1/T = 4, w_s = 8 pi rad/s",
+    abs(1/0.25 - 4) < 1e-15 and abs(2*PI/0.25 - 8*PI) < 1e-12)
+chk("M7s3 perfect Given: cos(10 pi t) has w_M = 10 pi, so any w_s > 20 pi rad/s recovers it",
+    abs(2*10*PI - 20*PI) < 1e-12)
+
+# ---- m7-real-recon: the gallery
+chk("M7s3 gallery: a 16 kHz rate holds for T = 62.5 us, an 8 kHz rate samples every 125 us",
+    abs(1/16000 - 62.5e-6) < 1e-15 and abs(1/8000 - 125e-6) < 1e-15)
+tt = np.linspace(0.0003, 0.0019, 9)
+n = np.arange(-4000, 4001)
+yr = np.array([np.sum(np.sin(2*PI*1000*n/8000)*s3_sinc(PI*(t0*8000 - n))) for t0 in tt])
+chk("M7s3 gallery: the 8 kHz samples of a 1 kHz tone interpolate back to sin(2 pi 1000 t)",
+    np.max(np.abs(yr - np.sin(2*PI*1000*tt))) < 2e-3, f"max err {np.max(np.abs(yr - np.sin(2*PI*1000*tt))):.1e}")
+bn = 100*(1 - 0.7**np.arange(15))
+chk("M7s3 gallery: b[n] = 100(1 - 0.7^n) % starts at 0 and stays below 100",
+    bn[0] == 0 and bn.max() < 100 and bn[-1] > 99)
+th = 18 + 6*np.sin(2*PI*(3*np.arange(9) - 9)/24)
+chk("M7s3 gallery: the 3-hourly readings lie between 12 and 24 degrees C, peak at 15 h",
+    th.min() >= 12 - 1e-9 and abs(th.max() - 24) < 1e-9 and 3*int(np.argmax(th)) == 15)
+
+# ---- Laboratory J (key J), 74_labs_m7.js: x(t) = 1 + cos(wM t/2) + sin(wM t), fM = 3 Hz
+def labJ_lines(wM):
+    return [(0.0, 2*PI+0j), (wM/2, PI+0j), (-wM/2, PI+0j), (wM, -1j*PI), (-wM, 1j*PI)]
+def labJ_replicas(wM, ws):
+    span = max(2.4*ws, 3.2*wM)
+    K = min(60, int(np.ceil(span/ws)) + 1)
+    tol, agg = ws*1e-9, {}
+    for k in range(-K, K+1):
+        for p0, c in labJ_lines(wM):
+            p = p0 + k*ws
+            if abs(p) > span: continue
+            key = round(p/tol)
+            agg[key] = (p, agg[key][1] + c) if key in agg else (p, c)
+    return list(agg.values())
+labJ_x = lambda t, wM: 1 + np.cos(wM*t/2) + np.sin(wM*t)
+def labJ_rec(fS, mode, wM=2*PI*3):
+    ws, Ts = 2*PI*fS, 1/fS
+    if mode == 'ideal':
+        keep = [(p, c) for p, c in labJ_replicas(wM, ws) if abs(p) < ws/2 - 1e-9]
+        return lambda t: sum(c.real*np.cos(p*t) - c.imag*np.sin(p*t) for p, c in keep)/(2*PI)
+    if mode == 'zoh':
+        return lambda t: labJ_x(np.floor(t/Ts)*Ts, wM)
+    return lambda t: (1 - (t/Ts - np.floor(t/Ts)))*labJ_x(np.floor(t/Ts)*Ts, wM) \
+        + (t/Ts - np.floor(t/Ts))*labJ_x((np.floor(t/Ts) + 1)*Ts, wM)
+def labJ_rms(fS, mode, wM=2*PI*3):
+    win = 4*PI/(wM/2); t = win*np.arange(1600)/1600
+    return float(np.sqrt(np.mean((labJ_rec(fS, mode)(t) - labJ_x(t, wM))**2)))
+labJ_fold = lambda w0, ws: abs(((w0 + ws/2) % ws + ws) % ws - ws/2)
+wMJ = 2*PI*3
+chk("LabJ the signal has w_M = 6 pi rad/s (f_M = 3 Hz), and the error window is 4/3 s",
+    abs(wMJ - 6*PI) < 1e-12 and abs(4*PI/(wMJ/2) - 4/3) < 1e-12)
+chk("LabJ oversampling (12 Hz): w_s = 75.40 rad/s, guard band 12 pi = 37.70 rad/s",
+    abs(2*PI*12 - 75.398) < 1e-3 and abs(2*PI*12 - 2*wMJ - 37.699) < 1e-3)
+chk("LabJ oversampling, ideal filter: the error is 0", labJ_rms(12, 'ideal') < 1e-9,
+    f"rms {labJ_rms(12, 'ideal'):.1e}")
+chk("LabJ critical (6 Hz): w_s = 2 w_M and every sample of sin(6 pi t) is zero",
+    abs(2*PI*6 - 2*wMJ) < 1e-12 and np.max(np.abs(np.sin(6*PI*np.arange(-30, 31)/6))) < 1e-12)
+chk("LabJ critical, ideal filter: the band-edge sine is lost, error 1/sqrt 2 = 0.7071",
+    abs(labJ_rms(6, 'ideal') - 1/np.sqrt(2)) < 1e-6, f"rms {labJ_rms(6, 'ideal'):.6f}")
+chk("LabJ critical: the band edge folds onto the cutoff (the 'lost' verdict)",
+    abs(labJ_fold(wMJ, 2*PI*6) - PI*6) < 1e-9)
+chk("LabJ undersampling (4.5 Hz): guard band -3 pi rad/s",
+    abs((2*PI*4.5 - 2*wMJ) + 3*PI) < 1e-9)
+chk("LabJ undersampling: the 3 Hz term returns at 1.5 Hz, the 1.5 Hz term stays",
+    abs(labJ_fold(wMJ, 2*PI*4.5)/(2*PI) - 1.5) < 1e-9 and abs(labJ_fold(wMJ/2, 2*PI*4.5) - wMJ/2) < 1e-9)
+chk("LabJ undersampling, ideal filter: error exactly 1", abs(labJ_rms(4.5, 'ideal') - 1) < 1e-6,
+    f"rms {labJ_rms(4.5, 'ideal'):.6f}")
+ez, ef = labJ_rms(12, 'zoh'), labJ_rms(12, 'foh')
+chk("LabJ at 12 Hz both holds leave a non-zero error, the first-order hold the smaller",
+    ez > 1e-2 and ef > 1e-3 and ef < ez, f"zoh {ez:.4f}, foh {ef:.4f}")
+chk("LabJ the hold errors shrink as the rate rises (12 Hz to 30 Hz)",
+    labJ_rms(30, 'zoh') < ez and labJ_rms(30, 'foh') < ef)
+chk("LabJ every preset and method gives a finite error",
+    all(np.isfinite(labJ_rms(f, m)) for f in (12, 6, 4.5) for m in ('ideal', 'zoh', 'foh')))
 # </m7-s3-verify>
 
 # <m7-s4-verify> 7.4 aliasing in practice
+# The numbers of section 7.4: the slides, their prediction cards, the
+# gallery captions and the fixed numbers of Laboratory J4. A kept line is
+# one strictly inside |w| < ws/2, the filter of the slides.
+def s4_fold(f0, fs):
+    return abs(f0 - fs*np.floor(f0/fs + 0.5))
+def s4_kept(ws, comps, K=6):
+    out = set()
+    for k in range(-K, K+1):
+        for w0 in comps:
+            for sg in (1, -1):
+                pos = k*ws + sg*w0
+                if abs(pos) < ws/2 - 1e-9:
+                    out.add(round(pos/PI, 9))
+    return sorted(out)
+def s4_same(f1, f2, T, N=60):
+    n = np.arange(-N, N+1)
+    return np.max(np.abs(f1(n*T) - f2(n*T))) < 1e-9
+
+# --- m7-alias-cos: w0 = 2 pi, three rates, cutoff ws/2
+w0 = 2*PI
+for r, keep in [(6, [-1.0, 1.0]), (3, [-1.0, 1.0]), (1.5, [-0.5, 0.5])]:
+    got = [v/2 for v in s4_kept(r*w0, [w0])]   # in multiples of w0
+    chk(f"7.4 ws = {r} w0: cutoff {r/2} w0 keeps {keep} w0", got == keep, str(got))
+chk("7.4 at ws = 1.5 w0 the kept line is ws - w0 = 0.5 w0", abs((1.5 - 1) - 0.5) < 1e-12)
+chk("7.4 at ws = 3 w0 the copy lines 2 w0 and 4 w0 lie outside 1.5 w0",
+    2 > 1.5 and 4 > 1.5)
+# --- m7-alias-cos-b: fs = 6 kHz
+chk("7.4 f0 = 4 kHz at fs = 6 kHz returns at 2 kHz", abs(s4_fold(4, 6) - 2) < 1e-12)
+chk("7.4 the 4 kHz and 2 kHz tones share every sample at 6 kHz",
+    s4_same(lambda t: np.cos(2*PI*4*t), lambda t: np.cos(2*PI*2*t), 1/6))
+chk("7.4 prediction: f0 = 5 kHz at fs = 6 kHz returns at 1 kHz", abs(s4_fold(5, 6) - 1) < 1e-12)
+chk("7.4 prediction: only +-1 kHz lies inside |f| < 3 kHz",
+    [v*PI/(2*PI) for v in s4_kept(2*PI*6, [2*PI*5])] == [-1.0, 1.0])
+chk("7.4 the slider range 0.5..5.5 kHz crosses fs/2 = 3 kHz", 0.5 < 3 < 5.5)
+for f in np.arange(0.5, 5.51, 0.1):
+    fa = s4_fold(f, 6)
+    if not (0 <= fa <= 3 + 1e-9 and s4_same(lambda t: np.cos(2*PI*f*t), lambda t: np.cos(2*PI*fa*t), 1/6)):
+        chk(f"7.4 fold of {f:.1f} kHz at 6 kHz", False); break
+else:
+    chk("7.4 every slider tone folds into [0, 3] kHz with the same samples", True)
+# --- m7-ex-alias: x = cos(2 pi t), Nyquist rate 4 pi
+for T, wsx, wcx, wr in [(1/4, 8, 4, 2), (1/3, 6, 3, 2), (2/3, 3, 1.5, 1)]:
+    ws = 2*PI/T
+    kept = s4_kept(ws, [2*PI])
+    chk(f"7.4 T = {T:.4f} s: ws = {wsx} pi, wc = {wcx} pi, x_r at {wr} pi",
+        abs(ws/PI - wsx) < 1e-9 and abs(ws/2/PI - wcx) < 1e-9 and kept == [-wr, wr], str(kept))
+chk("7.4 T1 and T2 exceed the Nyquist rate 4 pi, T3 does not",
+    2*PI/(1/4) > 4*PI and 2*PI/(1/3) > 4*PI and 2*PI/(2/3) < 4*PI)
+chk("7.4 against 6 pi the second row would be the boundary 6 pi >= 6 pi", abs(2*PI/(1/3) - 6*PI) < 1e-9)
+chk("7.4 cos(4 pi n/3) = cos(2 pi n/3) for every n",
+    s4_same(lambda t: np.cos(2*PI*t), lambda t: np.cos(PI*t), 2/3))
+chk("7.4 prediction: T = 0.8 s gives ws = 2.5 pi and wc = 1.25 pi",
+    abs(2*PI/0.8 - 2.5*PI) < 1e-9)
+chk("7.4 prediction: at T = 0.8 s the filter returns cos(0.5 pi t)",
+    s4_kept(2*PI/0.8, [2*PI]) == [-0.5, 0.5]
+    and s4_same(lambda t: np.cos(2*PI*t), lambda t: np.cos(0.5*PI*t), 0.8))
+# --- m7-hw-alias: cos(pi t) + cos(3 pi t) at T = 2/5
+chk("7.4 T = 2/5 s gives ws = 5 pi < 6 pi and wc = 2.5 pi",
+    abs(2*PI/0.4 - 5*PI) < 1e-9 and 5*PI < 6*PI)
+chk("7.4 the kept lines at T = 2/5 s are +-pi and +-2 pi",
+    s4_kept(5*PI, [PI, 3*PI]) == [-2.0, -1.0, 1.0, 2.0])
+chk("7.4 3 pi and ws - pi = 4 pi lie outside 2.5 pi", 3 > 2.5 and 4 > 2.5)
+chk("7.4 cos(pi t)+cos(3 pi t) and cos(pi t)+cos(2 pi t) share every sample at T = 2/5",
+    s4_same(lambda t: np.cos(PI*t)+np.cos(3*PI*t), lambda t: np.cos(PI*t)+np.cos(2*PI*t), 0.4))
+chk("7.4 cos(6 pi n/5) = cos(4 pi n/5) for every n",
+    s4_same(lambda t: np.cos(3*PI*t), lambda t: np.cos(2*PI*t), 0.4))
+chk("7.4 prediction: at T = 1/2 s the copy line 4 pi - 3 pi lands on pi, so x_r = 2 cos(pi t)",
+    s4_kept(4*PI, [PI, 3*PI]) == [-1.0, 1.0] and abs(4*PI - 3*PI - PI) < 1e-12
+    and s4_same(lambda t: np.cos(PI*t)+np.cos(3*PI*t), lambda t: 2*np.cos(PI*t), 0.5))
+# --- m7-antialias: triangle to 3 pi, ws = 4 pi, H_AA keeps |w| < wa
+def s4_X(w): return np.maximum(0, 1 - np.abs(w)/(3*PI))
+def s4_Xr(w, wa):
+    Y = lambda u: np.where(np.abs(u) < wa, s4_X(u), 0.0)
+    s = sum(Y(w - k*4*PI) for k in range(-2, 3))
+    return np.where(np.abs(w) < 2*PI, s, 0.0)
+def s4_E(wa, N=600000):
+    h = 6*PI/N; w = -3*PI + (np.arange(N) + 0.5)*h
+    return float(np.sum((s4_X(w) - s4_Xr(w, wa))**2)*h/(2*PI))
+E3, E2, E1 = s4_E(3*PI), s4_E(2*PI), s4_E(PI)
+chk("7.4 no anti-aliasing filter (wa = 3 pi): error energy 2/27 = 0.074",
+    abs(E3 - 2/27) < 1e-6 and f"{E3:.3f}" == "0.074", f"{E3:.6f}")
+chk("7.4 wa = ws/2 = 2 pi: error energy 1/27 = 0.037",
+    abs(E2 - 1/27) < 1e-6 and f"{E2:.3f}" == "0.037", f"{E2:.6f}")
+chk("7.4 the filter at ws/2 halves the error energy", abs(E3/E2 - 2) < 1e-4, f"{E3/E2:.5f}")
+chk("7.4 prediction: wa = pi gives a larger error energy, 8/27", abs(E1 - 8/27) < 1e-6 and E1 > E2, f"{E1:.6f}")
+chk("7.4 wa = ws/2 is the smallest error on the slider range",
+    min(s4_E(v*PI, 60000) for v in np.arange(1, 3.01, 0.1)) >= s4_E(2*PI, 60000) - 1e-9)
+chk("7.4 X reaches 3 pi, beyond ws/2 = 2 pi for ws = 4 pi", 3*PI > 4*PI/2)
+# --- m7-antialias-b: mean-square errors over one period of 2 s
+tt = (np.arange(400000) + 0.5)*(2/400000)
+e1 = np.cos(3*PI*tt) - np.cos(2*PI*tt); e2 = np.cos(3*PI*tt)
+chk("7.4 mean-square error with no filter is 1", abs(np.mean(e1**2) - 1) < 1e-9, f"{np.mean(e1**2):.9f}")
+chk("7.4 mean-square error filtered first is 1/2", abs(np.mean(e2**2) - 0.5) < 1e-9)
+chk("7.4 the cross term averages to zero: mean of cos(pi t) + cos(5 pi t) over 2 s",
+    abs(np.mean(np.cos(PI*tt) + np.cos(5*PI*tt))) < 1e-9)
+chk("7.4 2 cos(3 pi t) cos(2 pi t) = cos(pi t) + cos(5 pi t)",
+    np.max(np.abs(2*np.cos(3*PI*tt)*np.cos(2*PI*tt) - np.cos(PI*tt) - np.cos(5*PI*tt))) < 1e-9)
+chk("7.4 a low-pass at 2.5 pi keeps pi and removes 3 pi", PI < 2.5*PI < 3*PI)
+# --- m7-temporal / -b: 9 rev/s at 10 frames/s
+def s4_seen(r, fs):
+    u = r/fs; return (u - np.floor(u + 0.5))*fs
+chk("7.4 9 rev/s at 10 frames/s is seen as 1 rev/s backwards", abs(s4_seen(9, 10) + 1) < 1e-9)
+chk("7.4 ws = 20 pi < 2 w0 = 36 pi, and w0 - ws = -2 pi rad/s",
+    20*PI < 36*PI and abs(18*PI - 20*PI + 2*PI) < 1e-12)
+chk("7.4 e^{j 18 pi n/10} = e^{-j 2 pi n/10}: the kept line is at -2 pi rad/s",
+    s4_same(lambda t: np.exp(1j*18*PI*t), lambda t: np.exp(-1j*2*PI*t), 0.1))
+chk("7.4 cos(18 pi n/10) = cos(2 pi n/10) for every n",
+    s4_same(lambda t: np.cos(18*PI*t), lambda t: np.cos(2*PI*t), 0.1))
+for n in range(1, 6):
+    turn = 0.9*n; back = -(turn - np.floor(turn + 0.5))
+    chk(f"7.4 frame {n}: {turn:.1f} turns on, seen {0.1*n:.1f} turn back", abs(back - 0.1*n) < 1e-9)
+chk("7.4 at 20 frames/s: 40 pi > 36 pi and 9 rev/s forwards", 40*PI > 36*PI and abs(s4_seen(9, 20) - 9) < 1e-9)
+chk("7.4 at 9 frames/s the spoke stands still", abs(s4_seen(9, 9)) < 1e-9)
+chk("7.4 above 18 frames/s the rotation is seen forwards at 9 rev/s",
+    all(abs(s4_seen(9, fs) - 9) < 1e-9 for fs in np.arange(18.5, 30.01, 0.5)))
+chk("7.4 the frame-rate slider default 10 gives the red 1 Hz curve", abs(s4_fold(9, 10) - 1) < 1e-12)
+chk("7.4 prediction: 25 rev/s at 24 frames/s is seen as 1 rev/s forwards",
+    abs(s4_seen(25, 24) - 1) < 1e-9 and abs(25/24 - 1 - 1/24) < 1e-12)
+# --- m7-spatial / -b
+chk("7.4 9 cycles/mm on 10 points/mm: 18 > 10, recorded at 1 cycle/mm",
+    2*9 > 10 and abs(s4_fold(9, 10) - 1) < 1e-12)
+chk("7.4 the 9 and 1 cycle/mm stripes agree at every grid point",
+    s4_same(lambda x: 0.5 + 0.5*np.cos(2*PI*9*x), lambda x: 0.5 + 0.5*np.cos(2*PI*x), 0.1))
+chk("7.4 f2 = 1/1.1 = 0.909 cycles/mm", f"{1/1.1:.3f}" == "0.909")
+chk("7.4 beat period 1/(1 - 1/1.1) = 1.1/0.1 = 11 mm",
+    abs(1/(1 - 1/1.1) - 11) < 1e-9 and abs(1.1/0.1 - 11) < 1e-9)
+chk("7.4 prediction: stripes of 1.0 and 1.25 mm beat every 5 mm",
+    abs(1/1.25 - 0.8) < 1e-12 and abs(1/(1 - 0.8) - 5) < 1e-9)
+chk("7.4 the moire slider range 1.05..1.30 mm keeps a whole beat on 24 mm",
+    all(p/(p - 1) <= 24 for p in np.arange(1.05, 1.3001, 0.01)))
+# --- m7-real-alias
+chk("7.4 gallery: 23 rev/s at 24 frames/s steps 1/24 turn back, phi[n] = 2 pi n/24 for n = 0..11",
+    all(abs(-2*PI*s4_seen(23, 24)*n/24 - 2*PI*n/24) < 1e-9 for n in range(12)))
+chk("7.4 gallery: 9 stripes/cm at 10 pixels/cm lie on cos(2 pi x)",
+    s4_same(lambda x: np.cos(2*PI*9*x), lambda x: np.cos(2*PI*x), 0.1))
+chk("7.4 gallery: 50 Hz mains flicker at 2 x 50 = 100 Hz", 2*50 == 100)
+chk("7.4 gallery: 100 Hz at 24 frames/s is seen at 4 Hz, same samples",
+    abs(s4_fold(100, 24) - 4) < 1e-9
+    and s4_same(lambda t: 0.5 - 0.5*np.cos(2*PI*100*t), lambda t: 0.5 - 0.5*np.cos(2*PI*4*t), 1/24))
+chk("7.4 gallery: 7 kHz at 8 kHz is heard at 1 kHz, cos(2 pi 7n/8) = cos(2 pi n/8)",
+    abs(s4_fold(7, 8) - 1) < 1e-12
+    and s4_same(lambda t: np.cos(2*PI*7*t), lambda t: np.cos(2*PI*t), 1/8))
+# --- Laboratory J4: defaults f0 = 5 kHz, fs = 8 kHz
+chk("LabJ4 default: k = 1 and fa = |5 - 8| = 3 kHz",
+    np.floor(5/8 + 0.5) == 1 and abs(s4_fold(5, 8) - 3) < 1e-12)
+chk("LabJ4 default: fs/2 = 4 kHz and 5 > 4, so the tone aliases", 8/2 == 4 and 5 > 4)
+chk("LabJ4 the folding diagram is fa <= fs/2 with period fs on the slider grid",
+    all(0 <= s4_fold(f, fs) <= fs/2 + 1e-9 and abs(s4_fold(f + fs, fs) - s4_fold(f, fs)) < 1e-9
+        for f in np.arange(0.2, 12.01, 0.1) for fs in np.arange(2, 12.01, 0.5)))
+chk("LabJ4 every slider tone and its fold share the samples",
+    all(s4_same(lambda t: np.cos(2*PI*f*t), lambda t: np.cos(2*PI*s4_fold(f, fs)*t), 1/fs, 20)
+        for f in np.arange(0.2, 12.01, 0.3) for fs in np.arange(2, 12.01, 1.0)))
+chk("LabJ4 a tone at or below fs/2 folds to itself",
+    all(abs(s4_fold(f, fs) - f) < 1e-9 for fs in np.arange(2, 12.01, 0.5)
+        for f in np.arange(0.2, fs/2 + 1e-9, 0.1)))
 # </m7-s4-verify>
 
 # <m7-s5-verify> 7.5 quick check and projects
+# --- summary table: H_0(j0) = H_1(j0) = T, and the interpolation kernel with
+#     w_c = pi/T is sin(pi t/T)/(pi t/T)
+for _T in (0.1, 0.5, 1e-3):
+    _w = 1e-7
+    _H0 = np.exp(-1j*_w*_T/2)*2*np.sin(_w*_T/2)/_w
+    _H1 = (1/_T)*(np.sin(_w*_T/2)/(_w/2))**2
+    chk(f"M7 table: H_0(j0) = H_1(j0) = T at T = {_T:g} s", abs(_H0 - _T) < 1e-6*_T and abs(_H1 - _T) < 1e-6*_T)
+_tt = np.linspace(-3.3, 3.3, 661); _tt = _tt[np.abs(_tt) > 1e-9]
+chk("M7 table: T sin(w_c t)/(pi t) with w_c = pi/T is sin(pi t/T)/(pi t/T) (T = 0.5)",
+    np.allclose(0.5*np.sin(PI/0.5*_tt)/(PI*_tt), np.sin(PI*_tt/0.5)/(PI*_tt/0.5)))
+_ok = True
+for _w0, _ws in [(1.5*PI, 2*PI), (3*PI, 5*PI), (10*PI, 16*PI), (18*PI, 20*PI)]:
+    _n = np.arange(-40, 41); _T = 2*PI/_ws
+    _ok &= _ws/2 < _w0 < _ws and np.allclose(np.cos(_w0*_n*_T), np.cos((_ws - _w0)*_n*_T)) and abs(_ws - _w0) < _ws/2
+chk("M7 table: for w_s/2 < w_0 < w_s the samples of cos(w_0 t) equal those of cos((w_s - w_0) t), which lies below w_c = w_s/2", _ok)
+
+# --- quick check (m7-qc0 ... m7-qc11)
+chk("M7 quick 0: T = 0.1 ms gives f_s = 10 kHz and w_s = 20000 pi rad/s",
+    abs(fs_of(1e-4) - 1e4) < 1e-6 and abs(ws_of(1e-4) - 20000*PI) < 1e-6)
+chk("M7 quick 1: T = 0.2 s scales a peak of 1 to 1/T = 5", abs(1/0.2 - 5) < 1e-12)
+chk("M7 quick 2: T = 0.125 s gives w_s = 16 pi and the k = 2 copy at 32 pi rad/s",
+    abs(ws_of(0.125) - 16*PI) < 1e-12 and abs(2*ws_of(0.125) - 32*PI) < 1e-12)
+chk("M7 quick 3: cos(300 pi t) + cos(700 pi t) has w_M = 700 pi and Nyquist rate 1400 pi rad/s",
+    max(300*PI, 700*PI) == 700*PI and abs(2*700*PI - 1400*PI) < 1e-9)
+_n = np.arange(-50, 51)
+chk("M7 quick 4: sin(50 pi t) sampled at w_s = 100 pi (T = 0.02 s) is zero at every sample",
+    abs(2*PI/(100*PI) - 0.02) < 1e-15 and np.max(np.abs(np.sin(50*PI*_n*0.02))) < 1e-12)
+# (sin(50 t)/(pi t))^2: X = (1/2 pi) R*R with R = 1 on |w| <= 50, a triangle of peak 50/pi reaching zero at |w| = 100
+_dw = 0.01; _wg = np.arange(-50, 50 + _dw/2, _dw)
+_conv = np.convolve(np.ones_like(_wg), np.ones_like(_wg))*_dw/(2*PI)
+_wc = np.arange(len(_conv))*_dw - 100
+_L = 4000.0; _tq = np.linspace(-_L, _L, 8000001); _xq = np.where(np.abs(_tq) < 1e-12, (50/PI)**2, (np.sin(50*_tq)/(PI*np.where(np.abs(_tq) < 1e-12, 1, _tq)))**2)
+chk("M7 quick 5: (sin(50 t)/(pi t))^2 has a triangular spectrum of peak 50/pi that ends at w_M = 100 rad/s",
+    abs(_conv.max() - 50/PI) < 1e-2 and abs(_wc[np.nonzero(_conv > 1e-9)[0][-1]] - 100) < 0.02
+    and abs(np.trapezoid(_xq, _tq) - 50/PI) < 1e-3*50/PI,
+    f"peak {_conv.max():.4f}, 50/pi = {50/PI:.4f}, area in time {np.trapezoid(_xq, _tq):.4f}")
+chk("M7 quick 6: w_M = 3 pi, w_s = 10 pi admits 5 pi but not 2 pi or 8 pi",
+    3*PI < 5*PI < 10*PI - 3*PI and not (3*PI < 2*PI) and not (8*PI < 10*PI - 3*PI))
+_wq = np.linspace(1, 2*PI/1e-3 + 50, 200001)
+_H0q = np.abs(2*np.sin(_wq*1e-3/2)/_wq)
+chk("M7 quick 7: T = 1 ms: |H_0| first reaches zero at w_s = 2000 pi rad/s",
+    abs(_wq[np.argmin(_H0q[_wq < 2*PI/1e-3 + 50])] - 2000*PI) < 0.1 and np.all(_H0q[_wq < 1900*PI] > 1e-6),
+    f"first zero at {_wq[np.argmin(_H0q)]/PI:.2f} pi")
+_Tq = 0.5
+_env = lambda a, b: np.max((1/_Tq)*(np.sin(np.linspace(a, b, 20001)*_Tq/2)/(np.linspace(a, b, 20001)/2))**2)
+chk("M7 quick 8: far above the band |H_1| falls off like 1/w^2 (doubling w divides the envelope by 4)",
+    abs(_env(400*PI, 404*PI)/_env(800*PI, 804*PI) - 4) < 0.05,
+    f"ratio {_env(400*PI, 404*PI)/_env(800*PI, 804*PI):.4f}")
+_ok = True
+_n = np.arange(-40, 41); _T = 2*PI/(16*PI)
+_lines = sorted({round(abs(k*16*PI + s*10*PI)/PI, 9) for k in range(-4, 5) for s in (1, -1)})
+chk("M7 quick 9: cos(10 pi t) at w_s = 16 pi: only the copy line 6 pi lies inside w_c = 8 pi; the samples equal those of cos(6 pi t)",
+    [l for l in _lines if l < 8] == [6.0] and np.allclose(np.cos(10*PI*_n*_T), np.cos(6*PI*_n*_T)))
+chk("M7 quick 10: w_s = 12 pi rad/s: the anti-aliasing cutoff w_s/2 is 6 pi rad/s", abs(12*PI/2 - 6*PI) < 1e-12)
+_adv = 23/24; _seen = (_adv + 0.5) % 1 - 0.5
+chk("M7 quick 11: 23 rev/s at 24 frames/s advances 23/24 turn a frame, seen as -1/24 turn, i.e. -1 rev/s",
+    abs(_seen + 1/24) < 1e-12 and abs(_seen*24 + 1) < 1e-12
+    and np.allclose(np.cos(2*PI*23*np.arange(48)/24), np.cos(2*PI*(-1)*np.arange(48)/24)))
+
+# --- projects
+_fs0 = 48000; _t0 = np.arange(_fs0)/_fs0
+def _peak_hz(f0):
+    x = np.cos(2*PI*f0*_t0)[::3]; X = np.abs(np.fft.rfft(x)); return np.argmax(X)*16000/len(x)
+chk("M7 projects: 11 kHz at 48 kHz, every third sample kept (16 kHz), peaks at 16 - 11 = 5 kHz; 6 kHz (< f_s/2 = 8 kHz) stays at 6 kHz",
+    abs(48000/3 - 16000) < 1e-9 and abs(_peak_hz(11000) - 5000) < 1.5 and abs(_peak_hz(6000) - 6000) < 1.5 and 16000/2 == 8000,
+    f"{_peak_hz(11000):.1f} Hz, {_peak_hz(6000):.1f} Hz")
+_m = np.arange(0, 101); _x = _m/20
+_cellavg = np.array([np.mean(np.cos(2*PI*19*np.linspace(a, a + 0.05, 2001))) for a in _x[:40]])
+chk("M7 projects: 19 cycles/mm on a 20 samples/mm grid reads as 1 cycle/mm; cell averaging first leaves about 5 % of the depth",
+    np.allclose(np.cos(2*PI*19*_x), np.cos(2*PI*1*_x)) and abs(np.sin(PI*19/20)/(PI*19/20) - 0.05) < 0.005
+    and abs(np.max(np.abs(_cellavg)) - np.sin(PI*19/20)/(PI*19/20)) < 2e-3,
+    f"factor {np.sin(PI*19/20)/(PI*19/20):.4f}, measured {np.max(np.abs(_cellavg)):.4f}")
+_app = [((r/30 + 0.5) % 1 - 0.5)*30 for r in (28, 30, 32)]
+chk("M7 projects: at 30 frames/s, 28, 30 and 32 rev/s appear as -2, 0 and +2 rev/s",
+    np.allclose(_app, [-2, 0, 2]), f"{_app}")
+def _zoh_rms(T):
+    tt = np.linspace(-1, 1, 400001)[:-1]
+    s = np.cos(2*PI*np.floor(tt/T + 1e-9)*T)
+    return np.sqrt(np.mean((s - np.cos(2*PI*tt))**2)), s, tt
+_e1, _s1, _t1 = _zoh_rms(0.1); _e2, _, _ = _zoh_rms(0.05)
+_c1 = 2*np.mean(_s1*np.exp(-2j*PI*_t1))
+_n = np.arange(-200, 201); _ti = np.linspace(-1, 1, 1001)
+_xr = np.array([np.sum(np.cos(2*PI*_n*0.1)*np.sinc((u - _n*0.1)/0.1)) for u in _ti])
+chk("M7 projects: cos(2 pi t), T = 0.1 s: the staircase lags by T/2 with RMS error near 0.25, halving T gives about 0.13; the sinc sum (|n| <= 200) stays within 1e-4 on |t| <= 1 s",
+    abs(_e1 - 0.25) < 0.01 and abs(_e2 - 0.13) < 0.005 and abs(np.angle(_c1) + 2*PI*0.05) < 1e-3
+    and np.max(np.abs(_xr - np.cos(2*PI*_ti))) < 1e-4,
+    f"RMS {_e1:.4f} and {_e2:.4f}, phase {np.angle(_c1):.4f} vs {-2*PI*0.05:.4f}, sinc max err {np.max(np.abs(_xr - np.cos(2*PI*_ti))):.2e}")
 # </m7-s5-verify>
 
 
