@@ -192,7 +192,11 @@ td:last-child,th:last-child{ padding-right:0; }
 .cover h1.doc{ color:#F7F3EA; font-size:38pt; line-height:1.08; margin:0; letter-spacing:-.012em; }
 .cover .cv-rule{ width:64pt; height:2pt; background:#E09A6A; margin:16pt 0 14pt; }
 .cover .cv-sub{ font-family:var(--serif); font-style:italic; font-size:15pt; color:#D9D2C4; margin:0; }
-.cover .cv-foot{ margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end;
+/* the author sits at the foot of the cover, under the artwork and above the edition line */
+.cover .cv-author{ margin-top:auto; font-size:9pt; line-height:1.45; color:#A9B7C6; }
+.cover .cv-author p{ margin:0; }
+.cover .cv-author .cv-name{ font-family:var(--serif); font-size:16pt; line-height:1.2; color:#F7F3EA; margin-bottom:5pt; }
+.cover .cv-foot{ margin-top:10mm; display:flex; justify-content:space-between; align-items:flex-end;
   gap:14pt; font-size:8.4pt; color:#A9B7C6; }
 .cover .cv-ed{ font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
 .cover .cv-credit{ text-align:right; }

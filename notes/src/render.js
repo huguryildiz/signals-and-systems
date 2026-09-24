@@ -130,6 +130,9 @@ ${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
        <div class="cv-top"><div class="mark">${LOGO}</div><p class="kicker">${md(b.kicker)}</p></div>
        <div class="cv-title"><h1 class="doc">${md(b.text)}</h1><div class="cv-rule"></div>
        ${b.sub?`<p class="cv-sub">${md(b.sub)}</p>`:''}</div>
+       <div class="cv-author"><p class="cv-name">Hüseyin Uğur Yıldız</p>
+       <p>IEEE Senior Member</p><p>Associate Professor of Electrical and Electronics Engineering</p>
+       <p>TED University, Ankara, Türkiye</p></div>
        <div class="cv-foot">${b.foot?`<div class="cv-ed">${md(b.foot)}</div>`:''}
        <div class="cv-credit">© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></div></div></div>`,
     /* Last-page colophon: document name, version, licence. */
