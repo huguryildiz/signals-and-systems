@@ -232,16 +232,26 @@ CONTENT.SECTIONS = {
 
   M7: [
     { n:'7.0', title:'Opening',                                  ids:['m7-open'] },
-    { n:'7.1', title:'The sampler and the sampled spectrum',     ids:[
+    /* <m7-s1-sec> */
+    { n:'7.1', title:'The sampler and the sampled spectrum', ids:[
         'm7-sampler','m7-rates','m7-freq','m7-replicas','m7-three'] },
-    { n:'7.2', title:'Aliasing and the sampling theorem',        ids:[
+    /* </m7-s1-sec> */
+    /* <m7-s2-sec> */
+    { n:'7.2', title:'Aliasing and the sampling theorem', ids:[
         'm7-aliasing','m7-theorem','m7-boundary','m7-ex-rates','m7-ex-73a',
         'm7-ex-73b','m7-ex-73c'] },
-    { n:'7.3', title:'Reconstruction',                           ids:[
-        'm7-recon','m7-interp','m7-zoh','m7-foh','m7-perfect'] },
-    { n:'7.4', title:'Aliasing in practice',                     ids:[
+    /* </m7-s2-sec> */
+    /* <m7-s3-sec> */
+    { n:'7.3', title:'Reconstruction', ids:[
+        'm7-recon','m7-interp','m7-zoh','m7-foh','m7-perfect','m7-lab-j'] },
+    /* </m7-s3-sec> */
+    /* <m7-s4-sec> */
+    { n:'7.4', title:'Aliasing in practice', ids:[
         'm7-alias-cos','m7-ex-alias','m7-hw-alias','m7-antialias','m7-temporal',
-        'm7-spatial','m7-lab-j'] }
+        'm7-spatial'] }
+    /* </m7-s4-sec> */
+    /* <m7-s5-sec> */
+    /* </m7-s5-sec> */
   ],
 
   Synthesis: [
@@ -392,14 +402,24 @@ CONTENT.BOOK = {
   'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-quick':'5.9', 'm6-synth':'5.9', 'm6-projects':'5.9',
   /* </m6-s7-book> */
 
+  /* <m7-s1-book> */
   'm7-sampler':'7.1.1', 'm7-rates':'7.1', 'm7-freq':'7.1.1',
   'm7-replicas':'7.1.1', 'm7-three':'7.1.1',
+  /* </m7-s1-book> */
+  /* <m7-s2-book> */
   'm7-aliasing':'7.3', 'm7-theorem':'7.1', 'm7-boundary':'7.1',
   'm7-ex-rates':'7.1', 'm7-ex-73a':'7.1', 'm7-ex-73b':'7.1', 'm7-ex-73c':'7.1',
+  /* </m7-s2-book> */
+  /* <m7-s3-book> */
   'm7-recon':'7.2', 'm7-interp':'7.2', 'm7-zoh':'7.1.2', 'm7-foh':'7.2',
-  'm7-perfect':'7.2',
+  'm7-perfect':'7.2', 'm7-lab-j':'7.2',
+  /* </m7-s3-book> */
+  /* <m7-s4-book> */
   'm7-alias-cos':'7.3', 'm7-ex-alias':'7.3', 'm7-hw-alias':'7.3',
-  'm7-antialias':'7.3', 'm7-temporal':'7.3', 'm7-spatial':'7.3', 'm7-lab-j':'7.3'
+  'm7-antialias':'7.3', 'm7-temporal':'7.3', 'm7-spatial':'7.3',
+  /* </m7-s4-book> */
+  /* <m7-s5-book> */
+  /* </m7-s5-book> */
 };
 
 /* ---- derivation --------------------------------------------------------

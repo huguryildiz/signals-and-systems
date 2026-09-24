@@ -74,6 +74,70 @@ Object.assign(CONTENT.GLOSS, {
   foh:{ s:'H_1(j\\omega)', d:'Frequency response of the first-order hold, which joins consecutive samples by a straight line.', go:'m7-foh' }
 });
 
+
+const cl = u=>Math.max(0,Math.min(1,u));
+/* a group drawn at an opacity: the faint given signal on a sketch slide, or a
+   state fading in or out while a figure plays between frames */
+const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
+/* the invisible data area a sketch is drawn in */
+const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+/* the standard slide axes: one figure in the left column of a 5:7 slide.
+   A spectrum drawn about the origin puts its tick numbers on the left edge
+   (yticksLeft), so they do not sit on the central peak. */
+const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
+/* the same axes for a spectrum over omega, with the tick row in multiples of pi */
+const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+
+/* ---- everyday signals, one gallery slide at the end of each teaching
+       section. The traces are schematic; each keeps the feature its section
+       is about. A figure with two traces carries its legend as a third entry. */
+const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+function realGallery(cfg){
+  return { id:cfg.id, module:'M7', nav:cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    budget:cfg.budget||'A gallery of four everyday signals; each figure is one example.',
+    slide:true, steps:cfg.notes.length-1, blocks:[
+    {t:'eyebrow', text:cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'cols', ratio:'c-8-4', fill:true, left:[
+      {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg,at])=>
+        [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[Object.assign({t:'legend', items:lg}, at?{at}:{})]:[]))}
+    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+  ]};
+}
+/* a laboratory scene: the title, then the laboratory itself */
+function labScene(cfg){
+  return { id:cfg.id, module:'M7', nav:'Laboratory {lab} · '+cfg.nav, title:'Laboratory {lab} — '+cfg.title, src:cfg.src,
+    objective:cfg.objective, slide:true, keywords:cfg.keywords, steps:0, blocks:[
+    {t:'eyebrow', text:'Interactive laboratory', src:cfg.src},
+    {t:'title', text:'Laboratory {lab} · '+cfg.nav},
+    {t:'lab', id:cfg.lab}
+  ]};
+}
+/* a code page: the programs of one section, paged one at a time */
+function codeScene(cfg){
+  return { id:cfg.id, module:'M7', nav:'Code · '+cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+    {t:'eyebrow', text:'Module 7 · '+cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'raw', html:()=>CODEBANK.page(cfg.id)}
+  ]};
+}
+
+/* Helpers that belong to one section only. Each section keeps its own between
+   its markers. */
+/* <m7-s1-helpers> */
+/* </m7-s1-helpers> */
+/* <m7-s2-helpers> */
+/* </m7-s2-helpers> */
+/* <m7-s3-helpers> */
+/* </m7-s3-helpers> */
+/* <m7-s4-helpers> */
+/* </m7-s4-helpers> */
+/* <m7-s5-helpers> */
+/* </m7-s5-helpers> */
+
 const SC = [
 
 /* ------------------------------------------------------------------ opening */
@@ -103,6 +167,8 @@ const SC = [
       return a.svg(); }}
   ]}
 ]},
+
+/* <m7-s1> ============================================ 7.1 the sampler and the sampled spectrum */
 
 /* ---------------------------------------------------------------- sampler */
 { id:'m7-sampler', module:'M7', nav:'The sampler', title:'What a sampler actually produces', src:'p. 80',
@@ -338,6 +404,10 @@ const SC = [
         caption:'Undersampling, $\\omega_s=3\\pi$ rad/s. The dashed copies are unchanged; the solid curve is their sum, which is what the sampler actually produces.'}]}
   ]}
 ]},
+
+/* </m7-s1> */
+
+/* <m7-s2> ============================================ 7.2 aliasing and the sampling theorem */
 
 /* --------------------------------------------------------------- aliasing */
 { id:'m7-aliasing', module:'M7', nav:'Aliasing', title:'Aliasing is the overlap, not the copying', src:'pp. 81, 86',
@@ -655,6 +725,10 @@ const SC = [
 
 ,
 
+/* </m7-s2> */
+
+/* <m7-s3> ============================================ 7.3 reconstruction */
+
 /* --------------------------------------------------------- reconstruction */
 { id:'m7-recon', module:'M7', nav:'Reconstruction', title:'Cutting one copy out of the sum', src:'p. 83',
   objective:'Specify the reconstruction filter and justify its gain and its cutoff.',
@@ -907,6 +981,19 @@ const SC = [
         caption:'Sampled at any rate, the tails of the copies add everywhere. The overlap is small, not absent.'}]}
   ]}
 ]},
+
+/* -------------------------------------------------------------- laboratory */
+{ id:'m7-lab-j', module:'M7', nav:'Laboratory {lab} · Sampling studio', title:'Laboratory {lab} — Sampling and Aliasing Studio', src:'pp. 80–88',
+  objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
+  keywords:'laboratory {lab} sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 80–88'},
+  {t:'title', text:'Laboratory {lab} · Sampling and Aliasing'},
+  {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
+  {t:'lab', id:'J'}
+]},
+/* </m7-s3> */
+
+/* <m7-s4> ============================================ 7.4 aliasing in practice */
 
 /* --------------------------------------------------------- aliasing of a cosine */
 { id:'m7-alias-cos', module:'M7', nav:'Aliasing of a sampled cosine', title:'Aliasing of a sampled cosine', src:'p. 86',
@@ -1193,15 +1280,11 @@ const SC = [
   ]}
 ]},
 
-/* -------------------------------------------------------------- laboratory */
-{ id:'m7-lab-j', module:'M7', nav:'Laboratory {lab} · Sampling studio', title:'Laboratory {lab} — Sampling and Aliasing Studio', src:'pp. 80–88',
-  objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
-  keywords:'laboratory {lab} sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 80–88'},
-  {t:'title', text:'Laboratory {lab} · Sampling and Aliasing'},
-  {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
-  {t:'lab', id:'J'}
-]}
+/* </m7-s4> */
+
+/* <m7-s5> ============================================ 7.5 summary */
+
+/* </m7-s5> */
 ];
 window.SCENES_M7 = SC;
 })();
