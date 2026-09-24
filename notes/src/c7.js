@@ -718,7 +718,7 @@ window.C7 = [
 ]},
 
 /* ================================================================ 7.5 */
-{t:'h2', num:'7.5', text:'Discrete-time processing of continuous-time signals'},
+{t:'h2', num:'7.5', text:'Discrete-time processing'},
 {t:'p', text:'Most signal processing today samples a continuous-time signal, computes with the numbers, and converts the result back. This section follows a band-limited signal through that chain and shows that, for such inputs, the whole chain acts as one continuous-time LTI system.'},
 {t:'box', hd:'Two frequency variables', html:'Both kinds of frequency appear together here, so this section writes $\\omega$ for continuous-time frequency in rad/s, with $X_c(j\\omega)$, and $\\Omega$ for discrete-time frequency in rad/sample, with $X_d(e^{j\\Omega})=\\sum_nx_d[n]e^{-j\\Omega n}$. Chapter 6 wrote $\\omega$ for the discrete-time variable; Section 7.6 returns to that. The subscript $c$ marks a continuous-time signal and $d$ a sequence.'},
 

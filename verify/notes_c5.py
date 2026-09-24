@@ -175,4 +175,36 @@ yc = sp.integrate(sp.exp(-(tp - tau)) * (sp.exp(-tau) / 2 + sp.exp(-3 * tau) / 2
 check('direct convolution gives the same y(t)',
       sp.simplify(yc - (sp.exp(-tp) / 4 + tp * sp.exp(-tp) / 2 - sp.exp(-3 * tp) / 4)) == 0)
 
+# Exercises 5.1-5.8
+close('Ex 5.1 a_0 = 1/3', 2 / 6, 1 / 3)
+close('Ex 5.1 a_1 from the envelope', 2 * np.sin(np.pi / 3) / (np.pi / 3) / 6, 0.275664, 5e-7)
+a1n = np.trapezoid(np.exp(-1j * np.pi / 3 * np.linspace(-1, 1, 200001)), np.linspace(-1, 1, 200001)) / 6
+close('Ex 5.1 a_1 by direct integration', a1n.real, 0.275664, 5e-7)
+X2 = sp.integrate(sp.exp(-3 * sp.Abs(t)) * sp.exp(-sp.I * w * t), (t, -sp.oo, sp.oo), conds='none')
+check('Ex 5.2 transform of exp(-3|t|) is 6/(9+w^2)', sp.simplify(X2 - 6 / (9 + w**2)) == 0)
+check('Ex 5.2 X(j0)=2/3 and X(j3)=1/3', (6 / sp.Integer(9), 6 / sp.Integer(18)) == (sp.Rational(2, 3), sp.Rational(1, 3)))
+wn3 = sp.symbols('w3', positive=True)
+X3 = sp.integrate(sp.exp(-sp.I * wn3 * t), (t, -2, 2))
+check('Ex 5.3 pulse on |t|<2 gives 2 sin(2w)/w', all(abs(complex(X3.subs(wn3, v)) - 2 * np.sin(2 * v) / v) < 1e-12 for v in (0.3, 1.1, 2.7)))
+check('Ex 5.3 X(j0)=4 and first zero at pi/2', sp.limit(2 * sp.sin(2 * w) / w, w, 0) == 4 and sp.sin(2 * sp.pi / 2) == 0)
+wp = sp.pi - sp.pi / sp.I; wm = sp.pi + sp.pi / sp.I
+check('Ex 5.4 weights pi(1+j) at +4 and pi(1-j) at -4, conjugates',
+      sp.simplify(wp - sp.pi * (1 + sp.I)) == 0 and sp.simplify(wm - sp.pi * (1 - sp.I)) == 0 and sp.simplify(wm - sp.conjugate(wp)) == 0)
+X5 = np.exp(-3j * 2) / (2 + 2j)
+close('Ex 5.5 |X(j2)|', abs(X5), 0.353553)
+close('Ex 5.5 unwrapped phase -6 - pi/4', -6 - np.pi / 4, -6.785398)
+check('Ex 5.5 wrapped phase agrees', abs(np.angle(X5) - (-6 - np.pi / 4 + 2 * np.pi)) < 1e-12)
+tt = np.linspace(1e-9, 4000, 40000001)
+E6 = 2 * np.trapezoid((np.sin(4 * tt) / (np.pi * tt))**2, tt)
+close('Ex 5.6 energy of sin(4t)/(pi t) = 4/pi', E6, 4 / np.pi, 1e-3)
+close('Ex 5.6 4/pi', 4 / np.pi, 1.273240, 5e-7)
+check('Ex 5.7 copies on [7,13], peak 2, apart iff wc >= 3', (10 - 3, 10 + 3, 4 / 2) == (7, 13, 2.0))
+s_ = sp.symbols('s')
+check('Ex 5.8 partial fractions', sp.simplify(sp.apart(2 / ((s_ + 2) * (s_ + 4)), s_) - (1 / (s_ + 2) - 1 / (s_ + 4))) == 0)
+tp8, tau8 = sp.symbols('t tau', positive=True)
+y8 = sp.integrate(2 * sp.exp(-4 * (tp8 - tau8)) * sp.exp(-2 * tau8), (tau8, 0, tp8))
+check('Ex 5.8 direct convolution gives exp(-2t) - exp(-4t)', sp.simplify(y8 - (sp.exp(-2 * tp8) - sp.exp(-4 * tp8))) == 0)
+y8f = sp.exp(-2 * tp8) - sp.exp(-4 * tp8)
+check('Ex 5.8 y satisfies the equation', sp.simplify(sp.diff(y8f, tp8) + 4 * y8f - 2 * sp.exp(-2 * tp8)) == 0)
+
 print(f'{passed} passed, {failed} failed')
