@@ -1143,7 +1143,13 @@ chk("LabJ4 a tone at or below fs/2 folds to itself",
         for f in np.arange(0.2, fs/2 + 1e-9, 0.1)))
 # </m7-s4-verify>
 
-# <m7-s5-verify> 7.5 quick check and projects
+# <m7-s5-verify> 7.5 discrete-time processing of continuous-time signals
+# </m7-s5-verify>
+
+# <m7-s6-verify> 7.6 decimation and interpolation
+# </m7-s6-verify>
+
+# <m7-s7-verify> 7.7 quick check and projects
 # --- summary table: H_0(j0) = H_1(j0) = T, and the interpolation kernel with
 #     w_c = pi/T is sin(pi t/T)/(pi t/T)
 for _T in (0.1, 0.5, 1e-3):
@@ -1231,7 +1237,7 @@ chk("M7 projects: cos(2 pi t), T = 0.1 s: the staircase lags by T/2 with RMS err
     abs(_e1 - 0.25) < 0.01 and abs(_e2 - 0.13) < 0.005 and abs(np.angle(_c1) + 2*PI*0.05) < 1e-3
     and np.max(np.abs(_xr - np.cos(2*PI*_ti))) < 1e-4,
     f"RMS {_e1:.4f} and {_e2:.4f}, phase {np.angle(_c1):.4f} vs {-2*PI*0.05:.4f}, sinc max err {np.max(np.abs(_xr - np.cos(2*PI*_ti))):.2e}")
-# </m7-s5-verify>
+# </m7-s7-verify>
 
 
 print("\n%d passed, %d failed" % (len(P), len(F)))
