@@ -20,6 +20,54 @@ const aSq = (k,T,T1)=> k===0 ? 2*T1/T : Math.sin(2*PI*k*T1/T)/(PI*k);
 /* the ideal low-pass pair, the other way round */
 const lpfTime = (t,W)=> (W/PI)*sincU(W*t);
 
+const cl = u=>Math.max(0,Math.min(1,u));
+/* a group drawn at an opacity: the faint given signal on a sketch slide, or a
+   state fading in or out while a figure plays between frames */
+const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
+/* the invisible data area a sketch is drawn in */
+const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+/* the standard slide axes: one figure in the left column of a 5:7 slide */
+/* Most figures here are spectra drawn about the origin, where the tick numbers
+   would sit on the central peak, so the numbers stand at the left edge. */
+const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
+
+/* ---- everyday signals, one gallery slide at the end of each teaching
+       section. The traces are schematic; each keeps the feature its section
+       is about. A figure with two traces carries its legend as a third entry. */
+const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+function realGallery(cfg){
+  return { id:cfg.id, module:'M5', nav:cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    budget:cfg.budget||'A gallery of four everyday signals; each figure is one example.',
+    slide:true, steps:cfg.notes.length-1, blocks:[
+    {t:'eyebrow', text:cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'cols', ratio:'c-8-4', fill:true, left:[
+      {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg,at])=>
+        [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[Object.assign({t:'legend', items:lg}, at?{at}:{})]:[]))}
+    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+  ]};
+}
+/* a laboratory scene: the title, then the laboratory itself */
+function labScene(cfg){
+  return { id:cfg.id, module:'M5', nav:'Laboratory {lab} · '+cfg.nav, title:'Laboratory {lab} — '+cfg.title, src:cfg.src,
+    objective:cfg.objective, slide:true, keywords:cfg.keywords, steps:0, blocks:[
+    {t:'eyebrow', text:'Interactive laboratory', src:cfg.src},
+    {t:'title', text:'Laboratory {lab} · '+cfg.nav},
+    {t:'lab', id:cfg.lab}
+  ]};
+}
+/* a code page: the programs of one section, paged one at a time */
+function codeScene(cfg){
+  return { id:cfg.id, module:'M5', nav:'Code · '+cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+    {t:'eyebrow', text:'Module 5 · '+cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'raw', html:()=>CODEBANK.page(cfg.id)}
+  ]};
+}
+
 Object.assign(CONTENT.GLOSS, {
   Xjw:{ s:'X(j\\omega)', d:'Continuous-time Fourier transform of $x(t)$. It is a complex function of the real angular frequency $\\omega$, in rad/s. The letter $X$ is reserved for a signal; $H$ is reserved for a system.', go:'m5-pair' },
   sincf:{ s:'\\operatorname{sinc}(\\theta)', d:'Unnormalised sinc: $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, with $\\operatorname{sinc}(0)=1$ and zeros at $\\theta=\\pm\\pi,\\;\\pm2\\pi,\\;\\ldots$ This course uses no other convention.', go:'m5-rect-sinc' },
@@ -27,24 +75,57 @@ Object.assign(CONTENT.GLOSS, {
   wc:{ s:'\\omega_c', d:'Carrier angular frequency of an amplitude-modulated signal, in rad/s.', go:'m5-am' }
 });
 
+/* Small sketches for the summary and project cards. Both pages are navy, so
+   they are drawn in the dark-page signal tints. */
+const G = (()=>{
+  const sv = b => `<svg viewBox="0 0 92 44">${b}</svg>`;
+  const ln = (d,c,w) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w||2}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const dot = (x,y,c) => `<circle cx="${x}" cy="${y}" r="2.4" fill="${c}"/>`;
+  const st = (x,y,c,base) => ln(`M${x} ${base||40} V${y}`,c,1.8)+dot(x,y,c);
+  const tr = (f,c,w,x0,x1) => ln('M'+[...Array(Math.round((x1||90)-(x0||2))+1)].map((_,i)=>{ const x=(x0||2)+i; return x+','+f(x).toFixed(1); }).join('L'),c,w||1.8);
+  const imp = (x,y,c) => ln(`M${x} 40 V${y}`,c,1.8)+`<path d="M${x} ${y-2} l-3,6 h6 Z" fill="${c}"/>`;
+  const box = (x,y,w,h,c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${c}" stroke-width="1.6"/>`;
+  const AX='rgba(239,231,216,.30)', CY='#4FBECE', GR='#82C27B', RD='#E8785F', VI='#AC99DC', AM='#E5B255';
+  const sc = u => Math.abs(u)<1e-6 ? 1 : Math.sin(u)/u;
+  return {
+    limit:  sv(ln('M1 40 H91',AX,1)+tr(x=>40-30*sc((x-46)/5),VI,1.2)+[-6,-4,-2,0,2,4,6].map(k=>st(46+k*6,40-30*sc(k*6/5),CY)).join('')),
+    pair:   sv(ln('M1 30 H40 M52 30 H91',AX,1)+ln('M6 30 H14 V10 H30 V30 H38',CY,1.8)+tr(x=>30-18*sc((x-71)/3),GR,1.8,52,90)),
+    exist:  sv(ln('M1 40 H91',AX,1)+tr(x=>40-30*Math.exp(-Math.abs(x-46)/8),RD,1.8)),
+    sinc:   sv(ln('M1 30 H91',AX,1)+tr(x=>30-24*sc((x-46)/4),AM,1.8)),
+    inverse:sv(ln('M1 40 H40 M52 40 H91',AX,1)+ln('M6 40 H18 V6 H26 V40 H38',CY,1.8)+tr(x=>40-12*Math.abs(sc((x-71)/9)),GR,1.8,52,90)),
+    lines:  sv(ln('M1 40 H91',AX,1)+[-4,-3,-2,-1,0,1,2,3,4].map(k=>imp(46+k*10,40-(k===0?30:Math.abs(40*Math.sin(Math.PI*k/2)/(Math.PI*k))+4),k===0?AM:CY)).join('')),
+    shift:  sv(ln('M1 22 H91 M46 4 V42',AX,1)+ln('M8 6 L84 38',VI,1.8)),
+    conv:   sv(ln('M2 22 H24 M54 22 H70',AX,1.3)+box(24,12,30,20,AM)+tr(x=>22-8*Math.sin(x/2),CY,1.2,2,22)+tr(x=>22-4*Math.sin(x/5),GR,1.6,72,90)),
+    energy: sv(ln('M1 40 H91',AX,1)+`<path d="M2 40 ${[...Array(89)].map((_,i)=>'L'+(2+i)+' '+(40-30/(1+Math.pow((i-44)/8,2))).toFixed(1)).join(' ')} L90 40 Z" fill="${AM}" fill-opacity=".35"/>`
+               +tr(x=>40-30/(1+Math.pow((x-46)/8,2)),AM,1.6)),
+    ode:    sv(ln('M1 40 H91',AX,1)+tr(x=>{ const t=(x-6)/12; return x<6?40:40-80*t*Math.exp(-t)/2.1; },GR,1.8)),
+    clap:   sv(ln('M1 22 H91',AX,1)+tr(x=>{ const t=x-10; return t<0?22:22-16*Math.exp(-t/8)*Math.sin(t*1.4); },CY,1.4)),
+    radio:  sv(tr(x=>22-12*(1+0.5*Math.cos(x/10)),AX,1)+tr(x=>22-12*(1+0.5*Math.cos(x/10))*Math.cos(x*1.3)/1.5,GR,1.3)),
+    echo:   sv(ln('M1 40 H91',AX,1)+imp(20,8,CY)+imp(60,24,VI)),
+    rc:     sv(ln('M1 40 H91',AX,1)+ln('M4 40 H14 V8 H90',AX,1.2)+tr(x=>x<14?40:40-32*(1-Math.exp(-(x-14)/12)),GR,1.8))
+  };
+})();
+
 const SC = [
 
 { id:'m5-open', module:'M5', nav:'Module 5 opening', title:'Continuous-Time Fourier Transform', src:'pp. 42–63',
   dark:true, keywords:'module 5 fourier transform aperiodic CTFT overview envelope spectrum', steps:0, blocks:[
   {t:'eyebrow', text:'Module 5 · Continuous-Time Fourier Transform', src:'pp. 42–63'},
   {t:'title', level:1, text:'The Continuous-Time Fourier Transform'},
-  {t:'lede', text:'The Fourier transform is used to represent an aperiodic signal by a continuous function of frequency. Begin with a periodic extension of the signal and increase its period. The harmonic spacing then approaches zero, and the Fourier-series samples approach the transform curve.'},
-  {t:'cols', ratio:'c-5-7', left:[
+  {t:'lede', text:'The Fourier transform describes a signal that does not repeat by a continuous function of frequency. Repeat the signal with a period, and let the period grow. The harmonics crowd together, and the Fourier-series coefficients close onto one curve: the transform.'},
+  {t:'cols', ratio:'c-6-6', left:[
     {t:'raw', html:`<div style="margin-top:16px">
       <div style="font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--slate);margin-bottom:10px">THE ENTIRE MODULE, IN TWO LINES</div></div>`},
     {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Analysis'},
     {t:'eq', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega', label:'Synthesis'},
-    {t:'note', kind:'ok', head:'Purpose of the transform', html:'<span style="color:var(--graphite)">The transform converts convolution into multiplication for periodic and aperiodic signals. The frequency response still describes how an LTI system changes each frequency.</span>'}
+    {t:'note', kind:'ok', head:'Purpose of the transform', html:'<span style="color:var(--graphite)">Convolution in time becomes multiplication in frequency, for every signal with a transform. The frequency response still says what an LTI system does to each frequency.</span>'}
   ], right:[
+    /* One envelope, sampled ever more finely as the period grows: T = 4, 8
+       and 24. The canvas is narrower than the column, so the traces read at
+       back-row size on the navy page. */
     {t:'fig', svg:()=>{
-      const a=P.Axes({w:800,h:430,xr:[-9,9],yr:[-0.6,7.2],grid:false,zeroAxes:false,arrows:false,
-        pad:{l:20,r:20,t:20,b:20},xticksOverride:[],yticksOverride:[]});
-      /* the same envelope, sampled ever more finely as the period grows */
+      const a=P.Axes({w:520,h:330,xr:[-9,9],yr:[-0.6,7.2],grid:false,zeroAxes:false,arrows:false,
+        pad:{l:14,r:14,t:14,b:14},xticksOverride:[],yticksOverride:[]});
       a.curve(w=>rectFT(w,1)*0.55+5.4,{color:'#7FC3CE',width:2.4,n:1600,anim:{delay:0,sweep:'#D9F3F7'}});
       [[4,'#AC99DC',3.4,.5,.07],[8,'#E5B255',1.6,.9,.035]].forEach(([T,col,base,dl,sp])=>{
         const st=[]; const w0=2*PI/T;
@@ -56,1808 +137,1929 @@ const SC = [
       for(let k=-Math.floor(9/w0f);k<=Math.floor(9/w0f);k++) stf.push([k*w0f, 2*PI*aSq(k,24,1)*0.55]);
       a.stem(stf,{color:'#8FBF8A',r:1.8,width:1.1,showZero:true,anim:{delay:1.3,step:.015,tip:true}});
       a.curve(w=>rectFT(w,1)*0.55,{color:'#8FBF8A',width:2.2,n:1600,anim:{delay:1.8,sweep:'#E4F4E1'}});
-      return a.svg(); },
-      caption:'The same envelope is sampled at $\\omega_0=2\\pi/T$. Increasing the period decreases the spacing between samples.'}
+      return a.svg(); }}
   ]}
 ]},
 
-{ id:'m5-derive-1', module:'M5', nav:'Series-to-transform limit', title:'From Fourier series to Fourier transform', src:'pp. 42–43',
+/* ======================================================= 5.1 from series to transform */
+
+{ id:'m5-derive-1', module:'M5', nav:'Periodic extension', title:'Periodic Extension of a Pulse', src:'pp. 42–43',
   objective:'Build the periodic extension of a pulse and state the condition the construction needs.',
-  keywords:'aperiodic periodic extension support T > 2T1 limit period grows derivation', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Derivation, step 1', src:'pp. 42–43'},
-  {t:'title', text:'From Fourier Series to Fourier Transform'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'This construction connects a finite-duration signal to its Fourier transform. Let $x(t)=0$ for $|t|>T_1$. The <b>support</b> is the interval where the signal can be non-zero, and $T_1$ is its half-width.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Now build a periodic signal $\\tilde{x}(t)$ by repeating that pulse every $T$ seconds. Inside one period $\\tilde{x}$ is the original signal, so Module 4 applies to it.'},
-      {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\sum_{m=-\\infty}^{\\infty}x(t-mT),\\qquad \\tilde{x}(t)=\\tilde{x}(t+T)'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Required condition', html:'The copies must not overlap, which requires $T>2T_1$. The signal fixes $T_1$. We choose $T$ and vary only this period.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Limit of the construction', html:'Increase $T$ while keeping the central pulse fixed. The neighbouring copies move to larger values of $|t|$. As $T\\to\\infty$, $\\tilde{x}(t)\\to x(t)$ for every $t$. The following steps take this limit in the Fourier-series equations.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.7],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
+  keywords:'aperiodic periodic extension support T > 2T1 limit period grows derivation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'pp. 42–43'},
+  {t:'title', text:'Periodic Extension of a Pulse'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$: one pulse','$\\tilde{x}(t)$ with $T=5T_1$','$\\tilde{x}(t)$ with $T=14T_1$']},
+      svg:v=>{
+      /* frame 0 is the pulse; frame 1 brings in the copies at T = 5, frame 2
+         moves them out to T = 14 */
+      const f=v?v.frame:0;
+      const a=AX({xr:[-16,16],yr:[-0.3,1.75],xlabel:'t',ylabel:'\\tilde{x}(t)',yticksOverride:[0,1],xtarget:9});
       a.curve(t=>rectp(t,1),{color:C.in,n:3000});
-      a.span(-1,1,1.22,'2T_1',{color:C.coral,tex:true,fs:14});
+      const near=cl(f)*(1-cl(f-1)), far=cl(f-1);
+      fade(a,near,()=>{ a.curve(t=>Math.abs(t)>2?rectPer(t,5,1):NaN,{color:C.mid,n:3000});
+        a.span(0,5,1.42,'T=5T_1',{color:C.coral,tex:true,fs:15}); });
+      fade(a,far,()=>{ a.curve(t=>Math.abs(t)>2?rectPer(t,14,1):NaN,{color:C.mid,n:3000});
+        a.span(0,14,1.42,'T=14T_1',{color:C.coral,tex:true,fs:15}); });
+      a.span(-1,1,1.12,'2T_1',{color:C.coral,tex:true,fs:15});
       return a.svg(); },
-      caption:'The signal itself: one pulse, zero for $|t|>T_1$.'},
+      caption:'The pulse is $1$ on $|t|<T_1$, with $T_1=1$. Its copies repeat it every $T$ seconds. Inside $|t|<T_1$ the two signals agree.'}
+  ], right:[
+    {t:'eq', tex:'\\tilde{x}(t)=\\sum_{m=-\\infty}^{\\infty}x(t-mT),\\qquad \\tilde{x}(t+T)=\\tilde{x}(t)', label:'Periodic extension',
+      note:'The extension is periodic, so the Fourier series of Module 4 applies to it.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\tilde{x}(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectPer(t,5,1),{color:C.mid,n:3000});
-        a.span(0,5,1.22,'T',{color:C.coral,tex:true,fs:14});
-        return a.svg(); },
-        caption:'The periodic extension with $T=5T_1$. Inside $|t|<T_1$ the two signals agree.'}]},
+      {t:'note', kind:'warn', head:'Required condition', html:'The copies must not overlap, so $T>2T_1$. The signal fixes $T_1$. Only the period $T$ is ours to choose.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'The limit', html:'Let $T$ grow with the central pulse fixed. The copies move out, and $\\tilde{x}(t)\\to x(t)$ at every $t$ as $T\\to\\infty$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\tilde{x}(t)',pad:{l:52,r:26,t:26,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectPer(t,14,1),{color:C.out,n:3000});
-        return a.svg(); },
-        caption:'With $T=14T_1$, the neighbouring copies lie outside the plotted interval. The central pulse is unchanged.'}]}
+      {t:'note', kind:'def', head:'Given', html:'A pulse with $T_1=2$ s is repeated every $T$ seconds.<div class="nsep"></div>Which period keeps the copies apart?',
+        ask:{key:'m5-derive-1', choices:['$T=2$ s','$T=3$ s','$T=6$ s'], answer:2,
+          why:'The copies stay apart only for $T>2T_1=4$ s.'}}]}
   ]}
 ]},
 
-{ id:'m5-derive-2', module:'M5', nav:'Coefficients as samples', title:'The coefficients are samples of one curve', src:'p. 43',
+{ id:'m5-derive-2', module:'M5', nav:'Coefficients as samples', title:'Coefficients as Samples of One Curve', src:'p. 43',
   objective:'Show that T·a_k is one function of ω, sampled at multiples of ω₀.',
-  keywords:'envelope samples T a_k spacing omega_0 derivation coefficients curve', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Derivation, step 2', src:'p. 43'},
-  {t:'title', text:'Fourier-Series Coefficients as Samples'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Apply the analysis equation of Module 4 to $\\tilde{x}$. Integrate over the period $-T/2$ to $T/2$. Inside that range $\\tilde{x}(t)=x(t)$, and outside $|t|<T_1$ the integrand is zero anyway, so the limits may be opened to all of time:'},
-    {t:'eq', size:'sm', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\tilde{x}(t)e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\int_{-\\infty}^{\\infty}x(t)e^{-jk\\omega_0t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T}'},
+  keywords:'envelope samples T a_k spacing omega_0 derivation coefficients curve', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'p. 43'},
+  {t:'title', text:'Coefficients as Samples of One Curve'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:4, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const T=v?v.T:4, w0=2*PI/T, st=[];
+      const a=AX({xr:[-10,10],yr:[-0.9,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Ta_k',yticksOverride:[0,1,2]});
+      a.curve(w=>rectFT(w,1),{color:C.mid,width:1.8,dash:'7 6',n:1400});
+      for(let k=-Math.floor(10/w0);k<=Math.floor(10/w0);k++) st.push([k*w0, T*aSq(k,T,1)]);
+      a.stem(st,{color:C.in,r:T>12?2.6:3.6,showZero:true});
+      return a.svg(); },
+      caption:'The stems are $Ta_k$ for the pulse train with $T_1=1$. Move $T$: the stems crowd together on one curve.'},
+    {t:'legend', items:[['in','$Ta_k$'],['mid','$X(j\\omega)$',true]]}
+  ], right:[
+    {t:'eq', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\tilde{x}(t)\\,e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\int_{-\\infty}^{\\infty}x(t)\\,e^{-jk\\omega_0t}\\,\\d t',
+      note:'Inside one period $\\tilde{x}=x$, and $x=0$ outside $|t|<T_1$. So the limits open to all of time.'},
     {t:'reveal', at:1, items:[
-      {t:'body', html:'The right-hand integral has the same form for every $k$; only its frequency $k\\omega_0$ changes. Replace that sampled frequency by the continuous variable $\\omega$ and define:'},
-      {t:'eq', key:true, tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t',
+      {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Replace $k\\omega_0$ by $\\omega$',
         note:'{{sym:Xjw|$X(j\\omega)$}} is defined for every real $\\omega$, not only at the harmonics.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'a_k=\\frac{1}{T}\\,X(jk\\omega_0)\\qquad\\Longleftrightarrow\\qquad T\\,a_k=X(jk\\omega_0)',
-        label:'The coefficients are samples',
-        note:'Every coefficient of the periodic extension is one point of the curve $X$, scaled by $1/T$.'}]},
+      {t:'eq', key:true, tex:'T\\,a_k=X(jk\\omega_0),\\qquad \\omega_0=\\frac{2\\pi}{T}', label:'The coefficients are samples',
+        note:'The curve $X$ does not depend on $T$. A larger $T$ only makes the spacing $\\omega_0$ smaller.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Effect of increasing $T$', html:'The definition of $X$ contains the pulse but not the repetition period, so changing $T$ does not change the curve. Increasing $T$ decreases the sample spacing $\\omega_0=2\\pi/T$ and multiplies each coefficient by the smaller factor $1/T$.'}]}
-  ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:196,xr:[-10,10],yr:[-0.9,2.35],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'T a_k',pad:{l:62,r:26,t:28,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>rectFT(w,1),{color:C.coral,width:1.6,dash:'4 5',n:1400});
-        const w0=2*PI/4, st=[];
-        for(let k=-Math.floor(10/w0);k<=Math.floor(10/w0);k++) st.push([k*w0, 4*aSq(k,4,1)]);
-        a.stem(st,{color:C.in,r:3.6,showZero:true});
-        return a.svg(); },
-        caption:'$T=4T_1$: the samples are $\\omega_0=\\pi/2$ apart.'}],
-      [{t:'reveal', at:1, items:[{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:196,xr:[-10,10],yr:[-0.9,2.35],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'T a_k',pad:{l:62,r:26,t:28,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>rectFT(w,1),{color:C.coral,width:1.6,dash:'4 5',n:1400});
-        const w0=2*PI/16, st=[];
-        for(let k=-Math.floor(10/w0);k<=Math.floor(10/w0);k++) st.push([k*w0, 16*aSq(k,16,1)]);
-        a.stem(st,{color:C.mid,r:2.4,showZero:true});
-        return a.svg(); },
-        caption:'$T=16T_1$: four times as many samples, on the same curve.'}]}]
-    ]}
+      {t:'note', kind:'def', head:'Given', html:'The pulse train has $T_1=1$ and period $T=8$.<div class="nsep"></div>What is $8a_0$?',
+        ask:{key:'m5-derive-2', choices:['$2$','$0.25$','$16$'], answer:0,
+          why:'$8a_0=X(j0)=2T_1=2$, the same at every period.'}}]}
   ]}
 ]},
 
-{ id:'m5-derive-3', module:'M5', nav:'The sum becomes an integral', title:'Where the factor 1/2π comes from', src:'pp. 43–44',
+{ id:'m5-derive-3', module:'M5', nav:'The sum becomes an integral', title:'From a Sum to an Integral', src:'pp. 43–44',
   objective:'Carry the synthesis sum to the limit and produce the 1/2π explicitly.',
-  keywords:'limit sum integral d omega 2 pi factor synthesis riemann derivation', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Derivation, step 3', src:'pp. 43–44'},
-  {t:'title', text:'The Limit from a Sum to an Integral'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Put $a_k=\\tfrac{1}{T}X(jk\\omega_0)$ back into the synthesis equation of Module 4:'},
-    {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}=\\sum_{k=-\\infty}^{\\infty}\\frac{1}{T}X(jk\\omega_0)\\,e^{jk\\omega_0t}'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Replace $1/T$ using $\\omega_0=2\\pi/T$, which gives $1/T=\\omega_0/2\\pi$. Nothing has been approximated yet; this is an exact rewriting.'},
-      {t:'eq', size:'sm', tex:'\\tilde{x}(t)=\\frac{1}{2\\pi}\\sum_{k=-\\infty}^{\\infty}X(jk\\omega_0)\\,e^{jk\\omega_0t}\\,\\omega_0',
-        note:'Each term now includes the frequency spacing $\\omega_0$. The expression is therefore a Riemann sum for an integral with respect to $\\omega$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'Let $T\\to\\infty$. On the left $\\tilde{x}(t)\\to x(t)$. On the right the spacing $\\omega_0$ shrinks to the differential $\\d\\omega$, the sample points $k\\omega_0$ fill the whole $\\omega$ axis, and the sum becomes an integral:'},
-      {t:'eq', key:true, size:'lg', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega',
-        label:'Synthesis equation',
-        note:'The factor $1/2\\pi$ follows from substituting $1/T=\\omega_0/2\\pi$. This course therefore places it on the synthesis side of the transform pair.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'The factor has one home', html:'Drop the $1/2\\pi$ and the reconstructed signal comes back $2\\pi$ times too large. Put it on the analysis side instead and every transform in the module changes by the same factor. Write it once, on the synthesis side, and check it there.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:230,xr:[-9,9],yr:[-0.85,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',pad:{l:56,r:26,t:28,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-      const w0=2*PI/6;
+  keywords:'limit sum integral d omega 2 pi factor synthesis riemann derivation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'pp. 43–44'},
+  {t:'title', text:'From a Sum to an Integral'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:6, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const T=v?v.T:6, w0=2*PI/T;
+      const a=AX({xr:[-9,9],yr:[-0.85,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       for(let k=-Math.floor(9/w0);k<=Math.floor(9/w0);k++){
         const wv=k*w0, hv=rectFT(wv,1);
-        a.rect(wv-w0/2,0,wv+w0/2,hv,{fill:'rgba(106,90,146,.20)',stroke:C.mid,width:1});
+        a.rect(wv-w0/2,0,wv+w0/2,hv,{fill:C.in+'2E',stroke:C.in,width:1});
       }
-      a.curve(w=>rectFT(w,1),{color:C.coral,width:2.2,n:1400});
+      a.curve(w=>rectFT(w,1),{color:C.mid,width:2.4,n:1400});
       return a.svg(); },
-      caption:'Each rectangle has height $X(jk\\omega_0)$ and width $\\omega_0$. As the width approaches zero, their sum approaches the integral under the curve.'},
+      caption:'Each strip has height $X(jk\\omega_0)$ and width $\\omega_0$. Move $T$: as the width shrinks, the strips fill the area under the curve.'},
+    {t:'legend', items:[['in','$X(jk\\omega_0)\\,\\omega_0$'],['mid','$X(j\\omega)$']]}
+  ], right:[
+    {t:'eq', tex:'\\tilde{x}(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0t}=\\sum_{k=-\\infty}^{\\infty}\\frac{1}{T}\\,X(jk\\omega_0)\\,e^{jk\\omega_0t}',
+      note:'Put $a_k=\\tfrac{1}{T}X(jk\\omega_0)$ into the synthesis equation of Module 4.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\tilde{x}(t)=\\frac{1}{2\\pi}\\sum_{k=-\\infty}^{\\infty}X(jk\\omega_0)\\,e^{jk\\omega_0t}\\,\\omega_0', label:'Write $1/T=\\omega_0/2\\pi$',
+        note:'This is exact. Each term now carries the width $\\omega_0$, so the sum is a Riemann sum.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-9,9],yr:[-0.85,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:28,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.area(w=>rectFT(w,1),-9,9,{color:'rgba(190,85,57,.14)'});
-        a.curve(w=>rectFT(w,1),{color:C.coral,width:2.4,n:1600});
-        return a.svg(); },
-        caption:'The limit. The stems are gone and the signal is rebuilt from an area, with $\\d\\omega$ in place of $\\omega_0$.'}]}
+      {t:'eq', key:true, tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega', label:'Let $T\\to\\infty$: the synthesis equation',
+        note:'$\\tilde{x}\\to x$, the width $\\omega_0$ becomes $\\d\\omega$, and the sum becomes an integral. The $1/2\\pi$ came from $1/T=\\omega_0/2\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A student drops the $1/2\\pi$ from the synthesis equation.<div class="nsep"></div>The rebuilt signal comes out how large?',
+        ask:{key:'m5-derive-3', choices:['$2\\pi$ times too large','$2\\pi$ times too small','correct'], answer:0,
+          why:'Without the factor, every value of $x(t)$ is multiplied by $2\\pi$.'}}]}
   ]}
 ]},
 
-{ id:'m5-pair', module:'M5', nav:'Analysis and synthesis', title:'The transform pair, and which way each equation goes', src:'p. 44',
+{ id:'m5-pair', module:'M5', nav:'Analysis and synthesis', title:'The Fourier Transform Pair', src:'p. 44',
   objective:'Name both equations correctly and state what each one does.',
-  keywords:'analysis synthesis equation pair forward inverse transform direction naming', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · The pair', src:'p. 44'},
-  {t:'title', text:'CTFT Analysis and Synthesis'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, size:'lg', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t',
-      label:'Analysis equation · the Fourier transform',
-      note:'A signal goes in and a spectrum comes out. <b>Analysis</b> takes the signal apart: it asks how much of each frequency the signal contains. The exponent carries the minus sign.'},
-    {t:'eq', key:true, size:'lg', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega',
-      label:'Synthesis equation · the inverse Fourier transform',
-      note:'A spectrum goes in and a signal comes out. <b>Synthesis</b> puts the signal back together from its frequencies. The exponent is positive, and the $1/2\\pi$ sits here.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Identify the direction from the variable', html:'In the analysis equation, integration over $t$ produces a function of $\\omega$. In the synthesis equation, integration over $\\omega$ produces a function of $t$. Use the integration variable to identify the two equations.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Notation', html:'The pair is written $x(t)\\;\\longleftrightarrow\\;X(j\\omega)$. The argument is $j\\omega$, never $\\omega$ alone, because the transform is the two-sided Laplace transform evaluated on the imaginary axis. The capital letter is the transform of the small letter, and the case is never decorative: $X$ is a signal spectrum, $H$ is a system response.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Compare the two equations', html:'Analysis uses the negative exponent. Synthesis uses the positive exponent and the factor $1/2\\pi$. Each equation also integrates over the variable that it removes.'}]}
+  keywords:'analysis synthesis equation pair forward inverse transform direction naming', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'p. 44'},
+  {t:'title', text:'The Fourier Transform Pair'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
+      {t:'box',x:24,y:70,w:176,h:74,label:'x(t)',tex:true,fs:22,color:C.in},
+      {t:'box',x:360,y:70,w:176,h:74,label:'X(j\\omega)',tex:true,fs:22,color:C.mid},
+      {t:'arrow',x1:200,y1:92,x2:360,y2:92,label:'\\text{analysis}',tex:true,color:C.coral},
+      {t:'line',d:'M360,124 L210,124',color:C.slate},
+      {t:'line',d:'M200,124 l10,-5 v10 Z',color:C.slate},
+      {t:'text',x:280,y:160,label:'\\text{synthesis}',tex:true,fs:17,color:C.slate},
+      {t:'text',x:280,y:250,label:'\\text{integrate over }t\\;\\Rightarrow\\;\\text{a function of }\\omega',tex:true,fs:17,color:C.coral},
+      {t:'text',x:280,y:310,label:'\\text{integrate over }\\omega\\;\\Rightarrow\\;\\text{a function of }t',tex:true,fs:17,color:C.slate}
+    ]}), caption:'The pair is written $x(t)\\leftrightarrow X(j\\omega)$. Each equation removes the variable it integrates over.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:270,items:[
-      {t:'box',x:70,y:40,w:210,h:74,label:'x(t)',tex:true,fs:20,color:'#14707F'},
-      {t:'box',x:550,y:40,w:210,h:74,label:'X(j\\omega)',tex:true,fs:20,color:'#6A5A92'},
-      {t:'arrow',x1:280,y1:60,x2:550,y2:60,label:'\\text{analysis}',tex:true,color:C.coral},
-      {t:'line',d:'M550,96 L290,96',color:C.slate},
-      {t:'line',d:'M280,96 l9,-4.5 v9 Z',color:C.slate},
-      {t:'text',x:415,y:126,label:'\\text{synthesis}',tex:true,fs:15,color:C.slate},
-      {t:'text',x:175,y:150,label:'\\text{one function of time}',tex:true,fs:13},
-      {t:'text',x:655,y:150,label:'\\text{one function of frequency}',tex:true,fs:13},
-      {t:'text',x:415,y:205,label:'\\text{integrate over }t\\;\\Rightarrow\\;\\text{a function of }\\omega',tex:true,fs:14,color:C.coral},
-      {t:'text',x:415,y:240,label:'\\text{integrate over }\\omega\\;\\Rightarrow\\;\\text{a function of }t',tex:true,fs:14,color:C.slate}
-    ]}), caption:'The direction of each equation is fixed by the variable it integrates away.'},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Read the sign','Analysis carries $e^{-j\\omega t}$; synthesis carries $e^{+j\\omega t}$.'],
-        ['Read the factor','Only synthesis carries $1/2\\pi$.'],
-        ['Read the output','Analysis produces $X(j\\omega)$; synthesis produces $x(t)$.']
-      ]}]}
+    {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Analysis · the Fourier transform',
+      note:'A signal goes in and a spectrum comes out. The exponent carries the minus sign.'},
+    {t:'eq', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{j\\omega t}\\,\\d\\omega', label:'Synthesis · the inverse transform',
+      note:'A spectrum goes in and a signal comes out. The exponent is positive, and the $1/2\\pi$ sits here.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Case of the letters', html:'The small letter names the signal and takes $t$. The capital letter names its spectrum and takes $j\\omega$. $X$ is a signal spectrum; $H$ is a system response.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A student writes $x(t)=\\int_{-\\infty}^{\\infty}X(j\\omega)\\,e^{-j\\omega t}\\,\\d\\omega$.<div class="nsep"></div>How many errors does the line contain?',
+        ask:{key:'m5-pair', choices:['none','one','two'], answer:2,
+          why:'The factor $1/2\\pi$ is missing, and the exponent must be $+j\\omega t$.'}}]}
   ]}
 ]},
 
-{ id:'m5-exist', module:'M5', nav:'CTFT existence conditions', title:'Conditions for CTFT existence', src:'p. 44',
+{ id:'m5-exist', module:'M5', nav:'Existence conditions', title:'Existence of the Transform', src:'p. 44',
   objective:'State the two existence conditions separately and show that neither implies the other.',
-  keywords:'existence square integrable dirichlet absolutely integrable sufficient necessary conditions', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Existence', src:'p. 44'},
-  {t:'title', text:'Conditions for CTFT Existence'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Condition A — finite energy', html:'If $\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t<\\infty$, then $X(j\\omega)$ exists.'},
-    {t:'note', kind:'def', head:'Condition B — the Dirichlet conditions', html:'If $x$ is absolutely integrable, $\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|\\,\\d t<\\infty$, and has finitely many maxima, minima and finite jumps in any finite interval, then $X(j\\omega)$ exists.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'They are alternatives, joined by "or"', html:'Each condition is enough on its own, and neither one implies the other. A signal satisfying either has a transform; a signal satisfying neither may still have one. Writing "in other words" between them claims an equivalence that does not hold.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Satisfies A, fails B','$x(t)=\\dfrac{\\sin t}{t}$. Its square is integrable, so its energy is finite. Its absolute value is not integrable: $|\\sin t/t|$ decays like $1/|t|$ and its area diverges.'],
-        ['Satisfies B, fails A','$x(t)=1/\\sqrt{t}$ on $0<t<1$ and zero elsewhere. Its area is $2$, which is finite. Its square is $1/t$, whose integral over the same interval diverges.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Where this is heading', html:'Both conditions rule out constants, complex exponentials and periodic signals, all of which have a transform in this module. The next scene says in what sense.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:210,xr:[-22,22],yr:[-0.35,1.25],xlabel:'t',ylabel:'\\sin t\\,/\\,t',pad:{l:60,r:26,t:32,b:36},xtarget:7,ytarget:3});
-      a.curve(t=>sincU(t),{color:C.in,n:3000});
+  keywords:'existence square integrable dirichlet absolutely integrable sufficient necessary conditions', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'p. 44'},
+  {t:'title', text:'Existence of the Transform'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\sin t/t$: finite energy, infinite area','$1/\\sqrt{t}$ on $0<t<1$: finite area, infinite energy']},
+      svg:v=>{
+      /* the two counterexamples, one on each frame, cross-faded */
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-22,22],yr:[-0.4,1.3],xlabel:'t',ylabel:'x(t)',xtarget:9});
+        fade(a,1-2*f,()=>a.curve(t=>sincU(t),{color:C.in,n:3000}));
+        return a.svg();
+      }
+      const a=AX({xr:[-0.3,1.5],yr:[-0.8,7.5],xlabel:'t',ylabel:'x(t)',xtarget:6,ytarget:4});
+      fade(a,2*f-1,()=>{ a.area(t=>(t>0.018&&t<1)?1/Math.sqrt(t):0,0.018,1,{color:C.err+'24'});
+        a.curve(t=>(t>0.018&&t<1)?1/Math.sqrt(t):(t<=0||t>=1?0:NaN),{color:C.err,n:3000}); });
       return a.svg(); },
-      caption:'Finite energy, infinite area: the tails fall like $1/|t|$, whose square is integrable and whose modulus is not.'},
+      caption:'$\\sin t/t$ decays like $1/|t|$: its square is integrable and its modulus is not. $1/\\sqrt{t}$ has area $2$, but its square $1/t$ has no finite area.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Condition A · finite energy', html:'If $\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t<\\infty$, then $X(j\\omega)$ exists.'},
+    {t:'note', kind:'def', head:'Condition B · Dirichlet', html:'If $\\int_{-\\infty}^{\\infty}|x(t)|\\,\\d t<\\infty$, and $x$ has finitely many extrema and finite jumps in every finite interval, then $X(j\\omega)$ exists.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Joined by “or”', html:'Each condition is enough on its own, and neither implies the other. The figure shows one signal for each case.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-0.3,1.6],yr:[-0.8,7.5],xlabel:'t',ylabel:'1/\\sqrt{t}',pad:{l:56,r:26,t:32,b:36},xtarget:5,ytarget:4});
-        a.curve(t=>(t>0.018&&t<1)?1/Math.sqrt(t):(t<=0||t>=1?0:NaN),{color:C.err,n:3000});
-        a.area(t=>(t>0.018&&t<1)?1/Math.sqrt(t):0,0.018,1,{color:'rgba(166,59,42,.14)'});
-        return a.svg(); },
-        caption:'Finite area, infinite energy: the shaded area is $2$, while the area under $1/t$ over the same interval is not finite.'}]}
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-2t}u(t)$.<div class="nsep"></div>Which conditions does it meet?',
+        ask:{key:'m5-exist', choices:['A only','B only','both'], answer:2,
+          why:'Its area is $1/2$ and its energy is $1/4$. Both are finite.'}}]}
   ]}
 ]},
 
-{ id:'m5-limit', module:'M5', nav:'Transforms that are impulses', title:'Signals that meet neither condition, and their spectra', src:'pp. 44–45',
+{ id:'m5-limit', module:'M5', nav:'Transforms that are impulses', title:'Transforms in the Limit', src:'pp. 44–45',
   objective:'Explain in what sense a constant or a periodic signal has a transform.',
-  keywords:'limiting sense impulse spectrum constant periodic complex exponential generalised', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Existence', src:'pp. 44–45'},
-  {t:'title', text:'Generalized Fourier Transforms'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'A constant, a complex exponential and a periodic signal all fail both conditions: none has finite energy and none is absolutely integrable. Yet each one has a spectrum, and the rest of this module uses them constantly.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'The way out is the same one Module 1 used for $\\delta(t)$. Take a signal that does satisfy a condition, transform it, and let a parameter run to a limit. What survives in the frequency domain is an <b>impulse</b>, which is not an ordinary function either.'},
-      {t:'eq', size:'sm', tex:'e^{-a|t|}\\;\\longleftrightarrow\\;\\frac{2a}{a^{2}+\\omega^{2}}\\qquad\\xrightarrow{\\;a\\to0\\;}\\qquad 1\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega)',
-        note:'On the left the signal spreads out until it is the constant 1. On the right the curve grows tall and narrow, keeping its area $2\\pi$, until it is an impulse of weight $2\\pi$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'What "exists in the limiting sense" means', html:'The transform is not a function whose value at each $\\omega$ can be quoted. It is defined by what it does inside an integral, exactly as $\\delta(t)$ is. Every rule of this module still applies to it, because every rule of this module is a statement about integrals.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Why this matters for the whole module', html:'Impulses in the frequency domain are what make a single, sharp frequency representable at all. Without them a sinusoid would have no transform, a periodic signal would have no spectrum, and the Fourier series of Module 4 could not be read as a special case of the transform.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:215,xr:[-6,6],yr:[-0.2,1.35],xlabel:'t',ylabel:'e^{-a|t|}',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3});
-      [[1.2,C.in],[0.5,C.mid],[0.15,C.out]].forEach(([av,col])=>a.curve(t=>Math.exp(-av*Math.abs(t)),{color:col,n:1600}));
+  keywords:'limiting sense impulse spectrum constant periodic complex exponential generalised', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'pp. 44–45'},
+  {t:'title', text:'Transforms in the Limit'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.1, max:1.5, step:0.05, v:1, show:v=>'$'+(Math.round(v*100)/100)+'$'}]},
+      svg:v=>{
+      const av=v?v.a:1;
+      const a=AX({xr:[-6,6],yr:[-1.5,21],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,5,10,15,20]});
+      a.area(w=>2*av/(av*av+w*w),-6,6,{color:C.in+'24',n:900});
+      a.curve(w=>2*av/(av*av+w*w),{color:C.in,n:2400});
       return a.svg(); },
-      caption:'Cyan $a=1.2$, violet $a=0.5$, green $a=0.15$. As $a$ falls the signal flattens towards the constant 1.'},
+      caption:'The transform of $e^{-a|t|}$ is $2a/(a^{2}+\\omega^{2})$. Lower $a$: the curve grows tall and narrow, and its area stays $2\\pi$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Neither condition holds', html:'A constant, a complex exponential and a periodic signal have infinite energy and infinite area. Each one still has a spectrum.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:215,xr:[-6,6],yr:[-1.5,14.5],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:64,r:26,t:34,b:36},xtarget:7,ytarget:3});
-        [[1.2,C.in],[0.5,C.mid],[0.15,C.out]].forEach(([av,col])=>a.curve(w=>2*av/(av*av+w*w),{color:col,n:2400}));
-        return a.svg(); },
-        caption:'The transform meanwhile grows tall and narrow. Its area stays $2\\pi$ at every $a$, which is the weight the impulse ends up carrying.'}]}
+      {t:'eq', tex:'e^{-a|t|}\\;\\longleftrightarrow\\;\\frac{2a}{a^{2}+\\omega^{2}}\\quad\\xrightarrow{\\;a\\to0\\;}\\quad 1\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega)', label:'Take a limit',
+        note:'The signal flattens to the constant $1$. The curve keeps area $2\\pi$ while it narrows, so its limit is an impulse of weight $2\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Exists in the limiting sense', html:'This transform is an impulse. Like $\\delta(t)$, it is defined by what it does inside an integral. Every property of this module still applies to it.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=2a/(a^{2}+\\omega^{2})$ with $a=0.5$.<div class="nsep"></div>What is the peak $X(j0)$?',
+        ask:{key:'m5-limit', choices:['$4$','$2$','$1$'], answer:0,
+          why:'$X(j0)=2a/a^{2}=2/a=4$.'}}]}
   ]}
 ]},
 
-{ id:'m5-ex-delta', module:'M5', nav:'Worked example · the impulse', title:'Worked example — the impulse and the shifted impulse', src:'p. 44',
+realGallery({ id:'m5-real-transform', nav:'Single events around us',
+  title:'Single Events Around Us', eyebrow:'Module 5 · From series to transform', src:'pp. 42–45',
+  objective:'See everyday signals that happen once and never repeat.',
+  keywords:'examples camera flash hand clap storm rainfall single event aperiodic finite energy continuous spectrum',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-2,2],yr:[-0.2,1.3],xlabel:'t\\;(\\text{ms})',ylabel:'I(t)\\;(\\text{kcd})',yticksOverride:[0,1],yticksLeft:true}));
+      a.curve(t=>Math.abs(t)<0.5?1:0,{color:C.in,n:2400});
+      return a.svg(); }, 'A camera flash, one light pulse: $I(t)=1$ kcd for $|t|<0.5$ ms.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-2,20],yr:[-1.1,1.1],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:5}));
+      a.curve(t=>t<0?0:Math.exp(-t/4)*Math.sin(2*PI*0.4*t),{color:C.in,n:2400});
+      return a.svg(); }, 'A hand clap: $p(t)=e^{-t/4}\\sin(2\\pi\\,0.4\\,t)\\,u(t)$ Pa, $t$ in ms.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,12],yr:[0,34],xlabel:'n\\;(\\text{day})',ylabel:'r[n]\\;(\\text{mm})',xstep:2}));
+      a.stem(D(n=>30*Math.pow(0.5,n),0,11),{color:C.in,r:3});
+      return a.svg(); }, 'Rain from one storm: $r[n]=30(0.5)^{n}u[n]$ mm on day $n$.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,25],yr:[0,1100],xlabel:'n\\;(\\text{h})',ylabel:'v[n]',xstep:6}));
+      a.stem(D(n=>(n>=8&&n<=16)?1000-250*Math.abs(n-12):0,0,24),{color:C.in,r:3});
+      return a.svg(); }, 'Visitors each hour at a one-day fair: $v[n]=1000-250|n-12|$ for $8\\le n\\le16$.']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'It happens once', html:'None of these signals repeats. Each has finite energy, and its spectrum is a continuous function of frequency, not a set of lines.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'A signal that happens once is the limit of a pulse train whose period grows. So the Fourier series of Module 4 still describes it, with the line spacing gone to zero.'}
+  ]}),
+
+labScene({ id:'m5-lab-u', lab:'U', nav:'Series to Transform', title:'From Line Spectrum to Transform', src:'pp. 42–44',
+  objective:'Let the period of a pulse train grow and watch the scaled coefficients close onto the transform.',
+  keywords:'laboratory period grows coefficients samples envelope transform limit riemann sum synthesis' }),
+
+codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transform in Code', src:'pp. 42–45', eyebrow:'From series to transform in code',
+  objective:'Build the transform as the limit of a series in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python fourier transform limit coefficients samples analysis integral numerical run' }),
+
+
+/* ======================================================= 5.2 the standard pairs */
+
+{ id:'m5-ex-delta', module:'M5', nav:'Worked example · the impulse', title:'Transform of an Impulse', src:'p. 44',
   objective:'Transform δ(t) and δ(t−t₀) and read the magnitude and phase.',
-  keywords:'worked example impulse delta sifting flat spectrum linear phase shift', steps:3, blocks:[
+  keywords:'worked example impulse delta sifting flat spectrum linear phase shift', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 44'},
-  {t:'title', text:'Fourier Transform of an Impulse'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=\\delta(t)$, and then $x(t)=\\delta(t-t_0)$ with $t_0$ a fixed time.'],
-      ['Find','$X(j\\omega)$ in both cases, with the magnitude and the phase.'],
-      ['Method','Put the signal into the analysis equation and use the sifting property of Module 1.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'\\mathcal{F}\\{\\delta(t)\\}=\\int_{-\\infty}^{\\infty}\\delta(t)e^{-j\\omega t}\\,\\d t=e^{-j\\omega\\cdot0}=1',
-        label:'Solution, first case',
-        note:'Sifting evaluates the rest of the integrand at $t=0$. The transform is the constant 1: every frequency is present, with the same weight and no phase.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'\\mathcal{F}\\{\\delta(t-t_0)\\}=e^{-j\\omega t_0},\\qquad |X(j\\omega)|=1,\\qquad \\angle X(j\\omega)=-\\omega t_0',
-        label:'Solution, second case',
-        note:'Sifting now evaluates at $t=t_0$. The magnitude did not change; the phase became a straight line through the origin of slope $-t_0$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','Push the result back through the synthesis equation: $\\tfrac{1}{2\\pi}\\int e^{-j\\omega t_0}e^{j\\omega t}\\d\\omega=\\delta(t-t_0)$, which is the definition of the impulse read in the frequency variable.'],
-        ['Reading','Moving a signal in time never changes the size of any frequency component. It only rotates each one, and by an amount proportional to its frequency.']
-      ]}]}
+  {t:'title', text:'Transform of an Impulse'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\delta(t)$: phase $0$','$\\delta(t-t_0)$: phase $-\\omega t_0$']},
+      svg:v=>{
+      /* the phase line turns from slope 0 to slope -t0 = -1 */
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-3,-2,-1,1,2,3]});
+      a.curve(w=>-f*w,{color:C.mid,n:600});
+      return a.svg(); },
+      caption:'The phase of the transform, with $t_0=1$ s. The magnitude is $1$ at every frequency in both cases.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\delta(t)',pad:{l:52,r:20,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.impulse(0,1,{color:C.in,labelText:'1'}); return a.svg(); },
-        caption:'The impulse at the origin.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-6,6],yr:[-0.3,1.5],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X(j\\omega)|',pad:{l:54,r:20,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(()=>1,{color:C.mid}); return a.svg(); },
-        caption:'A flat magnitude at every frequency.'}]
-    ]},
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=\\delta(t)$, and then $x(t)=\\delta(t-t_0)$ with $t_0$ a fixed time.<div class="nsep"></div>What is $|X(j\\omega)|$ for the shifted impulse?',
+      ask:{key:'m5-ex-delta', choices:['$1$','$t_0$','$e^{-t_0}$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Put the signal into the analysis equation.</li><li>Use the sifting property of Module 1.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.3,1.5],xlabel:'t',ylabel:'\\delta(t-t_0)',pad:{l:58,r:20,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-          a.impulse(1,1,{color:C.in,labelText:'1'}); return a.svg(); },
-          caption:'The same impulse at $t_0=1$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',pad:{l:62,r:20,t:32,b:34},xtarget:5,yticksOverride:[-3,-1,1,3]});
-          a.curve(w=>-w,{color:C.mid}); return a.svg(); },
-          caption:'The phase is the line $-\\omega t_0$, of slope $-1$ here.'}]
-      ]}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}\\mathcal{F}\\{\\delta(t)\\}&=\\int_{-\\infty}^{\\infty}\\delta(t)\\,e^{-j\\omega t}\\,\\d t=e^{-j\\omega\\cdot0}=1\\\\\\mathcal{F}\\{\\delta(t-t_0)\\}&=e^{-j\\omega t_0}\\end{aligned}', label:'Solution',
+        note:'Sifting evaluates $e^{-j\\omega t}$ at the impulse. $|e^{-j\\omega t_0}|=1$, and the phase is $-\\omega t_0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'What a shift does', html:'Moving a signal in time changes no magnitude. It turns each frequency component by an angle proportional to its frequency.'}]}
   ]}
 ]},
 
-{ id:'m5-ex-expw', module:'M5', nav:'Worked example · a single frequency', title:'Worked example — where the 2π sits in front of an impulse', src:'p. 45',
+{ id:'m5-ex-expw', module:'M5', nav:'Worked example · a single frequency', title:'Transform of a Complex Exponential', src:'p. 45',
   objective:'Invert 2πδ(ω−ω₀) and show why the 2π is part of the answer.',
-  keywords:'worked example inverse transform impulse in frequency complex exponential 2 pi weight', steps:3, blocks:[
+  keywords:'worked example inverse transform impulse in frequency complex exponential 2 pi weight', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
-  {t:'title', text:'Fourier Transform of a Complex Exponential'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$X(j\\omega)=2\\pi\\delta(\\omega-\\omega_0)$, a single impulse of weight $2\\pi$ at the frequency $\\omega_0$.'],
-      ['Find','The signal $x(t)$, with its magnitude and phase.'],
-      ['Method','Use the synthesis equation and sift, this time in the variable $\\omega$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}2\\pi\\delta(\\omega-\\omega_0)e^{j\\omega t}\\,\\d\\omega=e^{j\\omega_0t}',
-        label:'Solution',
-        note:'The $2\\pi$ of the impulse weight and the $1/2\\pi$ of the synthesis equation cancel exactly. That cancellation is the reason the weight is written as $2\\pi$ and not as 1.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'What an impulse of weight 1 would give', html:'Repeat the calculation with $X(j\\omega)=\\delta(\\omega-\\omega_0)$ and the answer is $\\tfrac{1}{2\\pi}e^{j\\omega_0t}$, which is not a unit-amplitude exponential. The factor is not decoration: it decides the amplitude of the signal that comes back.'},
-      {t:'eq', key:true, tex:'e^{j\\omega_0t}\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0),\\qquad 1\\;\\longleftrightarrow\\;2\\pi\\delta(\\omega)',
-        label:'Complex-exponential transform pair',
-        note:'The second statement is the first at $\\omega_0=0$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','$|x(t)|=|e^{j\\omega_0t}|=1$ for every $t$, and $\\angle x(t)=\\omega_0t$ is a straight line of slope $\\omega_0$. At $\\omega_0=1$ the phase reaches $\\pi/4\\approx0.79$ at $t=\\pi/4$ and $\\pi/2\\approx1.57$ at $t=\\pi/2$.'],
-        ['Reading','A complex exponential contains one frequency. Its transform is therefore an impulse at that frequency and is zero at all other frequencies.']
-      ]}]}
+  {t:'title', text:'Transform of a Complex Exponential'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-3,3],yr:[-0.5,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,2,4,6]});
+      a.impulse(1,2*PI,{color:C.in,labelText:'6.28'});
+      return a.svg(); },
+      caption:'One impulse at $\\omega_0=1$ rad/s, of weight $2\\pi$. The spectrum is zero at every other frequency.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:200,xr:[-3,3],yr:[-0.4,8.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:5,ytarget:3});
-      a.impulse(1,2*PI,{color:C.mid,labelText:'6.28'}); return a.svg(); },
-      caption:'One impulse, at $\\omega_0=1$, carrying weight $2\\pi$.'},
+    {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=2\\pi\\,\\delta(\\omega-\\omega_0)$.<div class="nsep"></div>What is $|x(t)|$?',
+      ask:{key:'m5-ex-expw', choices:['$1$','$2\\pi$','$1/2\\pi$'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-6,6],yr:[-0.3,1.6],xlabel:'t',ylabel:'|x(t)|',pad:{l:52,r:20,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-          a.curve(()=>1,{color:C.in}); return a.svg(); },
-          caption:'Constant magnitude 1.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-3.6,3.6],xlabel:'t',ylabel:'\\angle x(t)\\;[\\text{rad}]',pad:{l:60,r:20,t:32,b:34},xtarget:5,yticksOverride:[-3,-1.57,0,1.57,3],ytickfmt:v=>v.toFixed(2)});
-          a.curve(t=>t,{color:C.out}); a.point(PI/2,PI/2,{color:C.coral,r:4}); return a.svg(); },
-          caption:'Phase $\\omega_0t$, marked where it reaches $1.57$.'}]
-      ]}]}
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Put the spectrum into the synthesis equation.</li><li>Sift, this time in the variable $\\omega$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}2\\pi\\,\\delta(\\omega-\\omega_0)\\,e^{j\\omega t}\\,\\d\\omega=e^{j\\omega_0t}', label:'Solution',
+        note:'The $2\\pi$ of the weight cancels the $1/2\\pi$ of synthesis. So $e^{j\\omega_0t}\\leftrightarrow2\\pi\\delta(\\omega-\\omega_0)$, and at $\\omega_0=0$, $1\\leftrightarrow2\\pi\\delta(\\omega)$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'err', head:'An impulse of weight 1', html:'$X(j\\omega)=\\delta(\\omega-\\omega_0)$ gives $\\tfrac{1}{2\\pi}e^{j\\omega_0t}$, not a unit exponential. The factor sets the amplitude.'}]}
   ]}
 ]},
 
-{ id:'m5-ex-exp', module:'M5', nav:'Worked example · one-sided exponential', title:'Worked example — $e^{-at}u(t)$, and the condition on $a$', src:'p. 45',
+{ id:'m5-ex-exp', module:'M5', nav:'Worked example · one-sided exponential', title:'One-Sided Exponential Transform', src:'p. 45',
   objective:'Transform the decaying exponential and state where a > 0 is needed.',
-  keywords:'worked example one-sided exponential decay 1/(a+jw) convergence condition magnitude', steps:3, blocks:[
+  keywords:'worked example one-sided exponential decay 1/(a+jw) convergence condition', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
   {t:'title', text:'One-Sided Exponential Transform'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=e^{-at}u(t)$, with $a$ a real constant.'],
-      ['Find','$X(j\\omega)$, the values of $a$ for which it exists, and the magnitude spectrum.'],
-      ['Method','The unit step makes the signal zero for negative time. Apply the analysis equation over $0$ to $\\infty$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'X(j\\omega)=\\int_{0}^{\\infty}e^{-at}e^{-j\\omega t}\\,\\d t=\\left[\\frac{-1}{a+j\\omega}e^{-(a+j\\omega)t}\\right]_{0}^{\\infty}',
-        note:'The bracket at the upper limit is $e^{-at}e^{-j\\omega t}$. The second factor has modulus 1 at every $t$, so the limit is decided by $e^{-at}$ alone.'},
-      {t:'note', kind:'warn', head:'This is where the condition enters', html:'$e^{-at}\\to0$ as $t\\to\\infty$ only when $a>0$. For $a\\le0$ the integral does not converge and there is no transform to write down. State $a>0$ with the result, every time.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, size:'lg', tex:'e^{-at}u(t)\\;\\longleftrightarrow\\;\\frac{1}{a+j\\omega},\\qquad a>0',
-        label:'Solution',
-        note:'$|X(j\\omega)|=\\dfrac{1}{\\sqrt{a^{2}+\\omega^{2}}}$, so the peak is $|X(j0)|=1/a$ and the curve falls to zero as $\\omega$ grows.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','At $a=0.1,\\,1,\\,5$ the peak $1/a$ is $10$, $1$ and $0.2$. Those are the three heights in the panels beside this text.'],
-        ['Reading','A smaller $a$ gives slower time decay and a taller, narrower spectrum. A larger $a$ gives faster time decay and a lower, wider spectrum.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-1,14],yr:[-0.15,1.25],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:3});
-      [[0.1,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>a.curve(t=>t<0?0:Math.exp(-av*t),{color:col,n:2400}));
-      a.note(13.6,0.98,'a=0.1',{anchor:'end',color:C.in,fs:13,tex:true});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
+      svg:v=>{
+      const av=v?v.a:1;
+      const a=AX({xr:[-1,8],yr:[-0.15,1.3],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',yticksOverride:[0,0.5,1]});
+      a.curve(t=>t<0?0:Math.exp(-av*t),{color:C.in,n:2400});
       return a.svg(); },
-      caption:'The signal, for $a=0.1$, $1$ and $5$. All three start at 1.'},
+      caption:'The signal $e^{-at}u(t)$. It starts at $1$ and decays faster for a larger $a$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-at}u(t)$, with $a$ a real constant.<div class="nsep"></div>For which $a$ does $X(j\\omega)$ exist?',
+      ask:{key:'m5-ex-exp', choices:['$a>0$','$a\\ge0$','every $a$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>The step makes $x=0$ for $t<0$, so integrate from $0$ to $\\infty$.</li><li>Evaluate the antiderivative at both limits.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'grid', cols:3, gap:'12px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:190,xr:[-4,4],yr:[-1.2,11.5],xlabel:'\\omega',ylabel:'|X|',pad:{l:52,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,5,10]});
-          a.curve(w=>1/Math.hypot(0.1,w),{color:C.in,n:1600}); return a.svg(); },
-          caption:'$a=0.1$: peak $10$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:190,xr:[-4,4],yr:[-0.12,1.15],xlabel:'\\omega',ylabel:'|X|',pad:{l:52,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,0.5,1]});
-          a.curve(w=>1/Math.hypot(1,w),{color:C.mid,n:1600}); return a.svg(); },
-          caption:'$a=1$: peak $1$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:190,xr:[-4,4],yr:[-0.024,0.23],xlabel:'\\omega',ylabel:'|X|',pad:{l:58,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,0.1,0.2]});
-          a.curve(w=>1/Math.hypot(5,w),{color:C.out,n:1600}); return a.svg(); },
-          caption:'$a=5$: peak $0.2$.'}]
-      ]}]}
+      {t:'eq', tex:'X(j\\omega)=\\int_{0}^{\\infty}e^{-(a+j\\omega)t}\\,\\d t=\\left[\\frac{-e^{-(a+j\\omega)t}}{a+j\\omega}\\right]_{0}^{\\infty}=0-\\frac{-1}{a+j\\omega}', label:'The integral',
+        note:'$|e^{-j\\omega t}|=1$, so the upper limit is decided by $e^{-at}$. It tends to $0$ only when $a>0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'e^{-at}u(t)\\;\\longleftrightarrow\\;\\frac{1}{a+j\\omega},\\qquad a>0', label:'Solution',
+        note:'For $a\\le0$ the integral does not converge. State $a>0$ with the result every time.'}]}
   ]}
 ]},
 
-{ id:'m5-ex-exp-phase', module:'M5', nav:'Worked example · its phase', title:'The phase of $1/(a+j\\omega)$, and the sign that is easy to lose', src:'p. 45',
-  objective:'Derive the phase with its minus sign and check it against the plot.',
-  keywords:'phase arctan minus sign angle of a quotient subtraction error worked example', steps:3, blocks:[
+{ id:'m5-ex-exp-b', module:'M5', nav:'Exponential · the magnitude', title:'Magnitude of the Exponential Transform', src:'p. 45',
+  objective:'Read the magnitude of 1/(a+jω) and check its peak.',
+  keywords:'magnitude spectrum 1/sqrt(a^2+w^2) peak 1/a decay rate width', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
-  {t:'title', text:'Magnitude and Phase of an Exponential Transform'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The transform is a fraction, so its angle is the angle of the numerator minus the angle of the denominator. Write both, even when one of them is zero.'},
-    {t:'eq', size:'sm', tex:'\\angle X(j\\omega)=\\angle 1-\\angle(a+j\\omega)=0-\\tan^{-1}\\!\\left(\\frac{\\omega}{a}\\right)'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'lg', tex:'\\angle X(j\\omega)=-\\tan^{-1}\\!\\left(\\frac{\\omega}{a}\\right)',
-        label:'Solution',
-        note:'The minus sign is not optional and it is not a convention. It is what the subtraction left behind after $\\angle1=0$ was written down.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Subtract the denominator phase', html:'The numerator has phase zero. The phase of a quotient is the numerator phase minus the denominator phase. Writing only $\\tan^{-1}(\\omega/a)$ gives the phase of $a+j\\omega$, not the phase of its reciprocal.'},
-      {t:'wex', rows:[
-        ['One number settles it','At $a=1$, $\\omega=1$: $1/(1+j)$ has angle $-0.785398$ rad, that is $-\\pi/4$. The positive value $+\\pi/4$ belongs to $1+j$ itself.'],
-        ['Two more','$1/(0.1+3j)$ has angle $-1.537475$; $1/(5+2j)$ has angle $-0.380506$. Every one of them is negative.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'The plot is the second opinion', html:'The phase curve falls from $+\\pi/2$ at large negative $\\omega$ to $-\\pi/2$ at large positive $\\omega$. A curve that rises left to right would be $+\\tan^{-1}(\\omega/a)$, and no phase plot of this signal does that. The sign of the answer and the slope of the curve are two views of the same fact.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:230,xr:[-12,12],yr:[-1.85,1.85],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',pad:{l:66,r:26,t:34,b:36},xtarget:7,
-        yticksOverride:[-1.5708,-0.7854,0,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
-      [[0.1,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>a.curve(w=>-Math.atan(w/av),{color:col,n:2000}));
-      a.point(1,-PI/4,{color:C.coral,r:4.4});
+  {t:'title', text:'Magnitude of the Exponential Transform'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
+      svg:v=>{
+      const av=v?v.a:1;
+      const a=AX({xr:[-6,6],yr:[-0.25,5.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[0,1,2,3,4,5]});
+      a.curve(w=>1/Math.hypot(av,w),{color:C.in,n:1600});
+      a.point(0,1/av,{color:C.coral,r:4.4});
       return a.svg(); },
-      caption:'The phase for $a=0.1$, $1$ and $5$. The marked point is $-0.785398$ rad at $\\omega=1$, $a=1$. Every curve falls; none rises.'},
+      caption:'$|X(j\\omega)|$ for $e^{-at}u(t)$. The marked point is the peak $1/a$. Lower $a$ and the curve grows tall and narrow.'}
+  ], right:[
+    {t:'eq', tex:'|X(j\\omega)|=\\frac{1}{|a+j\\omega|}=\\frac{1}{\\sqrt{a^{2}+\\omega^{2}}}', label:'Magnitude',
+      note:'The largest value is at $\\omega=0$, where $|X(j0)|=1/a$. The curve falls to zero as $|\\omega|$ grows.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Check', html:'For $a=0.2$, $1$ and $5$ the peak $1/a$ is $5$, $1$ and $0.2$. Move the slider to each value and read it.'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-12,12],yr:[-1.85,1.85],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\text{sign test}',pad:{l:66,r:26,t:34,b:36},xtarget:7,
-          yticksOverride:[-1.5708,0,1.5708],ytickfmt:v=>v.toFixed(2)});
-        a.curve(w=>-Math.atan(w),{color:C.out,n:1600});
-        a.curve(w=>Math.atan(w),{color:C.err,n:1600,dash:'5 5'});
-        return a.svg(); },
-        caption:'The two candidates, drawn together. The falling green curve is $-\\tan^{-1}(\\omega/a)$; the rising dashed red one is $+\\tan^{-1}(\\omega/a)$. Only the falling one is the phase of $1/(a+j\\omega)$.'}]}
+      {t:'note', kind:'warn', head:'Reading', html:'A small $a$ decays slowly in time and gives a tall, narrow spectrum. A large $a$ decays fast and gives a low, wide one.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-2t}u(t)$.<div class="nsep"></div>What is $|X(j2)|$?',
+        ask:{key:'m5-ex-exp-b', choices:['$1/(2\\sqrt2)$','$1/4$','$1/2$'], answer:0,
+          why:'$|X(j2)|=1/\\sqrt{4+4}=1/(2\\sqrt2)\\approx0.354$.'}}]}
   ]}
 ]},
 
-{ id:'m5-ex-twosided', module:'M5', nav:'Worked example · two-sided exponential', title:'Worked example — $e^{-a|t|}$, an even signal', src:'p. 46',
+{ id:'m5-ex-exp-phase', module:'M5', nav:'Exponential · the phase', title:'Phase of the Exponential Transform', src:'p. 45',
+  objective:'Derive the phase with its minus sign and check it against the plot.',
+  keywords:'phase arctan minus sign angle of a quotient subtraction error worked example', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 45'},
+  {t:'title', text:'Phase of the Exponential Transform'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
+      svg:v=>{
+      const av=v?v.a:1;
+      const a=AX({xr:[-8,8],yr:[-1.9,1.9],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
+        yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
+      a.curve(w=>-Math.atan(w/av),{color:C.in,n:1600});
+      a.point(1,-Math.atan(1/av),{color:C.coral,r:4.4});
+      return a.svg(); },
+      caption:'The phase of $1/(a+j\\omega)$ falls from $+\\pi/2$ to $-\\pi/2$. A rising curve would be $+\\tan^{-1}(\\omega/a)$, the phase of $a+j\\omega$. The point marks $\\omega=1$.'}
+  ], right:[
+    {t:'eq', tex:'\\angle X(j\\omega)=\\angle1-\\angle(a+j\\omega)=0-\\tan^{-1}\\!\\left(\\frac{\\omega}{a}\\right)', label:'Angle of a quotient',
+      note:'The angle of a quotient is the numerator angle minus the denominator angle. Write both, even when one is zero.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\angle X(j\\omega)=-\\tan^{-1}\\!\\left(\\frac{\\omega}{a}\\right)', label:'Solution'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The lost minus sign', html:'$\\tan^{-1}(\\omega/a)$ alone is the phase of $a+j\\omega$, not of its reciprocal. At $a=1$, $\\omega=1$ the phase is $-\\pi/4$, not $+\\pi/4$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$a=1$ and $\\omega=\\sqrt3$ rad/s.<div class="nsep"></div>What is $\\angle X(j\\omega)$?',
+        ask:{key:'m5-ex-exp-phase', choices:['$-\\pi/3$','$+\\pi/3$','$-\\pi/6$'], answer:0,
+          why:'$\\tan^{-1}\\sqrt3=\\pi/3$, and the reciprocal takes the minus sign.'}}]}
+  ]}
+]},
+
+{ id:'m5-ex-twosided', module:'M5', nav:'Worked example · two-sided exponential', title:'Two-Sided Exponential Transform', src:'p. 46',
   objective:'Transform the two-sided exponential and connect evenness to a real transform.',
-  keywords:'worked example two-sided exponential even signal real transform 2a/(a^2+w^2)', steps:3, blocks:[
+  keywords:'worked example two-sided exponential even signal real transform 2a/(a^2+w^2)', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 46'},
   {t:'title', text:'Two-Sided Exponential Transform'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=e^{-a|t|}$ with $a>0$.'],
-      ['Find','$X(j\\omega)$, and say what its being real tells us about $x$.'],
-      ['Method','$|t|$ means two formulas, so split at $t=0$ and integrate each half separately.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'X(j\\omega)=\\int_{-\\infty}^{0}e^{at}e^{-j\\omega t}\\,\\d t+\\int_{0}^{\\infty}e^{-at}e^{-j\\omega t}\\,\\d t=\\frac{1}{a-j\\omega}+\\frac{1}{a+j\\omega}',
-        note:'On the left half $|t|=-t$, so the exponent is $+at$. Getting that sign wrong makes the first integral diverge, which is the signal that the split was done carelessly.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, size:'lg', tex:'e^{-a|t|}\\;\\longleftrightarrow\\;\\frac{2a}{a^{2}+\\omega^{2}},\\qquad a>0',
-        label:'Solution',
-        note:'The two imaginary parts cancelled when the fractions were added. $X(j0)=2/a$, and for $a=0.5,\\,1,\\,5$ that is $4$, $2$ and $0.4$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Real, and even, and no accident', html:'$x$ is real and even, and $X$ came out real and even. That is a general rule, proved later in this module: for a real even signal the imaginary part of the transform is zero at every frequency, so the phase is $0$ or $\\pi$ and there is nothing for a phase plot to show.'},
-      {t:'note', kind:'warn', head:'It never reaches zero', html:'$2a/(a^{2}+\\omega^{2})$ is positive at every finite $\\omega$. At $a=1$ and $\\omega=10^{6}$ it is still $2\\times10^{-12}$. Small is not zero, and this signal is used again later for exactly that reason.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-8,8],yr:[-0.15,1.25],xlabel:'t',ylabel:'e^{-a|t|}',pad:{l:56,r:26,t:32,b:34},xtarget:7,ytarget:3});
-      [[0.5,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>a.curve(t=>Math.exp(-av*Math.abs(t)),{color:col,n:2400}));
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-6,6],yr:[-0.3,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.4,2,4]});
+      [[0.5,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>{
+        a.curve(w=>2*av/(av*av+w*w),{color:col,n:2400}); a.point(0,2/av,{color:C.coral,r:4}); });
       return a.svg(); },
-      caption:'The signal for $a=0.5$, $1$ and $5$. It is even, and it has a corner at the origin.'},
-    {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-6,6],yr:[-0.45,4.5],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,0.4,2,4]});
-        [[0.5,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>a.curve(w=>2*av/(av*av+w*w),{color:col,n:2400}));
-        a.point(0,4,{color:C.coral,r:4}); a.point(0,2,{color:C.coral,r:4}); a.point(0,0.4,{color:C.coral,r:4});
-        return a.svg(); },
-        caption:'The transform, with a tick at each of the three peaks $2/a$: $4$, $2$ and $0.4$.'}]}
-  ]}
-]}
-,
-
-{ id:'m5-rect-sinc', module:'M5', nav:'Rectangular pulse', title:'The rectangular pulse, and the sinc convention', src:'pp. 46–47',
-  objective:'Transform the rectangular pulse and fix the sinc convention used everywhere after this.',
-  keywords:'rectangular pulse sinc unnormalised normalised convention 2 T1 sin(wT1)/w', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 46–47'},
-  {t:'title', text:'The Rectangular-Pulse and Sinc Pair'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=1$ for $|t|<T_1$ and $0$ otherwise.'],
-      ['Find','$X(j\\omega)$, its value at the origin, and its zero crossings.'],
-      ['Method','The signal is 1 on a finite interval, so the analysis integral runs from $-T_1$ to $T_1$ with the integrand $e^{-j\\omega t}$ alone.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'X(j\\omega)=\\int_{-T_1}^{T_1}e^{-j\\omega t}\\,\\d t=\\left[\\frac{e^{-j\\omega t}}{-j\\omega}\\right]_{-T_1}^{T_1}=\\frac{e^{j\\omega T_1}-e^{-j\\omega T_1}}{j\\omega}',
-        note:'The last step uses $e^{j\\theta}-e^{-j\\theta}=2j\\sin\\theta$, so the $j$ cancels and the answer is real.'},
-      {t:'eq', key:true, size:'lg', tex:'x(t)=\\begin{cases}1,&|t|<T_1\\\\0,&|t|>T_1\\end{cases}\\quad\\longleftrightarrow\\quad X(j\\omega)=\\frac{2\\sin(\\omega T_1)}{\\omega}',
-        label:'Solution'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The sinc convention used in this course', html:'This course writes $\\operatorname{sinc}(\\theta)=\\dfrac{\\sin\\theta}{\\theta}$, the <b>unnormalised</b> sinc, with $\\operatorname{sinc}(0)=1$ and zeros at $\\theta=\\pm\\pi,\\pm2\\pi,\\dots$ In that convention the result reads $X(j\\omega)=2T_1\\operatorname{sinc}(\\omega T_1)$.'},
-      {t:'note', kind:'warn', head:'The other convention, once', html:'Signal processing software and many communications texts use the <b>normalised</b> sinc, $\\operatorname{sinc}_{\\text{n}}(\\theta)=\\dfrac{\\sin(\\pi\\theta)}{\\pi\\theta}$, whose zeros are at the integers. The same result there is $2T_1\\operatorname{sinc}_{\\text{n}}(\\omega T_1/\\pi)$. The two agree only once the argument is divided by $\\pi$, so the argument inside $\\operatorname{sinc}(\\cdot)$ is never copied between them.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','$X(j0)=2T_1$ by l\u2019H\u00f4pital, since $\\sin(\\omega T_1)/\\omega\\to T_1$. For $T_1=1,\\,5,\\,10$ that is $2$, $10$ and $20$, which are the three peaks below.'],
-        ['Reading','Widening the pulse raises the peak and pulls the first zero in. Narrowing it lowers the peak and pushes the first zero out.']
-      ]}]}
+      caption:'The transform for $a=0.5$, $1$ and $5$. The marked peaks are $X(j0)=2/a$: $4$, $2$ and $0.4$.'},
+    {t:'legend', items:[['in','$a=0.5$'],['mid','$a=1$'],['out','$a=5$']]}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:180,xr:[-3,3],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-      a.curve(t=>rectp(t,1),{color:C.in,n:3000});
-      return a.svg(); },
-      caption:'The pulse, drawn for $T_1=1$. Its full width is $2T_1$.'},
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-a|t|}$ with $a>0$.<div class="nsep"></div>Is $X(j\\omega)$ real?',
+      ask:{key:'m5-ex-twosided', choices:['yes','no'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:3, gap:'12px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:200,xr:[-12,12],yr:[-0.75,2.35],xlabel:'\\omega',ylabel:'X',pad:{l:46,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,1,2]});
-          a.curve(w=>rectFT(w,1),{color:C.in,n:1600}); a.point(0,2,{color:C.coral,r:3.6}); return a.svg(); },
-          caption:'$T_1=1$: peak $2$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:200,xr:[-3,3],yr:[-3.7,11.6],xlabel:'\\omega',ylabel:'X',pad:{l:50,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,5,10]});
-          a.curve(w=>rectFT(w,5),{color:C.mid,n:1600}); a.point(0,10,{color:C.coral,r:3.6}); return a.svg(); },
-          caption:'$T_1=5$: peak $10$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:200,xr:[-1.6,1.6],yr:[-7.4,23.2],xlabel:'\\omega',ylabel:'X',pad:{l:54,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,10,20]});
-          a.curve(w=>rectFT(w,10),{color:C.out,n:1600}); a.point(0,20,{color:C.coral,r:3.6}); return a.svg(); },
-          caption:'$T_1=10$: peak $20$.'}]
-      ]},
-      {t:'small', html:'Each panel is scaled to its own data, with a tick placed at the peak $2T_1$ the text names. The negative side lobes belong to the answer and are drawn in every case.'}]}
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Split the integral at $t=0$, where $|t|$ changes formula.</li><li>Integrate each half, then add the two fractions.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'X(j\\omega)=\\int_{-\\infty}^{0}e^{at}e^{-j\\omega t}\\,\\d t+\\int_{0}^{\\infty}e^{-at}e^{-j\\omega t}\\,\\d t=\\frac{1}{a-j\\omega}+\\frac{1}{a+j\\omega}', label:'Two halves',
+        note:'On the left half $|t|=-t$, so the exponent is $+at$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'e^{-a|t|}\\;\\longleftrightarrow\\;\\frac{2a}{a^{2}+\\omega^{2}},\\qquad a>0', label:'Solution',
+        note:'The imaginary parts cancel. A real, even signal has a real, even transform.'}]}
   ]}
 ]},
 
-{ id:'m5-rect-zeros', module:'M5', nav:'Zeros of the sinc spectrum', title:'Zeros of the sinc spectrum', src:'pp. 46–47',
-  objective:'State the zero set with the origin excluded and justify the exclusion.',
-  keywords:'zero crossings k pi over T1 exclude origin lHopital main lobe index set', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Reading the result', src:'pp. 46–47'},
-  {t:'title', text:'Zeros of the Sinc Spectrum'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'$X(j\\omega)=2\\sin(\\omega T_1)/\\omega$ is a quotient, so it vanishes where the numerator does and the denominator does not. Solve $\\sin(\\omega T_1)=0$:'},
-    {t:'eq', key:true, tex:'\\omega=\\pm\\frac{\\pi}{T_1}k,\\qquad k=1,2,3,\\dots',
-      label:'Zero crossings',
-      note:'The index starts at $1$. The point $k=0$ is where the denominator vanishes too, and it has to be handled separately.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Why $k=0$ cannot be in the list', html:'At $\\omega=0$ the expression is $0/0$, which is not a value at all. One application of l\u2019H\u00f4pital gives $\\displaystyle\\lim_{\\omega\\to0}\\frac{2\\sin(\\omega T_1)}{\\omega}=2T_1$, and $2T_1$ is the largest value the transform takes. Writing $k\\in\\mathbb{Z}$ in the zero set claims the peak is a zero, and the very next line of any solution contradicts it.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The main lobe', html:'The stretch between the first zero on each side, $-\\pi/T_1<\\omega<\\pi/T_1$, is the <b>main lobe</b>. Its width is $2\\pi/T_1$ and it carries most of the signal. Everything outside it is a <b>side lobe</b>, alternating in sign and shrinking like $1/|\\omega|$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['For $T_1=1$','The first zeros are at $\\omega=\\pm\\pi\\approx\\pm3.141593$, the second at $\\pm2\\pi$, and so on.'],
-        ['First side lobe','It lies between $\\pi$ and $2\\pi$ and reaches about $-0.4344$ near $\\omega=4.4934$. Because it is negative, a magnitude plot differs from a plot of $X$ itself.'],
-        ['Same rule everywhere','The pattern "zero at every multiple of $\\pi/T_1$ except the origin" repeats for every sinc in this module.']
-      ]}]}
+{ id:'m5-rect-sinc', module:'M5', nav:'Rectangular pulse', title:'Rectangular Pulse Transform', src:'pp. 46–47',
+  objective:'Transform the rectangular pulse and write the result with the sinc convention of the course.',
+  keywords:'rectangular pulse sinc unnormalised convention 2 T1 sin(wT1)/w worked example', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 46–47'},
+  {t:'title', text:'Rectangular Pulse Transform'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T1', label:'$T_1$', min:0.25, max:3, step:0.25, v:1, show:v=>'$'+v+'$ s'}]},
+      svg:v=>{
+      const T1=v?v.T1:1;
+      const a=AX({xr:[-12,12],yr:[-1.6,6.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[-1,0,2,4,6]});
+      a.curve(w=>rectFT(w,T1),{color:C.in,n:2400});
+      a.point(0,2*T1,{color:C.coral,r:4.4});
+      return a.svg(); },
+      caption:'$X(j\\omega)$ for the pulse of half-width $T_1$. The point marks the peak $2T_1$. The side lobes are negative in turn.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:250,xr:[-13,13],yr:[-0.75,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-      a.curve(w=>rectFT(w,1),{color:C.in,width:2.4,n:2400});
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $|t|<T_1$ and $0$ otherwise.<div class="nsep"></div>What is $X(j0)$?',
+      ask:{key:'m5-rect-sinc', choices:['$2T_1$','$T_1$','$1$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Integrate $e^{-j\\omega t}$ from $-T_1$ to $T_1$.</li><li>Use $e^{j\\theta}-e^{-j\\theta}=2j\\sin\\theta$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'X(j\\omega)=\\int_{-T_1}^{T_1}e^{-j\\omega t}\\,\\d t=\\left[\\frac{e^{-j\\omega t}}{-j\\omega}\\right]_{-T_1}^{T_1}=\\frac{e^{j\\omega T_1}-e^{-j\\omega T_1}}{j\\omega}', label:'The integral'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'X(j\\omega)=\\frac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)', label:'Solution',
+        note:'The $j$ cancels, so the transform is real. Here $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, and $X(j0)=2T_1$ by l’Hôpital.'}]}
+  ]}
+]},
+
+{ id:'m5-rect-sinc-b', module:'M5', nav:'The sinc convention', title:'The Sinc Convention', src:'pp. 46–47',
+  objective:'Fix the unnormalised sinc used in the course and tell it apart from the normalised one.',
+  keywords:'sinc convention unnormalised normalised zeros integers multiples of pi argument', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · The standard pairs', src:'pp. 46–47'},
+  {t:'title', text:'The Sinc Convention'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-10,10],yr:[-0.4,1.3],xlabel:'\\theta',ylabel:'\\text{value}',yticksOverride:[0,0.5,1]});
+      a.curve(th=>sincU(th),{color:C.in,n:2400});
+      a.curve(th=>sincU(PI*th),{color:C.mid,dash:'9 6',n:2400});
+      return a.svg(); },
+      caption:'The two conventions on one axis. The course sinc is zero at $\\theta=\\pm\\pi,\\pm2\\pi,\\dots$; the normalised one is zero at the non-zero integers.'},
+    {t:'legend', items:[['in','$\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$'],['mid','$\\sin(\\pi\\theta)/(\\pi\\theta)$',true]]}
+  ], right:[
+    {t:'note', kind:'def', head:'This course', html:'$\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, the <b>unnormalised</b> sinc, with $\\operatorname{sinc}(0)=1$. The pulse pair reads $2T_1\\operatorname{sinc}(\\omega T_1)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'The other convention', html:'Software and many texts use $\\sin(\\pi\\theta)/(\\pi\\theta)$. The same pair there is written with the argument $\\omega T_1/\\pi$. Never copy an argument between the two.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Check', html:'$X(j0)=2T_1$. For $T_1=1$, $5$ and $10$ the peak is $2$, $10$ and $20$, in either convention.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The normalised sinc, $\\sin(\\pi\\theta)/(\\pi\\theta)$.<div class="nsep"></div>Where is its first positive zero?',
+        ask:{key:'m5-rect-sinc-b', choices:['$\\theta=1$','$\\theta=\\pi$','$\\theta=1/\\pi$'], answer:0,
+          why:'$\\sin(\\pi\\theta)$ first vanishes at $\\pi\\theta=\\pi$, that is $\\theta=1$.'}}]}
+  ]}
+]},
+
+{ id:'m5-rect-zeros', module:'M5', nav:'Zeros of the sinc spectrum', title:'Zeros of the Sinc Spectrum', src:'pp. 46–47',
+  objective:'State the zero set with the origin excluded and justify the exclusion.',
+  keywords:'zero crossings k pi over T1 exclude origin lHopital main lobe side lobe', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · The standard pairs', src:'pp. 46–47'},
+  {t:'title', text:'Zeros of the Sinc Spectrum'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-13,13],yr:[-0.75,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
+      a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
       for(let k=1;k<=4;k++){ a.point(k*PI,0,{color:C.err,r:4}); a.point(-k*PI,0,{color:C.err,r:4}); }
       a.point(0,2,{color:C.coral,r:4.6});
+      a.point(4.493409,rectFT(4.493409,1),{color:C.mid,r:4.2});
+      a.span(-PI,PI,2.28,'',{color:C.coral});
+      a.note(PI+0.4,2.28,'\\text{main lobe}',{anchor:'start',color:C.coral,fs:15,tex:true});
       return a.svg(); },
-      caption:'Red marks the zeros at $\\pm\\pi$, $\\pm2\\pi$, $\\pm3\\pi$, $\\pm4\\pi$. The stretch between the first two, $|\\omega|<\\pi/T_1$, is the main lobe. The point at the origin is not a zero: it is the peak $2T_1=2$.'},
+      caption:'$T_1=1$. Red marks the zeros at $\\pm\\pi,\\pm2\\pi,\\dots$ The origin is the peak $2$, not a zero. The violet point is the first side lobe, $-0.434$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'\\omega=\\pm\\frac{\\pi}{T_1}k,\\qquad k=1,2,3,\\dots', label:'Zero crossings',
+      note:'Solve $\\sin(\\omega T_1)=0$ where the denominator $\\omega$ is not zero.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'The origin is not a zero', html:'At $\\omega=0$ the formula is $0/0$. The limit is $2T_1$, the largest value. Writing $k\\in\\mathbb{Z}$ calls the peak a zero.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Main lobe and side lobes', html:'The main lobe $|\\omega|<\\pi/T_1$ has width $2\\pi/T_1$. The side lobes alternate in sign and shrink like $1/|\\omega|$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[2.6,10],yr:[-0.55,0.32],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:60,r:26,t:32,b:36},xtarget:6,ytarget:3});
-        a.curve(w=>rectFT(w,1),{color:C.in,width:2.4,n:1600});
-        a.point(4.493409,rectFT(4.493409,1),{color:C.err,r:4.4});
-        return a.svg(); },
-        caption:'The first side lobe alone, enlarged. Its lowest point is about $-0.4344$, well away from zero.'}]}
+      {t:'note', kind:'def', head:'Given', html:'A pulse with $T_1=0.5$ s.<div class="nsep"></div>Where is the first zero of $X(j\\omega)$?',
+        ask:{key:'m5-rect-zeros', choices:['$2\\pi$ rad/s','$\\pi/2$ rad/s','$\\pi$ rad/s'], answer:0,
+          why:'The first zero is at $\\pi/T_1=2\\pi$ rad/s.'}}]}
   ]}
 ]},
 
-{ id:'m5-sinc-rect', module:'M5', nav:'The ideal low-pass pair', title:'The same pair, read in the other direction', src:'pp. 47–48',
+{ id:'m5-sinc-rect', module:'M5', nav:'The ideal low-pass pair', title:'The Ideal Low-Pass Pair', src:'pp. 47–48',
   objective:'Invert an ideal low-pass band and read its time-domain peak.',
-  keywords:'ideal low pass band W sin(Wt)/(pi t) peak W/pi inverse transform pair', steps:3, blocks:[
+  keywords:'ideal low pass band W sin(Wt)/(pi t) peak W/pi inverse transform pair', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 47–48'},
-  {t:'title', text:'The Ideal Low-Pass Transform Pair'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$X(j\\omega)=1$ for $|\\omega|<W$ and $0$ otherwise. This is the <b>ideal low-pass band</b>, and {{sym:Wband|$W$}} is its band edge in rad/s.'],
-      ['Find','$x(t)$, its value at $t=0$, and its zero crossings.'],
-      ['Method','Synthesis, integrating from $-W$ to $W$ with the $1/2\\pi$ in front.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-W}^{W}e^{j\\omega t}\\,\\d\\omega=\\frac{1}{2\\pi}\\cdot\\frac{e^{jWt}-e^{-jWt}}{jt}=\\frac{\\sin(Wt)}{\\pi t}'},
-      {t:'eq', key:true, size:'lg', tex:'\\frac{\\sin(Wt)}{\\pi t}\\;\\longleftrightarrow\\;X(j\\omega)=\\begin{cases}1,&|\\omega|<W\\\\0,&|\\omega|>W\\end{cases}',
-        label:'Solution',
-        note:'In the convention of this module, $\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)$, with $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Peak','$x(0)=W/\\pi$, again by l\u2019H\u00f4pital. For $W=0.5\\pi,\\,\\pi,\\,2\\pi$ that is $0.5$, $1$ and $2$.'],
-        ['Zeros','$t=\\pm\\pi k/W$ for $k=1,2,3,\\dots$ The origin is excluded for the same reason as before.'],
-        ['Sign','This signal is not a pulse. It rings on both sides of the origin for ever, alternating in sign.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'The two examples are one statement', html:'A rectangle in one domain is a sinc in the other, whichever domain the rectangle starts in. That symmetry is not a coincidence, and it is given a name and a proof later in this module.'}]}
+  {t:'title', text:'The Ideal Low-Pass Pair'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'k', label:'$W/\\pi$', min:0.5, max:2, step:0.25, v:1, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const W=(v?v.k:1)*PI;
+      const a=AX({xr:[-6,6],yr:[-0.55,2.3],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',yticksOverride:[0,0.5,1,1.5,2]});
+      a.curve(t=>lpfTime(t,W),{color:C.in,n:2400});
+      a.point(0,W/PI,{color:C.coral,r:4.4});
+      return a.svg(); },
+      caption:'$x(t)=\\sin(Wt)/(\\pi t)$. The point marks the peak $W/\\pi$. The signal rings on both sides of the origin for ever.'}
   ], right:[
-    {t:'grid', cols:3, gap:'12px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:196,xr:[-9,9],yr:[-0.2,0.62],xlabel:'t',ylabel:'x(t)',pad:{l:54,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,0.25,0.5]});
-        a.curve(t=>lpfTime(t,0.5*PI),{color:C.in,n:2400}); a.point(0,0.5,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$W=0.5\\pi$: peak $0.5$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:196,xr:[-6,6],yr:[-0.4,1.24],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,0.5,1]});
-        a.curve(t=>lpfTime(t,PI),{color:C.mid,n:2400}); a.point(0,1,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$W=\\pi$: peak $1$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:280,h:196,xr:[-3,3],yr:[-0.8,2.48],xlabel:'t',ylabel:'x(t)',pad:{l:50,r:16,t:30,b:34},xtarget:3,yticksOverride:[0,1,2]});
-        a.curve(t=>lpfTime(t,2*PI),{color:C.out,n:2400}); a.point(0,2,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$W=2\\pi$: peak $2$.'}]
-    ]},
+    {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=1$ for $|\\omega|<W$ and $0$ otherwise: the <b>ideal low-pass band</b>, with band edge {{sym:Wband|$W$}} in rad/s.<div class="nsep"></div>What is $x(0)$?',
+      ask:{key:'m5-sinc-rect', choices:['$W/\\pi$','$2W$','$1$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Use the synthesis equation, with $1/2\\pi$ in front.</li><li>Integrate $e^{j\\omega t}$ from $-W$ to $W$.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-9,9],yr:[-0.25,1.35],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-        a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.out,n:3000});
-        return a.svg(); },
-        caption:'The band itself, for $W=2\\pi$; its full width is $2W$. Each panel above is scaled to its own data, with a tick at the peak $W/\\pi$.'}]}
+      {t:'eq', key:true, tex:'x(t)=\\frac{1}{2\\pi}\\int_{-W}^{W}e^{j\\omega t}\\,\\d\\omega=\\frac{1}{2\\pi}\\cdot\\frac{e^{jWt}-e^{-jWt}}{jt}=\\frac{\\sin(Wt)}{\\pi t}', label:'Solution',
+        note:'With $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$ this is $\\tfrac{W}{\\pi}\\operatorname{sinc}(Wt)$. Its zeros are at $t=\\pm\\pi k/W$, $k=1,2,\\dots$'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'ok', head:'One statement, twice', html:'A rectangle in one domain is a sinc in the other, whichever domain it starts in. Section 5.4 names this duality.'}]}
   ]}
 ]},
 
-{ id:'m5-inverse-rel', module:'M5', nav:'Narrow in time, wide in frequency', title:'Compress in time and the spectrum spreads', src:'p. 48',
+{ id:'m5-inverse-rel', module:'M5', nav:'Narrow in time, wide in frequency', title:'Duration and Bandwidth', src:'p. 48',
   objective:'State the inverse relation as a scaling statement, with the bandwidth measure named.',
-  keywords:'inverse relationship duration bandwidth product scaling family first null measure', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Reading the result', src:'p. 48'},
-  {t:'title', text:'Time–Frequency Width Relation'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The rectangular pulse of half-width $T_1$ has its first zero at $\\omega=\\pi/T_1$. Halve $T_1$ and that zero doubles. The relation is exact, and it comes from the scaling property proved later in this module: replacing $t$ by $at$ divides the duration by $|a|$ and multiplies every frequency by $|a|$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Say which bandwidth is being measured', html:'"Bandwidth" is not one number until a measure is chosen. Here it is the <b>first-null bandwidth</b>: the distance from the origin to the first zero of the transform, $\\text{BW}=\\pi/T_1$ rad/s. The duration is the full width $T=2T_1$, measured on both sides.'},
-      {t:'eq', key:true, tex:'T\\times\\text{BW}=2T_1\\cdot\\frac{\\pi}{T_1}=2\\pi',
-        label:'For this pulse, at every width',
-        note:'For $T_1=1$: $T=2$, $\\text{BW}=\\pi$, product $6.283185$. For $T_1=1/4$ the two factors become $0.5$ and $4\\pi$, and the product is unchanged.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The product is not a universal constant', html:'It is invariant <b>within one shape</b>, because scaling moves the two factors in opposite directions by the same amount. Change the shape and the number changes: a triangular pulse of the same total duration has its first null at $2\\pi/T_1$, so its product is $4\\pi$, not $2\\pi$. Written without the word "for this signal", the statement is false.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'General conclusion', html:'For any fixed measure, narrowing a signal in time widens its spectrum, and widening it in time narrows its spectrum. Their product has a lower bound and no upper bound, so both widths cannot be made arbitrarily small.'}]}
+  keywords:'inverse relationship duration bandwidth product scaling family first null measure', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · The standard pairs', src:'p. 48'},
+  {t:'title', text:'Duration and Bandwidth'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$T_1=1$: first null at $\\pi$','$T_1=1/4$: first null at $4\\pi$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-16,16],yr:[-0.6,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,2],xtarget:9});
+      fade(a,1-f,()=>{ a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); a.point(PI,0,{color:C.err,r:4.4}); });
+      fade(a,f,()=>{ a.curve(w=>rectFT(w,0.25),{color:C.out,n:2400}); a.point(4*PI,0,{color:C.err,r:4.4}); });
+      return a.svg(); },
+      caption:'The pulse made four times narrower. Its spectrum is four times wider and four times lower. Red marks the first null.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(t,1),{color:C.in,n:3000}); a.span(-1,1,1.14,'T=2',{color:C.coral,tex:true,fs:13}); return a.svg(); },
-        caption:'$T_1=1$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-16,16],yr:[-0.75,2.4],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); a.point(PI,0,{color:C.err,r:4}); return a.svg(); },
-        caption:'First null at $\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-3,3],yr:[-0.25,1.55],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(t,0.25),{color:C.out,n:3000}); a.span(-0.25,0.25,1.14,'T=0.5',{color:C.coral,tex:true,fs:13}); return a.svg(); },
-        caption:'$T_1=1/4$: four times narrower.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-16,16],yr:[-0.19,0.6],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,0.25,0.5]});
-        a.curve(w=>rectFT(w,0.25),{color:C.out,n:2400}); a.point(4*PI,0,{color:C.err,r:4}); return a.svg(); },
-        caption:'First null at $4\\pi$: four times further out.'}]
-    ]}
+    {t:'note', kind:'def', head:'Name the measure', html:'Take the <b>first-null bandwidth</b>, $\\text{BW}=\\pi/T_1$ rad/s, and the full duration $T=2T_1$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'T\\times\\text{BW}=2T_1\\cdot\\frac{\\pi}{T_1}=2\\pi', label:'For this pulse, at every width',
+        note:'$T_1=1$: $2\\times\\pi$. $T_1=1/4$: $0.5\\times4\\pi$. The product is the same.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Not one constant for all shapes', html:'The product is fixed within one shape. A triangular pulse of the same duration has its first null at $2\\pi/T_1$, so its product is $4\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The half-width $T_1$ of the pulse is halved.<div class="nsep"></div>What happens to the first-null bandwidth?',
+        ask:{key:'m5-inverse-rel', choices:['it doubles','it halves','no change'], answer:0,
+          why:'$\\text{BW}=\\pi/T_1$, so halving $T_1$ doubles it.'}}]}
   ]}
 ]},
 
-{ id:'m5-bandlimit', module:'M5', nav:'Duration and band limitation', title:'Only one of the two implications is a theorem', src:'p. 48',
+{ id:'m5-bandlimit', module:'M5', nav:'Duration and band limitation', title:'Time Limitation and Band Limitation', src:'p. 48',
   objective:'Separate the true statement about finite duration from the false converse.',
-  keywords:'band limited finite duration implication counterexample contrapositive false converse', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · A statement to get right', src:'p. 48'},
+  keywords:'band limited finite duration implication counterexample false converse', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · The standard pairs', src:'p. 48'},
   {t:'title', text:'Time Limitation and Band Limitation'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'Band-limited', html:'A signal is <b>band-limited</b> when $X(j\\omega)=0$ for every $|\\omega|>W$, for some finite $W$. The spectrum is not merely small out there; it is exactly zero.'},
-    {t:'eq', key:true, tex:'\\text{finite duration}\\;\\Longrightarrow\\;\\text{not band-limited}',
-      label:'The theorem',
-      note:'Equivalently, in the other direction: a band-limited signal cannot have finite duration. The rectangular pulse is the witness — its transform is a sinc, which is non-zero on stretches reaching out to every frequency.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The converse is false', html:'"Infinite duration $\\Rightarrow$ finite bandwidth" is not a theorem, and one signal already met in this module disproves it. $e^{-a|t|}$ lasts for ever, and its transform $2a/(a^{2}+\\omega^{2})$ is strictly positive at every finite frequency. At $a=1$ and $\\omega=10^{6}$ it is $2\\times10^{-12}$: small, and not zero.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['What infinite duration implies','Infinite duration alone does not imply finite bandwidth. Band-limited signals require infinite duration, but many other signals also have infinite duration.'],
-        ['Where the two meet','$\\dfrac{\\sin(Wt)}{\\pi t}$ is band-limited and does have infinite duration, which is consistent with both statements. It is an example, not a proof of the converse.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Why the distinction matters', html:'Module 7 uses band limitation to decide whether sampling can preserve a signal. Finite duration does not establish band limitation, so it cannot by itself justify a sampling rate.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:200,xr:[-40,40],yr:[-0.75,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-      a.curve(w=>rectFT(w,1),{color:C.in,width:2,n:4000});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\text{pulse}$: finite duration','$e^{-|t|}$: infinite duration']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-40,40],yr:[-0.8,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2],xtarget:9});
+      fade(a,1-f,()=>a.curve(w=>rectFT(w,1),{color:C.in,n:4000}));
+      fade(a,f,()=>a.curve(w=>2/(1+w*w),{color:C.err,n:4000}));
       return a.svg(); },
-      caption:'The pulse has duration $2$ seconds. Its spectrum remains non-zero in intervals at arbitrarily large frequencies.'},
+      caption:'The pulse of duration $2$ s has a spectrum that is non-zero at arbitrarily high frequencies. $e^{-|t|}$ lasts for ever, and its spectrum is never zero either.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Band-limited', html:'A signal is <b>band-limited</b> when $X(j\\omega)=0$ for every $|\\omega|>W$, for some finite $W$. Small is not enough; the spectrum must be exactly zero.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[0,40],yr:[-0.35,2.35],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:66,r:26,t:34,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>2/(1+w*w),{color:C.err,width:2.2,n:2400});
-        return a.svg(); },
-        caption:'The two-sided exponential: infinite duration, and a spectrum that approaches zero without ever reaching it.'}]}
+      {t:'eq', key:true, tex:'\\text{finite duration}\\;\\Longrightarrow\\;\\text{not band-limited}', label:'The theorem',
+        note:'In the other direction: a band-limited signal cannot have finite duration.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The converse is false', html:'Infinite duration does not give a finite band. $e^{-|t|}$ has $X(j\\omega)=2/(1+\\omega^{2})$, which is $2\\times10^{-12}$ at $\\omega=10^{6}$: small, not zero.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\sin(3t)/(\\pi t)$.<div class="nsep"></div>Is $x$ band-limited?',
+        ask:{key:'m5-bandlimit', choices:['yes','no'], answer:0,
+          why:'Its transform is $1$ for $|\\omega|<3$ and $0$ beyond.'}}]}
   ]}
 ]},
 
-{ id:'m5-periodic', module:'M5', nav:'Transform of a periodic signal', title:'Fourier transform of a periodic signal', src:'p. 49',
+realGallery({ id:'m5-real-pairs', nav:'Standard pairs around us',
+  title:'Standard Pairs Around Us', eyebrow:'Module 5 · The standard pairs', src:'pp. 44–48',
+  objective:'Meet the standard transform shapes in everyday signals.',
+  keywords:'examples capacitor discharge radar pulse moving average window temperature anomaly exponential pulse two-sided',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-1,10],yr:[-20,340],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:2}));
+      a.curve(t=>t<0?0:300*Math.exp(-t/2),{color:C.in,n:2400});
+      return a.svg(); }, 'A flash capacitor discharging: $v(t)=300e^{-t/2}u(t)$ V, $t$ in ms.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-3,3],yr:[-0.2,1.3],xlabel:'t\\;(\\mu\\text{s})',ylabel:'e(t)',yticksOverride:[0,1],yticksLeft:true}));
+      a.curve(t=>Math.abs(t)<1?1:0,{color:C.in,n:2400});
+      return a.svg(); }, 'The envelope of a radar pulse: $e(t)=1$ for $|t|<1$ µs.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-3,9],yr:[0,0.3],xlabel:'n\\;(\\text{day})',ylabel:'h[n]',xstep:2,yticksLeft:true}));
+      a.stem(D(n=>(n>=0&&n<=4)?0.2:0,-2,8),{color:C.in,r:3});
+      return a.svg(); }, 'A five-day moving-average window: $h[n]=0.2$ for $0\\le n\\le4$.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-9,9],yr:[0,7],xlabel:'n\\;(\\text{day})',ylabel:'d[n]\\;(^{\\circ}\\text{C})',xstep:3,yticksLeft:true}));
+      a.stem(D(n=>6*Math.pow(0.7,Math.abs(n)),-8,8),{color:C.in,r:3});
+      return a.svg(); }, 'Temperature above normal around a heat peak: $d[n]=6(0.7)^{|n|}$ °C.']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'Four standard shapes', html:'A one-sided decay, a pulse and a two-sided decay appear everywhere. Their transforms are the pairs of this section.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'Most problems start from one of these pairs. A property then turns it into the transform that is needed.'}
+  ]}),
+
+labScene({ id:'m5-lab-h', lab:'H', nav:'Time and Frequency', title:'Time and Frequency Explorer', src:'pp. 45–48',
+  objective:'Change the width or decay rate of a standard signal and observe its transform.',
+  keywords:'laboratory CTFT explorer time frequency width bandwidth pulse exponential sinc pairs' }),
+
+codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in Code', src:'pp. 44–48', eyebrow:'Standard pairs in code',
+  objective:'Compute standard transform pairs numerically in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python transform pairs exponential rectangular pulse sinc zeros phase run' }),
+
+
+/* ======================================================= 5.3 periodic signals */
+
+{ id:'m5-periodic', module:'M5', nav:'Transform of a periodic signal', title:'Transform of a Periodic Signal', src:'p. 49',
   objective:'Derive the impulse train in frequency from the Fourier series.',
-  keywords:'periodic signal transform impulse train 2 pi a_k harmonics series as transform', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Bridging the two modules', src:'p. 49'},
-  {t:'title', text:'Fourier Transform of a Periodic Signal'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'A periodic signal has a Fourier series. Take the transform of that series term by term, using linearity and the pair $e^{j\\omega_0t}\\leftrightarrow2\\pi\\delta(\\omega-\\omega_0)$ from earlier in this module.'},
-    {t:'eq', size:'sm', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_ke^{jk\\omega_0t}\\;\\longrightarrow\\;X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}a_k\\cdot2\\pi\\delta(\\omega-k\\omega_0)'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'lg', tex:'X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}2\\pi a_k\\,\\delta(\\omega-k\\omega_0),\\qquad \\omega_0=\\frac{2\\pi}{T_0}',
-        label:'Transform of a periodic signal',
-        note:'The spectrum is a train of impulses at the harmonic frequencies $k\\omega_0$. The impulse at $k\\omega_0$ has weight $2\\pi a_k$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'The weight is $2\\pi a_k$, not $a_k$', html:'The Fourier series coefficient and the transform are different objects. $a_k$ is a dimensionless complex number attached to one harmonic; $2\\pi a_k$ is the <b>area</b> of the impulse the transform puts at that harmonic. Reporting the coefficients themselves as the transform loses a factor of $2\\pi$ on every line.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Periodic and aperiodic spectra', html:'A periodic signal has a spectrum made of isolated impulses. An aperiodic finite-energy signal has a continuous spectrum. The Fourier series is therefore the discrete-spectrum case of the Fourier transform.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-9,9],yr:[-0.3,1.45],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-      a.curve(t=>rectPer(t,8,1),{color:C.in,n:3000});
-      return a.svg(); },
-      caption:'A periodic signal: the rectangular wave with $T_0=8T_1$.'},
-    {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:230,xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1,1.5]});
-        const w0=2*PI/8;
+  keywords:'periodic signal transform impulse train 2 pi a_k harmonics series as transform', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Periodic signals', src:'p. 49'},
+  {t:'title', text:'Transform of a Periodic Signal'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$: period $T_0=8$ s','$X(j\\omega)$: weights $2\\pi a_k$']},
+      svg:v=>{
+      /* the rectangular wave with T1 = 1, T0 = 8, then its line spectrum */
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-12,12],yr:[-0.3,1.5],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',yticksOverride:[0,1],xtarget:7});
+        fade(a,1-2*f,()=>a.curve(t=>rectPer(t,8,1),{color:C.in,n:3000}));
+        return a.svg();
+      }
+      const w0=2*PI/8;
+      const a=AX({xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      fade(a,2*f-1,()=>{
+        a.curve(w=>w0*rectFT(w,1),{color:C.mid,width:1.6,dash:'7 6',n:1200});
         for(let k=-7;k<=7;k++){ const wt=2*PI*aSq(k,8,1); if(Math.abs(wt)<1e-9) continue;
-          a.impulse(k*w0,wt,{color:C.mid,label:false}); }
-        /* the weights are 2 pi a_k = w0 * (2 sin(w T1)/w) read at w = k w0 */
-        a.curve(w=>w0*rectFT(w,1),{color:C.coral,width:1.4,dash:'4 5',n:1200,opacity:.9});
-        a.point(0,2*PI*aSq(0,8,1),{color:C.coral,r:4});
-        return a.svg(); },
-        caption:'Its transform: impulses of weight $2\\pi a_k$ at $\\omega=k\\omega_0$, with $\\omega_0=\\pi/4$. The dashed curve is the envelope they are sampled from. The impulse at the origin carries $2\\pi a_0=1.5708$.'}]}
+          a.impulse(k*w0,wt,{color:C.in,label:false}); } });
+      return a.svg(); },
+      caption:'The rectangular wave with $T_1=1$ and its transform: impulses at $k\\omega_0$, $\\omega_0=\\pi/4$. The dashed curve is the envelope the weights sit on.'}
+  ], right:[
+    {t:'eq', tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0t}\\;\\longrightarrow\\;X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}a_k\\cdot2\\pi\\,\\delta(\\omega-k\\omega_0)', label:'Transform the series term by term',
+      note:'Linearity, and the pair $e^{j\\omega_0t}\\leftrightarrow2\\pi\\delta(\\omega-\\omega_0)$ for each term.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'X(j\\omega)=\\sum_{k=-\\infty}^{\\infty}2\\pi a_k\\,\\delta(\\omega-k\\omega_0),\\qquad \\omega_0=\\frac{2\\pi}{T_0}', label:'Transform of a periodic signal',
+        note:'Impulses at the harmonics $k\\omega_0$. The impulse at $k\\omega_0$ has weight $2\\pi a_k$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'The weight is $2\\pi a_k$', html:'$a_k$ is a Fourier-series coefficient. $2\\pi a_k$ is the area of the impulse at $k\\omega_0$. Reporting $a_k$ as the transform loses $2\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=3$, a constant.<div class="nsep"></div>What weight does its impulse at $\\omega=0$ carry?',
+        ask:{key:'m5-periodic', choices:['$6\\pi$','$3$','$3/2\\pi$'], answer:0,
+          why:'$a_0=3$, so the weight is $2\\pi a_0=6\\pi$.'}}]}
   ]}
 ]},
 
-{ id:'m5-ex-square', module:'M5', nav:'Worked example · square wave', title:'Worked example — the periodic square wave as a transform', src:'p. 49',
+{ id:'m5-ex-square', module:'M5', nav:'Worked example · square wave', title:'Line Spectrum of a Square Wave', src:'p. 49',
   objective:'Compute the impulse weights for three periods and read the spacing correctly.',
-  keywords:'worked example periodic square wave impulse weights spacing three periods envelope', steps:3, blocks:[
+  keywords:'worked example periodic square wave impulse weights spacing three periods envelope', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 49'},
   {t:'title', text:'Line Spectrum of a Square Wave'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','The rectangular wave of Module 4: $1$ on $|t|<T_1$ inside each period, with $T_1=1$ and period $T$.'],
-      ['Find','The transform for $T=8T_1$, $16T_1$ and $32T_1$, with the spacing and the weight at the origin in each case.'],
-      ['Method','Take $a_k$ from Module 4, multiply by $2\\pi$, and place an impulse at each $k\\omega_0$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'a_k=\\frac{\\sin(k\\omega_0T_1)}{\\pi k}\\;(k\\neq0),\\qquad a_0=\\frac{2T_1}{T}\\qquad\\Longrightarrow\\qquad 2\\pi a_k=\\frac{2\\sin(k\\omega_0T_1)}{k}',
-        note:'The $\\pi$ in the denominator cancels against the $2\\pi$, which is why the impulse weights are simpler than the coefficients.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['$T=8T_1$','$\\omega_0=2\\pi/8=\\pi/4=0.392699$. $a_0=0.25$, so the impulse at the origin has weight $2\\pi a_0=1.5708$.'],
-        ['$T=16T_1$','$\\omega_0=2\\pi/16=\\pi/8=0.196350$. $a_0=0.125$, weight $0.7854$.'],
-        ['$T=32T_1$','$\\omega_0=2\\pi/32=\\pi/16=0.098175$. $a_0=0.0625$, weight $0.3927$.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Compare the three periods', html:'Each doubling of the period halves the frequency spacing and every impulse weight. The envelope $2\\sin(\\omega T_1)/\\omega$ does not change because the pulse is fixed. Continuing this process gives the transform limit derived at the start of the module.'},
-      {t:'note', kind:'warn', head:'The coefficients are signed', html:'For $T=8T_1$ the impulses at $k=\\pm5,\\pm6,\\pm7$ point downwards and those at $k=\\pm4,\\pm8$ vanish, because $\\sin(k\\pi/4)$ is negative and zero there. A plot of $|a_k|$ hides both facts.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$T=8T_1$','$T=16T_1$','$T=32T_1$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const a=AX({xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      [[8,1-cl(f)],[16,cl(f)*(1-cl(f-1))],[32,cl(f-1)]].forEach(([T,o])=>fade(a,o,()=>{
+        const w0=2*PI/T;
+        for(let k=-Math.floor(4/w0);k<=Math.floor(4/w0);k++){ const wt=2*PI*aSq(k,T,1); if(Math.abs(wt)<1e-9) continue;
+          a.impulse(k*w0,wt,{color:C.in,label:false}); } }));
+      return a.svg(); },
+      caption:'$T_1=1$. For $T=8T_1$ the impulses at $k=\\pm5,\\pm6,\\pm7$ point down and those at $\\pm4,\\pm8$ vanish. A plot of $|a_k|$ would hide both.'}
   ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:172,xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1,1.5]});
-        const w0=2*PI/8;
-        for(let k=-11;k<=11;k++){ const wt=2*PI*aSq(k,8,1); if(Math.abs(wt)<1e-9||Math.abs(k*w0)>4) continue;
-          a.impulse(k*w0,wt,{color:C.in,label:false}); }
-        return a.svg(); },
-        caption:'$T=8T_1$: spacing $0.3927$, weight at the origin $1.5708$.'}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:172,xr:[-4,4],yr:[-0.34,0.95],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:60,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.4,0.8]});
-        const w0=2*PI/16;
-        for(let k=-21;k<=21;k++){ const wt=2*PI*aSq(k,16,1); if(Math.abs(wt)<1e-9||Math.abs(k*w0)>4) continue;
-          a.impulse(k*w0,wt,{color:C.mid,label:false}); }
-        return a.svg(); },
-        caption:'$T=16T_1$: spacing $0.1963$, weight $0.7854$.'}]}],
-      [{t:'reveal', at:3, items:[{t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:172,xr:[-4,4],yr:[-0.17,0.48],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:62,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.2,0.4]});
-        const w0=2*PI/32;
-        for(let k=-41;k<=41;k++){ const wt=2*PI*aSq(k,32,1); if(Math.abs(wt)<1e-9||Math.abs(k*w0)>4) continue;
-          a.impulse(k*w0,wt,{color:C.out,label:false}); }
-        return a.svg(); },
-        caption:'$T=32T_1$: spacing $0.0982$, weight $0.3927$. The envelope has not moved once.'}]}]
-    ]}
-  ]}
-]}
-,
-
-{ id:'m5-ex-sinus', module:'M5', nav:'Worked example · cosine and sine', title:'Worked example — a cosine has two impulses, not one', src:'p. 50',
-  objective:'Transform a cosine and a sine and keep both halves of each pair.',
-  keywords:'worked example cosine sine impulses negative frequency pair euler real signal', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
-  {t:'title', text:'Line Spectra of Cosine and Sine'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Expand the sinusoid with Euler’s relations and transform each exponential separately. Every term produces its own impulse, and there are always two.'},
-    {t:'eq', size:'sm', tex:'4\\cos(3\\pi t)=2e^{j3\\pi t}+2e^{-j3\\pi t}\\;\\longrightarrow\\;2\\cdot2\\pi\\delta(\\omega-3\\pi)+2\\cdot2\\pi\\delta(\\omega+3\\pi)'},
+    {t:'note', kind:'def', head:'Given', html:'The rectangular wave of Module 4, $1$ on $|t|<T_1$ in each period $T$, with $T_1=1$.<div class="nsep"></div>Doubling $T$ does what to the weight at $\\omega=0$?',
+      ask:{key:'m5-ex-square', choices:['halves it','doubles it','no change'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'lg', tex:'\\mathcal{F}\\{4\\cos(3\\pi t)\\}=4\\pi\\delta(\\omega-3\\pi)+4\\pi\\delta(\\omega+3\\pi)',
-        label:'Solution, cosine',
-        note:'One impulse at $+3\\pi$ and one at $-3\\pi$. The two arguments differ in sign, and writing $\\delta(\\omega-3\\pi)$ twice puts both impulses at the same place and leaves the signal with half its energy.'}]},
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Take $a_k$ of the rectangular wave from Module 4.</li><li>Multiply by $2\\pi$ and place an impulse at each $k\\omega_0$.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', size:'sm', tex:'6\\sin(4\\pi t)=\\frac{6}{2j}e^{j4\\pi t}-\\frac{6}{2j}e^{-j4\\pi t}'},
-      {t:'eq', key:true, tex:'\\mathcal{F}\\{6\\sin(4\\pi t)\\}=\\frac{6\\pi}{j}\\,\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\,\\delta(\\omega+4\\pi)',
-        label:'Solution, sine',
-        note:'$6\\pi/j=-6\\pi j$, an <b>imaginary</b> weight of modulus $6\\pi=18.849556$. The cosine gave real weights; the sine gives imaginary ones, and the sign flips between the two sides.'}]},
+      {t:'eq', tex:'a_0=\\frac{2T_1}{T},\\quad a_k=\\frac{\\sin(k\\omega_0T_1)}{\\pi k}\\;\\;\\Longrightarrow\\;\\; 2\\pi a_k=\\frac{2\\sin(k\\omega_0T_1)}{k}', label:'Impulse weights',
+        note:'The $\\pi$ in $a_k$ cancels against the $2\\pi$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Check both frequency signs', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$. The cosine therefore has equal real weights at $\\pm3\\pi$, and the sine has opposite imaginary weights at $\\pm4\\pi$. A spectrum with only the positive-frequency impulse violates this condition and represents a complex signal.'}]}
-  ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-2.2,2.2],yr:[-4.6,4.6],xlabel:'t',ylabel:'4\\cos(3\\pi t)',pad:{l:56,r:18,t:32,b:34},xtarget:5,ytarget:3});
-        a.curve(t=>4*Math.cos(3*PI*t),{color:C.in,n:2400}); return a.svg(); }}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-14,14],yr:[-1.6,15.6],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:18,t:32,b:34},xtarget:5,ytarget:3,yticksOverride:[0,12.566],ytickfmt:v=>v.toFixed(2)});
-        a.impulse(3*PI,4*PI,{color:C.mid,labelText:'12.57'});
-        a.impulse(-3*PI,4*PI,{color:C.mid,labelText:'12.57'}); return a.svg(); }}]
-    ]},
-    {t:'small', html:'Left: the cosine. Right: its two impulses of weight $4\\pi=12.566371$, one at each of $\\pm3\\pi$.'},
-    {t:'reveal', at:2, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.6,1.6],yr:[-6.9,6.9],xlabel:'t',ylabel:'6\\sin(4\\pi t)',pad:{l:56,r:18,t:32,b:34},xtarget:5,ytarget:3});
-          a.curve(t=>6*Math.sin(4*PI*t),{color:C.in,n:2400}); return a.svg(); }}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-18,18],yr:[-22,22],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',pad:{l:62,r:18,t:32,b:34},xtarget:5,ytarget:3,yticksOverride:[-18.85,0,18.85],ytickfmt:v=>v.toFixed(2)});
-          a.impulse(4*PI,-6*PI,{color:C.err,label:false});
-          a.impulse(-4*PI,6*PI,{color:C.err,label:false}); return a.svg(); }}]
-      ]},
-      {t:'small', html:'The sine, and the imaginary part of its transform: $-6\\pi$ at $+4\\pi$ and $+6\\pi$ at $-4\\pi$. Drawing these two on the same axis as the cosine impulses would mix a real quantity with an imaginary one.'}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}T=8T_1:&\\;\\;\\omega_0=\\pi/4,\\;\\;2\\pi a_0=1.5708\\\\T=16T_1:&\\;\\;\\omega_0=\\pi/8,\\;\\;2\\pi a_0=0.7854\\\\T=32T_1:&\\;\\;\\omega_0=\\pi/16,\\;\\;2\\pi a_0=0.3927\\end{aligned}', label:'Solution',
+        note:'Each doubling of $T$ halves the spacing and the weights. The envelope $2\\sin(\\omega T_1)/\\omega$, scaled by $\\omega_0$, keeps its shape.'}]}
   ]}
 ]},
 
-{ id:'m5-ex-sinus-b', module:'M5', nav:'Worked example · a mixed signal', title:'Worked example — a constant, a cosine and a sine together', src:'p. 50',
+{ id:'m5-ex-sinus', module:'M5', nav:'Worked example · a cosine', title:'Line Spectrum of a Cosine', src:'p. 50',
+  objective:'Transform a cosine and keep both halves of the pair.',
+  keywords:'worked example cosine impulses negative frequency pair euler real signal', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
+  {t:'title', text:'Line Spectrum of a Cosine'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
+      a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
+      a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
+      return a.svg(); },
+      caption:'The transform of $4\\cos(3\\pi t)$: two impulses of weight $4\\pi\\approx12.57$, at $\\omega=\\pm3\\pi$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=4\\cos(3\\pi t)$.<div class="nsep"></div>How many impulses does $X(j\\omega)$ have?',
+      ask:{key:'m5-ex-sinus', choices:['one','two','four'], answer:1}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Write the cosine with Euler’s relation.</li><li>Transform each exponential with $e^{j\\omega_0t}\\leftrightarrow2\\pi\\delta(\\omega-\\omega_0)$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'4\\cos(3\\pi t)=2e^{j3\\pi t}+2e^{-j3\\pi t}', label:'Euler’s relation'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'\\mathcal{F}\\{4\\cos(3\\pi t)\\}=4\\pi\\,\\delta(\\omega-3\\pi)+4\\pi\\,\\delta(\\omega+3\\pi)', label:'Solution',
+        note:'Each exponential gives $2\\cdot2\\pi=4\\pi$. The two arguments differ in sign: one impulse at $+3\\pi$, one at $-3\\pi$.'}]}
+  ]}
+]},
+
+{ id:'m5-ex-sinus-c', module:'M5', nav:'Worked example · a sine', title:'Line Spectrum of a Sine', src:'p. 50',
+  objective:'Transform a sine and read its imaginary, odd weights.',
+  keywords:'worked example sine imaginary weights odd negative frequency conjugate symmetry', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
+  {t:'title', text:'Line Spectrum of a Sine'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
+      a.impulse(4*PI,-6*PI,{color:C.in,label:false});
+      a.impulse(-4*PI,6*PI,{color:C.in,label:false});
+      return a.svg(); },
+      caption:'The imaginary part of the transform of $6\\sin(4\\pi t)$: $-6\\pi$ at $+4\\pi$ and $+6\\pi$ at $-4\\pi$. The real part is zero.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=6\\sin(4\\pi t)$.<div class="nsep"></div>Are the impulse weights real or imaginary?',
+      ask:{key:'m5-ex-sinus-c', choices:['imaginary','real'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'6\\sin(4\\pi t)=\\frac{6}{2j}\\,e^{j4\\pi t}-\\frac{6}{2j}\\,e^{-j4\\pi t}', label:'Euler’s relation'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\mathcal{F}\\{6\\sin(4\\pi t)\\}=\\frac{6\\pi}{j}\\,\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\,\\delta(\\omega+4\\pi)', label:'Solution',
+        note:'$6\\pi/j=-j6\\pi$: an imaginary weight of modulus $6\\pi\\approx18.85$, with opposite signs on the two sides.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'err', head:'Keep both frequency signs', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$. A spectrum with only the impulse at $+4\\pi$ belongs to a complex signal.'}]}
+  ]}
+]},
+
+{ id:'m5-ex-sinus-b', module:'M5', nav:'Worked example · a mixed signal', title:'Line Spectrum of a Mixed Signal', src:'p. 50',
   objective:'Assemble one spectrum from three terms and show it as magnitude and phase.',
-  keywords:'worked example three components constant cosine sine magnitude phase complex spectrum', steps:3, blocks:[
+  keywords:'worked example three components constant cosine sine magnitude phase complex spectrum', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
   {t:'title', text:'Line Spectrum of a Mixed Signal'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$.'],
-      ['Find','$X(j\\omega)$, drawn so that both the size and the phase of every impulse can be read.'],
-      ['Method','Linearity: transform each term with the pairs just derived and add.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'sm', tex:'X(j\\omega)=10\\pi\\delta(\\omega)+4\\pi\\delta(\\omega-3\\pi)+4\\pi\\delta(\\omega+3\\pi)+\\frac{6\\pi}{j}\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\delta(\\omega+4\\pi)',
-        label:'Solution',
-        note:'The constant $5$ contributes $5\\cdot2\\pi\\delta(\\omega)=10\\pi\\delta(\\omega)$, of weight $31.415927$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Use two panels for a complex spectrum', html:'Three weights are real and two are imaginary. A single vertical axis cannot represent both signed real values and signed imaginary values. Plot <b>magnitude and phase</b>, or plot <b>real part and imaginary part</b>, and identify the chosen pair.'},
-      {t:'wex', rows:[
-        ['Magnitudes','$10\\pi=31.4159$ at $\\omega=0$; $4\\pi=12.5664$ at $\\pm3\\pi$; $6\\pi=18.8496$ at $\\pm4\\pi$.'],
-        ['Phases','$0$ at $\\omega=0$ and at $\\pm3\\pi$; $-\\pi/2$ at $+4\\pi$ and $+\\pi/2$ at $-4\\pi$, because $1/j=-j$.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','The signal is real, so the magnitude must be even in $\\omega$ and the phase odd. Both hold here.'],
-        ['Reading','The magnitude plot alone cannot tell a cosine from a sine at the same frequency. The phase panel is what separates them.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:180,xr:[-2,2],yr:[-6.5,16.5],xlabel:'t',ylabel:'x(t)',pad:{l:54,r:26,t:30,b:34},xtarget:7,ytarget:4,yticksOverride:[-4.78,0,5,10,14.78],ytickfmt:v=>v.toFixed(2)});
-      a.curve(t=>5+4*Math.cos(3*PI*t)+6*Math.sin(4*PI*t),{color:C.in,n:3000});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$|X(j\\omega)|$: even','$\\angle X(j\\omega)$: odd']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
+        fade(a,1-2*f,()=>{
+          a.impulse(0,10*PI,{color:C.in,label:false});
+          [3*PI,-3*PI].forEach(w=>a.impulse(w,4*PI,{color:C.in,label:false}));
+          [4*PI,-4*PI].forEach(w=>a.impulse(w,6*PI,{color:C.in,label:false})); });
+        return a.svg();
+      }
+      const a=AX({xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,1.5708],ytickfmt:v=>v.toFixed(2)});
+      fade(a,2*f-1,()=>a.stem([[-4*PI,PI/2],[-3*PI,0],[0,0],[3*PI,0],[4*PI,-PI/2]],{color:C.mid,r:4.4,showZero:true}));
       return a.svg(); },
-      caption:'The signal. Its extremes are $-4.7769$ and $14.7769$, and the axis carries a tick at each of them.'},
-    {t:'reveal', at:2, items:[
-      {t:'grid', cols:1, gap:'10px', items:[
-        [{t:'fig', frame:true, svg:()=>{
-          const a=P.Axes({w:820,h:180,xr:[-16,16],yr:[-3.4,36],xlabel:'\\omega',ylabel:'|X(j\\omega)|',pad:{l:58,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,31.42],ytickfmt:v=>v.toFixed(2)});
-          a.impulse(0,10*PI,{color:C.in,labelText:'31.42'});
-          a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
-          a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
-          a.impulse(4*PI,6*PI,{color:C.in,labelText:'18.85'});
-          a.impulse(-4*PI,6*PI,{color:C.in,labelText:'18.85'});
-          return a.svg(); },
-          caption:'Magnitude: five impulses, even in $\\omega$.'}],
-        [{t:'fig', frame:true, svg:()=>{
-          const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',pad:{l:64,r:26,t:32,b:34},xtarget:7,yticksOverride:[-1.5708,0,1.5708],ytickfmt:v=>v.toFixed(2)});
-          a.stem([[-4*PI,PI/2],[-3*PI,0],[0,0],[3*PI,0],[4*PI,-PI/2]],{color:C.mid,r:4,showZero:true});
-          return a.svg(); },
-          caption:'Phase: zero except at $\\pm4\\pi$, and odd in $\\omega$.'}]
-      ]}]}
-  ]}
-]},
-
-{ id:'m5-ex-imptrain', module:'M5', nav:'Worked example · impulse train', title:'Worked example — the impulse train transforms into an impulse train', src:'p. 50',
-  objective:'Transform the periodic impulse train and state the reciprocal spacing rule.',
-  keywords:'impulse train transform 2 pi over T spacing weight reciprocal sampling preview', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
-  {t:'title', text:'Fourier Transform of an Impulse Train'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=\\displaystyle\\sum_{k=-\\infty}^{\\infty}\\delta(t-kT)$, one unit impulse every $T$ seconds.'],
-      ['Find','$X(j\\omega)$.'],
-      ['Method','The signal is periodic with $T_0=T$. Find its Fourier coefficients, then use the impulse-train rule for the transform of a periodic signal.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\delta(t)e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\quad\\text{for every }k',
-        note:'Only the impulse at the origin lies inside the interval of integration, and sifting evaluates the exponential at $t=0$, where it is 1.'},
-      {t:'note', kind:'warn', head:'One period, one impulse', html:'The limits must be chosen so that exactly one impulse is enclosed. Writing both limits as $-T/2$ encloses none, and writing $-T/2$ to $T$ encloses two.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, size:'lg', tex:'\\sum_{k=-\\infty}^{\\infty}\\delta(t-kT)\\;\\longleftrightarrow\\;\\frac{2\\pi}{T}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)',
-        label:'Solution',
-        note:'Every weight is $2\\pi a_k=2\\pi/T$, and the spacing is $\\omega_0=2\\pi/T$ as well. The same number is both.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['$T=1$','Spacing and weight are both $2\\pi=6.2832$.'],
-        ['$T=2$','Spacing and weight are both $\\pi=3.1416$: the impulses in time doubled their separation, so the impulses in frequency halved theirs.'],
-        ['Reading','Crowding the impulses in time spreads them in frequency, and vice versa. This one pair is the whole mechanism behind sampling, which is Module 7.']
-      ]}]}
+      caption:'$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$. The magnitude cannot tell the cosine from the sine; the phase does.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-3.4,3.4],yr:[-0.3,1.5],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        for(let k=-3;k<=3;k++) a.impulse(k,1,{color:C.in,labelText:'1'}); return a.svg(); },
-        caption:'$T=1$ in time.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-16,16],yr:[-0.9,8.2],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,3.14,6.28],ytickfmt:v=>v.toFixed(2)});
-        for(let k=-2;k<=2;k++) a.impulse(k*2*PI,2*PI,{color:C.mid,label:false}); return a.svg(); },
-        caption:'Spacing and weight both $6.2832$.'}]
-    ]},
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$.<div class="nsep"></div>What weight sits at $\\omega=0$?',
+      ask:{key:'m5-ex-sinus-b', choices:['$10\\pi$','$5$','$5\\pi$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\begin{aligned}X(j\\omega)={}&10\\pi\\,\\delta(\\omega)+4\\pi\\,\\delta(\\omega-3\\pi)+4\\pi\\,\\delta(\\omega+3\\pi)\\\\&+\\frac{6\\pi}{j}\\,\\delta(\\omega-4\\pi)-\\frac{6\\pi}{j}\\,\\delta(\\omega+4\\pi)\\end{aligned}', label:'Solution · by linearity',
+        note:'The constant gives $5\\cdot2\\pi\\,\\delta(\\omega)=10\\pi\\,\\delta(\\omega)$, of weight $31.42$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-3.4,3.4],yr:[-0.3,1.5],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-          for(let k=-1;k<=1;k++) a.impulse(2*k,1,{color:C.in,labelText:'1'}); return a.svg(); },
-          caption:'$T=2$ in time: twice as sparse.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-16,16],yr:[-0.45,4.1],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1.57,3.14],ytickfmt:v=>v.toFixed(2)});
-          for(let k=-4;k<=4;k++) a.impulse(k*PI,PI,{color:C.mid,label:false}); return a.svg(); },
-          caption:'Spacing and weight both $3.1416$: twice as dense.'}]
-      ]}]}
+      {t:'note', kind:'warn', head:'Two panels for a complex spectrum', html:'Three weights are real and two are imaginary. Draw magnitude and phase, or real and imaginary parts, and name the pair.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'The signal is real, so $|X|$ must be even and $\\angle X$ odd. The phase is $-\\pi/2$ at $+4\\pi$ and $+\\pi/2$ at $-4\\pi$, because $1/j=-j$.'}]}
   ]}
 ]},
 
-{ id:'m5-props-1', module:'M5', nav:'Properties · linearity, time shift', title:'Linearity and the time shift', src:'p. 51',
+{ id:'m5-ex-imptrain', module:'M5', nav:'Worked example · impulse train', title:'Transform of an Impulse Train', src:'p. 50',
+  objective:'Transform the periodic impulse train and state the reciprocal spacing rule.',
+  keywords:'impulse train transform 2 pi over T spacing weight reciprocal sampling preview', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 50'},
+  {t:'title', text:'Transform of an Impulse Train'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$T=1$ s: spacing and weight $2\\pi$','$T=2$ s: spacing and weight $\\pi$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-16,16],yr:[-0.8,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      fade(a,1-f,()=>{ for(let k=-2;k<=2;k++) a.impulse(k*2*PI,2*PI,{color:C.in,label:false}); });
+      fade(a,f,()=>{ for(let k=-5;k<=5;k++) a.impulse(k*PI,PI,{color:C.out,label:false}); });
+      return a.svg(); },
+      caption:'Spread the impulses in time twice as far apart, and in frequency they come twice as close and half as tall.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=\\sum_{k}\\delta(t-kT)$, one unit impulse every $T$ seconds.<div class="nsep"></div>If $T$ doubles, the spacing in $X(j\\omega)$',
+      ask:{key:'m5-ex-imptrain', choices:['halves','doubles','stays the same'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Find $a_k$ over a period that holds exactly one impulse.</li><li>Use $X(j\\omega)=\\sum_k2\\pi a_k\\,\\delta(\\omega-k\\omega_0)$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'a_k=\\frac{1}{T}\\int_{-T/2}^{T/2}\\delta(t)\\,e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T}\\quad\\text{for every }k', label:'Coefficients',
+        note:'Only the impulse at $t=0$ lies in the interval, and sifting gives $e^{0}=1$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', key:true, tex:'\\sum_{k=-\\infty}^{\\infty}\\delta(t-kT)\\;\\longleftrightarrow\\;\\frac{2\\pi}{T}\\sum_{k=-\\infty}^{\\infty}\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)', label:'Solution',
+        note:'The weight $2\\pi a_k$ and the spacing $\\omega_0$ are the same number, $2\\pi/T$: $6.28$ for $T=1$ and $3.14$ for $T=2$.'}]}
+  ]}
+]},
+
+realGallery({ id:'m5-real-periodic', nav:'Line spectra around us',
+  title:'Line Spectra Around Us', eyebrow:'Module 5 · Periodic signals', src:'pp. 49–50',
+  objective:'See everyday signals that repeat, and whose spectra are lines.',
+  keywords:'examples mains voltage clock signal daylight hours weekly pattern periodic line spectrum harmonics',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[0,60],yr:[-400,400],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:20}));
+      a.curve(t=>325*Math.cos(2*PI*0.05*t),{color:C.in,n:1200});
+      return a.svg(); }, 'Mains voltage: $v(t)=325\\cos(2\\pi\\,0.05\\,t)$ V, $t$ in ms, that is $50$ Hz.'],
+    [()=>{ const a=P.Axes(EXO({xr:[0,4],yr:[-0.4,4.2],xlabel:'t\\;(\\text{ms})',ylabel:'c(t)\\;(\\text{V})',xstep:1}));
+      a.curve(t=>((t%1)+1)%1<0.5?3.3:0,{color:C.in,n:2400});
+      return a.svg(); }, 'A clock line: $c(t)=3.3$ V in the first half of every $1$ ms period, $0$ in the second.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,25],yr:[0,17],xlabel:'n\\;(\\text{month})',ylabel:'d[n]\\;(\\text{h})',xstep:6}));
+      a.stem(D(n=>12+3.5*Math.cos(2*PI*n/12),0,24),{color:C.in,r:3});
+      return a.svg(); }, 'Hours of daylight, month $n$ counted from June: $d[n]=12+3.5\\cos(2\\pi n/12)$.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-2,22],yr:[0,950],xlabel:'n\\;(\\text{day})',ylabel:'p[n]',xstep:7}));
+      a.stem(D(n=>(n%7)<5?800:300,0,20),{color:C.in,r:3});
+      return a.svg(); }, 'Bus passengers each day: $p[n]=800$ on weekdays and $300$ at weekends, period $7$.']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'It repeats', html:'Each signal repeats with a fixed period $T_0$. Its spectrum is a train of impulses at the multiples of $2\\pi/T_0$.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'Lines in a spectrum reveal a repetition in time. The spacing of the lines gives the period.'}
+  ]}),
+
+labScene({ id:'m5-lab-v', lab:'V', nav:'Line Spectra', title:'A Periodic Signal and Its Impulse Train', src:'pp. 49–50',
+  objective:'Build the transform of a periodic signal from its Fourier coefficients and read each impulse weight.',
+  keywords:'laboratory periodic signal line spectrum impulse weights 2 pi a_k harmonics cosine sine impulse train' }),
+
+codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra in Code', src:'pp. 49–50', eyebrow:'Periodic signals in code',
+  objective:'Compute the impulse weights of periodic signals in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python periodic signal impulse weights line spectrum square wave cosine run' }),
+
+
+/* ======================================================= 5.4 properties */
+
+{ id:'m5-props-1', module:'M5', nav:'Properties · linearity, time shift', title:'Linearity and Time Shift', src:'p. 51',
   objective:'State and prove the two properties that need no new machinery.',
-  keywords:'properties linearity time shift linear phase proof magnitude unchanged', steps:3, blocks:[
+  keywords:'properties linearity time shift linear phase proof magnitude unchanged', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 51'},
   {t:'title', text:'Linearity and Time Shift'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longleftrightarrow\\;a\\,X_1(j\\omega)+b\\,X_2(j\\omega)',
-      label:'Linearity',
-      note:'The analysis equation is an integral, and integration is linear. Nothing else is needed.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'For the shift, substitute $\\tau=t-t_0$ so that $t=\\tau+t_0$ and $\\d t=\\d\\tau$. The limits do not move, because both are infinite:'},
-      {t:'eq', size:'sm', tex:'\\int_{-\\infty}^{\\infty}x(t-t_0)e^{-j\\omega t}\\,\\d t=\\int_{-\\infty}^{\\infty}x(\\tau)e^{-j\\omega(\\tau+t_0)}\\,\\d\\tau=e^{-j\\omega t_0}\\int_{-\\infty}^{\\infty}x(\\tau)e^{-j\\omega\\tau}\\,\\d\\tau'},
-      {t:'eq', key:true, size:'lg', tex:'x(t-t_0)\\;\\longleftrightarrow\\;e^{-j\\omega t_0}X(j\\omega)',
-        label:'Time shift'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'What a shift does and does not do', html:'$|e^{-j\\omega t_0}|=1$, so $|X|$ is untouched at every frequency. What changes is the phase, by $-\\omega t_0$: a straight line through the origin whose slope is the delay. A delay of $t_0$ seconds is exactly a <b>linear phase</b> of slope $-t_0$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'Read the case of the letters', html:'The phase that a shift adds belongs to $X(j\\omega)$, the transform of the signal. The small letter $x$ names the signal itself and never carries the argument $j\\omega$; the capital letter $X$ names the spectrum and always does. The same distinction separates $x$ from $X$ and, later, $X$ from $H$.'}]}
-  ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-4,7],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(t,1),{color:C.in,n:3000});
-        a.curve(t=>rectp(t-3,1),{color:C.out,n:3000}); return a.svg(); },
-        caption:'The pulse, and the same pulse delayed by $t_0=3$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-8,8],yr:[-0.35,2.4],xlabel:'\\omega',ylabel:'|X(j\\omega)|',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>Math.abs(rectFT(w,1)),{color:C.mid,n:2400}); return a.svg(); },
-        caption:'One magnitude for both: the delay changed nothing here.'}]
-    ]},
-    {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',pad:{l:66,r:26,t:34,b:36},xtarget:7,ytarget:3});
-        a.curve(w=>0,{color:C.in,width:2.4});
-        a.curve(w=>-3*w,{color:C.out,width:2.4});
-        return a.svg(); },
-        caption:'The phase is shown before and after the shift. The delayed signal has phase slope $-t_0$.'}]}
-  ]}
-]},
-
-{ id:'m5-props-shift-ex', module:'M5', nav:'Worked example · a shifted sum', title:'Worked example — building a signal out of shifted pulses', src:'p. 51',
-  objective:'Apply linearity and the shift together and check the value at the origin.',
-  keywords:'worked example shifted pulses sum linearity X(j0) area check staircase', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 51'},
-  {t:'title', text:'Time-Shift and Linearity Example'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x_1(t)=1$ on $|t|<2$, and $x_2(t)=1$ on $|t|<1$. Both are zero elsewhere.'],
-      ['Find','The transform of $x_3(t)=2x_1(t-4)+x_2(t-3)$, and the value $|X_3(j0)|$.'],
-      ['Method','Transform each prototype, apply the shift to each, then add with linearity.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'X_1(j\\omega)=\\frac{2\\sin(2\\omega)}{\\omega},\\qquad X_2(j\\omega)=\\frac{2\\sin\\omega}{\\omega}'},
-      {t:'eq', key:true, tex:'X_3(j\\omega)=2e^{-j4\\omega}\\,\\frac{2\\sin(2\\omega)}{\\omega}+e^{-j3\\omega}\\,\\frac{2\\sin\\omega}{\\omega}',
-        label:'Solution'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The value at $\\omega=0$ is the area', html:'Setting $\\omega=0$ in the analysis equation gives $X(j0)=\\int x(t)\\,\\d t$: the transform at the origin is the total area under the signal. Both exponentials are 1 there, and both sincs reach their peaks by l’Hôpital.'},
-      {t:'eq', key:true, tex:'X_3(j0)=2\\cdot4+1\\cdot2=10',
-        label:'Check at the origin',
-        note:'$X_1(j0)=4$ and $X_2(j0)=2$, so the answer is $2\\times4+2=10$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Second route','Calculate the area from the graph. $x_3$ is $3$ on $2<t<4$ and $2$ on $4<t<6$, so the area is $3\\times2+2\\times2=10$. The two routes agree.'],
-        ['Purpose of the check','The value at the origin checks the coefficients, pulse widths, and scale factors in the complete expression.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:210,xr:[-1,8],yr:[-0.35,3.6],xlabel:'t',ylabel:'x_3(t)',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:4,yticksOverride:[0,1,2,3]});
-      a.area(t=>2*rectp(t-4,2)+rectp(t-3,1),-1,8,{color:'rgba(20,112,127,.13)'});
-      a.curve(t=>2*rectp(t-4,2)+rectp(t-3,1),{color:C.in,n:3000});
-      a.note(3,3.28,'3',{anchor:'middle',color:C.coral,fs:14});
-      a.note(5,2.28,'2',{anchor:'middle',color:C.coral,fs:14});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'t0', label:'$t_0$', min:-3, max:3, step:0.5, v:3, show:v=>'$'+v+'$ s'}]},
+      svg:v=>{
+      const t0=v?v.t0:3;
+      const a=AX({xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle e^{-j\\omega t_0}\\;(\\text{rad})',yticksOverride:[-9,-6,-3,3,6,9]});
+      a.curve(w=>-t0*w,{color:C.out,n:400});
       return a.svg(); },
-      caption:'The assembled signal. The shaded area is $10$, which is $X_3(j0)$.'},
+      caption:'The phase that a delay of $t_0$ adds, $-\\omega t_0$: a line of slope $-t_0$. The magnitude of $e^{-j\\omega t_0}$ is $1$ at every frequency.'}
+  ], right:[
+    {t:'eq', tex:'a\\,x_1(t)+b\\,x_2(t)\\;\\longleftrightarrow\\;a\\,X_1(j\\omega)+b\\,X_2(j\\omega)', label:'Linearity',
+      note:'The analysis equation is an integral, and integration is linear.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-6,6],yr:[-1.8,11.5],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X_3(j\\omega)|',pad:{l:60,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,5,10]});
-        a.curve(w=>{ if(Math.abs(w)<1e-6) return 10;
-          const re=2*Math.cos(4*w)*2*Math.sin(2*w)/w + Math.cos(3*w)*2*Math.sin(w)/w;
-          const im=-2*Math.sin(4*w)*2*Math.sin(2*w)/w - Math.sin(3*w)*2*Math.sin(w)/w;
-          return Math.hypot(re,im); },{color:C.mid,n:2400});
-        a.point(0,10,{color:C.coral,r:4.4});
-        return a.svg(); },
-        caption:'The magnitude of the answer, with the marked peak at $|X_3(j0)|=10$.'}]}
+      {t:'eq', tex:'\\int_{-\\infty}^{\\infty}x(t-t_0)\\,e^{-j\\omega t}\\,\\d t=\\int_{-\\infty}^{\\infty}x(\\tau)\\,e^{-j\\omega(\\tau+t_0)}\\,\\d\\tau=e^{-j\\omega t_0}X(j\\omega)', label:'Put $\\tau=t-t_0$',
+        note:'$\\d t=\\d\\tau$, and the infinite limits do not move.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(t-t_0)\\;\\longleftrightarrow\\;e^{-j\\omega t_0}\\,X(j\\omega)', label:'Time shift',
+        note:'$|X|$ does not change. The phase gains $-\\omega t_0$: a delay is a linear phase.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)\\leftrightarrow X(j\\omega)$ and $y(t)=x(t-2)$.<div class="nsep"></div>What is $\\angle Y(j1)-\\angle X(j1)$?',
+        ask:{key:'m5-props-1', choices:['$-2$ rad','$+2$ rad','$0$'], answer:0,
+          why:'The delay adds $-\\omega t_0=-1\\cdot2=-2$ rad at $\\omega=1$.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-freq', module:'M5', nav:'Properties · frequency shift', title:'The frequency shift, and the operand it starts from', src:'p. 52',
+{ id:'m5-props-shift-ex', module:'M5', nav:'Worked example · a shifted sum', title:'Time Shift and Linearity Example', src:'p. 51',
+  objective:'Apply linearity and the shift together and check the value at the origin.',
+  keywords:'worked example shifted pulses sum linearity X(j0) area check staircase', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 51'},
+  {t:'title', text:'Time Shift and Linearity Example'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-1,8],yr:[-0.35,3.7],xlabel:'t\\;(\\text{s})',ylabel:'x_3(t)',yticksOverride:[0,1,2,3],xtarget:9});
+      a.area(t=>2*rectp(t-4,2)+rectp(t-3,1),-1,8,{color:C.in+'24',n:900});
+      a.curve(t=>2*rectp(t-4,2)+rectp(t-3,1),{color:C.in,n:3000});
+      return a.svg(); },
+      caption:'$x_3(t)$ is $3$ on $2<t<4$ and $2$ on $4<t<6$. The shaded area is $10$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x_1(t)=1$ on $|t|<2$ and $x_2(t)=1$ on $|t|<1$, both zero elsewhere. $x_3(t)=2x_1(t-4)+x_2(t-3)$.<div class="nsep"></div>What is $X_3(j0)$?',
+      ask:{key:'m5-props-shift-ex', choices:['$10$','$6$','$3$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Transform each pulse with the pair $2\\sin(\\omega T_1)/\\omega$.</li><li>Shift each one, then add with linearity.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'X_3(j\\omega)=2e^{-j4\\omega}\\,\\frac{2\\sin(2\\omega)}{\\omega}+e^{-j3\\omega}\\,\\frac{2\\sin\\omega}{\\omega}', label:'Solution',
+        note:'$X_1(j\\omega)=2\\sin(2\\omega)/\\omega$ and $X_2(j\\omega)=2\\sin\\omega/\\omega$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$X(j0)=\\int x(t)\\,\\d t$, the area. $X_3(j0)=2\\cdot4+2=10$. From the graph, $3\\cdot2+2\\cdot2=10$.'}]}
+  ]}
+]},
+
+{ id:'m5-props-freq', module:'M5', nav:'Properties · frequency shift', title:'Frequency Shift', src:'p. 52',
   objective:'Prove the frequency-shift property from the expression the property states.',
-  keywords:'frequency shift modulation e^{jw0t} band moves proof operand kernel', steps:3, blocks:[
+  keywords:'frequency shift modulation e^{jw0t} band moves proof operand kernel', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 52'},
   {t:'title', text:'Frequency Shift'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The property to prove is this one. Note what is being multiplied: the operand is $e^{+j\\omega_0t}$, a complex exponential in <b>time</b>, with the frequency $\\omega_0$ fixed.'},
-    {t:'eq', key:true, size:'lg', tex:'e^{j\\omega_0t}\\,x(t)\\;\\longleftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)',
-      label:'Frequency shift'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Start the proof from that same expression, and combine the two exponentials before doing anything else:'},
-      {t:'eq', size:'sm', tex:'\\int_{-\\infty}^{\\infty}\\bigl[e^{j\\omega_0t}x(t)\\bigr]e^{-j\\omega t}\\,\\d t=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j(\\omega-\\omega_0)t}\\,\\d t=X\\bigl(j(\\omega-\\omega_0)\\bigr)',
-        note:'The exponent went from $-j\\omega t$ to $-j(\\omega-\\omega_0)t$, which is the analysis integral read at the frequency $\\omega-\\omega_0$. No substitution was needed.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Do not open with the time-shift kernel', html:'The time-shift proof multiplies by $e^{-j\\omega t_0}$, in which $t_0$ is a fixed <b>time</b>. The frequency-shift proof multiplies by $e^{+j\\omega_0 t}$, in which $\\omega_0$ is a fixed <b>frequency</b>. The two differ in which symbol is fixed and in the sign of the exponent, and starting the second proof with the first kernel proves a different statement.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Given','$y(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, whose transform is $Y(j\\omega)=1$ on $|\\omega|<2\\pi$ and $y(0)=2$.'],
-        ['Multiply by $e^{j2\\pi t}$','The band moves to $0\\le\\omega\\le4\\pi$.'],
-        ['Multiply by $e^{-j2\\pi t}$','The band moves to $-4\\pi\\le\\omega\\le0$.'],
-        ['Result type','Neither product is real, so neither spectrum is conjugate-symmetric. Later modulation examples multiply by a cosine and produce two shifted copies for a real signal.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-16,16],yr:[-0.25,1.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'Y(j\\omega)',pad:{l:56,r:26,t:30,b:36},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-      a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:3000});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'k', label:'$\\omega_0/\\pi$', min:-2, max:2, step:0.5, v:2, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const w0=(v?v.k:2)*PI;
+      const a=AX({xr:[-16,16],yr:[-0.25,1.45],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1],xtarget:9});
+      a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
+      a.curve(w=>Math.abs(w-w0)<2*PI?1:0,{color:C.out,n:3000});
       return a.svg(); },
-      caption:'The band before the shift: $1$ on $|\\omega|<2\\pi$.'},
+      caption:'The band $Y(j\\omega)=1$ on $|\\omega|<2\\pi$, and the band after multiplying by $e^{j\\omega_0t}$. The whole band moves by $\\omega_0$.'},
+    {t:'legend', items:[['in','$Y(j\\omega)$',true],['out','$Y\\bigl(j(\\omega-\\omega_0)\\bigr)$']]}
+  ], right:[
+    {t:'eq', key:true, tex:'e^{j\\omega_0t}\\,x(t)\\;\\longleftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)', label:'Frequency shift',
+      note:'The operand is $e^{+j\\omega_0t}$, an exponential in time with a fixed frequency $\\omega_0$.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[-16,16],yr:[-0.25,1.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'Y\\bigl(j(\\omega-\\omega_0)\\bigr)',pad:{l:70,r:26,t:32,b:36},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-        a.curve(w=>Math.abs(w-2*PI)<2*PI?1:0,{color:C.out,n:3000});
-        a.span(0,4*PI,1.16,'0\\le\\omega\\le4\\pi',{color:C.coral,tex:true,fs:13});
-        return a.svg(); },
-        caption:'After multiplying by $e^{j2\\pi t}$: the whole band moved right by $\\omega_0=2\\pi$.'}]},
+      {t:'eq', tex:'\\int_{-\\infty}^{\\infty}e^{j\\omega_0t}x(t)\\,e^{-j\\omega t}\\,\\d t=\\int_{-\\infty}^{\\infty}x(t)\\,e^{-j(\\omega-\\omega_0)t}\\,\\d t=X\\bigl(j(\\omega-\\omega_0)\\bigr)', label:'Proof',
+        note:'Combine the two exponentials. The result is the analysis integral at $\\omega-\\omega_0$; no substitution is needed.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Not the time-shift kernel', html:'The time shift multiplies the spectrum by $e^{-j\\omega t_0}$, with a fixed time $t_0$. Starting this proof from that kernel proves a different statement.'}]},
     {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[-16,16],yr:[-0.25,1.4],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'Y\\bigl(j(\\omega+\\omega_0)\\bigr)',pad:{l:70,r:26,t:32,b:36},xtarget:7,ytarget:2,yticksOverride:[0,1]});
-        a.curve(w=>Math.abs(w+2*PI)<2*PI?1:0,{color:C.mid,n:3000});
-        a.span(-4*PI,0,1.16,'-4\\pi\\le\\omega\\le0',{color:C.coral,tex:true,fs:13});
-        return a.svg(); },
-        caption:'After multiplying by $e^{-j2\\pi t}$: the same band, moved the other way.'}]}
+      {t:'note', kind:'def', head:'Given', html:'$Y(j\\omega)=1$ on $|\\omega|<2\\pi$, and $z(t)=e^{j\\pi t}y(t)$.<div class="nsep"></div>Where is the band of $Z(j\\omega)$?',
+        ask:{key:'m5-props-freq', choices:['$-\\pi<\\omega<3\\pi$','$-3\\pi<\\omega<\\pi$','$|\\omega|<2\\pi$'], answer:0,
+          why:'$\\omega_0=\\pi$ moves the band right by $\\pi$.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-conj', module:'M5', nav:'Properties · conjugation and symmetry', title:'Conjugation, and what being real forces on a spectrum', src:'pp. 52–53',
+{ id:'m5-props-conj', module:'M5', nav:'Properties · conjugation and symmetry', title:'Conjugation and Spectral Symmetry', src:'pp. 52–53',
   objective:'Derive the conjugate symmetry of a real signal and its even and odd consequences.',
-  keywords:'conjugation conjugate symmetry real signal even odd hermitian magnitude phase', steps:3, blocks:[
+  keywords:'conjugation conjugate symmetry real signal even odd hermitian magnitude phase', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'pp. 52–53'},
   {t:'title', text:'Conjugation and Spectral Symmetry'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, tex:'x^{*}(t)\\;\\longleftrightarrow\\;X^{*}(-j\\omega)',
-      label:'Conjugation',
-      note:'Conjugating the analysis integral flips the sign of $j$ everywhere, which is the same as conjugating the transform and reversing $\\omega$.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Now suppose $x$ is real. Then $x^{*}(t)=x(t)$, so the two sides above have the same transform:'},
-      {t:'eq', key:true, size:'lg', tex:'x(t)\\ \\text{real}\\quad\\Longrightarrow\\quad X(-j\\omega)=X^{*}(j\\omega)',
-        label:'Conjugate symmetry',
-        note:'Everything below follows from this one line.'},
-      {t:'wex', rows:[
-        ['Real part','$\\operatorname{Re}\\{X\\}$ is even in $\\omega$.'],
-        ['Imaginary part','$\\operatorname{Im}\\{X\\}$ is odd in $\\omega$.'],
-        ['Magnitude','$|X|$ is even.'],
-        ['Phase','$\\angle X$ is odd.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Two special cases', html:'If $x$ is real and even, then $X$ is real and even. Its imaginary part would have to be both odd and even, so it is zero. If $x$ is real and odd, the same argument shows that $X$ is purely imaginary and odd.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'Real does not mean zero phase', html:'A real transform can be negative. Where $X(j\\omega)<0$ the magnitude is $|X|=-X$ and the phase is $\\pi$, not $0$. Only a real <b>and non-negative</b> transform has zero phase everywhere. The sinc of the rectangular pulse is the standing counterexample: it is real, and its side lobes are negative.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-13,13],yr:[-0.8,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
+      a.curve(w=>Math.abs(rectFT(w,1)),{color:C.mid,dash:'9 6',n:2400});
+      a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
+      return a.svg(); },
+      caption:'The pulse transform is real, and it is negative on alternate side lobes. There $|X|=-X$ and the phase is $\\pi$, not $0$.'},
+    {t:'legend', items:[['in','$X(j\\omega)$'],['mid','$|X(j\\omega)|$',true]]}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-5,5],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3});
-        a.curve(t=>Math.exp(-Math.abs(t))*Math.sin(2*t),{color:C.in,n:2400}); return a.svg(); },
-        caption:'A real, odd signal.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-6,6],yr:[-1.05,1.05],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',pad:{l:64,r:18,t:32,b:34},xtarget:5,ytarget:3});
-        a.curve(w=>{ const A=1,B=2; return -(1/(1+(w-B)*(w-B)) - 1/(1+(w+B)*(w+B))); },{color:C.mid,n:2400}); return a.svg(); },
-        caption:'Its transform is purely imaginary and odd.'}]
-    ]},
+    {t:'eq', tex:'x^{*}(t)\\;\\longleftrightarrow\\;X^{*}(-j\\omega)', label:'Conjugation',
+      note:'Conjugating the analysis integral changes the sign of $j$ everywhere.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'x(t)\\ \\text{real}\\quad\\Longrightarrow\\quad X(-j\\omega)=X^{*}(j\\omega)', label:'Conjugate symmetry',
+        note:'So $\\operatorname{Re}\\{X\\}$ and $|X|$ are even; $\\operatorname{Im}\\{X\\}$ and $\\angle X$ are odd. A real, even $x$ has a real, even $X$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Real is not zero phase', html:'Where a real transform is negative, its phase is $\\pi$. Only a real, non-negative transform has zero phase everywhere.'}]},
     {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-13,13],yr:[-0.9,2.4],xlabel:'\\omega\\;[\\text{rad/s}]',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>rectFT(w,1),{color:C.in,width:2.2,n:2400});
-        a.curve(w=>Math.abs(rectFT(w,1)),{color:C.err,width:1.6,dash:'5 5',n:2400});
-        a.note(12.4,2.14,'X(j\\omega)',{anchor:'end',color:C.in,fs:14,tex:true});
-        a.note(12.4,-0.62,'|X(j\\omega)|',{anchor:'end',color:C.err,fs:14,tex:true});
-        return a.svg(); },
-        caption:'A real transform and its magnitude. They part company wherever $X$ is negative, and there the phase is $\\pi$.'}]}
+      {t:'note', kind:'def', head:'Given', html:'$x(t)$ is real and $X(j2)=3-4j$.<div class="nsep"></div>What is $X(-j2)$?',
+        ask:{key:'m5-props-conj', choices:['$3+4j$','$3-4j$','$-3+4j$'], answer:0,
+          why:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$.'}}]}
   ]}
-]}
-,
+]},
 
-{ id:'m5-props-evenodd', module:'M5', nav:'Properties · even and odd parts', title:'Even and odd parts, real and imaginary parts', src:'p. 53',
-  objective:'State the symmetry of the transform for real and even and for real and odd signals, and the even-odd decomposition.',
-  keywords:'symmetry real even transform real odd purely imaginary even odd decomposition Ev Od real part imaginary part differentiation in frequency', steps:4, blocks:[
+{ id:'m5-props-evenodd', module:'M5', nav:'Properties · even and odd parts', title:'Even and Odd Parts', src:'p. 53',
+  objective:'Relate the even and odd parts of a real signal to the real and imaginary parts of its transform.',
+  keywords:'symmetry real even transform real odd purely imaginary even odd decomposition Ev Od real part imaginary part', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Even and Odd Signal Components'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$, proved with conjugation. Add a symmetry in time and the statement sharpens.'},
-    {t:'wex', rows:[
-      ['Real and even','$X(j\\omega)$ real and even'],
-      ['Real and odd','$X(j\\omega)$ purely imaginary and odd']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'\\Ev\\{x(t)\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(j\\omega)\\},\\qquad \\Od\\{x(t)\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(j\\omega)\\}',
-        label:'Even-odd decomposition, for real $x$',
-        note:'Every real signal splits into an even part and an odd part, and the split appears in the spectrum as the split into real and imaginary parts. The two statements above are the special cases in which one of the two parts is absent.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'<b>Proof.</b> $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$. By linearity and time reversal its transform is $\\tfrac12[X(j\\omega)+X(-j\\omega)]$, and for a real signal $X(-j\\omega)=X^{*}(j\\omega)$, so that is $\\tfrac12[X+X^{*}]=\\operatorname{Re}\\{X\\}$. The odd part gives $\\tfrac12[X-X^{*}]=j\\operatorname{Im}\\{X\\}$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'eq', key:true, tex:'t\\,x(t)\\;\\longleftrightarrow\\;j\\frac{\\d}{\\d\\omega}X(j\\omega)', label:'Differentiation in frequency',
-        note:'Differentiate the analysis integral with respect to $\\omega$: each term picks up a factor $-jt$, so $\\d X/\\d\\omega$ is the transform of $-jt\\,x(t)$. Multiplying through by $j$ gives the statement. It is the mirror of differentiation in time, and it is what turns $e^{-at}u(t)$ into $te^{-at}u(t)$ in the table of pairs.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'A worked case, opposite', html:'The one-sided exponential $e^{-at}u(t)$ is neither even nor odd. Its even part is $\\tfrac12e^{-a|t|}$, whose transform is $a/(a^{2}+\\omega^{2})$ — real and even, and equal to $\\operatorname{Re}\\{1/(a+j\\omega)\\}$. Its odd part is $\\tfrac12\\operatorname{sgn}(t)e^{-a|t|}$, whose transform is $-j\\omega/(a^{2}+\\omega^{2})$ — purely imaginary and odd, and equal to $j\\operatorname{Im}\\{1/(a+j\\omega)\\}$.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:220,xr:[-3.2,3.2],yr:[-0.65,1.25],xlabel:'t',pad:{l:52,r:24,t:26,b:34},xtarget:7,ytarget:4});
+  {t:'title', text:'Even and Odd Parts'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-3.2,3.2],yr:[-0.65,1.3],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',ytarget:4});
       a.curve(t=>t>0?Math.exp(-t):0,{color:C.in,n:3000});
-      a.curve(t=>0.5*Math.exp(-Math.abs(t)),{color:C.mid,n:3000,dash:'6 4'});
-      a.curve(t=>0.5*Math.sign(t)*Math.exp(-Math.abs(t)),{color:C.err,n:3000,dash:'2 4'});
-      a.note(3.1,1.10,'x(t)=e^{-t}u(t)',{anchor:'end',color:C.in,fs:15,tex:true});
-      a.note(-3.1,0.78,'\\Ev\\{x\\}',{anchor:'start',color:C.mid,fs:15,tex:true});
-      a.note(-3.1,0.45,'\\Od\\{x\\}',{anchor:'start',color:C.err,fs:15,tex:true});
+      a.curve(t=>0.5*Math.exp(-Math.abs(t)),{color:C.mid,n:3000,dash:'9 6'});
+      a.curve(t=>0.5*Math.sign(t)*Math.exp(-Math.abs(t)),{color:C.out,n:3000});
       return a.svg(); },
-      caption:'A one-sided exponential with $a=1$, and the two halves it splits into.'},
+      caption:'$x(t)=e^{-t}u(t)$ and the two parts it splits into: an even part and an odd part.'},
+    {t:'legend', at:'tl', items:[['in','$x(t)$'],['mid','$\\Ev\\{x\\}$',true],['out','$\\Od\\{x\\}$']]}
+  ], right:[
+    {t:'eq', key:true, tex:'\\Ev\\{x(t)\\}\\;\\longleftrightarrow\\;\\operatorname{Re}\\{X(j\\omega)\\},\\qquad \\Od\\{x(t)\\}\\;\\longleftrightarrow\\;j\\operatorname{Im}\\{X(j\\omega)\\}', label:'For a real $x$'},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.15,1.15],xlabel:'\\omega',ylabel:'\\operatorname{Re}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
-          a.curve(w=>1/(1+w*w),{color:C.mid,n:2000}); return a.svg(); },
-          caption:'Real and even, and the transform of the even part.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:220,xr:[-6,6],yr:[-0.65,0.65],xlabel:'\\omega',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',pad:{l:70,r:18,t:26,b:34},xtarget:5,ytarget:3});
-          a.curve(w=>-w/(1+w*w),{color:C.err,n:2000}); return a.svg(); },
-          caption:'Odd, and $j$ times it is the transform of the odd part.'}]
-      ]}]}
+      {t:'eq', tex:'\\Ev\\{x\\}=\\tfrac12\\bigl[x(t)+x(-t)\\bigr]\\;\\longleftrightarrow\\;\\tfrac12\\bigl[X+X^{*}\\bigr]=\\operatorname{Re}\\{X\\}', label:'Proof',
+        note:'Linearity and time reversal give $\\tfrac12[X(j\\omega)+X(-j\\omega)]$, and for a real signal $X(-j\\omega)=X^{*}(j\\omega)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'A worked case', html:'For $e^{-at}u(t)$ the even part $\\tfrac12e^{-a|t|}$ transforms to $a/(a^{2}+\\omega^{2})=\\operatorname{Re}\\{1/(a+j\\omega)\\}$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)$ is real and odd.<div class="nsep"></div>What kind of function is $X(j\\omega)$?',
+        ask:{key:'m5-props-evenodd', choices:['imaginary and odd','real and even','real and odd'], answer:0,
+          why:'Its even part is zero, so $X=j\\operatorname{Im}\\{X\\}$, and $\\operatorname{Im}\\{X\\}$ is odd.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-diff', module:'M5', nav:'Properties · differentiation', title:'Differentiation, done under the integral sign', src:'p. 53',
+{ id:'m5-props-dfreq', module:'M5', nav:'Properties · differentiation in frequency', title:'Differentiation in Frequency', src:'p. 53',
+  objective:'Prove the differentiation-in-frequency property and use it to transform t e^{-at}u(t).',
+  keywords:'differentiation in frequency t x(t) j dX/dw repeated pole t e^{-at} u(t)', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Differentiation in Frequency'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-0.5,7],yr:[-0.1,1.2],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.37,0.5,1],ytickfmt:v=>String(v)});
+      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,dash:'9 6',n:2000});
+      a.curve(t=>t<0?0:t*Math.exp(-t),{color:C.out,n:2000});
+      a.point(1,Math.exp(-1),{color:C.coral,r:4.2});
+      return a.svg(); },
+      caption:'Multiplying $e^{-t}u(t)$ by $t$ gives a signal that starts at $0$ and peaks at $t=1$, where it is $e^{-1}\\approx0.37$.'},
+    {t:'legend', items:[['in','$e^{-t}u(t)$',true],['out','$t\\,e^{-t}u(t)$']]}
+  ], right:[
+    {t:'eq', tex:'\\frac{\\d X}{\\d\\omega}=\\int_{-\\infty}^{\\infty}(-jt)\\,x(t)\\,e^{-j\\omega t}\\,\\d t', label:'Differentiate the analysis integral',
+      note:'Only $e^{-j\\omega t}$ depends on $\\omega$, and its derivative is $-jt\\,e^{-j\\omega t}$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'t\\,x(t)\\;\\longleftrightarrow\\;j\\,\\frac{\\d}{\\d\\omega}X(j\\omega)', label:'Differentiation in frequency',
+        note:'Multiply both sides by $j$, since $j\\cdot(-j)=1$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'t\\,e^{-at}u(t)\\;\\longleftrightarrow\\;j\\,\\frac{\\d}{\\d\\omega}\\,\\frac{1}{a+j\\omega}=j\\cdot\\frac{-j}{(a+j\\omega)^{2}}=\\frac{1}{(a+j\\omega)^{2}}', label:'Use it on $e^{-at}u(t)$'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=t\\,e^{-t}u(t)$.<div class="nsep"></div>What is $X(j0)$?',
+        ask:{key:'m5-props-dfreq', choices:['$1$','$0$','$1/2$'], answer:0,
+          why:'$1/(1+j0)^{2}=1$, and the area $\\int_0^\\infty t\\,e^{-t}\\,\\d t$ is $1$.'}}]}
+  ]}
+]},
+
+{ id:'m5-props-diff', module:'M5', nav:'Properties · differentiation', title:'Differentiation in Time', src:'p. 53',
   objective:'Prove the differentiation property correctly and expose the step students reproduce.',
-  keywords:'differentiation property jw X integration variable false step under the integral', steps:4, blocks:[
+  keywords:'differentiation property jw X integration variable false step under the integral', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Time-Differentiation Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Start from the synthesis equation and differentiate both sides with respect to $t$. On the right the only factor depending on $t$ is $e^{j\\omega t}$, and $\\omega$ is the variable of integration, so it is held fixed:'},
-    {t:'eq', size:'sm', tex:'\\frac{\\d}{\\d t}x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,\\frac{\\partial}{\\partial t}e^{j\\omega t}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\bigl[j\\omega X(j\\omega)\\bigr]e^{j\\omega t}\\,\\d\\omega'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'The right-hand side is now the synthesis equation of the function $j\\omega X(j\\omega)$. Reading it that way finishes the proof:'},
-      {t:'eq', key:true, size:'lg', tex:'\\frac{\\d x}{\\d t}\\;\\longleftrightarrow\\;j\\omega\\,X(j\\omega),\\qquad \\frac{\\d^{n}x}{\\d t^{n}}\\;\\longleftrightarrow\\;(j\\omega)^{n}X(j\\omega)',
-        label:'Differentiation',
-        note:'The factor $j\\omega$ never leaves the integral. It multiplies the spectrum, which is a function of $\\omega$, and it is meaningless outside that integral.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Do not mix the two domains', html:'The equation $\\dfrac{\\d x}{\\d t}=j\\omega\\,x(t)$ is false. In the transform integral, $\\omega$ labels the output frequency; it is not a constant in the time-domain signal. The expression $j\\omega x(t)$ depends on both $t$ and $\\omega$ and is not the time derivative of a general signal.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Numerical counterexample','Take $x(t)=e^{-t^{2}}$. Then $\\d x/\\d t$ at $t=1$ is $-0.735759$, while $j\\omega x(t)$ at $t=1$, $\\omega=3$ is $1.103638j$. The values are different.'],
-        ['Correct result and derivation','The result $(j\\omega)^{n}X(j\\omega)$ is correct when it is derived by integration by parts. The false time-domain equation cannot be reused to derive integration or differential-equation results.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'Purpose of the property', html:'Differentiation in time becomes multiplication by $j\\omega$. Therefore, the Fourier transform converts a linear differential equation with constant coefficients into an algebraic equation in $\\omega$.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:200,xr:[-3,3],yr:[-1.05,1.25],xlabel:'t',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:3});
-      a.curve(t=>Math.exp(-t*t),{color:C.in,n:2000});
-      a.curve(t=>-2*t*Math.exp(-t*t),{color:C.out,n:2000});
-      a.note(2.85,1.05,'x(t)',{anchor:'end',color:C.in,fs:14,tex:true});
-      a.note(2.85,-0.86,'\\mathrm{d}x/\\mathrm{d}t',{anchor:'end',color:C.out,fs:14,tex:true});
-      a.point(1,-2*Math.exp(-1),{color:C.coral,r:4.2});
+  {t:'title', text:'Differentiation in Time'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-6,6],yr:[-1.5,2.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',ytarget:4});
+      a.curve(w=>Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.in,n:1600});
+      a.curve(w=>w*Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.out,n:1600});
       return a.svg(); },
-      caption:'The signal and its derivative. The marked point is $-0.735759$ at $t=1$, and it is real.'},
+      caption:'For $x(t)=e^{-t^{2}}$: its spectrum, and the imaginary part of the spectrum of $\\d x/\\d t$. The factor $j\\omega$ removes low frequencies and lifts high ones.'},
+    {t:'legend', at:'tl', items:[['in','$X(j\\omega)$'],['out','$\\operatorname{Im}\\{j\\omega X(j\\omega)\\}$']]}
+  ], right:[
+    {t:'eq', tex:'\\frac{\\d x}{\\d t}=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)\\,\\frac{\\partial}{\\partial t}e^{j\\omega t}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\bigl[j\\omega X(j\\omega)\\bigr]e^{j\\omega t}\\,\\d\\omega', label:'Differentiate the synthesis integral',
+      note:'Only $e^{j\\omega t}$ depends on $t$. The right side is the synthesis integral of $j\\omega X(j\\omega)$.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-6,6],yr:[-1.45,1.85],xlabel:'\\omega\\;[\\text{rad/s}]',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3});
-        a.curve(w=>Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.in,width:2.2,n:1600});
-        a.curve(w=>w*Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.out,width:2.2,n:1600});
-        a.note(5.7,1.62,'X(j\\omega)',{anchor:'end',color:C.in,fs:14,tex:true});
-        a.note(5.7,-1.18,'\\operatorname{Im}\\{j\\omega X(j\\omega)\\}',{anchor:'end',color:C.out,fs:14,tex:true});
-        return a.svg(); },
-        caption:'The spectrum, and the spectrum of the derivative. Multiplying by $j\\omega$ suppresses low frequencies and lifts high ones.'}]}
+      {t:'eq', key:true, tex:'\\frac{\\d x}{\\d t}\\;\\longleftrightarrow\\;j\\omega\\,X(j\\omega),\\qquad \\frac{\\d^{n}x}{\\d t^{n}}\\;\\longleftrightarrow\\;(j\\omega)^{n}X(j\\omega)', label:'Differentiation',
+        note:'A differential equation becomes an algebraic equation in $j\\omega$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Do not mix the domains', html:'$\\d x/\\d t=j\\omega\\,x(t)$ is false: $\\omega$ is the integration variable, not a constant of the signal. For $e^{-t^{2}}$ at $t=1$, $\\d x/\\d t=-0.7358$, while $j3\\,x(1)=1.1036j$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)\\leftrightarrow X(j\\omega)$ with $X(j2)=0.5$.<div class="nsep"></div>What is the transform of $\\d x/\\d t$ at $\\omega=2$?',
+        ask:{key:'m5-props-diff', choices:['$j$','$1$','$0.25$'], answer:0,
+          why:'$j\\omega X(j\\omega)=j2\\cdot0.5=j$.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-int', module:'M5', nav:'Properties · integration', title:'Integration, and the impulse it leaves behind', src:'p. 53',
+{ id:'m5-props-int', module:'M5', nav:'Properties · integration', title:'Integration in Time', src:'p. 53',
   objective:'State the integration property with its impulse term and show where the term comes from.',
-  keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', steps:3, blocks:[
+  keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Time-Integration Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, size:'lg', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{1}{j\\omega}X(j\\omega)+\\pi X(0)\\,\\delta(\\omega)',
-      label:'Integration',
-      note:'Differentiation multiplies by $j\\omega$, so integration divides by it. The impulse at the origin is the part that has no counterpart in the differentiation property, and it is the part that gets dropped.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'<b>Proof.</b> The running integral is a convolution with the unit step, $\\int_{-\\infty}^{t}x(\\tau)\\d\\tau=x(t)*u(t)$. The step has the transform $u(t)\\leftrightarrow\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$, and by the convolution property the transforms multiply:'},
-      {t:'eq', size:'sm', tex:'X(j\\omega)\\left[\\frac{1}{j\\omega}+\\pi\\delta(\\omega)\\right]=\\frac{X(j\\omega)}{j\\omega}+\\pi X(j\\omega)\\delta(\\omega)=\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)',
-        note:'The last step uses the sampling property of the impulse: multiplying by $\\delta(\\omega)$ keeps only the value at $\\omega=0$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'What the impulse term is', html:'$X(0)=\\int x(t)\\d t$ is the total area of the signal. If the area is not zero, the running integral settles at a non-zero constant instead of returning to zero, and a constant has an impulse at $\\omega=0$ in its spectrum. Drop the term and the spectrum you write down belongs to a signal that decays, which is a different signal.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Area one','A pulse of unit area integrates to a step of height $1$. Its spectrum needs the impulse, and $\\pi X(0)\\delta(\\omega)=\\pi\\delta(\\omega)$ supplies it.'],
-        ['Area zero','A pulse of zero area integrates to something that comes back down to zero. Then $X(0)=0$, the impulse term vanishes on its own, and dividing by $j\\omega$ is the whole answer.'],
-        ['What to do first','Compute the area. It is one integral, and it decides half the result.']
-      ]}]}
+  {t:'title', text:'Integration in Time'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\text{area }1$: it settles at $1$','$\\text{area }0$: it returns to $0$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-1,4],yr:[-1.35,1.5],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[-1,1],xtarget:6});
+      fade(a,1-f,()=>{ a.curve(t=>(t>0&&t<1)?1:0,{color:C.in,dash:'9 6',n:2600});
+        a.curve(t=>t<=0?0:(t<1?t:1),{color:C.out,n:2600}); });
+      fade(a,f,()=>{ a.curve(t=>(t>0&&t<1)?1:((t>=1&&t<2)?-1:0),{color:C.in,dash:'9 6',n:2600});
+        a.curve(t=>t<=0?0:(t<1?t:(t<2?2-t:0)),{color:C.out,n:2600}); });
+      return a.svg(); },
+      caption:'A pulse and its running integral. With area $1$ the integral settles at a constant, which needs an impulse at $\\omega=0$. With area $0$ it does not.'},
+    {t:'legend', items:[['in','$x(t)$',true],['out','$\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau$']]}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
-        a.curve(t=>(t>0&&t<1)?1:0,{color:C.in,n:2600}); return a.svg(); },
-        caption:'Area $1$, so $X(0)=1$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-1.35,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:56,r:18,t:26,b:34},xtarget:5,ytarget:3});
-        a.curve(t=>(t>0&&t<1)?1:((t>=1&&t<2)?-1:0),{color:C.err,n:2600}); return a.svg(); },
-        caption:'Area $0$, so $X(0)=0$.'}]
-    ]},
+    {t:'eq', key:true, tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\longleftrightarrow\\;\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\,\\delta(\\omega)', label:'Integration'},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
-          a.curve(t=>t<=0?0:(t<1?t:1),{color:C.out,n:2600}); return a.svg(); },
-          caption:'Its running integral settles at $1$. The impulse term is needed.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1.2,3.2],yr:[-0.35,1.35],xlabel:'t',pad:{l:52,r:18,t:26,b:34},xtarget:5,ytarget:3});
-          a.curve(t=>t<=0?0:(t<1?t:(t<2?2-t:0)),{color:C.out,n:2600}); return a.svg(); },
-          caption:'This one returns to zero. No impulse term.'}]
-      ]}]},
+      {t:'eq', tex:'x(t)*u(t)\\;\\longleftrightarrow\\;X(j\\omega)\\left[\\frac{1}{j\\omega}+\\pi\\delta(\\omega)\\right]=\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\,\\delta(\\omega)', label:'Proof',
+        note:'The running integral is $x*u$, and $u(t)\\leftrightarrow\\tfrac{1}{j\\omega}+\\pi\\delta(\\omega)$. Transforms multiply (Section 5.5), and $\\delta(\\omega)$ keeps only $X(0)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Keep the impulse term', html:'$X(0)=\\int x(t)\\,\\d t$, the area. When it is not zero, the running integral settles at a constant, and a constant has an impulse at $\\omega=0$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ on $0<t<2$ and $0$ elsewhere.<div class="nsep"></div>What weight does the impulse term carry?',
+        ask:{key:'m5-props-int', choices:['$2\\pi$','$\\pi$','$0$'], answer:0,
+          why:'$X(0)=2$, the area, so $\\pi X(0)=2\\pi$.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-scale', module:'M5', nav:'Properties · time scaling', title:'Time scaling, with the flip counted once', src:'p. 53',
-  objective:'Prove the scaling property for both signs of a without double-counting the reversal.',
-  keywords:'time scaling 1/|a| reversal limits substitution sign bookkeeping proof', steps:4, blocks:[
+{ id:'m5-props-scale', module:'M5', nav:'Properties · time scaling', title:'Time Scaling', src:'p. 53',
+  objective:'Prove the scaling property for a positive factor and read what it does to a spectrum.',
+  keywords:'time scaling 1/|a| substitution compress stretch spectrum width height', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
-  {t:'title', text:'Time-Scaling Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', key:true, size:'lg', tex:'x(at)\\;\\longleftrightarrow\\;\\frac{1}{|a|}X\\!\\left(j\\frac{\\omega}{a}\\right),\\qquad a\\neq0',
-      label:'Time scaling',
-      note:'The modulus is on $a$ in the coefficient and not in the argument. Both details matter, and both come out of the proof below.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Substitute $\\tau=at$, so $t=\\tau/a$ and $\\d t=\\d\\tau/a$. For $a>0$ the limits keep their order and the coefficient is $1/a$, which is $1/|a|$.'},
-      {t:'eq', size:'sm', tex:'\\int_{-\\infty}^{\\infty}x(at)e^{-j\\omega t}\\,\\d t=\\frac{1}{a}\\int_{-\\infty}^{\\infty}x(\\tau)e^{-j(\\omega/a)\\tau}\\,\\d\\tau=\\frac{1}{a}X\\!\\left(j\\frac{\\omega}{a}\\right)'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'For $a<0$ the same substitution sends $t\\to-\\infty$ to $\\tau\\to+\\infty$, so the limits arrive <b>reversed</b>. Swapping them back costs one minus sign, and that minus sign is the only one in the calculation:'},
-      {t:'eq', size:'sm', tex:'\\frac{1}{a}\\int_{+\\infty}^{-\\infty}x(\\tau)e^{-j(\\omega/a)\\tau}\\,\\d\\tau=-\\frac{1}{a}\\int_{-\\infty}^{\\infty}x(\\tau)e^{-j(\\omega/a)\\tau}\\,\\d\\tau=\\frac{1}{|a|}X\\!\\left(j\\frac{\\omega}{a}\\right)',
-        note:'For $a<0$, $-1/a=1/|a|$, so the swap and the negative $a$ combine into the modulus. Nothing else is left over.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'err', head:'Counting the flip twice', html:'Writing the reversed limits <b>and</b> an explicit $-1$ in front applies the same correction two times. The result is $-\\dfrac{1}{|a|}X(j\\omega/a)$, which contradicts the boxed property and would make the transform of $x(-t)$ the negative of the right answer. Do the flip once: either reverse the limits, or write the minus, never both.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'The reversal is the case $a=-1$', html:'Putting $a=-1$ gives $x(-t)\\leftrightarrow X(-j\\omega)$, with coefficient $1$. Combined with the conjugation rule, that is why the spectrum of a real signal is determined by its positive-frequency half.'}]}
+  {t:'title', text:'Time Scaling'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.5, max:3, step:0.25, v:2, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const av=v?v.a:2;
+      const a=AX({xr:[-13,13],yr:[-1.0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,3,4]});
+      a.curve(w=>rectFT(w,1),{color:C.in,dash:'9 6',n:2400});
+      a.curve(w=>rectFT(w/av,1)/av,{color:C.out,n:2400});
+      return a.svg(); },
+      caption:'The pulse of half-width $1$, and the transform of $x(at)$. For $a>1$ the spectrum is wider by $a$ and lower by $1/a$.'},
+    {t:'legend', items:[['in','$X(j\\omega)$',true],['out','$\\tfrac{1}{a}X(j\\omega/a)$']]}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-4,4],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(t,1),{color:C.in,n:3000}); return a.svg(); },
-        caption:'$a=1$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-13,13],yr:[-0.75,2.4],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); return a.svg(); },
-        caption:'Peak $2$, first null $\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-4,4],yr:[-0.25,1.35],xlabel:'t',ylabel:'x(2t)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(2*t,1),{color:C.out,n:3000}); return a.svg(); },
-        caption:'$a=2$: half as wide.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-13,13],yr:[-0.38,1.2],xlabel:'\\omega',ylabel:'0.5X(j\\omega/2)',pad:{l:58,r:18,t:32,b:34},xtarget:5,ytarget:3,yticksOverride:[0,0.5,1]});
-        a.curve(w=>0.5*rectFT(w/2,1),{color:C.out,n:2400}); return a.svg(); },
-        caption:'Half the height, twice the width.'}]
-    ]},
+    {t:'eq', key:true, tex:'x(at)\\;\\longleftrightarrow\\;\\frac{1}{|a|}\\,X\\!\\left(j\\frac{\\omega}{a}\\right),\\qquad a\\neq0', label:'Time scaling',
+      note:'The modulus is on $a$ in the factor, not in the argument.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\int_{-\\infty}^{\\infty}x(at)\\,e^{-j\\omega t}\\,\\d t=\\frac{1}{a}\\int_{-\\infty}^{\\infty}x(\\tau)\\,e^{-j(\\omega/a)\\tau}\\,\\d\\tau=\\frac{1}{a}\\,X\\!\\left(j\\frac{\\omega}{a}\\right)', label:'Proof for $a>0$',
+        note:'Put $\\tau=at$, so $\\d t=\\d\\tau/a$. For $a>0$ the limits keep their order, and $1/a=1/|a|$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Reading', html:'Compress a signal in time and its spectrum widens. Stretch it and the spectrum narrows. This is the inverse relation of Section 5.2.'}]},
     {t:'reveal', at:3, items:[
-      {t:'small', html:'The area under the transform is what stays fixed: halving the height while doubling the width leaves $\\int X\\,\\d\\omega$ alone, and by the synthesis equation that integral is $2\\pi x(0)$, which the scaling did not change.'}]}
+      {t:'note', kind:'def', head:'Given', html:'$x(t)\\leftrightarrow X(j\\omega)$ with $X(j0)=6$.<div class="nsep"></div>What is the transform of $x(3t)$ at $\\omega=0$?',
+        ask:{key:'m5-props-scale', choices:['$2$','$18$','$6$'], answer:0,
+          why:'$\\tfrac13X(j0)=2$: the area of $x(3t)$ is a third of the area of $x$.'}}]}
   ]}
 ]},
 
-{ id:'m5-props-scale-ex', module:'M5', nav:'Worked example · scaling a band', title:'Worked example — stretching and compressing one signal', src:'p. 53',
+{ id:'m5-props-scale-b', module:'M5', nav:'Properties · a negative factor', title:'Scaling by a Negative Factor', src:'p. 53',
+  objective:'Prove the scaling property for a negative factor without counting the reversal twice.',
+  keywords:'time scaling negative a reversal limits substitution sign bookkeeping proof time reversal', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Scaling by a Negative Factor'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-5,5],yr:[-0.15,1.3],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.5,1]});
+      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,dash:'9 6',n:2400});
+      a.curve(t=>t>0?0:Math.exp(t),{color:C.out,n:2400});
+      return a.svg(); },
+      caption:'$x(t)=e^{-t}u(t)$ and its reversal $x(-t)$, the case $a=-1$.'},
+    {t:'legend', items:[['in','$x(t)$',true],['out','$x(-t)$']]}
+  ], right:[
+    {t:'eq', tex:'\\frac{1}{a}\\int_{+\\infty}^{-\\infty}x(\\tau)\\,e^{-j(\\omega/a)\\tau}\\,\\d\\tau=-\\frac{1}{a}\\int_{-\\infty}^{\\infty}x(\\tau)\\,e^{-j(\\omega/a)\\tau}\\,\\d\\tau=\\frac{1}{|a|}\\,X\\!\\left(j\\frac{\\omega}{a}\\right)', label:'Proof for $a<0$',
+      note:'With $\\tau=at$ and $a<0$, $t\\to-\\infty$ sends $\\tau\\to+\\infty$. Swapping the limits costs one minus sign, and $-1/a=1/|a|$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Counting the flip twice', html:'Reversing the limits <b>and</b> writing an extra $-1$ applies the correction twice. The result, $-\\tfrac{1}{|a|}X(j\\omega/a)$, is wrong. Do the flip once.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'x(-t)\\;\\longleftrightarrow\\;X(-j\\omega)', label:'Time reversal, $a=-1$'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-t}u(t)\\leftrightarrow1/(1+j\\omega)$.<div class="nsep"></div>What is the transform of $x(-t)$?',
+        ask:{key:'m5-props-scale-b', choices:['$1/(1-j\\omega)$','$-1/(1+j\\omega)$','$1/(1+j\\omega)$'], answer:0,
+          why:'$X(-j\\omega)=1/(1-j\\omega)$.'}}]}
+  ]}
+]},
+
+{ id:'m5-props-scale-ex', module:'M5', nav:'Worked example · scaling a band', title:'Time-Scaling Example', src:'p. 53',
   objective:'Apply the scaling property in both directions and check heights and widths.',
-  keywords:'worked example scaling band height width area invariant 2 and 0.5', steps:3, blocks:[
+  keywords:'worked example scaling band height width area invariant 2 and 0.5', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 53'},
   {t:'title', text:'Time-Scaling Example'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','A signal $x(t)$ whose transform is $X(j\\omega)=1$ on $|\\omega|<2\\pi$ and $0$ elsewhere.'],
-      ['Find','The transforms of $x(0.5t)$ and $x(2t)$.'],
-      ['Method','Apply $x(at)\\leftrightarrow\\frac{1}{|a|}X(j\\omega/a)$ once for each value of $a$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'x(0.5t)\\;\\longleftrightarrow\\;2X(j2\\omega)=2\\ \\text{on}\\ |\\omega|<\\pi',
-        label:'Stretched in time, $a=0.5$',
-        note:'$1/|a|=2$ raises the height to 2. The argument $j\\omega/a=j2\\omega$ means the band edge moves in: $|2\\omega|<2\\pi$ is $|\\omega|<\\pi$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'x(2t)\\;\\longleftrightarrow\\;0.5\\,X(j\\omega/2)=0.5\\ \\text{on}\\ |\\omega|<4\\pi',
-        label:'Compressed in time, $a=2$',
-        note:'$1/|a|=0.5$ lowers the height. The band edge moves out to $4\\pi$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check','The three areas are $2\\times2\\pi$, $1\\times4\\pi$ and $0.5\\times8\\pi$, all equal to $4\\pi$. Since $\\int X\\,\\d\\omega=2\\pi x(0)$, the value of every one of the three signals at $t=0$ is the same, which is what stretching and compressing in time cannot change.'],
-        ['Reading','Stretching in time gives a taller, narrower spectrum. Compressing gives a shorter, wider one. Neither operation invents or destroys area.'],
-        ['A common slip','Applying the factor $1/|a|$ to the argument as well, or moving the band the wrong way. The area check catches both in one line.']
-      ]}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(0.5t)$: height $2$ on $|\\omega|<\\pi$','$x(t)$: height $1$ on $|\\omega|<2\\pi$','$x(2t)$: height $0.5$ on $|\\omega|<4\\pi$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1,2],xtarget:9});
+      [[PI,2,C.in,1-cl(f)],[2*PI,1,C.mid,cl(f)*(1-cl(f-1))],[4*PI,0.5,C.out,cl(f-1)]].forEach(([W,H,col,o])=>fade(a,o,()=>{
+        a.area(w=>Math.abs(w)<W?H:0,-16,16,{color:col+'29',n:900});
+        a.curve(w=>Math.abs(w)<W?H:0,{color:col,n:3000}); }));
+      return a.svg(); },
+      caption:'The three spectra. Each shaded area is $4\\pi$.'}
   ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega',ylabel:'2X(j2\\omega)',pad:{l:58,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.area(w=>Math.abs(w)<PI?2:0,-16,16,{color:'rgba(20,112,127,.14)'});
-        a.curve(w=>Math.abs(w)<PI?2:0,{color:C.in,n:3000}); return a.svg(); },
-        caption:'$a=0.5$: height 2 on $|\\omega|<\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        a.area(w=>Math.abs(w)<2*PI?1:0,-16,16,{color:'rgba(106,90,146,.14)'});
-        a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.mid,n:3000}); return a.svg(); },
-        caption:'$a=1$: height 1 on $|\\omega|<2\\pi$.'}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega',ylabel:'0.5X(j\\omega/2)',pad:{l:62,r:26,t:32,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,2]});
-        a.area(w=>Math.abs(w)<4*PI?0.5:0,-16,16,{color:'rgba(74,122,70,.14)'});
-        a.curve(w=>Math.abs(w)<4*PI?0.5:0,{color:C.out,n:3000}); return a.svg(); },
-        caption:'$a=2$: height $0.5$ on $|\\omega|<4\\pi$. All three shaded areas are $4\\pi$.'}]}]
-    ]}
+    {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=1$ on $|\\omega|<2\\pi$ and $0$ elsewhere.<div class="nsep"></div>Where is the band edge of the transform of $x(2t)$?',
+      ask:{key:'m5-props-scale-ex', choices:['$4\\pi$','$\\pi$','$2\\pi$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'Apply $x(at)\\leftrightarrow\\tfrac{1}{|a|}X(j\\omega/a)$ once for $a=0.5$ and once for $a=2$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\begin{aligned}x(0.5t)&\\;\\longleftrightarrow\\;2X(j2\\omega)=2\\ \\text{on}\\ |\\omega|<\\pi\\\\x(2t)&\\;\\longleftrightarrow\\;0.5X(j\\omega/2)=0.5\\ \\text{on}\\ |\\omega|<4\\pi\\end{aligned}', label:'Solution',
+        note:'$|2\\omega|<2\\pi$ is $|\\omega|<\\pi$, and $|\\omega/2|<2\\pi$ is $|\\omega|<4\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'The areas are $2\\cdot2\\pi$, $1\\cdot4\\pi$ and $0.5\\cdot8\\pi$, all $4\\pi$. Since $\\int X\\,\\d\\omega=2\\pi x(0)$, scaling time leaves $x(0)$ alone.'}]}
   ]}
 ]},
 
-{ id:'m5-duality', module:'M5', nav:'Duality', title:'Duality — the two domains have almost the same rules', src:'p. 54',
+{ id:'m5-duality', module:'M5', nav:'Duality', title:'Duality', src:'p. 54',
   objective:'State and prove duality with the correct argument on the right-hand side.',
-  keywords:'duality X(t) 2 pi x(-w) proof renaming variables symmetry of the pair', steps:3, blocks:[
+  keywords:'duality X(t) 2 pi x(-w) proof renaming variables symmetry of the pair', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 54'},
-  {t:'title', text:'Duality Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The two equations of the pair differ only by a sign and a factor. That near-symmetry means any transform pair can be read a second time with the roles of the domains exchanged.'},
-    {t:'eq', key:true, size:'lg', tex:'\\text{if}\\quad x(t)\\;\\longleftrightarrow\\;X(j\\omega)\\qquad\\text{then}\\qquad X(t)\\;\\longleftrightarrow\\;2\\pi\\,x(-\\omega)',
-      label:'Duality',
-      note:'On the right the argument is $-\\omega$, a real number. It is not $-j\\omega$: the letter $x$ names a signal, and a signal takes a real argument. The $j$ belongs to the frequency-domain function only.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Proof. Write the synthesis equation and rename its variables. First swap the names $t$ and $\\omega$ throughout:'},
-      {t:'eq', size:'sm', tex:'x(t)=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}X(j\\omega)e^{j\\omega t}\\,\\d\\omega\\quad\\Longrightarrow\\quad 2\\pi\\,x(\\omega)=\\int_{-\\infty}^{\\infty}X(jt)\\,e^{j\\omega t}\\,\\d t'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'Now replace $\\omega$ by $-\\omega$, which turns the exponent into the analysis exponent $e^{-j\\omega t}$:'},
-      {t:'eq', size:'sm', tex:'2\\pi\\,x(-\\omega)=\\int_{-\\infty}^{\\infty}X(jt)\\,e^{-j\\omega t}\\,\\d t=\\mathcal{F}\\{X(t)\\}',
-        note:'The right-hand side is the analysis equation applied to the function $X$, now read as a function of time. That is the statement.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What duality is for', html:'It halves the work. Every pair already derived gives a second one for nothing, and the two rectangle–sinc examples of this module are one pair seen twice. It also carries properties across: the time-shift rule becomes the frequency-shift rule under duality, and differentiation in time becomes differentiation in frequency.'}]}
+  {t:'title', text:'Duality'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
+      {t:'box',x:20,y:60,w:170,h:66,label:'x(t)',tex:true,fs:21,color:C.in},
+      {t:'box',x:370,y:60,w:170,h:66,label:'X(j\\omega)',tex:true,fs:21,color:C.mid},
+      {t:'arrow',x1:190,y1:93,x2:370,y2:93,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'box',x:20,y:250,w:170,h:66,label:'X(t)',tex:true,fs:21,color:C.mid},
+      {t:'box',x:370,y:250,w:170,h:66,label:'2\\pi x(-\\omega)',tex:true,fs:21,color:C.in},
+      {t:'arrow',x1:190,y1:283,x2:370,y2:283,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'line',d:'M105,126 L105,250',color:C.slate},
+      {t:'line',d:'M455,126 L455,250',color:C.slate},
+      {t:'text',x:118,y:194,anchor:'start',label:'\\text{read as a signal}',tex:true,fs:15,color:C.slate},
+      {t:'text',x:442,y:194,anchor:'end',label:'\\text{reversed, times }2\\pi',tex:true,fs:15,color:C.slate}
+    ]}), caption:'Read the first pair a second time, with the roles of the domains exchanged.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:250,items:[
-      {t:'box',x:60,y:34,w:200,h:62,label:'x(t)',tex:true,fs:19,color:'#14707F'},
-      {t:'box',x:570,y:34,w:200,h:62,label:'X(j\\omega)',tex:true,fs:19,color:'#6A5A92'},
-      {t:'arrow',x1:260,y1:60,x2:570,y2:60,label:'\\mathcal{F}',tex:true,color:C.coral},
-      {t:'box',x:60,y:152,w:200,h:62,label:'X(t)',tex:true,fs:19,color:'#6A5A92'},
-      {t:'box',x:570,y:152,w:200,h:62,label:'2\\pi x(-\\omega)',tex:true,fs:19,color:'#14707F'},
-      {t:'arrow',x1:260,y1:178,x2:570,y2:178,label:'\\mathcal{F}',tex:true,color:C.coral},
-      {t:'line',d:'M160,96 L160,152',color:C.slate},
-      {t:'line',d:'M670,96 L670,152',color:C.slate},
-      {t:'text',x:250,y:130,anchor:'start',label:'\\text{read as a signal}',tex:true,fs:12,color:C.slate},
-      {t:'text',x:580,y:130,anchor:'end',label:'\\text{reversed, times }2\\pi',tex:true,fs:12,color:C.slate}
-    ]}), caption:'Apply duality to the first row to obtain the second row.'},
+    {t:'eq', key:true, tex:'x(t)\\;\\longleftrightarrow\\;X(j\\omega)\\quad\\Longrightarrow\\quad X(t)\\;\\longleftrightarrow\\;2\\pi\\,x(-\\omega)', label:'Duality',
+      note:'The argument is $-\\omega$, a real number, not $-j\\omega$: $x$ names a signal.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'2\\pi\\,x(\\omega)=\\int_{-\\infty}^{\\infty}X(jt)\\,e^{j\\omega t}\\,\\d t\\;\\;\\Longrightarrow\\;\\;2\\pi\\,x(-\\omega)=\\int_{-\\infty}^{\\infty}X(jt)\\,e^{-j\\omega t}\\,\\d t', label:'Proof',
+        note:'Swap the names $t$ and $\\omega$ in the synthesis equation, then replace $\\omega$ by $-\\omega$. The right side is the analysis integral of $X(t)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'What duality is for', html:'Every pair gives a second pair at no cost. The time shift and the frequency shift are one rule read twice.'}]},
     {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Time shift','$x(t-t_0)\\leftrightarrow e^{-j\\omega t_0}X(j\\omega)$ becomes the frequency shift under duality.'],
-        ['Even signals','If $x$ is even then $x(-\\omega)=x(\\omega)$ and the reversal disappears, which is why the rectangle and the sinc are such clean examples.']
-      ]}]}
+      {t:'note', kind:'def', head:'Given', html:'$e^{-|t|}\\leftrightarrow\\dfrac{2}{1+\\omega^{2}}$.<div class="nsep"></div>What is the transform of $\\dfrac{2}{1+t^{2}}$?',
+        ask:{key:'m5-duality', choices:['$2\\pi e^{-|\\omega|}$','$e^{-|\\omega|}$','$2\\pi e^{-\\omega}$'], answer:0,
+          why:'Duality gives $2\\pi x(-\\omega)=2\\pi e^{-|\\omega|}$.'}}]}
   ]}
 ]},
 
-{ id:'m5-duality-ex', module:'M5', nav:'Worked example · duality', title:'Worked example — the same answer by two routes', src:'pp. 54–55',
+{ id:'m5-duality-ex', module:'M5', nav:'Worked example · duality', title:'Duality Example', src:'pp. 54–55',
   objective:'Use duality on the rectangular pulse and confirm the result independently.',
-  keywords:'worked example duality rectangle sinc both ways 2 pi band check', steps:3, blocks:[
+  keywords:'worked example duality rectangle sinc both ways 2 pi band check', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'pp. 54–55'},
   {t:'title', text:'Duality Example'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x_1(t)=1$ on $|t|<W$, so that $X_1(j\\omega)=\\dfrac{2\\sin(W\\omega)}{\\omega}$.'],
-      ['Find','The transform of $x_2(t)=\\dfrac{2\\sin(Wt)}{t}$.'],
-      ['Method','Recognise $x_2$ as $X_1$ read in time, then apply duality. Confirm the answer by evaluating the analysis integral directly.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'X_2(j\\omega)=2\\pi\\,x_1(-\\omega)=\\begin{cases}2\\pi,&|\\omega|<W\\\\0,&|\\omega|>W\\end{cases}',
-        label:'Route 1 — duality',
-        note:'$x_1$ is even, so $x_1(-\\omega)=x_1(\\omega)$ and the reversal changes nothing here. The whole answer is one line.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'body', html:'Route 2 works backwards from the answer. Take the band of height $2\\pi$ on $|\\omega|<W$ and put it through the synthesis equation:'},
-      {t:'eq', size:'sm', tex:'\\frac{1}{2\\pi}\\int_{-W}^{W}2\\pi\\,e^{j\\omega t}\\,\\d\\omega=\\frac{e^{jWt}-e^{-jWt}}{jt}=\\frac{2\\sin(Wt)}{t}',
-        note:'The signal that comes back is $x_2$, so the pair is confirmed without using duality at all.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check at the origin','$X_2(j0)=2\\pi=6.283185$ for any $W$, and the same number is the height of the band. In time, $x_2(0)=2W$ by l’Hôpital, which for $W=\\pi$ is $2\\pi$ as well.'],
-        ['Why two routes','They use different equations, so an error in one does not repeat in the other. Agreement between them is a real check; repeating the same calculation twice is not.'],
-        ['The sinc convention','Written with the convention of this module, $x_2(t)=2W\\operatorname{sinc}(Wt)$ with $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.']
-      ]}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-6,6],yr:[-0.6,7.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
+      a.area(w=>Math.abs(w)<PI?2*PI:0,-6,6,{color:C.out+'29',n:900});
+      a.curve(w=>Math.abs(w)<PI?2*PI:0,{color:C.out,n:3000});
+      return a.svg(); },
+      caption:'The transform of $x_2(t)=2\\sin(Wt)/t$ for $W=\\pi$: a band of height $2\\pi$ on $|\\omega|<W$.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-6,6],yr:[-0.25,1.35],xlabel:'t',ylabel:'x_1(t)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(t=>rectp(t,PI),{color:C.in,n:3000}); return a.svg(); },
-        caption:'$x_1$, with $W=\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-7,7],yr:[-2.5,7.6],xlabel:'\\omega',ylabel:'X_1(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,3.14,6.28],ytickfmt:v=>v.toFixed(2)});
-        a.curve(w=>2*Math.sin(PI*w)/(Math.abs(w)<1e-9?1e-9:w),{color:C.in,n:2400}); a.point(0,2*PI,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$X_1$, peak $2\\pi$.'}]
-    ]},
+    {t:'note', kind:'def', head:'Given', html:'$x_1(t)=1$ on $|t|<W$, so $X_1(j\\omega)=2\\sin(W\\omega)/\\omega$.<div class="nsep"></div>What height does the transform of $x_2(t)=2\\sin(Wt)/t$ have?',
+      ask:{key:'m5-duality-ex', choices:['$2\\pi$','$1$','$2W$'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-7,7],yr:[-2.5,7.6],xlabel:'t',ylabel:'x_2(t)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,3.14,6.28],ytickfmt:v=>v.toFixed(2)});
-          a.curve(t=>2*Math.sin(PI*t)/(Math.abs(t)<1e-9?1e-9:t),{color:C.mid,n:2400}); a.point(0,2*PI,{color:C.coral,r:3.6}); return a.svg(); },
-          caption:'$x_2$: the same shape, now in time.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-6,6],yr:[-1.5,7.9],xlabel:'\\omega',ylabel:'X_2(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,3.14,6.28],ytickfmt:v=>v.toFixed(2)});
-          a.area(w=>Math.abs(w)<PI?2*PI:0,-6,6,{color:'rgba(74,122,70,.14)'});
-          a.curve(w=>Math.abs(w)<PI?2*PI:0,{color:C.out,n:3000}); return a.svg(); },
-          caption:'Its transform: a band of height $6.2832$ on $|\\omega|<\\pi$.'}]
-      ]}]}
+      {t:'eq', tex:'X_2(j\\omega)=2\\pi\\,x_1(-\\omega)=\\begin{cases}2\\pi,&|\\omega|<W\\\\0,&|\\omega|>W\\end{cases}', label:'Route 1 · duality',
+        note:'$x_2$ is $X_1$ read in time. $x_1$ is even, so the reversal changes nothing.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\frac{1}{2\\pi}\\int_{-W}^{W}2\\pi\\,e^{j\\omega t}\\,\\d\\omega=\\frac{e^{jWt}-e^{-jWt}}{jt}=\\frac{2\\sin(Wt)}{t}', label:'Route 2 · synthesis',
+        note:'The band returns $x_2$, so the pair holds without duality.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$X_2(j0)=2\\pi$ for every $W$. In time, $x_2(0)=2W$ by l’Hôpital. With $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, $x_2(t)=2W\\operatorname{sinc}(Wt)$.'}]}
   ]}
 ]},
 
-{ id:'m5-parseval', module:'M5', nav:'Parseval', title:'Parseval — energy counted in either domain', src:'p. 55',
+{ id:'m5-parseval', module:'M5', nav:'Parseval', title:'Parseval’s Relation', src:'p. 55',
   objective:'Prove Parseval and fix the normalisation the energy is measured under.',
-  keywords:'parseval energy spectral density R = 1 ohm normalised proof exchange of integrals', steps:3, blocks:[
+  keywords:'parseval energy spectral density R = 1 ohm normalised proof exchange of integrals', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 55'},
-  {t:'title', text:'Parseval’s Relation for the CTFT'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'The normalisation, stated once', html:'Energy and power in this course are <b>normalised</b>: every signal is treated as a voltage across a $1\\,\\Omega$ resistor, so the instantaneous power is $|x(t)|^{2}$ and the energy is its integral. Every number below is in joules under that convention.'},
-    {t:'eq', key:true, size:'lg', tex:'E_{\\infty}=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\,\\d\\omega',
-      label:'Parseval’s relation',
-      note:'The $1/2\\pi$ is on the frequency side, exactly as it is in the synthesis equation.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Proof. Write $|x|^{2}=x\\,x^{*}$ and replace $x^{*}(t)$ by the conjugate of the synthesis equation, then exchange the order of the two integrals:'},
-      {t:'eq', size:'sm', tex:'\\int|x(t)|^{2}\\d t=\\int x(t)\\left[\\frac{1}{2\\pi}\\int X^{*}(j\\omega)e^{-j\\omega t}\\d\\omega\\right]\\d t=\\frac{1}{2\\pi}\\int X^{*}(j\\omega)\\left[\\int x(t)e^{-j\\omega t}\\d t\\right]\\d\\omega',
-        note:'The inner integral on the right is $X(j\\omega)$, so the whole expression is $\\frac{1}{2\\pi}\\int X^{*}X\\,\\d\\omega$, which is $\\frac{1}{2\\pi}\\int|X|^{2}\\d\\omega$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The step that is actually used', html:'The proof needs $|x(t)|^{2}=x(t)x^{*}(t)$, and for a real signal that is $x^{2}(t)$. It does <b>not</b> need $|x(t)|=x(t)$, which is a stronger claim: it fails at every instant where a real signal is negative. Use the squared form and the question never arises.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Energy spectral density', html:'$|X(j\\omega)|^{2}$ says how the energy is distributed over frequency, and $\\frac{1}{2\\pi}|X(j\\omega)|^{2}\\d\\omega$ is the energy in a narrow band. That reading is what makes Parseval useful: it turns a question about a filter into an area under a curve.'}]}
+  {t:'title', text:'Parseval’s Relation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-8,8],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|^{2}',yticksOverride:[0,0.5,1]});
+      a.area(w=>1/(1+w*w),-8,8,{color:C.mid+'29',n:900});
+      a.curve(w=>1/(1+w*w),{color:C.mid,n:2400});
+      return a.svg(); },
+      caption:'The energy spectral density of $e^{-t}u(t)$, $|X(j\\omega)|^{2}=1/(1+\\omega^{2})$. The energy is its area divided by $2\\pi$.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-1,7],yr:[-0.2,1.25],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3});
-        a.area(t=>t<0?0:Math.exp(-t),0,7,{color:'rgba(20,112,127,.13)'});
-        a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,n:2400}); return a.svg(); },
-        caption:'$x(t)=e^{-at}u(t)$ with $a=1$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:200,xr:[-8,8],yr:[-0.2,1.25],xlabel:'\\omega',ylabel:'|X(j\\omega)|^{2}',pad:{l:58,r:18,t:32,b:34},xtarget:5,ytarget:3});
-        a.area(w=>1/(1+w*w),-8,8,{color:'rgba(106,90,146,.13)'});
-        a.curve(w=>1/(1+w*w),{color:C.mid,n:2400}); return a.svg(); },
-        caption:'Its energy spectral density.'}]
-    ]},
+    {t:'note', kind:'def', head:'Normalised energy', html:'Every signal is a voltage across $R=1\\,\\Omega$. Power is $|x(t)|^{2}$ and energy is its integral, in joules.'},
     {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['Time domain','$E_{\\infty}=\\displaystyle\\int_{0}^{\\infty}e^{-2at}\\,\\d t=\\frac{1}{2a}$.'],
-        ['Frequency domain','$E_{\\infty}=\\dfrac{1}{2\\pi}\\displaystyle\\int_{-\\infty}^{\\infty}\\frac{\\d\\omega}{a^{2}+\\omega^{2}}=\\frac{1}{2\\pi}\\cdot\\frac{\\pi}{a}=\\frac{1}{2a}$, using $\\displaystyle\\int_{-\\infty}^{\\infty}\\frac{\\d u}{1+u^{2}}=\\pi$ after $u=\\omega/a$.'],
-        ['Agreement','Both give $1/(2a)$, which for $a=1$ is $0.5$ J. Without the $1/2\\pi$ the second route would report $2\\pi$ times too much.']
-      ]}]}
+      {t:'eq', key:true, tex:'E_{\\infty}=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\,\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\,\\d\\omega', label:'Parseval’s relation',
+        note:'The $1/2\\pi$ sits on the frequency side, as in the synthesis equation.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\int|x|^{2}\\d t=\\int x(t)\\left[\\frac{1}{2\\pi}\\int X^{*}(j\\omega)e^{-j\\omega t}\\d\\omega\\right]\\d t=\\frac{1}{2\\pi}\\int X^{*}(j\\omega)\\,X(j\\omega)\\,\\d\\omega', label:'Proof',
+        note:'Write $|x|^{2}=x\\,x^{*}$, put in the conjugate of synthesis, and exchange the two integrals.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-2t}u(t)$.<div class="nsep"></div>What is its energy?',
+        ask:{key:'m5-parseval', choices:['$0.25$ J','$0.5$ J','$1$ J'], answer:0,
+          why:'$\\int_0^\\infty e^{-4t}\\,\\d t=1/4$ J, in either domain.'}}]}
   ]}
 ]},
 
-{ id:'m5-parseval-ex', module:'M5', nav:'Worked example · Parseval', title:'Worked example — energy from a two-band spectrum', src:'p. 55',
-  objective:'Compute an energy in the frequency domain and confirm it in the time domain.',
-  keywords:'worked example parseval two bands energy 10 joules both routes peak 6', steps:3, blocks:[
+{ id:'m5-parseval-b', module:'M5', nav:'Parseval · both domains', title:'Energy in Both Domains', src:'p. 55',
+  objective:'Compute the energy of the one-sided exponential in time and in frequency.',
+  keywords:'parseval check one-sided exponential energy 1/(2a) arctan integral both domains', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 55'},
+  {t:'title', text:'Energy in Both Domains'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-1,5],yr:[-0.1,1.25],xlabel:'t\\;(\\text{s})',ylabel:'|x(t)|^{2}',yticksOverride:[0,0.5,1]});
+      a.area(t=>t<0?0:Math.exp(-2*t),0,5,{color:C.in+'29',n:900});
+      a.curve(t=>t<0?0:Math.exp(-2*t),{color:C.in,n:2400});
+      return a.svg(); },
+      caption:'$|x(t)|^{2}=e^{-2t}u(t)$ for $a=1$. Its area is $0.5$ J, the same as $\\tfrac{1}{2\\pi}$ times the area on the previous slide.'}
+  ], right:[
+    {t:'eq', tex:'E_{\\infty}=\\int_{0}^{\\infty}e^{-2at}\\,\\d t=\\left[\\frac{e^{-2at}}{-2a}\\right]_{0}^{\\infty}=\\frac{1}{2a}', label:'Time domain'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'E_{\\infty}=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}\\frac{\\d\\omega}{a^{2}+\\omega^{2}}=\\frac{1}{2\\pi}\\cdot\\frac{1}{a}\\int_{-\\infty}^{\\infty}\\frac{\\d u}{1+u^{2}}=\\frac{1}{2\\pi}\\cdot\\frac{\\pi}{a}=\\frac{1}{2a}', label:'Frequency domain',
+        note:'Put $u=\\omega/a$, so $\\d\\omega=a\\,\\d u$. The last integral is $[\\tan^{-1}u]_{-\\infty}^{\\infty}=\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'The step that is used', html:'The proof needs $|x|^{2}=x\\,x^{*}$, which is $x^{2}$ for a real signal. Without the $1/2\\pi$ the second route would give $2\\pi$ times too much.'}]}
+  ]}
+]},
+
+{ id:'m5-parseval-ex', module:'M5', nav:'Worked example · Parseval', title:'Parseval’s Relation Example', src:'p. 55',
+  objective:'Compute an energy in the frequency domain and confirm the peak in the time domain.',
+  keywords:'worked example parseval two bands energy 10 joules peak 6 square the height', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 55'},
   {t:'title', text:'Parseval’s Relation Example'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$X_3(j\\omega)=2$ for $|\\omega|<2\\pi$, $1$ for $2\\pi<|\\omega|<4\\pi$, and $0$ beyond $4\\pi$.'],
-      ['Find','The total energy of $x_3$, under the $R=1\\,\\Omega$ normalisation.'],
-      ['Method','Parseval. The spectrum is piecewise constant, so the integral is a sum of rectangles.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'E_{\\infty}=\\frac{1}{2\\pi}\\int_{-4\\pi}^{4\\pi}|X_3|^{2}\\,\\d\\omega=\\frac{1}{2\\pi}\\Bigl[\\underbrace{1\\cdot2\\pi}_{-4\\pi<\\omega<-2\\pi}+\\underbrace{4\\cdot4\\pi}_{|\\omega|<2\\pi}+\\underbrace{1\\cdot2\\pi}_{2\\pi<\\omega<4\\pi}\\Bigr]'},
-      {t:'eq', key:true, size:'lg', tex:'E_{\\infty}=\\frac{1}{2\\pi}\\bigl[2\\pi+16\\pi+2\\pi\\bigr]=\\frac{20\\pi}{2\\pi}=10\\ \\text{J}',
-        label:'Solution'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Square the height, not the width', html:'The inner band contributes $2^{2}=4$ over a width of $4\\pi$, giving $16\\pi$. The two outer bands contribute $1^{2}=1$ over $2\\pi$ each. Using the heights unsquared gives $\\frac{1}{2\\pi}[2\\cdot4\\pi+1\\cdot4\\pi]=6$, which is not the energy but the value $x_3(0)$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Time-domain route','Synthesis gives $x_3(t)=\\dfrac{\\sin(2\\pi t)+\\sin(4\\pi t)}{\\pi t}$, and integrating $x_3^{2}(t)$ over all time returns $10$ J as well.'],
-        ['Choose the simpler domain','The frequency-domain calculation uses three rectangles. The time-domain calculation requires an inverse transform and an integral of a squared sinc sum. Parseval allows either route, so use the one with the simpler integrand.'],
-        ['Peak check','$x_3(0)=\\frac{1}{2\\pi}\\int X_3\\,\\d\\omega=\\frac{1}{2\\pi}[8\\pi+4\\pi]=6$, which is the peak drawn below.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:200,xr:[-16,16],yr:[-0.55,2.6],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'X_3(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-      const f=w=>Math.abs(w)<2*PI?2:(Math.abs(w)<4*PI?1:0);
-      a.area(f,-16,16,{color:'rgba(106,90,146,.14)'});
-      a.curve(f,{color:C.mid,n:4000});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X_3(j\\omega)$','$|X_3(j\\omega)|^{2}$: area $20\\pi$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-16,16],yr:[-0.4,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,4],xtarget:9});
+      const X=w=>Math.abs(w)<2*PI?2:(Math.abs(w)<4*PI?1:0);
+      fade(a,1-f,()=>{ a.area(X,-16,16,{color:C.mid+'29',n:1200}); a.curve(X,{color:C.mid,n:4000}); });
+      fade(a,f,()=>{ a.area(w=>X(w)*X(w),-16,16,{color:C.out+'29',n:1200}); a.curve(w=>X(w)*X(w),{color:C.out,n:4000}); });
       return a.svg(); },
-      caption:'The spectrum. Energy is the area under the <b>square</b> of this, divided by $2\\pi$.'},
+      caption:'The spectrum, then its square. The energy is the area under the square, divided by $2\\pi$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$X_3(j\\omega)=2$ on $|\\omega|<2\\pi$, $1$ on $2\\pi<|\\omega|<4\\pi$, $0$ beyond, with $R=1\\,\\Omega$.<div class="nsep"></div>What is the energy of $x_3$?',
+      ask:{key:'m5-parseval-ex', choices:['$10$ J','$6$ J','$20\\pi$ J'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'E_{\\infty}=\\frac{1}{2\\pi}\\Bigl[\\underbrace{1\\cdot2\\pi}_{-4\\pi<\\omega<-2\\pi}+\\underbrace{4\\cdot4\\pi}_{|\\omega|<2\\pi}+\\underbrace{1\\cdot2\\pi}_{2\\pi<\\omega<4\\pi}\\Bigr]', label:'Sum of rectangles'}]},
     {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-16,16],yr:[-1.1,5.2],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X_3(j\\omega)|^{2}',pad:{l:60,r:26,t:34,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,4]});
-        const g=w=>Math.abs(w)<2*PI?4:(Math.abs(w)<4*PI?1:0);
-        a.area(g,-16,16,{color:'rgba(190,85,57,.14)'});
-        a.curve(g,{color:C.coral,n:4000});
-        return a.svg(); },
-        caption:'The squared spectrum. Its area is $20\\pi$, and dividing by $2\\pi$ gives $10$ J.'}]},
+      {t:'eq', key:true, tex:'E_{\\infty}=\\frac{20\\pi}{2\\pi}=10\\ \\text{J}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:190,xr:[-2.4,2.4],yr:[-2.6,7.2],xlabel:'t',ylabel:'x_3(t)',pad:{l:54,r:26,t:32,b:34},xtarget:7,ytarget:3,yticksOverride:[-2,0,2,4,6]});
-        a.curve(t=>{ const z=Math.abs(t)<1e-9?1e-9:t; return (Math.sin(2*PI*z)+Math.sin(4*PI*z))/(PI*z); },{color:C.in,n:3000});
-        a.point(0,6,{color:C.coral,r:4.2});
-        return a.svg(); },
-        caption:'The signal itself, with its peak $x_3(0)=6$ marked and a tick placed at that value.'}]}
+      {t:'note', kind:'warn', head:'Square the height', html:'Unsquared heights give $\\tfrac{1}{2\\pi}[2\\cdot4\\pi+1\\cdot4\\pi]=6$. That is not the energy; it is the peak $x_3(0)$.'}]}
   ]}
-]}
-,
+]},
 
-{ id:'m5-conv', module:'M5', nav:'Convolution property', title:'Convolution in time is multiplication in frequency', src:'p. 56',
+realGallery({ id:'m5-real-props', nav:'Properties around us',
+  title:'Properties Around Us', eyebrow:'Module 5 · Properties', src:'pp. 51–55',
+  objective:'Recognise a delay, a change of speed and a difference in everyday signals.',
+  keywords:'examples echo delay tape double speed scaling lagged series first difference properties',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-5,60],yr:[-1.1,1.4],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
+      a.curve(t=>t<0?0:Math.exp(-t/6)*Math.sin(2*PI*0.25*t),{color:C.in,n:3000});
+      a.curve(t=>t<40?0:0.5*Math.exp(-(t-40)/6)*Math.sin(2*PI*0.25*(t-40)),{color:C.out,n:3000});
+      return a.svg(); }, 'A click and its echo from a wall: $p(t)+0.5\\,p(t-40)$, with $t$ in ms.',
+      [['in','$p(t)$'],['out','$0.5\\,p(t-40)$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[0,20],yr:[-1.2,1.6],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:5}));
+      a.curve(t=>Math.sin(2*PI*0.1*t),{color:C.in,dash:'9 6',n:1600});
+      a.curve(t=>Math.sin(2*PI*0.2*t),{color:C.out,n:1600});
+      return a.svg(); }, 'A recording played at double speed: $s(2t)$ with $s(t)=\\sin(2\\pi\\,0.1\\,t)$, $t$ in ms.',
+      [['in','$s(t)$',true],['out','$s(2t)$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,30],yr:[0,560],xlabel:'n\\;(\\text{day})',ylabel:'\\text{count}',xstep:7}));
+      a.stem(D(n=>500*Math.exp(-Math.pow((n-10)/4,2)),0,29),{color:C.in,r:2.6});
+      a.stem(D(n=>n<7?0:100*Math.exp(-Math.pow((n-17)/4,2)),0,29),{color:C.out,r:2.6});
+      return a.svg(); }, 'Hospital stays follow new cases one week later: $h[n]=0.2\\,c[n-7]$.',
+      [['in','$c[n]$'],['out','$h[n]$']]],
+    [()=>{ const d=[0,40,25,0,60,35,50,0,45,30,55,20,0,65,40], o=[]; d.reduce((s,v,i)=>(o[i]=s+v),0);
+      const a=P.Axes(EXO({xr:[-0.5,15],yr:[0,560],xlabel:'n\\;(\\text{day})',ylabel:'\\text{km}',xstep:2}));
+      a.stem(o.map((v,n)=>[n,v]),{color:C.in,r:2.6});
+      a.stem(d.map((v,n)=>[n,v]),{color:C.out,r:2.6});
+      return a.svg(); }, 'A car’s odometer reading $o[n]$ each evening, and the distance driven that day, $o[n]-o[n-1]$.',
+      [['in','$o[n]$'],['out','$o[n]-o[n-1]$']], 'tl']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'One operation, one rule', html:'A delay, a change of speed and a difference each act on the spectrum in a fixed way.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'With the rule known, one transform serves the whole family: every echo, every playback speed.'}
+  ]}),
+
+labScene({ id:'m5-lab-w', lab:'W', nav:'Transform Properties', title:'One Operation, One Spectral Rule', src:'pp. 51–55',
+  objective:'Apply one operation to a pulse and read what it does to the magnitude and the phase of the transform.',
+  keywords:'laboratory properties time shift frequency shift scaling differentiation magnitude phase parseval' }),
+
+codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', src:'pp. 51–55', eyebrow:'Properties in code',
+  objective:'Check transform properties numerically in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python properties shift scaling duality parseval energy run' }),
+
+
+/* ======================================================= 5.5 convolution and multiplication */
+
+{ id:'m5-conv', module:'M5', nav:'Convolution property', title:'Convolution Property', src:'p. 56',
   objective:'State and prove the convolution property with one consistent set of symbols.',
-  keywords:'convolution property multiplication frequency response LTI proof premise symbols', steps:3, blocks:[
+  keywords:'convolution property multiplication frequency response LTI proof premise symbols', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 56'},
   {t:'title', text:'Convolution Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'The premise, written out', html:'Let $x(t)\\leftrightarrow X(j\\omega)$ be the input and $h(t)\\leftrightarrow H(j\\omega)$ the impulse response of an LTI system. Both pairs are declared before the property is stated, and the output is given its own letter.'},
-    {t:'eq', key:true, size:'lg', tex:'y(t)=x(t)*h(t)\\;\\longleftrightarrow\\;Y(j\\omega)=X(j\\omega)\\,H(j\\omega)',
-      label:'Convolution property',
-      note:'{{sym:Hjw|$H(j\\omega)$}} is the frequency response of the system, exactly the object Module 4 defined for periodic inputs. It now works for every input with a transform.'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Proof. Write the convolution inside the analysis integral and exchange the order:'},
-      {t:'eq', size:'sm', tex:'Y(j\\omega)=\\int\\!\\!\\left[\\int x(\\tau)h(t-\\tau)\\,\\d\\tau\\right]e^{-j\\omega t}\\d t=\\int x(\\tau)\\left[\\int h(t-\\tau)e^{-j\\omega t}\\d t\\right]\\d\\tau'},
-      {t:'eq', size:'sm', tex:'=\\int x(\\tau)\\,e^{-j\\omega\\tau}H(j\\omega)\\,\\d\\tau=H(j\\omega)\\int x(\\tau)e^{-j\\omega\\tau}\\,\\d\\tau=X(j\\omega)H(j\\omega)',
-        note:'The inner bracket is the time-shift property applied to $h$. $H(j\\omega)$ does not depend on $\\tau$, so it leaves the outer integral.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Keep the letters apart', html:'Three signals are in play and each needs its own name: the input $x$, the impulse response $h$, the output $y$. Using $y$ both as a free second signal in the premise and as the output in the conclusion makes the statement say something about itself. One statement, one set of symbols.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'What this replaces', html:'Module 3 computed an output by flipping, sliding and integrating, one value of $t$ at a time. This does it with one product. The cost is two transforms and one inverse transform, and the gain is that the system is described by a single curve.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
+      {t:'arrow',x1:20,y1:100,x2:200,y2:100},
+      {t:'box',x:200,y:66,w:160,h:68,label:'h(t)',tex:true,fs:21,color:C.h},
+      {t:'arrow',x1:360,y1:100,x2:540,y2:100},
+      {t:'text',x:110,y:82,label:'x(t)',tex:true,fs:18,color:C.in},
+      {t:'text',x:450,y:82,label:'x(t)*h(t)',tex:true,fs:18,color:C.out},
+      {t:'arrow',x1:20,y1:270,x2:200,y2:270},
+      {t:'box',x:200,y:236,w:160,h:68,label:'H(j\\omega)',tex:true,fs:21,color:C.h},
+      {t:'arrow',x1:360,y1:270,x2:540,y2:270},
+      {t:'text',x:110,y:252,label:'X(j\\omega)',tex:true,fs:18,color:C.in},
+      {t:'text',x:450,y:252,label:'X(j\\omega)H(j\\omega)',tex:true,fs:18,color:C.out},
+      {t:'text',x:280,y:190,label:'\\text{the same system, seen twice}',tex:true,fs:15,color:C.slate}
+    ]}), caption:'One system in time and the same system in frequency. Only the operation between input and output changes.'}
   ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:250,items:[
-      {t:'arrow',x1:70,y1:60,x2:300,y2:60},
-      {t:'box',x:300,y:32,w:210,h:58,label:'h(t)',tex:true,fs:18,color:'#C08422'},
-      {t:'arrow',x1:510,y1:60,x2:760,y2:60},
-      {t:'text',x:185,y:44,label:'x(t)',tex:true,fs:16,color:'#14707F'},
-      {t:'text',x:635,y:44,label:'y(t)=x(t)*h(t)',tex:true,fs:16,color:'#4A7A46'},
-      {t:'arrow',x1:70,y1:180,x2:300,y2:180},
-      {t:'box',x:300,y:152,w:210,h:58,label:'H(j\\omega)',tex:true,fs:18,color:'#C08422'},
-      {t:'arrow',x1:510,y1:180,x2:760,y2:180},
-      {t:'text',x:185,y:164,label:'X(j\\omega)',tex:true,fs:16,color:'#14707F'},
-      {t:'text',x:635,y:164,label:'Y=XH',tex:true,fs:16,color:'#4A7A46'},
-      {t:'text',x:415,y:122,label:'\\text{the same system, seen twice}',tex:true,fs:13,color:C.slate}
-    ]}), caption:'One diagram in time, the same diagram in frequency. Only the operation between the boxes changed.'},
+    {t:'eq', key:true, tex:'y(t)=x(t)*h(t)\\;\\longleftrightarrow\\;Y(j\\omega)=X(j\\omega)\\,H(j\\omega)', label:'Convolution property',
+      note:'$x$ is the input, $h$ the impulse response, $y$ the output. {{sym:Hjw|$H(j\\omega)$}} is the frequency response of the system.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'Y(j\\omega)=\\int x(\\tau)\\left[\\int h(t-\\tau)e^{-j\\omega t}\\d t\\right]\\d\\tau=\\int x(\\tau)\\,e^{-j\\omega\\tau}H(j\\omega)\\,\\d\\tau=X(j\\omega)H(j\\omega)', label:'Proof',
+        note:'Put the convolution inside the analysis integral and exchange the order. The inner bracket is the time shift applied to $h$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Keep the letters apart', html:'Three signals are in play: input $x$, impulse response $h$, output $y$. Using $y$ for a free second signal and for the output makes the statement refer to itself.'}]},
     {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Where $H$ comes from','$H(j\\omega)=\\int h(\\tau)e^{-j\\omega\\tau}\\,\\d\\tau$ — the transform of the impulse response, and nothing new.'],
-        ['When it exists','When $h$ is absolutely integrable, which for an LTI system is exactly the condition for bounded-input bounded-output stability.']
-      ]}]}
+      {t:'note', kind:'def', head:'Given', html:'$X(j0)=4$ and $H(j0)=0.5$.<div class="nsep"></div>What is $Y(j0)$?',
+        ask:{key:'m5-conv', choices:['$2$','$4.5$','$8$'], answer:0,
+          why:'$Y(j0)=X(j0)H(j0)=4\\cdot0.5=2$.'}}]}
   ]}
 ]},
 
-{ id:'m5-conv-ex', module:'M5', nav:'Worked example · two exponentials', title:'Worked example — an exponential input to an exponential system', src:'p. 57',
+{ id:'m5-conv-ex', module:'M5', nav:'Worked example · two exponentials', title:'Convolution of Two Exponentials', src:'p. 57',
   objective:'Solve an LTI problem by transform and partial fractions, and check the peak.',
-  keywords:'worked example LTI two exponentials partial fractions cover-up peak log 2 quarter', steps:4, blocks:[
+  keywords:'worked example LTI two exponentials partial fractions cover-up peak log 2 quarter', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 57'},
   {t:'title', text:'Convolution of Two Exponentials'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=e^{-at}u(t)$ and $h(t)=e^{-bt}u(t)$, with $a>0$, $b>0$ and $a\\neq b$.'],
-      ['Find','$y(t)=x(t)*h(t)$.'],
-      ['Method','Transform both, multiply, split the product into simple fractions, and invert term by term.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'Y(j\\omega)=\\frac{1}{a+j\\omega}\\cdot\\frac{1}{b+j\\omega}=\\frac{A}{a+j\\omega}+\\frac{B}{b+j\\omega}'},
-      {t:'note', kind:'def', head:'The cover-up rule, for simple poles only', html:'Write $s=j\\omega$ for the moment. To find the coefficient over $(s+a)$, multiply the whole fraction by $(s+a)$, cancel, and evaluate at $s=-a$. Here that gives $A=\\dfrac{1}{b-a}$, and by the same step $B=\\dfrac{1}{a-b}=-A$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, size:'lg', tex:'y(t)=\\frac{e^{-at}-e^{-bt}}{b-a}\\,u(t)',
-        label:'Solution',
-        note:'Each term was inverted with the pair $e^{-ct}u(t)\\leftrightarrow1/(c+j\\omega)$ established earlier in this module.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check at the origin','$y(0)=0$. A convolution of two causal signals must start at zero, because there is no overlap yet at $t=0$.'],
-        ['Check the peak','For $a=1$, $b=2$: $y(t)=e^{-t}-e^{-2t}$, whose derivative vanishes at $t=\\ln2=0.693147$, where $y=\\tfrac12-\\tfrac14=\\tfrac14$ exactly.'],
-        ['Check the DC values','$|X(j0)|=1/a=1$, $|H(j0)|=1/b=0.5$, and $|Y(j0)|=1/(ab)=0.5$. The product of the first two is the third, which is the property itself at one frequency.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'Check by convolution', html:'Direct time-domain convolution gives $\\int_{0}^{t}e^{-a\\tau}e^{-b(t-\\tau)}\\d\\tau$ and the same result. The transform method replaces this convolution integral by multiplication followed by an inverse-transform pair.'}]}
-  ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-0.5,6],yr:[-0.2,1.25],xlabel:'t',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3});
-        a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,n:2000});
-        a.curve(t=>t<0?0:Math.exp(-2*t),{color:C.h,n:2000});
-        a.note(5.7,0.98,'x',{anchor:'end',color:C.in,fs:14,tex:true});
-        a.note(5.7,0.52,'h',{anchor:'end',color:C.h,fs:14,tex:true});
-        return a.svg(); },
-        caption:'Input and impulse response, $a=1$, $b=2$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-0.5,6],yr:[-0.06,0.32],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,0.1,0.25]});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$ and $h(t)$','$y(t)=x(t)*h(t)$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-0.9,6],yr:[-0.1,1.2],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.25,0.5,1],ytickfmt:v=>String(v)});
+      fade(a,1-f,()=>{ a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,n:2000});
+        a.curve(t=>t<0?0:Math.exp(-2*t),{color:C.h,n:2000}); });
+      fade(a,f,()=>{ a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,dash:'9 6',n:2000});
         a.curve(t=>t<0?0:Math.exp(-t)-Math.exp(-2*t),{color:C.out,n:2000});
-        a.point(Math.log(2),0.25,{color:C.coral,r:4.2});
-        return a.svg(); },
-        caption:'The output, with the peak $0.25$ at $t=0.6931$.'}]
-    ]},
+        a.point(Math.log(2),0.25,{color:C.coral,r:4.2}); });
+      return a.svg(); },
+      caption:'For $a=1$, $b=2$. The output starts at $0$ and peaks at $0.25$ when $t=\\ln2\\approx0.693$ s.'},
+    {t:'legend', items:[['in','$x(t)$'],['h','$h(t)$'],['out','$y(t)$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-at}u(t)$ and $h(t)=e^{-bt}u(t)$, with $a,b>0$ and $a\\neq b$.<div class="nsep"></div>What is $y(0)$?',
+      ask:{key:'m5-conv-ex', choices:['$0$','$1$','$1/(a+b)$'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:200,xr:[-6,6],yr:[-0.15,1.25],xlabel:'\\omega\\;[\\text{rad/s}]',pad:{l:54,r:26,t:32,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1]});
-        a.curve(w=>1/Math.hypot(1,w),{color:C.in,n:1600});
-        a.curve(w=>1/Math.hypot(2,w),{color:C.h,n:1600});
-        a.curve(w=>1/(Math.hypot(1,w)*Math.hypot(2,w)),{color:C.out,n:1600});
-        return a.svg(); },
-        caption:'The three magnitudes: cyan $|X|$, amber $|H|$, green $|Y|$. At every frequency the third curve is the product of the first two, and at $\\omega=0$ that reads $1\\times0.5=0.5$.'}]}
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Multiply: $Y=\\dfrac{1}{(a+j\\omega)(b+j\\omega)}=\\dfrac{A}{a+j\\omega}+\\dfrac{B}{b+j\\omega}$.</li><li>Cover-up: multiply by $(a+j\\omega)$ and put $j\\omega=-a$. So $A=\\dfrac{1}{b-a}$ and $B=-A$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'y(t)=\\frac{e^{-at}-e^{-bt}}{b-a}\\,u(t)', label:'Solution',
+        note:'Each term inverts with $e^{-ct}u(t)\\leftrightarrow1/(c+j\\omega)$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$y(0)=0$: two causal signals do not overlap at $t=0$. For $a=1$, $b=2$, $y\'(t)=0$ at $t=\\ln2$, where $y=\\tfrac12-\\tfrac14=0.25$.'}]}
   ]}
 ]},
 
-{ id:'m5-conv-lpf', module:'M5', nav:'Worked example · filters in cascade', title:'Worked example — two ideal low-pass filters in cascade', src:'p. 58',
+{ id:'m5-conv-ex-b', module:'M5', nav:'Two exponentials · the spectra', title:'Spectra of the Two Exponentials', src:'p. 57',
+  objective:'Read the convolution property as a product of magnitudes at each frequency.',
+  keywords:'magnitude product |X| |H| |Y| DC value 0.5 frequency by frequency check', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 57'},
+  {t:'title', text:'Spectra of the Two Exponentials'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-6,6],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{magnitude}',yticksOverride:[0,0.5,1]});
+      a.curve(w=>1/Math.hypot(1,w),{color:C.in,n:1600});
+      a.curve(w=>1/Math.hypot(2,w),{color:C.h,n:1600});
+      a.curve(w=>1/(Math.hypot(1,w)*Math.hypot(2,w)),{color:C.out,n:1600});
+      return a.svg(); },
+      caption:'At every $\\omega$ the output magnitude is the product of the other two. At $\\omega=0$: $1\\times0.5=0.5$.'},
+    {t:'legend', items:[['in','$|X(j\\omega)|$'],['h','$|H(j\\omega)|$'],['out','$|Y(j\\omega)|$']]}
+  ], right:[
+    {t:'eq', tex:'|X(j\\omega)|=\\frac{1}{\\sqrt{1+\\omega^{2}}},\\qquad |H(j\\omega)|=\\frac{1}{\\sqrt{4+\\omega^{2}}}', label:'For $a=1$, $b=2$'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'|Y(j\\omega)|=|X(j\\omega)|\\,|H(j\\omega)|=\\frac{1}{\\sqrt{(1+\\omega^{2})(4+\\omega^{2})}}', label:'The product',
+        note:'The phases add in the same way: $\\angle Y=\\angle X+\\angle H$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$a=1$ and $b=2$.<div class="nsep"></div>What is $|Y(j1)|$?',
+        ask:{key:'m5-conv-ex-b', choices:['$1/\\sqrt{10}\\approx0.316$','$0.5$','$1/\\sqrt{2}\\approx0.707$'], answer:0,
+          why:'$|X(j1)|=1/\\sqrt2$ and $|H(j1)|=1/\\sqrt5$, so the product is $1/\\sqrt{10}$.'}}]}
+  ]}
+]},
+
+{ id:'m5-conv-lpf', module:'M5', nav:'Worked example · filters in cascade', title:'Cascade of Ideal Low-Pass Filters', src:'p. 58',
   objective:'Multiply two ideal bands and read the three time-domain peaks.',
-  keywords:'worked example ideal low pass cascade narrower band wins peaks 8 6 12', steps:3, blocks:[
+  keywords:'worked example ideal low pass cascade narrower band wins peaks 8 6 12', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 58'},
   {t:'title', text:'Cascade of Ideal Low-Pass Filters'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','An input with $X(j\\omega)=2$ on $|\\omega|\\le4\\pi$ and zero beyond, into an ideal low-pass system with $H(j\\omega)=3$ on $|\\omega|\\le2\\pi$ and zero beyond.'],
-      ['Find','$Y(j\\omega)$ and $y(t)$, and the peak of each of the three signals.'],
-      ['Method','Multiply the two spectra frequency by frequency, then invert.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'Y(j\\omega)=X(j\\omega)H(j\\omega)=\\begin{cases}6,&|\\omega|\\le2\\pi\\\\0,&|\\omega|>2\\pi\\end{cases}',
-        label:'Solution, frequency domain',
-        note:'Outside $2\\pi$ the system contributes a zero, so the product is zero however large $X$ is there. Inside, the product is $2\\times3=6$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'y(t)=\\frac{6\\sin(2\\pi t)}{\\pi t}',
-        label:'Solution, time domain',
-        note:'Inverting a band of height $A$ on $|\\omega|<W$ gives $A\\sin(Wt)/(\\pi t)$, from the ideal low-pass pair derived earlier.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Peaks','$x(0)=2\\cdot\\dfrac{2\\cdot4\\pi}{2\\pi}=8$, $h(0)=6$ and $y(0)=12$. Each one is the area of its own band divided by $2\\pi$.'],
-        ['Why the output peak is the largest','The output band is shorter than the input band but taller, and the peak counts area, not height. $6\\times4\\pi$ beats $2\\times8\\pi$.'],
-        ['Input already inside the final band','If the input is already confined to $|\\omega|\\le2\\pi$, the cascade multiplies it by 6 and does not remove any of its frequency components.']
-      ]}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)$ and $H(j\\omega)$','$Y(j\\omega)=X(j\\omega)H(j\\omega)$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-16,16],yr:[-0.6,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,2,3,6],xtarget:9});
+      fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<=4*PI?2:0,{color:C.in,n:3000});
+        a.curve(w=>Math.abs(w)<=2*PI?3:0,{color:C.h,n:3000,dash:'9 6'}); });
+      fade(a,f,()=>{ a.area(w=>Math.abs(w)<=2*PI?6:0,-16,16,{color:C.out+'29',n:900});
+        a.curve(w=>Math.abs(w)<=2*PI?6:0,{color:C.out,n:3000}); });
+      return a.svg(); },
+      caption:'Outside $|\\omega|\\le2\\pi$ the system is zero, so the product is zero there. Inside it is $2\\times3=6$.'},
+    {t:'legend', items:[['in','$X(j\\omega)$'],['h','$H(j\\omega)$',true],['out','$Y(j\\omega)$']]}
   ], right:[
-    {t:'grid', cols:1, gap:'8px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:150,xr:[-18,18],yr:[-1.1,7.2],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,2,6]});
-        a.curve(w=>Math.abs(w)<=4*PI?2:0,{color:C.in,n:3000}); return a.svg(); },
-        caption:'Input: height 2 out to $4\\pi$.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:150,xr:[-18,18],yr:[-1.1,7.2],xlabel:'\\omega',ylabel:'H(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,3,6]});
-        a.curve(w=>Math.abs(w)<=2*PI?3:0,{color:C.h,n:3000}); return a.svg(); },
-        caption:'System: height 3 out to $2\\pi$.'}],
-      [{t:'reveal', at:1, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:150,xr:[-18,18],yr:[-1.1,7.2],xlabel:'\\omega',ylabel:'Y(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,3,6]});
-        a.curve(w=>Math.abs(w)<=2*PI?6:0,{color:C.out,n:3000}); return a.svg(); },
-        caption:'Output: height 6, and only out to $2\\pi$.'}]}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-2.4,2.4],yr:[-4.6,14],xlabel:'t',pad:{l:54,r:26,t:30,b:34},xtarget:7,ytarget:4,yticksOverride:[0,8,12]});
-        a.curve(t=>2*lpfTime(t,4*PI),{color:C.in,n:2400,width:1.6});
-        a.curve(t=>6*lpfTime(t,2*PI),{color:C.out,n:2400,width:2.2});
-        a.point(0,8,{color:C.coral,r:4}); a.point(0,12,{color:C.coral,r:4});
-        return a.svg(); },
-        caption:'The input and the output in time, with ticks at their peaks $8$ and $12$.'}]}]
-    ]}
+    {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=2$ on $|\\omega|\\le4\\pi$ and $H(j\\omega)=3$ on $|\\omega|\\le2\\pi$, both zero beyond.<div class="nsep"></div>What height does $Y(j\\omega)$ have?',
+      ask:{key:'m5-conv-lpf', choices:['$6$','$5$','$3$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'Multiply the spectra frequency by frequency, then invert with the pair $A$ on $|\\omega|<W$ $\\leftrightarrow A\\sin(Wt)/(\\pi t)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'Y(j\\omega)=\\begin{cases}6,&|\\omega|\\le2\\pi\\\\0,&|\\omega|>2\\pi\\end{cases}\\qquad y(t)=\\frac{6\\sin(2\\pi t)}{\\pi t}', label:'Solution'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'Each peak is its band area over $2\\pi$: $x(0)=2\\cdot8\\pi/2\\pi=8$, $h(0)=6$, $y(0)=6\\cdot4\\pi/2\\pi=12$. The output is the tallest signal, because the peak counts area, not height.'}]}
   ]}
 ]},
 
-{ id:'m5-mult', module:'M5', nav:'Multiplication property', title:'Multiplication in time is convolution in frequency', src:'p. 58',
+{ id:'m5-mult', module:'M5', nav:'Multiplication property', title:'Multiplication Property', src:'p. 58',
   objective:'State the dual of the convolution property and place its 1/2π.',
-  keywords:'multiplication property convolution in frequency 1/2 pi duality windowing', steps:3, blocks:[
+  keywords:'multiplication property convolution in frequency 1/2 pi duality windowing bandwidth adds', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Properties', src:'p. 58'},
   {t:'title', text:'Multiplication Property'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Convolution in one domain is multiplication in the other. Duality says the reverse must also hold, and it fixes the factor that comes with it.'},
-    {t:'eq', key:true, size:'lg', tex:'z(t)=x(t)\\,y(t)\\;\\longleftrightarrow\\;Z(j\\omega)=\\frac{1}{2\\pi}\\,X(j\\omega)*Y(j\\omega)',
-      label:'Multiplication property',
-      note:'The convolution on the right is over frequency: $\\displaystyle X*Y=\\int_{-\\infty}^{\\infty}X(j\\theta)Y\\bigl(j(\\omega-\\theta)\\bigr)\\,\\d\\theta$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'The $1/2\\pi$ belongs to this one and not to the other', html:'Convolution in time carries no factor; convolution in frequency carries $1/2\\pi$. Copying the convolution property without the factor makes every product of two signals come out $2\\pi$ times too large, and the error is invisible in the shape of the answer — only the height is wrong.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Purpose of the property', html:'Time-domain multiplication models switching, modulation by a carrier, and windowing before analysis. The multiplication property gives the spectrum produced by each operation.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['One consequence, immediately','Multiplying by an impulse in frequency shifts the spectrum, because convolving with $\\delta(\\omega-\\omega_0)$ moves whatever it meets to $\\omega_0$.'],
-        ['The next three scenes','A cosine has two impulses, so multiplying by a cosine makes two copies. That is amplitude modulation, and it is where the property earns its place.'],
-        ['Bandwidth','Convolving two spectra of widths $B_1$ and $B_2$ gives one of width $B_1+B_2$. A product in time is always at least as wide in frequency as either factor.']
-      ]}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)=Y(j\\omega)$: a band of half-width $2\\pi$','$Z(j\\omega)=\\tfrac{1}{2\\pi}X*Y$: a triangle']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2],xtarget:9});
+      const tri=w=>Math.abs(w)<4*PI ? 2*(1-Math.abs(w)/(4*PI)) : 0;
+      fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:3000}); });
+      fade(a,f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
+        a.area(tri,-16,16,{color:C.out+'29',n:900}); a.curve(tri,{color:C.out,n:2400}); });
+      return a.svg(); },
+      caption:'Two bands of half-width $2\\pi$ convolve to a triangle of half-width $4\\pi$ and apex $2$.'}
   ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-10,10],yr:[-0.25,1.35],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:3000}); return a.svg(); }}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-10,10],yr:[-0.25,1.35],xlabel:'\\omega',ylabel:'Y(j\\omega)',pad:{l:56,r:18,t:30,b:34},xtarget:5,ytarget:2,yticksOverride:[0,1]});
-        a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.h,n:3000}); return a.svg(); }}]
-    ]},
-    {t:'small', html:'Two spectra, each a band of half-width $2\\pi$.'},
+    {t:'eq', key:true, tex:'z(t)=x(t)\\,y(t)\\;\\longleftrightarrow\\;Z(j\\omega)=\\frac{1}{2\\pi}\\,X(j\\omega)*Y(j\\omega)', label:'Multiplication property',
+      note:'The convolution is over frequency: $X*Y=\\int X(j\\theta)\\,Y\\bigl(j(\\omega-\\theta)\\bigr)\\,\\d\\theta$.'},
     {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:210,xr:[-16,16],yr:[-0.55,2.55],xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:32,b:36},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        const tri=w=>Math.abs(w)<4*PI ? 2*(1-Math.abs(w)/(4*PI)) : 0;
-        a.area(tri,-16,16,{color:'rgba(74,122,70,.14)'});
-        a.curve(tri,{color:C.out,width:2.4,n:2400});
-        a.point(0,2,{color:C.coral,r:4.2});
-        return a.svg(); },
-        caption:'Their convolution, divided by $2\\pi$: a triangle of apex 2 on $|\\omega|\\le4\\pi$. Two bands of half-width $2\\pi$ produced one of half-width $4\\pi$.'}]}
+      {t:'note', kind:'err', head:'The $1/2\\pi$ belongs here', html:'Convolution in time has no factor; convolution in frequency has $1/2\\pi$. Without it the shape is right and the height is $2\\pi$ times too large.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'What it models', html:'Switching, modulation by a carrier and windowing are all products in time. Widths add: bands of half-widths $B_1$ and $B_2$ give half-width $B_1+B_2$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$X$ has half-width $\\pi$ and $Y$ has half-width $3\\pi$.<div class="nsep"></div>What half-width does the spectrum of $x(t)y(t)$ have?',
+        ask:{key:'m5-mult', choices:['$4\\pi$','$3\\pi$','$2\\pi$'], answer:0,
+          why:'Convolution adds the half-widths: $\\pi+3\\pi=4\\pi$.'}}]}
   ]}
 ]},
 
-{ id:'m5-am', module:'M5', nav:'Amplitude modulation', title:'Amplitude modulation — two copies, at half height', src:'p. 59',
+{ id:'m5-am', module:'M5', nav:'Amplitude modulation', title:'Amplitude Modulation', src:'p. 59',
   objective:'Derive the DSB-SC spectrum and name the two copies.',
-  keywords:'amplitude modulation DSB-SC carrier sidebands two copies half height cosine', steps:4, blocks:[
+  keywords:'amplitude modulation DSB-SC carrier sidebands two copies half height cosine', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 5 · Application', src:'p. 59'},
   {t:'title', text:'Amplitude Modulation'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Multiply a signal by a cosine of frequency {{sym:wc|$\\omega_c$}}, the <b>carrier</b>. The cosine has two impulses, so the multiplication property convolves the signal spectrum with two impulses at once.'},
-    {t:'eq', size:'sm', tex:'\\cos(\\omega_ct)\\;\\longleftrightarrow\\;\\pi\\delta(\\omega-\\omega_c)+\\pi\\delta(\\omega+\\omega_c)'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'lg', tex:'z(t)=x(t)\\cos(\\omega_ct)\\;\\longleftrightarrow\\;Z(j\\omega)=\\tfrac12X\\bigl(j(\\omega-\\omega_c)\\bigr)+\\tfrac12X\\bigl(j(\\omega+\\omega_c)\\bigr)',
-        label:'Double-sideband suppressed-carrier modulation',
-        note:'The $1/2\\pi$ of the property and the $\\pi$ of each impulse combine into the $\\tfrac12$ in front of each copy. Both copies carry it.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Two copies at half height, not one shifted spectrum', html:'The spectrum is not moved to $\\omega_c$. It is <b>duplicated</b>: one copy centred at $+\\omega_c$ and one at $-\\omega_c$, each at half the original height. A description that says "the signal moved up to the carrier" loses the negative-frequency copy and the factor of one half at the same time.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Given','$x(t)=\\cos(\\pi t)$, carrier $\\cos(4\\pi t)$.'],
-        ['Route 1, product to sum','$\\cos(\\pi t)\\cos(4\\pi t)=\\tfrac12\\cos(5\\pi t)+\\tfrac12\\cos(3\\pi t)$, whose transform is $\\tfrac{\\pi}{2}$ at each of $\\pm3\\pi$ and $\\pm5\\pi$.'],
-        ['Route 2, the property','$X$ has impulses of weight $\\pi$ at $\\pm\\pi$; each copy is halved and centred at $\\pm4\\pi$, giving weight $\\pi/2$ at $4\\pi\\pm\\pi$ and at $-4\\pi\\pm\\pi$. The same four positions.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'Suppressed carrier', html:'Nothing sits at $\\omega_c=4\\pi$ itself. The four impulses are at $3\\pi$ and $5\\pi$ and their negatives — the <b>sidebands</b>. The name of the scheme records exactly that: both sidebands are transmitted and the carrier is not.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:190,xr:[-2.2,2.2],yr:[-1.35,1.5],xlabel:'t',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:3});
-      a.curve(t=>Math.cos(PI*t),{color:C.in,width:1.5,dash:'5 5',n:2400});
-      a.curve(t=>-Math.cos(PI*t),{color:C.in,width:1.5,dash:'5 5',n:2400});
-      a.curve(t=>Math.cos(PI*t)*Math.cos(4*PI*t),{color:C.out,width:2.2,n:4000});
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)$','$Z(j\\omega)$: two copies at half height']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-20,20],yr:[-0.2,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],xtarget:9});
+      const tri=(w,c)=>Math.max(0,1-Math.abs(w-c)/(2*PI));
+      fade(a,1-f,()=>{ a.area(w=>tri(w,0),-20,20,{color:C.in+'29',n:900}); a.curve(w=>tri(w,0),{color:C.in,n:2400}); });
+      fade(a,f,()=>{ const z=w=>0.5*tri(w,4*PI)+0.5*tri(w,-4*PI);
+        a.area(z,-20,20,{color:C.out+'29',n:900}); a.curve(z,{color:C.out,n:2400});
+        a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
       return a.svg(); },
-      caption:'The modulated signal in time. The dashed lines are $\\pm x(t)$, the envelope the carrier is filling in.'},
+      caption:'A triangular spectrum of half-width $2\\pi$, then after multiplication by $\\cos(4\\pi t)$. The dashed lines mark $\\pm\\omega_c$.'}
+  ], right:[
+    {t:'eq', tex:'\\cos(\\omega_ct)\\;\\longleftrightarrow\\;\\pi\\delta(\\omega-\\omega_c)+\\pi\\delta(\\omega+\\omega_c)', label:'The carrier',
+      note:'{{sym:wc|$\\omega_c$}} is the carrier frequency. Two impulses mean two copies.'},
     {t:'reveal', at:1, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-20,20],yr:[-0.45,4.1],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1.57,3.14],ytickfmt:v=>v.toFixed(2)});
-          a.impulse(PI,PI,{color:C.in,label:false}); a.impulse(-PI,PI,{color:C.in,label:false}); return a.svg(); },
-          caption:'Before: two impulses of weight $\\pi=3.1416$.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-20,20],yr:[-0.45,4.1],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:54,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1.57,3.14],ytickfmt:v=>v.toFixed(2)});
-          [3*PI,5*PI,-3*PI,-5*PI].forEach(wv=>a.impulse(wv,PI/2,{color:C.out,label:false}));
-          a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err});
-          return a.svg(); },
-          caption:'After: four impulses of weight $\\pi/2=1.5708$. The dashed lines mark $\\pm\\omega_c$, where nothing sits.'}]
-      ]}]}
+      {t:'eq', key:true, tex:'x(t)\\cos(\\omega_ct)\\;\\longleftrightarrow\\;\\tfrac12X\\bigl(j(\\omega-\\omega_c)\\bigr)+\\tfrac12X\\bigl(j(\\omega+\\omega_c)\\bigr)', label:'Double-sideband suppressed carrier',
+        note:'The $1/2\\pi$ of the property and the $\\pi$ of each impulse give the $\\tfrac12$ on each copy.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Two copies, not one moved spectrum', html:'The spectrum is duplicated, not moved: one copy at $+\\omega_c$ and one at $-\\omega_c$, each at half height. “The signal moves up to the carrier” loses the second copy and the factor $\\tfrac12$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$X(j0)=1$ and the carrier is $\\cos(10\\pi t)$.<div class="nsep"></div>What is $Z(j10\\pi)$?',
+        ask:{key:'m5-am', choices:['$0.5$','$1$','$0.25$'], answer:0,
+          why:'The copy centred at $10\\pi$ is $\\tfrac12X$, so its peak is $\\tfrac12X(j0)=0.5$.'}}]}
   ]}
 ]},
 
-{ id:'m5-am-sinc', module:'M5', nav:'Modulating a band', title:'Modulating a band-limited signal', src:'p. 60',
-  objective:'Move a sinc-shaped band to a carrier and read the band edges.',
-  keywords:'modulation band limited sinc copies band edges 2 pi 6 pi half height', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Application', src:'p. 60'},
+{ id:'m5-am-b', module:'M5', nav:'Worked example · a modulated cosine', title:'Modulating a Cosine', src:'p. 59',
+  objective:'Modulate a cosine by two routes and locate the sidebands.',
+  keywords:'worked example modulated cosine sidebands product to sum 3 pi 5 pi suppressed carrier impulses', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 59'},
+  {t:'title', text:'Modulating a Cosine'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)$: weight $\\pi$ at $\\pm\\pi$','$Z(j\\omega)$: weight $\\pi/2$ at $\\pm3\\pi$, $\\pm5\\pi$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-20,20],yr:[-0.35,4.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[1.5708,3.1416],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      fade(a,1-f,()=>{ [PI,-PI].forEach(w=>a.impulse(w,PI,{color:C.in,label:false})); });
+      fade(a,f,()=>{ [3*PI,5*PI,-3*PI,-5*PI].forEach(w=>a.impulse(w,PI/2,{color:C.out,label:false}));
+        a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
+      return a.svg(); },
+      caption:'Before and after modulation. Nothing sits at $\\pm\\omega_c=\\pm4\\pi$, the dashed lines.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(\\pi t)$ and the carrier is $\\cos(4\\pi t)$.<div class="nsep"></div>Where are the impulses of $Z(j\\omega)$ for $\\omega>0$?',
+      ask:{key:'m5-am-b', choices:['$3\\pi$ and $5\\pi$','$4\\pi$','$\\pi$ and $4\\pi$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\cos(\\pi t)\\cos(4\\pi t)=\\tfrac12\\cos(3\\pi t)+\\tfrac12\\cos(5\\pi t)', label:'Route 1 · product to sum',
+        note:'Each $\\tfrac12\\cos$ gives impulses of weight $\\tfrac{\\pi}{2}$ at its $\\pm$ frequency.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'Z(j\\omega)=\\tfrac{\\pi}{2}\\bigl[\\delta(\\omega\\mp3\\pi)+\\delta(\\omega\\mp5\\pi)\\bigr]', label:'Route 2 · the property',
+        note:'Halve the two impulses of $X$ and centre copies at $\\pm4\\pi$: positions $4\\pi\\pm\\pi$ and $-4\\pi\\pm\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'Both routes give four impulses of weight $\\pi/2\\approx1.5708$. The carrier frequency itself carries nothing: only the sidebands are sent.'}]}
+  ]}
+]},
+
+{ id:'m5-am-sinc', module:'M5', nav:'Modulating a band', title:'Modulation of a Band-Limited Signal', src:'p. 60',
+  objective:'Move a band to a carrier and read the band edges.',
+  keywords:'modulation band limited sinc copies band edges 2 pi 6 pi half height demodulation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 60'},
   {t:'title', text:'Modulation of a Band-Limited Signal'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, whose transform is $X(j\\omega)=1$ on $|\\omega|<2\\pi$ and zero beyond. The carrier is $\\cos(4\\pi t)$.'],
-      ['Find','$Z(j\\omega)$ for $z(t)=x(t)\\cos(4\\pi t)$, with the edges of every band.'],
-      ['Method','Two half-height copies of $X$, one centred at $+4\\pi$ and one at $-4\\pi$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'Z(j\\omega)=\\tfrac12X\\bigl(j(\\omega-4\\pi)\\bigr)+\\tfrac12X\\bigl(j(\\omega+4\\pi)\\bigr)=0.5\\quad\\text{on}\\quad 2\\pi\\le|\\omega|\\le6\\pi',
-        label:'Solution',
-        note:'The upper copy occupies $4\\pi-2\\pi\\le\\omega\\le4\\pi+2\\pi$, that is $2\\pi$ to $6\\pi$. The lower copy is its mirror image.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Height','$0.5$, exactly half of the original $1$, in both copies.'],
-        ['Width','Each copy is $4\\pi$ wide, the same as the original band. Modulation does not stretch anything.'],
-        ['Total occupancy','The modulated signal occupies $8\\pi$ of the frequency axis, twice what the signal alone occupied, because there are now two copies.']
-      ]}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Getting the signal back', html:'Multiply $z$ by the same carrier a second time. That makes two copies of each of the two copies: one pair lands back at the origin and adds up to $X/2$, and the other pair goes out to $\\pm8\\pi$. A low-pass filter keeping only $|\\omega|<2\\pi$ then recovers the signal, up to the factor $\\tfrac12$.'},
-      {t:'note', kind:'warn', head:'This works only while the copies stay apart', html:'The recipe above assumes the copy at $+8\\pi$ does not reach down into the band being kept. The next scene is the case where it does.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$z(t)$ in time','$Z(j\\omega)$: two bands of height $0.5$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-1.6,1.6],yr:[-2.6,2.6],xlabel:'t\\;(\\text{s})',ylabel:'z(t)',yticksOverride:[-2,2]});
+        fade(a,1-2*f,()=>{ a.curve(t=>lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
+          a.curve(t=>-lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
+          a.curve(t=>lpfTime(t,2*PI)*Math.cos(4*PI*t),{color:C.out,n:6000}); });
+        return a.svg(); }
+      const a=AX({xr:[-26,26],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[0.5,1],xtarget:9});
+      fade(a,2*f-1,()=>{ const z=w=>((Math.abs(w-4*PI)<2*PI)?0.5:0)+((Math.abs(w+4*PI)<2*PI)?0.5:0);
+        a.area(z,-26,26,{color:C.out+'29',n:900}); a.curve(z,{color:C.out,n:4000});
+        a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
+      return a.svg(); },
+      caption:'The carrier fills an envelope $\\pm x(t)$. In frequency: two copies on $2\\pi\\le|\\omega|\\le6\\pi$.'}
   ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-26,26],yr:[-0.28,1.4],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
-        a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:4000});
-        a.span(-2*PI,2*PI,1.14,'4\\pi',{color:C.coral,tex:true,fs:13});
-        return a.svg(); },
-        caption:'The signal band: height 1, half-width $2\\pi$.'}],
-      [{t:'reveal', at:1, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:190,xr:[-26,26],yr:[-0.28,1.4],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
-        const f=w=>((Math.abs(w-4*PI)<2*PI)?0.5:0)+((Math.abs(w+4*PI)<2*PI)?0.5:0);
-        a.area(f,-26,26,{color:'rgba(74,122,70,.13)'});
-        a.curve(f,{color:C.out,n:4000});
-        a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err});
-        return a.svg(); },
-        caption:'Two copies at half height, on $2\\pi\\le|\\omega|\\le6\\pi$. The dashed lines are the carrier frequencies.'}]}],
-      [{t:'reveal', at:3, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-1.6,1.6],yr:[-2.6,2.6],xlabel:'t',pad:{l:52,r:26,t:30,b:34},xtarget:7,ytarget:3});
-        a.curve(t=>lpfTime(t,2*PI),{color:C.in,width:1.4,dash:'5 5',n:2400});
-        a.curve(t=>-lpfTime(t,2*PI),{color:C.in,width:1.4,dash:'5 5',n:2400});
-        a.curve(t=>lpfTime(t,2*PI)*Math.cos(4*PI*t),{color:C.out,width:2,n:6000});
-        return a.svg(); },
-        caption:'The same modulation in time: the carrier fills in an envelope of the signal’s own shape.'}]}]
-    ]}
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, so $X(j\\omega)=1$ on $|\\omega|<2\\pi$, and $z(t)=x(t)\\cos(4\\pi t)$.<div class="nsep"></div>Where is the upper band of $Z(j\\omega)$?',
+      ask:{key:'m5-am-sinc', choices:['$2\\pi\\le\\omega\\le6\\pi$','$4\\pi\\le\\omega\\le6\\pi$','$|\\omega|\\le6\\pi$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'Two half-height copies of $X$, centred at $+4\\pi$ and $-4\\pi$. The upper one runs from $4\\pi-2\\pi$ to $4\\pi+2\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'Z(j\\omega)=0.5\\quad\\text{on}\\quad 2\\pi\\le|\\omega|\\le6\\pi,\\qquad 0\\ \\text{elsewhere}', label:'Solution',
+        note:'Each copy is $4\\pi$ wide, as wide as $X$. Together they occupy $8\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'Multiply $z$ by the carrier again: one pair of copies returns to the origin and adds to $X/2$. A low-pass filter on $|\\omega|<2\\pi$ recovers $x$, up to the factor $\\tfrac12$.'}]}
   ]}
 ]},
 
-{ id:'m5-am-overlap', module:'M5', nav:'Spectral overlap in modulation', title:'Spectral overlap in modulation', src:'p. 60',
+{ id:'m5-am-overlap', module:'M5', nav:'Spectral overlap in modulation', title:'Spectral Overlap in Modulation', src:'p. 60',
   objective:'Work the case where the two copies meet, and separate replication from overlap.',
-  keywords:'overlap copies collide carrier too low baseband adds 0.5 plus 0.5 sampling preview', steps:4, blocks:[
-  {t:'eyebrow', text:'Module 5 · Application', src:'p. 60'},
+  keywords:'overlap copies collide carrier too low baseband adds 0.5 plus 0.5 sampling preview', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 60'},
   {t:'title', text:'Spectral Overlap in Modulation'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','A signal whose transform is $X_1(j\\omega)=1$ on $|\\omega|\\le\\pi$, already modulated once so that $X(j\\omega)=1$ on $\\pi\\le|\\omega|\\le3\\pi$. The carrier now is $\\cos(2\\pi t)$.'],
-      ['Find','$Z(j\\omega)$ for $z(t)=x(t)\\cos(2\\pi t)$.'],
-      ['Method','The same rule: two half-height copies, at $+2\\pi$ and at $-2\\pi$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'Z(j\\omega)=\\tfrac12X\\bigl(j(\\omega-2\\pi)\\bigr)+\\tfrac12X\\bigl(j(\\omega+2\\pi)\\bigr)',
-        note:'The $\\tfrac12$ multiplies <b>both</b> terms. Writing it on only one of them halves one copy and leaves the other at full height, which no shift can do.'},
-      {t:'wex', rows:[
-        ['Upper copy','$X$ occupies $\\pi\\le|\\omega|\\le3\\pi$, so shifting it up by $2\\pi$ puts material on $3\\pi\\le\\omega\\le5\\pi$ and on $-\\pi\\le\\omega\\le\\pi$.'],
-        ['Lower copy','Shifting down by $2\\pi$ gives $-5\\pi\\le\\omega\\le-3\\pi$ and, again, $-\\pi\\le\\omega\\le\\pi$.']
-      ]}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'Z(j\\omega)=\\tfrac12X_1\\bigl(j(\\omega+4\\pi)\\bigr)+X_1(j\\omega)+\\tfrac12X_1\\bigl(j(\\omega-4\\pi)\\bigr)',
-        label:'Solution',
-        note:'Around the origin the two copies land on the same stretch and <b>add</b>: $0.5+0.5=1$. Out at $\\pm4\\pi$ only one copy reaches, so the height there is $0.5$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Two different events', html:'<b>Copies appear</b> whenever a signal is multiplied by a carrier. That happens every time, at every carrier frequency, and it is harmless. <b>Copies overlap</b> only when the carrier is low enough for the shifted bands to reach each other. Overlap is what destroys information, because once two copies have been added there is no way to tell what each contributed.'}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'warn', head:'The rule of thumb, and where it returns', html:'The copies stay apart while $\\omega_c$ exceeds the highest frequency in the signal. Below that they meet. Module 7 asks the same question about the copies that sampling produces, and gives the condition its usual name.'}]}
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)$','the two copies','their sum $Z(j\\omega)$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const a=AX({xr:[-20,20],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const B=w=>(Math.abs(w)>=PI&&Math.abs(w)<=3*PI)?1:0;
+      const up=w=>0.5*B(w-2*PI), dn=w=>0.5*B(w+2*PI);
+      fade(a,1-cl(f),()=>{ a.area(B,-20,20,{color:C.in+'29',n:1200}); a.curve(B,{color:C.in,n:4000}); });
+      fade(a,cl(f)*(1-cl(f-1)),()=>{ a.curve(up,{color:C.mid,n:4000}); a.curve(dn,{color:C.h,n:4000,dash:'9 6'}); });
+      fade(a,cl(f-1),()=>{ const z=w=>up(w)+dn(w);
+        a.area(z,-20,20,{color:C.out+'29',n:1200}); a.curve(z,{color:C.out,n:4000}); });
+      return a.svg(); },
+      caption:'Around the origin the two copies land on the same stretch and add: $0.5+0.5=1$.'}
   ], right:[
-    {t:'grid', cols:1, gap:'10px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:160,xr:[-20,20],yr:[-0.28,1.4],xlabel:'\\omega',ylabel:'X(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
-        a.curve(w=>(Math.abs(w)>=PI&&Math.abs(w)<=3*PI)?1:0,{color:C.in,n:4000}); return a.svg(); },
-        caption:'Before: a band on $\\pi\\le|\\omega|\\le3\\pi$.'}],
-      [{t:'reveal', at:1, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:170,xr:[-20,20],yr:[-0.28,1.4],xlabel:'\\omega',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
-        const up=w=>((Math.abs(w-2*PI)>=PI&&Math.abs(w-2*PI)<=3*PI)?0.5:0);
-        const dn=w=>((Math.abs(w+2*PI)>=PI&&Math.abs(w+2*PI)<=3*PI)?0.5:0);
-        a.curve(up,{color:C.mid,n:4000,width:2});
-        a.curve(dn,{color:C.h,n:4000,width:2,dash:'6 4'});
-        return a.svg(); },
-        caption:'The two half-height copies, drawn separately. They share the stretch $|\\omega|\\le\\pi$.'}]}],
-      [{t:'reveal', at:2, items:[{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-20,20],yr:[-0.28,1.6],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:2,yticksOverride:[0,0.5,1]});
-        const f=w=>((Math.abs(w-2*PI)>=PI&&Math.abs(w-2*PI)<=3*PI)?0.5:0)+((Math.abs(w+2*PI)>=PI&&Math.abs(w+2*PI)<=3*PI)?0.5:0);
-        a.area(f,-20,20,{color:'rgba(74,122,70,.13)'});
-        a.curve(f,{color:C.out,n:4000,width:2.4});
-        a.span(-PI,PI,1.12,'\\text{they add here}',{color:C.err,tex:true,fs:13});
-        return a.svg(); },
-        caption:'The sum. Height 1 on $|\\omega|\\le\\pi$, where both copies arrived, and $0.5$ on $3\\pi\\le|\\omega|\\le5\\pi$, where only one did.'}]}]
-    ]}
-  ]}
-]}
-,
-
-{ id:'m5-sinc2', module:'M5', nav:'Products of sincs', title:'Multiplying two sincs, and the shapes that come out', src:'p. 61',
-  objective:'Convolve two rectangular bands and read the triangle and the trapezoid.',
-  keywords:'sinc squared triangle trapezoid convolution of rectangles apex 2 plateau bandwidths', steps:4, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 61'},
-  {t:'title', text:'Products of Sinc Functions'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'note', kind:'def', head:'The shape rule', html:'Convolving two rectangles of height $A$ and half-width $\\omega_0$ gives a <b>triangle</b> of apex $2A^{2}\\omega_0$ on $|\\omega|\\le2\\omega_0$. If the half-widths differ, the result is a <b>trapezoid</b>: flat over $|\\omega|\\le|\\omega_1-\\omega_2|$ and zero beyond $\\omega_1+\\omega_2$.'},
+    {t:'note', kind:'def', head:'Given', html:'$X(j\\omega)=1$ on $\\pi\\le|\\omega|\\le3\\pi$, and $z(t)=x(t)\\cos(2\\pi t)$.<div class="nsep"></div>What is $Z(j0)$?',
+      ask:{key:'m5-am-overlap', choices:['$1$','$0.5$','$0$'], answer:0}},
     {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['Given','$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, so $X(j\\omega)=1$ on $|\\omega|<2\\pi$. Take $z(t)=x^{2}(t)$.'],
-        ['Find','$Z(j\\omega)$.'],
-        ['Method','Multiplication in time is convolution in frequency, with the factor $\\tfrac{1}{2\\pi}$.']
-      ]},
-      {t:'eq', key:true, tex:'Z(j\\omega)=\\frac{1}{2\\pi}\\bigl[X*X\\bigr](j\\omega)=\\frac{1}{2\\pi}\\cdot4\\pi\\left(1-\\frac{|\\omega|}{4\\pi}\\right)=2\\left(1-\\frac{|\\omega|}{4\\pi}\\right)\\ \\text{on}\\ |\\omega|\\le4\\pi',
-        label:'Solution',
-        note:'Apex $2A^{2}\\omega_0=2\\cdot1\\cdot2\\pi=4\\pi$ before the $\\tfrac{1}{2\\pi}$, and $2$ after it.'}]},
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Shift $X$ up by $2\\pi$: material on $-\\pi\\le\\omega\\le\\pi$ and $3\\pi\\le\\omega\\le5\\pi$.</li><li>Shift it down by $2\\pi$: $-5\\pi\\le\\omega\\le-3\\pi$ and again $-\\pi\\le\\omega\\le\\pi$. Halve both.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['Peak check in time','$x(0)=2$, so $z(0)=x^{2}(0)=4$. Reading the same number through the transform: $\\dfrac{1}{2\\pi}\\int Z\\,\\d\\omega=\\dfrac{1}{2\\pi}\\cdot\\tfrac12\\cdot8\\pi\\cdot2=4$.'],
-        ['Band check','The band doubled, from $2\\pi$ to $4\\pi$. Squaring a signal in time always widens its spectrum, and by exactly the width of the spectrum being convolved in.']
-      ]}]},
+      {t:'eq', key:true, tex:'Z(j\\omega)=\\begin{cases}1,&|\\omega|\\le\\pi\\\\0.5,&3\\pi\\le|\\omega|\\le5\\pi\\\\0,&\\text{elsewhere}\\end{cases}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Unequal bandwidths','Take $x_1$ with a band of half-width $2\\pi$ and $x_2$ with half-width $4\\pi$, both of height 1. Then $Z$ is a trapezoid of height $\\dfrac{1}{2\\pi}\\cdot2\\cdot2\\pi=2$, flat on $|\\omega|\\le2\\pi$ and zero beyond $6\\pi$.'],
-        ['Peak check','$x_1(0)=2$ and $x_2(0)=4$, so the product peaks at $8$. That is the area of the trapezoid divided by $2\\pi$.']
-      ]}]},
-    {t:'reveal', at:4, items:[
-      {t:'note', kind:'ok', head:'Why the flat top appears', html:'While the narrower band slides entirely inside the wider one, the overlap area does not change, so the convolution is constant. The flat top is exactly as wide as the difference of the two half-widths, and it shrinks to a point when the two are equal, which is the triangle again.'}]}
-  ], right:[
-    {t:'grid', cols:2, gap:'16px', items:[
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-1.6,1.6],yr:[-1,2.5],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:18,t:30,b:34},xtarget:5,ytarget:3,yticksOverride:[0,1,2]});
-        a.curve(t=>lpfTime(t,2*PI),{color:C.in,n:2400}); a.point(0,2,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$x$, peak 2.'}],
-      [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-1.6,1.6],yr:[-0.5,4.9],xlabel:'t',ylabel:'x^{2}(t)',pad:{l:54,r:18,t:32,b:34},xtarget:5,ytarget:3,yticksOverride:[0,2,4]});
-        a.curve(t=>Math.pow(lpfTime(t,2*PI),2),{color:C.out,n:2400}); a.point(0,4,{color:C.coral,r:3.6}); return a.svg(); },
-        caption:'$x^{2}$, peak 4.'}]
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-18,18],yr:[-0.55,2.5],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        const tri=w=>Math.abs(w)<4*PI?2*(1-Math.abs(w)/(4*PI)):0;
-        a.area(tri,-18,18,{color:'rgba(74,122,70,.13)'});
-        a.curve(tri,{color:C.out,width:2.4,n:2400}); a.point(0,2,{color:C.coral,r:4});
-        return a.svg(); },
-        caption:'The triangle: apex 2, base $|\\omega|\\le4\\pi$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:820,h:180,xr:[-24,24],yr:[-0.55,2.5],xlabel:'\\omega',ylabel:'Z(j\\omega)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,1,2]});
-        const trap=w=>{ const aw=Math.abs(w);
-          if(aw<=2*PI) return 2;
-          if(aw>=6*PI) return 0;
-          return 2*(6*PI-aw)/(4*PI); };
-        a.area(trap,-24,24,{color:'rgba(106,90,146,.13)'});
-        a.curve(trap,{color:C.mid,width:2.4,n:3000});
-        return a.svg(); },
-        caption:'Unequal bandwidths: height 2, flat on $|\\omega|\\le2\\pi$, zero beyond $6\\pi$.'}]}
+      {t:'note', kind:'warn', head:'Copies and overlap are different events', html:'Copies appear at every carrier and do no harm. Overlap happens only when the carrier is low enough for the copies to meet; once added, they cannot be separated. Sampling raises the same question.'}]}
   ]}
 ]},
 
-{ id:'m5-tables', module:'M5', nav:'Property summary', title:'The properties, in one place', src:'p. 62',
+{ id:'m5-sinc2', module:'M5', nav:'Products of sincs', title:'Square of a Sinc', src:'p. 61',
+  objective:'Convolve a band with itself and read the triangle and its peak.',
+  keywords:'sinc squared triangle convolution of rectangles apex 2 peak 4 bandwidth doubles', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 61'},
+  {t:'title', text:'Square of a Sinc'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$ and $x^{2}(t)$','$Z(j\\omega)$: apex $2$ on $|\\omega|\\le4\\pi$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-1.6,1.6],yr:[-0.8,4.6],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[2,4]});
+        fade(a,1-2*f,()=>{ a.curve(t=>lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
+          a.curve(t=>Math.pow(lpfTime(t,2*PI),2),{color:C.out,n:2400}); });
+        return a.svg(); }
+      const a=AX({xr:[-16,16],yr:[-0.2,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      fade(a,2*f-1,()=>{ const tri=w=>Math.abs(w)<4*PI?2*(1-Math.abs(w)/(4*PI)):0;
+        a.area(tri,-16,16,{color:C.out+'29',n:900}); a.curve(tri,{color:C.out,n:2400}); });
+      return a.svg(); },
+      caption:'The signal peaks at $2$ and its square at $4$. The spectrum of the square is a triangle twice as wide as $X$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=\\dfrac{\\sin(2\\pi t)}{\\pi t}$, so $X(j\\omega)=1$ on $|\\omega|<2\\pi$, and $z(t)=x^{2}(t)$.<div class="nsep"></div>What is $Z(j0)$?',
+      ask:{key:'m5-sinc2', choices:['$2$','$4\\pi$','$1$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'Multiplication in time is convolution in frequency, with $\\tfrac{1}{2\\pi}$. A band convolved with itself is a triangle of apex $2A^{2}\\omega_0=4\\pi$ on $|\\omega|\\le4\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'Z(j\\omega)=\\frac{1}{2\\pi}\\,(X*X)(j\\omega)=2\\left(1-\\frac{|\\omega|}{4\\pi}\\right),\\quad |\\omega|\\le4\\pi', label:'Solution'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$z(0)=x(0)^{2}=4$. Through the transform, $\\tfrac{1}{2\\pi}\\int Z\\,\\d\\omega=\\tfrac{1}{2\\pi}\\cdot\\tfrac12\\cdot8\\pi\\cdot2=4$.'}]}
+  ]}
+]},
+
+{ id:'m5-sinc2-b', module:'M5', nav:'Two bands of different width', title:'Product of Two Different Bands', src:'p. 61',
+  objective:'Convolve two bands of different width and explain the flat top of the trapezoid.',
+  keywords:'trapezoid unequal bandwidths flat top plateau convolution of rectangles peak 8', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 61'},
+  {t:'title', text:'Product of Two Different Bands'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'w2', label:'$\\omega_2/\\pi$', min:2, max:5, step:0.5, v:4, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const w1=2*PI, w2=(v?v.w2:4)*PI, lo=Math.abs(w2-w1), hi=w1+w2;
+      const trap=w=>{ const aw=Math.abs(w); if(aw<=lo) return 2; if(aw>=hi) return 0; return 2*(hi-aw)/(hi-lo); };
+      const a=AX({xr:[-24,24],yr:[-0.2,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      a.area(trap,-24,24,{color:C.mid+'29',n:900}); a.curve(trap,{color:C.mid,n:3000});
+      return a.svg(); },
+      caption:'Bands of half-width $\\omega_1=2\\pi$ and $\\omega_2$. The top is flat on $|\\omega|\\le\\omega_2-\\omega_1$ and the edge is at $\\omega_1+\\omega_2$.'}
+  ], right:[
+    {t:'eq', key:true, tex:'Z(j\\omega)=\\frac{1}{2\\pi}(X_1*X_2)(j\\omega)=2\\ \\text{on}\\ |\\omega|\\le2\\pi,\\qquad 0\\ \\text{beyond}\\ 6\\pi', label:'Half-widths $2\\pi$ and $4\\pi$',
+      note:'Both bands have height $1$. The flat height is $\\tfrac{1}{2\\pi}\\cdot4\\pi=2$, the full width of the narrower band over $2\\pi$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Why the top is flat', html:'While the narrow band slides wholly inside the wide one, the overlap area does not change. The flat part has half-width $\\omega_2-\\omega_1$ and becomes a point when the widths are equal: the triangle again.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x_1(0)=2$ and $x_2(0)=4$.<div class="nsep"></div>What is the peak of $x_1(t)x_2(t)$?',
+        ask:{key:'m5-sinc2-b', choices:['$8$','$6$','$2$'], answer:0,
+          why:'$x_1(0)x_2(0)=8$, which is also the area of the trapezoid over $2\\pi$.'}}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'Reading the area', html:'The trapezoid has area $\\tfrac12(4\\pi+12\\pi)\\cdot2=16\\pi$, and $16\\pi/2\\pi=8$.'}]}
+  ]}
+]},
+
+realGallery({ id:'m5-real-conv', nav:'Products and filters around us',
+  title:'Products and Filters Around Us', eyebrow:'Module 5 · Convolution and multiplication', src:'pp. 56–61',
+  objective:'Recognise convolution and multiplication in everyday signals.',
+  keywords:'examples AM radio RC filter pulse window tone moving average temperature convolution multiplication',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[0,1.5],yr:[-1.8,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:0.5}));
+      a.curve(t=>1+0.5*Math.cos(2*PI*t),{color:C.in,dash:'9 6',n:800});
+      a.curve(t=>-(1+0.5*Math.cos(2*PI*t)),{color:C.in,dash:'9 6',n:800});
+      a.curve(t=>(1+0.5*Math.cos(2*PI*t))*Math.cos(20*PI*t),{color:C.out,n:4000});
+      return a.svg(); }, 'An AM broadcast: a $1$ kHz tone rides on a $10$ kHz carrier, $[1+0.5\\cos(2\\pi t)]\\cos(20\\pi t)$ with $t$ in ms.',
+      [['in','envelope',true],['out','$s(t)$']]],
+    [()=>{ const tau=0.3, k=1-Math.exp(-1/tau);
+      const a=P.Axes(EXO({xr:[-0.3,3],yr:[-0.2,1.4],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:0.5}));
+      a.curve(t=>(t>0&&t<1)?1:0,{color:C.in,dash:'9 6',n:2400});
+      a.curve(t=>t<=0?0:(t<1?1-Math.exp(-t/tau):k*Math.exp(-(t-1)/tau)),{color:C.out,n:2400});
+      return a.svg(); }, 'A $1$ ms pulse through an RC filter with $\\tau=0.3$ ms: the output is the pulse convolved with $h(t)$.',
+      [['in','input',true],['out','output']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.02,0.14],yr:[-1.3,1.6],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.04}));
+      a.curve(t=>(t>0&&t<0.1)?1:0,{color:C.in,dash:'9 6',n:2400});
+      a.curve(t=>(t>0&&t<0.1)?Math.cos(2*PI*50*t):0,{color:C.out,n:4000});
+      return a.svg(); }, 'A $50$ Hz tone recorded for $0.1$ s: the tone times a pulse. Its spectrum is a sinc at $\\pm50$ Hz.',
+      [['in','window',true],['out','recording']]],
+    [()=>{ const x=n=>15+5*Math.sin(2*PI*n/30)+2*Math.sin(2.7*n)+1.5*Math.cos(1.9*n);
+      const y=n=>{ let s=0; for(let k=0;k<7;k++) s+=x(n-k); return s/7; };
+      const a=P.Axes(EXO({xr:[-1,30],yr:[0,26],xlabel:'n\\;(\\text{day})',ylabel:'^{\\circ}\\text{C}',xstep:7}));
+      a.stem(D(x,0,29),{color:C.in,r:2.4});
+      a.curve(t=>y(Math.round(t)),{color:C.out,n:600});
+      return a.svg(); }, 'Daily temperature and its $7$-day average, $y[n]=\\tfrac17\\sum_{k=0}^{6}x[n-k]$: a convolution with seven equal weights.',
+      [['in','$x[n]$'],['out','$y[n]$']]]
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'Two operations', html:'A filter convolves; a carrier or a window multiplies. Each becomes the other operation in frequency.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'A filter’s effect is a product of spectra, and a recording window smears every line into a sinc.'}
+  ]}),
+
+labScene({ id:'m5-lab-x', lab:'X', nav:'Products and Modulation', title:'Filtering and Modulation in Frequency', src:'pp. 56–61',
+  objective:'Filter or modulate a signal and watch the product or the copies form in frequency.',
+  keywords:'laboratory convolution multiplication filter modulation carrier copies overlap product' }),
+
+codeScene({ id:'m5-code-conv', nav:'Convolution and multiplication', title:'Convolution and Modulation in Code', src:'pp. 56–61', eyebrow:'Convolution and modulation in code',
+  objective:'Check the convolution and multiplication properties numerically in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python convolution multiplication modulation sinc squared run' }),
+
+
+/* ======================================================= 5.6 differential equations */
+
+{ id:'m5-diffeq', module:'M5', nav:'Systems from a differential equation', title:'Frequency Response from a Differential Equation', src:'p. 62',
+  objective:'Turn an LCCDE into H(jω) and state when H exists.',
+  keywords:'differential equation LCCDE frequency response H(jw) rational stability absolutely integrable', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Systems', src:'p. 62'},
+  {t:'title', text:'Frequency Response from a Differential Equation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
+      {t:'box',x:20,y:50,w:210,h:70,label:'\\text{differential equation}',tex:true,fs:16},
+      {t:'arrow',x1:230,y1:85,x2:330,y2:85,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'box',x:330,y:50,w:210,h:70,label:'\\text{algebra in }j\\omega',tex:true,fs:16},
+      {t:'box',x:330,y:250,w:210,h:70,label:'H(j\\omega)=\\tfrac{B(j\\omega)}{A(j\\omega)}',tex:true,fs:17,color:C.h},
+      {t:'arrow',x1:435,y1:120,x2:435,y2:250,color:C.slate},
+      {t:'box',x:20,y:250,w:210,h:70,label:'h(t)',tex:true,fs:19,color:C.h},
+      {t:'arrow',x1:330,y1:285,x2:230,y2:285,color:C.slate},
+      {t:'text',x:280,y:350,label:'\\text{partial fractions, then the table}',tex:true,fs:14,color:C.slate}
+    ]}), caption:'The route of this section: transform the equation, read $H(j\\omega)$, and invert it term by term.'}
+  ], right:[
+    {t:'eq', tex:'\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y(t)}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x(t)}{\\d t^{k}}', label:'Linear, constant coefficients'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'H(j\\omega)=\\frac{Y(j\\omega)}{X(j\\omega)}=\\frac{\\sum_{k=0}^{M}b_k(j\\omega)^{k}}{\\sum_{k=0}^{N}a_k(j\\omega)^{k}}', label:'Frequency response',
+        note:'Each $\\d^{k}/\\d t^{k}$ becomes $(j\\omega)^{k}$. The coefficients give two polynomials in $j\\omega$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'When $H(j\\omega)$ exists', html:'When $h$ is absolutely integrable, $\\int|h(t)|\\,\\d t<\\infty$. For an LTI system that is bounded-input bounded-output stability: an unstable system has no frequency response.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$\\dfrac{\\d^{2}y}{\\d t^{2}}+4\\dfrac{\\d y}{\\d t}+3y=\\dfrac{\\d x}{\\d t}+2x$.<div class="nsep"></div>What is $H(j0)$?',
+        ask:{key:'m5-diffeq', choices:['$2/3$','$1/3$','$2$'], answer:0,
+          why:'$H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega)^{2}+4j\\omega+3}$, so $H(j0)=2/3$.'}}]}
+  ]}
+]},
+
+{ id:'m5-diffeq-ex', module:'M5', nav:'Worked example · simple poles', title:'Partial Fractions with Distinct Poles', src:'p. 63',
+  objective:'Invert a rational H with distinct poles and check the result.',
+  keywords:'worked example partial fractions simple poles cover-up impulse response half half', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
+  {t:'title', text:'Partial Fractions with Distinct Poles'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const h=t=>t<0?0:0.5*Math.exp(-t)+0.5*Math.exp(-3*t);
+      const a=AX({xr:[-0.5,6],yr:[-0.1,1.2],xlabel:'t\\;(\\text{s})',ylabel:'h(t)',yticksOverride:[0,0.5,1]});
+      a.area(h,0,6,{color:C.h+'29',n:900});
+      a.curve(h,{color:C.h,n:2400});
+      a.point(0,1,{color:C.coral,r:4.2});
+      return a.svg(); },
+      caption:'The impulse response. It starts at $1$ and its area is $2/3$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$, from the equation on the previous slide.<div class="nsep"></div>What is $h(0^{+})$?',
+      ask:{key:'m5-diffeq-ex', choices:['$1$','$2/3$','$0$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Write $s=j\\omega$ for the algebra: $\\dfrac{s+2}{(s+1)(s+3)}=\\dfrac{A}{s+1}+\\dfrac{B}{s+3}$.</li><li>Cover-up: $A=\\dfrac{s+2}{s+3}\\Big|_{s=-1}=\\dfrac12$ and $B=\\dfrac{s+2}{s+1}\\Big|_{s=-3}=\\dfrac12$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'h(t)=\\left[\\tfrac12e^{-t}+\\tfrac12e^{-3t}\\right]u(t)', label:'Solution',
+        note:'Each fraction inverts with $e^{-ct}u(t)\\leftrightarrow1/(c+j\\omega)$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'$H(j0)=2/3$, and $\\int_0^\\infty h\\,\\d t=\\tfrac12+\\tfrac16=\\tfrac23$. $h(0^{+})=\\tfrac12+\\tfrac12=1$. $h$ is absolutely integrable, so the system is stable.'}]}
+  ]}
+]},
+
+{ id:'m5-diffeq-ex-b', module:'M5', nav:'Simple poles · the frequency response', title:'Frequency Response of the Example', src:'p. 63',
+  objective:'Plot the magnitude and phase of the example and read them at low and high frequency.',
+  keywords:'magnitude phase frequency response 2/3 low pass high frequency 1/omega phase odd', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
+  {t:'title', text:'Frequency Response of the Example'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$|H(j\\omega)|$','$\\angle H(j\\omega)$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      if(f<0.5){
+        const a=AX({xr:[-10,10],yr:[-0.08,0.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[0.3333,0.6667],ytickfmt:v=>v.toFixed(2)});
+        fade(a,1-2*f,()=>{ a.curve(w=>Math.hypot(2,w)/(Math.hypot(1,w)*Math.hypot(3,w)),{color:C.h,n:2000}); a.point(0,2/3,{color:C.coral,r:4.2}); });
+        return a.svg(); }
+      const a=AX({xr:[-10,10],yr:[-1.7,1.7],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
+      fade(a,2*f-1,()=>{ a.curve(w=>Math.atan2(w,2)-Math.atan2(w,1)-Math.atan2(w,3),{color:C.mid,n:2000}); });
+      return a.svg(); },
+      caption:'The magnitude peaks at $0.667$ at $\\omega=0$. The phase is odd, as a real $h$ requires.'}
+  ], right:[
+    {t:'eq', tex:'|H(j\\omega)|=\\frac{\\sqrt{4+\\omega^{2}}}{\\sqrt{1+\\omega^{2}}\\,\\sqrt{9+\\omega^{2}}},\\qquad \\angle H=\\tan^{-1}\\tfrac{\\omega}{2}-\\tan^{-1}\\omega-\\tan^{-1}\\tfrac{\\omega}{3}', label:'Magnitude and phase'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Reading the ends', html:'At $\\omega=0$ the system passes $2/3$ of a constant. For large $\\omega$ the numerator has one factor and the denominator two, so $|H|$ falls like $1/\\omega$ and the phase goes to $-\\pi/2$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same $H(j\\omega)$ at $\\omega=100$ rad/s.<div class="nsep"></div>About how large is $|H(j100)|$?',
+        ask:{key:'m5-diffeq-ex-b', choices:['$0.01$','$0.67$','$0.0001$'], answer:0,
+          why:'For large $\\omega$, $|H|\\approx\\omega/\\omega^{2}=1/\\omega=0.01$.'}}]}
+  ]}
+]},
+
+{ id:'m5-partial', module:'M5', nav:'Repeated poles', title:'Partial Fractions with Repeated Poles', src:'p. 63',
+  objective:'State the repeated-pole partial-fraction rule and show why the cover-up rule fails there.',
+  keywords:'repeated pole multiplicity derivative partial fractions cover-up rule fails formula', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Technique', src:'p. 63'},
+  {t:'title', text:'Partial Fractions with Repeated Poles'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-1,8],yr:[-0.1,1.2],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.37,1],ytickfmt:v=>String(v)});
+      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,dash:'9 6',n:2000});
+      a.curve(t=>t<0?0:t*Math.exp(-t),{color:C.out,n:2000});
+      a.point(1,Math.exp(-1),{color:C.coral,r:4.2});
+      return a.svg(); },
+      caption:'A simple pole and a double pole at $a=1$. The double pole starts at $0$ and peaks at $t=1/a$.'},
+    {t:'legend', items:[['in','$e^{-at}u(t)\\leftrightarrow\\frac{1}{s+a}$',true],['out','$t\\,e^{-at}u(t)\\leftrightarrow\\frac{1}{(s+a)^{2}}$']]}
+  ], right:[
+    {t:'eq', tex:'\\frac{N(s)}{(s-\\lambda)^{m}Q(s)}=\\frac{c_{m}}{(s-\\lambda)^{m}}+\\dots+\\frac{c_{1}}{s-\\lambda}+(\\text{terms from }Q)', label:'One term per power',
+      note:'Here $s=j\\omega$ is only a name for the algebra.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'Why covering up fails', html:'Multiply by $(s-\\lambda)$ and one factor survives below, so $s=\\lambda$ divides by zero. Multiply by $(s-\\lambda)^{m}$ and only the top coefficient $c_m$ falls out.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'c_{m-k}=\\frac{1}{k!}\\,\\frac{\\d^{k}}{\\d s^{k}}\\Bigl[(s-\\lambda)^{m}F(s)\\Bigr]_{s=\\lambda},\\qquad k=0,\\dots,m-1', label:'Repeated-pole rule',
+        note:'$k=0$ is the cover-up rule. Each derivative gives one more coefficient.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$F(j\\omega)=\\dfrac{1}{(j\\omega+2)^{2}}$.<div class="nsep"></div>What is its inverse transform?',
+        ask:{key:'m5-partial', choices:['$t\\,e^{-2t}u(t)$','$e^{-2t}u(t)$','$e^{-4t}u(t)$'], answer:0,
+          why:'A double pole brings a factor $t$: $t\\,e^{-at}u(t)\\leftrightarrow1/(a+j\\omega)^{2}$.'}}]}
+  ]}
+]},
+
+{ id:'m5-diffeq-b', module:'M5', nav:'Worked example · a repeated pole', title:'Repeated-Pole Example', src:'p. 63',
+  objective:'Solve a full LTI problem with a double pole by the derivative rule.',
+  keywords:'worked example repeated pole double pole coefficients quarter half minus quarter derivative rule', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
+  {t:'title', text:'Repeated-Pole Example'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-0.4,7],yr:[-0.1,1.2],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.5,1]});
+      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,dash:'9 6',n:2000});
+      a.curve(t=>t<0?0:t*Math.exp(-t),{color:C.mid,n:2000});
+      a.curve(t=>t<0?0:Math.exp(-3*t),{color:C.h,n:2000});
+      return a.svg(); },
+      caption:'The three terms the coefficients multiply. Only $t\\,e^{-t}$ starts at zero, and it comes from the double pole.'},
+    {t:'legend', items:[['in','$e^{-t}$',true],['mid','$t\\,e^{-t}$'],['h','$e^{-3t}$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$ and $x(t)=e^{-t}u(t)$.<div class="nsep"></div>How many terms does $Y$ split into?',
+      ask:{key:'m5-diffeq-b', choices:['$3$','$2$','$4$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'Y=\\frac{s+2}{(s+1)^{2}(s+3)}=\\frac{A}{s+1}+\\frac{B}{(s+1)^{2}}+\\frac{C}{s+3}', label:'Method · $Y=XH$ with $s=j\\omega$',
+        note:'The input pole and one system pole coincide, so $s=-1$ is now a double pole.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'B=\\frac{s+2}{s+3}\\Big|_{-1}=\\frac12,\\quad A=\\frac{\\d}{\\d s}\\frac{s+2}{s+3}\\Big|_{-1}=\\frac{1}{(s+3)^{2}}\\Big|_{-1}=\\frac14,\\quad C=\\frac{s+2}{(s+1)^{2}}\\Big|_{-3}=-\\frac14', label:'Solution · the coefficients'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'warn', head:'Carry the minus', html:'$C$ is negative. It is most easily lost on the line where the three fractions are written out together.'}]}
+  ]}
+]},
+
+{ id:'m5-diffeq-b2', module:'M5', nav:'Worked example · the check', title:'Verification by Initial Value', src:'p. 63',
+  objective:'Assemble the output and use y(0)=0 to catch a lost sign.',
+  keywords:'worked example causal convolution starts at zero check sign lost candidates compare', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
+  {t:'title', text:'Verification by Initial Value'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$y(t)$ with $C=-\\tfrac14$','the wrong sign, $C=+\\tfrac14$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-0.4,5],yr:[-0.08,0.62],xlabel:'t\\;(\\text{s})',ylabel:'y(t)',yticksOverride:[0,0.25,0.5]});
+      a.curve(t=>t<0?0:0.25*Math.exp(-t)+0.5*t*Math.exp(-t)-0.25*Math.exp(-3*t),{color:C.out,n:2400});
+      a.point(0,0,{color:C.coral,r:4.2});
+      fade(a,f,()=>{ a.curve(t=>t<0?0:0.25*Math.exp(-t)+0.5*t*Math.exp(-t)+0.25*Math.exp(-3*t),{color:C.err,dash:'9 6',n:2400});
+        a.point(0,0.5,{color:C.err,r:4.2}); });
+      return a.svg(); },
+      caption:'The two candidates differ by $0.5$ at $t=0$ and by about $0.001$ at $t=2$.'},
+    {t:'legend', items:[['out','$C=-\\tfrac14$'],['err','$C=+\\tfrac14$',true]]}
+  ], right:[
+    {t:'eq', key:true, tex:'y(t)=\\left[\\tfrac14e^{-t}+\\tfrac12t\\,e^{-t}-\\tfrac14e^{-3t}\\right]u(t)', label:'Solution',
+      note:'Inverted with $\\frac{1}{s+a}\\leftrightarrow e^{-at}u(t)$ and $\\frac{1}{(s+a)^{2}}\\leftrightarrow t\\,e^{-at}u(t)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'The check', html:'$y=x*h$ with $x$ and $h$ causal, so $y(0)=0$. The answer gives $\\tfrac14+0-\\tfrac14=0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Why this check', html:'At $t=2$ the candidates are $0.1685$ and $0.1698$; comparing curves there decides little. At $t=0$ they differ by $0.5$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The answer assembled with $C=+\\tfrac14$.<div class="nsep"></div>What does it give at $t=0$?',
+        ask:{key:'m5-diffeq-b2', choices:['$0.5$','$0$','$0.25$'], answer:0,
+          why:'$\\tfrac14+0+\\tfrac14=0.5$, which a convolution of two causal signals cannot give.'}}]}
+  ]}
+]},
+
+realGallery({ id:'m5-real-diffeq', nav:'Differential equations around us',
+  title:'Differential Equations Around Us', eyebrow:'Module 5 · Systems', src:'pp. 62–63',
+  objective:'Recognise first- and second-order systems in everyday signals.',
+  keywords:'examples RC circuit charging thermometer car suspension coffee cooling first order second order',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-0.5,5],yr:[-0.6,6],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:1}));
+      a.curve(t=>t<0?0:5*(1-Math.exp(-t)),{color:C.out,n:1600});
+      return a.svg(); }, 'A capacitor charging to $5$ V through a resistor, $\\tau=RC=1$ ms: $v(t)=5(1-e^{-t})$, $t$ in ms.'],
+    [()=>{ const a=P.Axes(EXO({xr:[0,60],yr:[15,40],xlabel:'t\\;(\\text{s})',ylabel:'T(t)\\;(^{\\circ}\\text{C})',xstep:10}));
+      a.curve(t=>20+17*(1-Math.exp(-t/10)),{color:C.out,n:1600});
+      return a.svg(); }, 'A thermometer placed under the tongue: $T(t)=20+17(1-e^{-t/10})$, rising towards $37^{\\circ}$C.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.3,4],yr:[-4,5],xlabel:'t\\;(\\text{s})',ylabel:'y(t)\\;(\\text{cm})',xstep:1}));
+      a.curve(t=>t<0?0:4*Math.exp(-1.5*t)*Math.cos(2*PI*t),{color:C.out,n:2400});
+      return a.svg(); }, 'A car body after a bump, a second-order system: $y(t)=4e^{-1.5t}\\cos(2\\pi t)$ cm.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,30],yr:[0,90],xlabel:'n\\;(\\text{min})',ylabel:'T[n]\\;(^{\\circ}\\text{C})',xstep:5}));
+      a.stem(D(n=>20+60*Math.pow(0.9,n),0,30),{color:C.in,r:2.4});
+      return a.svg(); }, 'Coffee cooling, read once a minute: $T[n]=20+60(0.9)^{n}$, from $80^{\\circ}$C towards room temperature.']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'One equation, one response', html:'Each curve is the response of a low-order differential or difference equation. Its poles set how fast it settles and whether it rings.'},
+    {t:'note', kind:'warn', head:'Why this matters', html:'The equation gives $H(j\\omega)$ by algebra; partial fractions then give the response.'}
+  ]}),
+
+labScene({ id:'m5-lab-y', lab:'Y', nav:'Differential Equations', title:'A Differential Equation and Its Response', src:'pp. 62–63',
+  objective:'Set the coefficients of a second-order system and read its frequency response and impulse response together.',
+  keywords:'laboratory differential equation frequency response poles partial fractions impulse response damping' }),
+
+codeScene({ id:'m5-code-diffeq', nav:'Differential equations', title:'Differential Equations in Code', src:'pp. 62–63', eyebrow:'Differential equations in code',
+  objective:'Turn differential equations into frequency and impulse responses in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python differential equation frequency response partial fractions impulse response run' }),
+
+
+/* ======================================================= 5.7 summary */
+
+{ id:'m5-tables', module:'M5', nav:'Property summary', title:'CTFT Property Summary', src:'p. 62',
   objective:'Collect every property of the continuous-time Fourier transform for reference.',
-  keywords:'summary table properties reference list linearity shift scaling convolution integration symmetry parseval duality', steps:2, blocks:[
+  keywords:'summary table properties reference list linearity shift scaling convolution integration symmetry parseval duality',
+  budget:'A reference table of properties in two columns, with one closing note.',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
   {t:'title', text:'CTFT Property Summary'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -1868,33 +2070,33 @@ const SC = [
       ['Frequency shift','$e^{j\\omega_0t}x(t)\\;\\leftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)$'],
       ['Conjugation','$x^{*}(t)\\;\\leftrightarrow\\;X^{*}(-j\\omega)$'],
       ['Time reversal','$x(-t)\\;\\leftrightarrow\\;X(-j\\omega)$'],
-      ['Time and frequency scaling','$x(at)\\;\\leftrightarrow\\;\\dfrac{1}{|a|}X\\bigl(j\\omega/a\\bigr)$'],
+      ['Scaling','$x(at)\\;\\leftrightarrow\\;\\frac{1}{|a|}X(j\\omega/a)$'],
       ['Convolution','$x(t)*h(t)\\;\\leftrightarrow\\;X(j\\omega)H(j\\omega)$'],
-      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\dfrac{1}{2\\pi}X(j\\omega)*Y(j\\omega)$'],
+      ['Multiplication','$x(t)y(t)\\;\\leftrightarrow\\;\\frac{1}{2\\pi}X(j\\omega)*Y(j\\omega)$'],
       ['Duality','$X(t)\\;\\leftrightarrow\\;2\\pi x(-\\omega)$']
     ]}
   ], right:[
     {t:'sub', text:'Calculus, symmetry and energy'},
     {t:'wex', rows:[
-      ['Differentiation in time','$\\dfrac{\\d^{n}x(t)}{\\d t^{n}}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
-      ['Integration','$\\displaystyle\\int_{-\\infty}^{t}x(\\tau)\\d\\tau\\;\\leftrightarrow\\;\\dfrac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)$'],
-      ['Differentiation in frequency','$t\\,x(t)\\;\\leftrightarrow\\;j\\dfrac{\\d}{\\d\\omega}X(j\\omega)$'],
-      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$, so $|X|$ is even and $\\angle X$ is odd'],
+      ['Differentiation','$\\d^{n}x/\\d t^{n}\\;\\leftrightarrow\\;(j\\omega)^{n}X(j\\omega)$'],
+      ['Integration','$\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau\\;\\leftrightarrow\\;\\frac{X(j\\omega)}{j\\omega}+\\pi X(0)\\delta(\\omega)$'],
+      ['Frequency derivative','$t\\,x(t)\\;\\leftrightarrow\\;j\\,\\d X(j\\omega)/\\d\\omega$'],
+      ['Real signal','$X(-j\\omega)=X^{*}(j\\omega)$: $|X|$ even, $\\angle X$ odd'],
       ['Real and even','$X(j\\omega)$ real and even'],
       ['Real and odd','$X(j\\omega)$ purely imaginary and odd'],
-      ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
-      ['Parseval','$\\displaystyle\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\d\\omega$']
+      ['Even and odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
+      ['Parseval','$\\int|x(t)|^{2}\\,\\d t=\\frac{1}{2\\pi}\\int|X(j\\omega)|^{2}\\,\\d\\omega$']
     ]}
   ]},
   {t:'reveal', at:1, items:[
-    {t:'note', kind:'warn', head:'The two rows that carry a condition', html:'<b>Integration</b> is not simply a division by $j\\omega$: the impulse $\\pi X(0)\\delta(\\omega)$ is part of the result whenever the signal has non-zero area, and it is the term that gets dropped. <b>Scaling</b> carries $1/|a|$, with the modulus, so a reversal counts once and not twice.'}]},
-  {t:'reveal', at:2, items:[
-    {t:'note', kind:'ok', head:'How to use it', html:'Almost every problem in this module is one standard pair plus one or two properties. Recognise the shape, look up the pair, apply the properties in the order the signal was built, and check the answer at $\\omega=0$ against the area of the signal.'}]}
+    {t:'note', kind:'warn', head:'Two rows with a condition', html:'<b>Integration</b> keeps $\\pi X(0)\\delta(\\omega)$ whenever the signal has non-zero area. <b>Scaling</b> carries $1/|a|$, with the modulus, so a reversal counts once. Check every answer at $\\omega=0$ against the area.'}]}
 ]},
 
-{ id:'m5-pairs', module:'M5', nav:'Transform pairs', title:'The transform pairs, in one place', src:'p. 62',
+{ id:'m5-pairs', module:'M5', nav:'Transform pairs', title:'CTFT Pairs', src:'p. 62',
   objective:'Collect every standard continuous-time transform pair the course uses.',
-  keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention', steps:2, blocks:[
+  keywords:'transform pairs table reference impulse step exponential rectangular sinc impulse train periodic square wave sinc convention',
+  budget:'A reference table of pairs in two columns, with one closing note.',
+  slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 5 · Reference', src:'p. 62'},
   {t:'title', text:'CTFT Pairs'},
   {t:'cols', ratio:'c-6-6', left:[
@@ -1902,13 +2104,12 @@ const SC = [
     {t:'wex', rows:[
       ['Impulse','$\\delta(t)\\;\\leftrightarrow\\;1$'],
       ['Shifted impulse','$\\delta(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}$'],
-      ['Unit step','$u(t)\\;\\leftrightarrow\\;\\dfrac{1}{j\\omega}+\\pi\\delta(\\omega)$'],
-      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{a+j\\omega}$, $a>0$'],
-      ['With a factor $t$','$te^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{2}}$, $a>0$'],
-      ['Repeated pole','$\\dfrac{t^{n-1}}{(n-1)!}e^{-at}u(t)\\;\\leftrightarrow\\;\\dfrac{1}{(a+j\\omega)^{n}}$, $a>0$'],
-      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\dfrac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
-      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\dfrac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
-      ['Ideal low-pass band','$\\dfrac{\\sin(Wt)}{\\pi t}=\\dfrac{W}{\\pi}\\operatorname{sinc}(Wt)\\;\\leftrightarrow\\;1$ on $|\\omega|<W$']
+      ['Unit step','$u(t)\\;\\leftrightarrow\\;\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$'],
+      ['One-sided exponential','$e^{-at}u(t)\\;\\leftrightarrow\\;\\frac{1}{a+j\\omega}$, $a>0$'],
+      ['Repeated pole','$\\frac{t^{n-1}}{(n-1)!}e^{-at}u(t)\\;\\leftrightarrow\\;\\frac{1}{(a+j\\omega)^{n}}$, $a>0$'],
+      ['Two-sided exponential','$e^{-a|t|}\\;\\leftrightarrow\\;\\frac{2a}{a^{2}+\\omega^{2}}$, $a>0$'],
+      ['Rectangular pulse','$1$ on $|t|<T_1\\;\\leftrightarrow\\;\\frac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)$'],
+      ['Ideal low-pass band','$\\frac{\\sin(Wt)}{\\pi t}\\;\\leftrightarrow\\;1$ on $|\\omega|<W$']
     ]}
   ], right:[
     {t:'sub', text:'Periodic signals and impulse trains'},
@@ -1916,224 +2117,151 @@ const SC = [
       ['Constant','$1\\;\\leftrightarrow\\;2\\pi\\delta(\\omega)$'],
       ['Complex exponential','$e^{j\\omega_0t}\\;\\leftrightarrow\\;2\\pi\\delta(\\omega-\\omega_0)$'],
       ['Cosine','$\\cos(\\omega_0t)\\;\\leftrightarrow\\;\\pi\\delta(\\omega-\\omega_0)+\\pi\\delta(\\omega+\\omega_0)$'],
-      ['Sine','$\\sin(\\omega_0t)\\;\\leftrightarrow\\;\\dfrac{\\pi}{j}\\delta(\\omega-\\omega_0)-\\dfrac{\\pi}{j}\\delta(\\omega+\\omega_0)$'],
-      ['Any periodic signal','$\\displaystyle\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$'],
-      ['Periodic square wave','$1$ on $|t|<T_1$, $0$ on $T_1<|t|\\le T/2\\;\\leftrightarrow\\;\\displaystyle\\sum_k\\frac{2\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0)$'],
-      ['Impulse train','$\\displaystyle\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\!\\left(\\omega-\\frac{2\\pi k}{T}\\right)$']
+      ['Sine','$\\sin(\\omega_0t)\\;\\leftrightarrow\\;\\frac{\\pi}{j}\\delta(\\omega-\\omega_0)-\\frac{\\pi}{j}\\delta(\\omega+\\omega_0)$'],
+      ['Any periodic signal','$\\sum_k a_ke^{jk\\omega_0t}\\;\\leftrightarrow\\;\\sum_k 2\\pi a_k\\delta(\\omega-k\\omega_0)$'],
+      ['Square wave','$\\sum_k\\frac{2\\sin(k\\omega_0T_1)}{k}\\delta(\\omega-k\\omega_0)$'],
+      ['Impulse train','$\\sum_k\\delta(t-kT)\\;\\leftrightarrow\\;\\frac{2\\pi}{T}\\sum_k\\delta\\bigl(\\omega-\\frac{2\\pi k}{T}\\bigr)$']
     ]}
   ]},
   {t:'reveal', at:1, items:[
-    {t:'note', kind:'warn', head:'Two things to carry with the table', html:'Every sinc above is the <b>unnormalised</b> one, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. A table written in the normalised convention divides the argument by $\\pi$, so the two look different while saying the same thing, and copying an argument between them is the commonest way to lose a factor of $\\pi$. The exponential pairs hold only for $a>0$, and the condition belongs on the same line as the result.'}]},
-  {t:'reveal', at:2, items:[
-    {t:'note', kind:'def', head:'Why the right-hand column is all impulses', html:'A periodic signal is a sum of harmonics, and a single harmonic has all its energy at one frequency. Its transform can therefore only be an impulse there. Every entry on the right is that one fact applied to a different sum, and the $k=0$ entry of the square wave is the mean value $2T_1/T$ scaled by $2\\pi$ in the usual way.'}]}
+    {t:'note', kind:'warn', head:'Carry with the table', html:'Every sinc here is unnormalised, $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$; a table in the normalised convention divides the argument by $\\pi$. The exponential pairs hold only for $a>0$.'}]}
 ]},
 
-{ id:'m5-diffeq', module:'M5', nav:'Systems from a differential equation', title:'From a differential equation to a frequency response', src:'p. 62',
-  objective:'Turn an LCCDE into H(jω) and state when H exists.',
-  keywords:'differential equation LCCDE frequency response H(jw) rational stability absolutely integrable', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Systems', src:'p. 62'},
-  {t:'title', text:'Frequency Response from a Differential Equation'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'Many continuous-time systems are described by a linear differential equation with constant coefficients, relating the output to the input:'},
-    {t:'eq', size:'sm', tex:'\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y(t)}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x(t)}{\\d t^{k}}'},
-    {t:'reveal', at:1, items:[
-      {t:'body', html:'Transform both sides. By linearity every term transforms on its own, and by the differentiation property each $\\d^{k}/\\d t^{k}$ becomes a factor $(j\\omega)^{k}$:'},
-      {t:'eq', size:'sm', tex:'\\left[\\sum_{k=0}^{N}a_k(j\\omega)^{k}\\right]Y(j\\omega)=\\left[\\sum_{k=0}^{M}b_k(j\\omega)^{k}\\right]X(j\\omega)'},
-      {t:'eq', key:true, size:'lg', tex:'H(j\\omega)=\\frac{Y(j\\omega)}{X(j\\omega)}=\\frac{\\displaystyle\\sum_{k=0}^{M}b_k(j\\omega)^{k}}{\\displaystyle\\sum_{k=0}^{N}a_k(j\\omega)^{k}}',
-        label:'Frequency response of the system',
-        note:'The differential-equation coefficients form two polynomials in $j\\omega$. Their ratio is the frequency response, so no transform integral is needed.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'When $H(j\\omega)$ exists', html:'The frequency response is the transform of $h$, so it exists when $h$ is absolutely integrable: $\\int|h(t)|\\,\\d t<\\infty$. For an LTI system that condition is <b>exactly</b> bounded-input bounded-output stability, proved in Module 3. So the statement is about the system, not about the signal $h$: an unstable system has no frequency response to plot.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'ok', head:'Three-step method', html:'<b>1.</b> Form $H(j\\omega)$ from the differential-equation coefficients. <b>2.</b> Calculate $Y(j\\omega)=X(j\\omega)H(j\\omega)$. <b>3.</b> Expand $Y$ into simple fractions and invert each term with the transform table.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>P.blocks({w:830,h:230,items:[
-      {t:'box',x:50,y:26,w:250,h:64,label:'\\text{differential equation}',tex:true,fs:15},
-      {t:'arrow',x1:300,y1:58,x2:520,y2:58,label:'\\mathcal{F}',tex:true,color:C.coral},
-      {t:'box',x:520,y:26,w:250,h:64,label:'\\text{algebra in }j\\omega',tex:true,fs:15},
-      {t:'box',x:520,y:140,w:250,h:64,label:'H(j\\omega)=B(j\\omega)/A(j\\omega)',tex:true,fs:16,color:'#C08422'},
-      {t:'line',d:'M645,90 L645,140',color:C.slate},
-      {t:'line',d:'M645,140 l-4.5,-9 h9 Z',color:C.slate},
-      {t:'box',x:50,y:140,w:250,h:64,label:'h(t)',tex:true,fs:17,color:'#C08422'},
-      {t:'line',d:'M520,172 L310,172',color:C.slate},
-      {t:'line',d:'M300,172 l9,-4.5 v9 Z',color:C.slate},
-      {t:'text',x:410,y:196,label:'\\text{partial fractions, then the table}',tex:true,fs:12,color:C.slate}
-    ]}), caption:'The route the next two scenes follow, in both directions.'},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Example equation','$\\dfrac{\\d^{2}y}{\\d t^{2}}+4\\dfrac{\\d y}{\\d t}+3y=\\dfrac{\\d x}{\\d t}+2x$'],
-        ['Its response','$H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega)^{2}+4j\\omega+3}=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$'],
-        ['Its poles','At $j\\omega=-1$ and $j\\omega=-3$. Both have negative real part, so the system is stable and $H$ exists.']
-      ]}]}
+{ id:'m5-quick', module:'M5', nav:'Quick check', title:'Quick check', src:'pp. 42–63',
+  objective:'Check the module ideas with twelve short predictions.',
+  keywords:'quick check predict impulse area exponential sinc zero cosine shift scaling real signal parseval convolution modulation differential equation',
+  budget:'A set of twelve prediction cards; the questions carry no figure.',
+  slide:true, steps:0, blocks:[
+  {t:'eyebrow', text:'Module 5 · Quick check', src:'pp. 42–63'},
+  {t:'title', text:'Quick Check'},
+  {t:'grid', cols:4, gap:'22px 20px', style:'flex:1;grid-auto-rows:1fr;padding-bottom:8px', items:[
+    [{t:'note', kind:'def', head:'Impulse', html:'The transform of $\\delta(t)$ is',
+      ask:{key:'m5-qc0', choices:['$1$','$2\\pi\\delta(\\omega)$','$0$'], answer:0,
+        why:'The sifting property gives $e^{-j\\omega\\cdot0}=1$ at every $\\omega$.'}}],
+    [{t:'note', kind:'def', head:'Area', html:'$x(t)=1$ on $|t|<3$. Then $X(j0)$ is',
+      ask:{key:'m5-qc1', choices:['$6$','$3$','$1$'], answer:0,
+        why:'$X(j0)$ is the area of the signal.'}}],
+    [{t:'note', kind:'def', head:'Exponential', html:'$x(t)=e^{-2t}u(t)$. Then $|X(j0)|$ is',
+      ask:{key:'m5-qc2', choices:['$0.5$','$2$','$1$'], answer:0,
+        why:'$X(j\\omega)=1/(2+j\\omega)$.'}}],
+    [{t:'note', kind:'def', head:'First zero', html:'$2\\sin(\\omega T_1)/\\omega$ with $T_1=0.5$ first vanishes at',
+      ask:{key:'m5-qc3', choices:['$2\\pi$','$\\pi$','$0.5$'], answer:0,
+        why:'Zeros sit at $\\omega T_1=\\pi$, so $\\omega=\\pi/T_1$.'}}],
+    [{t:'note', kind:'def', head:'Cosine', html:'$\\cos(3t)$ has impulses at $\\pm3$ of weight',
+      ask:{key:'m5-qc4', choices:['$\\pi$','$\\tfrac12$','$2\\pi$'], answer:0,
+        why:'$a_{\\pm1}=\\tfrac12$ and each weight is $2\\pi a_k$.'}}],
+    [{t:'note', kind:'def', head:'Delay', html:'Delaying a signal changes $|X(j\\omega)|$?',
+      ask:{key:'m5-qc5', choices:['no','yes'], answer:0,
+        why:'The factor $e^{-j\\omega t_0}$ has magnitude $1$.'}}],
+    [{t:'note', kind:'def', head:'Scaling', html:'$X$ is zero beyond $W$. The transform of $x(2t)$ is zero beyond',
+      ask:{key:'m5-qc6', choices:['$2W$','$W/2$','$W$'], answer:0,
+        why:'Compressing time widens the spectrum by the same factor.'}}],
+    [{t:'note', kind:'def', head:'Real signal', html:'$x$ is real and $X(j1)=2+j$. Then $X(-j1)$ is',
+      ask:{key:'m5-qc7', choices:['$2-j$','$2+j$','$-2-j$'], answer:0,
+        why:'A real signal has $X(-j\\omega)=X^{*}(j\\omega)$.'}}],
+    [{t:'note', kind:'def', head:'Energy', html:'$x(t)=e^{-t}u(t)$ has energy',
+      ask:{key:'m5-qc8', choices:['$0.5$ J','$1$ J','$2\\pi$ J'], answer:0,
+        why:'$\\int_0^\\infty e^{-2t}\\,\\d t=\\tfrac12$.'}}],
+    [{t:'note', kind:'def', head:'Convolution', html:'$X(j0)=3$ and $H(j0)=2$. Then $Y(j0)$ is',
+      ask:{key:'m5-qc9', choices:['$6$','$5$','$1.5$'], answer:0,
+        why:'$Y=XH$ at every frequency.'}}],
+    [{t:'note', kind:'def', head:'Modulation', html:'$X(j0)=2$. Times a carrier, each copy peaks at',
+      ask:{key:'m5-qc10', choices:['$1$','$2$','$4$'], answer:0,
+        why:'Each copy is $\\tfrac12X$.'}}],
+    [{t:'note', kind:'def', head:'Equation', html:'$\\d y/\\d t+2y=x$. Then $H(j0)$ is',
+      ask:{key:'m5-qc11', choices:['$0.5$','$2$','$1$'], answer:0,
+        why:'$H(j\\omega)=1/(j\\omega+2)$.'}}]
   ]}
 ]},
 
-{ id:'m5-diffeq-ex', module:'M5', nav:'Worked example · simple poles', title:'Worked example — an impulse response from simple poles', src:'p. 63',
-  objective:'Invert a rational H with distinct poles and check the result.',
-  keywords:'worked example partial fractions simple poles cover-up impulse response half half', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'Partial Fractions with Distinct Poles'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','$\\dfrac{\\d^{2}y}{\\d t^{2}}+4\\dfrac{\\d y}{\\d t}+3y=\\dfrac{\\d x}{\\d t}+2x$, with the system initially at rest.'],
-      ['Find','$H(j\\omega)$ and $h(t)$.'],
-      ['Method','Read the ratio off the coefficients, factor the denominator, split into simple fractions and invert term by term.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'H(j\\omega)=\\frac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}=\\frac{A}{j\\omega+1}+\\frac{B}{j\\omega+3}'},
-      {t:'note', kind:'def', head:'Use a named variable, not the symbol $j\\omega$', html:'Set $s=j\\omega$ while the algebra is done. Treating the two-character symbol $j\\omega$ as if it were a single variable works, but it invites sign slips as soon as a derivative or a substitution is needed. Change back at the end.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['$A$','Multiply by $(s+1)$, cancel, and set $s=-1$: $A=\\dfrac{s+2}{s+3}\\bigg|_{s=-1}=\\dfrac{1}{2}$.'],
-        ['$B$','Multiply by $(s+3)$, cancel, and set $s=-3$: $B=\\dfrac{s+2}{s+1}\\bigg|_{s=-3}=\\dfrac{-1}{-2}=\\dfrac{1}{2}$.']
-      ]},
-      {t:'eq', key:true, size:'lg', tex:'h(t)=\\left[\\tfrac12e^{-t}+\\tfrac12e^{-3t}\\right]u(t)',
-        label:'Solution',
-        note:'Each fraction was inverted with $e^{-ct}u(t)\\leftrightarrow1/(c+j\\omega)$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Check at $\\omega=0$','$H(j0)=2/3$ from the formula, and $\\int_{0}^{\\infty}h(t)\\d t=\\tfrac12+\\tfrac16=\\tfrac23$ from the answer. They agree.'],
-        ['Check the start','$h(0^{+})=\\tfrac12+\\tfrac12=1$, which matches the numerator degree being one less than the denominator degree.'],
-        ['Check stability','$h$ is absolutely integrable, so the system is stable and $H(j\\omega)$ was entitled to exist.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:200,xr:[-0.5,6],yr:[-0.12,1.2],xlabel:'t',ylabel:'h(t)',pad:{l:54,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1]});
-      a.area(t=>t<0?0:0.5*Math.exp(-t)+0.5*Math.exp(-3*t),0,6,{color:'rgba(192,132,34,.13)'});
-      a.curve(t=>t<0?0:0.5*Math.exp(-t)+0.5*Math.exp(-3*t),{color:C.h,width:2.4,n:2400});
-      a.point(0,1,{color:C.coral,r:4});
-      return a.svg(); },
-      caption:'The impulse response. It starts at 1 and its total area is $2/3$.'},
-    {t:'reveal', at:2, items:[
-      {t:'grid', cols:2, gap:'16px', items:[
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-8,8],yr:[-0.09,0.78],xlabel:'\\omega',ylabel:'|H(j\\omega)|',pad:{l:58,r:18,t:32,b:34},xtarget:5,ytarget:3,yticksOverride:[0,0.33,0.67],ytickfmt:v=>v.toFixed(2)});
-          a.curve(w=>Math.hypot(2,w)/(Math.hypot(1,w)*Math.hypot(3,w)),{color:C.h,n:2000});
-          a.point(0,2/3,{color:C.coral,r:3.8}); return a.svg(); },
-          caption:'Magnitude, peak $0.667$ at the origin.'}],
-        [{t:'fig', frame:true, svg:()=>{ const a=P.Axes({w:410,h:196,xr:[-8,8],yr:[-1.55,1.55],xlabel:'\\omega',ylabel:'\\angle H(j\\omega)\\;[\\text{rad}]',pad:{l:64,r:18,t:32,b:34},xtarget:5,yticksOverride:[-1,-0.5,0,0.5,1]});
-          a.curve(w=>Math.atan2(w,2)-Math.atan2(w,1)-Math.atan2(w,3),{color:C.mid,n:2000}); return a.svg(); },
-          caption:'Phase: odd in $\\omega$, as a real $h$ requires.'}]
-      ]}]}
-  ]}
+{ id:'m5-synth', module:'M5', nav:'Module 5 synthesis', title:'Module 5 — what to carry forward', src:'pp. 42–63',
+  dark:true, objective:'Consolidate the module and open the door to the discrete-time transform.',
+  keywords:'synthesis summary module 5 fourier transform pairs properties convolution modulation parseval differential equation preview DTFT', steps:1, blocks:[
+  {t:'eyebrow', text:'Module 5 · Synthesis', src:'pp. 42–63'},
+  {t:'title', text:'Module 5 Summary'},
+  /* Ten results as prompts, in the order of the module: the student answers
+     each one, then opens the card. The sketch on each card is the picture to
+     remember. */
+  {t:'raw', html:()=>RECALL.deck('m5', [
+    {q:'Where does the transform come from?', glyph:G.limit,
+     a:'Let the period of a pulse train grow. $T a_k$ samples one envelope, and in the limit the envelope is $X(j\\omega)$.'},
+    {q:'What are the analysis and synthesis equations?', glyph:G.pair,
+     a:'$X(j\\omega)=\\int x(t)e^{-j\\omega t}\\,\\d t$ and $x(t)=\\frac{1}{2\\pi}\\int X(j\\omega)e^{j\\omega t}\\,\\d\\omega$.'},
+    {q:'Which signals have a transform?', glyph:G.exist,
+     a:'Absolutely integrable ones, with finitely many extrema and jumps. Constants and sinusoids have one in the limit, as impulses.'},
+    {q:'The rectangular pulse', glyph:G.sinc,
+     a:'$1$ on $|t|<T_1$ gives $2\\sin(\\omega T_1)/\\omega=2T_1\\operatorname{sinc}(\\omega T_1)$, with $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'},
+    {q:'Duration and bandwidth', glyph:G.inverse,
+     a:'Narrow in time is wide in frequency. Scaling by $a$ gives $\\frac{1}{|a|}X(j\\omega/a)$.'},
+    {q:'A periodic signal', glyph:G.lines,
+     a:'Impulses of weight $2\\pi a_k$ at $k\\omega_0$.'},
+    {q:'A delay', glyph:G.shift,
+     a:'$e^{-j\\omega t_0}$: the magnitude stays, the phase gains $-\\omega t_0$.'},
+    {q:'Convolution and multiplication', glyph:G.conv,
+     a:'$x*h\\leftrightarrow XH$. $xy\\leftrightarrow\\frac{1}{2\\pi}X*Y$. A carrier makes two half-height copies.'},
+    {q:'Parseval’s relation', glyph:G.energy,
+     a:'$\\int|x|^{2}\\,\\d t=\\frac{1}{2\\pi}\\int|X|^{2}\\,\\d\\omega$, with $R=1\\,\\Omega$.'},
+    {q:'A differential equation', glyph:G.ode,
+     a:'$H(j\\omega)$ is a ratio of polynomials in $j\\omega$. Partial fractions and the table give $h(t)$.'}
+  ], {cols:2})},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'ok', head:'Where Module 6 begins', html:'<span style="color:var(--graphite)">The same idea for a sequence. The analysis sum over $n$ gives a spectrum $X(e^{j\\omega})$ that is continuous in $\\omega$ and repeats every $2\\pi$.</span>'}]}
 ]},
 
-{ id:'m5-partial', module:'M5', nav:'Repeated poles', title:'What to do when a pole repeats', src:'p. 63',
-  objective:'State the repeated-pole partial-fraction rule and show why the cover-up rule fails there.',
-  keywords:'repeated pole multiplicity derivative partial fractions cover-up rule fails formula', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Technique', src:'p. 63'},
-  {t:'title', text:'Partial Fractions with Repeated Poles'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'body', html:'The cover-up rule of the previous scene assumed every factor of the denominator appeared once. When a factor is repeated, the expansion needs one term per power, and only the highest of them can be found by covering up.'},
-    {t:'eq', size:'sm', tex:'F(s)=\\frac{N(s)}{(s-\\lambda)^{m}\\,Q(s)}=\\frac{c_{m}}{(s-\\lambda)^{m}}+\\frac{c_{m-1}}{(s-\\lambda)^{m-1}}+\\dots+\\frac{c_{1}}{s-\\lambda}+\\ (\\text{terms from }Q)'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'err', head:'Why covering up fails', html:'Multiply by $(s-\\lambda)$ and one factor of $(s-\\lambda)$ still survives in the denominator, so setting $s=\\lambda$ divides by zero. Multiply by $(s-\\lambda)^{m}$ instead and the singularity is gone, but now only the <b>top</b> coefficient $c_m$ falls out; the rest are still hidden inside the remaining polynomial.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', key:true, size:'lg', tex:'c_{m-k}=\\frac{1}{k!}\\left.\\frac{\\d^{k}}{\\d s^{k}}\\Bigl[(s-\\lambda)^{m}F(s)\\Bigr]\\right|_{s=\\lambda},\\qquad k=0,1,\\dots,m-1',
-        label:'Repeated-pole rule',
-        note:'$k=0$ is the cover-up rule and gives $c_m$. Each further derivative peels off one more coefficient. Every one of them is obtained by differentiation, not by guessing or by substituting a convenient value.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'The shortcut worth avoiding', html:'A common shortcut is to find the last coefficient by putting some convenient number, often $s=0$, into the identity and solving. It works, but it is coefficient matching without saying so, and it gives no way to check the answer. The derivative formula gives the coefficient directly and can be verified by reassembling the fraction.'},
-      {t:'wex', rows:[
-        ['The inverse transforms needed','$\\dfrac{1}{s+a}\\leftrightarrow e^{-at}u(t)$ and $\\dfrac{1}{(s+a)^{2}}\\leftrightarrow t\\,e^{-at}u(t)$, with $s=j\\omega$.'],
-        ['Where the $t$ comes from','A repeated pole always brings a factor of $t$ into the time domain. A double pole gives $t$, a triple pole gives $t^{2}/2$, and so on.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:220,xr:[-0.4,8],yr:[-0.06,0.45],xlabel:'t',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.2,0.4]});
-      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,width:1.6,dash:'5 5',n:2000});
-      a.curve(t=>t<0?0:t*Math.exp(-t),{color:C.out,width:2.4,n:2000});
-      a.note(7.6,0.30,'e^{-at}u(t)',{anchor:'end',color:C.in,fs:14,tex:true});
-      a.note(7.6,0.10,'t\\,e^{-at}u(t)',{anchor:'end',color:C.out,fs:14,tex:true});
-      a.point(1,Math.exp(-1),{color:C.coral,r:4});
-      return a.svg(); },
-      caption:'A simple pole and a double pole at the same place. The double pole rises from zero, peaks at $t=1/a$, and decays more slowly.'},
-    {t:'reveal', at:2, items:[
-      {t:'small', html:'A simple pole gives an exponential that is largest at $t=0$. A double pole gives a term that starts at zero, increases, and then decays. Evaluate the result at $t=0$ to check whether a coefficient is missing.'}]}
-  ]}
-]},
-
-{ id:'m5-diffeq-b', module:'M5', nav:'Worked example · a repeated pole', title:'Worked example — the repeated pole, and the check that catches a sign', src:'p. 63',
-  objective:'Solve a full LTI problem with a double pole and use y(0)=0 as the check.',
-  keywords:'worked example repeated pole double pole coefficients quarter half minus quarter derivative rule', steps:2, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'Repeated-Pole Example'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-      ['Given','The system of the previous example, $H(j\\omega)=\\dfrac{j\\omega+2}{(j\\omega+1)(j\\omega+3)}$, with input $x(t)=e^{-t}u(t)$.'],
-      ['Find','$y(t)$.'],
-      ['Method','$Y=XH$, then partial fractions. Write $s=j\\omega$.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'eq', size:'sm', tex:'Y(s)=\\frac{1}{s+1}\\cdot\\frac{s+2}{(s+1)(s+3)}=\\frac{s+2}{(s+1)^{2}(s+3)}=\\frac{A}{s+1}+\\frac{B}{(s+1)^{2}}+\\frac{C}{s+3}',
-        note:'The input pole and one system pole coincide at $s=-1$, so that pole is now double. Nothing else changed.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'wex', rows:[
-        ['$B$','$B=\\Bigl[(s+1)^{2}Y\\Bigr]_{s=-1}=\\dfrac{s+2}{s+3}\\bigg|_{s=-1}=\\dfrac{1}{2}$.'],
-        ['$A$','$A=\\dfrac{\\d}{\\d s}\\Bigl[(s+1)^{2}Y\\Bigr]_{s=-1}=\\dfrac{1}{(s+3)^{2}}\\bigg|_{s=-1}=\\dfrac{1}{4}$.'],
-        ['$C$','$C=\\Bigl[(s+3)Y\\Bigr]_{s=-3}=\\dfrac{s+2}{(s+1)^{2}}\\bigg|_{s=-3}=\\dfrac{-1}{4}$.']
-      ]},
-      {t:'note', kind:'warn', head:'Carry the minus into the assembly', html:'$C$ is negative. It has to arrive in the answer as $-\\tfrac14$, and the place it is most easily dropped is the line where the three fractions are written out together, several steps after $C$ was computed.'}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:210,xr:[-0.4,7],yr:[-0.08,1.2],xlabel:'t',pad:{l:54,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.5,1]});
-      a.curve(t=>t<0?0:Math.exp(-t),{color:C.in,width:1.8,dash:'5 5',n:2000});
-      a.curve(t=>t<0?0:t*Math.exp(-t),{color:C.mid,width:2.2,n:2000});
-      a.curve(t=>t<0?0:Math.exp(-3*t),{color:C.h,width:1.8,n:2000});
-      a.note(6.7,0.62,'e^{-t}',{anchor:'end',color:C.in,fs:14,tex:true});
-      a.note(6.7,0.30,'t\\,e^{-t}',{anchor:'end',color:C.mid,fs:14,tex:true});
-      a.note(2.2,0.78,'e^{-3t}',{anchor:'start',color:C.h,fs:14,tex:true});
-      return a.svg(); },
-      caption:'The three building blocks the three coefficients multiply. Only the middle one starts at zero, and only it comes from the repeated pole.'}
-  ]}
-]},
-
-{ id:'m5-diffeq-b2', module:'M5', nav:'Worked example · the check', title:'The answer, and the one number that tests all three coefficients', src:'p. 63',
-  objective:'Assemble the output and use y(0)=0 to catch a lost sign.',
-  keywords:'worked example causal convolution starts at zero check sign lost candidates compare', steps:3, blocks:[
-  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 63'},
-  {t:'title', text:'Verification by Initial Value'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'eq', size:'sm', tex:'Y(s)=\\frac{1/4}{s+1}+\\frac{1/2}{(s+1)^{2}}-\\frac{1/4}{s+3}',
-      note:'The three coefficients of the previous scene, written out together. This is the line where a sign is lost.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, size:'lg', tex:'y(t)=\\left[\\tfrac14e^{-t}+\\tfrac12t\\,e^{-t}-\\tfrac14e^{-3t}\\right]u(t)',
-        label:'Solution',
-        note:'Inverted with $\\dfrac{1}{s+a}\\leftrightarrow e^{-at}u(t)$ and $\\dfrac{1}{(s+a)^{2}}\\leftrightarrow t\\,e^{-at}u(t)$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'The check', html:'$y=x*h$ with both $x$ and $h$ causal, so at $t=0$ there is no overlap and $y(0)=0$. Putting $t=0$ into the answer gives $\\tfrac14+0-\\tfrac14=0$. Assembled with $+\\tfrac14$ instead, the same substitution gives $\\tfrac12$, and a convolution of two causal signals cannot start at $\\tfrac12$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'wex', rows:[
-        ['Why this check and not another','The two candidates agree to three decimals past $t=2$ — $0.168549$ against $0.169789$ — so comparing curves out there decides nothing. At $t=0$ they differ by a factor of two.'],
-        ['Second route','Convolving directly, $\\int_{0}^{t}e^{-\\tau}\\bigl[\\tfrac12e^{-(t-\\tau)}+\\tfrac12e^{-3(t-\\tau)}\\bigr]\\d\\tau$, returns the same three terms with the same signs.']
-      ]}]}
-  ], right:[
-    {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:820,h:215,xr:[-0.4,7],yr:[-0.06,0.58],xlabel:'t',ylabel:'y(t)',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.25,0.5]});
-      a.curve(t=>t<0?0:0.25*Math.exp(-t)+0.5*t*Math.exp(-t)-0.25*Math.exp(-3*t),{color:C.out,width:2.6,n:2400});
-      a.point(0,0,{color:C.coral,r:4.4});
-      return a.svg(); },
-      caption:'The output. It starts at exactly zero, rises to a maximum and decays.'},
-    {t:'reveal', at:2, items:[
-      {t:'fig', frame:true, svg:()=>{
-        const a=P.Axes({w:820,h:215,xr:[-0.4,4],yr:[-0.08,0.82],xlabel:'t',pad:{l:56,r:26,t:30,b:34},xtarget:7,ytarget:3,yticksOverride:[0,0.25,0.5]});
-        a.curve(t=>t<0?0:0.25*Math.exp(-t)+0.5*t*Math.exp(-t)-0.25*Math.exp(-3*t),{color:C.out,width:2.6,n:2400});
-        a.curve(t=>t<0?0:0.25*Math.exp(-t)+0.5*t*Math.exp(-t)+0.25*Math.exp(-3*t),{color:C.err,width:2,dash:'6 4',n:2400});
-        a.point(0,0,{color:C.coral,r:4.2}); a.point(0,0.5,{color:C.err,r:4.2});
-        a.note(3.85,0.38,'C=-\\tfrac14',{anchor:'end',color:C.out,fs:13,tex:true});
-        a.note(3.85,0.62,'C=+\\tfrac14',{anchor:'end',color:C.err,fs:13,tex:true});
-        return a.svg(); },
-        caption:'The two candidates. They are indistinguishable past $t=2$ and differ by $0.5$ at the origin, which is where the check is made.'}]}
-  ]}
-]},
-
-{ id:'m5-lab-h', module:'M5', nav:'Laboratory {lab} · Time and frequency', title:'Laboratory {lab} — CTFT Time–Frequency Explorer', src:'pp. 45–61',
-  objective:'Change a signal in time and observe the corresponding transform, with and without a carrier.',
-  keywords:'laboratory {lab} CTFT explorer time frequency width bandwidth modulation carrier sidebands overlap', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 45–61'},
-  {t:'title', text:'Laboratory {lab} · Time and Frequency'},
-  {t:'small', html:'Change the signal width or decay rate and compare the resulting transform. Then enable the carrier. Modulation creates two half-height spectral copies, and decreasing the carrier frequency moves them toward overlap.'},
-  {t:'lab', id:'H'}
+/* Four optional projects for students who want to try the module on their own
+   computer. They carry no grade and no code: each card gives an aim, what it
+   practises, a few steps and what to look for. The briefs state no numerical
+   answer beyond ones checked in verify/. */
+{ id:'m5-projects', module:'M5', nav:'Projects to try', title:'Projects to Try', src:'pp. 42–63',
+  dark:true, objective:'Offer four optional projects that use the Fourier transform on sound, radio and circuits.',
+  keywords:'projects matlab python clap spectrum duration bandwidth AM radio modulation echo comb RC circuit frequency response',
+  steps:0, blocks:[
+  {t:'eyebrow', text:'Module 5 · Projects', src:'pp. 42–63'},
+  {t:'title', text:'Projects to Try'},
+  {t:'raw', html:()=>PROJECTS.deck('m5', [
+    {title:'Short sounds, wide spectra', glyph:G.clap,
+     aim:'Measure how the length of a sound sets the width of its spectrum.',
+     learn:['The analysis integral as a sum over samples.',
+            'The inverse relation between duration and bandwidth.',
+            'Why a short click sounds bright.'],
+     steps:['Record a hand clap and a long whistle at $44.1$ kHz.',
+            'Cut each one out and approximate $X(j\\omega)$ by the FFT times the sample spacing.',
+            'Plot $|X|$ in dB against frequency in Hz for both.',
+            'Estimate the duration and the bandwidth of each and compare the products.'],
+     look:'The clap lasts milliseconds and spreads over kilohertz. The whistle lasts longer and sits in a narrow band.'},
+    {title:'An AM radio in software', glyph:G.radio,
+     aim:'Modulate a sound onto a carrier, look at the copies and get the sound back.',
+     learn:['Multiplication by a cosine as two half-height copies.',
+            'Demodulation by a second multiplication.',
+            'What overlap does when the carrier is too low.'],
+     steps:['Take a speech clip at $48$ kHz and low-pass it to $4$ kHz.',
+            'Multiply by $\\cos(2\\pi\\cdot10\\,000\\,t)$ and plot the spectrum.',
+            'Multiply by the carrier again and low-pass to $4$ kHz. Listen.',
+            'Repeat with a $3$ kHz carrier.'],
+     look:'Two copies at $\\pm10$ kHz, each at half height. The recovered speech has half the amplitude. At $3$ kHz the copies overlap and the speech is garbled.'},
+    {title:'The spectrum of an echo', glyph:G.echo,
+     aim:'Find the frequency response of a single echo and hear its comb.',
+     learn:['The time shift as a phase factor.',
+            'A system read directly from its impulse response.',
+            'Magnitude ripple from two paths adding.'],
+     steps:['Take $h(t)=\\delta(t)+0.5\\,\\delta(t-T)$ with $T=5$ ms.',
+            'Write $H(j\\omega)=1+0.5e^{-j\\omega T}$ and plot $|H|$ from $0$ to $2$ kHz.',
+            'Pass white noise through the echo and listen.',
+            'Change $T$ and watch the spacing of the ripple.'],
+     look:'$|H|$ swings between $0.5$ and $1.5$, with peaks every $1/T=200$ Hz. A longer delay packs the ripple closer.'},
+    {title:'An RC circuit, three ways', glyph:G.rc,
+     aim:'Get the response of an RC low-pass from its differential equation and check it.',
+     learn:['$H(j\\omega)$ from a differential equation.',
+            'The impulse response by the table.',
+            'A step response simulated in time.'],
+     steps:['Write $RC\\,\\d y/\\d t+y=x$ with $R=1$ k$\\Omega$ and $C=1\\,\\mu$F.',
+            'Form $H(j\\omega)$ and plot $|H|$ and $\\angle H$.',
+            'Invert to $h(t)$ and simulate the step response with a small time step.',
+            'Measure $|H|$ at $\\omega=1/RC$.'],
+     look:'$|H|=1/\\sqrt2\\approx0.707$ and $\\angle H=-\\pi/4$ at $\\omega=1/RC=1000$ rad/s. The step response reaches $63\\%$ at $t=RC=1$ ms.'}
+  ])}
 ]}
+
 ];
 window.SCENES_M5 = SC;
 })();
