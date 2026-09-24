@@ -344,6 +344,15 @@ A laboratory uses the full remaining stage height. Its main columns stretch to t
 scene, and stacked controls, readouts and explanations distribute through that height. Do not leave a
 laboratory compressed against the title with an unused lower half.
 
+The plots in a laboratory's first column fill that column's height. This is global and needs no
+per-laboratory height: after the scene is fitted, `growLabs()` in `build/src/90_app.js` measures the
+spare height under the lowest content of the first column and mounts the laboratory again with every
+`PLOT.Axes` height multiplied by one factor, `PLOT.labScale` (at most 2.2), so the plots take that
+height. The factor stays set while the scene is shown, so every redraw keeps it. Growth never worsens
+the fit: if the grown laboratory has to be scaled further than before, the factor goes back. A new
+laboratory writes its plot heights for the tightest layout it must fit and leaves the rest to this
+step; it does not hard-code heights to fill one screen.
+
 A dense scene is split, one example or one idea a slide. Splitting is a renumbering: it is an edit to
 `build/src/89_sections.js` and nothing else carries an address.
 

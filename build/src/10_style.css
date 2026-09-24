@@ -1195,9 +1195,9 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 #chrome button:hover{ color:var(--ink); background:var(--paper-3); }
 #chrome button[aria-pressed=true]{ color:var(--coral); }
 #chrome .navarrow{ font-size:16px; line-height:1; padding:4px 10px; letter-spacing:0; }
-#pagebox{ font:inherit; color:var(--ink); text-align:right; min-width:3ch;
+#pagebox{ font:inherit; color:var(--ink); text-align:center; min-width:3ch; box-sizing:content-box;
   background:transparent; border:1px solid var(--rule); border-radius:var(--radius);
-  padding:3px 4px; }
+  padding:3px 6px; }
 #pagebox:hover{ border-color:var(--muted); }
 #pagebox:focus{ outline:none; border-color:var(--coral); background:var(--paper-3); }
 

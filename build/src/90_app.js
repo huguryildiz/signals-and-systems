@@ -798,6 +798,8 @@ def _ss_figs():
         emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
+    if(typeof PLOT!=='undefined') PLOT.labScale = 1;
+    delete host.dataset.labgrown;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
     TITLE_ICON = titleIcon(sc.id);
     GROW = []; FX = [];
@@ -825,6 +827,7 @@ def _ss_figs():
     mountCourseMap(host);
     if(sc.slide) toneCards(host);
     fitScene();
+    growLabs(host);
     chrome(sc);
   }
 
@@ -1070,6 +1073,61 @@ def _ss_figs():
     inner.style.height = hWas;
   }
 
+  /* A laboratory's plot column is as tall as the laboratory, but its plots are
+     drawn at the heights their author gave them, which leaves the lower part of
+     the column empty on most screens. The laboratory is mounted again with every
+     plot drawn taller by one factor, `PLOT.labScale`, chosen so the plots take
+     the spare height of the first column. The factor stays set while the scene
+     is shown, so each redraw the reader triggers keeps it. Growth never causes a
+     scale-down: if the grown laboratory has to be scaled more than it was
+     before, the factor goes back. A laboratory already scaled for its other
+     column may still grow into the height that scaling left free.
+     Mounting again is safe on a fresh scene, where the laboratory holds only its
+     default state; the element is replaced so its listeners are not doubled. */
+  function growLabs(host){
+    if(S.layout==='phone' || typeof PLOT==='undefined') return;
+    const labs = host.querySelectorAll('.lab[data-lab]');
+    if(labs.length !== 1 || !LABS[labs[0].dataset.lab]) return;
+    let el = labs[0];
+    const CAP = 2.2, MARGIN = 6;
+    const remount = () => {
+      const fresh = el.cloneNode(false);
+      el.replaceWith(fresh); el = fresh;
+      LABS[el.dataset.lab].mount(el);
+      fitScene();
+    };
+    const kOf = () => parseFloat(host.dataset.fit || '1');
+    for(let pass=0; pass<3; pass++){
+      if(host.dataset.capped) return;
+      const k0 = kOf();
+      const col = el.querySelector(':scope > .cols > .col');
+      if(!col) return;
+      const svgs = Array.from(col.querySelectorAll('svg[viewBox]'))
+        .filter(s => s.getBoundingClientRect().height > 40 && !s.closest('.katex'));
+      if(!svgs.length) return;
+      const cr = col.getBoundingClientRect();
+      /* the lowest drawn content, not a container stretched to the column */
+      let bottom = cr.top;
+      col.querySelectorAll('*').forEach(e => {
+        if(e.closest('svg') && e.tagName.toLowerCase() !== 'svg') return;
+        if(e.children.length && getComputedStyle(e).flexGrow !== '0') return;
+        const r = e.getBoundingClientRect();
+        if(r.height) bottom = Math.max(bottom, r.bottom);
+      });
+      const px = cr.height / (col.offsetHeight || 1);   /* stage scale */
+      const free = (cr.bottom - bottom) / px - MARGIN;
+      const svgH = svgs.reduce((a,s) => a + s.getBoundingClientRect().height, 0) / px;
+      if(free < 16) return;
+      const was = PLOT.labScale;
+      const next = Math.min(CAP, was * (svgH + free) / svgH);
+      if(next < was * 1.02) return;
+      PLOT.labScale = next;
+      remount();
+      if(host.dataset.capped || kOf() < k0 - 1e-3){ PLOT.labScale = was; remount(); return; }
+      host.dataset.labgrown = next.toFixed(3);
+    }
+  }
+
   /* Toolbar icons: 24-unit strokes in the button's own colour. A toggle shows
      its current state; the label and the key stay in the tooltip. */
   const ICON = {
@@ -1113,7 +1171,7 @@ def _ss_figs():
     document.getElementById('crumb').textContent = (sc.sec||sc.module||'') + (sc.nav?' · '+sc.nav:'');
     const pb = document.getElementById('pagebox');
     if(document.activeElement!==pb) pb.value = S.i+1;
-    pb.style.width = String(n).length+1+'ch';
+    pb.style.width = String(n).length+1.5+'ch';
     document.getElementById('pagetotal').textContent = ' / '+n
       + (sc.steps?('  ·  step '+S.step+'/'+sc.steps):'');
     document.getElementById('srcref').textContent =

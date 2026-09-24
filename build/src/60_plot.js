@@ -144,6 +144,9 @@ const PLOT = (() => {
        set immediately before a block's svg() runs and cleared here, so a block
        that draws a second figure keeps the height its author gave it. */
     if(opt && API.hOverride){ opt = Object.assign({}, opt, { h: API.hOverride }); API.hOverride = null; }
+    /* A laboratory's plots are drawn taller by `PLOT.labScale` so they fill the
+       height of their column (RENDER, growLabs). It is 1 outside a laboratory. */
+    else if(API.labScale !== 1) opt = Object.assign({}, opt, { h: ((opt && opt.h) || 300) * API.labScale });
     const o = Object.assign({
       w:640, h:300, xr:[-1,1], yr:[-1,1], pad:{l:52,r:22,t:20,b:40},
       xlabel:'', ylabel:'', grid:true, zeroAxes:true,
@@ -476,7 +479,7 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null,
+  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null, labScale:1,
     labelScale:()=>LBLS };
   return API;
 })();
