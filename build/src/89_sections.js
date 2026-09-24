@@ -189,6 +189,7 @@ CONTENT.SECTIONS = {
     /* <m6-s1-sec> */
     { n:'6.1', title:'Building the transform', ids:[
         'm6-derive','m6-dtfs-link','m6-limit','m6-pair','m6-pair-b','m6-periodic','m6-periodic-b',
+        'm6-circle','m6-dft','m6-dft-b',
         'm6-real-transform','m6-lab-i1','m6-code-transform'] },
     /* </m6-s1-sec> */
     /* <m6-s2-sec> */
@@ -214,13 +215,14 @@ CONTENT.SECTIONS = {
     /* <m6-s5-sec> */
     { n:'6.5', title:'Convolution and multiplication', ids:[
         'm6-conv','m6-conv-b','m6-conv-ex','m6-conv-ex-b','m6-conv-lpf','m6-conv-lpf-b',
-        'm6-mult','m6-mult-b','m6-mult-c','m6-mult-ex','m6-mult-ex-b',
+        'm6-mult','m6-mult-scrub','m6-mult-b','m6-mult-c','m6-mult-ex','m6-mult-ex-b',
+        'm6-leak','m6-leak-b','m6-stft',
         'm6-real-conv','m6-lab-i5','m6-code-conv'] },
     /* </m6-s5-sec> */
     /* <m6-s6-sec> */
     { n:'6.6', title:'Difference equations', ids:[
         'm6-freqresp','m6-ex-diff','m6-ex-diff-c','m6-ex-pair','m6-ex-pair-b','m6-ex-diff-b','m6-ex-diff-b2',
-        'm6-real-diffeq','m6-lab-i6','m6-code-diffeq'] },
+        'm6-echo','m6-real-diffeq','m6-lab-i6','m6-code-diffeq'] },
     /* </m6-s6-sec> */
     /* <m6-s7-sec> */
     { n:'6.7', title:'Summary', ids:[
@@ -351,6 +353,7 @@ CONTENT.BOOK = {
   'm6-derive':'5.1.1', 'm6-dtfs-link':'5.1.1', 'm6-limit':'5.1.1',
   'm6-pair':'5.1.1', 'm6-pair-b':'5.1.3', 'm6-periodic':'5.3.1', 'm6-periodic-b':'5.3.1',
   'm6-real-transform':'5.1', 'm6-lab-i1':'5.1.1', 'm6-code-transform':'5.1',
+  'm6-circle':'5.3.1',
   /* </m6-s1-book> */
   /* <m6-s2-book> */
   'm6-ex-shift':'5.1.2', 'm6-ex-anun':'5.1.2', 'm6-ex-anun-b':'5.1.2',
@@ -378,10 +381,12 @@ CONTENT.BOOK = {
   'm6-conv-lpf-b':'5.4.1', 'm6-mult':'5.5', 'm6-mult-b':'5.5', 'm6-mult-ex':'5.5',
   'm6-conv-b':'5.4', 'm6-conv-ex-b':'5.4.1', 'm6-mult-c':'5.5', 'm6-mult-ex-b':'5.5',
   'm6-real-conv':'5.4, 5.5', 'm6-lab-i5':'5.4, 5.5', 'm6-code-conv':'5.4, 5.5',
+  'm6-mult-scrub':'5.5',
   /* </m6-s5-book> */
   /* <m6-s6-book> */
   'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-diff-c':'5.8', 'm6-ex-pair':'5.8', 'm6-ex-pair-b':'5.8',
   'm6-ex-diff-b':'5.8', 'm6-ex-diff-b2':'5.8', 'm6-real-diffeq':'5.8', 'm6-lab-i6':'5.8', 'm6-code-diffeq':'5.8',
+  'm6-echo':'5.8',
   /* </m6-s6-book> */
   /* <m6-s7-book> */
   'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-quick':'5.9', 'm6-synth':'5.9', 'm6-projects':'5.9',

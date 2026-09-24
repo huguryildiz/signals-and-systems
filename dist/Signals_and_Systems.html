@@ -8898,7 +8898,7 @@ Object.assign(LABS, (function(){
    ========================================================================== */
 const CODE_BANKS_M6 = {
   /* <m6-s1-bank> */
-  'm6-code-transform': ['dtr-samples', 'dtr-analysis', 'dtr-riemann', 'dtr-period'],
+  'm6-code-transform': ['dtr-samples', 'dtr-analysis', 'dtr-riemann', 'dtr-period', 'dtr-dft'],
   /* </m6-s1-bank> */
 
   /* <m6-s2-bank> */
@@ -9080,6 +9080,46 @@ wv = np.linspace(-3*np.pi, 3*np.pi, 1201)
 X = sum(np.exp(-1j*wv*m) for m in n)
 plt.plot(wv/np.pi, X.real, linewidth=1.5)
 plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.grid(True)
+plt.show()`},
+'dtr-dft': {
+  title:'The DFT is the DTFT, sampled',
+  what:'Takes the DFT of four ones, $x[n]=1$ for $0\\le n\\le3$, with fft at $N=4$ and, padded with zeros, at $N=8$. It compares each value with the DTFT sum at $\\omega_k=2\\pi k/N$ and prints the largest difference.',
+  try:'Change $N=8$ to $N=16$. Predict how many of the sixteen values are zero before you run it.',
+  out:'N=4: |X[k]| = 4.0 0.0 0.0 0.0\n     largest difference = 0.0000\nN=8: |X[k]| = 4.0 2.6 0.0 1.1 0.0 1.1 0.0 2.6\n     largest difference = 0.0000',
+  m:`% x[n] = 1 on 0 <= n <= 3, padded with zeros to N points
+x = ones(1, 4);
+n = 0:3;
+for N = [4 8]
+    Xk = fft(x, N);                        % the DFT: fft pads x to N points
+    wk = 2*pi*(0:N-1)/N;                   % omega_k = 2*pi*k/N
+    Xw = sum(x(:) .* exp(-1j*n(:)*wk));    % the DTFT at omega_k
+    fprintf('N=%d: |X[k]| =%s\\n', N, sprintf(' %.1f', abs(Xk)))
+    fprintf('     largest difference = %.4f\\n', max(abs(Xk - Xw)))
+end
+
+w = linspace(0, 2*pi, 801);
+X = sum(exp(-1j*n(:)*w));                  % the DTFT of the four ones
+plot(w/pi, abs(X), 'LineWidth', 1.5), hold on, grid on
+stem((0:31)/16, abs(fft(x, 32)), 'filled')   % N = 32
+xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# x[n] = 1 on 0 <= n <= 3, padded with zeros to N points
+x = np.ones(4)
+for N in [4, 8]:
+    Xk = np.fft.fft(x, N)                 # the DFT: fft pads x to N points
+    wk = 2*np.pi*np.arange(N)/N           # omega_k = 2*pi*k/N
+    Xw = sum(x[n]*np.exp(-1j*wk*n) for n in range(4))   # the DTFT at omega_k
+    print(f'N={N}: |X[k]| =' + ''.join(f' {v:.1f}' for v in np.abs(Xk)))
+    print(f'     largest difference = {np.max(np.abs(Xk - Xw)):.4f}')
+
+w = np.linspace(0, 2*np.pi, 801)
+X = sum(np.exp(-1j*w*n) for n in range(4))   # the DTFT of the four ones
+plt.plot(w/np.pi, np.abs(X), linewidth=1.5)
+plt.stem(np.arange(32)/16, np.abs(np.fft.fft(x, 32)))   # N = 32
+plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
 plt.grid(True)
 plt.show()`},
 /* </m6-s1-code> */
@@ -24053,9 +24093,133 @@ function codeScene(cfg){
 /* Helpers that belong to one section only. Each section keeps its own between
    its markers. */
 /* <m6-s1-helpers> */
+/* Two panels in one figure: the upper one takes the fraction `fr` of the
+   height. Each builder takes a height and returns an svg; the two are placed
+   as nested svgs. A grown figure hands its height through P.hOverride, which
+   is taken here and split, so neither panel claims the whole of it. */
+const s1Stack = (H0, fr, top, bot)=>{
+  const H = P.hOverride || H0, h1 = Math.round(H*fr), h2 = H - h1; P.hOverride = null;
+  return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+    + top(h1).replace('<svg ',`<svg x="0" y="0" width="560" height="${h1}" `)
+    + bot(h2).replace('<svg ',`<svg x="0" y="${h1}" width="560" height="${h2}" `) + '</svg>'; };
+/* The same, side by side: the left panel is `wl` wide, both take the full
+   height. */
+const s1Side = (H0, wl, left, right)=>{
+  const H = P.hOverride || H0; P.hOverride = null;
+  return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+    + left(wl, H).replace('<svg ',`<svg x="0" y="0" width="${wl}" height="${H}" `)
+    + right(560-wl, H).replace('<svg ',`<svg x="${wl}" y="0" width="${560-wl}" height="${H}" `) + '</svg>'; };
+
+/* The unit circle and the samples cos(wn), stepped in n (frames) with w on a
+   slider. The renderer hands a figure with frames only {frame}, so the slider
+   value is read from the block itself, where the renderer keeps it.
+   Frame 0 is the printed figure: all nine samples, the point at n = 0.
+   Frame m >= 1 is n = m-1; between two frames the point turns by w, eased,
+   and a red ring turns by w + 2pi, one extra full turn, to the same place. */
+const s1NMAX = 8;
+function s1CircleSvg(v, b){
+  const f = v && v.frame!=null ? v.frame : 0;
+  const w = ((b.live && b.live.v) ? b.live.v.w : 0.25)*PI;
+  const t = Math.max(0, f-1);                    /* n, running continuously */
+  const dim = k => k===0 ? 1 : (f<=1 ? 1-0.72*f : 0.28+0.72*cl(t-k+1));
+  const th = w*t, tg = (w+2*PI)*t, moving = Math.abs(t-Math.round(t)) > 0.02;
+  return s1Side(380, 250, (wd,h)=>{
+    const base = {w:wd, h, pad:{l:14,r:20,t:16,b:24}, xlabel:'\\operatorname{Re}', ylabel:'\\operatorname{Im}',
+      xticksOverride:[], yticksOverride:[], yticksLeft:false, ynameAtAxis:true, grid:false};
+    /* one scale on both axes, the circle centred in the data area */
+    const a0 = AX(Object.assign({xr:[-1.3,1.3], yr:[-1.3,1.3]}, base));
+    const dw = a0.x1-a0.x0, dh = a0.y0-a0.y1, s = Math.min(dw, dh)/2.8;
+    const a = AX(Object.assign({xr:[-dw/2/s,dw/2/s], yr:[-dh/2/s,dh/2/s]}, base));
+    const R = a.sx(1)-a.sx(0);
+    a.raw(`<circle cx="${a.sx(0).toFixed(2)}" cy="${a.sy(0).toFixed(2)}" r="${R.toFixed(2)}" fill="none" stroke="${C.axis}" stroke-width="1.6"/>`);
+    a.note(1,0,'1',{tex:true,anchor:'start',dx:11,dy:22,color:C.muted,fs:14});
+    a.note(-1,0,'-1',{tex:true,anchor:'end',dx:-9,dy:22,color:C.muted,fs:14});
+    /* the turn w between n = 0 and n = 1 */
+    if(w > 1e-6){
+      const arc=[]; for(let i=0;i<=60;i++){ const q=w*i/60; arc.push([0.3*Math.cos(q),0.3*Math.sin(q)]); }
+      a.poly(arc,{color:C.coral,width:1.6});
+      /* beside the imaginary axis the label moves off it */
+      const side = Math.abs(Math.cos(w/2)) < 0.3;
+      if(w >= 0.2*PI) a.note(0.52*Math.cos(w/2),0.52*Math.sin(w/2),'\\omega',{tex:true,anchor:side?'start':'middle',dx:side?8:0,color:C.coral,fs:17,dy:4});
+    }
+    /* the nine points e^{jwk}; the ones not yet reached are hollow */
+    for(let k=s1NMAX;k>=0;k--){ const o=dim(k), X=a.sx(Math.cos(w*k)), Y=a.sy(Math.sin(w*k));
+      a.raw(`<circle cx="${X.toFixed(2)}" cy="${Y.toFixed(2)}" r="4.2" fill="${o>0.99?C.in:'none'}" stroke="${C.in}" stroke-width="1.6" opacity="${Math.max(o,0.45).toFixed(3)}"/>`); }
+    /* the real part, cos(wn), dropped onto the real axis */
+    const cx=Math.cos(th), cy=Math.sin(th);
+    if(Math.abs(cy) > 0.02) a.poly([[cx,cy],[cx,0]],{color:C.coral,width:1.4,dash:'4 4'});
+    a.point(cx,0,{color:C.coral,r:4.6});
+    if(moving) a.poly([[0,0],[Math.cos(tg),Math.sin(tg)]],{color:C.err,width:1.6,dash:'5 4'});
+    a.poly([[0,0],[cx,cy]],{color:C.in,width:2.4});
+    a.point(cx,cy,{color:C.in,r:6.4});
+    a.raw(`<circle cx="${a.sx(Math.cos(tg)).toFixed(2)}" cy="${a.sy(Math.sin(tg)).toFixed(2)}" r="10.5" fill="none" stroke="${C.err}" stroke-width="2.2"/>`);
+    return a.svg(); }, (wd,h)=>{
+    /* the top of the range is left free for the legend */
+    const a = AX({w:wd, h, pad:{l:44,r:20,t:16,b:28}, xr:[-0.6,s1NMAX+0.6], yr:[-1.3,2.1], xlabel:'n', ylabel:'\\cos(\\omega n)',
+      xticksOverride:D(n=>n,0,s1NMAX).map(p=>p[0]), yticksOverride:[-1,0,1]});
+    for(let k=0;k<=s1NMAX;k++) fade(a,dim(k),()=>a.stem([[k,Math.cos(w*k)]],{color:C.in,showZero:true}));
+    /* the sample the point stands on, once it has arrived */
+    const nr=Math.round(t), o=f<1 ? 1 : cl(1-4*Math.abs(t-nr));
+    fade(a,o,()=>a.point(nr,Math.cos(w*nr),{color:C.coral,r:5.4}));
+    return a.svg(); });
+}
+const s1Circle = {t:'fig', frame:true, grow:true,
+  frames:{labels:['all nine samples, $n=0,\\dots,8$','$n=0$: the point starts at $1$','$n=1$: turned by $\\omega$']
+    .concat(D(n=>n,2,s1NMAX).map(p=>'$n='+p[0]+'$: turned by $'+p[0]+'\\omega$'))},
+  live:{controls:[{k:'w', label:'$\\omega/\\pi$', min:0, max:2, step:0.05, v:0.25, show:v=>'$'+(Math.round(v*100)/100)+'$'}]},
+  svg:v=>s1CircleSvg(v, s1Circle),
+  caption:'The point $e^{j\\omega n}$ turns by $\\omega$ at each step. Its real part, dropped onto the axis, is the stem $\\cos(\\omega n)$ at the right. Press Next to step $n$; move $\\omega$ to change the turn.'};
+
+/* The short sequence of the DFT slides and the two-cosine record. Each
+   magnitude is the analysis sum itself, evaluated at w. */
+const s1Mag = (x, w)=>{ let re=0, im=0;
+  for(let n=0;n<x.length;n++){ re += x[n]*Math.cos(w*n); im -= x[n]*Math.sin(w*n); }
+  return Math.hypot(re, im); };
+const s1W1 = 0.3*PI, s1W2 = 0.4*PI;
+const s1Rec = L => D(n=>Math.cos(s1W1*n)+Math.cos(s1W2*n),0,L-1).map(p=>p[1]);
+/* DFT values drawn as stems at w_k = 2pi k/N across the drawn range; the
+   ones with 0 <= k <= N-1 are strong, their repeats faint */
+const s1DftStems = (a, N, mag, lo, hi, r)=>{
+  const strong=[], faint=[];
+  for(let k=Math.ceil(lo*N/(2*PI)-1e-9); k<=Math.floor(hi*N/(2*PI)+1e-9); k++){
+    const wk=2*PI*k/N, m=mag(wk), p=[wk, m<1e-9 ? 0 : m];
+    (k>=0 && k<N ? strong : faint).push(p); }
+  fade(a,0.4,()=>a.stem(faint,{color:C.in,r}));
+  a.stem(strong,{color:C.in,r});
+};
 /* </m6-s1-helpers> */
 
 /* <m6-s2-helpers> */
+/* Sound. A sequence is played at s2FS = 8000 samples per second, so omega = pi
+   is 4 kHz; between samples the sound is joined by straight lines. Each press
+   computes the whole sequence once. The noise comes from a seeded generator
+   (mulberry32), so a press plays the same sound every time and the build stays
+   reproducible. Sections 6.2 and 6.6 use these. */
+const s2FS = 8000;
+const s2rand = seed => () => { seed = (seed + 0x6D2B79F5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+/* N samples of white noise, uniform on [-1, 1] */
+const s2noise = (N, seed) => { const r = s2rand(seed), x = new Float64Array(N);
+  for(let i=0;i<N;i++) x[i] = 2*r()-1;
+  return x; };
+/* the sequence as a function of seconds, for fig.listen */
+const s2play = y => t => { const u = t*s2FS, i = Math.floor(u), r = u-i;
+  return i+1 < y.length ? (1-r)*y[i] + r*y[i+1] : (y[y.length-1] || 0); };
+/* y[n] = a y[n-1] + x[n], from rest: the impulse response is a^n u[n] */
+const s2first = (x, a) => { const y = new Float64Array(x.length); let p = 0;
+  for(let i=0;i<x.length;i++){ p = a*p + x[i]; y[i] = p; }
+  return y; };
+/* noise that holds only |omega| <= W: a sum of K cosines, one at a random
+   frequency in each of K equal slices of (0, W), each with a random phase.
+   Each cosine is advanced by rotating a unit phasor, so no cosine is called
+   inside the loop. */
+const s2band = (N, W, seed) => { const r = s2rand(seed), y = new Float64Array(N), K = 300;
+  for(let k=0;k<K;k++){ const w = W*(k + r())/K, ph = 2*PI*r();
+    let c = Math.cos(ph), s = Math.sin(ph); const cw = Math.cos(w), sw = Math.sin(w);
+    for(let n=0;n<N;n++){ y[n] += c; const c2 = c*cw - s*sw; s = s*cw + c*sw; c = c2; } }
+  return y; };
 /* </m6-s2-helpers> */
 
 /* <m6-s3-helpers> */
@@ -24102,9 +24266,63 @@ const s5PeriodKHz = (a, v, half) => {
   return a; };
 /* the named algebraic variable is introduced on the worked example */
 Object.assign(CONTENT.GLOSS, { zsub: Object.assign({}, CONTENT.GLOSS.zsub, { go:'m6-conv-ex' }) });
+/* Two panels in one figure, the upper over the lower. A grown or redrawn figure hands its height
+   through P.hOverride, which is taken here and split, so neither panel claims
+   the whole of it. Two panels carry two sets of axis names and tick rows, which
+   grow with the label scale of lecture mode, so lecture mode takes its own base
+   height H0 and its own share r of the upper panel, each [normal, lecture]. */
+const s5Stack = (H0, r, top, bot) => {
+  const L = P.labelScale() > 1 ? 1 : 0, H = P.hOverride || H0[L]; P.hOverride = null;
+  const h1 = Math.round(H*r[L]), h2 = H - h1;
+  return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+    + top(h1).replace('<svg ', `<svg x="0" y="0" width="560" height="${h1}" `)
+    + bot(h2).replace('<svg ', `<svg x="0" y="${h1}" width="560" height="${h2}" `) + '</svg>'; };
+/* a value given in multiples of pi, as TeX: 0.25 -> \pi/4 */
+const s5PiTex = v => {
+  if(Math.abs(v) < 1e-9) return '0';
+  for(const d of [1,2,3,4,6,8,12,16,24,32]){ const x = v*d;
+    if(Math.abs(x-Math.round(x)) < 1e-7){ const k = Math.round(x), m = Math.abs(k);
+      const head = m===1 ? '\\pi' : m+'\\pi';
+      return (k<0?'-':'') + (d===1 ? head : head+'/'+d); } }
+  return v.toFixed(2)+'\\pi'; };
+/* |X(e^{jw})| of a finite record x[0..], placed so that x[0] sits at n = n0 */
+const s5Mag = (x, w, n0) => { let re = 0, im = 0; n0 = n0||0;
+  for(let i=0;i<x.length;i++){ const p = w*(n0+i); re += x[i]*Math.cos(p); im -= x[i]*Math.sin(p); }
+  return Math.hypot(re, im); };
+/* the Hann window of length L, sin^2(pi n / L) on 0 <= n <= L-1 */
+const s5Hann = (n, L) => (n<0 || n>L-1) ? 0 : Math.pow(Math.sin(PI*n/L), 2);
+/* the record of the window slides: a strong cosine and one 40 dB weaker */
+const S5L = 32, S5W1 = PI/4, S5W2 = 21*PI/32, S5A2 = 0.01;
+/* the sequence of the spectrogram slide: four notes of 48 samples, each one
+   tone from a low group and one from a high group, in multiples of pi */
+const S5NOTES = [[0.15,0.55],[0.35,0.80],[0.15,0.80],[0.35,0.55]], S5SEG = 48, S5N = 192, S5HOP = 8;
+const s5Tones = n => { if(n<0 || n>=S5N) return 0;
+  const [a,b] = S5NOTES[Math.floor(n/S5SEG)]; return Math.cos(a*PI*n) + Math.cos(b*PI*n); };
+/* one column of the spectrogram: |X_m| in dB against the peak of a full note,
+   at `rows` frequencies across 0 <= w <= pi */
+const s5Column = (m, rows) => {
+  const x = []; for(let i=0;i<S5L;i++) x.push(s5Tones(m+i)*s5Hann(i,S5L));
+  const ref = S5L/4, o = [];
+  for(let r=0;r<rows;r++) o.push(20*Math.log10(Math.max(s5Mag(x,(r+0.5)*PI/rows,m)/ref, 1e-9)));
+  return o; };
 /* </m6-s5-helpers> */
 
 /* <m6-s6-helpers> */
+/* The echo slide. Its sounds are played at s2FS = 8000 samples per second
+   (6.2 helpers) with a delay of s6D = 2000 samples, 0.25 s; the figure draws
+   D = 3 so that the teeth of the comb can be seen. */
+const s6D = 2000;
+/* a plucked note: three harmonics of 440 Hz under the envelope e^{-14t}, N samples */
+const s6pluck = N => { const x = new Float64Array(N);
+  for(let i=0;i<N;i++){ const t = i/s2FS;
+    x[i] = Math.exp(-14*t)*(Math.sin(2*PI*440*t) + 0.5*Math.sin(4*PI*440*t) + 0.25*Math.sin(6*PI*440*t)); }
+  return x; };
+/* the echo y[n] = x[n] + al x[n-D] */
+const s6echo = (x, al, D) => x.map((v,n) => v + (n >= D ? al*x[n-D] : 0));
+/* the recursion that removes it, w[n] = y[n] - al w[n-D], from rest */
+const s6undo = (y, al, D) => { const w = new Float64Array(y.length);
+  for(let n=0;n<y.length;n++) w[n] = y[n] - (n >= D ? al*w[n-D] : 0);
+  return w; };
 /* </m6-s6-helpers> */
 
 /* Small sketches for the summary and project cards. Both pages are navy, so
@@ -24410,6 +24628,97 @@ const SC = [
   ]}
 ]},
 
+{ id:'m6-circle', module:'M6', nav:'Frequency on the unit circle', title:'Frequency on the Unit Circle', src:'p. 65',
+  objective:'See a discrete-time frequency as a turn of a point on the unit circle, and read off why ω, ω + 2π and 2π − ω look alike.',
+  keywords:'unit circle e^{j omega n} rotation turn angle per sample cos(omega n) real part omega plus 2pi alias 2pi minus omega (-1)^n fastest pi animation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Building the transform', src:'p. 65'},
+  {t:'title', text:'Frequency on the Unit Circle'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    s1Circle,
+    {t:'legend', items:[['in','$e^{j\\omega n}$, $\\cos(\\omega n)$'],['err','$e^{j(\\omega+2\\pi)n}$']]}
+  ], right:[
+    {t:'eq', tex:'e^{j\\omega(n+1)}=e^{j\\omega n}\\,e^{j\\omega}', label:'One step, one turn',
+      note:'Each step multiplies by $e^{j\\omega}$, so the point turns by $\\omega$. The red ring turns by $\\omega+2\\pi$, one full turn more, and lands on the same point.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Fastest at $\\omega=\\pi$', html:'Set $\\omega/\\pi=1$. The point jumps between $1$ and $-1$, so the stems are $(-1)^{n}$. No sequence changes faster.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'$\\omega$ and $2\\pi-\\omega$', html:'Set $\\omega/\\pi=0.25$, then $1.75$. The point turns the other way, but its real part is the same, so the stems do not change.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A point turns by $3\\pi/2$ at every step.<div class="nsep"></div>Which smaller turn gives the same stems $\\cos(\\omega n)$?',
+        ask:{key:'m6-circle', choices:['$\\pi/2$','$3\\pi/4$','$\\pi$'], answer:0,
+          why:'$2\\pi-3\\pi/2=\\pi/2$: the point turns the other way by $\\pi/2$, and its real part is the same.'}}]}
+  ]}
+]},
+
+{ id:'m6-dft', module:'M6', nav:'Samples of the transform', title:'The Discrete Fourier Transform',
+  objective:'Define the DFT as N equally spaced samples of the DTFT of a short sequence, and relate it to the series coefficients of its periodic extension.',
+  keywords:'DFT discrete fourier transform fft samples of the DTFT omega_k 2 pi k / N N points X[k] = N a_k periodic extension short sequence four ones', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Building the transform'},
+  {t:'title', text:'The Discrete Fourier Transform'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'N', label:'$N$', min:4, max:32, step:1, v:8, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const N=v?v.N:8, x=[1,1,1,1], mag=w=>s1Mag(x,w);
+      const a=AXW(-1.25*PI,2.25*PI,PI/2,{yr:[0,6.4],ylabel:'|X(e^{j\\omega})|',yticksOverride:[0,2,4]});
+      a.curve(mag,{color:C.mid,width:1.8,dash:'7 6',n:2400});
+      s1DftStems(a,N,mag,-1.25*PI,2.25*PI,N>16?2.8:3.8);
+      markPeriod(a,4.7,{lo:0,hi:2*PI});
+      return a.svg(); },
+      caption:'Four ones, $x[n]=1$ for $0\\le n\\le3$. The stems are $|X[k]|$ at $\\omega_k=2\\pi k/N$: strong for $k=0,\\dots,N-1$, faint where they repeat. Move $N$: the stems stay on the curve.'},
+    {t:'legend', items:[['in','$|X[k]|$'],['mid','$|X(e^{j\\omega})|$',true]]}
+  ], right:[
+    {t:'eq', key:true, tex:'X[k]=X(e^{j2\\pi k/N})=\\sum_{n=0}^{N-1}x[n]\\,e^{-j2\\pi kn/N}', label:'The DFT · $N$ samples of the DTFT',
+      note:'This holds when $x[n]$ is zero outside $0\\le n\\le N-1$. The function fft computes these $N$ numbers, $k=0,\\dots,N-1$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'The same numbers as the series', html:'Repeat $x[n]$ every $N$ samples. Its series coefficients are $a_k=X[k]/N$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Too few samples', html:'Set $N=4$. The stems read $4,0,0,0$: they land on the zeros of the curve and hide its shape.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'Five ones, $x[n]=1$ for $0\\le n\\le4$, and $N=5$.<div class="nsep"></div>How many of the five values $X[k]$ are zero?',
+        ask:{key:'m6-dft', choices:['$0$','$1$','$4$'], answer:2,
+          why:'For $k=1,\\dots,4$ the points $2\\pi k/5$ are zeros of the curve; only $X[0]=5$ is not zero.'}}]}
+  ]}
+]},
+
+{ id:'m6-dft-b', module:'M6', nav:'Zero padding · points, not detail', title:'Zero Padding and Resolution',
+  objective:'See that zero padding only samples the same DTFT more densely, while a longer record narrows its peaks and separates two close frequencies.',
+  keywords:'zero padding DFT resolution record length L padded length N two close cosines peak width 4 pi / L more points not more detail', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 6 · Building the transform'},
+  {t:'title', text:'Zero Padding and Resolution'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'L', label:'$L$', min:8, max:48, step:1, v:12, show:v=>'$'+v+'$'},
+        {k:'Z', label:'$N-L$', min:0, max:64, step:4, v:36, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const L=v?v.L:12, Z=v?v.Z:36, N=L+Z, x=s1Rec(L), mag=w=>s1Mag(x,w)/L;
+      return s1Stack(405, 0.58, h=>{
+        const a=AXW(-1.25*PI,2.25*PI,PI/2,{h,pad:{l:52,r:24,t:16,b:28},xnameDrop:42,yr:[0,1.3],ylabel:'|X(e^{j\\omega})|/L',yticksOverride:[0,0.5,1]});
+        a.curve(mag,{color:C.mid,width:1.8,dash:'7 6',n:2400});
+        s1DftStems(a,N,mag,-1.25*PI,2.25*PI,N>40?2.3:3.2);
+        markPeriod(a,1.0,{lo:0,hi:2*PI});
+        return a.svg(); }, h=>{
+        const a=AX({h,pad:{l:52,r:24,t:14,b:26},xr:[-2,114],yr:[-2.3,2.9],xlabel:'n',ylabel:'x[n]',
+          yticksOverride:[-2,0,2],xticksOverride:[20,40,60,80,100]});
+        a.stem(D(n=>n<L?x[n]:0,0,N-1),{color:C.in,r:2.6});
+        if(Z>=16) a.span(L,N-1,2.45,'\\text{zeros}',{color:C.coral,tex:true,fs:15});
+        return a.svg(); }); },
+      caption:'The record $\\cos(0.3\\pi n)+\\cos(0.4\\pi n)$ has $L$ samples, then zeros up to $N$. More zeros give more stems on the same curve; a longer record changes the curve.'},
+    {t:'legend', items:[['in','$|X[k]|/L$'],['mid','$|X(e^{j\\omega})|/L$',true]]}
+  ], right:[
+    {t:'note', kind:'warn', head:'Zero padding', html:'Zeros added to the record raise $N$. The stems move closer together, but they stay on the same curve.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', side:true, tex:'\\Delta\\omega=\\frac{4\\pi}{L}', label:'Width of one peak',
+        note:'One cosine gives a peak this wide between its first zeros. Only more signal makes it narrower.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Two peaks', html:'The cosines are $0.1\\pi$ apart. At $L=12$ each peak is $\\pi/3$ wide and the two merge. At $L=40$ each is $0.1\\pi$ wide and they stand apart.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same two cosines. Record A: $L=10$, padded to $N=128$. Record B: $L=30$, no padding.<div class="nsep"></div>Whose curve $|X(e^{j\\omega})|$ has two separate peaks?',
+        ask:{key:'m6-dft-b', choices:['A only','B only','both'], answer:1,
+          why:'Padding only adds stems to the same curve. The longer record narrows the peaks, and they part.'}}]}
+  ]}
+]},
+
 realGallery({ id:'m6-real-transform', nav:'Single records around us',
   title:'Single Sequences Around Us', eyebrow:'Module 6 · Building the transform', src:'pp. 64–65',
   objective:'See everyday records that happen once: they stop or die out, and never repeat.',
@@ -24518,15 +24827,18 @@ codeScene({ id:'m6-code-transform', nav:'Building the transform', title:'The DTF
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'a', label:'$a$', min:-0.9, max:0.9, step:0.05, v:0.5, show:v=>'$'+(+v.toFixed(2))+'$'}]},
+      listen:{items:[
+          {label:'Play noise $x[n]$', sound:()=>({f:s2play(s2noise(12000,62)), dur:1.5})},
+          {label:'Play $y[n]$', sound:v=>({f:s2play(s2first(s2noise(12000,62),v.a)), dur:1.5})}]},
       svg:v=>{
       const av=v?v.a:0.5, m=Math.abs(av), hi=1/(1-m), lo=1/(1+m);
-      const a=AXW(-3*PI,3*PI,PI,{yr:[-0.14*hi,1.42*hi],ylabel:'|X(e^{j\\omega})|',pad:{l:76,r:24,t:20,b:34},
+      const a=AXW(-3*PI,3*PI,PI,{h:306,yr:[-0.14*hi,1.42*hi],ylabel:'|X(e^{j\\omega})|',pad:{l:76,r:24,t:20,b:34},
         yticksOverride:m<0.01?[1]:[lo,hi],ytickfmt:v=>''+(+v.toFixed(4))});
       if(m>=0.01){ a.hline(hi,{color:C.coral,opacity:.6}); a.hline(lo,{color:C.coral,opacity:.6}); }
       a.curve(w=>geoMag(w,av),{color:C.in,n:3000});
       markPeriod(a,1.22*hi);
       return a.svg(); },
-      caption:'$|X(e^{j\\omega})|$ over three periods. The guide lines are $1/(1-|a|)$ and $1/(1+|a|)$, and the curve touches both in every period.'}
+      caption:'$|X(e^{j\\omega})|$ over three periods. The guide lines are $1/(1-|a|)$ and $1/(1+|a|)$, and the curve touches both in every period. At $8000$ samples per second ($\\omega=\\pi$ is $4$ kHz), noise through $y[n]=a\\,y[n-1]+x[n]$ sounds dull for $a>0$ and hissy for $a<0$.'}
   ], right:[
     {t:'eq', tex:'|X(e^{j\\omega})|=\\frac{1}{|1-a\\cos\\omega+ja\\sin\\omega|}=\\frac{1}{\\sqrt{1-2a\\cos\\omega+a^{2}}}', label:'Magnitude',
       note:'Use $e^{-j\\omega}=\\cos\\omega-j\\sin\\omega$. Then $(1-a\\cos\\omega)^{2}+a^{2}\\sin^{2}\\omega=1-2a\\cos\\omega+a^{2}$.'},
@@ -24762,13 +25074,16 @@ codeScene({ id:'m6-code-transform', nav:'Building the transform', title:'The DTF
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'W', label:'$W/\\pi$', min:0.1, max:1, step:0.05, v:0.25, show:v=>'$'+(+v.toFixed(2))+'$'}]},
+      listen:{items:[
+          {label:'Play noise', sound:()=>({f:s2play(s2noise(12000,68)), dur:1.5})},
+          {label:'Play the band $|\\omega|\\le W$', sound:v=>({f:s2play(s2band(12000,v.W*PI,68)), dur:1.5})}]},
       svg:v=>{
       const W=(v?v.W:0.25)*PI;
-      const a=AXW(-3*PI,3*PI,PI,{yr:[-0.28,1.72],ylabel:'X(e^{j\\omega})',yticksOverride:[1]});
+      const a=AXW(-3*PI,3*PI,PI,{h:350,yr:[-0.28,1.72],ylabel:'X(e^{j\\omega})',yticksOverride:[1]});
       a.curve(w=>lpf(w,W),{color:C.in,n:8000});
       markPeriod(a,1.38);
       return a.svg(); },
-      caption:'The ideal low-pass spectrum, $1$ on $|\\omega|\\le W$ in each period, drawn over three periods. The band repeats; it does not stop at $\\pm\\pi$.'}
+      caption:'The ideal low-pass spectrum, $1$ on $|\\omega|\\le W$ in each period, drawn over three periods. The band repeats; it does not stop at $\\pm\\pi$. At $8000$ samples per second, $\\omega=\\pi$ is $4$ kHz and the band keeps the noise below $4W/\\pi$ kHz.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$X(e^{j\\omega})=1$ for $|\\omega|\\le W$ and $0$ for $W<|\\omega|\\le\\pi$, repeated every $2\\pi$.<div class="nsep"></div>What is $x[0]$?',
       ask:{key:'m6-ex-lpf', choices:['$W/\\pi$','$2W$','$1$'], answer:0}},
@@ -26000,6 +26315,46 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
   ]}
 ]},
 
+{ id:'m6-mult-scrub', module:'M6', nav:'Periodic convolution · step by step', title:'Periodic Convolution, Step by Step', src:'p. 75',
+  objective:'Trace the periodic convolution one frequency at a time: slide, multiply over one period, take the area.',
+  keywords:'periodic convolution step by step slider trace overlap area one period Z repeats every 2pi bands 3pi/4 pi/2', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Convolution and multiplication', src:'p. 75'},
+  {t:'title', text:'Periodic Convolution, Step by Step'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'w', label:'$\\omega$', min:-3, max:3, step:1/16, v:0.5,
+        show:v=>'$'+s5PiTex(v)+',\\;Z(e^{j\\omega})='+perConv(v*PI,3*PI/4,PI/2).toFixed(3)+'$'}]},
+      svg:v=>{
+      const w0=(v?v.w:0.5)*PI, Zf=w=>perConv(w,3*PI/4,PI/2);
+      return s5Stack([400,416], [0.56,0.56], h=>{
+        const a=AXW(-3*PI,3*PI,PI,{h,xlabel:'\\theta',yr:[-0.2,P.labelScale()>1?1.9:1.6],ylabel:'\\text{spectrum}',yticksOverride:[0,1],ytickfmt:v=>String(v)});
+        const Xf=t=>lpf(t,3*PI/4), Yf=t=>lpf(w0-t,PI/2);
+        a.area(t=>Xf(t)*Yf(t),-PI,PI,{color:C.out+'40',n:2400});
+        a.curve(Xf,{color:C.in,n:9000});
+        a.curve(Yf,{color:C.h,n:9000,dash:'9 6'});
+        markPeriod(a,1.38);
+        return a.svg(); }, h=>{
+        const a=AXW(-3*PI,3*PI,PI,{h,yr:[-0.08,0.8],ylabel:'Z(e^{j\\omega})',yticksOverride:P.labelScale()>1?[0.5]:[0.25,0.5],ytickfmt:v=>String(v)});
+        markPeriod(a,0.68);
+        fade(a,.28,()=>a.curve(Zf,{color:C.out,n:6000}));
+        a.curve(w=>w<=w0+1e-9?Zf(w):NaN,{color:C.out,n:6000});
+        a.vline(w0,{color:C.muted,opacity:.6});
+        a.point(w0,Zf(w0),{color:C.out,ring:C.plate,r:5.2});
+        return a.svg(); }); },
+      caption:'$X$ has half-width $3\\pi/4$ and $Y$ half-width $\\pi/2$. Drag $\\omega$: the shaded overlap, over $2\\pi$, is the dot that traces $Z(e^{j\\omega})$.'},
+    {t:'legend', items:[['in','$X(e^{j\\theta})$'],['h','$Y(e^{j(\\omega-\\theta)})$',true]]}
+  ], right:[
+    {t:'note', kind:'warn', head:'Two panels, one slider', html:'The upper panel is the integrand at one $\\omega$. Its shaded area divided by $2\\pi$ is one value of $Z$, the dot in the lower panel.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'Z\\bigl(e^{j(\\omega+2\\pi)}\\bigr)=Z(e^{j\\omega})', label:'The trace repeats',
+        note:'Moving $\\omega$ by $2\\pi$ moves $Y$ by one whole period, so the overlap does not change.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$X$ keeps half-width $3\\pi/4$; $Y$ is narrowed to half-width $\\pi/4$.<div class="nsep"></div>What is $Z(e^{j0})$?',
+        ask:{key:'m6-mult-scrub', choices:['$1/4$','$1/2$','$1/8$'], answer:0,
+          why:'At $\\omega=0$ the band of $Y$ lies inside $X$, so the overlap is $\\pi/2$ wide and $Z=\\frac{\\pi/2}{2\\pi}=\\tfrac14$.'}}]}
+  ]}
+]},
+
 { id:'m6-mult-b', module:'M6', nav:'Worked example · the overlap', title:'Spectral Overlap at a Band Edge', src:'pp. 75–76',
   objective:'Convolve two bands over one period, add the copy that crosses the boundary and check against z[0].',
   keywords:'periodic convolution overlap trapezoid 1/8 plus 1/8 = 1/4 band edge check z[0]=0.375 sketch', slide:true, steps:3, blocks:[
@@ -26122,6 +26477,125 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
       {t:'note', kind:'def', head:'Check', html:'$z[0]=x[0]\\cos0=\\tfrac14$. From $Z$: two bands of height $\\tfrac12$ and width $\\tfrac{\\pi}{2}$ have area $\\tfrac{\\pi}{2}$, and $\\tfrac{\\pi/2}{2\\pi}=\\tfrac14$.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'warn', head:'Where the copies meet', html:'The copies stay apart only for $\\pi/4\\le\\omega_0\\le3\\pi/4$. A smaller $\\omega_0$ makes them overlap at $\\omega=0$; a larger one makes them overlap at $\\omega=\\pm\\pi$, with the copies of the next period.'}]}
+  ]}
+]},
+
+/* ============================================================ windows */
+{ id:'m6-leak', module:'M6', nav:'Leakage · a cosine through a window', title:'Seeing a Cosine Through a Window',
+  objective:'See a cosine kept for L samples turn each spectral line into a main lobe of width 4π/L with side lobes.',
+  keywords:'leakage window rectangular finite record cosine Dirichlet kernel main lobe 4pi/L side lobes multiplication property', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Convolution and multiplication'},
+  {t:'title', text:'Seeing a Cosine Through a Window'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[
+        {k:'w', label:'$\\omega_0$', min:1/8, max:7/8, step:1/16, v:1/4, show:v=>'$'+s5PiTex(v)+'$'},
+        {k:'L', label:'$L$', min:8, max:32, step:1, v:16, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const w0=(v?v.w:0.25)*PI, L=v?v.L:16;
+      const x=[]; for(let n=0;n<L;n++) x.push(Math.cos(w0*n));
+      return s5Stack([380,414], [0.36,0.48], h=>{
+        const a=AX({h,xr:[-4.5,36.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
+        fade(a,.25,()=>a.stem(D(n=>n>=0&&n<L?NaN:Math.cos(w0*n),-4,36).filter(p=>isFinite(p[1])),{color:C.in,r:2.6}));
+        a.stem(D(n=>Math.cos(w0*n),0,L-1),{color:C.in,r:3});
+        return a.svg(); }, h=>{
+        const a=AXW(-3*PI,3*PI,PI,{h,yr:[-0.1,1.45],ylabel:'\\tfrac{2}{L}\\,|X(e^{j\\omega})|',yticksOverride:[0,0.5,1],ytickfmt:v=>String(v)});
+        for(let k=-1;k<=1;k++) for(const s of [1,-1]) a.poly([[s*w0+2*PI*k,0],[s*w0+2*PI*k,1.15]],{color:C.in,width:1,dash:'3 4'});
+        markPeriod(a,1.3);
+        a.curve(w=>2/L*s5Mag(x,w),{color:C.out,n:3600});
+        return a.svg(); }); },
+      caption:'The upper panel keeps $L$ samples of $\\cos(\\omega_0 n)$; the faint ones are discarded. The dashed lines mark $\\pm\\omega_0$, where the endless cosine has its impulses.'}
+  ], right:[
+    {t:'eq', tex:'X(e^{j\\omega})=\\tfrac12\\,W\\bigl(e^{j(\\omega-\\omega_0)}\\bigr)+\\tfrac12\\,W\\bigl(e^{j(\\omega+\\omega_0)}\\bigr)', label:'Window times cosine',
+      note:'Here $x[n]=\\cos(\\omega_0 n)\\,w[n]$, with $w[n]=1$ for $0\\le n\\le L-1$. By the multiplication property, each line of the cosine becomes a copy of the window\'s transform $W$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'A line becomes a lobe', html:'$|W(e^{j\\omega})|=\\bigl|\\sin(\\omega L/2)/\\sin(\\omega/2)\\bigr|$ first reaches zero at $\\omega=\\pm2\\pi/L$, so each line spreads into a main lobe $4\\pi/L$ wide. Its side lobes leak into every other frequency.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A cosine is kept for $L=16$ samples.<div class="nsep"></div>What happens to its main lobe when $L=32$?',
+        ask:{key:'m6-leak', choices:['It is half as wide','It is twice as wide','It keeps its width'], answer:0,
+          why:'The width is $4\\pi/L$: $\\pi/4$ for $L=16$ and $\\pi/8$ for $L=32$.'}}]}
+  ]}
+]},
+
+{ id:'m6-leak-b', module:'M6', nav:'Leakage · a softer window', title:'A Softer Window',
+  objective:'Compare the rectangular and the Hann window on a record that holds a strong and a weak cosine.',
+  keywords:'Hann window rectangular window leakage side lobes dB main lobe 8pi/L -13 dB -31 dB weak cosine hidden spectral analysis', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Convolution and multiplication'},
+  {t:'title', text:'A Softer Window'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['Rectangular window','Hann window']},
+      svg:v=>{
+      const f=cl(v?v.frame:0), L=S5L;
+      const win=n=>(n<0||n>L-1)?0:(1-f)+f*s5Hann(n,L);
+      const xr=n=>Math.cos(S5W1*n)+S5A2*Math.cos(S5W2*n);
+      const x=[]; for(let n=0;n<L;n++) x.push(xr(n)*win(n));
+      let pk=0; for(let i=0;i<=400;i++) pk=Math.max(pk,s5Mag(x,S5W1+(i-200)*PI/6400));
+      const FL=100, dB=w=>Math.max(20*Math.log10(Math.max(s5Mag(x,w)/pk,1e-12)),-FL)+FL;
+      return s5Stack([380,414], [0.34,0.42], h=>{
+        const a=AX({h,xr:[-2.5,52.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]\\,w[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
+        a.curve(win,{color:C.h,n:1400,dash:'9 6'}); a.curve(t=>-win(t),{color:C.h,n:1400,dash:'9 6'});
+        a.stem(D(n=>xr(n)*win(n),-2,52),{color:C.in,r:2.6});
+        return a.svg(); }, h=>{
+        const a=AXW(-2*PI,2*PI,PI/2,{h,yr:[-4,114],ylabel:'|X(e^{j\\omega})|\\;(\\text{dB})',yticksOverride:P.labelScale()>1?[20,60,100]:[20,40,60,80,100],ytickfmt:v=>String(v-FL)});
+        markPeriod(a,108);
+        a.curve(dB,{color:C.out,n:5200,width:1.8});
+        a.poly([[S5W2,0],[S5W2,87]],{color:C.muted,width:1,dash:'3 4'});
+        return a.svg(); }); },
+      caption:'$x[n]=\\cos(\\pi n/4)+0.01\\cos(21\\pi n/32)$ kept for $L=32$ samples, in dB against the strong peak. The dashed line marks $\\omega_2=21\\pi/32$.'},
+    {t:'legend', items:[['in','$x[n]\\,w[n]$'],['h','$\\pm w[n]$',true]]}
+  ], right:[
+    {t:'note', kind:'warn', head:'A weak cosine hides', html:'The second cosine is $40$ dB weaker than the first. Under the rectangular window its peak lies below the side lobes of the strong one, near $-21$ dB.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'What Hann trades', html:'<div class="cmp"><div><span class="cmp-h">Rectangular</span>Main lobe $4\\pi/L$ wide. Highest side lobe about $-13$ dB.</div><div><span class="cmp-h">Hann</span>$w[n]=\\sin^2(\\pi n/L)$. Main lobe $8\\pi/L$ wide. Highest side lobe about $-31$ dB.</div></div>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The weak cosine is made $10$ times weaker, $-60$ dB.<div class="nsep"></div>Does the Hann window still show it?',
+        ask:{key:'m6-leak-b', choices:['No','Yes'], answer:0,
+          why:'Near $\\omega_2$ the Hann side lobes of the strong cosine reach about $-54$ dB, above $-60$ dB.'}}]}
+  ]}
+]},
+
+/* ============================================================ spectrogram */
+{ id:'m6-stft', module:'M6', nav:'Spectrum over time', title:'Spectrum Over Time',
+  objective:'Build a spectrogram one column at a time: slide a window along the sequence and take the DTFT magnitude of each piece.',
+  keywords:'spectrogram short-time Fourier transform window slide column time frequency map tone pairs notes Hann', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Convolution and multiplication'},
+  {t:'title', text:'Spectrum Over Time'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'m', label:'$m$', min:0, max:S5N-S5L, step:S5HOP, v:S5N-S5L, show:v=>'$n='+v+'\\ldots'+(v+S5L-1)+'$'}]},
+      svg:v=>{
+      const m=v?v.m:S5N-S5L, ROWS=48;
+      return s5Stack([380,414], [0.38,0.47], h=>{
+        const a=AX({h,xr:[-4,S5N+4],yr:[-2.4,2.4],xlabel:'n',ylabel:'x[n]',yticksOverride:[-2,0,2],ytickfmt:v=>String(v),xtarget:8});
+        for(let k=1;k<4;k++) a.vline(k*S5SEG-0.5,{color:C.muted,opacity:.55});
+        a.under(`<rect x="${a.sx(m-0.5).toFixed(2)}" y="${a.y1}" width="${(a.sx(m+S5L-0.5)-a.sx(m-0.5)).toFixed(2)}" height="${a.y0-a.y1}" fill="${C.h}" fill-opacity=".14"/>`);
+        fade(a,.3,()=>a.stem(D(n=>n>=m&&n<m+S5L?NaN:s5Tones(n),0,S5N-1).filter(p=>isFinite(p[1])),{color:C.in,r:1.3,width:1}));
+        a.stem(D(s5Tones,m,m+S5L-1),{color:C.in,r:1.6,width:1.2});
+        a.curve(t=>t<m-0.5||t>m+S5L-0.5?NaN:2*s5Hann(t-m,S5L),{color:C.h,n:1600,dash:'9 6'});
+        return a.svg(); }, h=>{
+        const a=AX({h,xr:[-4,S5N+4],yr:[0,PI],xlabel:'n',ylabel:'\\omega',yticksOverride:[0,PI/4,PI/2,3*PI/4,PI],ytickfmt:piTick,xtarget:8,yticksLeft:false,grid:false});
+        const cells=[];
+        for(let mm=0;mm<=m;mm+=S5HOP){ const col=s5Column(mm,ROWS), c=mm+S5L/2;
+          const xa=a.sx(c-S5HOP/2), xb=a.sx(c+S5HOP/2);
+          col.forEach((d,r)=>{ const op=cl(1+d/30); if(op<=0.02) return;
+            const ya=a.sy((r+1)*PI/ROWS), yb=a.sy(r*PI/ROWS);
+            cells.push(`<rect x="${xa.toFixed(2)}" y="${ya.toFixed(2)}" width="${(xb-xa).toFixed(2)}" height="${(yb-ya).toFixed(2)}" fill="${C.in}" fill-opacity="${op.toFixed(3)}"/>`); }); }
+        a.under('<g shape-rendering="crispEdges">'+cells.join('')+'</g>');
+        for(let k=1;k<4;k++) a.vline(k*S5SEG-0.5,{color:C.muted,opacity:.55});
+        const c=m+S5L/2;
+        a.rect(c-S5HOP/2,0,c+S5HOP/2,PI,{stroke:C.h,width:2});
+        return a.svg(); }); },
+      caption:'Four notes of $48$ samples, each a pair of tones, seen through the shaded window. Stronger colour is a larger magnitude, over $30$ dB.'}
+  ], right:[
+    {t:'eq', tex:'X_m(e^{j\\omega})=\\sum_{n=m}^{m+L-1}x[n]\\,w[n-m]\\,e^{-j\\omega n}', label:'One column',
+      note:'Column $m$ is $|X_m(e^{j\\omega})|$, for a Hann window of $L=32$. It is even in $\\omega$ and repeats every $2\\pi$, so $0\\le\\omega\\le\\pi$ is enough.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Reading the map', html:'Time runs to the right and frequency upward. Each note shows as two bands, one for each of its tones. A window that spans two notes gives a blurred column.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same notes, seen through a Hann window of $L=64$.<div class="nsep"></div>What happens to the map?',
+        ask:{key:'m6-stft', choices:['Narrower bands, more blur','Wider bands, less blur','No change'], answer:0,
+          why:'The main lobe $8\\pi/L$ is half as wide, but a window of $64$ samples spans a note change in more columns.'}}]}
   ]}
 ]},
 
@@ -26278,13 +26752,16 @@ codeScene({ id:'m6-code-conv', nav:'Convolution and multiplication', title:'Conv
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'a', label:'$a$', min:0.1, max:0.8, step:0.05, v:0.25, show:v=>'$'+(+v).toFixed(2)+'$'}]},
+      listen:{items:[
+          {label:'Play one stage', sound:v=>({f:s2play(s2first(s2noise(12000,79),v.a)), dur:1.5})},
+          {label:'Play two stages', sound:v=>({f:s2play(s2first(s2first(s2noise(12000,79),v.a),v.a)), dur:1.5})}]},
       svg:v=>{
       const av=v?+v.a:0.25, s=D(n=>n<0?0:(n+1)*Math.pow(av,n),-3,20);
       const pk=Math.max(...s.map(p=>p[1]));
-      const a=AX({xr:[-3,20],yr:[-0.12*pk,1.3*pk],xlabel:'n',ylabel:'(n+1)a^{n}u[n]',xtarget:8});
+      const a=AX({h:320,xr:[-3,20],yr:[-0.12*pk,1.3*pk],xlabel:'n',ylabel:'(n+1)a^{n}u[n]',xtarget:8});
       a.stem(s,{color:C.mid,showZero:true});
       return a.svg(); },
-      caption:'A repeated factor needs this sequence, $(n+1)a^{n}u[n]$. The factor $n+1$ lifts the early samples; the decay $a^{n}$ wins later. Move $a$.'}
+      caption:'A repeated factor needs this sequence, $(n+1)a^{n}u[n]$. The factor $n+1$ lifts the early samples; the decay $a^{n}$ wins later. Move $a$. Two stages of $y[n]=a\\,y[n-1]+x[n]$ have this impulse response; at $8000$ samples per second, noise through two sounds duller than through one.'}
   ], right:[
     {t:'eq', tex:'\\sum_{n=0}^{\\infty}a^{n}e^{-j\\omega n}=\\frac{1}{1-ae^{-j\\omega}},\\qquad |a|<1', label:'Start · the exponential pair'},
     {t:'reveal', at:1, items:[
@@ -26382,6 +26859,45 @@ codeScene({ id:'m6-code-conv', nav:'Convolution and multiplication', title:'Conv
       {t:'note', kind:'def', head:'Given', html:'The same system with input $x[n]=\\left(\\tfrac13\\right)^{n}u[n]$.<div class="nsep"></div>What partial fractions does $Y$ need?',
         ask:{key:'m6-ex-diff-b2', choices:['three simple terms','one squared term','two simple terms'], answer:0,
           why:'$\\tfrac13$ differs from both system factors $\\tfrac12$ and $\\tfrac14$, so each factor appears once.'}}]}
+  ]}
+]},
+
+/* ============================================================ an echo */
+{ id:'m6-echo', module:'M6', nav:'Hearing an echo', title:'Hearing an Echo and Removing It', src:'pp. 77–78',
+  objective:'Hear an echo, see its frequency response as a comb, and remove it with a recursion that is stable for |α|<1.',
+  keywords:'echo delay comb frequency response alpha D remove echo inverse system recursion stable sound listen plucked note',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 6 · Difference equations', src:'pp. 77–78'},
+  {t:'title', text:'Hearing an Echo and Removing It'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'al', label:'$\\alpha$', min:0.1, max:0.8, step:0.05, v:0.5, show:v=>'$'+(+v.toFixed(2))+'$'}]},
+      listen:{items:[
+          {label:'Play $x[n]$', sound:()=>({f:s2play(s6pluck(8000)), dur:1})},
+          {label:'Play $y[n]$', sound:v=>({f:s2play(s6echo(s6pluck(8000),v.al,s6D)), dur:1})},
+          {label:'Play $w[n]$', sound:v=>({f:s2play(s6undo(s6echo(s6pluck(8000),v.al,s6D),v.al,s6D)), dur:1})}]},
+      svg:v=>{
+      /* D = 3 in the figure: |1 + al e^{-j w D}| and its reciprocal */
+      const al=v?v.al:0.5, E=w=>Math.sqrt(1+2*al*Math.cos(3*w)+al*al), top=1/(1-al);
+      const ticks=[1-al,1+al].concat(top-(1+al) > 0.14*top ? [top] : []);
+      const a=AXW(-3*PI,3*PI,PI,{h:340,yr:[-0.12*top,1.36*top],ylabel:'|H(e^{j\\omega})|',
+        yticksOverride:ticks,ytickfmt:v=>''+(+v.toFixed(4))});
+      a.curve(E,{color:C.h,n:4000});
+      a.curve(w=>1/E(w),{color:C.out,n:4000});
+      markPeriod(a,1.2*top);
+      return a.svg(); },
+      caption:'The echo and the recursion that removes it, for $D=3$, over three periods; at every $\\omega$ the two values multiply to $1$. The sounds are a plucked note $x[n]$, its echo $y[n]$ and the output $w[n]$, at $8000$ samples per second with $D=2000$, a delay of $0.25$ s.'},
+    {t:'legend', items:[['h','$|1+\\alpha e^{-j\\omega D}|$'],['out','$1/|1+\\alpha e^{-j\\omega D}|$']]}
+  ], right:[
+    {t:'eq', tex:'y[n]=x[n]+\\alpha\\,x[n-D]', label:'Echo',
+      note:'A copy scaled by $\\alpha$ arrives $D$ samples later. Its response $1+\\alpha e^{-j\\omega D}$ swings between $1-\\alpha$ and $1+\\alpha$, $D$ times in each period.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'w[n]=y[n]-\\alpha\\,w[n-D]', label:'Removing it',
+        note:'Its response is $1/(1+\\alpha e^{-j\\omega D})$, so it gives back $x[n]$. It is stable only for $|\\alpha|<1$, where its impulse response $(-\\alpha)^{k}$ at $n=kD$ decays.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'An echo with $\\alpha=0.8$.<div class="nsep"></div>What are the largest and the smallest values of $|1+\\alpha e^{-j\\omega D}|$?',
+        ask:{key:'m6-echo', choices:['$1.8$ and $0.2$','$1.8$ and $0$','$1.64$ and $0.36$'], answer:0,
+          why:'The two terms add to $1.8$ where $e^{-j\\omega D}=1$ and leave $0.2$ where $e^{-j\\omega D}=-1$.'}}]}
   ]}
 ]},
 
@@ -26620,7 +27136,7 @@ codeScene({ id:'m6-code-diffeq', nav:'Difference equations', title:'Difference E
             'Run $y[n]=-0.5\\,y[n-1]+v[n]$.',
             'Compare $y[n]$ with the recording.',
             'Plot $|1+0.5e^{-j\\omega}|$ and its reciprocal over three periods.'],
-     look:'The recording comes back exactly. $|H|$ swings between $0.5$ and $1.5$, the inverse between $2/3$ and $2$. Its impulse response $(-0.5)^{n}u[n]$ decays because $|-0.5|<1$.'},
+     look:'The recording comes back exactly. $|H|$ swings between $0.5$ and $1.5$, the inverse between $2/3$ and $2$. Its impulse response $(-0.5)^{n}u[n]$ decays because $|-0.5|<1$. Section 6.6, Hearing an Echo and Removing It, plays the same two systems with an echo you can hear.'},
     {title:'Two identical stages', glyph:G.cascade,
      aim:'Check the repeated-pole pair by running two first-order stages in a row.',
      learn:['A cascade as a convolution.',
@@ -28046,6 +28562,7 @@ CONTENT.SECTIONS = {
     /* <m6-s1-sec> */
     { n:'6.1', title:'Building the transform', ids:[
         'm6-derive','m6-dtfs-link','m6-limit','m6-pair','m6-pair-b','m6-periodic','m6-periodic-b',
+        'm6-circle','m6-dft','m6-dft-b',
         'm6-real-transform','m6-lab-i1','m6-code-transform'] },
     /* </m6-s1-sec> */
     /* <m6-s2-sec> */
@@ -28071,13 +28588,14 @@ CONTENT.SECTIONS = {
     /* <m6-s5-sec> */
     { n:'6.5', title:'Convolution and multiplication', ids:[
         'm6-conv','m6-conv-b','m6-conv-ex','m6-conv-ex-b','m6-conv-lpf','m6-conv-lpf-b',
-        'm6-mult','m6-mult-b','m6-mult-c','m6-mult-ex','m6-mult-ex-b',
+        'm6-mult','m6-mult-scrub','m6-mult-b','m6-mult-c','m6-mult-ex','m6-mult-ex-b',
+        'm6-leak','m6-leak-b','m6-stft',
         'm6-real-conv','m6-lab-i5','m6-code-conv'] },
     /* </m6-s5-sec> */
     /* <m6-s6-sec> */
     { n:'6.6', title:'Difference equations', ids:[
         'm6-freqresp','m6-ex-diff','m6-ex-diff-c','m6-ex-pair','m6-ex-pair-b','m6-ex-diff-b','m6-ex-diff-b2',
-        'm6-real-diffeq','m6-lab-i6','m6-code-diffeq'] },
+        'm6-echo','m6-real-diffeq','m6-lab-i6','m6-code-diffeq'] },
     /* </m6-s6-sec> */
     /* <m6-s7-sec> */
     { n:'6.7', title:'Summary', ids:[
@@ -28208,6 +28726,7 @@ CONTENT.BOOK = {
   'm6-derive':'5.1.1', 'm6-dtfs-link':'5.1.1', 'm6-limit':'5.1.1',
   'm6-pair':'5.1.1', 'm6-pair-b':'5.1.3', 'm6-periodic':'5.3.1', 'm6-periodic-b':'5.3.1',
   'm6-real-transform':'5.1', 'm6-lab-i1':'5.1.1', 'm6-code-transform':'5.1',
+  'm6-circle':'5.3.1',
   /* </m6-s1-book> */
   /* <m6-s2-book> */
   'm6-ex-shift':'5.1.2', 'm6-ex-anun':'5.1.2', 'm6-ex-anun-b':'5.1.2',
@@ -28235,10 +28754,12 @@ CONTENT.BOOK = {
   'm6-conv-lpf-b':'5.4.1', 'm6-mult':'5.5', 'm6-mult-b':'5.5', 'm6-mult-ex':'5.5',
   'm6-conv-b':'5.4', 'm6-conv-ex-b':'5.4.1', 'm6-mult-c':'5.5', 'm6-mult-ex-b':'5.5',
   'm6-real-conv':'5.4, 5.5', 'm6-lab-i5':'5.4, 5.5', 'm6-code-conv':'5.4, 5.5',
+  'm6-mult-scrub':'5.5',
   /* </m6-s5-book> */
   /* <m6-s6-book> */
   'm6-freqresp':'5.8', 'm6-ex-diff':'5.8', 'm6-ex-diff-c':'5.8', 'm6-ex-pair':'5.8', 'm6-ex-pair-b':'5.8',
   'm6-ex-diff-b':'5.8', 'm6-ex-diff-b2':'5.8', 'm6-real-diffeq':'5.8', 'm6-lab-i6':'5.8', 'm6-code-diffeq':'5.8',
+  'm6-echo':'5.8',
   /* </m6-s6-book> */
   /* <m6-s7-book> */
   'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-quick':'5.9', 'm6-synth':'5.9', 'm6-projects':'5.9',

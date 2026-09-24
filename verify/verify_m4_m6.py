@@ -1013,6 +1013,67 @@ chk("M6 lab I1: triangular pulse has N a_0 = 3 and, at N=40, N a_1 = 2.951",
     and _near(_m6X(_xt, _n5, 0.3)[0].real, (np.sin(0.45)/np.sin(0.15))**2/3, 1e-12))
 chk("M6 lab I1: the N strips of one period give x[0] = 1 for every N in 5..40, both pulses",
     all(_near(np.sum(_m6X(x, _n5, 2*_pi*np.arange(N)/N)).real/N, 1, 1e-9) for x in (_x5, _xt) for N in range(5, 41)))
+# m6-circle: e^{jwn} on the unit circle, n = 0..8, w/pi on 0..2 (default 0.25)
+_nc = np.arange(0, 9); _wc = np.linspace(0, 2*_pi, 41)
+chk("M6 circle: e^{jw(n+1)} = e^{jwn} e^{jw}, and w + 2pi lands on the same points, for w/pi = 0..2",
+    all(np.allclose(np.exp(1j*w*(_nc+1)), np.exp(1j*w*_nc)*np.exp(1j*w), atol=1e-12)
+        and np.allclose(np.exp(1j*(w + 2*_pi)*_nc), np.exp(1j*w*_nc), atol=1e-9) for w in _wc))
+chk("M6 circle: at w = pi the point is (-1)^n, and no w gives a larger step |x[n+1] - x[n]| than 2",
+    np.allclose(np.exp(1j*_pi*_nc), (-1.0)**_nc, atol=1e-12)
+    and _near(np.max(np.abs(np.diff(np.cos(_pi*_nc)))), 2, 1e-12)
+    and max(np.max(np.abs(np.diff(np.cos(w*np.arange(200))))) for w in np.linspace(0, 2*_pi, 401)) <= 2 + 1e-12)
+chk("M6 circle: w/pi = 0.25 and 1.75 turn opposite ways with the same cos(wn)",
+    np.allclose(np.cos(0.25*_pi*_nc), np.cos(1.75*_pi*_nc), atol=1e-12)
+    and np.allclose(np.exp(1j*1.75*_pi*_nc), np.conj(np.exp(1j*0.25*_pi*_nc)), atol=1e-12))
+chk("M6 circle: a turn of 3pi/2 gives the stems of pi/2 = 2pi - 3pi/2, not those of 3pi/4 or pi",
+    _near(2*_pi - 1.5*_pi, 0.5*_pi, 1e-12) and np.allclose(np.cos(1.5*_pi*_nc), np.cos(0.5*_pi*_nc), atol=1e-12)
+    and not np.allclose(np.cos(1.5*_pi*_nc), np.cos(0.75*_pi*_nc), atol=1e-3)
+    and not np.allclose(np.cos(1.5*_pi*_nc), np.cos(_pi*_nc), atol=1e-3))
+chk("M6 circle: at w = pi/4 the ninth sample, n = 8, is back at 1",
+    _near(np.exp(1j*0.25*_pi*8), 1, 1e-12))
+# m6-dft: four ones on 0 <= n <= 3; DFT with N from 4 to 32 (default 8)
+_x4 = np.ones(4)
+def _dft(x, N):
+    xp = np.concatenate([x, np.zeros(N - len(x))]); k = np.arange(N)
+    return np.array([np.sum(xp*np.exp(-2j*_pi*kk*np.arange(N)/N)) for kk in k])
+chk("M6 dft: X[k] = X(e^{j2pi k/N}) = sum_{n=0}^{N-1} x[n] e^{-j2pi kn/N} = fft, four ones, N = 4..32",
+    all(np.allclose(_dft(_x4, N), _m6X(_x4, np.arange(4), 2*_pi*np.arange(N)/N), atol=1e-9)
+        and np.allclose(_dft(_x4, N), np.fft.fft(_x4, N), atol=1e-9) for N in range(4, 33)))
+def _dtfs(x, N, n0):
+    # series coefficients of the N-periodic extension, summed over the period n0..n0+N-1
+    nn = np.arange(n0, n0 + N); xt = np.array([x[v % N] if (v % N) < len(x) else 0.0 for v in nn])
+    return np.array([np.sum(xt*np.exp(-2j*_pi*k*nn/N))/N for k in range(N)])
+chk("M6 dft: X[k] = N a_k for the periodic extension (period taken at n = -3..N-4), N = 4..32",
+    all(np.allclose(_dft(_x4, N), N*_dtfs(_x4, N, -3), atol=1e-9) for N in range(4, 33)))
+chk("M6 dft: N = 4 gives 4, 0, 0, 0; N = 8 has zeros at k = 2, 4, 6",
+    np.allclose(np.fft.fft(_x4, 4), [4, 0, 0, 0], atol=1e-12)
+    and list(np.nonzero(np.abs(np.fft.fft(_x4, 8)) < 1e-9)[0]) == [2, 4, 6])
+chk("M6 dft: five ones with N = 5 give X[0] = 5 and four zeros",
+    np.allclose(np.fft.fft(np.ones(5), 5), [5, 0, 0, 0, 0], atol=1e-12))
+chk("M6 code dtr-dft: N = 8 prints 4.0 2.6 0.0 1.1 ...; with N = 16 three of the sixteen values are zero",
+    " ".join(f"{v:.1f}" for v in np.abs(np.fft.fft(_x4, 8))) == "4.0 2.6 0.0 1.1 0.0 1.1 0.0 2.6"
+    and list(np.nonzero(np.abs(np.fft.fft(_x4, 16)) < 1e-9)[0]) == [4, 8, 12])
+# m6-dft-b: x[n] = cos(0.3 pi n) + cos(0.4 pi n), 0 <= n <= L-1, padded to N
+def _rec(L):
+    n = np.arange(L); return np.cos(0.3*_pi*n) + np.cos(0.4*_pi*n)
+def _peaks(L, lo=0.2*_pi, hi=0.5*_pi):
+    w = np.linspace(lo, hi, 6001); m = np.abs(_m6X(_rec(L), np.arange(L), w))
+    return w[1:-1][(m[1:-1] > m[:-2]) & (m[1:-1] > m[2:])]
+chk("M6 dft-b: the cosines are 0.1pi apart; padding L=12 to N=48 gives samples of the unpadded DTFT",
+    _near(0.4*_pi - 0.3*_pi, 0.1*_pi, 1e-12)
+    and np.allclose(np.fft.fft(_rec(12), 48), _m6X(_rec(12), np.arange(12), 2*_pi*np.arange(48)/48), atol=1e-9))
+chk("M6 dft-b: one cosine's peak has first zeros at +-2pi/L, so it is 4pi/L wide: pi/3 at L=12, 0.1pi at L=40",
+    all(abs(np.sum(np.exp(-1j*2*_pi/L*np.arange(L)))) < 1e-9
+        and np.min(np.abs(np.sum(np.exp(-1j*np.outer(np.linspace(-2*_pi/L*0.999, 2*_pi/L*0.999, 999), np.arange(L))), axis=1))) > 1e-3
+        for L in (12, 16, 40, 48))
+    and _near(4*_pi/12, _pi/3, 1e-12) and _near(4*_pi/40, 0.1*_pi, 1e-12))
+chk("M6 dft-b: L=10 and L=12 give one merged peak near 0.35pi; L=30 and L=40 give two, near 0.3pi and 0.4pi",
+    len(_peaks(10)) == 1 and len(_peaks(12)) == 1 and abs(_peaks(12)[0] - 0.35*_pi) < 0.01*_pi
+    and all(len(_peaks(L)) >= 2 and np.min(np.abs(_peaks(L) - 0.3*_pi)) < 0.01*_pi and np.min(np.abs(_peaks(L) - 0.4*_pi)) < 0.01*_pi
+            for L in (30, 40)))
+chk("M6 dft-b: padding L=10 to N=128 still shows one peak; the normalised curve stays below 0.85 for L = 8..48",
+    np.sum((lambda m: (m[1:-1] > m[:-2]) & (m[1:-1] > m[2:]) & (m[1:-1] > 0.2))(np.abs(np.fft.fft(_rec(10), 128)[10:30])/10)) == 1
+    and max(np.max(np.abs(_m6X(_rec(L), np.arange(L), np.linspace(-1.25*_pi, 2.25*_pi, 7001))))/L for L in range(8, 49)) < 0.85)
 # </m6-s1-verify>
 
 # <m6-s2-verify> 6.2 the standard pairs
@@ -1141,6 +1202,26 @@ chk("M6 lab I window N1 = 2: X(e^{j0}) = 5, least -1.25, smallest |X| = 0", _nea
 chk("M6 lab I two-sided a = 0.5: 3 and 0.3333", _near(_two62(0, 0.5), 3) and _near(_two62(_pi, 0.5), 0.3333))
 chk("M6 lab I low-pass W = 0.25 pi: x[0] = 0.25", _near(_lpfinv62(0, 0.25*_pi), 0.25, 1e-12))
 chk("M6 lab I unit sample A = 1: X = 1 at every w", np.allclose(_dtft62(np.array([1.0]), np.array([0]), _w62[::1000]), 1))
+
+# sound on m6-ex-anun-b and m6-ex-lpf: sequences played at 8000 samples per second
+_fs62 = 8000
+chk("M6 sound: at 8000 samples per second omega = pi is 4 kHz; the band |omega| <= W keeps what lies below 4W/pi kHz (1 kHz at W = pi/4)",
+    _near(_pi/(2*_pi)*_fs62, 4000, 1e-9) and _near((_pi/4)/(2*_pi)*_fs62, 1000, 1e-9)
+    and all(_near(W/(2*_pi)*_fs62/1000, 4*W/_pi, 1e-12) for W in (0.1*_pi, 0.5*_pi, _pi)))
+_hs62 = np.zeros(30)
+for _k in range(30): _hs62[_k] = (1.0 if _k == 0 else 0.0) + (0.5*_hs62[_k-1] if _k else 0)
+chk("M6 ex-anun-b sound: y[n] = a y[n-1] + x[n] from rest has impulse response a^n u[n] (a = 1/2), so its response is the plotted X",
+    np.allclose(_hs62, 0.5**np.arange(30)))
+chk("M6 ex-anun-b sound: for every slider a > 0, |X(e^{j0})| > |X(e^{j pi})| (dull); for every a < 0 the reverse (hissy)",
+    all(abs(_geo62(0, a)) > abs(_geo62(_pi, a)) for a in np.arange(0.05, 0.91, 0.05))
+    and all(abs(_geo62(0, a)) < abs(_geo62(_pi, a)) for a in np.arange(-0.9, -0.04, 0.05)))
+_rng62 = np.random.default_rng(62); _N62 = 12000; _Wb = _pi/4
+_yb62 = np.zeros(_N62)
+for _k in range(300):
+    _yb62 += np.cos(_Wb*(_k + _rng62.random())/300*np.arange(_N62) + 2*_pi*_rng62.random())
+_Yb62 = np.abs(np.fft.rfft(_yb62*np.hanning(_N62)))**2; _fb62 = np.fft.rfftfreq(_N62)*2*_pi
+chk("M6 ex-lpf sound: 300 cosines at random frequencies in (0, W) (W = pi/4) hold under 1e-4 of their energy above 1.1 W",
+    _Yb62[_fb62 > 1.1*_Wb].sum()/_Yb62.sum() < 1e-4)
 # </m6-s2-verify>
 
 # <m6-s3-verify> 6.3 periodic sequences
@@ -1514,6 +1595,106 @@ chk("M6 lab I5: modulate default W = pi/4, w0 = pi/3: upper copy pi/12 to 7pi/12
     and _near((_s5pi/4)/_s5pi, 0.25, 1e-12) and (_s5pi/4 <= _s5pi/3 <= _s5pi - _s5pi/4))
 chk("M6 lab I5: W = pi/2, w0 = pi/12 overlaps at 0 and the two halves add to 1 there",
     _near(0.5*_s5band(0 - _s5pi/12, _s5pi/2) + 0.5*_s5band(0 + _s5pi/12, _s5pi/2), 1, 1e-12))
+# m6-mult-scrub: the slider's default and the trace's period
+_s5g = np.linspace(-3*_s5pi, 3*_s5pi, 721)
+chk("M6 mult-scrub: default w = pi/2 gives Z = 0.375, and Z(w + 2pi) = Z(w) across three periods",
+    _near(_s5per(_s5pi/2, 3*_s5pi/4, _s5pi/2), 0.375, 1e-12)
+    and all(_near(_s5per(w + 2*_s5pi, 3*_s5pi/4, _s5pi/2), _s5per(w, 3*_s5pi/4, _s5pi/2), 1e-12) for w in _s5g[::10]))
+chk("M6 mult-scrub: slider end w = -3pi gives Z = 1/8 + 1/8 = 0.250 (two copies at the period ends)",
+    _near(_s5per(-3*_s5pi, 3*_s5pi/4, _s5pi/2), 0.25, 1e-12))
+chk("M6 mult-scrub prediction: X half-width 3pi/4, Y half-width pi/4: Z(e^{j0}) = (pi/2)/(2pi) = 1/4, not 1/2 or 1/8",
+    _near(_s5per(0, 3*_s5pi/4, _s5pi/4), 0.25, 1e-12) and _near((_s5pi/2)/(2*_s5pi), 0.25, 1e-12))
+# m6-leak: a cosine kept for L samples
+def _s5W(w, L):
+    """transform of the rectangular window 1 on 0..L-1"""
+    n = np.arange(L)
+    return np.exp(-1j*np.outer(np.atleast_1d(w), n)).sum(axis=1)
+_s5wl = np.linspace(-3*_s5pi, 3*_s5pi, 2401) + 1e-7
+_s5ok = True
+for _L, _w0 in ((16, _s5pi/4), (8, _s5pi/8), (32, 7*_s5pi/8)):
+    _n = np.arange(_L)
+    _X = np.exp(-1j*np.outer(_s5wl, _n)) @ np.cos(_w0*_n)
+    _s5ok &= np.allclose(_X, 0.5*_s5W(_s5wl - _w0, _L) + 0.5*_s5W(_s5wl + _w0, _L), atol=1e-9)
+    _s5ok &= np.allclose(np.abs(_s5W(_s5wl, _L)), np.abs(np.sin(_s5wl*_L/2)/np.sin(_s5wl/2)), atol=1e-6)
+chk("M6 leak: DTFT of cos(w0 n) on 0..L-1 = W(w - w0)/2 + W(w + w0)/2, |W| = |sin(wL/2)/sin(w/2)|", _s5ok)
+_s5ok = True
+for _L in (8, 16, 32):
+    _wz = np.linspace(0, 2*_s5pi/_L, 400, endpoint=False)[1:]
+    _s5ok &= abs(_s5W(2*_s5pi/_L, _L)[0]) < 1e-9 and np.all(np.abs(_s5W(_wz, _L)) > 1e-6)
+chk("M6 leak: W first reaches zero at w = 2pi/L, so the main lobe is 4pi/L wide (L = 8, 16, 32)", _s5ok)
+chk("M6 leak prediction: 4pi/L is pi/4 at L = 16 and pi/8 at L = 32, half as wide",
+    _near(4*_s5pi/16, _s5pi/4, 1e-12) and _near(4*_s5pi/32, _s5pi/8, 1e-12) and _near((4*_s5pi/32)/(4*_s5pi/16), 0.5, 1e-12))
+_s5wm = np.linspace(-_s5pi, _s5pi, 1601)
+_s5mx = max(np.max(2/_L*np.abs(np.exp(-1j*np.outer(_s5wm, np.arange(_L))) @ np.cos(_w0*np.arange(_L))))
+            for _L in range(8, 33) for _w0 in np.arange(2, 15)*_s5pi/16)
+chk("M6 leak: over every slider state (w0 = pi/8..7pi/8, L = 8..32) the plotted 2|X|/L stays below the axis top 1.45",
+    _s5mx < 1.45, f"max = {_s5mx:.3f}")
+# m6-leak-b: rectangular against Hann on cos(pi n/4) + 0.01 cos(21 pi n/32), L = 32
+_s5L = 32; _s5n = np.arange(_s5L)
+_s5w1, _s5w2 = _s5pi/4, 21*_s5pi/32
+_s5hann = np.sin(_s5pi*_s5n/_s5L)**2
+_s5win = {'rect': np.ones(_s5L), 'hann': _s5hann}
+def _s5dB(x, w):
+    return 20*np.log10(np.abs(np.exp(-1j*np.outer(w, _s5n)) @ x))
+_s5wf = np.linspace(-_s5pi, _s5pi, 80001)
+chk("M6 leak-b: Hann sin^2(pi n/L) = 1/2 - cos(2 pi n/L)/2; 0.01 is -40 dB and 0.001 is -60 dB",
+    np.allclose(_s5hann, 0.5 - 0.5*np.cos(2*_s5pi*_s5n/_s5L), atol=1e-15)
+    and _near(20*np.log10(0.01), -40, 1e-12) and _near(20*np.log10(0.001), -60, 1e-12))
+def _s5lobe(win):
+    """first zero (in units of pi) and highest side lobe (dB) of a window's transform"""
+    d = _s5dB(win, _s5wf) - _s5dB(win, np.array([0.0]))[0]
+    pos = _s5wf > 0
+    z = _s5wf[pos][np.argmax(np.diff(d[pos]) > 0)]
+    return z/_s5pi, d[pos][_s5wf[pos] > z].max()
+_s5zr, _s5sr = _s5lobe(_s5win['rect']); _s5zh, _s5sh = _s5lobe(_s5win['hann'])
+chk("M6 leak-b: main lobes 4pi/L (rectangular) and 8pi/L (Hann): first zeros at 2pi/L and 4pi/L",
+    _near(_s5zr, 2/_s5L, 1e-4) and _near(_s5zh, 4/_s5L, 1e-4)
+    and abs(_s5dB(_s5win['hann'], np.array([4*_s5pi/_s5L]))[0]) > 200, f"{_s5zr:.5f} pi, {_s5zh:.5f} pi")
+chk("M6 leak-b: highest side lobe about -13 dB (rectangular) and about -31 dB (Hann)",
+    round(_s5sr) == -13 and round(_s5sh) == -31, f"{_s5sr:.2f} dB, {_s5sh:.2f} dB")
+_s5near = (_s5wf > _s5w2 - _s5pi/16) & (_s5wf < _s5w2 + _s5pi/16)
+def _s5rel(win, a2):
+    x = (np.cos(_s5w1*_s5n) + a2*np.cos(_s5w2*_s5n))*win
+    d = _s5dB(x, _s5wf)
+    return d - d.max()
+_s5r0, _s5r1 = _s5rel(_s5win['rect'], 0), _s5rel(_s5win['rect'], 0.01)
+_s5h0, _s5h1 = _s5rel(_s5win['hann'], 0), _s5rel(_s5win['hann'], 0.01)
+chk("M6 leak-b: rectangular, the side lobes near w2 reach about -21 dB, far above the weak cosine at -40 dB",
+    round(_s5r0[_s5near].max()) == -21 and _near(_s5r1[_s5near].max(), _s5r0[_s5near].max(), 0.5),
+    f"{_s5r0[_s5near].max():.2f} dB")
+_s5i2 = np.argmin(np.abs(_s5wf - _s5w2))
+chk("M6 leak-b: Hann, the weak cosine peaks at w2 near -40 dB, above the strong one's side lobes there",
+    _near(_s5h1[_s5near].max(), -40, 1.0) and abs(_s5wf[_s5near][np.argmax(_s5h1[_s5near])] - _s5w2) < 0.02
+    and _s5h0[_s5near].max() < -50, f"weak {_s5h1[_s5near].max():.2f} dB, side lobes {_s5h0[_s5near].max():.2f} dB")
+_s5h3 = _s5rel(_s5win['hann'], 0.001)
+chk("M6 leak-b prediction: at -60 dB the Hann side lobes near w2 (about -54 dB) hide it",
+    round(_s5h0[_s5near].max()) == -54 and _s5h0[_s5near].max() > -60
+    and abs(_s5wf[_s5near][np.argmax(_s5h3[_s5near])] - _s5w2) > 0.05, f"{_s5h0[_s5near].max():.2f} dB")
+# m6-stft: four notes of 48 samples, Hann window of 32, hop 8
+_s5notes = [(0.15, 0.55), (0.35, 0.80), (0.15, 0.80), (0.35, 0.55)]
+_s5x = np.array([np.cos(a*_s5pi*k) + np.cos(b*_s5pi*k) for k in range(192) for (a, b) in [_s5notes[k//48]]])
+def _s5col(m, L=32, rows=480):
+    wr = (np.arange(rows) + 0.5)*_s5pi/rows
+    piece = _s5x[m:m + L]*np.sin(_s5pi*np.arange(L)/L)**2
+    return wr, np.abs(np.exp(-1j*np.outer(wr, np.arange(m, m + L))) @ piece)
+def _s5peaks(m, L=32):
+    wr, c = _s5col(m, L)
+    d = 20*np.log10(c/c.max())
+    return [wr[i]/_s5pi for i in range(1, len(c) - 1) if c[i] >= c[i - 1] and c[i] >= c[i + 1] and d[i] > -12]
+chk("M6 stft: the sequence is four notes of 48 samples, 192 in all; a window inside a note shows its two tones",
+    _s5x.size == 192 and all(np.allclose(sorted(_s5peaks(m)), sorted(_s5notes[(m + 16)//48]), atol=0.01) for m in (0, 56, 104, 152)))
+_wr = np.linspace(0.1, 3.0, 40); _piece = _s5x[40:72]*np.sin(_s5pi*np.arange(32)/32)**2
+_Xm = lambda w: np.exp(-1j*np.outer(w, np.arange(40, 72))) @ _piece
+chk("M6 stft: |X_m| is even in w and repeats every 2pi, so 0 <= w <= pi is enough",
+    np.allclose(np.abs(_Xm(-_wr)), np.abs(_Xm(_wr)), atol=1e-9) and np.allclose(np.abs(_Xm(_wr + 2*_s5pi)), np.abs(_Xm(_wr)), atol=1e-9))
+def _s5spread(m):
+    wr, c = _s5col(m); return np.mean(20*np.log10(c/c.max()) > -12)
+chk("M6 stft: a window that spans two notes gives a blurred column (more of it within 12 dB of its peak)",
+    min(_s5spread(m) for m in (32, 80, 128)) > 1.5*max(_s5spread(m) for m in (0, 56, 104, 152)),
+    ", ".join(f"{_s5spread(m):.2f}" for m in (32, 80, 128, 0, 56, 104, 152)))
+_span = lambda L: sum(1 for m in range(0, 192 - L + 1, 8) if m < 96 <= m + L - 1)
+chk("M6 stft prediction: L = 64 halves the Hann main lobe 8pi/L (pi/4 to pi/8) and more windows span a note change (3 to 7)",
+    _near(8*_s5pi/64, (8*_s5pi/32)/2, 1e-12) and _span(32) == 3 and _span(64) == 7)
 # </m6-s5-verify>
 
 # <m6-s6-verify> 6.6 difference equations
@@ -1603,6 +1784,44 @@ chk("M6 lab I6: the slider range |p| <= 0.9 keeps every factor inside |p| < 1 (s
     0.9 < 1 and _near(abs(_Hd(0, .9, .9)), 200, 1e-9))
 chk("M6 lab I6: the cubed case p1 = p2 = c = -1/2 gives y[n] = 2 (n+1)(n+2)/2 (-1/2)^n",
     np.allclose(np.convolve(2*(_n6 + 1)*(-0.5)**_n6, (-0.5)**_n6)[:40], 2*(_n6 + 1)*(_n6 + 2)/2*(-0.5)**_n6))
+# sound on m6-ex-pair: two stages of y[n] = a y[n-1] + x[n]
+_st6 = lambda x, a: np.array([sum(a**(n - m)*x[m] for m in range(n + 1)) for n in range(len(x))])
+_d6 = (np.arange(30) == 0).astype(float)
+chk("M6 ex-pair sound: two stages of y[n] = a y[n-1] + x[n] have impulse response (n+1)a^n u[n] (a = 0.25)",
+    np.allclose(_st6(_st6(_d6, 0.25), 0.25), (np.arange(30) + 1)*0.25**np.arange(30)))
+chk("M6 ex-pair sound: for every slider a in [0.1, 0.8] two stages tilt more to low frequencies than one: (|H(0)|/|H(pi)|)^2 > |H(0)|/|H(pi)| > 1",
+    all(((1 + a)/(1 - a))**2 > (1 + a)/(1 - a) > 1 for a in np.arange(0.1, 0.81, 0.05)))
+
+# m6-echo: y[n] = x[n] + al x[n-D], removed by w[n] = y[n] - al w[n-D]
+_E6 = lambda w, al, D: np.abs(1 + al*np.exp(-1j*w*D))
+chk("M6 echo: |1 + al e^{-jwD}| runs from 1 - al to 1 + al, the remover from 1/(1 + al) to 1/(1 - al); at al = 0.5: 0.5, 1.5, 0.6667, 2 (figure ticks 0.5, 1.5, 2)",
+    _near(_E6(_w6, 0.5, 3).min(), 0.5, 1e-6) and _near(_E6(_w6, 0.5, 3).max(), 1.5, 1e-6)
+    and _near((1/_E6(_w6, 0.5, 3)).min(), 0.6667) and _near((1/_E6(_w6, 0.5, 3)).max(), 2, 1e-5))
+chk("M6 echo: the two responses multiply to 1 at every w, and each repeats every 2pi",
+    np.allclose(_E6(_w6, 0.5, 3)*(1/_E6(_w6, 0.5, 3)), 1) and np.allclose(_E6(_w6 + 2*_pi, 0.5, 3), _E6(_w6, 0.5, 3)))
+_wp6 = np.linspace(-_pi, _pi, 60001)[1:]
+_Ep6 = _E6(_wp6, 0.5, 3)
+chk("M6 echo: with D = 3 the echo response has D = 3 peaks and 3 notches in one period (-pi, pi]",
+    np.sum((_Ep6[1:-1] > _Ep6[:-2]) & (_Ep6[1:-1] > _Ep6[2:])) + (1 if _Ep6[-1] > _Ep6[-2] and _Ep6[-1] > _Ep6[0] else 0) == 3
+    and np.sum((_Ep6[1:-1] < _Ep6[:-2]) & (_Ep6[1:-1] < _Ep6[2:])) + (1 if _Ep6[-1] < _Ep6[-2] and _Ep6[-1] < _Ep6[0] else 0) == 3)
+chk("M6 echo (Given): at al = 0.8 the largest and smallest of |1 + al e^{-jwD}| are 1.8 and 0.2 (not 0, not 1.64 and 0.36)",
+    _near(_E6(_w6, 0.8, 3).max(), 1.8, 1e-6) and _near(_E6(_w6, 0.8, 3).min(), 0.2, 1e-6) and _near(1 + 0.8**2, 1.64, 1e-12))
+_tp6 = np.arange(8000)/8000
+_xp6 = np.exp(-14*_tp6)*(np.sin(2*_pi*440*_tp6) + 0.5*np.sin(4*_pi*440*_tp6) + 0.25*np.sin(6*_pi*440*_tp6))
+def _echo6(x, al, D):
+    y = x.copy(); y[D:] += al*x[:-D]; return y
+def _undo6(y, al, D):
+    w = np.zeros(len(y))
+    for n in range(len(y)): w[n] = y[n] - (al*w[n - D] if n >= D else 0)
+    return w
+chk("M6 echo sound: D = 2000 at 8000 samples per second is 0.25 s; the note's harmonics 440, 880, 1320 Hz lie below 4 kHz",
+    _near(2000/8000, 0.25, 1e-12) and 3*440 < 4000)
+chk("M6 echo sound: the recursion gives back the plucked note exactly (al = 0.5 and 0.8, D = 2000)",
+    all(np.max(np.abs(_undo6(_echo6(_xp6, al, 2000), al, 2000) - _xp6)) < 1e-12 for al in (0.5, 0.8)))
+_hr6 = _undo6((np.arange(40) == 0).astype(float), 0.5, 4)
+chk("M6 echo: the remover's impulse response is (-al)^k at n = kD and zero elsewhere; it decays for |al| < 1 (slider max 0.8) and grows for al = 1.2",
+    np.allclose(_hr6, [(-0.5)**(n//4) if n % 4 == 0 else 0 for n in range(40)])
+    and 0.8 < 1 and abs(_undo6((np.arange(40) == 0).astype(float), 1.2, 4)[36]) > 1)
 # </m6-s6-verify>
 
 # <m6-s7-verify> 6.7 quick check and projects
