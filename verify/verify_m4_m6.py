@@ -517,6 +517,378 @@ _tq = np.linspace(0, 1/220/4, 200001)
 _sq31 = sum(4/(_pi*k)*np.sin(2*_pi*k*220*_tq) for k in range(1, 32, 2))
 chk("M4 projects: a square wave of +-1 built to K = 31 peaks near 1.18", _near(_sq31.max(), 1.18, 5e-3), f"{_sq31.max():.4f}")
 
+# ---------------------------------------------------------------- M5 laboratories V W
+
+# Lab V: rectangular wave, cosine, sine, impulse train -- the weight of the
+# impulse at k*w0 is 2*pi*a_k, never a_k, and the impulse-train spacing equals
+# its own weight, 2*pi/T.
+def _V_ak_rect(k, Tv, T1=1.0):
+    return 2*T1/Tv if k == 0 else np.sin(k*(2*np.pi/Tv)*T1)/(np.pi*k)
+
+chk("M5 lab V: rectangular wave T=8 gives 2 pi a_0 = pi/2 and 2 pi a_1 = 1.4142",
+    _near(2*np.pi*_V_ak_rect(0, 8), np.pi/2, 1e-12)
+    and _near(2*np.pi*_V_ak_rect(1, 8), 1.4142, 1e-3))
+# a_k for A cos(w0 t): a_1 = a_-1 = A/2, so 2*pi*a_1 = pi*A
+_Acos = 1.5
+chk("M5 lab V: cosine A=1.5 cos(w0 t) has weight 2 pi a_1 = pi A = 4.7124",
+    _near(2*np.pi*(_Acos/2), np.pi*_Acos, 1e-12) and _near(np.pi*_Acos, 4.7124, 1e-3))
+# a_k for A sin(w0 t): a_1 = A/(2j), a_-1 = -A/(2j); the weights are purely
+# imaginary, +j pi A at k=1 and -j pi A at k=-1, real part exactly zero
+_Asin = 1.5
+_a1_sin = _Asin/(2j)
+chk("M5 lab V: sine A=1.5 sin(w0 t) has weight 2 pi a_1 = -j pi A = -j4.7124, Re = 0",
+    _near((2*np.pi*_a1_sin).imag, -np.pi*_Asin, 1e-12) and abs((2*np.pi*_a1_sin).real) < 1e-12)
+chk("M5 lab V: impulse train of period T=4 has w0 = 2 pi / 4 = 1.5708, equal to every impulse weight",
+    _near(2*np.pi/4, 1.5708, 1e-3))
+
+# Lab W: base signal is the rectangular pulse of half-width 1,
+# X(jw) = 2 sin(w)/w = 2 sinc(w) (unnormalised sinc), X(j0) = 2.
+_Xbase = lambda w: np.where(np.abs(w) < 1e-9, 2.0, 2*np.sin(np.where(np.abs(w) < 1e-9, 1.0, w))/np.where(np.abs(w) < 1e-9, 1.0, w))
+chk("M5 lab W: base pulse has X(j0) = 2 and X(j pi) = 0",
+    _near(_Xbase(0), 2, 1e-9) and abs(_Xbase(np.pi)) < 1e-9)
+
+# time shift: x(t-t0) <-> e^{-j w t0} X(jw); magnitude unchanged, phase linear
+_wg = np.linspace(-14, 14, 2001)
+_t0 = 1.5
+_Xshift = _Xbase(_wg)*np.exp(-1j*_wg*_t0)
+chk("M5 lab W shift: |X| is unchanged and X(j0) after = 2 (phase 0 at w=0)",
+    np.allclose(np.abs(_Xshift), np.abs(_Xbase(_wg)), atol=1e-9)
+    and _near(_Xshift[np.argmin(np.abs(_wg))].real, 2, 1e-2))
+
+# time scaling: x(a t) <-> (1/|a|) X(jw/a); area X(0) scales by 1/|a|
+_a = 2.0
+chk("M5 lab W scale: a = 2 gives X(j0) after = 1/2 * X(j0) before = 1",
+    _near((1/abs(_a))*_Xbase(0), 1, 1e-9))
+
+# reversal of this even pulse: x(-t) = x(t), so X(-jw) = X(jw) for all w
+chk("M5 lab W reverse: the pulse is even, so X(-jw) = X(jw) at w = 2 and w = 5",
+    _near(_Xbase(-2.0), _Xbase(2.0), 1e-12) and _near(_Xbase(-5.0), _Xbase(5.0), 1e-12))
+
+# differentiation: dx/dt <-> jw X(jw); the pulse's derivative is
+# delta(t+1) - delta(t-1), whose transform is 2j sin(w)
+_Xderiv = lambda w: 1j*w*_Xbase(w)
+chk("M5 lab W deriv: jw X(jw) equals 2j sin(w) at w = 1 and w = 3",
+    _near(_Xderiv(1.0), 2j*np.sin(1.0), 1e-9) and _near(_Xderiv(3.0), 2j*np.sin(3.0), 1e-9))
+chk("M5 lab W deriv: the transform has zero value at w = 0",
+    abs(_Xderiv(1e-9)) < 1e-6)
+
+# frequency shift: e^{j w0 t} x(t) <-> X(j(w - w0)); spectrum re-centres at w0
+_w0 = 3.0
+chk("M5 lab W freq: shifted spectrum peaks at w = w0 = 3, value 2",
+    _near(_Xbase(3.0 - _w0), 2, 1e-9))
+
+# Parseval, R = 1 ohm: energy in time equals (1/2pi) integral |X|^2 dw, checked
+# independently in each domain for the base pulse and after a time shift
+def _energy_time(f, lo, hi, n=6000):
+    tt = np.linspace(lo, hi, n+1)
+    return np.trapezoid(f(tt)**2, tt)
+def _energy_freq(Xf, wmax, n=6000):
+    ww = np.linspace(-wmax, wmax, n+1)
+    Xv = Xf(ww)
+    return np.trapezoid(np.abs(Xv)**2, ww)/(2*np.pi)
+_xbase_t = lambda t: np.where(np.abs(t) < 1, 1.0, 0.0)
+_Et = _energy_time(_xbase_t, -6, 6)
+_Ef = _energy_freq(lambda w: _Xbase(np.where(np.abs(w) < 1e-9, 1e-9, w)), 400)
+chk("M5 lab W Parseval: base pulse energy is 2 in time and matches in frequency",
+    _near(_Et, 2, 5e-3) and _near(_Ef, 2, 5e-3))
+_Ef_shift = _energy_freq(lambda w: _Xbase(np.where(np.abs(w) < 1e-9, 1e-9, w))
+                          * np.exp(-1j*w*_t0), 400)
+chk("M5 lab W Parseval: a time shift leaves the energy at 2 in both domains",
+    _near(_Ef_shift, 2, 5e-3))
+
+# ---------------------------------------------------------------- M5 laboratories H U
+# Laboratory H, section 5.2: rectangular pulse, one- and two-sided exponential,
+# ideal low-pass band, shifted impulse. Every number below is what the lab's
+# cards state at the signal's default control value.
+def _sincU(x):
+    return 1.0 if abs(x) < 1e-9 else np.sin(x)/x
+
+_T1 = 1.0
+chk("M5 lab H rect: peak X(j0) = 2 T1 = 2, first null pi/T1 = pi, duration T1 = 1",
+    _near(2*_T1, 2) and _near(np.pi/_T1, np.pi) and _near(_T1, 1))
+chk("M5 lab H rect: time-bandwidth product 2 x first-null x duration = 2 pi",
+    _near(2*(np.pi/_T1)*_T1, 2*np.pi))
+
+_a1 = 1.0
+_Xexp1 = 1/(_a1 + 1j*1.0)
+chk("M5 lab H exp1: at a=1, w=1, X(jw)=0.5-j0.5, phase = -arctan(1) = -pi/4",
+    _near(_Xexp1, 0.5 - 0.5j) and _near(np.angle(_Xexp1), -np.pi/4)
+    and _near(-np.arctan(1.0/_a1), -np.pi/4))
+chk("M5 lab H exp1: peak |X(j0)| = 1/a = 1 and half-power width = a = 1",
+    _near(1/_a1, 1.0) and _near(_a1, 1.0))
+
+_a2 = 1.0
+chk("M5 lab H exp2: peak X(j0) = 2/a = 2 and half-power width = a = 1",
+    _near(2/_a2, 2.0) and _near(_a2, 1.0))
+
+_W = 3.0
+chk("M5 lab H ideal band: peak X(j0) = 1, band edge W = 3, time first null = pi/W",
+    _near(1.0, 1.0) and _near(_W, 3.0) and _near(np.pi/_W, np.pi/3))
+
+_t0 = 1.0
+chk("M5 lab H impulse: |X(jw)| = 1 for every w, phase = -w t0 wraps through atan2",
+    _near(abs(np.exp(-1j*1.0*_t0)), 1.0)
+    and _near(np.angle(np.exp(-1j*1.0*_t0)), -_t0))
+
+# Laboratory U, section 5.1: rectangular pulse of half-width T1=1 repeated with
+# period T = ratio * T1. Default ratio = 8, window |w| <= 12.
+def _XrectU(w):
+    return 2*_T1*_sincU(w*_T1)
+def _XtriU(w):
+    return 1.0 if abs(w) < 1e-6 else (2/(w*w))*(1 - np.cos(w))
+
+_ratio = 8.0
+_Tp = _ratio*_T1
+_w0 = 2*np.pi/_Tp
+chk("M5 lab U: sample spacing w0 = 2 pi / (8 T1) = 0.7854 rad/s",
+    _near(_w0, 0.7854, 1e-4))
+chk("M5 lab U: T a_0 = X(j0) = 2 for the rectangular pulse",
+    _near(_XrectU(0), 2.0))
+chk("M5 lab U: T a_1 = X(j w0) = 1.8006 at ratio 8",
+    _near(_XrectU(_w0), 1.8006, 1e-4))
+
+_wmax = 12
+_Kmax = int(np.floor(_wmax/_w0))
+_stems = [(k*_w0, _XrectU(k*_w0)) for k in range(-_Kmax, _Kmax+1)]
+_inside = [s for s in _stems if abs(s[0]) < np.pi]
+chk("M5 lab U: 7 stems lie inside the main lobe |w| < pi at ratio 8",
+    len(_inside) == 7, str(len(_inside)))
+_rebuild = sum(Xv*_w0 for w, Xv in _stems)/(2*np.pi)
+chk("M5 lab U: the Riemann rebuild of x(0) is 0.9526, close to the true value 1",
+    _near(_rebuild, 0.9526, 1e-4) and abs(_rebuild - 1.0) < 0.05)
+
+chk("M5 lab U: the triangular pulse transform is sinc^2(w/2), X(0) = 1",
+    _near(_XtriU(1e-8), 1.0)
+    and _near(_XtriU(_w0), (np.sin(_w0/2)/(_w0/2))**2, 1e-9))
+
+# ---------------------------------------------------------------- M5 laboratories X Y
+# Lab X, filter mode, default state: x(t) = e^{-t}u(t), h(t) = e^{-bt}u(t), b = 2.
+# Y(jw) = X(jw)H(jw); at w = 0 that is |X(j0)||H(j0)| = 1 * (1/b).
+_bX = 2.0
+chk("M5 lab X: default filter |X(j0)| = 1, |H(j0)| = 0.5, |Y(j0)| = 0.5",
+    _near(1/np.hypot(1, 0), 1.0) and _near(1/np.hypot(_bX, 0), 0.5)
+    and _near((1/np.hypot(1, 0))*(1/np.hypot(_bX, 0)), 0.5))
+# y(t) = (e^{-t} - e^{-bt})/(b-1) u(t) for b != 1; its peak is at t = ln(b)/(b-1).
+_tp = np.log(_bX)/(_bX-1)
+_yp = (np.exp(-_tp) - np.exp(-_bX*_tp))/(_bX-1)
+chk("M5 lab X: b = 2 peak of y(t) is 0.25 at t = 0.6931 (= ln 2)",
+    _near(_tp, 0.6931, 1e-3) and _near(_yp, 0.25, 1e-3))
+# At b = 1 the two poles collide and y(t) = t e^{-t} u(t); its peak is at t = 1.
+chk("M5 lab X: b = 1 gives y(t) = t e^{-t} u(t), peak 1/e = 0.3679 at t = 1",
+    _near(1*np.exp(-1), 1/np.e, 1e-12) and _near(1/np.e, 0.3679, 1e-3))
+# Filter mode, ideal low-pass: X = 2 on |w| <= 4 pi (band-limited input),
+# H = 3 on |w| <= wc; at the default cutoff wc = 4 the narrower band is wc.
+_AEXP, _HEXP, _WEXP, _wc = 2.0, 3.0, 4*np.pi, 4.0
+chk("M5 lab X: band-limited x ideal low-pass gives |X(j0)| = 2, |H(j0)| = 3, |Y(j0)| = 6",
+    _near(_AEXP, 2.0) and _near(_HEXP, 3.0) and _near(_AEXP*_HEXP, 6.0))
+# y(t) = A sin(Wt)/(pi t) with A = X*H = 6 and W = min(4 pi, wc) = wc = 4; peak at t = 0 is A*W/pi.
+_W = min(_WEXP, _wc)
+chk("M5 lab X: with wc = 4 the narrower band is W = 4 and the output peak A*W/pi = 7.6394",
+    _near(_W, 4.0) and _near(_AEXP*_HEXP*_W/np.pi, 7.6394, 1e-4))
+# Modulate mode, default state: W = 2 pi, wc = 4 pi. Copy edges wc - W to wc + W;
+# 4 pi >= 2 pi so the copies do not overlap, and each copy has height 1/2.
+_Wm, _wcm = 2*np.pi, 4*np.pi
+chk("M5 lab X: modulate default W = 2 pi, wc = 4 pi gives copy edges 2 pi to 6 pi, no overlap",
+    _near(_wcm - _Wm, 2*np.pi, 1e-9) and _near(_wcm + _Wm, 6*np.pi, 1e-9) and _wcm >= _Wm)
+chk("M5 lab X: the two shifted copies just touch when wc = W, each copy has height 0.5",
+    _near(0.5*1, 0.5))
+
+# Lab Y, default state: y'' + 4y' + 3y = x' + 2x, so a1=4, a0=3, b1=1, b0=2.
+_a1Y, _a0Y, _b1Y, _b0Y = 4.0, 3.0, 1.0, 2.0
+chk("M5 lab Y: default H(j0) = b0/a0 = 2/3 = 0.6667",
+    _near(_b0Y/_a0Y, 2/3, 1e-12) and _near(2/3, 0.6667, 1e-4))
+_discY = _a1Y*_a1Y - 4*_a0Y
+_r1Y, _r2Y = (-_a1Y+np.sqrt(_discY))/2, (-_a1Y-np.sqrt(_discY))/2
+chk("M5 lab Y: default denominator (jw)^2 + 4 jw + 3 vanishes at jw = -1 and jw = -3",
+    _near(_r1Y, -1.0, 1e-12) and _near(_r2Y, -3.0, 1e-12))
+_AY = (_b1Y*_r1Y+_b0Y)/(_r1Y-_r2Y)
+_BY = (_b1Y*_r2Y+_b0Y)/(_r2Y-_r1Y)
+chk("M5 lab Y: default partial fractions A = 0.5, B = 0.5, so h(t) = 0.5 e^{-t} + 0.5 e^{-3t}",
+    _near(_AY, 0.5, 1e-12) and _near(_BY, 0.5, 1e-12))
+chk("M5 lab Y: default h(0+) = b1 = 1 and the area of h(t) equals H(j0) = 2/3",
+    _near(_b1Y, 1.0) and _near(_b0Y/_a0Y, _AY/1 + _BY/3, 1e-9))
+# stability: the sliders keep a1, a0 > 0 (their ranges are [0.2,6] and [0.25,9]),
+# which by the quadratic formula keeps both roots' real parts negative.
+_a1lo, _a1hi, _a0lo, _a0hi = 0.2, 6.0, 0.25, 9.0
+chk("M5 lab Y: the a1, a0 slider ranges stay strictly positive, so every setting is stable",
+    _a1lo > 0 and _a0lo > 0)
+# a repeated root occurs at a1^2 = 4 a0; check the boundary case a1=4, a0=4 (b1=1,b0=2).
+_a1R, _a0R, _b1R, _b0R = 4.0, 4.0, 1.0, 2.0
+_rR = -_a1R/2
+_CR, _DR = _b1R, _b0R + _b1R*_rR
+chk("M5 lab Y: a1 = 4, a0 = 4 gives a repeated root at jw = -2, h(t) = e^{-2t} + 0(t)e^{-2t}",
+    _near(_a1R*_a1R, 4*_a0R) and _near(_rR, -2.0) and _near(_CR, 1.0) and _near(_DR, 0.0))
+# a complex pair occurs when a1^2 < 4 a0; check a1=2, a0=5 (b1=1,b0=2).
+_a1C, _a0C, _b1C, _b0C = 2.0, 5.0, 1.0, 2.0
+_reC, _imC = -_a1C/2, np.sqrt(4*_a0C-_a1C*_a1C)/2
+_BcC = (_b0C - _reC*_b1C)/_imC
+chk("M5 lab Y: a1 = 2, a0 = 5 gives a complex pair jw = -1 +/- j2",
+    _near(_reC, -1.0) and _near(_imC, 2.0))
+chk("M5 lab Y: that complex case gives h(t) = e^{-t}(cos 2t + 1.5 sin 2t)u(t)",
+    _near(_b1C, 1.0) and _near(_BcC, 1.5, 1e-9))
+
+# ---------------------------------------------------------------- M5 slide scenes
+# Every number a Module 5 slide states: the prediction cards, the worked
+# examples, the everyday galleries, the quick check and the project briefs.
+import mpmath as _mp
+def _q(f, a, b, n=1):
+    pts = [a, b] if n == 1 else list(np.linspace(a, b, n + 1))
+    return float(_mp.quad(lambda x: f(float(x)), pts))
+_rft = lambda w, T1: 2*T1 if abs(w) < 1e-12 else 2*np.sin(w*T1)/w
+_lpf = lambda t, W: W/_pi if abs(t) < 1e-12 else np.sin(W*t)/(_pi*t)
+
+# 5.1 from series to transform
+chk("M5 derive-1: pulses of T1=2 stay apart only for T>4, so T=6", 6 > 2*2 and not 3 > 2*2)
+chk("M5 derive-2: T=8, T1=1 gives 8 a0 = 2", _near(8*(2*1/8), 2, 1e-12))
+chk("M5 derive-3: without 1/2pi the synthesis of e^{-|t|} at t=0 gives 2pi",
+    _near(_q(lambda w: 2/(1+w*w), -np.inf, np.inf), 2*_pi, 1e-8))
+chk("M5 exist: e^{-2t}u(t) has area 1/2 and energy 1/4",
+    _near(_q(lambda t: np.exp(-2*t), 0, np.inf), 0.5, 1e-10) and _near(_q(lambda t: np.exp(-4*t), 0, np.inf), 0.25, 1e-10))
+chk("M5 exist: 1/sqrt(t) on (0,1) has area 2", _near(_q(lambda t: t**-0.5, 0, 1), 2, 1e-8))
+chk("M5 limit: 2a/(a^2+w^2) at a=0.5 peaks at 4 and has area 2pi",
+    _near(2*0.5/0.25, 4, 1e-12) and _near(_q(lambda w: 1/(0.25+w*w), -np.inf, np.inf), 2*_pi, 1e-8))
+chk("M5 real-transform: fair visitors 1000-250|n-12| are 0 at n=8, 16 and 1000 at n=12",
+    [1000-250*abs(n-12) for n in (8, 12, 16)] == [0, 1000, 0])
+
+# 5.2 standard pairs
+chk("M5 ex-exp-b: peaks 1/a are 5, 1, 0.2 for a = 0.2, 1, 5", [round(1/a, 6) for a in (0.2, 1, 5)] == [5, 1, 0.2])
+chk("M5 ex-exp-b: |X(j2)| = 1/(2 sqrt 2) = 0.354 for a=2",
+    _near(abs(1/(2+2j)), 1/(2*np.sqrt(2)), 1e-12) and _near(abs(1/(2+2j)), 0.354))
+chk("M5 ex-exp-phase: angle 1/(1+j sqrt3) = -pi/3", _near(np.angle(1/(1+1j*np.sqrt(3))), -_pi/3, 1e-12))
+chk("M5 ex-twosided: peaks 2/a are 4, 2, 0.4 for a = 0.5, 1, 5", [round(2/a, 6) for a in (0.5, 1, 5)] == [4, 2, 0.4])
+chk("M5 rect-sinc-b: peaks 2T1 are 2, 10, 20", [2*T for T in (1, 5, 10)] == [2, 10, 20])
+chk("M5 rect-sinc-b: normalised sinc first zero at theta=1", abs(np.sinc(1.0)) < 1e-15 and np.sinc(0.999) > 0)
+_wz = sp.nsolve(sp.tan(sp.Symbol('w')) - sp.Symbol('w'), sp.Symbol('w'), 4.49)
+chk("M5 rect-zeros: first side lobe of 2 sin w / w is -0.434 at w=4.4934",
+    _near(float(_wz), 4.4934) and _near(_rft(float(_wz), 1), -0.434, 5e-4), "%.5f" % _rft(float(_wz), 1))
+chk("M5 rect-zeros: first zero pi/T1 = 2pi for T1 = 0.5", abs(_rft(2*_pi, 0.5)) < 1e-12)
+chk("M5 sinc-rect: sin(Wt)/(pi t) peaks at W/pi", _near(_lpf(1e-9, 3.0), 3/_pi, 1e-9))
+chk("M5 inverse-rel: T x BW = 2pi for T1 = 1 and 1/4",
+    _near(2*1*_pi/1, 2*_pi, 1e-12) and _near(0.5*4*_pi, 2*_pi, 1e-12))
+_Xtri = lambda w, T1: T1*(np.sin(w*T1/2)/(w*T1/2))**2
+chk("M5 inverse-rel: triangle of half-width T1 has first null 2pi/T1, product 4pi",
+    abs(_Xtri(2*_pi/1.5, 1.5)) < 1e-12 and _Xtri(0.99*2*_pi/1.5, 1.5) > 0 and _near(2*1.5*2*_pi/1.5, 4*_pi, 1e-12))
+chk("M5 bandlimit: 2/(1+w^2) at w=1e6 is 2e-12", _near(2/(1+1e12), 2e-12, 1e-15))
+
+# 5.3 periodic signals
+chk("M5 periodic: the constant 3 has weight 6pi at w=0", _near(2*_pi*3, 6*_pi, 1e-12))
+_wsq = lambda k, T: 2*_pi*(2/T if k == 0 else np.sin(2*_pi*k/T)/(_pi*k))
+chk("M5 ex-square: T=8 weights vanish at k=4,8 and are negative at k=5,6,7",
+    all(abs(_wsq(k, 8)) < 1e-12 for k in (4, 8)) and all(_wsq(k, 8) < 0 for k in (5, 6, 7)))
+chk("M5 ex-square: weights at w=0 are 1.5708, 0.7854, 0.3927 with w0 = pi/4, pi/8, pi/16",
+    all(_near(_wsq(0, T), v) for T, v in ((8, 1.5708), (16, 0.7854), (32, 0.3927))))
+chk("M5 ex-sinus: 4 cos(3 pi t) has weight 4pi = 12.57", _near(2*_pi*2, 12.57, 5e-3))
+chk("M5 ex-sinus-c: 6 sin(4 pi t) has weight magnitude 6pi = 18.85", _near(abs(2*_pi*6/2j), 18.85, 5e-3))
+chk("M5 ex-sinus-b: the constant 5 gives 10pi = 31.42", _near(10*_pi, 31.42, 5e-3))
+chk("M5 ex-imptrain: 2pi/T is 6.28 and 3.14", _near(2*_pi, 6.28, 5e-3) and _near(_pi, 3.14, 5e-3))
+chk("M5 real-periodic: 325 cos(2 pi 0.05 t), t in ms, is 50 Hz", _near(0.05*1000, 50, 1e-12))
+
+# 5.4 properties
+chk("M5 props-1: a delay of 2 adds -2 rad at w=1", _near(np.angle(np.exp(-1j*1*2)), -2, 1e-12))
+chk("M5 props-shift-ex: X3(j0) = 2*4 + 2 = 10 = 3*2 + 2*2",
+    _near(2*_rft(0, 2) + _rft(0, 1), 10, 1e-12) and 3*2 + 2*2 == 10)
+_X3 = lambda w: 2*np.exp(-4j*w)*_rft(w, 2) + np.exp(-3j*w)*_rft(w, 1)
+chk("M5 props-shift-ex: the closed form matches the analysis integral at w=0.7",
+    abs(_X3(0.7) - (2*(_q(lambda t: np.cos(0.7*t), 2, 6) - 1j*_q(lambda t: np.sin(0.7*t), 2, 6))
+                    + _q(lambda t: np.cos(0.7*t), 2, 4) - 1j*_q(lambda t: np.sin(0.7*t), 2, 4))) < 1e-9)
+chk("M5 props-freq: the band |w|<2pi moved by pi is (-pi, 3pi)", (-2*_pi + _pi, 2*_pi + _pi) == (-_pi, 3*_pi))
+chk("M5 props-evenodd: transform of 1/2 e^{-a|t|} is Re{1/(a+jw)} at a=1, w=2",
+    _near(_q(lambda t: np.exp(-t)*np.cos(2*t), 0, np.inf), (1/(1+2j)).real, 1e-10))
+chk("M5 props-dfreq: t e^{-t}u(t) has area 1 and peak e^{-1} = 0.37 at t=1",
+    _near(_q(lambda t: t*np.exp(-t), 0, np.inf), 1, 1e-10) and _near(np.exp(-1), 0.37, 5e-3))
+chk("M5 props-diff: for e^{-t^2} at t=1, dx/dt = -0.7358 and 3 x(1) = 1.1036",
+    _near(-2*np.exp(-1), -0.7358) and _near(3*np.exp(-1), 1.1036))
+chk("M5 props-diff: j*2*0.5 = j", (1j*2*0.5) == 1j)
+chk("M5 props-int: area 2 gives the impulse weight 2pi", _near(_pi*2, 2*_pi, 1e-12))
+chk("M5 props-scale: x(3t) has X(j0)/3 = 2 when X(j0) = 6", _near(6/3, 2, 1e-12))
+chk("M5 props-scale-b: e^{t}u(-t) transforms to 1/(1-jw) at w=1.3",
+    abs(_q(lambda t: np.exp(t)*np.cos(1.3*t), -np.inf, 0) - 1j*_q(lambda t: np.exp(t)*np.sin(1.3*t), -np.inf, 0) - 1/(1-1.3j)) < 1e-9)
+chk("M5 props-scale-ex: the three band areas are all 4pi",
+    all(_near(h*2*W, 4*_pi, 1e-12) for h, W in ((2, _pi), (1, 2*_pi), (0.5, 4*_pi))))
+chk("M5 duality: 2/(1+t^2) transforms to 2pi e^{-|w|} at w=1.5",
+    _near(_q(lambda t: 2/(1+t*t)*np.cos(1.5*t), -200, 200, 400), 2*_pi*np.exp(-1.5), 2e-3))
+chk("M5 duality-ex: 2 sin(Wt)/t is 2W at t=0 and its band has height 2pi (W=pi)",
+    _near(2*np.sin(_pi*1e-9)/1e-9, 2*_pi, 1e-6)
+    and sp.integrate(2*sp.sin(sp.pi*sp.Symbol('t'))/sp.Symbol('t'), (sp.Symbol('t'), -sp.oo, sp.oo)) == 2*sp.pi)
+chk("M5 parseval: e^{-2t}u(t) has energy 1/4 J", _near(_q(lambda t: np.exp(-4*t), 0, np.inf), 0.25, 1e-10))
+chk("M5 parseval-b: e^{-t}u(t) energy is 0.5 in both domains",
+    _near(_q(lambda t: np.exp(-2*t), 0, np.inf), 0.5, 1e-10) and _near(_q(lambda w: 1/(1+w*w), -np.inf, np.inf)/(2*_pi), 0.5, 1e-8))
+chk("M5 parseval-ex: energy 20pi/2pi = 10 J; unsquared heights give 6 = x3(0)",
+    _near((1*2*_pi + 4*4*_pi + 1*2*_pi)/(2*_pi), 10, 1e-12) and _near((2*4*_pi + 1*4*_pi)/(2*_pi), 6, 1e-12))
+chk("M5 real-props: s(2t) doubles 0.1 kHz to 0.2 kHz; h peaks at 0.2*500 = 100", _near(2*0.1, 0.2, 1e-12) and _near(0.2*500, 100, 1e-12))
+
+# 5.5 convolution and multiplication
+chk("M5 conv: 4 * 0.5 = 2", _near(4*0.5, 2, 1e-12))
+_yce = lambda t: np.exp(-t) - np.exp(-2*t)
+chk("M5 conv-ex: y peaks at 0.25 when t = ln 2 = 0.693, and y(0) = 0",
+    _near(_yce(np.log(2)), 0.25, 1e-12) and _near(np.log(2), 0.693) and _yce(0) == 0)
+chk("M5 conv-ex: direct convolution at t=1.2 matches (e^{-t}-e^{-2t})",
+    _near(_q(lambda s: np.exp(-s)*np.exp(-2*(1.2-s)), 0, 1.2), _yce(1.2), 1e-10))
+chk("M5 conv-ex-b: |Y(j1)| = 1/sqrt(10) = 0.316 and |Y(j0)| = 0.5",
+    _near(abs(1/((1+1j)*(2+1j))), 1/np.sqrt(10), 1e-12) and _near(1/np.sqrt(10), 0.316) and _near(1/2, 0.5, 1e-12))
+chk("M5 conv-lpf: peaks 8, 6, 12 are band areas over 2pi",
+    _near(2*8*_pi/(2*_pi), 8, 1e-12) and _near(3*4*_pi/(2*_pi), 6, 1e-12) and _near(6*4*_pi/(2*_pi), 12, 1e-12))
+def _bandconv(w, W1, W2):
+    lo, hi = max(-W1, w - W2), min(W1, w + W2)
+    return max(0.0, hi - lo)/(2*_pi)
+chk("M5 mult: two bands of half-width 2pi give a triangle of apex 2 on |w|<4pi",
+    _near(_bandconv(0, 2*_pi, 2*_pi), 2, 1e-12) and _bandconv(4*_pi, 2*_pi, 2*_pi) < 1e-12 and _near(_bandconv(2*_pi, 2*_pi, 2*_pi), 1, 1e-12))
+chk("M5 mult: half-widths pi and 3pi give 4pi", _bandconv(4*_pi - 1e-9, _pi, 3*_pi) > 0 and _bandconv(4*_pi + 1e-9, _pi, 3*_pi) == 0)
+chk("M5 am: each copy is X/2, so X(j0)=1 gives 0.5", _near(0.5*1, 0.5, 1e-12))
+_tt = np.linspace(-3, 3, 7)
+chk("M5 am-b: cos(pi t)cos(4 pi t) = 1/2 cos(3 pi t) + 1/2 cos(5 pi t); weights pi/2 = 1.5708",
+    np.allclose(np.cos(_pi*_tt)*np.cos(4*_pi*_tt), 0.5*np.cos(3*_pi*_tt) + 0.5*np.cos(5*_pi*_tt)) and _near(_pi/2, 1.5708))
+chk("M5 am-sinc: copies occupy 2pi..6pi, each 4pi wide, 8pi in all",
+    (4*_pi - 2*_pi, 4*_pi + 2*_pi) == (2*_pi, 6*_pi) and _near(2*4*_pi, 8*_pi, 1e-12))
+_B = lambda w: 1.0 if _pi <= abs(w) <= 3*_pi else 0.0
+_Zo = lambda w: 0.5*_B(w - 2*_pi) + 0.5*_B(w + 2*_pi)
+chk("M5 am-overlap: Z is 1 on |w|<=pi, 0.5 on 3pi..5pi, 0 elsewhere",
+    _Zo(0) == 1 and _Zo(0.9*_pi) == 1 and _Zo(4*_pi) == 0.5 and _Zo(2*_pi) == 0 and _Zo(5.5*_pi) == 0)
+chk("M5 sinc2: apex 2, z(0) = 4 and the triangle area over 2pi is 4",
+    _near(_bandconv(0, 2*_pi, 2*_pi), 2, 1e-12) and _near(_lpf(0, 2*_pi)**2, 4, 1e-12) and _near(0.5*8*_pi*2/(2*_pi), 4, 1e-12))
+chk("M5 sinc2-b: half-widths 2pi and 4pi give height 2 on |w|<=2pi, 0 beyond 6pi, area 16pi, peak 8",
+    _near(_bandconv(1.9*_pi, 2*_pi, 4*_pi), 2, 1e-12) and _bandconv(6.01*_pi, 2*_pi, 4*_pi) == 0
+    and _near(0.5*(4*_pi + 12*_pi)*2, 16*_pi, 1e-12) and _near(_lpf(0, 2*_pi)*_lpf(0, 4*_pi), 8, 1e-12))
+chk("M5 real-conv: a 50 Hz tone in 0.1 s makes 5 cycles; the AM envelope stays in 0.5..1.5",
+    _near(50*0.1, 5, 1e-12) and (1 - 0.5, 1 + 0.5) == (0.5, 1.5))
+
+# 5.6 differential equations
+_s = sp.Symbol('s')
+_Hs = (_s + 2)/((_s + 1)*(_s + 3))
+chk("M5 diffeq: H(j0) = 2/3", _Hs.subs(_s, 0) == sp.Rational(2, 3))
+chk("M5 diffeq-ex: 1/2 and 1/2, h(0+) = 1, area 2/3",
+    sp.apart(_Hs, _s) == sp.Rational(1, 2)/(_s + 1) + sp.Rational(1, 2)/(_s + 3)
+    and _near(0.5 + 0.5, 1, 1e-12) and _near(_q(lambda t: 0.5*np.exp(-t) + 0.5*np.exp(-3*t), 0, np.inf), 2/3, 1e-10))
+_Hw = lambda w: (1j*w + 2)/((1j*w + 1)*(1j*w + 3))
+chk("M5 diffeq-ex-b: |H(j100)| is about 0.01, peak 0.667 at 0, phase near -pi/2 for large w",
+    _near(abs(_Hw(100)), 0.01, 2e-4) and _near(abs(_Hw(0)), 0.667) and _near(np.angle(_Hw(1e4)), -_pi/2, 1e-3))
+chk("M5 partial: t e^{-2t}u(t) transforms to 1/(2+jw)^2 at w=1",
+    abs(_q(lambda t: t*np.exp(-2*t)*np.cos(t), 0, np.inf) - 1j*_q(lambda t: t*np.exp(-2*t)*np.sin(t), 0, np.inf) - 1/(2+1j)**2) < 1e-9)
+_Ys = (_s + 2)/((_s + 1)**2*(_s + 3))
+chk("M5 diffeq-b: Y splits into 1/4, 1/2 (double), -1/4",
+    sp.simplify(sp.apart(_Ys, _s) - (sp.Rational(1, 4)/(_s + 1) + sp.Rational(1, 2)/(_s + 1)**2 - sp.Rational(1, 4)/(_s + 3))) == 0)
+_yb = lambda t, c: 0.25*np.exp(-t) + 0.5*t*np.exp(-t) + c*np.exp(-3*t)
+chk("M5 diffeq-b2: y(0)=0; with +1/4 it is 0.5; at t=2 the two are 0.1685 and 0.1698",
+    _near(_yb(0, -0.25), 0, 1e-12) and _near(_yb(0, 0.25), 0.5, 1e-12)
+    and _near(_yb(2, -0.25), 0.1685, 5e-5) and _near(_yb(2, 0.25), 0.1698, 5e-5) and _near(_yb(2, 0.25) - _yb(2, -0.25), 0.001, 3e-4))
+chk("M5 diffeq-b2: direct convolution of e^{-t} with h matches at t=1.5",
+    _near(_q(lambda u: np.exp(-u)*(0.5*np.exp(-(1.5-u)) + 0.5*np.exp(-3*(1.5-u))), 0, 1.5), _yb(1.5, -0.25), 1e-10))
+chk("M5 real-diffeq: thermometer 20 + 17 -> 37; coffee 20 + 60 = 80 at n=0",
+    20 + 17 == 37 and 20 + 60*0.9**0 == 80)
+
+# 5.7 quick check and projects
+chk("M5 quick: area 6, |1/(2+j0)| = 0.5, first zero 2pi, weight pi, energy 0.5, 3*2 = 6, 2/2 = 1, 1/2 = 0.5",
+    _rft(0, 3) == 6 and abs(1/(2+0j)) == 0.5 and abs(_rft(2*_pi, 0.5)) < 1e-12 and _near(2*_pi*0.5, _pi, 1e-12)
+    and _near(_q(lambda t: np.exp(-2*t), 0, np.inf), 0.5, 1e-10) and 3*2 == 6 and 2/2 == 1 and abs(1/(0 + 2)) == 0.5)
+chk("M5 projects: an echo 1 + 0.5 e^{-jwT} swings between 0.5 and 1.5 with peaks every 1/T = 200 Hz",
+    _near(abs(1 + 0.5*np.exp(-1j*_pi)), 0.5, 1e-12) and _near(abs(1 + 0.5), 1.5, 1e-12) and _near(1/5e-3, 200, 1e-9))
+_Hrc5 = 1/(1 + 1j*1000*1e-3)
+chk("M5 projects: RC = 1 ms gives 0.707 at -pi/4 for w = 1000 rad/s and 63% at t = RC",
+    _near(abs(_Hrc5), 0.707) and _near(np.angle(_Hrc5), -_pi/4, 1e-12) and _near(1 - np.exp(-1), 0.632, 1e-3))
+chk("M5 projects: a 4 kHz band on a 3 kHz carrier overlaps on |f| < 1 kHz; at 10 kHz it does not",
+    (4 - 3) > 0 and (10 - 4) > 4)
+
+
 print("\n%d passed, %d failed" % (len(P), len(F)))
 if F:
     print("FAILURES:", F)

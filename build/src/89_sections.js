@@ -161,22 +161,27 @@ CONTENT.SECTIONS = {
   M5: [
     { n:'5.0', title:'Opening',                                  ids:['m5-open'] },
     { n:'5.1', title:'From series to transform',                 ids:[
-        'm5-derive-1','m5-derive-2','m5-derive-3','m5-pair','m5-exist','m5-limit'] },
+        'm5-derive-1','m5-derive-2','m5-derive-3','m5-pair','m5-exist','m5-limit',
+        'm5-real-transform','m5-lab-u','m5-code-transform'] },
     { n:'5.2', title:'The standard pairs',                       ids:[
-        'm5-ex-delta','m5-ex-expw','m5-ex-exp','m5-ex-exp-phase','m5-ex-twosided',
-        'm5-rect-sinc','m5-rect-zeros','m5-sinc-rect','m5-inverse-rel','m5-bandlimit'] },
+        'm5-ex-delta','m5-ex-expw','m5-ex-exp','m5-ex-exp-b','m5-ex-exp-phase','m5-ex-twosided',
+        'm5-rect-sinc','m5-rect-sinc-b','m5-rect-zeros','m5-sinc-rect','m5-inverse-rel','m5-bandlimit',
+        'm5-real-pairs','m5-lab-h','m5-code-pairs'] },
     { n:'5.3', title:'Periodic signals',                         ids:[
-        'm5-periodic','m5-ex-square','m5-ex-sinus','m5-ex-sinus-b','m5-ex-imptrain'] },
+        'm5-periodic','m5-ex-square','m5-ex-sinus','m5-ex-sinus-c','m5-ex-sinus-b','m5-ex-imptrain',
+        'm5-real-periodic','m5-lab-v','m5-code-periodic'] },
     { n:'5.4', title:'Properties',                               ids:[
-        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-evenodd','m5-props-diff','m5-props-int',
-        'm5-props-scale','m5-props-scale-ex','m5-duality','m5-duality-ex',
-        'm5-parseval','m5-parseval-ex'] },
+        'm5-props-1','m5-props-shift-ex','m5-props-freq','m5-props-conj','m5-props-evenodd','m5-props-dfreq','m5-props-diff',
+        'm5-props-int','m5-props-scale','m5-props-scale-b','m5-props-scale-ex','m5-duality','m5-duality-ex',
+        'm5-parseval','m5-parseval-b','m5-parseval-ex','m5-real-props','m5-lab-w','m5-code-props'] },
     { n:'5.5', title:'Convolution and multiplication',           ids:[
-        'm5-conv','m5-conv-ex','m5-conv-lpf','m5-mult','m5-am','m5-am-sinc',
-        'm5-am-overlap','m5-sinc2'] },
-    { n:'5.6', title:'Property summary',                         ids:['m5-tables','m5-pairs'] },
-    { n:'5.7', title:'Systems from a differential equation',     ids:[
-        'm5-diffeq','m5-diffeq-ex','m5-partial','m5-diffeq-b','m5-diffeq-b2','m5-lab-h'] }
+        'm5-conv','m5-conv-ex','m5-conv-ex-b','m5-conv-lpf','m5-mult','m5-am','m5-am-b','m5-am-sinc',
+        'm5-am-overlap','m5-sinc2','m5-sinc2-b','m5-real-conv','m5-lab-x','m5-code-conv'] },
+    { n:'5.6', title:'Systems from a differential equation',     ids:[
+        'm5-diffeq','m5-diffeq-ex','m5-diffeq-ex-b','m5-partial','m5-diffeq-b','m5-diffeq-b2',
+        'm5-real-diffeq','m5-lab-y','m5-code-diffeq'] },
+    { n:'5.7', title:'Summary',                                  ids:[
+        'm5-tables','m5-pairs','m5-quick','m5-synth','m5-projects'] }
   ],
 
   M6: [
@@ -303,12 +308,18 @@ CONTENT.BOOK = {
   'm5-props-conj':'4.3.3', 'm5-props-evenodd':'4.3.3', 'm5-props-int':'4.3.4',
   'm5-props-diff':'4.3.4', 'm5-props-scale':'4.3.5',
   'm5-props-scale-ex':'4.3.5', 'm5-duality':'4.3.6', 'm5-duality-ex':'4.3.6',
-  'm5-parseval':'4.3.7', 'm5-parseval-ex':'4.3.7',
+  'm5-parseval':'4.3.7', 'm5-parseval-ex':'4.3.7', 'm5-parseval-b':'4.3.7',
+  'm5-props-dfreq':'4.3.4', 'm5-props-scale-b':'4.3.5', 'm5-real-props':'4.3',
   'm5-conv':'4.4', 'm5-conv-ex':'4.4.1', 'm5-conv-lpf':'4.4.1', 'm5-mult':'4.5',
   'm5-am':'4.5.1', 'm5-am-sinc':'4.5.1', 'm5-am-overlap':'4.5.1', 'm5-sinc2':'4.4.1',
+  'm5-conv-ex-b':'4.4.1', 'm5-am-b':'4.5.1', 'm5-sinc2-b':'4.4.1', 'm5-real-conv':'4.4, 4.5',
   'm5-tables':'4.6', 'm5-pairs':'4.6',
   'm5-diffeq':'4.7', 'm5-diffeq-ex':'4.7', 'm5-partial':'4.7',
-  'm5-diffeq-b':'4.7', 'm5-diffeq-b2':'4.7', 'm5-lab-h':'4.3.5',
+  'm5-diffeq-ex-b':'4.7', 'm5-real-diffeq':'4.7', 'm5-quick':'4.8', 'm5-synth':'4.8', 'm5-projects':'4.8',
+  'm5-diffeq-b':'4.7', 'm5-diffeq-b2':'4.7', 'm5-lab-h':'4.2',
+  'm5-real-transform':'4.1', 'm5-ex-sinus-c':'4.2', 'm5-real-periodic':'4.2', 'm5-ex-exp-b':'4.1.3', 'm5-rect-sinc-b':'4.1.3', 'm5-real-pairs':'4.1.3', 'm5-lab-u':'4.1.1', 'm5-code-transform':'4.1', 'm5-code-pairs':'4.2',
+  'm5-lab-v':'4.2', 'm5-code-periodic':'4.2', 'm5-lab-w':'4.3', 'm5-code-props':'4.3',
+  'm5-lab-x':'4.4, 4.5', 'm5-code-conv':'4.4, 4.5', 'm5-lab-y':'4.7', 'm5-code-diffeq':'4.7',
 
   'm6-derive':'5.1.1', 'm6-dtfs-link':'5.1.1', 'm6-limit':'5.1.1',
   'm6-pair':'5.1.1', 'm6-periodic':'5.3.1',

@@ -859,14 +859,14 @@ body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"])
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
-/* The plot column of the Module 3 and 4 laboratories: the viewBoxes are drawn
+/* The plot column of the Module 3, 4 and 5 laboratories: the viewBoxes are drawn
    tall enough to fill it in normal display. The plots take only the height the
    column has, so in projector display, where the widened column would draw them
    taller, they shrink inside it instead of forcing the scene to scale down. */
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -1954,3 +1954,37 @@ body[data-theme=dark] pre.code .tk-k{ color:var(--slate); }
 .run-fig{ display:block; width:100%; max-height:calc(420px - 120px * var(--ts)); object-fit:contain;
   background:#fff; border:1px solid var(--rule); border-radius:var(--radius); }
 @media print{ .code-acts, .code-edit > textarea{ display:none !important; } }
+
+/* Laboratory 5.6 (key Y): four cards (frequency response, partial fractions,
+   case note) stack in a column no taller than the three stacked plots beside
+   it. In lecture mode the larger type pushes the right column past the plot
+   column, so its vertical rhythm is tightened here rather than shrinking the
+   type below the floor. */
+.scene.slide .lab[data-lab="Y"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="Y"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="Y"] .derive.stack .eq{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="Y"] .ctrls{ padding:14px 20px; gap:12px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="Y"] .readout.ro div{ padding:8px 12px; }
+
+/* Laboratory 5.4 (key W): three stacked plots beside a readout row and three
+   cards. In lecture mode the larger type pushes the right column past the
+   plot column, so its vertical rhythm is tightened here rather than
+   shrinking the type below the floor (see the key-Y rule above). */
+.scene.slide .lab[data-lab="W"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="W"] .ctrls{ padding:14px 20px; gap:12px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="W"] .readout.ro div{ padding:8px 12px; }
+
+/* Laboratory 5.5 (key X): two stacked plots beside a mode bar, a controls
+   card, a readout row and two cards. In lecture mode the larger type pushes
+   the right column past the plot column, so its vertical rhythm is
+   tightened here rather than shrinking the type below the floor (see the
+   key-Y rule above). */
+.scene.slide .lab[data-lab="X"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="X"] .ctrls{ padding:14px 20px; gap:10px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="X"] .readout.ro div{ padding:8px 12px; }
