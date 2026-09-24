@@ -859,6 +859,14 @@ body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"])
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
+/* The plot column of the Module 3 and 4 laboratories: the viewBoxes are drawn
+   tall enough to fill it in normal display. The plots take only the height the
+   column has, so in projector display, where the widened column would draw them
+   taller, they shrink inside it instead of forcing the scene to scale down. */
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap

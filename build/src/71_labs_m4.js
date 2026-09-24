@@ -78,7 +78,7 @@ Object.assign(LABS, (function(){
       const kr = [-14,14];
 
       /* panel 1 — the signal and its partial sum */
-      const A1 = PLOT.Axes({w:760,h:186,xr:[-2.2,2.2],yr:w.yr,
+      const A1 = PLOT.Axes({w:760,h:340,xr:[-2.2,2.2],yr:w.yr,
         xlabel:'t',pad:{l:50,r:24,t:22,b:32},xtarget:7,ytarget:3});
       if(key==='imp'){
         for(let m=-2;m<=2;m++) A1.impulse(2*m,1,{color:PLOT.COL.in,labelText:'1'});
@@ -93,7 +93,7 @@ Object.assign(LABS, (function(){
       for(let k=kr[0];k<=kr[1];k++){ const v=cabs(w.a(k));
         if(Math.abs(k)<=n) magKept.push([k,v]); else mag.push([k,v]); }
       const top2 = Math.max(0.1, Math.max.apply(null, mag.concat(magKept).map(p=>p[1])));
-      const A2 = PLOT.Axes({w:760,h:150,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*top2,1.45*top2],
+      const A2 = PLOT.Axes({w:760,h:274,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*top2,1.45*top2],
         xlabel:'k',ylabel:'|a_k|',pad:{l:58,r:24,t:22,b:30},xtarget:7,ytarget:2});
       A2.stem(mag,{color:PLOT.COL.muted,r:2.4,showZero:true});
       A2.stem(magKept,{color:PLOT.COL.in,r:3,showZero:true});
@@ -231,7 +231,7 @@ Object.assign(LABS, (function(){
       const lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
       const inLo = c.dt?0:-1.8, inHi = c.dt?1.15:4.05;
       const yr=[Math.min(inLo,lo)-0.35, Math.max(inHi,hi)+0.35];
-      const A1 = PLOT.Axes({w:760,h:154,xr,yr,xlabel:c.dt?'n':'t',
+      const A1 = PLOT.Axes({w:760,h:230,xr,yr,xlabel:c.dt?'n':'t',
         pad:{l:52,r:24,t:18,b:28},xtarget:7,ytarget:4});
       if(c.dt){
         const p=[],q=[]; for(let i=-12;i<=12;i++){
@@ -245,7 +245,7 @@ Object.assign(LABS, (function(){
 
       /* panel 2 — the frequency response, sampled at the harmonics */
       const wmax = c.dt ? Math.PI : 4*Math.PI;
-      const A2 = PLOT.Axes({w:760,h:128,xr:[-wmax,wmax],yr:[-0.12,1.45],
+      const A2 = PLOT.Axes({w:760,h:191,xr:[-wmax,wmax],yr:[-0.12,1.45],
         xlabel:c.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
         pad:{l:56,r:24,t:20,b:30},xtarget:5,ytarget:2});
       A2.curve(w=>cabs(c.dt?Hdt(w,c.hp):Hct(w,par,c.hp)),{color:PLOT.COL.h,n:1400});
@@ -257,7 +257,7 @@ Object.assign(LABS, (function(){
       const ma=[], mb=[];
       for(let k=-KR;k<=KR;k++){ ma.push([k,cabs(m.a(k))]); mb.push([k,cabs(m.b(k))]); }
       const topc = Math.max(0.05, Math.max.apply(null, ma.concat(mb).map(p=>p[1])));
-      const A3 = PLOT.Axes({w:760,h:128,xr:[-KR-0.6,KR+0.6],yr:[-0.08*topc,1.45*topc],
+      const A3 = PLOT.Axes({w:760,h:191,xr:[-KR-0.6,KR+0.6],yr:[-0.08*topc,1.45*topc],
         xlabel:'k',pad:{l:56,r:24,t:20,b:26},xtarget:5,ytarget:2});
       A3.stem(ma,{color:PLOT.COL.in,r:3.4,showZero:true});
       A3.stem(mb,{color:PLOT.COL.out,r:2.4,showZero:true});
@@ -361,7 +361,7 @@ Object.assign(LABS, (function(){
 
       /* panel 1 — Re{input} and Re{output} */
       const xr = s.dt ? [-10,10] : [-4,4];
-      const A1 = PLOT.Axes({w:760,h:196,xr,yr:[-1.35,1.35],xlabel:s.dt?'n':'t',
+      const A1 = PLOT.Axes({w:760,h:349,xr,yr:[-1.35,1.35],xlabel:s.dt?'n':'t',
         pad:{l:50,r:24,t:20,b:30},xtarget:8,ytarget:3});
       if(s.dt){
         const p=[],q=[]; for(let n=-10;n<=10;n++){ p.push([n,Math.cos(w*n)]); q.push([n,mag*Math.cos(w*n+ang)]); }
@@ -373,7 +373,7 @@ Object.assign(LABS, (function(){
       }
 
       /* panel 2 — |H(w)| with the current point marked */
-      const A2 = PLOT.Axes({w:760,h:150,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
+      const A2 = PLOT.Axes({w:760,h:267,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
         xlabel:s.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
         pad:{l:56,r:24,t:20,b:30},xtarget:6,ytarget:2});
       A2.curve(v=>cabs(s.H(v)),{color:PLOT.COL.h,n:1200});
@@ -458,7 +458,7 @@ Object.assign(LABS, (function(){
       const a = ak(sig,k);
 
       /* panel 1 — the probe over one period, shaded */
-      const A1 = PLOT.Axes({w:760,h:188,xr:[-T0/2-0.15,T0/2+0.15],yr:[-1.7,1.7],
+      const A1 = PLOT.Axes({w:760,h:338,xr:[-T0/2-0.15,T0/2+0.15],yr:[-1.7,1.7],
         xlabel:'t',pad:{l:50,r:24,t:20,b:30},xtarget:7,ytarget:3});
       const re = t=>sig.f(t)*Math.cos(-k*w0*t), im = t=>sig.f(t)*Math.sin(-k*w0*t);
       A1.area(re,-T0/2,T0/2,{color:'rgba(20,112,127,.18)'});
@@ -469,7 +469,7 @@ Object.assign(LABS, (function(){
       const mags=[], probed=[];
       for(let kk=-4;kk<=4;kk++){ const v=cabs(ak(sig,kk)); (kk===k?probed:mags).push([kk,v]); }
       const topc = Math.max(0.1, Math.max.apply(null, mags.concat(probed).map(p=>p[1])));
-      const A2 = PLOT.Axes({w:760,h:154,xr:[-4.8,4.8],yr:[-0.08*topc,1.4*topc],
+      const A2 = PLOT.Axes({w:760,h:277,xr:[-4.8,4.8],yr:[-0.08*topc,1.4*topc],
         xlabel:'k',ylabel:'|a_k|',pad:{l:56,r:24,t:20,b:28},xtarget:9,ytarget:2});
       A2.stem(mags,{color:PLOT.COL.muted,r:2.6,showZero:true});
       A2.stem(probed,{color:PLOT.COL.coral,r:3.6,showZero:true});
@@ -572,7 +572,7 @@ Object.assign(LABS, (function(){
       const xf = saw ? xsaw : (n=>x(n,N,N1));
 
       /* panel 1 — x[n] and its reconstruction */
-      const A1 = PLOT.Axes({w:760,h:178,xr:[-NN,NN],yr: saw?[-6.5,6.5]:[-0.45,1.55],
+      const A1 = PLOT.Axes({w:760,h:366,xr:[-NN,NN],yr: saw?[-6.5,6.5]:[-0.45,1.55],
         xlabel:'n',pad:{l:50,r:24,t:20,b:30},xtarget:8,ytarget:3});
       const p=[],q=[]; for(let n=-NN;n<=NN;n++){ p.push([n,xf(n)]); q.push([n,recon(n,Mk)]); }
       A1.stem(p,{color:PLOT.COL.in,r:3,showZero:true});
@@ -584,7 +584,7 @@ Object.assign(LABS, (function(){
       for(let k=kr[0];k<=kr[1];k++){ const v=cabs(ak(((k%NN)+NN)%NN<=NN/2?((k%NN)+NN)%NN:((k%NN)+NN)%NN-NN));
         (Math.abs(k)<=Mk?kept:mags).push([k,v]); }
       const topc = Math.max(0.05, Math.max.apply(null, mags.concat(kept).map(p=>p[1])));
-      const A2 = PLOT.Axes({w:760,h:120,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*topc,1.5*topc],
+      const A2 = PLOT.Axes({w:760,h:247,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*topc,1.5*topc],
         xlabel:'k',ylabel:'|a_k|',pad:{l:58,r:24,t:18,b:26},xtarget:7,ytarget:2});
       A2.stem(mags,{color:PLOT.COL.muted,r:2.4,showZero:true});
       A2.stem(kept,{color:PLOT.COL.in,r:3,showZero:true});
@@ -701,7 +701,7 @@ Object.assign(LABS, (function(){
       const w0e = o.w0scaled || w0;
 
       /* panel 1 — before and after */
-      const A1 = PLOT.Axes({w:760,h:172,xr:[-2.2,2.2],yr:[-0.45,1.55],xlabel:'t',
+      const A1 = PLOT.Axes({w:760,h:241,xr:[-2.2,2.2],yr:[-0.45,1.55],xlabel:'t',
         pad:{l:50,r:24,t:18,b:28},xtarget:7,ytarget:3});
       if(key==='deriv'){
         A1.curve(xbase,{color:PLOT.COL.in,n:2000});
@@ -717,7 +717,7 @@ Object.assign(LABS, (function(){
       const ma=[], mb=[];
       for(let k=kr[0];k<=kr[1];k++){ ma.push([k,cabs(abase(k))]); mb.push([k,cabs(o.b(k,par))]); }
       const topm = Math.max(0.05, Math.max.apply(null, ma.concat(mb).map(p=>p[1])));
-      const A2 = PLOT.Axes({w:760,h:132,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*topm,1.4*topm],
+      const A2 = PLOT.Axes({w:760,h:185,xr:[kr[0]-1,kr[1]+1],yr:[-0.08*topm,1.4*topm],
         xlabel:'k',ylabel:'\\text{magnitude}',pad:{l:58,r:24,t:18,b:26},xtarget:7,ytarget:2});
       A2.stem(ma,{color:PLOT.COL.in,r:3,showZero:true});
       A2.stem(mb,{color:PLOT.COL.out,r:2.4,showZero:true});
@@ -727,7 +727,7 @@ Object.assign(LABS, (function(){
       for(let k=kr[0];k<=kr[1];k++){
         const av=abase(k), bv=o.b(k,par);
         pa.push([k, cabs(av)<1e-9?0:carg(av)]); pb.push([k, cabs(bv)<1e-9?0:carg(bv)]); }
-      const A3 = PLOT.Axes({w:760,h:132,xr:[kr[0]-1,kr[1]+1],yr:[-3.9,3.9],
+      const A3 = PLOT.Axes({w:760,h:185,xr:[kr[0]-1,kr[1]+1],yr:[-3.9,3.9],
         xlabel:'k',ylabel:'\\text{phase [rad]}',pad:{l:62,r:24,t:18,b:26},xtarget:7,
         yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:v=>v.toFixed(2)});
       A3.stem(pa,{color:PLOT.COL.in,r:2.6,showZero:true});
