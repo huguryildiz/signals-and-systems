@@ -12,7 +12,7 @@
    ========================================================================== */
 const CODE_BANKS_M6 = {
   /* <m6-s1-bank> */
-  'm6-code-transform': ['dtr-samples', 'dtr-analysis', 'dtr-riemann', 'dtr-period'],
+  'm6-code-transform': ['dtr-samples', 'dtr-analysis', 'dtr-riemann', 'dtr-period', 'dtr-dft'],
   /* </m6-s1-bank> */
 
   /* <m6-s2-bank> */
@@ -194,6 +194,46 @@ wv = np.linspace(-3*np.pi, 3*np.pi, 1201)
 X = sum(np.exp(-1j*wv*m) for m in n)
 plt.plot(wv/np.pi, X.real, linewidth=1.5)
 plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.grid(True)
+plt.show()`},
+'dtr-dft': {
+  title:'The DFT is the DTFT, sampled',
+  what:'Takes the DFT of four ones, $x[n]=1$ for $0\\le n\\le3$, with fft at $N=4$ and, padded with zeros, at $N=8$. It compares each value with the DTFT sum at $\\omega_k=2\\pi k/N$ and prints the largest difference.',
+  try:'Change $N=8$ to $N=16$. Predict how many of the sixteen values are zero before you run it.',
+  out:'N=4: |X[k]| = 4.0 0.0 0.0 0.0\n     largest difference = 0.0000\nN=8: |X[k]| = 4.0 2.6 0.0 1.1 0.0 1.1 0.0 2.6\n     largest difference = 0.0000',
+  m:`% x[n] = 1 on 0 <= n <= 3, padded with zeros to N points
+x = ones(1, 4);
+n = 0:3;
+for N = [4 8]
+    Xk = fft(x, N);                        % the DFT: fft pads x to N points
+    wk = 2*pi*(0:N-1)/N;                   % omega_k = 2*pi*k/N
+    Xw = sum(x(:) .* exp(-1j*n(:)*wk));    % the DTFT at omega_k
+    fprintf('N=%d: |X[k]| =%s\\n', N, sprintf(' %.1f', abs(Xk)))
+    fprintf('     largest difference = %.4f\\n', max(abs(Xk - Xw)))
+end
+
+w = linspace(0, 2*pi, 801);
+X = sum(exp(-1j*n(:)*w));                  % the DTFT of the four ones
+plot(w/pi, abs(X), 'LineWidth', 1.5), hold on, grid on
+stem((0:31)/16, abs(fft(x, 32)), 'filled')   % N = 32
+xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# x[n] = 1 on 0 <= n <= 3, padded with zeros to N points
+x = np.ones(4)
+for N in [4, 8]:
+    Xk = np.fft.fft(x, N)                 # the DFT: fft pads x to N points
+    wk = 2*np.pi*np.arange(N)/N           # omega_k = 2*pi*k/N
+    Xw = sum(x[n]*np.exp(-1j*wk*n) for n in range(4))   # the DTFT at omega_k
+    print(f'N={N}: |X[k]| =' + ''.join(f' {v:.1f}' for v in np.abs(Xk)))
+    print(f'     largest difference = {np.max(np.abs(Xk - Xw)):.4f}')
+
+w = np.linspace(0, 2*np.pi, 801)
+X = sum(np.exp(-1j*w*n) for n in range(4))   # the DTFT of the four ones
+plt.plot(w/np.pi, np.abs(X), linewidth=1.5)
+plt.stem(np.arange(32)/16, np.abs(np.fft.fft(x, 32)))   # N = 32
+plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
 plt.grid(True)
 plt.show()`},
 /* </m6-s1-code> */
