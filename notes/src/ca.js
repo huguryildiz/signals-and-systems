@@ -8,14 +8,14 @@ window.CA = [
 
 {t:'h1', num:'APPENDIX A', text:'Summary of formulas'},
 {t:'h2', num:'A.1', text:'Energy and power'},
-{t:'table', head:['Quantity','Continuous time','Discrete time'], rows:[
+{t:'table', cap:'Energy and power in continuous and discrete time.', head:['Quantity','Continuous time','Discrete time'], rows:[
  ['Total energy','$E_\\infty=\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t$','$E_\\infty=\\sum_{n=-\\infty}^{\\infty}|x[n]|^{2}$'],
  ['Average power','$P_\\infty=\\lim\\limits_{T\\to\\infty}\\frac{1}{2T}\\int_{-T}^{T}|x(t)|^{2}\\d t$','$P_\\infty=\\lim\\limits_{N\\to\\infty}\\frac{1}{2N+1}\\sum_{n=-N}^{N}|x[n]|^{2}$'],
  ['Energy signal','$E_\\infty<\\infty$, $P_\\infty=0$','same'],
  ['Power signal','$E_\\infty\\to\\infty$, $0<P_\\infty<\\infty$','same']
 ]},
 {t:'h2', num:'A.2', text:'Operations and periodicity'},
-{t:'table', head:['Item','Statement'], rows:[
+{t:'table', cap:'Operations on the time axis, and the test for periodicity.', head:['Item','Statement'], rows:[
  ['Shift','$x(t-t_0)$: delay if $t_0>0$, advance if $t_0<0$'],
  ['Reversal','$x(-t)$, $x[-n]$'],
  ['Scaling','$y(t)=x(at)$: compressed if $a>1$, stretched if $0<a<1$; support divided by $a$'],
@@ -25,14 +25,14 @@ window.CA = [
  ['Even and odd','$\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$, $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$']
 ]},
 {t:'h2', num:'A.3', text:'Impulses and steps'},
-{t:'table', head:['Item','Continuous time','Discrete time'], rows:[
+{t:'table', cap:'The unit impulse and the unit step in continuous and discrete time.', head:['Item','Continuous time','Discrete time'], rows:[
  ['Step and impulse','$\\delta(t)=\\frac{\\d}{\\d t}u(t)$, $u(t)=\\int_{-\\infty}^{t}\\delta(\\tau)\\d\\tau$','$\\delta[n]=u[n]-u[n-1]$, $u[n]=\\sum_{k=0}^{\\infty}\\delta[n-k]$'],
  ['Sampling','$x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$','$x[n]\\delta[n-n_0]=x[n_0]\\delta[n-n_0]$'],
  ['Sifting','$x(t_0)=\\int_{-\\infty}^{\\infty}x(t)\\delta(t-t_0)\\d t$','$x[n_0]=\\sum_{n}x[n]\\delta[n-n_0]$'],
  ['Representation','$x(t)=\\int x(\\tau)\\delta(t-\\tau)\\d\\tau$','$x[n]=\\sum_{k}x[k]\\delta[n-k]$']
 ]},
 {t:'h2', num:'A.4', text:'Complex exponentials'},
-{t:'table', head:['Item','Statement'], rows:[
+{t:'table', cap:'Complex exponentials in continuous and discrete time, and their periods.', head:['Item','Statement'], rows:[
  ['Continuous time','$x(t)=Ce^{at}$; with $C=Ae^{j\\theta}$ and $a=r+j\\omega_0$: $x(t)=Ae^{rt}e^{j(\\omega_0t+\\theta)}$'],
  ['Period','$T_0=2\\pi/\\omega_0$, always periodic for $\\omega_0\\neq0$'],
  ['Discrete time','$x[n]=C\\alpha^{n}$ with $\\alpha=e^{\\beta}$; growth boundary at $|\\alpha|=1$'],
@@ -40,7 +40,7 @@ window.CA = [
  ['Frequency wrap-around','$e^{j(\\omega_0+2\\pi)n}=e^{j\\omega_0 n}$']
 ]},
 {t:'h2', num:'A.5', text:'Systems and convolution'},
-{t:'table', head:['Property','General criterion','LTI criterion in terms of $h$'], rows:[
+{t:'table', cap:'System properties, in general and for an LTI system in terms of $h$.', head:['Property','General criterion','LTI criterion in terms of $h$'], rows:[
  ['Memoryless','output at $t$ uses only input at $t$','$h(t)=a\\delta(t)$ or $h[n]=a\\delta[n]$'],
  ['Invertible','distinct inputs give distinct outputs','$h*g=\\delta$ for some $g$'],
  ['Causal','output uses only $\\tau\\le t$','$h(t)=0$ for $t<0$; $h[n]=0$ for $n<0$'],
@@ -54,7 +54,7 @@ window.CA = [
 {t:'page'},
 {t:'h2', num:'A.7', text:'Fourier series properties'},
 {t:'p', text:'A periodic signal of period $T_0$ with $\\omega_0=2\\pi/T_0$, or a periodic sequence of period $N$ with $\\omega_0=2\\pi/N$. In both columns $x\\leftrightarrow a_k$ and $y\\leftrightarrow b_k$.'},
-{t:'table', head:['Property','Continuous time','Discrete time'], rows:[
+{t:'table', cap:'Fourier series properties in continuous and discrete time.', head:['Property','Continuous time','Discrete time'], rows:[
  ['Linearity','$Ax(t)+By(t)\\leftrightarrow Aa_k+Bb_k$','$Ax[n]+By[n]\\leftrightarrow Aa_k+Bb_k$'],
  ['Time shift','$x(t-t_0)\\leftrightarrow a_ke^{-jk\\omega_0t_0}$','$x[n-n_0]\\leftrightarrow a_ke^{-jk(2\\pi/N)n_0}$'],
  ['Frequency shift','$e^{jM\\omega_0t}x(t)\\leftrightarrow a_{k-M}$','$e^{jM(2\\pi/N)n}x[n]\\leftrightarrow a_{k-M}$'],
@@ -74,7 +74,7 @@ window.CA = [
 {t:'p', text:'The two columns differ in three rows because discrete-time coefficients repeat, $a_k=a_{k+N}$. For multiplication, the discrete-time sum therefore covers one period instead of all integers. Time expansion carries the factor $\\frac{1}{m}$ because the average uses $m$ times as many samples. Discrete time also uses a first difference where continuous time uses a derivative. At $k=0$, integration or accumulation requires zero mean; otherwise the result grows without bound.'},
 
 {t:'h2', num:'A.8', text:'Continuous-time Fourier transform'},
-{t:'table', head:['Property','Statement'], rows:[
+{t:'table', cap:'Properties of the continuous-time Fourier transform.', head:['Property','Statement'], rows:[
  ['Linearity','$ax_1(t)+bx_2(t)\\leftrightarrow aX_1(j\\omega)+bX_2(j\\omega)$'],
  ['Time shift','$x(t-t_0)\\leftrightarrow e^{-j\\omega t_0}X(j\\omega)$'],
  ['Frequency shift','$e^{j\\omega_0t}x(t)\\leftrightarrow X(j(\\omega-\\omega_0))$'],
@@ -93,7 +93,7 @@ window.CA = [
  ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
  ['Parseval','$\\int_{-\\infty}^{\\infty}|x(t)|^{2}\\d t=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|X(j\\omega)|^{2}\\d\\omega$']
 ]},
-{t:'table', head:['Signal','Transform'], rows:[
+{t:'table', cap:'Continuous-time Fourier transform pairs.', head:['Signal','Transform'], rows:[
  ['$\\delta(t)$','$1$'],
  ['$\\delta(t-t_0)$','$e^{-j\\omega t_0}$'],
  ['$u(t)$','$\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$'],
@@ -114,7 +114,7 @@ window.CA = [
 {t:'p', text:'This table uses the unnormalised definition $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. The normalised convention divides the argument by $\\pi$. Convert the argument when moving between conventions; otherwise the result loses a factor of $\\pi$. The exponential pairs require $a>0$.'},
 
 {t:'h2', num:'A.9', text:'Discrete-time Fourier transform'},
-{t:'table', head:['Property','Statement'], rows:[
+{t:'table', cap:'Properties of the discrete-time Fourier transform.', head:['Property','Statement'], rows:[
  ['Linearity','$ax_1[n]+bx_2[n]\\leftrightarrow aX_1(e^{j\\omega})+bX_2(e^{j\\omega})$'],
  ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
  ['Frequency shift','$e^{j\\omega_0n}x[n]\\leftrightarrow X(e^{j(\\omega-\\omega_0)})$'],
@@ -132,7 +132,7 @@ window.CA = [
  ['Even-odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$'],
  ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
 ]},
-{t:'table', head:['Sequence','Transform'], rows:[
+{t:'table', cap:'Discrete-time Fourier transform pairs.', head:['Sequence','Transform'], rows:[
  ['$\\delta[n]$','$1$'],
  ['$\\delta[n-n_0]$','$e^{-j\\omega n_0}$'],
  ['$u[n]$','$\\frac{1}{1-e^{-j\\omega}}+\\pi\\sum_k\\delta(\\omega-2\\pi k)$'],
@@ -152,7 +152,7 @@ window.CA = [
 {t:'p', text:'Every transform in this section is periodic in $\\omega$ with period $2\\pi$ because the time index is discrete. A periodic sequence has discrete spectral coefficients, while an aperiodic sequence has a continuous spectrum. In each case, discreteness in one domain produces periodicity in the other.'},
 
 {t:'h2', num:'A.10', text:'Symbols'},
-{t:'table', head:['Symbol','Meaning'], rows:[
+{t:'table', cap:'Symbols and their meanings.', head:['Symbol','Meaning'], rows:[
  ['$x(t)$, $x[n]$','input signal, continuous and discrete time'],
  ['$y(t)$, $y[n]$','output signal'],
  ['$h(t)$, $h[n]$','impulse response of a linear time-invariant system'],

@@ -1,14 +1,23 @@
 /* Lecture notes — A4 print document */
 :root{
   --ink:#15140F; --body:#26241E; --muted:#5F5A50; --rule:#CFC6B2; --rule2:#E4DCCA;
-  --accent:#A9502F; --slate:#3F5A73;
+  --accent:#A0451C; --slate:#28567E; --navy:#12314E;   /* coral, slate, navy of DESIGN.md */
   --fig-halo:#FFFFFF;   /* label halo inside figures */
   --in:#14707F; --h:#A9741C; --out:#3F6C3B; --mid:#5E4F84; --err:#983527;
   --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","Hoefler Text",Georgia,serif;
   --sans:"Inter","SF Pro Text",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
 }
-@page{ size:A4 portrait; margin:19mm 17mm 20mm 17mm; }
+/* Every page but the cover carries the licence line and the page number in its
+   margin boxes. notes/topdf.js adds the document's name to the right-hand box
+   and the running head when it prints. The cover is its own named page with
+   no margin, so it has no footer. */
+@page{ size:A4 portrait; margin:19mm 17mm 20mm 17mm;
+  @bottom-left{ content:"© 2026 Hüseyin Uğur Yıldız · huguryildiz.com · Course content: CC BY-NC-SA 4.0";
+    font-family:-apple-system,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif; font-size:7.5pt; color:#8A8478; }
+  @bottom-right{ content:counter(page);
+    font-family:-apple-system,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif; font-size:7.5pt; color:#8A8478; }
+}
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; background:#fff; color:var(--body);
   font-family:var(--sans); font-size:10.6pt; line-height:1.52; }
@@ -17,15 +26,23 @@ html,body{ margin:0; padding:0; background:#fff; color:var(--body);
 
 h1.doc{ font-family:var(--serif); font-weight:400; font-size:31pt; line-height:1.1;
   margin:0 0 6pt; color:var(--ink); letter-spacing:-.01em; }
-h1{ font-family:var(--serif); font-weight:400; font-size:20pt; line-height:1.18;
-  margin:0 0 3pt; color:var(--ink); break-after:avoid; }
-h1 .num{ font-family:var(--mono); font-size:11pt; color:var(--accent);
-  letter-spacing:.1em; display:block; margin-bottom:5pt; }
-h2{ font-family:var(--serif); font-weight:400; font-size:13.4pt; line-height:1.25;
-  margin:15pt 0 4pt; color:var(--ink); break-after:avoid; }
-h2 .num{ font-family:var(--mono); font-size:9pt; color:var(--slate); margin-right:8pt; }
-h3{ font-family:var(--sans); font-weight:650; font-size:10.6pt; margin:11pt 0 3pt;
-  color:var(--ink); break-after:avoid; }
+/* Headings: titles in navy, numbers in coral, section titles in slate. A
+   numbered h1 opens a chapter, always on a new page, with its word (CHAPTER,
+   APPENDIX, MODULE, PART) over a large numeral. */
+h1{ font-family:var(--serif); font-weight:600; font-size:24pt; line-height:1.15;
+  margin:0 0 4pt; color:var(--navy); break-after:avoid; }
+h1.ch{ break-before:page; font-size:27pt; padding-top:6pt; }
+h1 .num{ display:block; margin-bottom:10pt; }
+h1 .num .w{ display:block; font-family:var(--mono); font-size:9pt; font-weight:600;
+  letter-spacing:.22em; color:var(--slate); }
+h1 .num .k{ display:block; font-family:var(--serif); font-size:54pt; font-weight:400;
+  line-height:1; color:var(--accent); margin-top:6pt; }
+h2{ font-family:var(--serif); font-weight:600; font-size:15.5pt; line-height:1.25;
+  margin:20pt 0 6pt; padding-top:8pt; border-top:0.7pt solid var(--rule2);
+  color:var(--slate); break-after:avoid; }
+h2 .num{ font-family:var(--mono); font-size:10.5pt; font-weight:700; color:var(--accent); margin-right:9pt; }
+h3{ font-family:var(--sans); font-weight:650; font-size:10.8pt; margin:12pt 0 3pt;
+  color:var(--navy); break-after:avoid; }
 p{ margin:0 0 6.5pt; }
 p.lead{ font-family:var(--serif); font-size:12pt; line-height:1.45; color:var(--muted);
   font-style:italic; margin:0 0 12pt; }
@@ -35,7 +52,7 @@ li{ margin-bottom:2.5pt; }
 code{ font-family:var(--mono); font-size:9.4pt; }
 
 hr{ border:0; border-top:1px solid var(--rule2); margin:13pt 0; }
-hr.thick{ border-top:1.6pt solid var(--accent); width:46pt; margin:0 0 11pt; }
+hr.thick{ border-top:2pt solid var(--accent); width:56pt; margin:6pt 0 14pt; }
 
 /* Typeset mathematics inherits nothing from the label frame it sits in. The
    label styles — a table head, a callout title, an example key, a caption — are
@@ -63,6 +80,9 @@ hr.thick{ border-top:1.6pt solid var(--accent); width:46pt; margin:0 0 11pt; }
 .box.ok{ border-left-color:var(--out); }
 .box .t{ font-family:var(--mono); font-size:7.6pt; letter-spacing:.11em;
   text-transform:uppercase; color:var(--slate); margin-bottom:4pt; display:block; }
+/* the callout and worked-example icons of render.js */
+.ico{ width:1.4em; height:1.4em; vertical-align:-.36em; margin-right:5pt; fill:none;
+  stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .box.warn .t{ color:#8A5E12; } .box.err .t{ color:var(--err); } .box.ok .t{ color:var(--out); }
 .box p:last-child{ margin-bottom:0; }
 
@@ -91,6 +111,10 @@ figure .katex svg{ display:inline; width:auto; height:auto; }
 figcaption{ font-size:9pt; color:var(--muted); line-height:1.4; margin-top:4pt;
   padding-left:1pt; border-left:0; }
 figcaption b{ color:var(--body); font-weight:650; }
+figcaption .fl{ font-family:var(--mono); font-size:7.8pt; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--accent); margin-right:2pt; white-space:nowrap; }
+figure.tbl figcaption{ margin:0 0 5pt; }
+figure.tbl table{ margin:0; }
 .figrow{ display:grid; gap:11pt; }
 .figrow.two{ grid-template-columns:1fr 1fr; }
 .figrow.three{ grid-template-columns:1fr 1fr 1fr; }
@@ -109,12 +133,29 @@ td:last-child,th:last-child{ padding-right:0; }
 /* Number, title and anchor sit on one line; the summary runs under the title.
    The anchor points into the course textbook and is set quiet, so a reader
    following the contents is not slowed by it. */
-.toc .c{ display:grid; grid-template-columns:26pt 1fr auto; gap:4pt 10pt;
-  border-top:0.7pt solid var(--rule2); padding:5pt 0; align-items:baseline; }
-.toc .c .n{ font-family:var(--mono); font-size:9pt; color:var(--accent); }
-.toc .c .t{ font-family:var(--serif); font-size:12pt; color:var(--ink); }
+.toc .c{ display:grid; grid-template-columns:26pt 1fr auto 24pt; gap:3pt 10pt;
+  border-top:0.7pt solid var(--rule2); padding:6pt 0 5pt; align-items:baseline; }
+.toc .c .n{ font-family:var(--mono); font-size:10pt; font-weight:700; color:var(--accent); }
+.toc .c .t{ font-family:var(--serif); font-size:12.5pt; font-weight:600; color:var(--navy); text-decoration:none; }
 .toc .c .a{ font-family:var(--mono); font-size:8.2pt; color:var(--muted); white-space:nowrap; }
+.toc .c > .pg{ font-family:var(--serif); font-size:12pt; font-weight:600; color:var(--navy); }
 .toc .c .s{ grid-column:2 / span 2; font-size:9.4pt; color:var(--muted); margin-top:1pt; }
+/* One row per section under its chapter, and one per figure or table in the
+   lists: number, title, a dotted leader and the page. The page numbers are
+   written in only when the PDF is printed, so on screen the slot is hidden. */
+.toc .sr{ grid-column:2 / -1; }
+.sr, .lr{ display:flex; align-items:baseline; color:var(--body); text-decoration:none; break-inside:avoid; }
+.sr{ font-size:10pt; padding:0.6pt 0; }
+.sr .ln{ flex:none; width:32pt; font-family:var(--mono); font-size:8.8pt; color:var(--accent); }
+.lr{ font-size:9.4pt; line-height:1.35; padding:1.2pt 0; }
+.lr .ln{ flex:none; width:36pt; font-family:var(--mono); font-size:8.4pt; color:var(--accent); }
+.sr .lt, .lr .lt{ flex:0 1 auto; }
+.ld{ flex:1 1 12pt; min-width:12pt; margin:0 6pt; border-bottom:0.9pt dotted #B3AA97; transform:translateY(-2.6pt); }
+.pg{ flex:none; width:24pt; text-align:right; font-variant-numeric:tabular-nums; color:var(--ink); }
+.lol .lg{ font-family:var(--mono); font-size:8pt; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--slate); margin:11pt 0 3pt; padding-top:5pt; border-top:0.7pt solid var(--rule2); break-after:avoid; }
+.lol .lg:first-child{ margin-top:4pt; }
+@media screen{ .pg, .ld{ display:none; } }
 
 /* title page */
 .title{ padding-top:52pt; }

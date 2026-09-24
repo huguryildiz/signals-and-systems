@@ -161,15 +161,17 @@ tints: cyan `#4FBECE`, amber `#E5B255`, green `#82C27B`, violet `#AC99DC`, red `
 guide, axis or content by its colour, so a palette change that skips `textclash.js` makes the gate
 report on colours the artifact no longer draws.
 
-`notes/src/notes.css` still carries the earlier light-only palette. The lecture notes and the artifact
-are therefore not the same colour. This is a known gap, not a decision.
+`notes/src/notes.css` takes coral, slate and navy from the table above: navy for chapter and
+contents titles, slate for section titles, coral for every number. Its page, ink and hairline values
+are still the earlier light-only palette, so the lecture notes and the artifact are not the same
+colour. This is a known gap, not a decision.
 
 The lecture notes open on a full-bleed navy cover (block type `cover` in `notes/src/render.js`),
 with the table of contents on page 2. The cover art is vector, drawn from the functions it shows:
 a sinc pulse in teal, its samples as coral stems whose dots lie on the curve, and a damped cosine
-in amber behind them. Chromium scales a page whose margins differ from the rest, so
-`notes/topdf.js` prints the cover alone with no margins and no footer, prints the body from page 2
-with its original page numbers, and joins the two with `pdfunite`.
+in amber behind them. The cover is the named page `cover` with no margin, so `notes/topdf.js`
+prints each document in one pass from the stylesheet's `@page` rules and the cover carries no
+footer. The print layout rules are in `.claude/rules/notes-and-pdf.md`.
 
 ### The public cover page
 
