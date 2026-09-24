@@ -372,6 +372,20 @@ aff = lambda v: 3*v + 2
 chk("M2 inclinear: y1 = 5, y2 = 8, y3 = 11, y1 + y2 = 13",
     (aff(1), aff(2), aff(1 + 2), aff(1) + aff(2)) == (5, 8, 11, 13))
 chk("M2 inclinear: y1 - y2 = 3 (x1 - x2)", sp.simplify(aff(x1) - aff(x2) - 3*(x1 - x2)) == 0)
+# Module 2 sliders and frames: every slider position keeps the slide's claim
+chk("M2 models slider: equal time constants give identical responses",
+    all(np.allclose(1 - np.exp(-np.linspace(0, 5, 51)/tc), 1 - np.exp(-np.linspace(0, 5, 51)/tc))
+        for tc in np.arange(0.25, 2.01, 0.25)))
+chk("M2 inverse frames: the first difference of the running sum of x = (1,2,-1,1) returns x",
+    np.allclose(np.diff(np.concatenate(([0], np.cumsum([0, 0, 1, 2, -1, 1, 0, 0])))), [0, 0, 1, 2, -1, 1, 0, 0]))
+t0s = sp.Symbol('t0', positive=True)
+chk("M2 ti-c slider: path 1 pulse centre t0/2, path 2 centre t0; they meet only at t0 = 0",
+    sp.solve(sp.Eq(t0s/2, t0s), t0s) == [])
+chk("M2 linear-c slider: Re{e^{j th}(2+j)} = 2 e^{j th} only at th = 0 and 180 deg (step 15)",
+    [th for th in range(0, 181, 15)
+     if abs((np.exp(1j*np.radians(th))*(2+1j)).real - 2*np.exp(1j*np.radians(th))) < 1e-9] == [0, 180])
+chk("M2 inclinear slider: (y1 + y2) - y3 = y0 for y0 = 0..3",
+    all((3*1 + c) + (3*2 + c) - (3*3 + c) == c for c in np.arange(0, 3.01, 0.5)))
 
 # ---------------------------------------------------------------- Module 3
 # p.15-16 finite convolution

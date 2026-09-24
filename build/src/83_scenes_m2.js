@@ -4,6 +4,13 @@
 (function(){
 const P = PLOT, C = P.COL;
 const disc=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
+const num=v=>String(Math.round(v*100)/100);
+/* A figure played in frames that highlights one group at a time: group g is
+   fully drawn at frame g (and at frame 0, where every group is), faded
+   otherwise, with the opacity eased between neighbouring frames. */
+const groupOp=(k,g)=>{ const at=i=>(i===0||i===g)?1:0.18, i0=Math.floor(k), i1=Math.ceil(k);
+  return at(i0)+(at(i1)-at(i0))*(k-i0); };
+const inner=s=>s.replace(/^<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'');
 /* ---- everyday systems, one gallery slide at the end of the teaching
        sections. The traces are schematic; each keeps the property it shows.
        A figure with two traces carries its legend as a third entry. */
@@ -134,14 +141,20 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'One Equation, Many Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-0.6,5],yr:[-0.15,1.75],xlabel:'t/\\tau',ylabel:'\\text{normalized amplitude}',
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[
+        {k:'rc', label:'$RC$', min:0.25, max:2, step:0.25, v:1, show:v=>'$'+num(v)+'$ s'},
+        {k:'mr', label:'$m/\\rho$', min:0.25, max:2, step:0.25, v:1, show:v=>'$'+num(v)+'$ s'}]},
+      svg:v=>{
+      const rc=v?v.rc:1, mr=v?v.mr:1;
+      const a=P.Axes({w:560,h:380,xr:[-0.6,5],yr:[-0.15,1.75],xlabel:'t\\;(\\text{s})',ylabel:'\\text{normalized amplitude}',
         pad:{l:52,r:24,t:20,b:40},xstep:1,ytarget:3});
       a.curve(t=>t>=0?1:0,{color:C.in,dash:'9 6',n:900});
-      a.curve(t=>t>=0?1-Math.exp(-t):0,{color:C.out});
+      a.curve(t=>t>=0?1-Math.exp(-t/rc):0,{color:C.out});
+      a.curve(t=>t>=0?1-Math.exp(-t/mr):0,{color:C.mid,dash:'7 5'});
       return a.svg(); },
-      caption:'A constant input switched on at rest. The capacitor voltage, with $\\tau=RC$, and the speed of the car, with $\\tau=m/\\rho$, follow the same curve.'},
-    {t:'legend', items:[['in','input',true],['out','$1-e^{-t/\\tau}$']]}
+      caption:'A constant input switched on at rest. With equal time constants $\\tau=RC=m/\\rho$ the two outputs follow the same curve $1-e^{-t/\\tau}$.'},
+    {t:'legend', items:[['in','input',true],['out','capacitor voltage'],['mid','car speed',true]]}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\frac{dv_C(t)}{dt}+\\frac{1}{RC}\\,v_C(t)&=\\frac{1}{RC}\\,v_s(t)\\\\\\frac{dv(t)}{dt}+\\frac{\\rho}{m}\\,v(t)&=\\frac{1}{m}\\,f(t)\\end{aligned}', label:'Two systems',
       note:'RC circuit: voltage $v_s$ in, $v_C$ out. Car of mass $m$: force $f$ in, speed $v$ out, friction $\\rho v$.'},
@@ -164,31 +177,36 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'Connecting Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const head=(x,y,d)=>`<path d="M${x},${y} ${d}" fill="${C.ink}"/>`;
-      const s=P.blocks({w:560,h:440,items:[
-        {t:'text',x:35,y:26,label:'SERIES',fs:13,anchor:'start',color:C.slate},
-        {t:'arrow',x1:35,y1:78,x2:120,y2:78},{t:'box',x:120,y:52,w:100,h:52,label:'S_1',tex:true},
-        {t:'arrow',x1:220,y1:78,x2:320,y2:78},{t:'box',x:320,y:52,w:100,h:52,label:'S_2',tex:true},
-        {t:'arrow',x1:420,y1:78,x2:525,y2:78},
-        {t:'text',x:70,y:62,label:'x',tex:true,fs:17},{t:'text',x:480,y:62,label:'y',tex:true,fs:17},
-        {t:'text',x:35,y:146,label:'PARALLEL',fs:13,anchor:'start',color:C.slate},
-        {t:'line',d:'M35 215 H90 M90 185 V245'},
-        {t:'arrow',x1:90,y1:185,x2:200,y2:185},{t:'box',x:200,y:163,w:100,h:44,label:'S_1',tex:true},
-        {t:'arrow',x1:90,y1:245,x2:200,y2:245},{t:'box',x:200,y:223,w:100,h:44,label:'S_2',tex:true},
-        {t:'line',d:'M300 185 H410 V201 M300 245 H410 V229'},{t:'sum',x:410,y:215},
-        {t:'arrow',x1:424,y1:215,x2:525,y2:215},
-        {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17},
-        {t:'text',x:35,y:296,label:'FEEDBACK',fs:13,anchor:'start',color:C.slate},
-        {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
-        {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
-        {t:'arrow',x1:300,y1:345,x2:525,y2:345},
-        {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
-        {t:'text',x:58,y:329,label:'x',tex:true,fs:17},{t:'text',x:480,y:329,label:'y',tex:true,fs:17}
-      ]});
-      return s.replace('</svg>', head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z')
-        +head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z')+'</svg>'); },
-      caption:'Three ways to connect two systems. The circle adds the signals that enter it.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['All three','Series','Parallel','Feedback']},
+      svg:v=>{
+      const k=v?v.frame:0, head=(x,y,d)=>`<path d="M${x},${y} ${d}" fill="${C.ink}"/>`;
+      const tag=(y,txt,g)=>({t:'text',x:35,y,label:txt,fs:13,anchor:'start',color:Math.round(k)===g?C.coral:C.slate});
+      const groups=[
+        [[tag(26,'SERIES',1),
+          {t:'arrow',x1:35,y1:78,x2:120,y2:78},{t:'box',x:120,y:52,w:100,h:52,label:'S_1',tex:true},
+          {t:'arrow',x1:220,y1:78,x2:320,y2:78},{t:'box',x:320,y:52,w:100,h:52,label:'S_2',tex:true},
+          {t:'arrow',x1:420,y1:78,x2:525,y2:78},
+          {t:'text',x:70,y:62,label:'x',tex:true,fs:17},{t:'text',x:480,y:62,label:'y',tex:true,fs:17}], ''],
+        [[tag(146,'PARALLEL',2),
+          {t:'line',d:'M35 215 H90 M90 185 V245'},
+          {t:'arrow',x1:90,y1:185,x2:200,y2:185},{t:'box',x:200,y:163,w:100,h:44,label:'S_1',tex:true},
+          {t:'arrow',x1:90,y1:245,x2:200,y2:245},{t:'box',x:200,y:223,w:100,h:44,label:'S_2',tex:true},
+          {t:'line',d:'M300 185 H410 V201 M300 245 H410 V229'},{t:'sum',x:410,y:215},
+          {t:'arrow',x1:424,y1:215,x2:525,y2:215},
+          {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17}],
+         head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z')],
+        [[tag(296,'FEEDBACK',3),
+          {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
+          {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
+          {t:'arrow',x1:300,y1:345,x2:525,y2:345},
+          {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
+          {t:'text',x:58,y:329,label:'x',tex:true,fs:17},{t:'text',x:480,y:329,label:'y',tex:true,fs:17}],
+         head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z')]
+      ];
+      const body=groups.map(([items,extra],i)=>`<g opacity="${groupOp(k,i+1).toFixed(3)}">${inner(P.blocks({w:560,h:440,items}))}${extra}</g>`).join('');
+      return `<svg viewBox="0 0 560 440" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'Three ways to connect two systems, taken one at a time with Next. The circle adds the signals that enter it.'}
   ], right:[
     {t:'note', kind:'def', head:'Series and parallel', html:'In a series connection, or cascade, the output of $S_1$ is the input of $S_2$. In a parallel connection, both systems get the same input and their outputs add.'},
     {t:'reveal', at:1, items:[
@@ -309,20 +327,30 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 2', src:'pp. 11–12'},
   {t:'title', text:'Inverse Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:20,y:50,label:'INVERT A GAIN',fs:13,anchor:'start',color:C.slate},
-      {t:'arrow',x1:20,y1:120,x2:110,y2:120},{t:'box',x:110,y:90,w:140,h:60,label:'\\times 2',tex:true},
-      {t:'arrow',x1:250,y1:120,x2:320,y2:120},{t:'box',x:320,y:90,w:150,h:60,label:'\\times\\tfrac{1}{2}',tex:true},
-      {t:'arrow',x1:470,y1:120,x2:545,y2:120},
-      {t:'text',x:62,y:104,label:'x(t)',tex:true,fs:16},{t:'text',x:285,y:104,label:'y(t)',tex:true,fs:16},
-      {t:'text',x:508,y:104,label:'w(t)',tex:true,fs:16},
-      {t:'text',x:20,y:230,label:'INVERT THE ACCUMULATOR',fs:13,anchor:'start',color:C.slate},
-      {t:'arrow',x1:20,y1:300,x2:110,y2:300},{t:'box',x:110,y:265,w:140,h:70,label:'\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15},
-      {t:'arrow',x1:250,y1:300,x2:320,y2:300},{t:'box',x:320,y:270,w:150,h:60,label:'y[n]-y[n-1]',tex:true,fs:15},
-      {t:'arrow',x1:470,y1:300,x2:545,y2:300},
-      {t:'text',x:62,y:284,label:'x[n]',tex:true,fs:16},{t:'text',x:285,y:284,label:'y[n]',tex:true,fs:16},
-      {t:'text',x:508,y:284,label:'w[n]',tex:true,fs:16}
-    ]}), caption:'Each system is followed by its inverse. The output $w$ of the pair equals the input $x$.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['input $x[n]$','accumulator $y[n]$','first difference $w[n]$']},
+      svg:v=>{
+      /* The chain on top, the signal after the active block below. The stems
+         move from one signal to the next as the frame runs. */
+      const k=v?v.frame:0, H=P.hOverride||420; P.hOverride=null;
+      const xs=[0,0,1,2,-1,1,0,0,0,0,0], n0=-2;                  /* x[n] for n = -2..8 */
+      const ys=xs.map((_,i)=>xs.slice(0,i+1).reduce((p,q)=>p+q,0));
+      const sig=[xs,ys,xs], i0=Math.floor(k), i1=Math.ceil(k), f=k-i0;
+      const val=j=>sig[i0][j]+(sig[i1][j]-sig[i0][j])*f;
+      const on=i=>Math.round(k)===i;
+      const top=P.blocks({w:560,h:140,items:[
+        {t:'arrow',x1:20,y1:70,x2:110,y2:70,color:on(0)?C.coral:C.ink},
+        {t:'box',x:110,y:35,w:140,h:70,label:'\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
+        {t:'arrow',x1:250,y1:70,x2:320,y2:70},
+        {t:'box',x:320,y:40,w:150,h:60,label:'y[n]-y[n-1]',tex:true,fs:15,color:on(2)?C.coral:C.ink},
+        {t:'arrow',x1:470,y1:70,x2:545,y2:70},
+        {t:'text',x:62,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:285,y:54,label:'y[n]',tex:true,fs:16},
+        {t:'text',x:508,y:54,label:'w[n]',tex:true,fs:16}]});
+      const a=P.Axes({w:560,h:H,xr:[-2.5,8.5],yr:[-1.6,3.8],xlabel:'n',ylabel:'\\text{amplitude}',
+        pad:{l:50,r:24,t:156,b:34},xtarget:11,ystep:1});
+      a.stem(xs.map((_,j)=>[n0+j,val(j)]),{color:[C.in,C.out,C.mid][Math.round(k)]});
+      return a.svg().replace(/<\/svg>\s*$/, inner(top)+'</svg>'); },
+      caption:'The accumulator followed by its inverse, the first difference. Step through the chain: $w[n]$ equals $x[n]$.'}
   ], right:[
     {t:'note', kind:'def', head:'Inverse system', html:'An invertible system $S$ has an inverse system. Placed in series after $S$, the inverse returns the input: $w=x$ for every $x$.'},
     {t:'reveal', at:1, items:[
@@ -498,17 +526,21 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Time Scaling Breaks Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-2.5,4.5],yr:[-0.3,1.6],xlabel:'t',ylabel:'\\text{amplitude}',
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'t0', label:'$t_0$', min:0, max:3, step:0.25, v:2, show:v=>'$'+num(v)+'$ s'}]},
+      svg:v=>{
+      const t0=v?v.t0:2;
+      const a=P.Axes({w:560,h:380,xr:[-2.5,4.5],yr:[-0.3,1.6],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',
         pad:{l:50,r:24,t:20,b:34},xstep:1,ytarget:2});
-      const p1=t=>(t>0&&t<2)?1:0, p2=t=>(t>1&&t<3)?1:0;
-      a.area(p1,0,2,{color:'rgba(166,59,42,.12)'});
-      a.area(p2,1,3,{color:'rgba(74,122,70,.14)'});
+      const lo1=t0/2-1, hi1=t0/2+1, lo2=t0-1, hi2=t0+1;
+      const p1=t=>(t>lo1&&t<hi1)?1:0, p2=t=>(t>lo2&&t<hi2)?1:0;
+      a.area(p1,lo1,hi1,{color:'rgba(166,59,42,.12)'});
+      a.area(p2,lo2,hi2,{color:'rgba(74,122,70,.14)'});
       a.curve(p1,{color:C.err,n:1400});
       a.curve(p2,{color:C.out,dash:'8 5',n:1400});
       return a.svg(); },
-      caption:'With $x_1(t)=1$ for $|t|<2$ and $t_0=2$, path 1 gives a pulse on $0<t<2$ and path 2 a pulse on $1<t<3$.'},
-    {t:'legend', items:[['err','$y_2(t)$'],['out','$y_1(t-2)$',true]], at:'tl'}
+      caption:'With $x_1(t)=1$ for $|t|<2$, path 1 moves the output pulse by $t_0/2$ and path 2 by $t_0$. At $t_0=2$ they cover $0<t<2$ and $1<t<3$.'},
+    {t:'legend', items:[['err','$y_2(t)$'],['out','$y_1(t-t_0)$',true]], at:'tl'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y(t)=x(2t)$.<div class="nsep"></div>Is the system time invariant?',
       ask:{key:'m2-ti-c', choices:['Time invariant','Not time invariant'], answer:1}},
@@ -591,22 +623,36 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'Complex Scale Factors'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3.2,3.2],yr:[-0.6,2.7],xlabel:'\\mathrm{Re}',ylabel:'\\mathrm{Im}',
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'th', label:'$\\theta$', min:0, max:180, step:15, v:90, show:v=>'$'+num(v)+'^\\circ$'}]},
+      svg:v=>{
+      /* a = e^{j theta}: a x1 turns on the circle of radius |x1|, a y1 on the
+         circle of radius 2. Their real part and a y1 meet only for a real a. */
+      const th=(v?v.th:90)*Math.PI/180, c=Math.cos(th), s_=Math.sin(th);
+      const ax=[2*c-s_, 2*s_+c], ay=[2*c, 2*s_], y2=ax[0];
+      const a=P.Axes({w:560,h:380,xr:[-3.2,3.2],yr:[-1.4,2.7],xlabel:'\\mathrm{Re}',ylabel:'\\mathrm{Im}',
         pad:{l:50,r:24,t:20,b:34},xstep:1,ystep:1});
+      const ring=r=>{ const pts=[]; for(let i=0;i<=90;i++){ const u=Math.PI*i/90; pts.push([r*Math.cos(u),r*Math.sin(u)]); } return pts; };
+      a.poly(ring(Math.sqrt(5)).map(([x,y])=>[x*2/Math.sqrt(5)-y/Math.sqrt(5), y*2/Math.sqrt(5)+x/Math.sqrt(5)]),{color:C.mid,dash:'2 5',width:1.2});
+      a.poly(ring(2),{color:C.out,dash:'2 5',width:1.2});
       a.poly([[2,1],[2,0]],{color:C.in,dash:'4 4',width:1.4});
-      a.poly([[-1,2],[-1,0]],{color:C.mid,dash:'4 4',width:1.4});
+      a.poly([ax,[ax[0],0]],{color:C.mid,dash:'4 4',width:1.4});
       a.poly([[0,0],[2,1]],{color:C.in});
-      a.poly([[0,0],[-1,2]],{color:C.mid});
-      a.point(2,1,{color:C.in}); a.point(-1,2,{color:C.mid});
-      a.point(2,0,{color:C.out}); a.point(0,2,{color:C.out}); a.point(-1,0,{color:C.err});
-      a.note(2,1,'x_1=2+j',{tex:true,anchor:'middle',dy:-16,color:C.in,fs:15});
-      a.note(-1,2,'j\\,x_1=-1+2j',{tex:true,anchor:'end',dx:-10,color:C.mid,fs:15});
-      a.note(0,2,'a\\,y_1=2j',{tex:true,dx:10,dy:-12,color:C.out,fs:15});
-      a.note(2,0,'y_1=2',{tex:true,dx:8,dy:-12,color:C.out,fs:15});
-      a.note(-1,0,'y_2=-1',{tex:true,dx:8,dy:-12,color:C.err,fs:15});
+      a.poly([[0,0],ax],{color:C.mid});
+      a.point(2,1,{color:C.in}); a.point(ax[0],ax[1],{color:C.mid});
+      a.point(2,0,{color:C.out}); a.point(ay[0],ay[1],{color:C.out}); a.point(y2,0,{color:C.err});
+      a.note(2,1,'x_1=2+j',{tex:true,anchor:'start',dx:10,dy:4,color:C.in,fs:15});
+      a.note(ax[0],ax[1],'a\\,x_1',{tex:true,anchor:ax[0]<0?'end':'start',dx:ax[0]<0?-10:10,dy:Math.abs(ax[1])<0.5?-14:ax[1]<0?14:-4,color:C.mid,fs:15});
+      /* at 0 and 180 degrees the points meet; one label then names the spot */
+      if(Math.abs(ay[1])>0.35)
+        a.note(0.8*ay[0],0.8*ay[1],'a\\,y_1',{tex:true,anchor:'middle',dy:6,color:C.out,fs:15});
+      a.note(2,0,'y_1',{tex:true,dx:8,dy:-12,color:C.out,fs:15});
+      /* when a x1 sits near the real axis its label goes above and y2 below */
+      const low=Math.abs(ax[1])<0.5;
+      if(Math.abs(y2-2)>0.35)
+        a.note(y2,0,Math.abs(ay[1])>0.35?'y_2':'y_2=a\\,y_1',low?{tex:true,anchor:'end',dx:-8,dy:20,color:C.err,fs:15}:{tex:true,dx:8,dy:-12,color:C.err,fs:15});
       return a.svg(); },
-      caption:'One sample, $x_1=2+j$, scaled by $a=j$. The output $y_2=-1$ is not $a\\,y_1=2j$.'}
+      caption:'$x_1=2+j$ scaled by $a=e^{j\\theta}$. The output $y_2=\\mathrm{Re}\\{a\\,x_1\\}$ lands on $a\\,y_1$ only for a real $a$, at $0^\\circ$ or $180^\\circ$.'}
   ], right:[
     {t:'note', kind:'def', head:'Two conditions', html:'Linearity is two conditions. Additivity: $x_1+x_2\\to y_1+y_2$. Homogeneity: $a\\,x\\to a\\,y$ for every complex $a$.'},
     {t:'reveal', at:1, items:[
@@ -627,19 +673,26 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'Incrementally Linear Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const s=P.blocks({w:560,h:380,items:[
-        {t:'text',x:225,y:132,label:'linear system',fs:13,color:C.slate},
-        {t:'arrow',x1:30,y1:200,x2:150,y2:200},{t:'box',x:150,y:160,w:150,h:80,label:'\\times 3',tex:true},
-        {t:'arrow',x1:300,y1:200,x2:386,y2:200},{t:'sum',x:400,y:200},
-        {t:'arrow',x1:414,y1:200,x2:535,y2:200},
-        {t:'line',d:'M400 104 V186'},
-        {t:'text',x:400,y:84,label:'y_0[n]=2',tex:true,fs:16},
-        {t:'text',x:90,y:184,label:'x[n]',tex:true,fs:17},{t:'text',x:475,y:184,label:'y[n]',tex:true,fs:17},
-        {t:'text',x:343,y:184,label:'3\\,x[n]',tex:true,fs:15,color:C.slate}
-      ]});
-      return s.replace('</svg>', `<path d="M400,186 l-4.5,-9 h9 Z" fill="${C.ink}"/></svg>`); },
-      caption:'$y[n]=3\\,x[n]+2$ drawn as a linear system plus the zero-input response $y_0[n]=2$.'}
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'y0', label:'$y_0$', min:0, max:3, step:0.5, v:2, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      /* The rule y = 3x + y0 as a line. For x1 = 1 and x2 = 2 the sum of the
+         outputs sits y0 above the output for x1 + x2 = 3. */
+      const y0=v?v.y0:2, f=x=>3*x+y0, y1=f(1), y2=f(2), y3=f(3), ys=y1+y2;
+      const a=P.Axes({w:560,h:380,xr:[-0.4,3.7],yr:[-1.5,16.5],xlabel:'x',ylabel:'y',
+        pad:{l:50,r:24,t:20,b:34},xstep:1,ystep:3});
+      a.curve(x=>3*x,{color:C.muted,dash:'4 5',width:1.4});
+      a.curve(f,{color:C.in});
+      a.poly([[3,y3],[3,ys]],{color:C.err,width:2.6});
+      a.point(1,y1,{color:C.out}); a.point(2,y2,{color:C.out}); a.point(3,y3,{color:C.out});
+      a.point(3,ys,{color:C.err});
+      a.note(1,y1,'y_1',{tex:true,anchor:'end',dx:-10,dy:-4,color:C.out,fs:15});
+      a.note(2,y2,'y_2',{tex:true,anchor:'end',dx:-10,dy:-4,color:C.out,fs:15});
+      a.note(3,y3,'y_3',{tex:true,anchor:'start',dx:10,dy:20,color:C.out,fs:15});
+      if(y0>0) a.note(3,ys,'y_1+y_2',{tex:true,anchor:'end',dx:-10,dy:-6,color:C.err,fs:15});
+      a.note(0.6,1.8,'3x',{tex:true,anchor:'start',dx:10,dy:16,color:C.muted,fs:14});
+      return a.svg(); },
+      caption:'The rule $y=3x+y_0$ with $x_1=1$ and $x_2=2$. The bar at $x=3$ is the gap between $y_1+y_2$ and $y_3$. Its height is $y_0$, so it closes only at $y_0=0$.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=3\\,x[n]+2$, with $x_1[n]=1$ and $x_2[n]=2$.<div class="nsep"></div>Does $x_1+x_2$ give $y_1+y_2$?',
       ask:{key:'m2-inclinear', choices:['Yes','No'], answer:1}},
