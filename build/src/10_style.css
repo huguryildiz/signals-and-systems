@@ -2123,13 +2123,94 @@ body[data-display=projector] .scene.slide .lab[data-lab="I6"] .readout.ro div{ p
 /* </m6-s6-css> */
 
 /* <m7-s1-css> */
+/* Laboratory 7.1 (key J1): two stacked plots beside a controls card, a
+   readout row, an equation and two cards. The type floor is set here
+   (labels and tabs 16 px, choices 17, values 20, readouts 21, card text 19,
+   all times --ts); in lecture mode the right column's vertical rhythm is
+   tightened rather than the type (the key-I1 rule is the precedent). */
+.scene .lab[data-lab="J1"] .ctrl label,
+.scene .lab[data-lab="J1"] .readout dt,
+.scene .lab[data-lab="J1"] .note-h,
+.scene.slide .lab[data-lab="J1"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J1"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="J1"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J1"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J1"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="J1"] .readout{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.scene.slide .lab[data-lab="J1"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J1"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J1"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J1"] .ctrls{ padding:14px 20px; gap:12px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J1"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s1-css> */
 
 /* <m7-s2-css> */
+/* Laboratory 7.2 (J2): the laboratory type floor, then the spacing */
+.scene .lab[data-lab="J2"] .ctrl label,
+.scene .lab[data-lab="J2"] .readout dt,
+.scene .lab[data-lab="J2"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J2"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="J2"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J2"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J2"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="J2"] .note .chips{ display:flex; margin:8px 0 0; }
+.scene.slide .lab[data-lab="J2"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J2"] .ctrls{ padding:14px 20px; gap:10px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J2"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s2-css> */
 
 /* <m7-s3-css> */
+/* Laboratory 7.3 (key J): three stacked plots beside a controls card, a
+   readout grid, an equation and a verdict card. The laboratory type floor
+   (labels, readout keys and tabs 16 px, choices 17 px, values 20 px, readout
+   values 21 px, card text 19 px, all times --ts). The two segmented choices
+   sit on their own row under their labels, and the vertical rhythm is
+   tightened in lecture mode rather than shrinking the type. */
+.scene .lab[data-lab="J"] .ctrl label,
+.scene .lab[data-lab="J"] .readout dt,
+.scene .lab[data-lab="J"] .note-h,
+.scene.slide .lab[data-lab="J"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J"] .seg{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; }
+.scene .lab[data-lab="J"] .seg button{ font-size:calc(17px * var(--ts)); padding:6px 10px; white-space:normal; line-height:1.25; }
+.scene .lab[data-lab="J"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="J"] .ctrl:has(.seg) label{ flex-direction:column; align-items:flex-start; gap:7px; }
+.scene.slide .lab[data-lab="J"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J"] .ctrls{ padding:12px 18px; gap:8px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s3-css> */
 
 /* <m7-s4-css> */
+/* Laboratory 7.4 (key J4): three stacked plots beside two sliders, the
+   anti-aliasing switch, two sound buttons, a readout grid and two cards. The
+   type floor is set here (labels 16, choices 17, values 20, readouts 21, card
+   text 19, all times --ts); the sound buttons take the whole last row of the
+   controls, and the vertical rhythm is tightened in lecture mode rather than
+   the type (the key-W rule is the precedent). */
+.scene .lab[data-lab="J4"] .ctrl label,
+.scene .lab[data-lab="J4"] .readout dt,
+.scene .lab[data-lab="J4"] .note-h,
+.scene .lab[data-lab="J4"] .eq-label,
+.scene.slide .lab[data-lab="J4"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J4"] .seg button{ font-size:calc(17px * var(--ts)); padding:6px 16px; }
+.scene .lab[data-lab="J4"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J4"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J4"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="J4"] .ctrls{ gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="J4"] .ctrl.j4-play{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="J4"] .ctrl.j4-aa{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="J4"] .ctrl.j4-aa label{ justify-content:space-between; }
+.scene.slide .lab[data-lab="J4"] .j4-play .fig{ gap:0; }
+.scene.slide .lab[data-lab="J4"] .j4-play .fxbar{ margin-top:0; }
+.scene.slide .lab[data-lab="J4"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J4"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J4"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J4"] .ctrls{ padding:12px 18px; gap:8px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J4"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s4-css> */
