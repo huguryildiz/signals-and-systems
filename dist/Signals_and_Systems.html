@@ -872,14 +872,14 @@ body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"])
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
 .scene.slide .lab[data-lab="B"] > .cols > .col:first-child{ justify-content:flex-start; }
-/* The plot column of the Module 3, 4, 5 and 6 laboratories: the viewBoxes are drawn
+/* The plot column of the Module 3, 4, 5, 6 and 7 laboratories: the viewBoxes are drawn
    tall enough to fill it in normal display. The plots take only the height the
    column has, so in projector display, where the widened column would draw them
    taller, they shrink inside it instead of forcing the scene to scale down. */
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -2134,6 +2134,18 @@ body[data-display=projector] .scene.slide .lab[data-lab="I6"] .derive.stack :is(
 body[data-display=projector] .scene.slide .lab[data-lab="I6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
 body[data-display=projector] .scene.slide .lab[data-lab="I6"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s6-css> */
+
+/* <m7-s1-css> */
+/* </m7-s1-css> */
+
+/* <m7-s2-css> */
+/* </m7-s2-css> */
+
+/* <m7-s3-css> */
+/* </m7-s3-css> */
+
+/* <m7-s4-css> */
+/* </m7-s4-css> */
 </style>
 </head>
 <body data-mode="study" data-edition="student" data-motion="full" data-sidebar="on">
@@ -4281,6 +4293,8 @@ const RENDER = (() => {
     if(typeof CODE_BANKS_M5!=='undefined') Object.assign(CODE_BANKS, CODE_BANKS_M5);
     if(typeof CODE_M6!=='undefined') Object.assign(CODE_LIB, CODE_M6);
     if(typeof CODE_BANKS_M6!=='undefined') Object.assign(CODE_BANKS, CODE_BANKS_M6);
+    if(typeof CODE_M7!=='undefined') Object.assign(CODE_LIB, CODE_M7);
+    if(typeof CODE_BANKS_M7!=='undefined') Object.assign(CODE_BANKS, CODE_BANKS_M7);
   }
   const CODE_LANGS = [['m','MATLAB'],['py','Python']];
   let codeLang = (()=>{ try{ return localStorage.getItem('ss-code-lang')==='py'?'py':'m'; }catch(e){ return 'm'; } })();
@@ -11132,6 +11146,51 @@ Object.assign(LABS, (function(){
 
   return { I6 };
 })());
+
+</script>
+<script>
+/* ==== 74_code_m7.js ==== */
+/* ==========================================================================
+   Code for Module 7: programs in MATLAB and Python
+   One entry a program, keyed by a short name. Each program works a signal
+   or a sampling rate from the section and prints the number the section
+   computes, with the same wording in both languages, so `out` is one text
+   for both. MATLAB uses no toolbox; Python uses NumPy and Matplotlib only.
+   `title`, `what` and `try` are student text and go through md(); the code
+   is plain text. Each section closes with a code page (`CODE_BANKS_M7`)
+   that pages through its programs.
+   verify/code_check.py runs every entry in both languages and compares
+   what it prints with `out`.
+   ========================================================================== */
+const CODE_BANKS_M7 = {
+  /* <m7-s1-bank> */
+  /* </m7-s1-bank> */
+
+  /* <m7-s2-bank> */
+  /* </m7-s2-bank> */
+
+  /* <m7-s3-bank> */
+  /* </m7-s3-bank> */
+
+  /* <m7-s4-bank> */
+  /* </m7-s4-bank> */
+};
+
+const CODE_M7 = {
+
+/* <m7-s1-code> */
+/* </m7-s1-code> */
+
+/* <m7-s2-code> */
+/* </m7-s2-code> */
+
+/* <m7-s3-code> */
+/* </m7-s3-code> */
+
+/* <m7-s4-code> */
+/* </m7-s4-code> */
+
+};
 
 </script>
 <script>
@@ -27236,6 +27295,70 @@ Object.assign(CONTENT.GLOSS, {
   foh:{ s:'H_1(j\\omega)', d:'Frequency response of the first-order hold, which joins consecutive samples by a straight line.', go:'m7-foh' }
 });
 
+
+const cl = u=>Math.max(0,Math.min(1,u));
+/* a group drawn at an opacity: the faint given signal on a sketch slide, or a
+   state fading in or out while a figure plays between frames */
+const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
+/* the invisible data area a sketch is drawn in */
+const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+/* the standard slide axes: one figure in the left column of a 5:7 slide.
+   A spectrum drawn about the origin puts its tick numbers on the left edge
+   (yticksLeft), so they do not sit on the central peak. */
+const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
+/* the same axes for a spectrum over omega, with the tick row in multiples of pi */
+const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+
+/* ---- everyday signals, one gallery slide at the end of each teaching
+       section. The traces are schematic; each keeps the feature its section
+       is about. A figure with two traces carries its legend as a third entry. */
+const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+function realGallery(cfg){
+  return { id:cfg.id, module:'M7', nav:cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    budget:cfg.budget||'A gallery of four everyday signals; each figure is one example.',
+    slide:true, steps:cfg.notes.length-1, blocks:[
+    {t:'eyebrow', text:cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'cols', ratio:'c-8-4', fill:true, left:[
+      {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg,at])=>
+        [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[Object.assign({t:'legend', items:lg}, at?{at}:{})]:[]))}
+    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+  ]};
+}
+/* a laboratory scene: the title, then the laboratory itself */
+function labScene(cfg){
+  return { id:cfg.id, module:'M7', nav:'Laboratory {lab} · '+cfg.nav, title:'Laboratory {lab} — '+cfg.title, src:cfg.src,
+    objective:cfg.objective, slide:true, keywords:cfg.keywords, steps:0, blocks:[
+    {t:'eyebrow', text:'Interactive laboratory', src:cfg.src},
+    {t:'title', text:'Laboratory {lab} · '+cfg.nav},
+    {t:'lab', id:cfg.lab}
+  ]};
+}
+/* a code page: the programs of one section, paged one at a time */
+function codeScene(cfg){
+  return { id:cfg.id, module:'M7', nav:'Code · '+cfg.nav, title:cfg.title, src:cfg.src,
+    objective:cfg.objective, keywords:cfg.keywords,
+    slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+    {t:'eyebrow', text:'Module 7 · '+cfg.eyebrow, src:cfg.src},
+    {t:'title', text:cfg.title},
+    {t:'raw', html:()=>CODEBANK.page(cfg.id)}
+  ]};
+}
+
+/* Helpers that belong to one section only. Each section keeps its own between
+   its markers. */
+/* <m7-s1-helpers> */
+/* </m7-s1-helpers> */
+/* <m7-s2-helpers> */
+/* </m7-s2-helpers> */
+/* <m7-s3-helpers> */
+/* </m7-s3-helpers> */
+/* <m7-s4-helpers> */
+/* </m7-s4-helpers> */
+/* <m7-s5-helpers> */
+/* </m7-s5-helpers> */
+
 const SC = [
 
 /* ------------------------------------------------------------------ opening */
@@ -27265,6 +27388,8 @@ const SC = [
       return a.svg(); }}
   ]}
 ]},
+
+/* <m7-s1> ============================================ 7.1 the sampler and the sampled spectrum */
 
 /* ---------------------------------------------------------------- sampler */
 { id:'m7-sampler', module:'M7', nav:'The sampler', title:'What a sampler actually produces', src:'p. 80',
@@ -27500,6 +27625,10 @@ const SC = [
         caption:'Undersampling, $\\omega_s=3\\pi$ rad/s. The dashed copies are unchanged; the solid curve is their sum, which is what the sampler actually produces.'}]}
   ]}
 ]},
+
+/* </m7-s1> */
+
+/* <m7-s2> ============================================ 7.2 aliasing and the sampling theorem */
 
 /* --------------------------------------------------------------- aliasing */
 { id:'m7-aliasing', module:'M7', nav:'Aliasing', title:'Aliasing is the overlap, not the copying', src:'pp. 81, 86',
@@ -27817,6 +27946,10 @@ const SC = [
 
 ,
 
+/* </m7-s2> */
+
+/* <m7-s3> ============================================ 7.3 reconstruction */
+
 /* --------------------------------------------------------- reconstruction */
 { id:'m7-recon', module:'M7', nav:'Reconstruction', title:'Cutting one copy out of the sum', src:'p. 83',
   objective:'Specify the reconstruction filter and justify its gain and its cutoff.',
@@ -28069,6 +28202,19 @@ const SC = [
         caption:'Sampled at any rate, the tails of the copies add everywhere. The overlap is small, not absent.'}]}
   ]}
 ]},
+
+/* -------------------------------------------------------------- laboratory */
+{ id:'m7-lab-j', module:'M7', nav:'Laboratory {lab} · Sampling studio', title:'Laboratory {lab} — Sampling and Aliasing Studio', src:'pp. 80–88',
+  objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
+  keywords:'laboratory {lab} sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 80–88'},
+  {t:'title', text:'Laboratory {lab} · Sampling and Aliasing'},
+  {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
+  {t:'lab', id:'J'}
+]},
+/* </m7-s3> */
+
+/* <m7-s4> ============================================ 7.4 aliasing in practice */
 
 /* --------------------------------------------------------- aliasing of a cosine */
 { id:'m7-alias-cos', module:'M7', nav:'Aliasing of a sampled cosine', title:'Aliasing of a sampled cosine', src:'p. 86',
@@ -28355,15 +28501,11 @@ const SC = [
   ]}
 ]},
 
-/* -------------------------------------------------------------- laboratory */
-{ id:'m7-lab-j', module:'M7', nav:'Laboratory {lab} · Sampling studio', title:'Laboratory {lab} — Sampling and Aliasing Studio', src:'pp. 80–88',
-  objective:'Move the rate through the three cases and watch the copies, the overlap and the reconstruction error together.',
-  keywords:'laboratory {lab} sampling studio presets oversampling critical undersampling zero order first order ideal', steps:0, blocks:[
-  {t:'eyebrow', text:'Interactive laboratory', src:'pp. 80–88'},
-  {t:'title', text:'Laboratory {lab} · Sampling and Aliasing'},
-  {t:'lede', text:'Choose a preset or move the two sliders. The copies are drawn at every setting, so the guard band can be watched shrinking to zero and then going negative. Every number in the readout is computed from the definitions at the moment you move a control.'},
-  {t:'lab', id:'J'}
-]}
+/* </m7-s4> */
+
+/* <m7-s5> ============================================ 7.5 summary */
+
+/* </m7-s5> */
 ];
 window.SCENES_M7 = SC;
 })();
@@ -28605,16 +28747,26 @@ CONTENT.SECTIONS = {
 
   M7: [
     { n:'7.0', title:'Opening',                                  ids:['m7-open'] },
-    { n:'7.1', title:'The sampler and the sampled spectrum',     ids:[
+    /* <m7-s1-sec> */
+    { n:'7.1', title:'The sampler and the sampled spectrum', ids:[
         'm7-sampler','m7-rates','m7-freq','m7-replicas','m7-three'] },
-    { n:'7.2', title:'Aliasing and the sampling theorem',        ids:[
+    /* </m7-s1-sec> */
+    /* <m7-s2-sec> */
+    { n:'7.2', title:'Aliasing and the sampling theorem', ids:[
         'm7-aliasing','m7-theorem','m7-boundary','m7-ex-rates','m7-ex-73a',
         'm7-ex-73b','m7-ex-73c'] },
-    { n:'7.3', title:'Reconstruction',                           ids:[
-        'm7-recon','m7-interp','m7-zoh','m7-foh','m7-perfect'] },
-    { n:'7.4', title:'Aliasing in practice',                     ids:[
+    /* </m7-s2-sec> */
+    /* <m7-s3-sec> */
+    { n:'7.3', title:'Reconstruction', ids:[
+        'm7-recon','m7-interp','m7-zoh','m7-foh','m7-perfect','m7-lab-j'] },
+    /* </m7-s3-sec> */
+    /* <m7-s4-sec> */
+    { n:'7.4', title:'Aliasing in practice', ids:[
         'm7-alias-cos','m7-ex-alias','m7-hw-alias','m7-antialias','m7-temporal',
-        'm7-spatial','m7-lab-j'] }
+        'm7-spatial'] }
+    /* </m7-s4-sec> */
+    /* <m7-s5-sec> */
+    /* </m7-s5-sec> */
   ],
 
   Synthesis: [
@@ -28765,14 +28917,24 @@ CONTENT.BOOK = {
   'm6-tables':'5.6', 'm6-pairs':'5.6', 'm6-quick':'5.9', 'm6-synth':'5.9', 'm6-projects':'5.9',
   /* </m6-s7-book> */
 
+  /* <m7-s1-book> */
   'm7-sampler':'7.1.1', 'm7-rates':'7.1', 'm7-freq':'7.1.1',
   'm7-replicas':'7.1.1', 'm7-three':'7.1.1',
+  /* </m7-s1-book> */
+  /* <m7-s2-book> */
   'm7-aliasing':'7.3', 'm7-theorem':'7.1', 'm7-boundary':'7.1',
   'm7-ex-rates':'7.1', 'm7-ex-73a':'7.1', 'm7-ex-73b':'7.1', 'm7-ex-73c':'7.1',
+  /* </m7-s2-book> */
+  /* <m7-s3-book> */
   'm7-recon':'7.2', 'm7-interp':'7.2', 'm7-zoh':'7.1.2', 'm7-foh':'7.2',
-  'm7-perfect':'7.2',
+  'm7-perfect':'7.2', 'm7-lab-j':'7.2',
+  /* </m7-s3-book> */
+  /* <m7-s4-book> */
   'm7-alias-cos':'7.3', 'm7-ex-alias':'7.3', 'm7-hw-alias':'7.3',
-  'm7-antialias':'7.3', 'm7-temporal':'7.3', 'm7-spatial':'7.3', 'm7-lab-j':'7.3'
+  'm7-antialias':'7.3', 'm7-temporal':'7.3', 'm7-spatial':'7.3',
+  /* </m7-s4-book> */
+  /* <m7-s5-book> */
+  /* </m7-s5-book> */
 };
 
 /* ---- derivation --------------------------------------------------------

@@ -484,6 +484,22 @@ chk("LabJ the copies are generated at every preset, overlapping or not",
     all(len(lab_replicas(2*PI*fM, 2*PI*fS, max(2.4*2*PI*fS, 3.2*2*PI*fM))) >= 5
         for _, (fM, fS, _) in presets.items()))
 
+# <m7-s1-verify> 7.1 the sampler and the sampled spectrum
+# </m7-s1-verify>
+
+# <m7-s2-verify> 7.2 aliasing and the sampling theorem
+# </m7-s2-verify>
+
+# <m7-s3-verify> 7.3 reconstruction
+# </m7-s3-verify>
+
+# <m7-s4-verify> 7.4 aliasing in practice
+# </m7-s4-verify>
+
+# <m7-s5-verify> 7.5 quick check and projects
+# </m7-s5-verify>
+
+
 print("\n%d passed, %d failed" % (len(P), len(F)))
 if F:
     print("FAILURES:", F)
