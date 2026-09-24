@@ -148,6 +148,31 @@ const REAL_PROPS = realGallery({ id:'m3-real-props', nav:'Interconnections aroun
     {t:'note', kind:'warn', head:'Stable or not', html:'A decaying impulse response has a finite sum of $|h|$. A growing one, like a feedback howl, does not.'}
   ]});
 
+const REAL_DIFFEQ = realGallery({ id:'m3-real-diffeq', nav:'Recursions around us',
+  title:'Recursions Around Us', eyebrow:'Module 3 · Difference and differential equations', src:'—',
+  objective:'Recognise systems whose output is updated from its own last value.',
+  keywords:'examples savings interest sensor smoothing RC charging car drag recursion feedback first order',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-1,36],yr:[0,4400],xlabel:'n\\;(\\text{month})',ylabel:'y[n]\\;(\\text{EUR})',xstep:12}));
+      a.stem(disc(n=>n>=0?20000*(Math.pow(1.005,n+1)-1):0,-1,35),{color:C.out,r:2.2});
+      return a.svg(); }, 'A deposit of 100 EUR each month at 0.5 % interest: $y[n]=1.005\\,y[n-1]+100\\,u[n]$.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-1,20],yr:[0,29],xlabel:'n\\;(\\text{s})',ylabel:'y[n]\\;(^{\\circ}\\text{C})',xstep:5}));
+      a.stem(disc(n=>n>=0?25*(1-Math.pow(0.8,n+1)):0,-1,20),{color:C.out,r:3});
+      return a.svg(); }, 'A display smooths a reading that jumps to 25 °C: $y[n]=0.8\\,y[n-1]+0.2\\,x[n]$.'],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.5,5],yr:[-0.5,6.5],xlabel:'t\\;(\\text{ms})',ylabel:'v_C(t)\\;(\\text{V})',xstep:1}));
+      a.curve(t=>t>=0?5:0,{color:C.in,dash:'9 6',n:1200});
+      a.curve(t=>t>=0?5*(1-Math.exp(-t)):0,{color:C.out,n:1200});
+      return a.svg(); }, 'An RC circuit switched on at $t=0$: $\\frac{\\d v_C}{\\d t}+v_C=5\\,u(t)$ with $t$ in ms, so $v_C(t)=5\\bigl(1-e^{-t}\\bigr)$ V.',
+      [['in','$v_s(t)$',true],['out','$v_C(t)$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-2,40],yr:[-2,34],xlabel:'t\\;(\\text{s})',ylabel:'v(t)\\;(\\text{m/s})',xstep:10}));
+      a.curve(t=>t>=0?30*(1-Math.exp(-t/10)):0,{color:C.out,n:1200});
+      return a.svg(); }, 'A car pulls away against drag: $10\\,\\frac{\\d v}{\\d t}+v=30\\,u(t)$, so $v(t)=30\\bigl(1-e^{-t/10}\\bigr)$ m/s.']
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'One rule, run forward', html:'Each output is updated from its own last value and the new input. The rule is a difference equation or a differential equation.'},
+    {t:'note', kind:'warn', head:'Feedback can grow', html:'The balance grows without bound, because its feedback gain is $1.005>1$. The other three settle at a final level.'}
+  ]});
+
 /* Small sketches for the summary and project cards. Both pages are navy, so
    they are drawn in the dark-page signal tints. */
 const G = (()=>{
@@ -174,6 +199,11 @@ const G = (()=>{
                +`<rect x="70" y="26" width="18" height="12" fill="none" stroke="${AM}" stroke-width="1.6"/>`),
     caus:   sv(ln('M1 40 H91',AX,1)+ln('M40 4 V42',RD,1.6)+[0,1,2,3,4].map(i=>st(48+i*9,40-30*Math.pow(0.7,i),AM)).join('')),
     stab:   sv(ln('M1 40 H91',AX,1)+[0,1,2,3,4,5,6].map(i=>st(8+i*12,40-30*Math.pow(0.65,i),GR)).join('')),
+    step:   sv(ln('M1 40 H91',AX,1)+[0,1,2,3,4,5,6].map(i=>st(8+i*12,40-30*(1-Math.pow(0.55,i+1)),GR)).join('')
+               +ln('M4 10 H90',RD,1)),
+    recur:  sv(ln('M2 16 H35 M47 16 H90 M72 16 V28 M62 34 H41 V22',AX,1.3)
+               +`<circle cx="41" cy="16" r="6" fill="none" stroke="${CY}" stroke-width="1.6"/>`
+               +`<rect x="62" y="28" width="20" height="12" fill="none" stroke="${AM}" stroke-width="1.6"/>`),
     clap:   sv(ln('M1 23 H91',AX,1)+ln('M'+[...Array(86)].map((_,k)=>{ const x=4+k;
                return x+','+(23-17*Math.exp(-k/22)*Math.sin(k*1.9)*Math.cos(k*0.7)).toFixed(1); }).join('L'),AM,1.3)),
     smooth: sv(ln('M'+[...Array(86)].map((_,k)=>(4+k)+','+(24-8*Math.sin(k/9)-5*Math.sin(k*1.7)).toFixed(1)).join('L'),CY,1.1)
@@ -929,6 +959,69 @@ REAL_CONVINT,
   ]}
 ]},
 
+{ id:'m3-step', module:'M3', nav:'Step response', title:'The Step Response', src:'—',
+  objective:'Define the step response, and recover h from it by a difference or a derivative.',
+  keywords:'step response s=h*u running sum running integral first difference derivative measure h', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'—'},
+  {t:'title', text:'The Step Response'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'t', label:'$t$', min:0, max:4, step:0.25, v:1, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      const t=v?v.t:1, h=z=>z>=0?Math.exp(-z):0, s=z=>z>=0?1-Math.exp(-z):0;
+      const a=P.Axes({w:560,h:380,xr:[-1,4.5],yr:[-0.1,1.3],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:6,ytarget:3});
+      if(t>0) a.area(h,0,t,{color:'rgba(74,122,70,.22)'});
+      a.curve(h,{color:C.h,n:1200});
+      a.curve(s,{color:C.out,n:1200});
+      a.vline(t,{color:C.coral,dash:'4 4'});
+      a.point(t,s(t),{color:C.out});
+      return a.svg(); },
+      caption:'Drag $t$. The shaded area under $h$ is the height of $s(t)$: $\\int_0^{t}e^{-\\tau}\\,\\d\\tau=1-e^{-t}$ for $t>0$.'},
+    {t:'legend', items:[['h','$h(t)=e^{-t}u(t)$'],['out','$s(t)$']]}
+  ], right:[
+    {t:'eq', tex:'s(t)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,u(t-\\tau)\\,\\d\\tau=\\int_{-\\infty}^{t}h(\\tau)\\,\\d\\tau', label:'Step response · $s=h*u$',
+      note:'$u(t-\\tau)=1$ for $\\tau<t$ and $0$ after, so $s(t)$ is the area of $h$ up to $t$. In discrete time, $s[n]=\\sum_{k=-\\infty}^{n}h[k]$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'h(t)=\\frac{\\d s(t)}{\\d t},\\qquad h[n]=s[n]-s[n-1]', label:'Back to $h$',
+        note:'The derivative undoes the running integral, and the first difference undoes the running sum. A step is easier to apply than an impulse, so $h$ is often measured this way.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$h[n]=\\delta[n]-\\delta[n-2]$.<div class="nsep"></div>What is the step response $s[n]$?',
+        ask:{key:'m3-step', choices:['$\\delta[n]+\\delta[n-1]$','$u[n]$','$\\delta[n]-\\delta[n-1]$'], answer:0,
+          why:'The running sum is $1$ at $n=0$ and at $n=1$, then $1-1=0$ from $n=2$ on.'}}]}
+  ]}
+]},
+
+{ id:'m3-singular', module:'M3', nav:'Integrator and differentiator', title:'The Integrator and the Differentiator', src:'—',
+  objective:'Write the integrator and the differentiator as LTI systems, with impulse responses u(t) and the unit doublet.',
+  keywords:'integrator differentiator unit doublet u1 singularity function derivative of delta inverse system u*u1=delta', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'—'},
+  {t:'title', text:'The Integrator and the Differentiator'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:360,items:[
+      {t:'text',x:235,y:70,label:'integrator',fs:15},
+      {t:'arrow',x1:24,y1:120,x2:170,y2:120},{t:'box',x:170,y:92,w:130,h:56,label:'h(t)=u(t)',tex:true},
+      {t:'arrow',x1:300,y1:120,x2:536,y2:120},
+      {t:'text',x:97,y:104,label:'x(t)',tex:true,fs:17},
+      {t:'text',x:418,y:100,label:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau',tex:true,fs:16},
+      {t:'text',x:235,y:230,label:'differentiator',fs:15},
+      {t:'arrow',x1:24,y1:280,x2:170,y2:280},{t:'box',x:170,y:252,w:130,h:56,label:'h(t)=u_1(t)',tex:true},
+      {t:'arrow',x1:300,y1:280,x2:536,y2:280},
+      {t:'text',x:97,y:264,label:'x(t)',tex:true,fs:17},
+      {t:'text',x:418,y:264,label:'x^{\\prime}(t)',tex:true,fs:17}
+    ]}), caption:'Two LTI systems. Each is fixed by its impulse response, as every LTI system is.'}
+  ], right:[
+    {t:'eq', tex:'\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau=x(t)*u(t)', label:'Integrator',
+      note:'Put $x=\\delta$: the running integral of $\\delta(t)$ is $u(t)$, so $h=u$. The step response $s=h*u$ is $h$ passed through an integrator.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\frac{\\d x(t)}{\\d t}=x(t)*u_1(t),\\qquad u_1(t)=\\frac{\\d\\delta(t)}{\\d t}', label:'Differentiator · the unit doublet',
+        note:'$u_1$ is called the unit doublet. Like $\\delta$, it is defined by what it does under convolution, not by its values.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'An LTI system has $h(t)=u_1(t)$. The input is $x(t)=u(t)$.<div class="nsep"></div>What is the output?',
+        ask:{key:'m3-singular', choices:['$\\delta(t)$','$u(t)$','$t\\,u(t)$'], answer:0,
+          why:'The derivative of the step is the impulse, so $u*u_1=\\delta$: the differentiator undoes the integrator.'}}]}
+  ]}
+]},
+
 REAL_PROPS,
 
 { id:'m3-lab-o', module:'M3', nav:'Laboratory {lab} · Properties from h', title:'Laboratory {lab} — System Properties from h', src:'p. 21',
@@ -948,7 +1041,166 @@ REAL_PROPS,
   {t:'raw', html:()=>CODEBANK.page('m3-code-props')}
 ]},
 
-/* ================================================================ 3.5 summary */
+/* ========================== 3.5 difference and differential equations */
+
+{ id:'m3-diffeq', module:'M3', nav:'Difference equations', title:'A System Given by a Difference Equation', src:'—',
+  objective:'Read a linear constant-coefficient difference equation as a system, state initial rest, and find h by recursion.',
+  keywords:'difference equation linear constant coefficient recursion initial rest causal LTI impulse response iterate', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 3 · Difference and differential equations', src:'—'},
+  {t:'title', text:'A System Given by a Difference Equation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$h[n]=\\left(\\tfrac12\\right)^{n}u[n]$','$h[0]=\\tfrac12\\,h[-1]+1$','$h[1]=\\tfrac12\\,h[0]$','$h[2]=\\tfrac12\\,h[1]$','$h[3]=\\tfrac12\\,h[2]$']},
+      svg:v=>{
+      /* Frame 0 is the whole impulse response. Frame k (k >= 1) computes
+         h[k-1]: the new sample is violet, the one it is computed from keeps
+         the h colour, the samples not yet computed are faint. */
+      const k=v?Math.round(v.frame):0, cur=k-1, h=n=>n>=0?Math.pow(0.5,n):0;
+      const a=P.Axes({w:560,h:380,xr:[-2.5,8.5],yr:[-0.15,1.35],xlabel:'n',ylabel:'h[n]',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
+      if(k===0){ a.stem(disc(h,-2,8),{color:C.h}); return a.svg(); }
+      fade(a,0.3,()=>a.stem(disc(n=>n>cur?h(n):0,cur+1,8),{color:C.h}));
+      a.stem(disc(h,-2,cur-1),{color:C.h});
+      a.stem([[cur,h(cur)]],{color:C.mid});
+      a.note(cur,h(cur)+0.13,cur===0?'1':'\\tfrac12\\,h['+(cur-1)+']',{anchor:'middle',color:C.mid,fs:15,tex:true});
+      return a.svg(); },
+      caption:'Step through the frames. At rest $h[-1]=0$, and each new sample is half of the one before.'},
+    {t:'legend', items:[['h','$h[n]$'],['mid','$\\text{sample being computed}$']]}
+  ], right:[
+    {t:'eq', tex:'\\sum_{k=0}^{N}a_k\\,y[n-k]=\\sum_{k=0}^{M}b_k\\,x[n-k]', label:'Difference equation',
+      note:'The output at $n$ uses earlier outputs and inputs, so a starting condition is also needed.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Initial rest', html:'If $x[n]=0$ for $n<n_0$, take $y[n]=0$ for $n<n_0$. Then the system is causal and LTI. A non-zero start gives an output with no input, which a linear system cannot do.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}h[n]&=\\tfrac12\\,h[n-1]+\\delta[n]\\\\h[0]&=\\tfrac12\\cdot0+1=1\\\\h[1]&=\\tfrac12\\cdot1+0=\\tfrac12\\\\h[n]&=\\left(\\tfrac12\\right)^{n},\\quad n\\ge0\\end{aligned}', label:'Impulse response by recursion',
+        note:'Put $x=\\delta$ into $y[n]=\\tfrac12\\,y[n-1]+x[n]$ and start from $h[-1]=0$. For $n\\ge1$ each step halves the last sample.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y[n]=-\\tfrac12\\,y[n-1]+x[n]$, at rest.<div class="nsep"></div>What is $h[2]$?',
+        ask:{key:'m3-diffeq', choices:['$\\tfrac14$','$-\\tfrac14$','$-\\tfrac12$'], answer:0,
+          why:'$h[0]=1$, $h[1]=-\\tfrac12$, and $h[2]=-\\tfrac12\\cdot\\left(-\\tfrac12\\right)=\\tfrac14$.'}}]}
+  ]}
+]},
+
+{ id:'m3-fir-iir', module:'M3', nav:'Non-recursive and recursive', title:'Non-recursive and Recursive Equations', src:'—',
+  objective:'Tell a finite impulse response from an infinite one by the form of the difference equation.',
+  keywords:'non-recursive recursive FIR IIR finite infinite impulse response feedback coefficients stability |a|<1', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 3 · Difference and differential equations', src:'—'},
+  {t:'title', text:'Non-recursive and Recursive Equations'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$h[n]=\\tfrac13\\bigl(\\delta[n]+\\delta[n-1]+\\delta[n-2]\\bigr)$','$h[n]=0.2\\,(0.8)^{n}u[n]$']},
+      svg:v=>{
+      /* frame 0 is the three-sample average; going to frame 1 lowers it and
+         raises the recursive smoother, whose samples never end */
+      const f=cl(v?v.frame:0);
+      const a=P.Axes({w:560,h:380,xr:[-2.5,16.5],yr:[-0.05,0.45],xlabel:'n',ylabel:'h[n]',pad:{l:56,r:24,t:20,b:34},xtarget:10,ytarget:3});
+      if(f<1) fade(a,1-f,()=>a.stem(disc(n=>(n>=0&&n<=2)?1/3:0,-2,16),{color:C.h}));
+      if(f>0) fade(a,f,()=>a.stem(disc(n=>n>=0?0.2*Math.pow(0.8,n):0,-2,16),{color:C.out}));
+      return a.svg(); },
+      caption:'Both average the input. The non-recursive one stops after three samples. The recursive one feeds its output back and never stops.'},
+    {t:'legend', items:[['h','$\\text{non-recursive}$'],['out','$\\text{recursive}$']]}
+  ], right:[
+    {t:'eq', tex:'y[n]=\\sum_{k=0}^{M}b_k\\,x[n-k]\\quad\\Rightarrow\\quad h[n]=b_n', label:'Non-recursive · finite $h$',
+      note:'Put $x=\\delta$: each term $b_k\\,\\delta[n-k]$ places $b_k$ at $n=k$. So $h$ has at most $M+1$ samples, a finite impulse response (FIR).'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'y[n]=a\\,y[n-1]+b\\,x[n]\\quad\\Rightarrow\\quad h[n]=b\\,a^{n}u[n]', label:'Recursive · infinite $h$',
+        note:'The output feeds back, so one impulse keeps producing samples: an infinite impulse response (IIR). It is BIBO stable exactly when $|a|<1$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y[n]=x[n]+2\\,x[n-1]-x[n-3]$.<div class="nsep"></div>How many non-zero samples does $h[n]$ have?',
+        ask:{key:'m3-fir-iir', choices:['$3$','$4$','infinitely many'], answer:0,
+          why:'$h[n]=\\delta[n]+2\\,\\delta[n-1]-\\delta[n-3]$, and $h[2]=0$.'}}]}
+  ]}
+]},
+
+{ id:'m3-blockdiag', module:'M3', nav:'Block diagrams', title:'Block Diagrams', src:'—',
+  objective:'Draw a first-order difference equation with an adder, a gain and a unit delay, and read the equation back.',
+  keywords:'block diagram adder gain unit delay D feedback first order integrator continuous time accumulator', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 3 · Difference and differential equations', src:'—'},
+  {t:'title', text:'Block Diagrams'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      /* x[n] -> gain b -> adder -> y[n]; y is tapped, delayed by D, scaled by a
+         and fed back into the adder. The blocks helper draws right-pointing
+         arrows only, so the three heads of the feedback path are added here. */
+      const ink=C.ink, head=d=>`<path d="${d}" fill="${ink}"/>`;
+      return P.blocks({w:560,h:300,items:[
+        {t:'arrow',x1:30,y1:110,x2:110,y2:110},{t:'box',x:110,y:86,w:60,h:48,label:'b',tex:true},
+        {t:'arrow',x1:170,y1:110,x2:236,y2:110},{t:'sum',x:250,y:110},
+        {t:'arrow',x1:264,y1:110,x2:536,y2:110},
+        {t:'line',d:'M420,110 V191'},{t:'box',x:390,y:200,w:60,h:48,label:'D',tex:true},
+        {t:'line',d:'M390,224 H289'},{t:'box',x:220,y:200,w:60,h:48,label:'a',tex:true},
+        {t:'line',d:'M250,200 V133'},
+        {t:'text',x:62,y:94,label:'x[n]',tex:true,fs:17},
+        {t:'text',x:203,y:94,label:'b\\,x[n]',tex:true,fs:15},
+        {t:'text',x:480,y:94,label:'y[n]',tex:true,fs:17},
+        {t:'text',x:335,y:212,label:'y[n-1]',tex:true,fs:15},
+        {t:'text',x:262,y:170,label:'a\\,y[n-1]',tex:true,fs:15,anchor:'start'}
+      ]}).replace('</svg>', head('M420,200 l-4.5,-9 h9 Z')+head('M280,224 l9,-4.5 v9 Z')+head('M250,124 l-4.5,9 h9 Z')
+        +`<circle cx="420" cy="110" r="3.5" fill="${ink}"/></svg>`); },
+      caption:'An adder, a gain and a unit delay $D$, which outputs its input one sample late.'}
+  ], right:[
+    {t:'eq', tex:'y[n]=\\underbrace{b\\,x[n]}_{\\text{forward path}}+\\underbrace{a\\,y[n-1]}_{\\text{feedback}}', label:'Read the diagram',
+      note:'The adder output is $y[n]$. The delay holds it for one sample, and the gain $a$ sends it back to the adder.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Three blocks are enough', html:'Every linear constant-coefficient difference equation can be drawn with adders, gains and unit delays. The diagram is also a program: one pass of the loop per sample.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'In continuous time', html:'An integrator takes the place of the delay. For $y^{\\prime}(t)=b\\,x(t)-a\\,y(t)$, the integrator input is $b\\,x-a\\,y$ and its output is $y$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'In the diagram, $b=1$ and $a=1$.<div class="nsep"></div>What does the system compute?',
+        ask:{key:'m3-blockdiag', choices:['a running sum','a one-sample delay','a gain of 2'], answer:0,
+          why:'$y[n]=y[n-1]+x[n]$ adds each new input to the total so far, so $h[n]=u[n]$.'}}]}
+  ]}
+]},
+
+{ id:'m3-diffeq-ct', module:'M3', nav:'Differential equations', title:'A First-Order Differential Equation', src:'—',
+  objective:'Find the impulse and step responses of a first-order differential equation at rest, and check them by substitution.',
+  keywords:'differential equation first order initial rest impulse response exponential step response check substitution RC', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 3 · Difference and differential equations', src:'—'},
+  {t:'title', text:'A First-Order Differential Equation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-0.5,3.2],yr:[-0.08,1.18],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:8,ytarget:3});
+      a.hline(0.5,{color:C.coral,dash:'4 4'});
+      a.curve(t=>t>=0?Math.exp(-2*t):0,{color:C.h,n:1200});
+      a.curve(t=>t>=0?0.5*(1-Math.exp(-2*t)):0,{color:C.out,n:1200});
+      return a.svg(); },
+      caption:'The impulse response jumps to 1 and decays. The step response rises from 0 and settles at $\\tfrac12$.'},
+    {t:'legend', items:[['h','$h(t)=e^{-2t}u(t)$'],['out','$s(t)$']]}
+  ], right:[
+    {t:'eq', tex:'\\frac{\\d y(t)}{\\d t}+2\\,y(t)=x(t)', label:'Differential equation · at rest',
+      note:'Initial rest: if $x(t)=0$ for $t<t_0$, then $y(t)=0$ for $t<t_0$. As in discrete time, this makes the system causal and LTI.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}h(t)&=e^{-2t}u(t)\\\\\\frac{\\d h}{\\d t}&=-2e^{-2t}u(t)+e^{-2t}\\delta(t)\\\\&=-2\\,h(t)+\\delta(t)\\end{aligned}', label:'Check · $x=\\delta$',
+        note:'Product rule, then the sampling property $e^{-2t}\\delta(t)=\\delta(t)$. So $h^{\\prime}+2h=\\delta$, with $h=0$ for $t<0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'s(t)=\\int_{0}^{t}e^{-2\\tau}\\,\\d\\tau=\\Bigl[-\\tfrac12e^{-2\\tau}\\Bigr]_{0}^{t}=\\tfrac12\\bigl(1-e^{-2t}\\bigr),\\quad t>0', label:'Step response',
+        note:'Integrate $h$. Module 5 finds this system again from its frequency response.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y^{\\prime}(t)+5\\,y(t)=x(t)$, at rest.<div class="nsep"></div>What is $h(t)$?',
+        ask:{key:'m3-diffeq-ct', choices:['$e^{-5t}u(t)$','$e^{5t}u(t)$','$5\\,e^{-t}u(t)$'], answer:0,
+          why:'The same check with 2 replaced by 5 gives $h^{\\prime}+5h=\\delta$.'}}]}
+  ]}
+]},
+
+REAL_DIFFEQ,
+
+{ id:'m3-lab-t', module:'M3', nav:'Laboratory {lab} · Recursion', title:'Laboratory {lab} — A Difference Equation, Step by Step', src:'—',
+  objective:'Run a first-order recursion from rest, compare it with convolution by h, and see where it becomes unstable.',
+  slide:true, keywords:'laboratory difference equation recursion initial rest feedback gain convolution stable unstable', steps:0, blocks:[
+  {t:'eyebrow', text:'Interactive laboratory', src:'—'},
+  {t:'title', text:'Laboratory {lab} · Recursion'},
+  {t:'lab', id:'T'}
+]},
+
+{ id:'m3-code-diffeq', module:'M3', nav:'Code · Difference equations', title:'Difference Equations in Code', src:'—',
+  objective:'Run a difference equation as a loop, compare it with convolution, and approximate a differential equation by small steps, in MATLAB and in Python.',
+  keywords:'code matlab python recursion loop impulse response step response convolution euler differential equation run',
+  slide:true, steps:0, budget:'a code page: the program draws its own figure', blocks:[
+  {t:'eyebrow', text:'Module 3 · Difference equations in code', src:'—'},
+  {t:'title', text:'Difference Equations in Code'},
+  {t:'raw', html:()=>CODEBANK.page('m3-code-diffeq')}
+]},
+
+/* ================================================================ 3.6 summary */
 
 { id:'m3-quick', module:'M3', nav:'Quick check', title:'Quick check', src:'pp. 14–21',
   objective:'Check the module ideas with twelve short predictions.',
@@ -1025,7 +1277,11 @@ REAL_PROPS,
     {q:'Memoryless and causal', glyph:G.caus,
      a:'<b>Memoryless</b> if and only if $h=a\\,\\delta$. <b>Causal</b> if and only if $h=0$ for negative time.'},
     {q:'BIBO stable', glyph:G.stab,
-     a:'<b>BIBO stable</b> if and only if $\\sum_k|h[k]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.'}
+     a:'<b>BIBO stable</b> if and only if $\\sum_k|h[k]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.'},
+    {q:'What is the step response?', glyph:G.step,
+     a:'$s=h*u$, the running sum or running integral of $h$. Back to $h$: $h[n]=s[n]-s[n-1]$ and $h(t)=s^{\\prime}(t)$.'},
+    {q:'When does a difference equation give an LTI system?', glyph:G.recur,
+     a:'<b>At initial rest.</b> Then it is causal and LTI, and $y[n]=a\\,y[n-1]+x[n]$ has $h[n]=a^{n}u[n]$.'}
   ], {cols:2})},
   {t:'reveal', at:1, items:[
     {t:'note', kind:'ok', head:'Where Module 4 begins', html:'<span style="color:var(--graphite)">Put $x(t)=e^{j\\omega t}$ into the convolution integral: $y(t)=e^{j\\omega t}\\int h(\\tau)\\,e^{-j\\omega\\tau}\\,\\d\\tau$. The output is the input times one number, so a complex exponential passes through an LTI system unchanged in form.</span>'}]}

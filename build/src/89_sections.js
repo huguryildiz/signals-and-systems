@@ -125,8 +125,11 @@ CONTENT.SECTIONS = {
         'm3-convint','m3-convint-b','m3-ex-ct1','m3-ex-ct1-b','m3-ex-ct2','m3-ex-ct2-b','m3-ex-ct2-c',
         'm3-real-convint','m3-lab-n','m3-code-convint'] },
     { n:'3.4', title:'Properties of convolution',                        ids:[
-        'm3-props','m3-props-b','m3-lti-props','m3-lti-stable','m3-lti-stable-b','m3-real-props','m3-lab-o','m3-code-props'] },
-    { n:'3.5', title:'Summary',                                          ids:['m3-quick','m3-synth','m3-projects'] }
+        'm3-props','m3-props-b','m3-lti-props','m3-lti-stable','m3-lti-stable-b','m3-step','m3-singular',
+        'm3-real-props','m3-lab-o','m3-code-props'] },
+    { n:'3.5', title:'Difference and differential equations',            ids:[
+        'm3-diffeq','m3-fir-iir','m3-blockdiag','m3-diffeq-ct','m3-real-diffeq','m3-lab-t','m3-code-diffeq'] },
+    { n:'3.6', title:'Summary',                                          ids:['m3-quick','m3-synth','m3-projects'] }
   ],
 
   M4: [
@@ -261,6 +264,9 @@ CONTENT.BOOK = {
   'm3-lab-n':'2.2.2', 'm3-code-convint':'2.2.2',
   'm3-props':'2.3', 'm3-props-b':'2.3', 'm3-lti-props':'2.3', 'm3-lti-stable':'2.3', 'm3-lti-stable-b':'2.3',
   'm3-real-props':'2.3', 'm3-lab-o':'2.3', 'm3-code-props':'2.3',
+  'm3-step':'2.3.8', 'm3-singular':'2.5',
+  'm3-diffeq':'2.4.2', 'm3-fir-iir':'2.4.2', 'm3-blockdiag':'2.4.3', 'm3-diffeq-ct':'2.4.1',
+  'm3-real-diffeq':'2.4', 'm3-lab-t':'2.4.2', 'm3-code-diffeq':'2.4',
   'm3-quick':'2.6', 'm3-synth':'2.6', 'm3-projects':'2.6',
 
   'm4-eigen-ct':'3.2', 'm4-eigen-dt':'3.2', 'm4-eigen-why':'3.2', 'm4-eigen-ex':'3.2',

@@ -14,7 +14,8 @@ const CODE_BANKS_M3 = {
   'm3-code-impulse': ['imp-measure', 'imp-predict', 'imp-represent', 'imp-not-lti'],
   'm3-code-convsum': ['conv-finite', 'conv-loop', 'conv-geometric', 'conv-correlation'],
   'm3-code-convint': ['int-rect-ramp', 'int-exp-step', 'int-area', 'int-step'],
-  'm3-code-props':   ['prop-commute', 'prop-parallel', 'prop-cascade', 'prop-stable']
+  'm3-code-props':   ['prop-commute', 'prop-parallel', 'prop-cascade', 'prop-stable', 'prop-step'],
+  'm3-code-diffeq':  ['de-recursion', 'de-step', 'de-euler']
 };
 
 const CODE_M3 = {
@@ -642,6 +643,158 @@ n = np.arange(21)
 plt.stem(n, 0.7**n)
 plt.xlabel(r'$n$')
 plt.ylabel(r'$h[n]$')
+plt.grid(True)
+plt.show()`},
+
+'prop-step': {
+  title:'The step response is a running sum',
+  what:'Builds the step response of $h[n]=0.8^n u[n]$ as a running sum of $h$, then takes its first difference to get $h$ back.',
+  try:'Predict $s[29]$ from $\\sum_n h[n]=1/(1-0.8)$ before you run it.',
+  out:'s[0..4] = 1.0000 1.8000 2.4400 2.9520 3.3616\ns[29] = 4.9938, and the sum of h is 1/(1-0.8) = 5.0000\ns[n]-s[n-1] at n = 1..4: 0.8000 0.6400 0.5120 0.4096',
+  m:`% step response of h[n] = 0.8^n u[n] as a running sum of h
+n = 0:29;
+h = 0.8.^n;
+s = cumsum(h);               % s[n] = h[0] + h[1] + ... + h[n]
+fprintf('s[0..4] ='), fprintf(' %.4f', s(1:5)), fprintf('\\n')
+fprintf('s[29] = %.4f, and the sum of h is 1/(1-0.8) = %.4f\\n', s(end), 1/(1-0.8))
+d = diff(s);                 % first difference: s[n] - s[n-1]
+fprintf('s[n]-s[n-1] at n = 1..4:'), fprintf(' %.4f', d(1:4)), fprintf('\\n')
+
+stem(n, s, 'filled'), grid on
+xlabel('n'), ylabel('s[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# step response of h[n] = 0.8^n u[n] as a running sum of h
+n = np.arange(30)
+h = 0.8**n
+s = np.cumsum(h)             # s[n] = h[0] + h[1] + ... + h[n]
+print('s[0..4] =' + ''.join(f' {v:.4f}' for v in s[:5]))
+print(f's[29] = {s[-1]:.4f}, and the sum of h is 1/(1-0.8) = {1/(1-0.8):.4f}')
+d = np.diff(s)               # first difference: s[n] - s[n-1]
+print('s[n]-s[n-1] at n = 1..4:' + ''.join(f' {v:.4f}' for v in d[:4]))
+
+plt.stem(n, s)
+plt.xlabel(r'$n$')
+plt.ylabel(r'$s[n]$')
+plt.grid(True)
+plt.show()`},
+
+'de-recursion': {
+  title:'The impulse response by recursion',
+  what:'Runs $y[n]=0.5\\,y[n-1]+x[n]$ from rest with $x[n]=\\delta[n]$ and prints the first six samples beside $0.5^n$.',
+  try:'Change the gain 0.5 to $-0.5$. Predict the sign of $h[3]$ before you run it.',
+  out:'h[0..5] = 1.00000 0.50000 0.25000 0.12500 0.06250 0.03125\n0.5^n    = 1.00000 0.50000 0.25000 0.12500 0.06250 0.03125',
+  m:`% y[n] = 0.5 y[n-1] + x[n], at rest, with x[n] = delta[n]
+N = 10;
+x = [1 zeros(1, N-1)];       % delta[n] on n = 0..N-1
+y = zeros(1, N);
+prev = 0;                    % initial rest: y[-1] = 0
+for k = 1:N
+    y(k) = 0.5*prev + x(k);
+    prev = y(k);
+end
+fprintf('h[0..5] ='), fprintf(' %.5f', y(1:6)), fprintf('\\n')
+fprintf('0.5^n    ='), fprintf(' %.5f', 0.5.^(0:5)), fprintf('\\n')
+
+stem(0:N-1, y, 'filled'), grid on
+xlabel('n'), ylabel('h[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# y[n] = 0.5 y[n-1] + x[n], at rest, with x[n] = delta[n]
+N = 10
+x = np.r_[1.0, np.zeros(N-1)]    # delta[n] on n = 0..N-1
+y = np.zeros(N)
+prev = 0.0                       # initial rest: y[-1] = 0
+for k in range(N):
+    y[k] = 0.5*prev + x[k]
+    prev = y[k]
+print('h[0..5] =' + ''.join(f' {v:.5f}' for v in y[:6]))
+print('0.5^n    =' + ''.join(f' {v:.5f}' for v in 0.5**np.arange(6)))
+
+plt.stem(np.arange(N), y)
+plt.xlabel(r'$n$')
+plt.ylabel(r'$h[n]$')
+plt.grid(True)
+plt.show()`},
+
+'de-step': {
+  title:'The step response two ways',
+  what:'Finds the response of $y[n]=0.5\\,y[n-1]+x[n]$ to $u[n]$ by the recursion and by the convolution $u*h$, and prints both.',
+  try:'Predict the level the output settles at from $\\sum_n h[n]$ before you run it.',
+  out:'recursion   y[0..3] = 1.0000 1.5000 1.7500 1.8750\nconvolution y[0..3] = 1.0000 1.5000 1.7500 1.8750\ny[19] = 2.0000, and the limit is 1/(1-0.5) = 2.0000',
+  m:`% response of y[n] = 0.5 y[n-1] + x[n] to x[n] = u[n], two ways
+N = 20; n = 0:N-1;
+x = ones(1, N);              % u[n] on n = 0..N-1
+y = zeros(1, N); prev = 0;   % initial rest
+for k = 1:N
+    y(k) = 0.5*prev + x(k); prev = y(k);
+end
+h  = 0.5.^n;                 % the impulse response
+yc = conv(x, h); yc = yc(1:N);
+fprintf('recursion   y[0..3] ='), fprintf(' %.4f', y(1:4)), fprintf('\\n')
+fprintf('convolution y[0..3] ='), fprintf(' %.4f', yc(1:4)), fprintf('\\n')
+fprintf('y[19] = %.4f, and the limit is 1/(1-0.5) = %.4f\\n', y(N), 1/(1-0.5))
+
+stem(n, y, 'filled'), grid on
+xlabel('n'), ylabel('y[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# response of y[n] = 0.5 y[n-1] + x[n] to x[n] = u[n], two ways
+N = 20; n = np.arange(N)
+x = np.ones(N)               # u[n] on n = 0..N-1
+y = np.zeros(N); prev = 0.0  # initial rest
+for k in range(N):
+    y[k] = 0.5*prev + x[k]; prev = y[k]
+h = 0.5**n                   # the impulse response
+yc = np.convolve(x, h)[:N]
+print('recursion   y[0..3] =' + ''.join(f' {v:.4f}' for v in y[:4]))
+print('convolution y[0..3] =' + ''.join(f' {v:.4f}' for v in yc[:4]))
+print(f'y[19] = {y[N-1]:.4f}, and the limit is 1/(1-0.5) = {1/(1-0.5):.4f}')
+
+plt.stem(n, y)
+plt.xlabel(r'$n$')
+plt.ylabel(r'$y[n]$')
+plt.grid(True)
+plt.show()`},
+
+'de-euler': {
+  title:'A differential equation, one small step at a time',
+  what:'Replaces the integrator of $\\frac{\\d y}{\\d t}+2y=x$ by small steps of length $T$, runs it with $x=u(t)$, and compares $y(1)$ with $s(1)=\\tfrac12\\bigl(1-e^{-2}\\bigr)$.',
+  try:'Predict how far $y(1)$ moves from $s(1)$ each time $T$ is divided by 10, then run it.',
+  out:'T = 0.100   y(1) = 0.4463\nT = 0.010   y(1) = 0.4337\nT = 0.001   y(1) = 0.4325\nexact       s(1) = 0.4323',
+  m:`% dy/dt + 2 y = x with x = u(t), at rest, as a difference equation:
+% y(t+T) = y(t) + T*(x(t) - 2*y(t)), the integrator one step at a time
+for T = [0.1 0.01 0.001]
+    y = 0;                   % initial rest: y(0) = 0
+    for k = 1:round(1/T)
+        y = y + T*(1 - 2*y); % x(t) = 1 for t >= 0
+    end
+    fprintf('T = %5.3f   y(1) = %.4f\\n', T, y)
+end
+fprintf('exact       s(1) = %.4f\\n', 0.5*(1 - exp(-2)))
+
+t = 0:0.01:3;
+plot(t, 0.5*(1 - exp(-2*t))), grid on
+xlabel('t'), ylabel('s(t)')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# dy/dt + 2 y = x with x = u(t), at rest, as a difference equation:
+# y(t+T) = y(t) + T*(x(t) - 2*y(t)), the integrator one step at a time
+for T in [0.1, 0.01, 0.001]:
+    y = 0.0                  # initial rest: y(0) = 0
+    for k in range(round(1/T)):
+        y = y + T*(1 - 2*y)  # x(t) = 1 for t >= 0
+    print(f'T = {T:5.3f}   y(1) = {y:.4f}')
+print(f'exact       s(1) = {0.5*(1 - np.exp(-2)):.4f}')
+
+t = np.arange(0, 3.001, 0.01)
+plt.plot(t, 0.5*(1 - np.exp(-2*t)))
+plt.xlabel(r'$t$')
+plt.ylabel(r'$s(t)$')
 plt.grid(True)
 plt.show()`}
 };
