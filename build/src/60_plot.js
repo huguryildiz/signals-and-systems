@@ -135,7 +135,7 @@ const PLOT = (() => {
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft}
      xlabel and ylabel are TeX source — see texName above.
      ====================================================================== */
   function Axes(opt){
@@ -399,9 +399,15 @@ const PLOT = (() => {
         const tl=[];
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
+          /* a number at the very left would sit on the rule of yticksLeft */
+          if(o.yticksLeft && xz!=null && sx(v)-x0 < 16) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
           tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
-        const xBase = xz!=null? xz : x0;
+        /* A spectrum drawn about k = 0 peaks on its own zero axis, where the
+           tick numbers would sit on the trace. yticksLeft sets them against the
+           left edge of the data area instead, on a rule of their own. */
+        if(o.yticksLeft && xz!=null) g.push(`<line x1="${x0}" y1="${y1}" x2="${x0}" y2="${y0}" stroke="${CH.axis}" stroke-width="1"/>`);
+        const xBase = (xz!=null && !o.yticksLeft)? xz : x0;
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
