@@ -241,8 +241,8 @@ CONTENT.SECTIONS = {
     { n:'7.2', title:'Aliasing and the sampling theorem', ids:[
         'm7-aliasing','m7-aliasing-b','m7-theorem','m7-theorem-b','m7-boundary',
         'm7-boundary-b','m7-ex-rates','m7-ex-rates-b','m7-ex-73a','m7-ex-73a-b',
-        'm7-ex-73b','m7-ex-73b-b','m7-ex-73c','m7-ex-73c-b','m7-real-nyquist',
-        'm7-lab-j2','m7-code-nyquist'] },
+        'm7-ex-73b','m7-ex-73b-b','m7-ex-73c','m7-ex-73c-b','m7-bandpass',
+        'm7-real-nyquist','m7-lab-j2','m7-code-nyquist'] },
     /* </m7-s2-sec> */
     /* <m7-s3-sec> */
     { n:'7.3', title:'Reconstruction', ids:[
@@ -252,13 +252,22 @@ CONTENT.SECTIONS = {
     /* </m7-s3-sec> */
     /* <m7-s4-sec> */
     { n:'7.4', title:'Aliasing in practice', ids:[
-        'm7-alias-cos','m7-alias-cos-b','m7-ex-alias','m7-ex-alias-b','m7-hw-alias',
-        'm7-hw-alias-b','m7-antialias','m7-antialias-b','m7-temporal','m7-temporal-b',
-        'm7-spatial','m7-spatial-b','m7-real-alias','m7-lab-j4','m7-code-alias'] },
+        'm7-alias-cos','m7-alias-cos-b','m7-chirp','m7-ex-alias','m7-ex-alias-b',
+        'm7-hw-alias','m7-hw-alias-b','m7-antialias','m7-antialias-b','m7-aa-band',
+        'm7-aa-band-b','m7-temporal','m7-temporal-b','m7-spatial','m7-spatial-b','m7-real-alias',
+        'm7-lab-j4','m7-code-alias'] },
     /* </m7-s4-sec> */
     /* <m7-s5-sec> */
+    { n:'7.5', title:'Discrete-time processing', ids:[
+        'm7-dtproc','m7-dtproc-map','m7-dtproc-map-b','m7-dtproc-eq','m7-dtproc-eq-b','m7-diff','m7-diff-b',
+        'm7-halfdelay','m7-halfdelay-b','m7-quant','m7-quant-b',
+        'm7-real-dtproc','m7-lab-j5','m7-code-dtproc'] },
     /* </m7-s5-sec> */
     /* <m7-s6-sec> */
+    { n:'7.6', title:'Decimation and interpolation', ids:[
+        'm7-dtsamp','m7-dtsamp-b','m7-dtsamp-c','m7-dtsamp-rec','m7-decim','m7-decim-b',
+        'm7-decim-c','m7-upsamp','m7-upsamp-b','m7-rational','m7-real-rate','m7-lab-j6',
+        'm7-code-rate'] },
     /* </m7-s6-sec> */
     /* <m7-s7-sec> */
     { n:'7.7', title:'Summary', ids:[
@@ -439,8 +448,15 @@ CONTENT.BOOK = {
   'm7-real-alias':'7.3', 'm7-lab-j4':'7.3', 'm7-code-alias':'7.3',
   /* </m7-s4-book> */
   /* <m7-s5-book> */
+  'm7-dtproc':'7.4', 'm7-dtproc-map':'7.4', 'm7-dtproc-map-b':'7.4', 'm7-dtproc-eq':'7.4', 'm7-dtproc-eq-b':'7.4',
+  'm7-diff':'7.4.1', 'm7-diff-b':'7.4.1', 'm7-halfdelay':'7.4.2', 'm7-halfdelay-b':'7.4.2',
+  'm7-real-dtproc':'7.4', 'm7-lab-j5':'7.4', 'm7-code-dtproc':'7.4',
   /* </m7-s5-book> */
   /* <m7-s6-book> */
+  'm7-dtsamp':'7.5.1', 'm7-dtsamp-b':'7.5.1', 'm7-dtsamp-c':'7.5.1', 'm7-dtsamp-rec':'7.5.1',
+  'm7-decim':'7.5.2', 'm7-decim-b':'7.5.2', 'm7-decim-c':'7.5.2', 'm7-upsamp':'7.5.2',
+  'm7-upsamp-b':'7.5.2', 'm7-rational':'7.5.2', 'm7-real-rate':'7.5.2', 'm7-lab-j6':'7.5.2',
+  'm7-code-rate':'7.5',
   /* </m7-s6-book> */
   /* <m7-s7-book> */
   'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',

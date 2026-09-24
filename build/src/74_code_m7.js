@@ -16,7 +16,7 @@ const CODE_BANKS_M7 = {
   /* </m7-s1-bank> */
 
   /* <m7-s2-bank> */
-  'm7-code-nyquist':   ['m7s2-rates', 'm7s2-boundary', 'm7s2-period', 'm7s2-peak'],
+  'm7-code-nyquist':   ['m7s2-rates', 'm7s2-boundary', 'm7s2-period', 'm7s2-peak', 'm7s2-bandpass'],
   /* </m7-s2-bank> */
 
   /* <m7-s3-bank> */
@@ -28,9 +28,11 @@ const CODE_BANKS_M7 = {
   /* </m7-s4-bank> */
 
   /* <m7-s5-bank> */
+  'm7-code-dtproc':   ['m7s5-map', 'm7s5-lowpass', 'm7s5-diff', 'm7s5-delay', 'm7s5-quant'],
   /* </m7-s5-bank> */
 
   /* <m7-s6-bank> */
+  'm7-code-rate':     ['m7s6-sample', 'm7s6-decim', 'm7s6-interp', 'm7s6-ratio'],
   /* </m7-s6-bank> */
 };
 
@@ -356,6 +358,46 @@ X = np.convolve(R, R)*dw/(2*np.pi)        # the triangle
 wx = 2*w[0] + dw*np.arange(X.size)
 plt.plot(wx/np.pi, X); plt.grid(True)
 plt.xlabel(r'$\\omega/\\pi$ (rad/s)'); plt.ylabel(r'$X(j\\omega)$')
+plt.show()`},
+
+'m7s2-bandpass': {
+  title:'Band-pass sampling: which rates fit',
+  what:'Takes the band $8\\pi<|\\omega|<10\\pi$ rad/s, of width $B=2\\pi$, and tests six sampling rates. For each it prints whether the copies of the band stay apart, touch or overlap. It then draws where the copies land at $\\omega_s=7\\pi$ rad/s.',
+  try:'Add the rate $8.5\\pi$ rad/s, which lies between two working rates. Predict its verdict before you run it.',
+  out:'w_s =  4.0 pi: copies touching\nw_s =  7.0 pi: copies apart\nw_s =  9.0 pi: copies overlapping\nw_s = 12.0 pi: copies apart\nw_s = 17.0 pi: copies overlapping\nw_s = 22.0 pi: copies apart',
+  m:`% the band 8 pi < |w| < 10 pi, width B = 2 pi: where do its copies land?
+wL = 8*pi;  wH = 10*pi;  B = wH - wL;
+v = {'overlapping', 'touching', 'apart'};
+for ws = [4 7 9 12 17 22]*pi
+    d = mod(mod(-wH, ws) - mod(wL, ws), ws);   % start to start, modulo w_s
+    g = min(d, ws - d) - B;                    % room left between the copies
+    fprintf('w_s = %4.1f pi: copies %s\\n', ws/pi, v{2 + (g > 1e-9) - (g < -1e-9)})
+end
+
+w = linspace(-12*pi, 12*pi, 4801);  ws = 7*pi;  X = zeros(size(w));
+for k = -4:4
+    X = X + (abs(w - k*ws) > wL & abs(w - k*ws) < wH);   % copy k, both halves
+end
+plot(w/pi, X), grid on
+xticks(-12:4:12), xticklabels({'-12\\pi','-8\\pi','-4\\pi','0','4\\pi','8\\pi','12\\pi'})
+xlabel('\\omega (rad/s)'), ylabel('T X_p(j\\omega)')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# the band 8 pi < |w| < 10 pi, width B = 2 pi: where do its copies land?
+wL, wH = 8*np.pi, 10*np.pi
+B = wH - wL
+v = ['overlapping', 'touching', 'apart']
+for ws in np.array([4, 7, 9, 12, 17, 22])*np.pi:
+    d = ((-wH) % ws - wL % ws) % ws       # start to start, modulo w_s
+    g = min(d, ws - d) - B                # room left between the copies
+    print(f'w_s = {ws/np.pi:4.1f} pi: copies {v[1 + (g > 1e-9) - (g < -1e-9)]}')
+
+w = np.linspace(-12*np.pi, 12*np.pi, 4801); ws = 7*np.pi
+X = sum((np.abs(w - k*ws) > wL) & (np.abs(w - k*ws) < wH) for k in range(-4, 5))
+plt.plot(w/np.pi, X)
+plt.xticks(range(-12, 13, 4), [r'$%d\\pi$' % k if k else '0' for k in range(-12, 13, 4)])
+plt.xlabel(r'$\\omega$ (rad/s)'); plt.ylabel(r'$T X_p(j\\omega)$'); plt.grid(True)
 plt.show()`},
 /* </m7-s2-code> */
 
@@ -718,9 +760,343 @@ plt.show()`},
 /* </m7-s4-code> */
 
 /* <m7-s5-code> */
+'m7s5-map': {
+  title:'The band edge on the $\\Omega$ axis',
+  what:'Takes a signal whose spectrum ends at $\\omega_M=2\\pi$ rad/s, maps the band edge to $\\Omega_M=\\omega_M T$ for four sampling periods, and says when the copies of $X_d(e^{j\\Omega})$ overlap. The plot draws $T\\,X_d(e^{j\\Omega})$ over three periods for $T=0.25$ s.',
+  try:'Add $T=0.6$ s to the list. Predict $\\Omega_M$ and whether the copies overlap before you run it.',
+  out:'T = 0.10 s: Omega_M = 0.20 pi, overlap: no\nT = 0.25 s: Omega_M = 0.50 pi, overlap: no\nT = 0.50 s: Omega_M = 1.00 pi, overlap: no\nT = 0.70 s: Omega_M = 1.40 pi, overlap: yes',
+  m:`% x_c(t) with a triangle spectrum that ends at wM = 2 pi rad/s
+wM = 2*pi;  s = {'no', 'yes'};
+for T = [0.1 0.25 0.5 0.7]
+    OM = wM*T;                       % the band edge on the Omega axis
+    fprintf('T = %.2f s: Omega_M = %.2f pi, overlap: %s\\n', T, OM/pi, s{1 + (OM > pi)})
+end
+
+T = 0.25;  W = linspace(-3*pi, 3*pi, 2001);  Xd = 0*W;
+for k = -2:2                         % one copy every 2 pi
+    Xd = Xd + max(0, 1 - abs(W - 2*pi*k)/(wM*T));
+end
+plot(W, Xd), grid on
+xticks(-3*pi:pi:3*pi), xticklabels({'-3π','-2π','-π','0','π','2π','3π'})
+xlabel('Ω (rad/sample)'), ylabel('T X_d(e^{jΩ})')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# x_c(t) with a triangle spectrum that ends at wM = 2 pi rad/s
+wM = 2*np.pi
+for T in [0.1, 0.25, 0.5, 0.7]:
+    OM = wM*T                        # the band edge on the Omega axis
+    s = ['no', 'yes'][int(OM > np.pi)]
+    print(f'T = {T:.2f} s: Omega_M = {OM/np.pi:.2f} pi, overlap: {s}')
+
+T = 0.25; W = np.linspace(-3*np.pi, 3*np.pi, 2001)
+Xd = sum(np.maximum(0, 1 - np.abs(W - 2*np.pi*k)/(wM*T)) for k in range(-2, 3))
+plt.plot(W, Xd); plt.grid(True)
+plt.xticks(np.arange(-3, 4)*np.pi,
+           [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
+plt.xlabel(r'$\\Omega$ (rad/sample)'); plt.ylabel(r'$T\\,X_d(e^{j\\Omega})$')
+plt.show()`},
+
+'m7s5-lowpass': {
+  title:'A digital low-pass run at 8 kHz',
+  what:'Runs an ideal low-pass with $\\Omega_c=\\pi/4$ at $f_s=8$ kHz, prints the equivalent cutoff $\\omega_c=\\Omega_c/T$ and $f_c=(\\Omega_c/2\\pi)f_s$, and filters a $500$ Hz plus $2$ kHz input through the DFT.',
+  try:'Change $f_s$ to $16000$. Predict the new $f_c$, and whether the $2$ kHz tone now passes, before you run it.',
+  out:'equivalent cutoff = 2000 pi rad/s = 1000 Hz\ny_d[n] is the 500 Hz tone: yes',
+  m:`% an ideal digital low-pass, Omega_c = pi/4, run at fs = 8 kHz
+fs = 8000;  T = 1/fs;  Wc = pi/4;
+fprintf('equivalent cutoff = %.0f pi rad/s = %.0f Hz\\n', Wc/T/pi, Wc/(2*pi)*fs)
+N = 800;  n = 0:N-1;
+x = cos(2*pi*500*n*T) + cos(2*pi*2000*n*T);    % 500 Hz and 2 kHz
+W = 2*pi*n/N;  W(W >= pi) = W(W >= pi) - 2*pi; % DFT bins on [-pi, pi)
+y = real(ifft(fft(x) .* (abs(W) < Wc)));       % H_d = 1 for |Omega| < Omega_c
+s = {'no', 'yes'};
+fprintf('y_d[n] is the 500 Hz tone: %s\\n', s{1 + (max(abs(y - cos(2*pi*500*n*T))) < 1e-9)})
+
+m = 1:40;
+plot(n(m)*T*1e3, x(m), 'o--', n(m)*T*1e3, y(m), 's-')
+grid on, xlabel('t (ms)'), ylabel('x_d[n], y_d[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# an ideal digital low-pass, Omega_c = pi/4, run at fs = 8 kHz
+fs = 8000; T = 1/fs; Wc = np.pi/4
+print(f'equivalent cutoff = {Wc/T/np.pi:.0f} pi rad/s = {Wc/(2*np.pi)*fs:.0f} Hz')
+N = 800; n = np.arange(N)
+x = np.cos(2*np.pi*500*n*T) + np.cos(2*np.pi*2000*n*T)    # 500 Hz and 2 kHz
+W = 2*np.pi*n/N; W[W >= np.pi] -= 2*np.pi                 # DFT bins on [-pi, pi)
+y = np.real(np.fft.ifft(np.fft.fft(x)*(np.abs(W) < Wc)))  # H_d = 1 for |Omega| < Omega_c
+ok = np.max(np.abs(y - np.cos(2*np.pi*500*n*T))) < 1e-9
+print('y_d[n] is the 500 Hz tone:', ['no', 'yes'][int(ok)])
+
+t = n[:40]*T*1e3
+plt.plot(t, x[:40], 'o--', t, y[:40], 's-')
+plt.xlabel(r'$t$ (ms)'); plt.ylabel(r'$x_d[n],\\ y_d[n]$'); plt.grid(True)
+plt.show()`},
+
+'m7s5-diff': {
+  title:'A differentiator made of numbers',
+  what:'Applies $H_d(e^{j\\Omega})=j\\Omega/T$ on $|\\Omega|<\\pi$ to the samples of a $100$ Hz sine at $f_s=1$ kHz, prints the amplitude of the slope, and checks it against $dx_c/dt$ at $t=nT$.',
+  try:'Change the tone to $200$ Hz. Predict the slope amplitude in 1/s before you run it.',
+  out:'slope amplitude = 628.3 per s = 0.628 per ms\ny_d[n] = dx_c/dt at t = nT: yes',
+  m:`% the band-limited differentiator H_d = j Omega/T on |Omega| < pi
+fs = 1000;  T = 1/fs;  N = 100;  n = 0:N-1;
+x = sin(2*pi*100*n*T);                          % a 100 Hz tone
+W = 2*pi*n/N;  W(W >= pi) = W(W >= pi) - 2*pi; % DFT bins on [-pi, pi)
+y = real(ifft(fft(x) .* (1j*W/T)));
+a = max(abs(y));
+fprintf('slope amplitude = %.1f per s = %.3f per ms\\n', a, a/1000)
+s = {'no', 'yes'};
+d = 2*pi*100*cos(2*pi*100*n*T);                 % dx_c/dt at t = nT
+fprintf('y_d[n] = dx_c/dt at t = nT: %s\\n', s{1 + (max(abs(y - d)) < 1e-6)})
+
+plot(n*T*1e3, x, 'o--', n*T*1e3, y/a, 's-')
+grid on, xlabel('t (ms)'), ylabel('x_d[n], y_d[n]/628.3')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# the band-limited differentiator H_d = j Omega/T on |Omega| < pi
+fs = 1000; T = 1/fs; N = 100; n = np.arange(N)
+x = np.sin(2*np.pi*100*n*T)                     # a 100 Hz tone
+W = 2*np.pi*n/N; W[W >= np.pi] -= 2*np.pi       # DFT bins on [-pi, pi)
+y = np.real(np.fft.ifft(np.fft.fft(x)*(1j*W/T)))
+a = np.max(np.abs(y))
+print(f'slope amplitude = {a:.1f} per s = {a/1000:.3f} per ms')
+d = 2*np.pi*100*np.cos(2*np.pi*100*n*T)         # dx_c/dt at t = nT
+print('y_d[n] = dx_c/dt at t = nT:', ['no', 'yes'][int(np.max(np.abs(y - d)) < 1e-6)])
+
+plt.plot(n*T*1e3, x, 'o--', n*T*1e3, y/a, 's-')
+plt.xlabel(r'$t$ (ms)'); plt.ylabel(r'$x_d[n],\\ y_d[n]/628.3$'); plt.grid(True)
+plt.show()`},
+
+'m7s5-delay': {
+  title:'Half a sample of delay',
+  what:'Applies $H_d(e^{j\\Omega})=e^{-j\\Omega/2}$ to the samples of $\\cos(2\\pi\\cdot 250\\,t)$ at $T=1$ ms, and checks that the new samples are $x_c\\big((n-\\tfrac12)T\\big)$, values that fall between the old ones.',
+  try:'Change the delay to $e^{-j\\Omega/4}$. Predict $y_d[0]$ before you run it.',
+  out:'y_d[0] = 0.707\ny_d[n] = x_c((n - 1/2)T): yes',
+  m:`% the half-sample delay H_d = exp(-j Omega/2) on |Omega| < pi
+T = 1e-3;  N = 40;  n = 0:N-1;
+x = cos(2*pi*250*n*T);                          % samples of a 250 Hz tone
+W = 2*pi*n/N;  W(W >= pi) = W(W >= pi) - 2*pi; % DFT bins on [-pi, pi)
+y = real(ifft(fft(x) .* exp(-1j*W/2)));
+fprintf('y_d[0] = %.3f\\n', y(1))
+s = {'no', 'yes'};
+xh = cos(2*pi*250*(n - 0.5)*T);                 % x_c at the midpoints
+fprintf('y_d[n] = x_c((n - 1/2)T): %s\\n', s{1 + (max(abs(y - xh)) < 1e-9)})
+
+t = linspace(0, 12e-3, 1201);  m = 1:13;
+plot(t*1e3, cos(2*pi*250*t), '--', n(m), x(m), 'o', n(m) - 0.5, y(m), 's')
+grid on, xlabel('t (ms)'), ylabel('x_c(t), x_d[n], y_d[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# the half-sample delay H_d = exp(-j Omega/2) on |Omega| < pi
+T = 1e-3; N = 40; n = np.arange(N)
+x = np.cos(2*np.pi*250*n*T)                     # samples of a 250 Hz tone
+W = 2*np.pi*n/N; W[W >= np.pi] -= 2*np.pi       # DFT bins on [-pi, pi)
+y = np.real(np.fft.ifft(np.fft.fft(x)*np.exp(-1j*W/2)))
+print(f'y_d[0] = {y[0]:.3f}')
+xh = np.cos(2*np.pi*250*(n - 0.5)*T)            # x_c at the midpoints
+print('y_d[n] = x_c((n - 1/2)T):', ['no', 'yes'][int(np.max(np.abs(y - xh)) < 1e-9)])
+
+t = np.linspace(0, 12e-3, 1201); m = np.arange(13)
+plt.plot(t*1e3, np.cos(2*np.pi*250*t), '--', m, x[m], 'o', m - 0.5, y[m], 's')
+plt.xlabel(r'$t$ (ms)'); plt.ylabel(r'$x_c(t),\\ x_d[n],\\ y_d[n]$'); plt.grid(True)
+plt.show()`},
+
+'m7s5-quant': {
+  title:'Six decibels a bit',
+  what:'Quantizes a full-scale sine with $B=3$, $8$ and $16$ bits (step $\\Delta=2/2^B$), measures the signal-to-noise ratio on $200\\,000$ samples, and prints it next to the rule $6.02B+1.76$ dB.',
+  try:'Add $B=1$ to the list. Predict whether the rule still holds to within $1$ dB before you run it.',
+  out:'B =  3 bits: SNR = 19.1 dB, rule 6.02B + 1.76 = 19.8 dB\nB =  8 bits: SNR = 49.8 dB, rule 6.02B + 1.76 = 49.9 dB\nB = 16 bits: SNR = 98.1 dB, rule 6.02B + 1.76 = 98.1 dB',
+  m:`% a mid-rise quantizer with B bits on [-1, 1], step D = 2/2^B
+n = 0:199999;
+x = sin(2*pi*0.0123456789*n);                   % a full-scale sine
+for B = [3 8 16]
+    D = 2/2^B;
+    xq = min(max(D*(floor(x/D) + 0.5), -1 + D/2), 1 - D/2);
+    snr = 10*log10(sum(x.^2)/sum((xq - x).^2));
+    fprintf('B = %2d bits: SNR = %.1f dB, rule 6.02B + 1.76 = %.1f dB\\n', B, snr, 6.02*B + 1.76)
+end
+
+D = 2/2^3;  m = 1:82;                           % one period at B = 3
+plot(m - 1, x(m), '--', m - 1, min(max(D*(floor(x(m)/D) + 0.5), -1 + D/2), 1 - D/2), '.-')
+grid on, xlabel('n'), ylabel('x[n], x_q[n]')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# a mid-rise quantizer with B bits on [-1, 1], step D = 2/2^B
+n = np.arange(200000)
+x = np.sin(2*np.pi*0.0123456789*n)              # a full-scale sine
+Q = lambda x, D: np.clip(D*(np.floor(x/D) + 0.5), -1 + D/2, 1 - D/2)
+for B in [3, 8, 16]:
+    D = 2/2**B
+    snr = 10*np.log10(np.sum(x**2)/np.sum((Q(x, D) - x)**2))
+    print(f'B = {B:2d} bits: SNR = {snr:.1f} dB, rule 6.02B + 1.76 = {6.02*B + 1.76:.1f} dB')
+
+m = np.arange(82)                               # one period at B = 3
+plt.plot(m, x[m], '--', m, Q(x[m], 2/2**3), '.-')
+plt.xlabel(r'$n$'); plt.ylabel(r'$x[n],\\ x_q[n]$'); plt.grid(True)
+plt.show()`},
 /* </m7-s5-code> */
 
 /* <m7-s6-code> */
+'m7s6-sample': {
+  title:'The height of the copies',
+  what:'Samples the running sequence $x[n]=\\bigl(\\sin(\\pi n/8)/(\\pi n/8)\\bigr)^{2}$ with $N=3$, adds up $x[n]$ and $x_p[n]$ to get their transforms at $\\omega=0$, and draws $X_p(e^{j\\omega})$ over three periods.',
+  try:'Change $N$ to $4$. Predict $X_p(e^{j0})$ before you run it.',
+  out:'X(e^{j0})   = 8.0000\nX_p(e^{j0}) = 2.6667 = X(e^{j0})/N',
+  m:`% the running sequence sampled with N = 3: the height of the copies
+N = 3;
+n = -600000:600000;
+x = ones(size(n));  k = n ~= 0;
+x(k) = (sin(pi*n(k)/8)./(pi*n(k)/8)).^2;   % x[n], with x[0] = 1
+xp = x.*(mod(n, N) == 0);                  % one every N samples
+fprintf('X(e^{j0})   = %.4f\\n', sum(x))
+fprintf('X_p(e^{j0}) = %.4f = X(e^{j0})/N\\n', sum(xp))
+
+w = linspace(-3*pi, 3*pi, 1201);  Xp = zeros(size(w));
+for m = -60:60                             % X_p is real and even
+    Xp = Xp + xp(n == m)*cos(w*m);
+end
+plot(w, Xp), grid on, xlabel('ω'), ylabel('X_p(e^{jω})')
+xticks(-3*pi:pi:3*pi)
+xticklabels({'-3π', '-2π', '-π', '0', 'π', '2π', '3π'})`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# the running sequence sampled with N = 3: the height of the copies
+N = 3
+n = np.arange(-600000, 600001)
+x = np.sinc(n/8)**2                        # (sin(pi n/8)/(pi n/8))^2, x[0] = 1
+xp = x*(n % N == 0)                        # one every N samples
+print(f'X(e^{{j0}})   = {x.sum():.4f}')
+print(f'X_p(e^{{j0}}) = {xp.sum():.4f} = X(e^{{j0}})/N')
+
+w = np.linspace(-3*np.pi, 3*np.pi, 1201); m = np.arange(-60, 61)
+Xp = np.cos(np.outer(w, m)) @ xp[np.abs(n) <= 60]   # X_p is real and even
+plt.plot(w, Xp); plt.grid(True)
+plt.xticks(np.arange(-3, 4)*np.pi,
+           [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X_p(e^{j\\omega})$')
+plt.show()`},
+
+'m7s6-decim': {
+  title:'Decimation with and without the prefilter',
+  what:'Decimates one second of $500$ Hz plus $3$ kHz, sampled at $8$ kHz, by $N=2$, and lists the tones in each result, with and without a low-pass at $\\pi/N$ first.',
+  try:'Change the second tone to $\\cos(5\\pi n/8)$, that is $2.5$ kHz. Predict where it lands without the prefilter before you run it.',
+  out:'no prefilter: 500 1000 Hz\nprefilter: 500 Hz',
+  m:`% 500 Hz + 3 kHz at 8 kHz, decimated by N = 2 with and without a prefilter
+fs = 8000;  N = 2;  n = 0:fs-1;              % one second
+x = cos(pi*n/8) + cos(3*pi*n/4);
+f = 0:fs-1;                                  % bins of 1 Hz
+H = double(f < fs/(2*N) | f > fs - fs/(2*N));   % ideal low-pass at pi/N
+xf = real(ifft(fft(x).*H));
+ys = {x(1:N:end), xf(1:N:end)};  s = {'no prefilter:', 'prefilter:'};
+for i = 1:2
+    Y = abs(fft(ys{i}));  L = numel(ys{i});
+    k = find(Y(1:L/2) > L/4) - 1;            % the tones, in Hz
+    fprintf('%s', s{i}); fprintf(' %d', k*fs/N/L); fprintf(' Hz\\n')
+    subplot(2, 1, i), plot((0:L/2-1)*fs/N/L, Y(1:L/2)), ylabel('|Y|')
+end
+xlabel('f (Hz)')`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# 500 Hz + 3 kHz at 8 kHz, decimated by N = 2 with and without a prefilter
+fs = 8000; N = 2; n = np.arange(fs)          # one second
+x = np.cos(np.pi*n/8) + np.cos(3*np.pi*n/4)
+f = np.arange(fs)                            # bins of 1 Hz
+H = (f < fs/(2*N)) | (f > fs - fs/(2*N))     # ideal low-pass at pi/N
+xf = np.real(np.fft.ifft(np.fft.fft(x)*H))
+for i, (y, s) in enumerate([(x[::N], 'no prefilter:'), (xf[::N], 'prefilter:')]):
+    Y = np.abs(np.fft.fft(y)); L = len(y)
+    k = np.nonzero(Y[:L//2] > L/4)[0]        # the tones, in Hz
+    print(s, ' '.join(str(int(v*fs/N/L)) for v in k), 'Hz')
+    plt.subplot(2, 1, i+1); plt.plot(np.arange(L//2)*fs/N/L, Y[:L//2])
+    plt.ylabel(r'$|Y|$')
+plt.xlabel(r'$f$ (Hz)')
+plt.show()`},
+
+'m7s6-interp': {
+  title:'Interpolation: images and the filter',
+  what:'Puts one zero between the samples of a $500$ Hz tone at $4$ kHz, lists the tones before and after a low-pass of gain $2$ and cutoff $\\pi/2$, and checks that the old samples are kept.',
+  try:'Change the tone to $\\cos(\\pi n/2)$, that is $1$ kHz. Predict where its image appears before you run it.',
+  out:'zeros inserted: 500 3500 Hz\nafter the filter: 500 Hz\nold samples kept: yes',
+  m:`% a 500 Hz tone at 4 kHz, interpolated by N = 2
+fs = 4000;  N = 2;  n = 0:fs-1;  L = N*fs;
+xb = cos(pi*n/4);                            % x_b[n]
+xe = zeros(1, L);  xe(1:N:end) = xb;         % N - 1 zeros in each gap
+f = 0:L-1;                                   % bins of 1 Hz at 8 kHz
+H = N*double(f < L/(2*N) | f > L - L/(2*N)); % gain N, cutoff pi/N
+y = real(ifft(fft(xe).*H));
+vs = {xe, y};  s = {'zeros inserted:', 'after the filter:'};  yn = {'no', 'yes'};
+for i = 1:2
+    Y = abs(fft(vs{i}));
+    fprintf('%s', s{i}); fprintf(' %d', find(Y(1:L/2) > L/8) - 1); fprintf(' Hz\\n')
+end
+fprintf('old samples kept: %s\\n', yn{1 + (max(abs(y(1:N:end) - xb)) < 1e-9)})
+stem(0:39, y(1:40)), hold on, stem(0:N:39, xb(1:20)), hold off
+xlabel('n'), ylabel('y[n]'), grid on`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+
+# a 500 Hz tone at 4 kHz, interpolated by N = 2
+fs = 4000; N = 2; n = np.arange(fs); L = N*fs
+xb = np.cos(np.pi*n/4)                       # x_b[n]
+xe = np.zeros(L); xe[::N] = xb               # N - 1 zeros in each gap
+f = np.arange(L)                             # bins of 1 Hz at 8 kHz
+H = N*((f < L/(2*N)) | (f > L - L/(2*N)))    # gain N, cutoff pi/N
+y = np.real(np.fft.ifft(np.fft.fft(xe)*H))
+for v, s in [(xe, 'zeros inserted:'), (y, 'after the filter:')]:
+    Y = np.abs(np.fft.fft(v))
+    print(s, ' '.join(str(k) for k in np.nonzero(Y[:L//2] > L/8)[0]), 'Hz')
+print('old samples kept:', ['no', 'yes'][int(np.max(np.abs(y[::N] - xb)) < 1e-9)])
+
+plt.stem(np.arange(40), y[:40]); plt.stem(np.arange(0, 40, N), xb[:20], markerfmt='o')
+plt.xlabel(r'$n$'); plt.ylabel(r'$y[n]$'); plt.grid(True)
+plt.show()`},
+
+'m7s6-ratio': {
+  title:'A rate change by $L/M$',
+  what:'Finds $L$ and $M$ for $48$ kHz to $44.1$ kHz from the greatest common divisor, then runs the chain up by $3$, filter, down by $2$ on $x[n]=\\cos(\\pi n/5)$.',
+  try:'Change fin to $32000$ Hz. Predict $L$ and $M$ before you run it.',
+  out:'gcd = 300, L = 147, M = 160\nfilter rate = 7056 kHz, cutoff = pi/160\ny[m] = cos(2 pi m/15): yes',
+  m:`% from fin to fout: up by L, filter, down by M
+fin = 48000;  fout = 44100;
+g = gcd(fout, fin);  L = fout/g;  M = fin/g;
+fprintf('gcd = %d, L = %d, M = %d\\n', g, L, M)
+fprintf('filter rate = %d kHz, cutoff = pi/%d\\n', fin*L/1000, max(L, M))
+
+% the same chain with L/M = 3/2 on x[n] = cos(pi n/5), three periods
+x = cos(pi*(0:29)/5);
+v = zeros(1, 90);  v(1:3:end) = x;           % up by 3
+f = 0:89;  H = 3*double(f < 15 | f > 75);    % gain 3, cutoff pi/3
+v = real(ifft(fft(v).*H));
+y = v(1:2:end);                              % down by 2
+s = {'no', 'yes'};
+fprintf('y[m] = cos(2 pi m/15): %s\\n', s{1 + (max(abs(y - cos(2*pi*(0:44)/15))) < 1e-9)})
+stem((0:44)*2/3, y), hold on, stem(0:29, x), hold off
+xlabel('t/T'), ylabel('x[n], y[m]'), grid on`,
+  py:`import numpy as np
+import matplotlib.pyplot as plt
+from math import gcd
+
+# from fin to fout: up by L, filter, down by M
+fin = 48000; fout = 44100
+g = gcd(fout, fin); L = fout//g; M = fin//g
+print(f'gcd = {g}, L = {L}, M = {M}')
+print(f'filter rate = {fin*L//1000} kHz, cutoff = pi/{max(L, M)}')
+
+# the same chain with L/M = 3/2 on x[n] = cos(pi n/5), three periods
+x = np.cos(np.pi*np.arange(30)/5)
+v = np.zeros(90); v[::3] = x                 # up by 3
+f = np.arange(90); H = 3*((f < 15) | (f > 75))   # gain 3, cutoff pi/3
+v = np.real(np.fft.ifft(np.fft.fft(v)*H))
+y = v[::2]                                   # down by 2
+print('y[m] = cos(2 pi m/15):', ['no', 'yes'][int(np.max(np.abs(y - np.cos(2*np.pi*np.arange(45)/15))) < 1e-9)])
+plt.stem(np.arange(45)*2/3, y); plt.stem(np.arange(30), x, markerfmt='o')
+plt.xlabel(r'$t/T$'); plt.ylabel(r'$x[n],\\ y[m]$'); plt.grid(True)
+plt.show()`},
 /* </m7-s6-code> */
 
 };

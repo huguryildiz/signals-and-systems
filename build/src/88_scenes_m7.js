@@ -200,6 +200,31 @@ const s2Held = fs => t => { const n = Math.floor(t*fs + 1e-9), v = Math.sin(4000
   return Math.abs(v) < 1e-9 ? 0 : v; };
 /* ms tick numbers for a time axis in seconds */
 const s2ms = d => v => Math.abs(v) < 1e-12 ? '0' : (v*1000).toFixed(d);
+/* Band-pass sampling. The band fills 8 pi < |w| < 10 pi rad/s, width
+   B = 2 pi, so its lower edge is 4B. Its shape is a leaning triangle, zero at
+   both edges and highest 0.7 of the way up, so a copy of the positive band
+   and a copy of the negative band can be told apart. */
+const S2BL = 8*PI, S2BH = 10*PI, S2BB = 2*PI;
+const s2Lean = u => u<=1e-9 || u>=1-1e-9 ? NaN : (u<0.7 ? u/0.7 : (1-u)/0.3);
+/* copy k of the positive band (s = 1) or of the negative band (s = -1) */
+const s2BpCopy = (w, ws, k, s) => { const c = w - k*ws; return s2Lean(((s>0 ? c : -c) - S2BL)/S2BB); };
+/* the copies that reach the drawn range [-span, span] */
+const s2BpK = (ws, span) => Math.ceil((span + S2BH)/ws) + 1;
+/* how many copies are non-zero at w: two or more is an overlap */
+const s2BpN = (w, ws, K) => { let n=0;
+  for(let k=-K;k<=K;k++) for(const s of [1,-1]) if(isFinite(s2BpCopy(w,ws,k,s))) n++; return n; };
+const s2BpSum = (w, ws, K) => { let y=0;
+  for(let k=-K;k<=K;k++) for(const s of [1,-1]){ const v=s2BpCopy(w,ws,k,s); if(isFinite(v)) y+=v; } return y; };
+/* The verdict at the rate ws: 1 apart, 0 touching, -1 overlapping. Taken
+   modulo ws, a copy of the positive band starts at a and a copy of the
+   negative band at b; both are B wide, so they fit when the shorter way
+   round from one start to the other is at least B. */
+const s2BpVerdict = ws => { if(ws < 2*S2BB - 1e-9) return -1;
+  const m = x => x - Math.floor(x/ws)*ws, d = m(m(-S2BH) - m(S2BL)), g = Math.min(d, ws-d) - S2BB;
+  return g > 1e-9 ? 1 : (g > -1e-9 ? 0 : -1); };
+/* the rates at which the copies fit, in multiples of pi: the point 4 pi,
+   then four windows, the last running on past the slider */
+const S2BPW = [[4,4],[5,16/3],[20/3,8],[10,16],[20,23]];
 /* </m7-s2-helpers> */
 /* <m7-s3-helpers> */
 /* Section 7.3. The unnormalised sinc, sinc(theta) = sin(theta)/theta, used by
@@ -289,10 +314,156 @@ const s4Err = wa => { const N=6000, lo=-s4AAB, h=2*s4AAB/N; let s=0;
   return s*h/(2*PI); };
 /* the spoke of the wagon wheel: 9 turns a second, 10 frames a second */
 const s4R = 9, s4FS = 10;
+/* Hearing aliasing with a chirp. x(t) = cos(2 pi 1000 t^2): its frequency
+   f(t) = 2000 t Hz rises from 0 to 6 kHz in 3 s. It is sampled at 4 kHz. */
+const S4CFS = 4000, S4CD = 3;
+const s4chirp = t => Math.cos(2*PI*1000*t*t);
+/* The samples played back through the ideal low-pass filter of cutoff fs/2:
+   x_r(t) = sum_n x[n] sinc(pi (fs t - n)), sinc(theta) = sin(theta)/theta.
+   The sum keeps 32 terms on each side under the taper (1 - (d/L)^2)^2, and
+   sin(pi (u - n)) = (-1)^n sin(pi u) saves a sine a term. */
+const s4Recon = (x, fs, dur) => {
+  const L = 32, N = Math.ceil(dur*fs), xs = new Float64Array(N+1);
+  for(let n=0;n<=N;n++) xs[n] = x(n/fs);
+  return t => { const u = t*fs, r = Math.round(u);
+    if(Math.abs(u-r) < 1e-9) return r>=0 && r<=N ? xs[r] : 0;
+    const s = Math.sin(PI*u), n0 = Math.floor(u); let y = 0;
+    for(let n=Math.max(0,n0-L+1); n<=Math.min(N,n0+L); n++){ const d = u-n;
+      const q = 1-(d/L)*(d/L); y += xs[n]*q*q*((n&1) ? -s : s)/(PI*d); }
+    return y; }; };
+/* Why 44.1 kHz. The anti-aliasing filter passes 0 to 20 kHz and falls in a
+   straight line to its stop level at 20 + D kHz. A flat input leaves it with
+   the shape of the filter; sampling at fs puts a copy of that at every k fs. */
+const s4Trap = (c, D) => [[c-20-D,0],[c-20,1],[c+20,1],[c+20+D,0]];
+const s4AAf = (f, D) => { const a = Math.abs(f); return a <= 20 ? 1 : (a >= 20+D ? 0 : (20+D-a)/D); };
 /* </m7-s4-helpers> */
 /* <m7-s5-helpers> */
+/* Section 7.5, discrete-time processing of continuous-time signals.
+   Both frequencies appear together here, so this section writes omega for
+   continuous-time frequency in rad/s and Omega for discrete-time frequency
+   in rad/sample, with Omega = omega T. The worked chain uses the running
+   signal (w_M = 2 pi rad/s) and T = 0.25 s, so Omega = pi is omega = 4 pi. */
+const S5T = 0.25;
+/* Two panels in one figure, the upper over the lower. A grown or redrawn
+   figure hands its height through P.hOverride, which is taken here and split.
+   Lecture mode takes its own base height and share, each [normal, lecture]. */
+const s5Stack = (H0, r, top, bot) => {
+  const L = P.labelScale() > 1 ? 1 : 0, H = P.hOverride || H0[L]; P.hOverride = null;
+  const h1 = Math.round(H*r[L]), h2 = H - h1;
+  return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+    + top(h1).replace('<svg ', `<svg x="0" y="0" width="560" height="${h1}" `)
+    + bot(h2).replace('<svg ', `<svg x="0" y="${h1}" width="560" height="${h2}" `) + '</svg>'; };
+/* The period of a discrete-time spectrum: dashed marks at -pi and pi and a
+   bracket between them, named to the left of -pi, where a legend in the
+   upper right corner never sits. */
+const s5Period = (a, v, txt) => {
+  a.vline(-PI,{color:C.coral,opacity:.5}); a.vline(PI,{color:C.coral,opacity:.5});
+  a.span(-PI,PI,v,'',{color:C.coral});
+  a.note(-PI,v,txt||'\\text{one period},\\;2\\pi',{tex:true,color:C.coral,fs:13,anchor:'end',dx:-8,dy:-3});
+  return a; };
+/* the tick numbers of an axis drawn in Omega but read in omega = Omega/T */
+const s5wTick = v => piTick(v/S5T);
+/* One triangular copy of peak 1 and half-width h, centred at c; the sum of
+   the copies centred at every multiple of 2 pi; and whether a point lies
+   where two copies meet. */
+const s5Tri = (x,c,h) => Math.abs(x-c) < h ? 1-Math.abs(x-c)/h : 0;
+const s5Sum = (x,h) => { let s=0; for(let k=-4;k<=4;k++) s+=s5Tri(x,2*PI*k,h); return s; };
+const s5Ov  = (x,h) => { let m=0; for(let k=-4;k<=4;k++) if(s5Tri(x,2*PI*k,h) > 1e-9) m++; return m > 1; };
+/* The chain as a block diagram, drawn `h` tall. The stage that the frame is
+   at is outlined in coral: 0 the input, 1 the C/D converter, 2 the
+   discrete-time system, 3 the D/C converter. */
+const s5Chain = (h, stage) => {
+  const cy = Math.round(h*0.40), bh = 46, by = cy - bh/2;
+  const box = (x,w,label,i) => ({t:'box', x, y:by, w, h:bh, label, tex:true, fs:16, color: stage===i ? C.coral : C.ink});
+  const arr = (x1,x2,label,i) => ({t:'arrow', x1, y1:cy, x2, y2:cy, label, tex:true, color: stage===i ? C.coral : C.ink});
+  return P.blocks({w:560, h, items:[
+    arr(4,74,'x_c(t)',0), box(74,70,'\\text{C/D}',1), arr(144,212,'x_d[n]',-1),
+    box(212,136,'H_d(e^{j\\Omega})',2), arr(348,416,'y_d[n]',-1), box(416,70,'\\text{D/C}',3),
+    arr(486,556,'y_c(t)',-1),
+    {t:'text', x:109, y:by+bh+26, label:'T', tex:true, fs:15},
+    {t:'text', x:451, y:by+bh+26, label:'T', tex:true, fs:15}]}); };
+/* The three-point average of the equivalent-system slide:
+   y_d[n] = x_d[n+1]/4 + x_d[n]/2 + x_d[n-1]/4, so H_d = (1 + cos Omega)/2. */
+const s5Avg = W => 0.5*(1+Math.cos(W));
+/* The quantizer of a converter with B bits over the range -1 to 1: 2^B levels
+   a step D = 2/2^B apart, at +-D/2, +-3D/2, ...; each value goes to the level
+   of its step, and the two end levels take everything beyond them. */
+const s5Q = (x,B) => { const D = 2/Math.pow(2,B), q = D*(Math.floor(x/D)+0.5);
+  return Math.max(-1+D/2, Math.min(1-D/2, q)); };
+/* The signal-to-noise ratio in dB measured on 200 000 samples of a full-scale
+   sine whose frequency is not a simple fraction of the rate. */
+const s5SnrM = (()=>{ const memo = {};
+  return B => { if(memo[B] != null) return memo[B];
+    let ps = 0, pe = 0;
+    for(let n=0;n<200000;n++){ const x = Math.sin(2*PI*0.0123456789*n), e = s5Q(x,B)-x; ps += x*x; pe += e*e; }
+    return (memo[B] = 10*Math.log10(ps/pe)); }; })();
+/* the half-sample-delay input, t in ms: band-limited to 320 Hz, sampled at 1 kHz */
+const s5Xh = t => Math.sin(2*PI*0.15*t) + 0.5*Math.cos(2*PI*0.32*t);
+/* the unnormalised sinc, sinc(theta) = sin(theta)/theta */
+const s5Sinc = u => Math.abs(u) < 1e-9 ? 1 : Math.sin(u)/u;
+/* the frequency a sampled tone comes back at, in [0, fs/2] */
+const s5fold = (f0,fs) => Math.abs(f0 - fs*Math.floor(f0/fs+0.5));
+/* a number for a figure note: at most d decimals, no trailing zeros */
+const s5n = (v,d) => String(+v.toFixed(d==null?2:d));
 /* </m7-s5-helpers> */
 /* <m7-s6-helpers> */
+/* Section 7.6, sampling a sequence: decimation and interpolation.
+   Every spectrum here is a discrete-time transform, so it is drawn over more
+   than one period of 2 pi and the period is marked, as in Module 6. The words
+   of the bracket sit to the left of it, so they never share a column with the
+   name of the vertical axis. */
+const s6Period = (a, v) => {
+  a.vline(-PI,{color:C.coral,opacity:.5}); a.vline(PI,{color:C.coral,opacity:.5});
+  a.span(-PI,PI,v,'',{color:C.coral});
+  a.note(-PI,v,'\\text{one period},\\;2\\pi',{tex:true,color:C.coral,fs:13,anchor:'end',dx:-8,dy:-3});
+  return a; };
+/* the spectrum axes of the section: -3 pi to 3 pi, a tick at every pi */
+const s6AX = o => AXW(-3*PI,3*PI,PI,o);
+/* the frequency taken into one period, -pi to pi */
+const s6wrap = w => w - 2*PI*Math.round(w/(2*PI));
+/* The running sequence x[n] = (sin(pi n/8)/(pi n/8))^2, with the value 1 at
+   n = 0. Its transform is a triangle of peak 8 that reaches zero at |w| = pi/4
+   and repeats every 2 pi, so its band edge is wM = pi/4. */
+const s6x = n => { const u = PI*n/8; return Math.abs(u) < 1e-12 ? 1 : Math.pow(Math.sin(u)/u, 2); };
+const S6W = PI/4, S6PK = 8;
+/* one triangle of the periodic spectrum, centred at c (and at every c + 2 pi m),
+   of half-width W and peak pk; undefined outside its band, so a copy drawn on
+   its own shows only the interval it occupies */
+const s6tri = (w,c,W,pk) => { const u = Math.abs(s6wrap(w-c)); return u < W ? pk*(1-u/W) : NaN; };
+const s6tri0 = (w,c,W,pk) => { const v = s6tri(w,c,W,pk); return isFinite(v) ? v : 0; };
+/* The sampled spectrum (1/N) sum_k X(e^{j(w - 2 pi k/N)}), copy by copy. The
+   copy k = 0 is X/N itself and keeps the input colour; the others are violet.
+   Where two copies meet, their sum is drawn in the aliasing colour over a red
+   wash. `s` stretches the frequency axis (decimation, s = N), and `o.h`
+   changes the height of every copy. */
+const s6Copies = (a, N, W, pk, s, o) => {
+  o = o||{}; s = s||1;
+  const h = o.h!=null ? o.h : pk/N, K = N;
+  const n0 = w => { let c=0; for(let k=0;k<K;k++) if(s6tri0(w/s,2*PI*k/N,W,h)>1e-12) c++; return c; };
+  const sum = w => { let v=0; for(let k=0;k<K;k++) v += s6tri0(w/s,2*PI*k/N,W,h); return v; };
+  if(W > PI/N + 1e-9)
+    a.area(w => n0(w)>=2 ? sum(w) : 0, -3*PI, 3*PI, {color:s6Wash(C.err,.22), n:1600});
+  for(let k=0;k<K;k++)
+    a.curve(w => s6tri(w/s,2*PI*k/N,W,h), {color:k?C.mid:C.in, n:2400, width:(W>PI/N+1e-9)?1.6:2.4});
+  if(W > PI/N + 1e-9)
+    a.curve(w => n0(w)>=2 ? sum(w) : NaN, {color:C.err, n:2400, width:2.6});
+  return a; };
+/* a signal colour as a translucent wash, rgba */
+const s6Wash = (c, al) => { const n = parseInt(c.slice(1), 16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${al})`; };
+/* the tone mixture of the listening slides: 500 Hz and 3 kHz sampled at
+   8 kHz, so w1 = pi/8 and w2 = 3 pi/4 rad/sample */
+const S6W1 = PI/8, S6W2 = 3*PI/4;
+const s6cos = f => t => Math.cos(2*PI*f*t);
+/* the lines of a line spectrum at every w0 + 2 pi m in the drawn range */
+const s6lines = (a, w0, ht, col) => { for(let m=-3;m<=3;m++) for(const sg of [1,-1]){
+  const p = sg*w0 + 2*PI*m; if(Math.abs(p) <= 3*PI+1e-9) a.impulse(p, ht, {color:col, label:false}); } };
+/* a filter band of height ht on |wrap(w)| < wc, in every period */
+const s6band = (a, wc, ht) => { for(let m=-1;m<=1;m++){
+  const lo = Math.max(-3*PI, 2*PI*m-wc), hi = Math.min(3*PI, 2*PI*m+wc);
+  a.rect(lo, 0, hi, ht, {stroke:C.h, dash:'6 4', width:1.6}); } };
+/* the stems of f over the integer range [lo, hi], each at position pos(n) */
+const s6stems = (a, f, lo, hi, col, pos, r) => a.stem(D(f,lo,hi).filter(p=>isFinite(p[1])).map(([n,v])=>[pos?pos(n):n, v]), {color:col, r:r||4});
 /* </m7-s6-helpers> */
 /* <m7-s7-helpers> */
 /* Small sketches for the summary and project cards. Both pages are navy, so
@@ -1120,6 +1291,60 @@ codeScene({ id:'m7-code-sampler', nav:'The sampler', title:'The Sampler in Code'
   ]}
 ]},
 
+/* ------------------------------------------------------- band-pass sampling */
+{ id:'m7-bandpass', module:'M7', nav:'Band-pass sampling', title:'Band-Pass Sampling', src:'—',
+  objective:'Sample a narrow band far above zero well below twice its top frequency, because the copies fit into the empty gaps.',
+  keywords:'band-pass sampling bandpass narrow band 8 pi 10 pi width B rate 2B 4 pi copies fit gaps windows below 2 omega_H slider',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Aliasing and the sampling theorem', src:'—'},
+  {t:'title', text:'Band-Pass Sampling'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'ws', label:'$\\omega_s$', min:3, max:22, step:0.1, v:4, show:v=>{
+        const r=s2BpVerdict(v*PI);
+        return '$'+s2Pi(v)+'$ · '+(r>0 ? 'copies apart' : r<0 ? 'copies overlap' : 'copies touch'); }}]},
+      svg:v=>{
+      const ws=(v?v.ws:4)*PI, span=12*PI, K=s2BpK(ws,span), L=P.labelScale()>1 ? 1 : 0;
+      return s2Stack([360,340],[0.64,0.62], h=>{
+        const a=AXW(-span,span,4*PI,{h,xlabel:'\\omega\\;[\\text{rad/s}]',yr:[-0.15,L?3:2.45],ylabel:'T\\,X_p(j\\omega)',
+          yticksOverride:[1],ytickfmt:v=>String(v)});
+        /* the intervals where two copies meet */
+        const N=2400, ov=[]; let st=null;
+        for(let i=0;i<=N;i++){ const w=-span+2*span*i/N, o=s2BpN(w,ws,K)>=2;
+          if(o && st===null) st=w;
+          if((!o || i===N) && st!==null){ ov.push([st,w]); st=null; } }
+        const inOv = w => ov.some(([p,q])=>w>=p && w<=q);
+        ov.forEach(([p,q])=>a.area(w=>s2BpSum(w,ws,K),p,q,{color:s2Wash(C.err,.22),n:60}));
+        for(let k=-K;k<=K;k++) for(const s of [1,-1]){
+          const col = k ? C.mid : C.in;
+          a.curve(w=>inOv(w) ? NaN : s2BpCopy(w,ws,k,s),{color:col,n:2400});
+          if(ov.length) a.curve(w=>inOv(w) ? s2BpCopy(w,ws,k,s) : NaN,{color:col,n:2400,width:1.4,dash:'4 4'});
+        }
+        if(ov.length) a.curve(w=>inOv(w) ? s2BpSum(w,ws,K) : NaN,{color:C.err,n:2400,width:2.6});
+        return a.svg(); }, h=>{
+        /* the rates: green where the copies fit, red where they overlap */
+        const a=AX({h,xr:[2*PI,23*PI],yr:[0,1],xlabel:'\\omega_s\\;[\\text{rad/s}]',grid:false,yticksLeft:false,
+          yticksOverride:[],xticksOverride:[4*PI,8*PI,12*PI,16*PI,20*PI],xtickfmt:piTick,pad:{l:52,r:24,t:14,b:34}});
+        a.rect(3*PI,0.28,22*PI,0.72,{fill:s2Wash(C.err,.2)});
+        S2BPW.forEach(([p,q])=>{ const lo=p*PI, hi=Math.min(q,22)*PI, e=hi-lo<1e-9 ? 0.07*PI : 0;
+          a.rect(lo-e,0.28,hi+e,0.72,{fill:s2Wash(C.out,.62)}); });
+        a.poly([[ws,0.12],[ws,0.88]],{color:C.coral,width:2.6});
+        a.point(ws,0.5,{color:C.coral,r:6.5,ring:C.plate});
+        return a.svg(); }); },
+      caption:'A band on $8\\pi<|\\omega|<10\\pi$ rad/s, drawn times $T$. Below it, every rate on the slider: green where the copies fit, red where they overlap. Move $\\omega_s$.'},
+    {t:'legend', items:[['in','the band'],['mid','copies'],['err','overlap sum']]}
+  ], right:[
+    {t:'eq', label:'Where the copies land at $\\omega_s=2B=4\\pi$', tex:'\\begin{aligned}8\\pi<\\omega<10\\pi\\;&\\xrightarrow{\\;-2\\omega_s\\;}\\;0<\\omega<2\\pi\\\\-10\\pi<\\omega<-8\\pi\\;&\\xrightarrow{\\;+3\\omega_s\\;}\\;2\\pi<\\omega<4\\pi\\end{aligned}',
+      note:'The band is $B=2\\pi$ wide and starts at $4B$. At $2B$ the copies of its two halves take turns and fill the axis, so a band-pass filter of gain $T$ on the band returns $x(t)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Faster is not always safer', html:'The copies fit only at $4\\pi$, $5\\pi$ to $5.33\\pi$, $6.67\\pi$ to $8\\pi$, $10\\pi$ to $16\\pi$, and from $2\\omega_H=20\\pi$ up. So $7\\pi$ works and $9\\pi$ does not. At a window’s edge the copies touch.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The band moves up to $12\\pi<|\\omega|<14\\pi$ rad/s, starting at $6B$.<div class="nsep"></div>What is the lowest rate at which the copies fit?',
+        ask:{key:'m7-bandpass', choices:['$4\\pi$ rad/s','$28\\pi$ rad/s','$12\\pi$ rad/s'], answer:0,
+          why:'The lower edge is again a whole multiple of $B=2\\pi$, so at $2B=4\\pi$ the two halves take turns; below $2B$ two bands of width $B$ cannot fit in one spacing.'}}]}
+  ]}
+]},
+
 /* ------------------------------------------------ everyday signals, lab, code */
 realGallery({ id:'m7-real-nyquist', nav:'Sampling rates around us',
   title:'Sampling Rates Around Us', eyebrow:'Module 7 · Aliasing and the sampling theorem', src:'pp. 81–82',
@@ -1159,7 +1384,7 @@ labScene({ id:'m7-lab-j2', lab:'J2', nav:'The Nyquist Test', title:'Copies Apart
 
 codeScene({ id:'m7-code-nyquist', nav:'The Nyquist test', title:'The Nyquist Test in Code', src:'pp. 82–83', eyebrow:'The Nyquist test in code',
   objective:'Compute sampling rates, guard bands, Nyquist periods and copy heights in MATLAB and in Python, and predict each result before running it.',
-  keywords:'code matlab python nyquist rate sampling period guard band overlap width boundary sine zero samples triangular spectrum peak' }),
+  keywords:'code matlab python nyquist rate sampling period guard band overlap width boundary sine zero samples triangular spectrum peak band-pass sampling windows' }),
 
 /* </m7-s2> */
 
@@ -1725,6 +1950,49 @@ codeScene({ id:'m7-code-recon', nav:'Reconstruction', title:'Reconstruction in C
   ]}
 ]},
 
+/* ------------------------------------------------ a rising tone, heard folding */
+{ id:'m7-chirp', module:'M7', nav:'Hearing aliasing with a chirp', title:'Hearing Aliasing with a Chirp', src:'—',
+  objective:'Hear a tone that rises steadily, sampled at a fixed rate, and see the heard pitch fold back at half the sampling rate.',
+  keywords:'chirp sweep rising tone frequency at a moment 2000 t Hz 6 kHz sampled 4 kHz folding zig-zag heard pitch falls sound listen slider',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · The alias frequency', src:'—'},
+  {t:'title', text:'Hearing Aliasing with a Chirp'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'t', label:'$t$', min:0, max:3, step:0.05, v:1.5,
+        show:v=>'$'+s4n(v,2)+'$ s · tone $'+s4n(2*v,1)+'$ kHz, heard $'+s4n(s4fold(2*v,4),1)+'$ kHz'}]},
+      listen:{items:[
+        {label:'Play $x(t)$', sound:()=>({f:s4chirp, dur:S4CD})},
+        {label:'Play $x_r(t)$', sound:()=>({f:s4Recon(s4chirp,S4CFS,S4CD), dur:S4CD})}]},
+      svg:v=>{
+      /* t in s and f in kHz: the tone is at 2t kHz, heard at its fold */
+      const t0=v?v.t:1.5, fa=t=>s4fold(2*t,4);
+      const a=AX({xr:[0,3.1],yr:[0,8.2],xlabel:'t\\;[\\text{s}]',ylabel:'f\\;[\\text{kHz}]',yticksLeft:false,
+        xticksOverride:[0,1,2,3],xtickfmt:v=>String(v),yticksOverride:[2,4,6],ytickfmt:v=>String(v)});
+      a.rect(0,0,3.1,2,{fill:s2Wash(C.out,.13)});
+      a.hline(2,{color:C.coral,width:1.6,dash:'6 4',opacity:1});
+      a.hline(4,{color:C.muted,width:1.2,dash:'6 4',opacity:.9});
+      a.note(2,2.45,'f_s/2',{anchor:'middle',color:C.coral,fs:15,tex:true});
+      a.note(0.08,4.45,'f_s',{anchor:'start',color:C.muted,fs:15,tex:true});
+      a.curve(t=>t<=3+1e-9 ? 2*t : NaN,{color:C.in,width:1.8,dash:'9 6',n:620});
+      a.curve(t=>t<=3+1e-9 ? fa(t) : NaN,{color:C.err,width:2.6,n:1240});
+      a.point(t0,2*t0,{color:C.in,r:6,ring:C.plate});
+      a.point(t0,fa(t0),{color:C.err,r:6,ring:C.plate});
+      return a.svg(); },
+      caption:'The tone rises by $2$ kHz each second and is sampled at $f_s=4$ kHz. The red line is the pitch that comes out: it folds at $f_s/2$ and runs back down. The green band is what the filter keeps.'},
+    {t:'legend', at:'tl', items:[['in','the tone, $f(t)$',true],['err','heard, from $x_r(t)$']]}
+  ], right:[
+    {t:'eq', label:'A tone that rises', tex:'\\begin{aligned}x(t)&=\\cos\\bigl(2\\pi\\cdot1000\\,t^{2}\\bigr)\\\\f(t)&=\\frac{1}{2\\pi}\\,\\frac{d}{dt}\\bigl(2\\pi\\cdot1000\\,t^{2}\\bigr)=2000\\,t\\ \\text{Hz}\\end{aligned}',
+      note:'The frequency at a moment is the rate of change of the phase, divided by $2\\pi$. In $3$ s it rises from $0$ to $6$ kHz.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'What comes out', html:'Each moment follows the fold rule $|f-kf_s|$. The heard pitch rises to $2\\ \\text{kHz}$ at $t=1\\ \\text{s},$ falls to $0$ at $t=2\\ \\text{s},$ where $f=f_s$, and then rises again.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same chirp is sampled at $f_s=3$ kHz instead.<div class="nsep"></div>What pitch is heard at $t=2$ s?',
+        ask:{key:'m7-chirp', choices:['$1$ kHz','$4$ kHz','$2$ kHz'], answer:0,
+          why:'At $t=2$ s the tone is at $4$ kHz, and $|4-3|=1$ kHz lies inside $0$ to $1.5$ kHz.'}}]}
+  ]}
+]},
+
 /* ------------------------------------------------------ the p.87 style example */
 { id:'m7-ex-alias', module:'M7', nav:'Worked example · three periods', title:'Aliasing at Three Sampling Periods', src:'p. 87',
   objective:'Test three sampling periods against the Nyquist rate of the signal actually being sampled.',
@@ -1915,6 +2183,76 @@ codeScene({ id:'m7-code-recon', nav:'Reconstruction', title:'Reconstruction in C
     {t:'reveal', at:2, items:[
       {t:'eq', label:'Solution · mean-square error over $2$ s', tex:'\\begin{aligned}\\overline{e^{2}}\\big|_{\\text{no filter}}&=\\overline{\\cos^{2}3\\pi t}+\\overline{\\cos^{2}2\\pi t}-\\overline{\\cos\\pi t+\\cos5\\pi t}\\\\&=\\tfrac12+\\tfrac12-0=1\\\\\\overline{e^{2}}\\big|_{\\text{filtered}}&=\\overline{\\cos^{2}3\\pi t}=\\tfrac12\\end{aligned}',
         note:'$2\\cos A\\cos B=\\cos(A-B)+\\cos(A+B)$; whole cycles average to $0$.'}]}
+  ]}
+]},
+
+/* -------------------------------------------- the transition band, 44.1 kHz */
+{ id:'m7-aa-band', module:'M7', nav:'Why 44.1 kHz', title:'Why 44.1 kHz', src:'—',
+  objective:'Find the lowest sampling rate a real anti-aliasing filter allows from the width of its transition band.',
+  keywords:'44.1 kHz CD audio hearing 20 kHz transition band real anti-aliasing filter stop level copy overlap minimum rate 40 + 2 Delta slider',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Design', src:'—'},
+  {t:'title', text:'Why 44.1 kHz'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'D', label:'$\\Delta$', min:0, max:5, step:0.05, v:2.05,
+        show:v=>'$'+s4n(v,2)+'$ kHz · needs $f_s\\ge'+s4n(40+2*v,2)+'$ kHz'}]},
+      svg:v=>{
+      /* f in kHz; the copies are those of the CD rate, fs = 44.1 kHz */
+      const D=v?v.D:2.05, fs=44.1, lo=fs-20-D, hi=20+D;
+      const a=AX({xr:[-26,54],yr:[-0.12,2.1],xlabel:'f\\;[\\text{kHz}]',ylabel:'\\text{spectrum}',
+        xticksOverride:[-20,0,20,44.1],xtickfmt:v=>String(v),yticksOverride:[1],ytickfmt:v=>String(v)});
+      /* the baseband and the copy at fs overlap on lo < |f| < hi */
+      if(hi-lo > 1e-9) for(const s of [1,-1])
+        a.area(f=>s4AAf(f,D)+s4AAf(f-s*fs,D), s>0?lo:-hi, s>0?hi:-lo, {color:s2Wash(C.err,.24),n:80});
+      for(let k=-1;k<=1;k++) a.poly(s4Trap(k*fs,D),{color:k ? C.mid : C.in});
+      if(hi-lo > 1e-9) a.curve(f=>Math.abs(f)>lo && Math.abs(f)<hi ? s4AAf(f,D)+s4AAf(f-Math.sign(f)*fs,D) : NaN,{color:C.err,width:2.6,n:1600});
+      a.vline(fs/2,{color:C.coral,width:1.6,dash:'5 4',opacity:1});
+      a.note(fs/2,1.3,'f_s/2',{anchor:'start',dx:8,color:C.coral,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A flat input after $H_{AA}$, with its copies at the CD rate $f_s=44.1$ kHz. The filter falls to its stop level over $\\Delta$. Move $\\Delta$ past $2.05$ kHz and the copies overlap.'},
+    {t:'legend', at:'tl', items:[['in','after $H_{AA}$'],['mid','copies'],['err','overlap']]}
+  ], right:[
+    {t:'note', kind:'def', head:'A real filter', html:'Hearing ends near $20$ kHz, so $H_{AA}$ passes $0$ to $20$ kHz. A real filter cannot drop at once: it needs a width $\\Delta$ to fall to its stop level at $20+\\Delta$ kHz.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, label:'The copy starts where the filter has stopped', tex:'\\begin{aligned}f_s-(20+\\Delta)&\\ge20+\\Delta\\\\\\Longrightarrow\\;f_s&\\ge2(20+\\Delta)=40+2\\Delta\\ \\text{kHz}\\end{aligned}',
+        note:'The copy at $f_s$ begins to rise at $f_s-(20+\\Delta)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A cheaper filter needs $\\Delta=3$ kHz to reach its stop level.<div class="nsep"></div>What is the lowest rate it allows?',
+        ask:{key:'m7-aa-band', choices:['$46$ kHz','$43$ kHz','$44.1$ kHz'], answer:0,
+          why:'$f_s\\ge2(20+3)=46$ kHz; at $44.1$ kHz its copies would overlap.'}}]}
+  ]}
+]},
+
+{ id:'m7-aa-band-b', module:'M7', nav:'Why 44.1 kHz · three rates', title:'The Transition Band of Three Rates', src:'—',
+  objective:'Read the transition width that 40, 44.1 and 48 kHz leave a real anti-aliasing filter.',
+  keywords:'40 kHz 44.1 kHz CD 48 kHz film video transition width 2.05 kHz 22.05 kHz 4 kHz ideal filter telephone 8 kHz 3.4 kHz frames',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Design', src:'—'},
+  {t:'title', text:'The Transition Band of Three Rates'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$40$ kHz: $\\Delta=0$','$44.1$ kHz, the CD: $\\Delta=2.05$ kHz','$48$ kHz: $\\Delta=4$ kHz']},
+      svg:v=>{
+      const f=Math.max(0,Math.min(2,v?v.frame:0)), D=f<=1 ? 2.05*f : 2.05+1.95*(f-1);
+      const a=AX({xr:[0,5.25],yr:[38,51.5],xlabel:'\\Delta\\;[\\text{kHz}]',ylabel:'\\text{lowest}\\ f_s\\;[\\text{kHz}]',yticksLeft:false,
+        xticksOverride:[0,1,2,3,4,5],xtickfmt:v=>String(v),yticksOverride:[40,44.1,48],ytickfmt:v=>String(v)});
+      [40,44.1,48].forEach(r=>a.hline(r,{color:r===44.1 ? C.coral : C.muted,width:1.3,dash:'6 4',opacity:.9}));
+      a.note(0.12,44.1,'\\text{CD}',{anchor:'start',dy:-12,color:C.coral,fs:15,tex:true});
+      a.curve(d=>40+2*d,{color:C.in,n:200});
+      a.poly([[D,38],[D,40+2*D]],{color:C.coral,width:1.4});
+      a.point(D,40+2*D,{color:C.coral,r:6.5,ring:C.plate});
+      return a.svg(); },
+      caption:'The lowest rate $f_s=40+2\\Delta$ kHz for each transition width $\\Delta$. Press Next to move from $40$ to $44.1$ to $48$ kHz.'},
+  ], right:[
+    {t:'eq', label:'The width a rate leaves', tex:'\\begin{aligned}\\Delta&=\\tfrac{f_s}{2}-20\\\\f_s=44.1:\\;\\;\\Delta&=22.05-20=2.05\\ \\text{kHz}\\\\f_s=48:\\;\\;\\Delta&=24-20=4\\ \\text{kHz}\\end{aligned}',
+      note:'Solve $f_s=2(20+\\Delta)$ for $\\Delta$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Three rates in use', html:'$40$ kHz would need $\\Delta=0$, a filter no circuit can build. The CD’s $44.1$ kHz leaves $2.05$ kHz, from $20$ to $22.05$ kHz. The $48$ kHz of film and video sound leaves $4$ kHz.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A telephone line keeps speech up to $3.4$ kHz and samples at $8$ kHz.<div class="nsep"></div>How wide may its filter’s transition band be?',
+        ask:{key:'m7-aa-band-b', choices:['$0.6$ kHz','$4.6$ kHz','$1.2$ kHz'], answer:0,
+          why:'$\\Delta=\\tfrac{8}{2}-3.4=0.6$ kHz.'}}]}
   ]}
 ]},
 
@@ -2124,9 +2462,915 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
 
 /* <m7-s5> ============================================ 7.5 discrete-time processing of continuous-time signals */
 
+/* ------------------------------------------------------------- the chain */
+{ id:'m7-dtproc', module:'M7', nav:'The processing chain', title:'Processing a Signal as Numbers', src:'—',
+  objective:'Follow a band-limited signal through a C/D converter, a discrete-time system and a D/C converter, and read its spectrum at each stage.',
+  keywords:'discrete-time processing continuous-time signal C/D D/C converter chain x_d[n] = x_c(nT) spectrum stage rad/s rad/sample Omega notation frames',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'Processing a Signal as Numbers'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X_c(j\\omega)$: the input, in rad/s','C/D samples: a copy every $\\omega_s$',
+        'C/D renames the axis: $\\Omega=\\omega T$','$H_d(e^{j\\Omega})$ keeps $|\\Omega|<\\pi/4$','D/C keeps $|\\omega|<\\omega_s/2$: $Y_c(j\\omega)$']},
+      svg:v=>{
+      /* frame 0 the input; 1 the copies of the sampler; 2 the same drawing
+         read in Omega; 3 the digital low-pass; 4 back in rad/s. Every
+         spectrum is drawn at peak 1: the copies carry the factor 1/T, so
+         the stages that hold them are drawn times T. */
+      const f=Math.max(0,Math.min(4,v?v.frame:0)), u1=cl(f), u2=cl(f-1), u3=cl(f-2), u4=cl(f-3);
+      const hM=WM*S5T, Wc=PI/4, dt=f>=1.5 && f<3.5;
+      const stage = f<0.5 ? 0 : f<2.5 ? 1 : f<3.5 ? 2 : 3;
+      const ylab = f<0.5 ? 'X_c(j\\omega)' : f<1.5 ? 'T\\,X_p(j\\omega)' : f<2.5 ? 'T\\,X_d(e^{j\\Omega})' : f<3.5 ? 'T\\,Y_d(e^{j\\Omega})' : 'Y_c(j\\omega)';
+      return s5Stack([390,400],[0.7,0.66], h=>{
+        const a=AX({h,xr:[-3*PI,3*PI],yr:[-0.25,2.2],yticksOverride:[1],ytickfmt:()=>'1',
+          xlabel: dt ? '\\Omega\\;[\\text{rad/sample}]' : '\\omega\\;[\\text{rad/s}]', ylabel:ylab,
+          xticksOverride:wTicks(-3*PI,3*PI,PI), xtickfmt: dt ? piTick : s5wTick});
+        /* the copies: in from frame 1, out again in frame 4 */
+        fade(a,u1*(1-u4),()=>{ for(const k of [-1,1]) a.curve(W=>{ const y=s5Tri(W,2*PI*k,hM); return y>0?y:NaN; },{color:C.mid,n:1400,width:u3>0.02?1.5:2.2}); });
+        a.curve(W=>{ const y=s5Tri(W,0,hM); return y>0?y:NaN; },{color:C.in,n:1400,width:u3>0.02?1.5:2.2,dash:u4>0.5?'6 5':null});
+        fade(a,u2*(1-u4),()=>s5Period(a,1.4));
+        /* the digital filter, periodic, and what it keeps */
+        fade(a,u3*(1-u4),()=>{ for(const k of [-1,0,1]) a.rect(2*PI*k-Wc,0,2*PI*k+Wc,1,{stroke:C.h,dash:'6 4',width:1.8}); });
+        fade(a,u3*(1-u4),()=>{ for(const k of [-1,1]) a.curve(W=>Math.abs(W-2*PI*k)<Wc ? s5Tri(W,2*PI*k,hM) : NaN,{color:C.out,width:3.2,n:1400}); });
+        fade(a,u3,()=>a.curve(W=>Math.abs(W)<Wc ? s5Tri(W,0,hM) : NaN,{color:C.out,width:3.2,n:1400}));
+        /* D/C: the band it keeps, |omega| < omega_s/2 */
+        fade(a,u4,()=>{ a.vline(-PI,{color:C.muted}); a.vline(PI,{color:C.muted});
+          a.note(-PI,1.4,'|\\omega|<\\omega_s/2',{tex:true,color:C.muted,fs:13,anchor:'end',dx:-8,dy:-3}); });
+        return a.svg(); }, h=>s5Chain(h,stage)); },
+      caption:'The running signal, $\\omega_M=2\\pi$ rad/s, with $T=0.25$ s and a digital low-pass. Each spectrum is drawn at peak $1$. Press Next.'},
+    {t:'legend', items:[['in','$k=0$'],['mid','copies'],['h','$H_d(e^{j\\Omega})$',true],['out','kept']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Two frequency variables', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$\\omega$ in rad/s, with $X_c(j\\omega)$.</div><div><span class="cmp-h">Discrete time</span>$\\Omega$ in rad/sample, with $X_d(e^{j\\Omega})=\\sum_n x_d[n]e^{-j\\Omega n}$.</div></div>'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'The two converters', tex:'x_d[n]=x_c(nT),\\qquad y_c(nT)=y_d[n]',
+        note:'C/D keeps the samples. D/C rebuilds the band-limited signal through them, as in Section 7.3.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'One step does the work', html:'Only $H_d(e^{j\\Omega})$ changes the spectrum. The converters sample and rebuild.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y_d[n]=x_d[n]$, a band-limited input and $\\omega_s>2\\omega_M$.<div class="nsep"></div>What is $y_c(t)$?',
+        ask:{key:'m7-dtproc', choices:['$x_c(t)$','$x_c(t-T)$','$x_c(nT)$'], answer:0,
+          why:'Sampling, then ideal reconstruction, returns $x_c(t)$.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------------- the frequency map */
+{ id:'m7-dtproc-map', module:'M7', nav:'From rad/s to rad/sample', title:'From Radians per Second to Radians per Sample', src:'—',
+  objective:'See the frequency map Omega = omega T stretch the spectrum of the samples as T changes, with a copy every 2π.',
+  keywords:'frequency map Omega = omega T rad/sample rad/s periodic 2 pi band edge Omega_M = omega_M T overlap slider sampling period',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'From Radians per Second to Radians per Sample'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T', label:'$T$', min:0.1, max:0.7, step:0.01, v:0.25, show:v=>'$'+v.toFixed(2)+'$ s'}]},
+      svg:v=>{
+      const T=v?v.T:0.25, hM=WM*T, ov=hM>PI+1e-9;
+      const a=AX({xr:[-3*PI,3*PI],yr:[-0.25,2.2],yticksOverride:[1],ytickfmt:()=>'1',
+        xlabel:'\\Omega\\;[\\text{rad/sample}]',ylabel:'T\\,X_d(e^{j\\Omega})',xticksOverride:wTicks(-3*PI,3*PI,PI),xtickfmt:piTick});
+      for(let k=-3;k<=3;k++) a.curve(W=>{ const y=s5Tri(W,2*PI*k,hM); return y>0 && !s5Ov(W,hM) ? y : NaN; },{color:k?C.mid:C.in,n:1800});
+      if(ov){ for(let k=-3;k<=3;k++) a.curve(W=>{ const y=s5Tri(W,2*PI*k,hM); return y>0 && s5Ov(W,hM) ? y : NaN; },{color:k?C.mid:C.in,n:1800,width:1.3,dash:'4 4'});
+        a.curve(W=>s5Ov(W,hM) ? s5Sum(W,hM) : NaN,{color:C.err,n:2400,width:2.6}); }
+      s5Period(a,1.35);
+      a.note(-3*PI,1.85,'\\Omega_M=\\omega_MT='+s5n(2*T,2)+'\\pi',{tex:true,color:ov?C.err:C.muted,fs:15,anchor:'start',dx:14,dy:-3});
+      return a.svg(); },
+      caption:'The running signal, $\\omega_M=2\\pi$ rad/s, sampled every $T$ and drawn times $T$ against $\\Omega$. Move $T$ past $0.5$ s: $\\Omega_M$ passes $\\pi$.'},
+    {t:'legend', items:[['in','copy $k=0$'],['mid','copies $k\\neq0$'],['err','overlap sum']]}
+  ], right:[
+    {t:'eq', label:'Frequency map', tex:'\\underbrace{\\Omega}_{\\text{rad/sample}}=\\underbrace{\\omega}_{\\text{rad/s}}\\;T',
+      note:'$T$ is seconds per sample. So $\\omega_s=2\\pi/T$ lands on $\\Omega=2\\pi$, and $\\omega_s/2$ on $\\Omega=\\pi$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'The band edge', html:'$\\omega_M$ lands on $\\Omega_M=\\omega_MT$. The copies stay apart while $\\Omega_M<\\pi$, which is $\\omega_s>2\\omega_M$ again.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The running signal, $\\omega_M=2\\pi$ rad/s, is sampled with $T=0.2$ s.<div class="nsep"></div>Where does its band edge land?',
+        ask:{key:'m7-dtproc-map', choices:['$\\Omega_M=0.4\\pi$','$\\Omega_M=2\\pi$','$\\Omega_M=10\\pi$'], answer:0,
+          why:'$\\Omega_M=\\omega_MT=2\\pi\\cdot0.2=0.4\\pi$.'}}]}
+  ]}
+]},
+
+{ id:'m7-dtproc-map-b', module:'M7', nav:'The spectrum of the samples', title:'Spectrum of the Sequence of Samples', src:'—',
+  objective:'Derive X_d(e^{jΩ}) from the transform of the impulse-train sampled signal by the change of variable ω = Ω/T.',
+  keywords:'spectrum of x_d[n] X_d(e^{j Omega}) = X_p(j Omega/T) = (1/T) sum X_c(j(Omega - 2 pi k)/T) impulse train to sequence normalisation of time frames',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'Spectrum of the Sequence of Samples'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_p(t)$: impulses every $T=0.25$ s','$x_d[n]$: the same weights, one per integer $n$']},
+      svg:v=>{
+      /* the t axis is relabelled n = t/T: the same heights, one step apart */
+      const f=cl(v?v.frame:0), sq=f>=0.5;
+      const a=AX({h:360,xr:[-2.2,2.2],yr:[-0.15,1.4],xlabel: sq ? 'n' : 't\\;[\\text{s}]', ylabel: sq ? 'x_d[n]' : 'x_p(t)',
+        yticksOverride:[0.5,1],ytickfmt:v=>String(v),xticksOverride:[-2,-1,0,1,2].map(x=>x),
+        xtickfmt: sq ? (x=>String(Math.round(x/S5T))) : (x=>String(x))});
+      a.curve(xB,{color:C.in,width:1.3,dash:'4 5',n:1600});
+      fade(a,1-f,()=>D(n=>xB(n*S5T),-8,8).forEach(([n,y])=>{ if(y>0.012) a.impulse(n*S5T,y,{color:C.mid,label:false}); }));
+      fade(a,f,()=>a.stem(D(n=>xB(n*S5T),-8,8).map(([n,y])=>[n*S5T,Math.abs(y)<1e-9?0:y]),{color:C.mid,r:5}));
+      return a.svg(); },
+      caption:'The running signal $x_c(t)$ dashed. Press Next: the impulses become a sequence, and $t=nT$ becomes the integer $n$.'},
+    {t:'legend', items:[['in','$x_c(t)$',true],['mid','$x_p(t)$, then $x_d[n]$']]}
+  ], right:[
+    {t:'eq', label:'Step 1 · Two sums', tex:'\\begin{aligned}X_p(j\\omega)&=\\sum_n x_c(nT)\\,e^{-j\\omega nT}\\\\X_d(e^{j\\Omega})&=\\sum_n x_c(nT)\\,e^{-j\\Omega n}\\end{aligned}',
+      note:'$\\delta(t-nT)$ has transform $e^{-j\\omega nT}$; the second line is the DTFT of $x_d[n]$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, label:'Step 2 · Put $\\omega=\\Omega/T$', tex:'\\begin{aligned}X_d(e^{j\\Omega})&=X_p\\bigl(j\\tfrac{\\Omega}{T}\\bigr)=\\frac{1}{T}\\sum_k X_c\\Bigl(j\\bigl(\\tfrac{\\Omega}{T}-k\\omega_s\\bigr)\\Bigr)\\\\&=\\frac{1}{T}\\sum_k X_c\\Bigl(j\\,\\frac{\\Omega-2\\pi k}{T}\\Bigr)\\end{aligned}',
+        note:'The sampled spectrum of Section 7.1, then $k\\omega_sT=2\\pi k$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same signal is sampled with $T=0.5$ s.<div class="nsep"></div>At which $\\Omega$ does the copy $k=1$ sit?',
+        ask:{key:'m7-dtproc-map-b', choices:['$2\\pi$','$4\\pi$','$\\pi$'], answer:0,
+          why:'$\\omega_sT=2\\pi$ for every $T$.'}}]}
+  ]}
+]},
+
+/* ----------------------------------------------- the equivalent system */
+{ id:'m7-dtproc-eq', module:'M7', nav:'The equivalent system', title:'The Equivalent Continuous-Time System', src:'—',
+  objective:'Show that the chain acts on a band-limited input as one continuous-time LTI system, H_eff(jω) = H_d(e^{jωT}) inside the band.',
+  keywords:'equivalent continuous-time system H_eff(j omega) = H_d(e^{j omega T}) band |omega| < omega_s/2 three-point average (1 + cos Omega)/2 time-invariant band-limited frames',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'The Equivalent Continuous-Time System'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$H_d(e^{j\\Omega})$: period $2\\pi$','rename the axis: $\\omega=\\Omega/T$','D/C keeps $|\\omega|<\\omega_s/2$: $H_{\\text{eff}}(j\\omega)$']},
+      svg:v=>{
+      const f=Math.max(0,Math.min(2,v?v.frame:0)), u2=cl(f-1), dt=f<0.5;
+      const a=AX({h:350,xr:[-3*PI,3*PI],yr:[-0.25,1.75],yticksOverride:[0.5,1],ytickfmt:v=>String(v),
+        xlabel: dt ? '\\Omega\\;[\\text{rad/sample}]' : '\\omega\\;[\\text{rad/s}]',
+        ylabel: f<0.5 ? '|H_d(e^{j\\Omega})|' : f<1.5 ? '|H_d(e^{j\\omega T})|' : '|H_{\\text{eff}}(j\\omega)|',
+        xticksOverride:wTicks(-3*PI,3*PI,PI), xtickfmt: dt ? piTick : s5wTick});
+      /* inside the band the response stays; outside, it fades to a grey
+         dashed trace, and H_eff is zero there */
+      a.curve(W=>Math.abs(W)<=PI ? s5Avg(W) : NaN,{color:C.h,n:900});
+      fade(a,1-u2,()=>a.curve(W=>Math.abs(W)>=PI ? s5Avg(W) : NaN,{color:C.h,n:1800}));
+      fade(a,u2,()=>{ a.curve(W=>Math.abs(W)>=PI ? s5Avg(W) : NaN,{color:C.muted,n:1800,width:1.3,dash:'4 4'});
+        a.poly([[-3*PI,0],[-PI,0]],{color:C.h}); a.poly([[PI,0],[3*PI,0]],{color:C.h}); });
+      fade(a,1-u2,()=>s5Period(a,1.35));
+      fade(a,u2,()=>s5Period(a,1.35,'|\\omega|<\\omega_s/2=4\\pi'));
+      return a.svg(); },
+      caption:'The three-point average $y_d[n]=\\tfrac14x_d[n+1]+\\tfrac12x_d[n]+\\tfrac14x_d[n-1]$ has $H_d(e^{j\\Omega})=\\tfrac12(1+\\cos\\Omega)$. Here $T=0.25$ s. Press Next.'}
+  ], right:[
+    {t:'eq', key:true, result:true, label:'Key result · Equivalent system', tex:'H_{\\text{eff}}(j\\omega)=\\begin{cases}H_d\\bigl(e^{j\\omega T}\\bigr),&|\\omega|<\\omega_s/2\\\\0,&|\\omega|>\\omega_s/2\\end{cases}',
+      note:'For every input with $X_c(j\\omega)=0$ at $|\\omega|>\\omega_s/2$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'Why · follow the band', tex:'\\begin{aligned}Y_c(j\\omega)&=T\\,Y_d(e^{j\\omega T})=T\\,H_d(e^{j\\omega T})\\,X_d(e^{j\\omega T})\\\\&=T\\,H_d(e^{j\\omega T})\\cdot\\tfrac{1}{T}X_c(j\\omega)=H_d(e^{j\\omega T})\\,X_c(j\\omega)\\end{aligned}',
+        note:'D/C has gain $T$ and keeps $|\\omega|<\\omega_s/2$, where only the copy $k=0$ lies.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Only for band-limited inputs', html:'Otherwise the chain is not even time-invariant: a short pulse may fall between two samples.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same average, $T=0.25$ s, so $\\omega_s/2=4\\pi$ rad/s.<div class="nsep"></div>What is $|H_{\\text{eff}}(j\\omega)|$ at $\\omega=6\\pi$ rad/s?',
+        ask:{key:'m7-dtproc-eq', choices:['$0$','$0.5$','$1$'], answer:0,
+          why:'$6\\pi>\\omega_s/2=4\\pi$: D/C removes it.'}}]}
+  ]}
+]},
+
+{ id:'m7-dtproc-eq-b', module:'M7', nav:'A digital cutoff in hertz', title:'A Digital Cutoff in Hertz', src:'—',
+  objective:'Map the cutoff of a digital low-pass filter to hertz and see it move with the sampling rate.',
+  keywords:'digital low-pass cutoff Omega_c = pi/4 equivalent cutoff omega_c = Omega_c / T f_c = Omega_c f_s / 2 pi hertz sampling rate slider 8 kHz 44.1 kHz',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'A Digital Cutoff in Hertz'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'fs', label:'$f_s$', min:4, max:48, step:0.5, v:8, show:v=>'$'+s5n(v,1)+'$ kHz'}]},
+      svg:v=>{
+      /* f in kHz; the digital filter keeps |Omega| < pi/4, so f_c = f_s/8 */
+      const fs=v?v.fs:8, fc=fs/8, F=26;
+      const a=AX({xr:[-F,F],yr:[-0.2,1.75],yticksOverride:[1],ytickfmt:()=>'1',
+        xlabel:'f\\;[\\text{kHz}]',ylabel:'|H_{\\text{eff}}(j2\\pi f)|',xticksOverride:[-24,-16,-8,0,8,16,24]});
+      /* the copies of the digital filter that D/C removes, faint */
+      for(let k=-8;k<=8;k++) if(k && Math.abs(k*fs)-fc < F) a.rect(k*fs-fc,0,k*fs+fc,1,{stroke:C.muted,dash:'4 4',width:1.2});
+      /* the band D/C keeps, |f| < fs/2, marked by short dashes that stop
+         below the note */
+      for(const e of [-fs/2,fs/2]) if(Math.abs(e) < F) a.poly([[e,0],[e,1.2]],{color:C.muted,width:1.4,dash:'3 4'});
+      a.poly([[-F,0],[-fc,0],[-fc,1],[fc,1],[fc,0],[F,0]],{color:C.h,width:2.6});
+      a.note(-F,1.45,'f_c=f_s/8='+s5n(fc,3)+'\\;\\text{kHz}',{tex:true,anchor:'start',dx:14,color:C.coral,fs:15});
+      return a.svg(); },
+      caption:'A digital low-pass with $\\Omega_c=\\pi/4$, read in hertz. Grey: $\\pm f_s/2$ and the copies D/C removes. Move $f_s$.'}
+  ], right:[
+    {t:'eq', label:'The cutoff in rad/s and in Hz', tex:'\\omega_c=\\frac{\\Omega_c}{T}=\\Omega_c\\,f_s,\\qquad f_c=\\frac{\\omega_c}{2\\pi}=\\frac{\\Omega_c}{2\\pi}\\,f_s',
+      note:'The filter stores only $\\Omega_c$. The sampling rate decides where it acts.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Solution · $\\Omega_c=\\pi/4$', html:'At $f_s=8$ kHz, $\\omega_c=\\tfrac{\\pi}{4}\\cdot8000=2000\\pi$ rad/s and $f_c=1$ kHz. At $44.1$ kHz the same filter cuts at $5.5125$ kHz.<span class="val"><b>$f_c=f_s/8$</b><small>for $\\Omega_c=\\pi/4$</small></span>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Same numbers, another filter', html:'A sound card that changes its rate moves every cutoff with it. A digital filter is designed for the rate it runs at.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A digital low-pass keeps $|\\Omega|<\\pi/2$ and runs at $f_s=16$ kHz.<div class="nsep"></div>What is its cutoff in hertz?',
+        ask:{key:'m7-dtproc-eq-b', choices:['$4$ kHz','$8$ kHz','$2$ kHz'], answer:0,
+          why:'$f_c=\\tfrac{\\Omega_c}{2\\pi}f_s=\\tfrac14\\cdot16=4$ kHz.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------ the digital differentiator */
+{ id:'m7-diff', module:'M7', nav:'Digital differentiator', title:'Digital Differentiator', src:'—',
+  objective:'Find the discrete-time filter that differentiates a band-limited signal and see its response repeat every 2π.',
+  keywords:'digital differentiator band-limited H_eff = j omega H_d(e^{j Omega}) = j Omega / T ramp magnitude pi/T periodic repetition phase plus minus pi/2 frames',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'Digital Differentiator'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$|H_{\\text{eff}}(j\\omega)|=|\\omega|$ on $|\\omega|<\\omega_s/2$','rename the axis: $|H_d(e^{j\\Omega})|=|\\Omega|/T$','$H_d(e^{j\\Omega})$ repeats every $2\\pi$']},
+      svg:v=>{
+      /* T = 0.25 s: the ramp reaches pi/T = 4 pi at the band edge */
+      const f=Math.max(0,Math.min(2,v?v.frame:0)), u2=cl(f-1), dt=f>=0.5, top=PI/S5T;
+      const a=AX({xr:[-3*PI,3*PI],yr:[-0.12*top,1.62*top],yticksOverride:[],
+        xlabel: dt ? '\\Omega\\;[\\text{rad/sample}]' : '\\omega\\;[\\text{rad/s}]',
+        ylabel: dt ? '|H_d(e^{j\\Omega})|' : '|H_{\\text{eff}}(j\\omega)|',
+        xticksOverride:wTicks(-3*PI,3*PI,PI), xtickfmt: dt ? piTick : s5wTick});
+      a.curve(W=>Math.abs(W)<=PI ? Math.abs(W)/S5T : NaN,{color:C.h,n:900});
+      fade(a,1-u2,()=>{ a.poly([[-3*PI,0],[-PI,0]],{color:C.h}); a.poly([[PI,0],[3*PI,0]],{color:C.h}); });
+      fade(a,u2,()=>{ a.curve(W=>{ const r=W-2*PI*Math.round(W/(2*PI)); return Math.abs(W)>=PI ? Math.abs(r)/S5T : NaN; },{color:C.h,n:1800});
+        s5Period(a,1.3*top); });
+      a.note(PI,top,dt?'\\pi/T':'4\\pi',{tex:true,anchor:'middle',dy:-16,color:C.muted,fs:14});
+      return a.svg(); },
+      caption:'The magnitude of the differentiator for $T=0.25$ s. It ramps up to $\\pi/T=4\\pi$ at the band edge. Press Next to read it in $\\Omega$ and to let it repeat.'}
+  ], right:[
+    {t:'eq', label:'Band-limited differentiator', tex:'H_{\\text{eff}}(j\\omega)=\\begin{cases}j\\omega,&|\\omega|<\\omega_s/2\\\\0,&|\\omega|>\\omega_s/2\\end{cases}',
+      note:'$j\\omega X_c(j\\omega)$ is the transform of $dx_c/dt$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'Step · read it in $\\Omega$', tex:'H_d(e^{j\\Omega})=H_{\\text{eff}}\\bigl(j\\tfrac{\\Omega}{T}\\bigr)=j\\,\\frac{\\Omega}{T},\\qquad|\\Omega|<\\pi',
+        note:'The key result read backwards. Outside $|\\Omega|<\\pi$ it repeats every $2\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A jump at the band edge', html:'The response goes from $j\\pi/T$ to $-j\\pi/T$ at $\\Omega=\\pi$. The magnitude is a ramp; the phase is $\\pm\\pi/2$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same differentiator, $T=0.25$ s.<div class="nsep"></div>What is $|H_d(e^{j\\Omega})|$ at $\\Omega=\\pi/2$?',
+        ask:{key:'m7-diff', choices:['$2\\pi$','$\\pi/2$','$8\\pi$'], answer:0,
+          why:'$|\\Omega|/T=(\\pi/2)/0.25=2\\pi$.'}}]}
+  ]}
+]},
+
+{ id:'m7-diff-b', module:'M7', nav:'Differentiator · a tone', title:'The Differentiator on a Tone', src:'—',
+  objective:'Pass a tone through the digital differentiator and see the output become the derivative below half the rate and the derivative of the alias above it.',
+  keywords:'differentiator tone cos(omega_0 t) output -omega_0 sin(omega_0 t) amplitude 2 pi f_0 slider sampling 1 kHz alias above f_s/2 wrong frequency wrong size',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'The Differentiator on a Tone'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'f0', label:'$f_0$', min:50, max:950, step:10, v:100, show:v=>'$'+v+'$ Hz'}]},
+      svg:v=>{
+      /* t in ms and f in kHz, so a derivative is per ms; f_s = 1 kHz */
+      /* a tone exactly at f_s/2 sits on the band edge: the chain is not
+         defined there, and nothing is drawn as its output */
+      const f0=(v?v.f0:100)/1000, edge=Math.abs(f0-0.5)<1e-9, fa=s5fold(f0,1), wa=edge?0:2*PI*fa, al=f0>0.5+1e-9;
+      const a=AX({xr:[-0.2,10.2],yr:[-3.6,7.4],yticksOverride:[-3,-1,0,1,3],ytickfmt:v=>String(v),
+        xlabel:'t\\;[\\text{ms}]',ylabel:'x_c(t),\\;y_c(t)',xticksOverride:[0,2,4,6,8,10]});
+      a.curve(t=>Math.cos(2*PI*f0*t),{color:C.in,width:1.5,dash:'5 5',n:3000});
+      a.curve(t=>-wa*Math.sin(wa*t),{color:C.out,width:2.4,n:2000});
+      for(let n=0;n<=10;n++) a.point(n,-wa*Math.sin(wa*n),{color:C.out,r:5});
+      a.note(-0.2,5.9,edge?'\\text{on the band edge: not defined}':al?'\\text{derivative of the alias at }'+Math.round(fa*1000)+'\\;\\text{Hz}':'\\text{peak }2\\pi f_0='+s5n(wa,2)+'\\;\\text{ms}^{-1}',
+        {tex:true,anchor:'start',dx:14,color:al||edge?C.err:C.out,fs:15});
+      return a.svg(); },
+      caption:'The tone $x_c(t)=\\cos(2\\pi f_0t)$ through the differentiator at $f_s=1$ kHz, $y_c$ per ms. Move $f_0$ past $500$ Hz.'},
+    {t:'legend', items:[['in','$x_c(t)$',true],['out','$y_c(t)$ and $y_d[n]$']]}
+  ], right:[
+    {t:'eq', label:'One tone through the chain', tex:'\\begin{aligned}x_d[n]&=\\cos(\\Omega_0n),\\qquad\\Omega_0=\\omega_0T\\\\y_d[n]&=\\tfrac{\\Omega_0}{T}\\cos\\bigl(\\Omega_0n+\\tfrac{\\pi}{2}\\bigr)=-\\omega_0\\sin(\\omega_0nT)\\end{aligned}',
+      note:'The gain is $\\Omega_0/T=\\omega_0$ and the phase $\\pi/2$. D/C returns $-\\omega_0\\sin(\\omega_0t)=dx_c/dt$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Check · $f_0=100$ Hz', html:'$\\omega_0=200\\pi\\approx628.3$ rad/s: the output peaks at $0.628$ per ms, as drawn.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'err', head:'Above $f_s/2$', html:'Past $500$ Hz the tone folds to $f_s-f_0$ first. The output is the derivative of the alias.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$f_s=1$ kHz and a tone at $f_0=700$ Hz.<div class="nsep"></div>What peak does $y_c(t)$ reach?',
+        ask:{key:'m7-diff-b', choices:['$2\\pi\\cdot300\\ \\text{s}^{-1}$','$2\\pi\\cdot700\\ \\text{s}^{-1}$','$0$'], answer:0,
+          why:'The filter differentiates the $300$ Hz alias.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------------ half-sample delay */
+{ id:'m7-halfdelay', module:'M7', nav:'Half-sample delay', title:'Half-Sample Delay', src:'—',
+  objective:'Delay a band-limited signal by half a sampling period with a discrete-time filter, and see the new samples fall between the old ones.',
+  keywords:'half-sample delay H_d(e^{j Omega}) = e^{-j Omega/2} delay T/2 band-limited interpolation midpoints y_d[n] = x_c(nT - T/2) frames linear phase',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'Half-Sample Delay'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_d[n]=x_c(nT)$','the curve read halfway, at $(n-\\tfrac12)T$','$y_d[n]$ at $nT$: $y_c(t)=x_c(t-T/2)$']},
+      svg:v=>{
+      /* T = 1 ms; the new samples appear at the midpoints, then the curve and
+         they move right by T/2 together */
+      const f=Math.max(0,Math.min(2,v?v.frame:0)), u1=cl(f), u2=cl(f-1), sh=0.5*u2;
+      const a=AX({xr:[-0.6,8.6],yr:[-1.9,3.3],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
+        xlabel:'t\\;[\\text{ms}]',ylabel:'x_c(t),\\;y_c(t)',xticksOverride:[0,2,4,6,8]});
+      a.curve(s5Xh,{color:C.in,width:1.5,dash:'5 5',n:1600});
+      fade(a,u2,()=>a.curve(t=>s5Xh(t-sh),{color:C.out,n:1600}));
+      fade(a,1-0.65*u2,()=>a.stem(D(n=>s5Xh(n),0,8),{color:C.mid,r:5}));
+      fade(a,u1,()=>a.stem(D(n=>s5Xh(n-0.5),0,9).map(([n,y])=>[n-0.5+sh,y]),{color:C.out,r:5}));
+      return a.svg(); },
+      caption:'$x_c(t)=\\sin(2\\pi\\,0.15t)+0.5\\cos(2\\pi\\,0.32t)$, $t$ in ms, sampled at $T=1$ ms. Press Next: the new samples are the curve read between the old ones.'},
+    {t:'legend', items:[['in','$x_c(t)$',true],['mid','$x_d[n]$'],['out','$y_d[n]$, $y_c(t)$']]}
+  ], right:[
+    {t:'eq', label:'Delay by $T/2$', tex:'\\begin{aligned}H_{\\text{eff}}(j\\omega)&=e^{-j\\omega T/2},\\quad|\\omega|<\\omega_s/2\\\\\\Longrightarrow\\;H_d(e^{j\\Omega})&=e^{-j\\frac{\\Omega}{T}\\cdot\\frac{T}{2}}=e^{-j\\Omega/2},\\quad|\\Omega|<\\pi\\end{aligned}',
+      note:'A delay $\\Delta$ multiplies the transform by $e^{-j\\omega\\Delta}$; here $\\Delta=T/2$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'$x_d[n-\\tfrac12]$ does not exist', html:'A sequence has no value at $n-\\tfrac12$. $y_d[n]$ is the curve through the samples, read half a step earlier: $x_c(nT-T/2)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Gain and phase', html:'$|H_d|=1$, and the phase $-\\Omega/2$ is a line: every frequency is delayed by half a sample.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$T=1$ ms and $x_c(t)=\\cos(2\\pi\\cdot250\\,t)$, $t$ in seconds.<div class="nsep"></div>What is $y_d[0]$?',
+        ask:{key:'m7-halfdelay', choices:['$0.707$','$1$','$0$'], answer:0,
+          why:'$y_d[0]=x_c(-T/2)=\\cos(-\\pi/4)\\approx0.707$.'}}]}
+  ]}
+]},
+
+{ id:'m7-halfdelay-b', module:'M7', nav:'Half-sample delay · impulse response', title:'Impulse Response of the Half-Sample Delay', src:'—',
+  objective:'Find the impulse response of the half-sample delay from a sinc input, and see why it uses every sample.',
+  keywords:'half-sample delay impulse response h[n] = sin(pi(n - 1/2))/(pi(n - 1/2)) sinc shifted half sample every sample nonzero decays 1/n frames',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Discrete-time processing', src:'—'},
+  {t:'title', text:'Impulse Response of the Half-Sample Delay'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['the kernel at integers: only $n=0$ is nonzero','shifted by half a sample: every $n$ carries a value']},
+      svg:v=>{
+      const s=0.5*cl(v?v.frame:0);
+      const a=AX({h:350,xr:[-5.6,6.6],yr:[-0.45,1.55],yticksOverride:[0,0.5,1],ytickfmt:v=>String(v),
+        xlabel:'n',ylabel:'h[n]',xticksOverride:[-4,-2,0,2,4,6]});
+      a.curve(t=>s5Sinc(PI*(t-s)),{color:C.mid,width:1.5,dash:'6 5',n:1600});
+      a.stem(D(n=>{ const y=s5Sinc(PI*(n-s)); return Math.abs(y)<1e-9?0:y; },-5,6),{color:C.h,r:5});
+      return a.svg(); },
+      caption:'The stems are $\\operatorname{sinc}\\bigl(\\pi(n-s)\\bigr)$ with $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. Press Next to move $s$ from $0$ to $\\tfrac12$.'},
+    {t:'legend', items:[['h','$h[n]$'],['mid','$\\operatorname{sinc}\\bigl(\\pi(t-s)\\bigr)$',true]]}
+  ], right:[
+    {t:'eq', label:'A sinc input', tex:'x_c(t)=\\frac{\\sin(\\pi t/T)}{\\pi t}\\;\\Longrightarrow\\;x_d[n]=\\frac{\\sin(\\pi n)}{\\pi nT}=\\frac{1}{T}\\,\\delta[n]',
+      note:'$\\sin(\\pi n)=0$ for $n\\neq0$ and $x_c(0)=1/T$; the band is $|\\omega|<\\pi/T$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'Impulse response', tex:'h[n]=T\\,y_d[n]=T\\,x_c\\bigl(nT-\\tfrac{T}{2}\\bigr)=\\frac{\\sin\\bigl(\\pi(n-\\frac12)\\bigr)}{\\pi(n-\\frac12)}',
+        note:'The input is $\\tfrac1T\\delta[n]$, so the output is $\\tfrac1Th[n]$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Every sample is used', html:'$\\sin\\bigl(\\pi(n-\\tfrac12)\\bigr)=(-1)^{n+1}$, so $h[n]=(-1)^{n+1}/\\bigl(\\pi(n-\\tfrac12)\\bigr)$: never zero, and decaying only like $1/n$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same $h[n]$.<div class="nsep"></div>How does $h[1]$ compare with $h[0]$?',
+        ask:{key:'m7-halfdelay-b', choices:['They are equal','$h[1]=0$','$h[1]=-h[0]$'], answer:0,
+          why:'$h[0]=\\tfrac{-1}{-\\pi/2}=\\tfrac{2}{\\pi}=\\tfrac{1}{\\pi/2}=h[1]$.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------------------ quantization */
+{ id:'m7-quant', module:'M7', nav:'Quantization', title:'Quantization', src:'—',
+  objective:'See a converter round each sample to one of 2^B levels, and read the size of the rounding error off the step.',
+  keywords:'quantization bits B levels 2^B step Delta = 2/2^B rounding error at most Delta/2 staircase analog-to-digital converter slider',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Quantization', src:'—'},
+  {t:'title', text:'Quantization'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'B', label:'$B$', min:1, max:8, step:1, v:3, show:v=>'$'+v+'$ '+(v===1?'bit':'bits')}]},
+      svg:v=>{
+      /* one cycle of a 1 kHz sine, t in ms, sampled 16 times a cycle; the
+         staircase is the whole curve rounded, which shows the levels a
+         sample can take; the error is drawn at the samples */
+      const B=v?v.B:3, L=Math.pow(2,B), Dl=2/L, x=t=>Math.sin(2*PI*t);
+      const dTex = Math.abs(+Dl.toFixed(4)-Dl)<1e-12 ? '='+s5n(Dl,4) : '\\approx'+s5n(Dl,4);
+      const pad={l:74,r:24,t:20,b:34};
+      return s5Stack([380,400],[0.6,0.6], h=>{
+        const a=AX({h,pad,xr:[-0.02,1.02],yr:[-1.25,2.55],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
+          xlabel:'t\\;[\\text{ms}]',ylabel:'x(t),\\;Q\\bigl(x(t)\\bigr)',xticksOverride:[0,0.25,0.5,0.75,1]});
+        if(B<=4) for(let i=0;i<L;i++) a.hline(-1+Dl*(i+0.5),{color:C.muted,opacity:.45});
+        a.curve(x,{color:C.in,width:1.5,dash:'5 5',n:1600});
+        a.curve(t=>s5Q(x(t),B),{color:C.out,width:2.4,n:3200});
+        for(let n=0;n<=16;n++) a.point(n/16,s5Q(x(n/16),B),{color:C.mid,r:4.6});
+        a.note(-0.02,1.95,L+'\\;\\text{levels},\\;\\Delta'+dTex,{tex:true,anchor:'start',dx:14,color:C.coral,fs:15});
+        return a.svg(); }, h=>{
+        const a=AX({h,pad,xr:[-0.02,1.02],yr:[-0.8*Dl,0.8*Dl],yticksOverride:[-Dl/2,Dl/2],ytickfmt:v=>s5n(v,4),
+          xlabel:'t\\;[\\text{ms}]',ylabel:'e[n]',xticksOverride:[0,0.25,0.5,0.75,1]});
+        a.hline(Dl/2,{color:C.err,opacity:.6}); a.hline(-Dl/2,{color:C.err,opacity:.6});
+        a.stem(D(n=>s5Q(x(n/16),B)-x(n/16),0,16).map(([n,e])=>[n/16,e]),{color:C.err,r:4});
+        return a.svg(); }); },
+      caption:'A full-scale $1$ kHz sine, $x(t)=\\sin(2\\pi t)$ with $t$ in ms, and its samples rounded to $2^{B}$ levels. Below, the error $e[n]=x_q[n]-x[n]$. Move $B$.'},
+    {t:'legend', items:[['in','$x(t)$',true],['out','$Q\\bigl(x(t)\\bigr)$'],['mid','$x_q[n]$'],['err','$e[n]$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'What a real converter adds', html:'A C/D converter with $B$ bits rounds each sample to one of $2^{B}$ levels. The result $x_q[n]$ is a number the computer can store.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'Step and error', tex:'\\Delta=\\frac{2}{2^{B}},\\qquad|e[n]|=\\bigl|x_q[n]-x[n]\\bigr|\\le\\frac{\\Delta}{2}',
+        note:'For a range from $-1$ to $1$. One more bit halves $\\Delta$, and with it the largest error.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A second loss, besides aliasing', html:'Rounding cannot be undone, and no sampling rate removes it. Only more bits make it smaller.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A converter has $B=4$ bits over the range $-1$ to $1$.<div class="nsep"></div>What is the largest rounding error?',
+        ask:{key:'m7-quant', choices:['$1/16$','$1/8$','$1/4$'], answer:0,
+          why:'$\\Delta=2/2^{4}=1/8$, so $|e|\\le\\Delta/2=1/16$.'}}]}
+  ]}
+]},
+
+{ id:'m7-quant-b', module:'M7', nav:'About 6 dB per bit', title:'About Six Decibels per Bit', src:'—',
+  objective:'Derive the signal-to-noise ratio of a quantized full-scale sine, check it against measured values, and hear 3, 8 and 16 bits.',
+  keywords:'signal to noise ratio SNR 6.02 B + 1.76 dB per bit quantization noise power Delta^2/12 full-scale sine 3 bits 8 bits 16 bits CD sound listen',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Quantization', src:'—'},
+  {t:'title', text:'About Six Decibels per Bit'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      listen:{items:[
+        {label:'Play $3$ bits', sound:()=>({f:t=>s5Q(Math.sin(2*PI*440*t),3), dur:1.2})},
+        {label:'Play $8$ bits', sound:()=>({f:t=>s5Q(Math.sin(2*PI*440*t),8), dur:1.2})},
+        {label:'Play $16$ bits', sound:()=>({f:t=>s5Q(Math.sin(2*PI*440*t),16), dur:1.2})}]},
+      svg:()=>{
+      const a=AX({xr:[0,17],yr:[0,128],yticksOverride:[0,20,40,60,80,100],ytickfmt:v=>String(v),yticksLeft:false,
+        xlabel:'B\\;[\\text{bits}]',ylabel:'\\text{SNR}\\;[\\text{dB}]',xticksOverride:[1,4,8,12,16]});
+      a.curve(B=>6.02*B+1.76,{color:C.mid,width:1.8,dash:'7 5',n:200});
+      for(let B=1;B<=16;B++) a.point(B,s5SnrM(B),{color:C.out,r:[3,8,16].includes(B)?6.5:4.2});
+      for(const B of [3,8,16]) a.note(B,s5SnrM(B),'B='+B,{tex:true,anchor:'end',dx:-14,dy:-12,color:C.out,fs:14});
+      return a.svg(); },
+      caption:'Dots: the SNR measured on a sampled full-scale sine. Dashed: the rule. Play a $440$ Hz tone at $3$, $8$ and $16$ bits.'},
+    {t:'legend', at:'tl', items:[['out','measured'],['mid','$6.02B+1.76$',true]]}
+  ], right:[
+    {t:'eq', label:'Step 1 · Noise power', tex:'\\overline{e^{2}}=\\frac{1}{\\Delta}\\int_{-\\Delta/2}^{\\Delta/2}e^{2}\\,de=\\frac{1}{\\Delta}\\Bigl[\\frac{e^{3}}{3}\\Bigr]_{-\\Delta/2}^{\\Delta/2}=\\frac{1}{\\Delta}\\cdot\\frac{\\Delta^{3}}{12}=\\frac{\\Delta^{2}}{12}',
+      note:'The error is taken as spread evenly over $\\pm\\Delta/2$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', label:'Step 2 · Signal to noise', tex:'\\begin{aligned}\\text{SNR}&=10\\log_{10}\\frac{1/2}{\\Delta^{2}/12}=10\\log_{10}\\frac{6}{\\Delta^{2}}=10\\log_{10}\\bigl(1.5\\cdot2^{2B}\\bigr)\\\\&=10\\log_{10}1.5+20B\\log_{10}2\\approx6.02B+1.76\\ \\text{dB}\\end{aligned}',
+        note:'A full-scale sine has power $1/2$, and $\\Delta^{2}=4/2^{2B}$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Check · the three sounds', html:'$19.8$ dB at $3$ bits, $49.9$ at $8$, $98.1$ at $16$, the CD format. From $3$ bits up the dots lie within $1$ dB.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'A converter is changed from $12$ to $14$ bits.<div class="nsep"></div>By about how much does the SNR rise?',
+        ask:{key:'m7-quant-b', choices:['$12$ dB','$2$ dB','$6$ dB'], answer:0,
+          why:'Two bits add $2\\times6.02\\approx12$ dB.'}}]}
+  ]}
+]},
+
+/* ============================================================ closing the section */
+realGallery({ id:'m7-real-dtproc', nav:'Digital processing around us',
+  title:'Digital Processing Around Us', eyebrow:'Module 7 · Discrete-time processing', src:'—',
+  objective:'Recognise everyday devices that sample a signal, process the numbers and convert back.',
+  keywords:'examples phone hum 50 Hz 8 kHz equaliser bass 48 kHz ABS wheel speed sensor moving average 400 Hz camera sharpening edge pixels',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-0.05,2.55],yr:[-1.5,3.4],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0.5,1,1.5,2],yticksOverride:[-1,0,1]}));
+      a.curve(t=>Math.sin(2*PI*0.8*t)+0.8*Math.sin(2*PI*0.05*t),{color:C.in,width:1.6,dash:'6 5',n:1200});
+      a.stem(D(n=>Math.sin(2*PI*800*n/8000),0,20).map(([n,y])=>[n/8,Math.abs(y)<1e-9?0:y]),{color:C.out,r:3});
+      return a.svg(); }, 'A phone at $8$ kHz removes the $50$ Hz hum: $y[n]=\\sin(2\\pi\\,800n/8000)$ V.',
+      [['in','$x(t)$, with hum',true],['out','$y[n]$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.2,10.2],yr:[-3.4,6.6],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xstep:2,yticksOverride:[-2,0,2]}));
+      a.curve(t=>Math.cos(2*PI*0.1*t)+Math.cos(2*PI*t),{color:C.in,width:1.6,dash:'6 5',n:1600});
+      a.curve(t=>2*Math.cos(2*PI*0.1*t)+Math.cos(2*PI*t),{color:C.out,n:1600});
+      return a.svg(); }, 'An equaliser at $48$ kHz doubles the bass: $y(t)=2\\cos(2\\pi\\,100t)+\\cos(2\\pi\\,1000t)$.',
+      [['in','$x(t)$',true],['out','$y(t)$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.001,0.051],yr:[17.8,24.8],xlabel:'t\\;(\\text{s})',ylabel:'v\\;(\\text{m/s})',xticksOverride:[0.01,0.02,0.03,0.04,0.05],yticksOverride:[18,20,22]}));
+      const sp=t=>20-8*t+1.5*Math.sin(2*PI*100*t);
+      a.curve(sp,{color:C.in,width:1.6,n:1200});
+      for(let n=3;n<=20;n++){ const t=n*0.0025; let q=0; for(let k=0;k<4;k++) q+=sp(t-k*0.0025); a.point(t,q/4,{color:C.out,r:3.8}); }
+      return a.svg(); }, 'An ABS wheel sensor at $400$ Hz: $y[n]=\\tfrac14\\sum_{k=0}^{3}v[n-k]$ removes the $100$ Hz ripple.',
+      [['in','$v(t)$'],['out','$y[n]$']]],
+    [()=>{ const a=P.Axes(EXO({xr:[-0.6,16.6],yr:[-0.3,1.9],xlabel:'n\\;(\\text{pixel})',ylabel:'b\\;(\\text{norm.})',xstep:4,yticksOverride:[0,0.5,1]}));
+      const b=x=>0.5+0.5*Math.tanh((x-8)/2.5);
+      a.curve(b,{color:C.in,width:1.6,dash:'6 5',n:800});
+      a.stem(D(n=>5*b(n)-2*(b(n-1)+b(n+1)),0,16),{color:C.out,r:3});
+      return a.svg(); }, 'A camera sharpens a soft edge $b$: $y[n]=5b[n]-2\\bigl(b[n-1]+b[n+1]\\bigr)$.',
+      [['in','$b$, soft edge',true],['out','$y[n]$']]]
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'Sample, compute, convert back', html:'Each device reads its signal at a fixed rate: $8$ kHz, $48$ kHz, $400$ Hz, one sample a pixel. The processing is arithmetic on the numbers.'},
+    {t:'note', kind:'warn', head:'The rate sets the frequency', html:'The four-sample average has zeros at $\\Omega=\\pi/2$ and $\\pi$. At $f_s=400$ Hz these are $100$ and $200$ Hz, so it removes the $100$ Hz ripple.'}
+  ]}),
+
+labScene({ id:'m7-lab-j5', lab:'J5', nav:'The Whole Chain', title:'Discrete-Time Processing End to End', src:'—',
+  objective:'Choose two input tones, a sampling rate and a digital filter, and follow the spectrum from the input through the discrete-time filter to the output, with the equivalent cutoff in rad/s and Hz.',
+  keywords:'laboratory chain C/D D/C digital low-pass cutoff Omega_c differentiator half-sample delay equivalent cutoff rad/s Hz band-limited warning alias' }),
+
+codeScene({ id:'m7-code-dtproc', nav:'Discrete-time processing', title:'Discrete-Time Processing in Code', src:'—', eyebrow:'Discrete-time processing in code',
+  objective:'Map frequencies to rad/sample, run a digital low-pass, differentiator and half-sample delay, and measure quantization noise in MATLAB and in Python, predicting each result first.',
+  keywords:'code matlab python frequency map Omega = omega T digital low-pass fft differentiator half-sample delay quantization SNR 6.02 B + 1.76 run' }),
+
 /* </m7-s5> */
 
 /* <m7-s6> ============================================ 7.6 sampling a sequence: decimation and interpolation */
+
+/* ------------------------------------------------------- sampling a sequence */
+{ id:'m7-dtsamp', module:'M7', nav:'Sampling a sequence', title:'Sampling a Sequence', src:'—',
+  objective:'Sample a sequence by multiplying it with a unit-sample train of period N, and read off which values survive.',
+  keywords:'discrete-time sampling sequence p[n] unit sample train period N x_p[n] multiplication zeros between samples',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Sampling a sequence', src:'—'},
+  {t:'title', text:'Sampling a Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$: the sequence','$p[n]$: a one every $N=3$ samples','$x_p[n]=x[n]\\,p[n]$']},
+      svg:v=>{
+      /* frame 1 brings in the train; frame 2 shrinks each unit sample to x[n]
+         and sets every value between the marks to zero */
+      const f=v?v.frame:0, N=3, u1=cl(f), u2=cl(f-1);
+      const on = n => ((n%N)+N)%N===0;
+      const a=AX({h:340,xr:[-12.6,12.6],yr:[-0.2,1.45],xlabel:'n',
+        ylabel:f<0.5?'x[n]':(f<1.5?'x[n],\\;p[n]':'x_p[n]'),yticksOverride:[0,0.5,1],xticksOverride:[-12,-9,-6,-3,0,3,6,9,12]});
+      /* the values between the marks shrink to zero */
+      fade(a,1,()=>s6stems(a,n=>on(n)?NaN:s6x(n)*(1-u2),-12,12,u2>0.98?C.mid:C.in));
+      fade(a,1-u2,()=>s6stems(a,n=>on(n)?s6x(n):NaN,-12,12,C.in));
+      /* the unit samples at the marks, shrinking to the value of x there */
+      fade(a,u1*(1-u2),()=>s6stems(a,n=>on(n)?1+(s6x(n)-1)*u2:NaN,-12,12,C.h));
+      fade(a,u2,()=>s6stems(a,n=>on(n)?1+(s6x(n)-1)*u2:NaN,-12,12,C.mid));
+      return a.svg(); },
+      caption:'The sequence $x[n]=\\bigl(\\sin(\\pi n/8)/(\\pi n/8)\\bigr)^{2}$, with $x[0]=1$, and a one every $N=3$ samples. Press Next: the values between the marks become zero.'},
+    {t:'legend', items:[['in','$x[n]$'],['h','$p[n]$'],['mid','$x_p[n]$']]}
+  ], right:[
+    {t:'eq', tex:'p[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-kN],\\qquad x_p[n]=x[n]\\,p[n]', label:'Sampling a sequence',
+      note:'The sampler multiplies $x[n]$ by a unit sample every $N$ samples. The integer $N$ is the sampling period.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'x_p[n]=\\sum_{k}x[kN]\\,\\delta[n-kN]=\\begin{cases}x[n], & n=kN\\\\ 0, & \\text{otherwise}\\end{cases}',
+        label:'What survives',
+        note:'$x[n]\\,\\delta[n-kN]=x[kN]\\,\\delta[n-kN]$, because $\\delta[n-kN]$ is zero except at $n=kN$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=(0.5)^{|n|}$ is sampled with $N=3$.<div class="nsep"></div>What is $x_p[4]$?',
+        ask:{key:'m7-dtsamp', choices:['$0$','$(0.5)^{4}$','$(0.5)^{3}$'], answer:0,
+          why:'$4$ is not a multiple of $3$, so the sampler sets $x_p[4]=0$.'}}]}
+  ]}
+]},
+
+{ id:'m7-dtsamp-b', module:'M7', nav:'The sampled spectrum of a sequence', title:'Spectrum of a Sampled Sequence', src:'—',
+  objective:'Set up the transform of a sampled sequence from the impulse-train pair and the multiplication property of Module 6.',
+  keywords:'sampled sequence spectrum P(e^{jw}) impulse train 2 pi/N multiplication property periodic convolution copies 1/N omega_s',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Sampling a sequence', src:'—'},
+  {t:'title', text:'Spectrum of a Sampled Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(e^{j\\omega})$: peak $8$','$k=0$: scaled by $1/N$','$k=1$: shifted by $\\omega_s=2\\pi/3$','$k=2$: shifted by $2\\omega_s$']},
+      svg:v=>{
+      /* N = 3. Frame 1 lowers the baseband to 8/3; frames 2 and 3 slide the
+         copies k = 1 and k = 2 out to k*2pi/3. Every copy repeats every 2 pi. */
+      const f=v?v.frame:0, N=3, u0=cl(f), u1=cl(f-1), u2=cl(f-2), ws=2*PI/N;
+      const a=s6AX({h:330,yr:[-0.6,12.4],ylabel:f<0.5?'X(e^{j\\omega})':'X_p(e^{j\\omega})',yticksOverride:[0,8/3,8],
+        ytickfmt:y=>y<1e-9?'0':(y>7?'8':'8/3')});
+      if(f>1) fade(a,cl(3*u1),()=>a.curve(w=>s6tri(w,ws*u1,S6W,S6PK/N),{color:C.mid,n:2400}));
+      if(f>2) fade(a,cl(3*u2),()=>a.curve(w=>s6tri(w,ws*(1+u2),S6W,S6PK/N),{color:C.mid,n:2400}));
+      a.curve(w=>s6tri(w,0,S6W,S6PK*(1-(1-1/N)*u0)),{color:C.in,n:2400});
+      s6Period(a,10.1);
+      return a.svg(); },
+      caption:'The running sequence has a triangle of peak $8$ reaching zero at $\\omega_M=\\pi/4$. With $N=3$, press Next: each impulse of $P(e^{j\\omega})$ in one period places one copy, scaled by $1/3$.'},
+    {t:'legend', items:[['in','$k=0$'],['mid','$k=1,2$']]}
+  ], right:[
+    {t:'eq', tex:'P(e^{j\\omega})=\\frac{2\\pi}{N}\\sum_{k=-\\infty}^{\\infty}\\delta(\\omega-k\\omega_s),\\qquad\\omega_s=\\frac{2\\pi}{N}',
+      label:'Step 1 · The sampling sequence',
+      note:'This is the impulse-train pair of Module 6. One period of $2\\pi$ holds the $N$ impulses $k=0,1,\\dots,N-1$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'X_p(e^{j\\omega})=\\frac{1}{2\\pi}\\int_{0}^{2\\pi}P(e^{j\\theta})\\,X\\bigl(e^{j(\\omega-\\theta)}\\bigr)\\,\\d\\theta',
+        label:'Step 2 · Multiply in time, convolve over one period',
+        note:'The multiplication property of Module 6: $x_p[n]=x[n]\\,p[n]$ becomes a periodic convolution over one period of $2\\pi$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'Take $N=4$ in Step 1.<div class="nsep"></div>What weight does each impulse of $P(e^{j\\omega})$ carry?',
+        ask:{key:'m7-dtsamp-b', choices:['$\\pi/2$','$2\\pi$','$1/4$'], answer:0,
+          why:'The weight is $2\\pi/N=2\\pi/4=\\pi/2$, and one period holds four of them.'}}]}
+  ]}
+]},
+
+{ id:'m7-dtsamp-c', module:'M7', nav:'Copies and aliasing', title:'The Copies, and When They Overlap', src:'—',
+  objective:'Finish the derivation of the sampled spectrum, then move N and find the largest one for which the copies stay apart.',
+  keywords:'aliasing discrete time sampling period N slider band edge omega_M pi/N condition overlap copies 2 pi/N',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Sampling a sequence', src:'—'},
+  {t:'title', text:'The Copies, and When They Overlap'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'N', label:'$N$', min:2, max:6, step:1, v:3, show:v=>'$'+v+'$'}]},
+      svg:v=>{
+      const N=v?Math.round(v.N):3, over=S6W>PI/N+1e-9, edge=Math.abs(S6W-PI/N)<1e-9;
+      const a=s6AX({h:320,yr:[-0.35,7.4],ylabel:'X_p(e^{j\\omega})',yticksOverride:[0,8/N],
+        ytickfmt:y=>y<1e-9?'0':'8/'+N});
+      s6Copies(a,N,S6W,S6PK);
+      s6Period(a,5.0);
+      a.note(-3*PI,6.5,'\\omega_M=\\tfrac{\\pi}{4}\\;'+(over?'>':(edge?'=':'<'))+'\\;\\tfrac{\\pi}{N}=\\tfrac{\\pi}{'+N+'}',{tex:true,
+        anchor:'start',dx:12,color:over?C.err:C.muted,fs:15});
+      return a.svg(); },
+      caption:'The copies of the running sequence, $\\omega_M=\\pi/4$, height $8/N$. Move $N$: at $N=4$ the copies just touch, and from $N=5$ they overlap.'},
+    {t:'legend', items:[['in','$k=0$'],['mid','$k\\neq0$'],['err','overlap']]}
+  ], right:[
+    {t:'eq', result:true, tex:'\\begin{aligned}X_p(e^{j\\omega})&=\\frac{1}{N}\\sum_{k=0}^{N-1}\\int_{0}^{2\\pi}\\delta(\\theta-k\\omega_s)\\,X\\bigl(e^{j(\\omega-\\theta)}\\bigr)\\,\\d\\theta\\\\&=\\frac{1}{N}\\sum_{k=0}^{N-1}X\\bigl(e^{j(\\omega-k\\omega_s)}\\bigr)\\end{aligned}',
+      label:'Key result · Spectrum of a sampled sequence',
+      note:'Step 3: put Step 1 into Step 2, $\\tfrac{1}{2\\pi}\\cdot\\tfrac{2\\pi}{N}=\\tfrac{1}{N}$, then sift at $\\theta=k\\omega_s$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\omega_s>2\\omega_M\\;\\Longleftrightarrow\\;\\frac{2\\pi}{N}>2\\omega_M\\;\\Longleftrightarrow\\;\\omega_M<\\frac{\\pi}{N}',
+        label:'No aliasing',
+        note:'Copies sit $2\\pi/N$ apart and reach $\\omega_M$ on each side.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A sequence has $X(e^{j\\omega})=0$ for $2\\pi/7\\le|\\omega|\\le\\pi$.<div class="nsep"></div>What is the largest $N$ with no aliasing?',
+        ask:{key:'m7-dtsamp-c', choices:['$3$','$4$','$7$'], answer:0,
+          why:'$2\\pi/7<\\pi/N$ needs $N<3.5$, so $N=3$.'}}]}
+  ]}
+]},
+
+{ id:'m7-dtsamp-rec', module:'M7', nav:'Recovering the sequence', title:'Recovering the Sequence', src:'—',
+  objective:'Recover a sampled sequence with an ideal discrete-time low-pass filter of gain N and cutoff pi/N.',
+  keywords:'recovery reconstruction ideal low-pass discrete time gain N cutoff pi/N omega_s/2 copies removed X_r',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Sampling a sequence', src:'—'},
+  {t:'title', text:'Recovering the Sequence'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X_p(e^{j\\omega})$: copies of height $8/3$','$H(e^{j\\omega})$: gain $3$ on $|\\omega|<\\pi/3$','$X_r(e^{j\\omega})=X(e^{j\\omega})$: height $8$']},
+      svg:v=>{
+      /* N = 3: the filter comes in, removes the copies k = 1, 2 and lifts the
+         baseband from 8/3 to 8 */
+      const f=v?v.frame:0, N=3, u1=cl(f), u2=cl(f-1), ws=2*PI/N;
+      const a=s6AX({yr:[-0.6,14],ylabel:'\\text{spectra}',yticksOverride:[0,8/3,8],
+        ytickfmt:y=>y<1e-9?'0':(y>7?'8':'8/3')});
+      fade(a,1-u2,()=>{ for(const k of [1,2]) a.curve(w=>s6tri(w,k*ws,S6W,S6PK/N),{color:C.mid,n:2400}); });
+      const pk=S6PK/N+(S6PK-S6PK/N)*u2;
+      fade(a,1-u2,()=>a.curve(w=>s6tri(w,0,S6W,pk),{color:C.in,n:2400}));
+      fade(a,u2,()=>a.curve(w=>s6tri(w,0,S6W,pk),{color:C.out,n:2400}));
+      fade(a,u1,()=>{ s6band(a,PI/N,N); a.note(PI/N,N,'N='+N,{tex:true,anchor:'start',dx:6,dy:-6,color:C.h,fs:14}); });
+      s6Period(a,11.2);
+      return a.svg(); },
+      caption:'Here $N=3$. Press Next: the low-pass keeps $|\\omega|<\\pi/3$ in every period, removes the copies, and its gain $3$ restores the height $8$.'},
+    {t:'legend', items:[['in','$k=0$'],['mid','$k\\neq0$'],['h','$H(e^{j\\omega})$',true],['out','$X_r(e^{j\\omega})$']]}
+  ], right:[
+    {t:'eq', tex:'H(e^{j\\omega})=\\begin{cases}N, & |\\omega|<\\omega_c\\\\ 0, & \\omega_c<|\\omega|\\le\\pi\\end{cases},\\qquad\\omega_M<\\omega_c<\\omega_s-\\omega_M',
+      label:'The recovery filter',
+      note:'It repeats every $2\\pi$, like every discrete-time frequency response. With no aliasing, $\\omega_c=\\pi/N=\\omega_s/2$ always lies in the range.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Why the gain is $N$', html:'Each copy carries the factor $1/N$. The gain $N$ undoes it, so $X_r(e^{j\\omega})=X(e^{j\\omega})$ and $x_r[n]=x[n]$ for every $n$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The running sequence, $\\omega_M=\\pi/4$, is sampled with $N=2$.<div class="nsep"></div>Which cutoff recovers it?',
+        ask:{key:'m7-dtsamp-rec', choices:['$\\omega_c=\\pi/2$','$\\omega_c=\\pi/8$','$\\omega_c=7\\pi/8$'], answer:0,
+          why:'It needs $\\pi/4<\\omega_c<\\pi-\\pi/4=3\\pi/4$, and only $\\pi/2$ lies inside.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------------------------ decimation */
+{ id:'m7-decim', module:'M7', nav:'Decimation', title:'Decimation', src:'—',
+  objective:'Form the decimated sequence by keeping every N-th value of the sampled sequence and closing the gaps.',
+  keywords:'decimation downsampling x_b[n] = x_p[nN] = x[nN] keep every N-th sample discard zeros rate falls by N',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Decimation', src:'—'},
+  {t:'title', text:'Decimation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$','$x_p[n]$: zeros between the samples','$x_b[n]=x_p[nN]$: the zeros removed']},
+      svg:v=>{
+      /* N = 3: frame 1 zeros the values between the marks; frame 2 moves the
+         sample at n = 3m to n = m and lets the zeros go */
+      const f=v?v.frame:0, N=3, u1=cl(f), u2=cl(f-1);
+      const on = n => ((n%N)+N)%N===0;
+      const a=AX({h:340,xr:[-12.6,12.6],yr:[-0.2,1.45],xlabel:'n',
+        ylabel:f<0.5?'x[n]':(f<1.5?'x_p[n]':'x_b[n]'),yticksOverride:[0,0.5,1],xticksOverride:[-12,-9,-6,-3,0,3,6,9,12]});
+      fade(a,1-u2,()=>s6stems(a,n=>on(n)?NaN:s6x(n)*(1-u1),-12,12,u1>0.98?C.mid:C.in));
+      const col=u2>0.5?C.out:(u1>0.5?C.mid:C.in);
+      s6stems(a,n=>on(n)?s6x(n):NaN,-12,12,col,n=>n*(1-u2)+(n/N)*u2);
+      return a.svg(); },
+      caption:'The running sequence, with $N=3$. Press Next: the values between the marks become zero, then the zeros are removed and the kept samples close up.'},
+    {t:'legend', items:[['in','$x[n]$'],['mid','$x_p[n]$'],['out','$x_b[n]$']]}
+  ], right:[
+    {t:'eq', tex:'x_b[n]=x_p[nN]=x[nN]', label:'Decimation by $N$',
+      note:'Keep every $N$-th value and close the gaps. The zeros of $x_p[n]$ carry nothing, so storing them wastes memory.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Downsampling', html:'If $x[n]$ holds samples of $x(t)$ taken every $T$, then $x_b[n]$ holds samples taken every $NT$. The sampling rate falls by the factor $N$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=n$ for $0\\le n\\le11$, and $N=4$.<div class="nsep"></div>What is $x_b[2]$?',
+        ask:{key:'m7-decim', choices:['$8$','$2$','$6$'], answer:0,
+          why:'$x_b[2]=x[2\\cdot4]=x[8]=8$.'}}]}
+  ]}
+]},
+
+{ id:'m7-decim-b', module:'M7', nav:'Decimation · the spectrum', title:'Decimation Stretches the Spectrum', src:'—',
+  objective:'Derive X_b(e^{jw}) = X_p(e^{jw/N}) by an index change and watch the sampled spectrum stretch by N.',
+  keywords:'decimation spectrum stretch X_b(e^{jw}) = X_p(e^{jw/N}) index change n = kN band edge N omega_M period 2 pi',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 7 · Decimation', src:'—'},
+  {t:'title', text:'Decimation Stretches the Spectrum'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X_p(e^{j\\omega})$ with $N=3$','$X_b(e^{j\\omega})=X_p(e^{j\\omega/3})$: stretched by $3$']},
+      svg:v=>{
+      /* the frequency axis of X_p is stretched from 1 to N as the frame runs */
+      const f=v?v.frame:0, N=3, s=1+(N-1)*cl(f);
+      const a=s6AX({h:320,yr:[-0.2,4.3],ylabel:f<0.5?'X_p(e^{j\\omega})':'X_b(e^{j\\omega})',yticksOverride:[0,8/3],
+        ytickfmt:y=>y<1e-9?'0':'8/3'});
+      s6Copies(a,N,S6W,S6PK,s);
+      s6Period(a,3.3);
+      return a.svg(); },
+      caption:'Press Next to decimate the running sequence by $N=3$. The copies at $2\\pi/3$ and $4\\pi/3$ move out to $2\\pi$ and $4\\pi$; the band $\\pi/4$ widens to $3\\pi/4$.'},
+    {t:'legend', items:[['in','$k=0$'],['mid','$k=1,2$']]}
+  ], right:[
+    {t:'eq', tex:'X_b(e^{j\\omega})=\\sum_{k}x_b[k]\\,e^{-j\\omega k}=\\sum_{k}x_p[kN]\\,e^{-j\\omega k}',
+      label:'Step 1 · The definition',
+      note:'Put $x_b[k]=x_p[kN]$ into the definition.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\sum_{k}x_p[kN]\\,e^{-j(\\omega/N)kN}=\\sum_{n}x_p[n]\\,e^{-j(\\omega/N)n}',
+        label:'Step 2 · Put $n=kN$',
+        note:'$\\omega k=(\\omega/N)(kN)$; every other term of $x_p[n]$ is zero.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'X_b(e^{j\\omega})=X_p\\bigl(e^{j\\omega/N}\\bigr)', label:'Decimation stretches the spectrum',
+        note:'A band edge $\\omega_M$ moves to $N\\omega_M$; the period stays $2\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The running sequence, $\\omega_M=\\pi/4$, is decimated with $N=2$.<div class="nsep"></div>Where is the band edge of $X_b(e^{j\\omega})$?',
+        ask:{key:'m7-decim-b', choices:['$\\pi/2$','$\\pi/8$','$\\pi/4$'], answer:0,
+          why:'$N\\omega_M=2\\cdot\\pi/4=\\pi/2$.'}}]}
+  ]}
+]},
+
+{ id:'m7-decim-c', module:'M7', nav:'Decimation · the prefilter', title:'Filter Before You Decimate', src:'—',
+  objective:'See and hear why a sequence is low-pass filtered at pi/N before it is decimated.',
+  keywords:'decimation prefilter anti-aliasing low-pass pi/N tone mixture 500 Hz 3 kHz 8 kHz alias 1 kHz sound listen',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Decimation', src:'—'},
+  {t:'title', text:'Filter Before You Decimate'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(e^{j\\omega})$','$\\downarrow2$ with no filter','low-pass first, then $\\downarrow2$']},
+      listen:{items:[
+        {label:'Play $x[n]$', sound:()=>({f:t=>s6cos(500)(t)+s6cos(3000)(t), dur:1.2})},
+        {label:'No filter', sound:()=>({f:t=>s6cos(500)(t)+s6cos(1000)(t), dur:1.2})},
+        {label:'Filtered', sound:()=>({f:s6cos(500), dur:1.2})}]},
+      svg:v=>{
+      /* frame 1 stretches every line by 2 and lets the copies shifted by 2 pi
+         fade in; the 3 pi/4 line turns red, since 3 pi/2 is -pi/2 in the next
+         period. Frame 2 removes it, as the low-pass would before the sampler. */
+      const f=v?v.frame:0, u=cl(f), g=cl(f-1), s=1+u;
+      const a=s6AX({h:300,yr:[-0.3,2.4],ylabel:f<0.5?'X(e^{j\\omega})':'X_b(e^{j\\omega})',yticksOverride:[]});
+      fade(a,1-u,()=>s6band(a,PI/2,1.3));
+      const put=(w0,col,op)=>fade(a,op,()=>{ for(let m=-4;m<=4;m++) for(const sg of [1,-1]){
+        const p0=sg*w0+2*PI*m, p=p0*s;
+        if(Math.abs(p)<=3*PI+1e-9) a.impulse(p,1,{color:col,label:false});
+        /* the copy of the decimator, one period of the input to the side */
+        const q=(p0+PI)*s; if(u>0.02 && Math.abs(q)<=3*PI+1e-9) fade(a,u,()=>a.impulse(q,1,{color:col,label:false})); } });
+      put(S6W1,C.in,1-g); put(S6W1,C.out,g);
+      put(S6W2,C.in,1-u); put(S6W2,C.err,u*(1-g));
+      s6Period(a,1.95);
+      return a.svg(); },
+      caption:'$500$ Hz and $3$ kHz at $8$ kHz: $x[n]=\\cos(\\pi n/8)+\\cos(3\\pi n/4)$. Press Next to decimate by $2$; each button plays at its own rate.'},
+    {t:'legend', items:[['in','tones of $x[n]$'],['err','alias of $3$ kHz'],['out','after the filter'],['h','$|\\omega|<\\pi/2$',true]]}
+  ], right:[
+    {t:'eq', tex:'x[n]\\to\\boxed{H_d(e^{j\\omega})}\\to\\boxed{\\downarrow N}\\to x_b[n],\\qquad H_d=\\begin{cases}1, & |\\omega|<\\pi/N\\\\ 0, & \\text{otherwise}\\end{cases}',
+      label:'Decimate with a prefilter',
+      note:'After the low-pass the band edge is at most $\\pi/N$, so the stretch by $N$ keeps it inside $|\\omega|\\le\\pi$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'err', head:'The filter comes first', html:'Here $2\\cdot3\\pi/4=3\\pi/2$, which is $-\\pi/2$ in the next period: the $3$ kHz tone is heard at $1$ kHz. After the decimator no filter can separate it from wanted content.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same $8$ kHz mixture is decimated with $N=4$ and no filter.<div class="nsep"></div>Which tone keeps its pitch?',
+        ask:{key:'m7-decim-c', choices:['$500$ Hz','$3$ kHz','neither'], answer:0,
+          why:'The new rate is $2$ kHz. Only $500$ Hz stays inside: $4\\cdot\\pi/8=\\pi/2<\\pi$, while $4\\cdot3\\pi/4=3\\pi$.'}}]}
+  ]}
+]},
+
+/* --------------------------------------------------------------- interpolation */
+{ id:'m7-upsamp', module:'M7', nav:'Interpolation', title:'Interpolation: Zeros, Then a Filter', src:'—',
+  objective:'Raise the rate of a sequence by inserting N - 1 zeros between its samples and filling them with a low-pass filter.',
+  keywords:'interpolation upsampling insert zeros time expansion x_(N)[n] low-pass fill in kept samples y[kN] = x_b[k] rate rises by N',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Interpolation', src:'—'},
+  {t:'title', text:'Interpolation: Zeros, Then a Filter'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_b[n]$: the samples','$x_{(3)}[n]$: two zeros in each gap','$y[n]$: the zeros filled in']},
+      svg:v=>{
+      /* N = 3: frame 1 moves the sample at n = m out to n = 3m and puts zeros
+         between; frame 2 grows each zero to the band-limited value */
+      const f=v?v.frame:0, N=3, u1=cl(f), u2=cl(f-1);
+      const on = n => ((n%N)+N)%N===0, y = n => s6x(n/N);
+      const a=AX({h:340,xr:[-18.6,18.6],yr:[-0.2,1.45],xlabel:'n',
+        ylabel:f<0.5?'x_b[n]':(f<1.5?'x_{(3)}[n]':'y[n]'),yticksOverride:[0,0.5,1],xticksOverride:[-18,-12,-6,0,6,12,18]});
+      if(u1>0.98) s6stems(a,n=>on(n)?NaN:y(n)*u2,-18,18,u2>0.02?C.out:C.mid,null,3.6);
+      s6stems(a,n=>s6x(n),-6,6,u1>0.5?C.mid:C.in,n=>n*(1+(N-1)*u1),4.6);
+      return a.svg(); },
+      caption:'The samples $x_b[n]=\\bigl(\\sin(\\pi n/8)/(\\pi n/8)\\bigr)^{2}$ and $N=3$. Press Next: two zeros go into each gap, and the low-pass fills them in. The kept samples do not move.'},
+    {t:'legend', items:[['in','$x_b[n]$'],['mid','$x_{(3)}[n]$'],['out','new values of $y[n]$']]}
+  ], right:[
+    {t:'eq', tex:'x_{(N)}[n]=\\begin{cases}x_b[n/N], & n=0,\\pm N,\\pm2N,\\dots\\\\ 0, & \\text{otherwise}\\end{cases}',
+      label:'Step 1 · Insert $N-1$ zeros',
+      note:'This is the {{sym:expan|time expansion}} of Module 6, with the transform $X_b\\bigl(e^{jN\\omega}\\bigr)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'y[n]=\\bigl(x_{(N)}*h\\bigr)[n],\\qquad H(e^{j\\omega})=\\begin{cases}N, & |\\omega|<\\pi/N\\\\ 0, & \\pi/N<|\\omega|\\le\\pi\\end{cases}',
+        label:'Step 2 · Filter',
+        note:'The low-pass fills every zero. Its impulse response is $1$ at $n=0$ and $0$ at the other multiples of $N$, so $y[kN]=x_b[k]$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A sequence is interpolated with $N=4$.<div class="nsep"></div>How many zeros go between two neighbouring samples?',
+        ask:{key:'m7-upsamp', choices:['$3$','$4$','$1$'], answer:0,
+          why:'$N-1=3$ zeros fill each gap, so the rate rises by $4$.'}}]}
+  ]}
+]},
+
+{ id:'m7-upsamp-b', module:'M7', nav:'Interpolation · images', title:'Images, and the Filter That Removes Them', src:'—',
+  objective:'See and hear the images that zero insertion creates, and remove them with a low-pass filter of gain N and cutoff pi/N.',
+  keywords:'interpolation images X(e^{jNw}) period 2 pi/N compressed spectrum low-pass gain N cutoff pi/N tone 500 Hz 3.5 kHz sound',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Interpolation', src:'—'},
+  {t:'title', text:'Images, and the Filter That Removes Them'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X_b(e^{j\\omega})$','$X_b(e^{j2\\omega})$: images','the low-pass, gain $2$']},
+      listen:{items:[
+        {label:'Play $x_b[n]$', sound:()=>({f:s6cos(500), dur:1.2})},
+        {label:'Zeros in', sound:()=>({f:t=>0.5*s6cos(500)(t)+0.5*s6cos(3500)(t), dur:1.2})},
+        {label:'Filtered', sound:()=>({f:s6cos(500), dur:1.2})}]},
+      svg:v=>{
+      /* frame 1 compresses the axis by 2: a line at pi/4 + 2 pi m moves to
+         pi/8 + pi m, and the ones with m odd are images. Frame 2 brings in the
+         filter, removes the images and doubles what is kept. */
+      const f=v?v.frame:0, u=cl(f), g=cl(f-1), s=1+u;
+      const a=s6AX({h:300,yr:[-0.3,3.3],ylabel:f<0.5?'X_b(e^{j\\omega})':'X_{(2)}(e^{j\\omega})',yticksOverride:[]});
+      fade(a,g,()=>s6band(a,PI/2,2));
+      for(let m=-5;m<=5;m++) for(const sg of [1,-1]){
+        const p=(sg*PI/4+2*PI*m)/s; if(Math.abs(p)>3*PI+1e-9) continue;
+        const img=Math.abs(m)%2===1, h=1/s;
+        if(img){ fade(a,1-u,()=>a.impulse(p,h,{color:C.in,label:false}));
+                 fade(a,u*(1-g),()=>a.impulse(p,h,{color:C.err,label:false})); }
+        else { fade(a,1-g,()=>a.impulse(p,h,{color:C.in,label:false}));
+               fade(a,g,()=>a.impulse(p,h*(1+g),{color:C.out,label:false})); }
+      }
+      s6Period(a,2.45);
+      return a.svg(); },
+      caption:'$500$ Hz at $4$ kHz, $x_b[n]=\\cos(\\pi n/4)$, interpolated by $N=2$. The images at $\\pm7\\pi/8$ sound as a $3.5$ kHz whistle.'},
+    {t:'legend', items:[['in','$x_b[n]$'],['err','image'],['out','kept'],['h','$H(e^{j\\omega})$',true]]}
+  ], right:[
+    {t:'eq', tex:'x_{(N)}[n]\\;\\longleftrightarrow\\;X_b\\bigl(e^{jN\\omega}\\bigr),\\qquad\\text{period }\\frac{2\\pi}{N}',
+      label:'The images',
+      note:'One period of $2\\pi$ now holds $N$ copies: the wanted one at $\\omega=0$ and $N-1$ images centred at $2\\pi k/N$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'The filter', html:'A low-pass of gain $N$ and cutoff $\\pi/N$ keeps the copy at $\\omega=0$ and removes the images. The gain keeps the old samples at their values.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x_b[n]=\\cos(\\pi n/4)$ is interpolated with $N=4$ and no filter.<div class="nsep"></div>How many copies of the tone does one period of $2\\pi$ hold?',
+        ask:{key:'m7-upsamp-b', choices:['$4$','$1$','$2$'], answer:0,
+          why:'The spectrum repeats every $2\\pi/4$, so a period holds the wanted copy and $3$ images.'}}]}
+  ]}
+]},
+
+/* ------------------------------------------------------------ rational factor */
+{ id:'m7-rational', module:'M7', nav:'A rate change by L/M', title:'Changing the Rate by $L/M$', src:'—',
+  objective:'Change the rate of a sequence by a rational factor: up by L, one low-pass filter, down by M.',
+  keywords:'rational rate change L/M upsample filter downsample 48 kHz 44.1 kHz 147/160 greatest common divisor 300 cutoff min pi/L pi/M',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 7 · Rate change', src:'—'},
+  {t:'title', text:'Changing the Rate by $L/M$'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$: one sample per unit','$\\uparrow3$: two zeros in each gap','the low-pass fills the gaps','$\\downarrow2$: every second kept']},
+      svg:v=>{
+      /* L = 3, M = 2 on one time axis measured in units of the old sample
+         spacing: x[n] = cos(pi n/5) at t = n, the fine sequence at t = n/3,
+         the output y[m] = cos(2 pi m/15) at t = 2m/3 */
+      const f=v?v.frame:0, u1=cl(f), u2=cl(f-1), u3=cl(f-2);
+      const a=AX({h:340,xr:[-0.4,10.4],yr:[-1.35,2.3],xlabel:'t/T',ylabel:f<2.5?'\\text{samples}':'y[m]',
+        yticksOverride:[-1,0,1],xticksOverride:[0,2,4,6,8,10]});
+      a.curve(t=>Math.cos(PI*t/5),{color:C.in,width:1.3,dash:'5 5',n:800});
+      const fine = D(i=>i,0,30);
+      /* the new points: zero after the insertion, filled by the filter */
+      fade(a,u1,()=>{ const keepOut=i=>i%2===0;
+        fine.forEach(([i])=>{ if(i%3===0) return;
+          const val=Math.cos(PI*i/15)*u2, col=u3>0.5?(keepOut(i)?C.out:C.mid):C.mid, op=u3>0 && !keepOut(i) ? 1-u3 : 1;
+          fade(a,op,()=>a.stem([[i/3,val]],{color:col,r:3.8})); }); });
+      /* the old samples: they stay, and those at even i are kept by the down-sampler */
+      fine.forEach(([i])=>{ if(i%3) return;
+        const col=u3>0.5?(i%2===0?C.out:C.mid):(u1>0.5?C.mid:C.in), op=u3>0 && i%2 ? 1-u3 : 1;
+        fade(a,op,()=>a.stem([[i/3,Math.cos(PI*i/15)]],{color:col,r:4.4})); });
+      return a.svg(); },
+      caption:'$x[n]=\\cos(\\pi n/5)$ lies on the dashed curve, and $L/M=3/2$. Press Next: up by $3$, fill, then keep every second value. The output has $3$ samples in every $2$ units of time.'},
+    {t:'legend', items:[['in','$x[n]$'],['mid','after $\\uparrow3$ and the filter'],['out','$y[m]$']]}
+  ], right:[
+    {t:'eq', tex:'x[n]\\to\\boxed{\\uparrow L}\\to\\boxed{H,\\ \\text{gain }L,\\ \\omega_c=\\min\\bigl(\\tfrac{\\pi}{L},\\tfrac{\\pi}{M}\\bigr)}\\to\\boxed{\\downarrow M}\\to y[m]',
+      label:'Up by $L$, filter, down by $M$',
+      note:'The rate changes by $L/M$. One filter does both jobs: it removes the images of $\\uparrow L$ and prevents the aliasing of $\\downarrow M$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\frac{44100}{48000}=\\frac{44100/300}{48000/300}=\\frac{147}{160}\\;\\Longrightarrow\\;L=147,\\;M=160',
+        label:'From $48$ kHz to $44.1$ kHz',
+        note:'$300$ is the greatest common divisor. The filter runs at $48\\cdot147=7056$ kHz with cutoff $\\pi/160$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A $44.1$ kHz recording is converted to $48$ kHz.<div class="nsep"></div>Which ratio $L/M$ does it use?',
+        ask:{key:'m7-rational', choices:['$160/147$','$147/160$','$48/44$'], answer:0,
+          why:'The rate rises by $48000/44100=160/147$: up by $160$, down by $147$.'}}]}
+  ]}
+]},
+
+/* ============================================================ closing the section */
+realGallery({ id:'m7-real-rate', nav:'Rate changes around us',
+  title:'Rate Changes Around Us', eyebrow:'Module 7 · Decimation and interpolation', src:'—',
+  objective:'Recognise everyday devices that lower or raise the rate of a sequence, each with its filter.',
+  keywords:'examples audio resampling 48 kHz 44.1 kHz thumbnail photo pixels slow motion frame interpolation data logger every tenth reading average',
+  figs:[
+    [()=>{ const a=P.Axes(EXO({xr:[-0.02,1.02],yr:[-1.3,2.3],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0,0.25,0.5,0.75,1],yticksOverride:[-1,0,1]}));
+      a.curve(t=>Math.cos(2*PI*t),{color:C.in,width:1.6,dash:'7 5',n:600});
+      a.stem(D(n=>Math.cos(2*PI*1000*n/44100),0,44).map(p=>[p[0]*1000/44100,p[1]]),{color:C.out,r:2.6,showZero:true});
+      return a.svg(); }, 'A $1$ kHz tone moved to $44.1$ kHz: $v[n]=\\cos(2\\pi\\cdot1000\\,n/44100)$ V.',
+      [['in','$v(t)$',true],['out','$v[n]$']]],
+    [()=>{ const b=x=>0.5+0.25*Math.cos(2*PI*x/32)+0.15*Math.cos(2*PI*x/3);
+      const a=P.Axes(EXO({xr:[-0.8,32.8],yr:[-0.05,1.5],xlabel:'x\\;(\\text{pixel})',ylabel:'b\\;(\\text{norm.})',xticksOverride:[0,8,16,24,32],yticksOverride:[0,0.5,1]}));
+      a.stem(D(i=>b(i),0,31),{color:C.in,r:2.2,width:1.3});
+      a.stem(D(m=>(b(4*m)+b(4*m+1)+b(4*m+2)+b(4*m+3))/4,0,7).map(p=>[4*p[0]+1.5,p[1]]),{color:C.out,r:4,width:2.4});
+      return a.svg(); }, 'A thumbnail pixel is the mean of four: $b_t[m]=\\tfrac14\\sum_{i=0}^{3}b[4m+i]$.',
+      [['in','$b[x]$'],['out','$b_t[m]$']]],
+    [()=>{ const h=t=>1.2-4.9*t*t;
+      const a=P.Axes(EXO({xr:[-0.01,0.43],yr:[-0.1,1.85],xlabel:'t\\;(\\text{s})',ylabel:'h\\;(\\text{m})',xticksOverride:[0,0.1,0.2,0.3,0.4],yticksOverride:[0,0.5,1]}));
+      a.stem(D(n=>h(n/120),0,48).filter(p=>p[0]%4).map(p=>[p[0]/120,p[1]]),{color:C.out,r:2.2,width:1.3});
+      a.stem(D(n=>h(n/30),0,12).map(p=>[p[0]/30,p[1]]),{color:C.in,r:3.6});
+      return a.svg(); }, 'Slow motion, $30$ to $120$ frames/s: $h[n]=1.2-4.9\\,(n/120)^{2}$ m.',
+      [['in','filmed'],['out','made']]],
+    [()=>{ const th=n=>1.2+0.8*Math.sin(2*PI*n/200)+0.5*Math.cos(2*PI*0.37*n);
+      const a=P.Axes(EXO({xr:[-1.5,101.5],yr:[-0.3,3.5],xlabel:'t\\;(\\text{s})',ylabel:'\\theta\\;(^{\\circ}\\text{C})',xticksOverride:[0,20,40,60,80,100],yticksOverride:[0,1,2]}));
+      a.stem(D(th,0,99),{color:C.in,r:1.5,width:0.9});
+      a.stem(D(m=>{ let s=0; for(let i=0;i<10;i++) s+=th(10*m+i); return s/10; },0,9).map(p=>[10*p[0]+4.5,p[1]]),{color:C.out,r:4,width:2.4});
+      return a.svg(); }, 'A logger keeps the mean of ten readings: $\\theta_{10}[m]=\\tfrac{1}{10}\\sum_{i=0}^{9}\\theta[10m+i]$.',
+      [['in','$\\theta[n]$'],['out','$\\theta_{10}[m]$']]]
+  ],
+  notes:[
+    {t:'note', kind:'def', head:'One operation, one filter', html:'Each device changes the rate of a sequence: by $147/160$, $1/4$, $4$ and $1/10$. Each keeps a low-pass beside it: the mean over the dropped samples, or the fill between new ones. Here $\\theta$ is the rise above $20^{\\circ}$C.'},
+    {t:'note', kind:'warn', head:'Why the filter matters', html:'Without the mean, the fine stripes of the photo and the fast wobble of the reading would return as coarse false patterns. That is aliasing, one sequence at a time.'}
+  ]}),
+
+labScene({ id:'m7-lab-j6', lab:'J6', nav:'Decimation and Interpolation', title:'Decimation and Interpolation', src:'—',
+  objective:'Choose a sequence and a factor N, decimate or interpolate it with the filter on or off, and read the new band edge and the verdict.',
+  keywords:'laboratory decimate interpolate factor N filter on off band edge aliasing images spectrum period time sequence triangle two tones' }),
+
+codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decimation and Interpolation in Code', src:'—', eyebrow:'Decimation and interpolation in code',
+  objective:'Sample, decimate, interpolate and change the rate of a sequence in MATLAB and in Python, and predict each result before running it.',
+  keywords:'code matlab python sampled sequence decimate prefilter alias interpolate images rational rate change 147/160 run' }),
 
 /* </m7-s6> */
 

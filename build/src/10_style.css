@@ -2216,7 +2216,57 @@ body[data-display=projector] .scene.slide .lab[data-lab="J4"] .readout.ro div{ p
 /* </m7-s4-css> */
 
 /* <m7-s5-css> */
+/* Laboratory 7.5 (key J5): three stacked plots beside four sliders, the
+   filter switch, a readout grid and two cards. The type floor is set here
+   (labels 16, choices 17, values 20, readouts 21, card text 19, all times
+   --ts); the filter switch takes the whole last row of the controls, and the
+   vertical rhythm is tightened in lecture mode rather than the type. */
+.scene .lab[data-lab="J5"] .ctrl label,
+.scene .lab[data-lab="J5"] .readout dt,
+.scene .lab[data-lab="J5"] .note-h,
+.scene .lab[data-lab="J5"] .eq-label,
+.scene.slide .lab[data-lab="J5"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J5"] .seg button{ font-size:calc(17px * var(--ts)); padding:6px 12px; }
+.scene .lab[data-lab="J5"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J5"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J5"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="J5"] .ctrls{ gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="J5"] .ctrl.j5-kind{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="J5"] .ctrl.j5-kind label{ justify-content:space-between; }
+.scene.slide .lab[data-lab="J5"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.scene.slide .lab[data-lab="J5"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J5"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J5"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J5"] .ctrls{ padding:12px 18px; gap:8px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J5"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s5-css> */
 
 /* <m7-s6-css> */
+/* Laboratory 7.6 (key J6): two sequence plots side by side over two spectrum
+   plots, beside five controls, a readout grid and two cards. The laboratory
+   type floor (labels, readout keys and tabs 16 px, choices 17 px, values
+   20 px, readout values 21 px, card text 19 px, all times --ts). Each
+   segmented choice sits under its label, and the vertical rhythm is
+   tightened in lecture mode rather than the type. */
+.scene .lab[data-lab="J6"] .ctrl label,
+.scene .lab[data-lab="J6"] .readout dt,
+.scene .lab[data-lab="J6"] .note-h,
+.scene .lab[data-lab="J6"] .eq-label,
+.scene.slide .lab[data-lab="J6"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="J6"] .seg button{ font-size:calc(17px * var(--ts)); padding:6px 12px; }
+.scene .lab[data-lab="J6"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="J6"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="J6"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab[data-lab="J6"] .j6-row{ display:flex; gap:10px; }
+.scene .lab[data-lab="J6"] .j6-row > .plot-wrap{ flex:1 1 0; min-width:0; }
+.scene.slide .lab[data-lab="J6"] .ctrls{ gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="J6"] .ctrl:has(.seg) label{ flex-direction:column; align-items:flex-start; gap:7px; }
+.scene.slide .lab[data-lab="J6"] .ctrl.j6-filt{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="J6"] .ctrl.j6-filt label{ flex-direction:row; align-items:center; justify-content:space-between; }
+.scene.slide .lab[data-lab="J6"] .readout{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.scene.slide .lab[data-lab="J6"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J6"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J6"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="J6"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s6-css> */
