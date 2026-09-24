@@ -669,7 +669,7 @@ window.C5 = [
 /* =================================================== 5.7 */
 {t:'h2', num:'5.7', text:'Summary'},
 {t:'h3', text:'Properties'},
-{t:'table', head:['Property','Statement'], rows:[
+{t:'table', cap:'Properties of the continuous-time Fourier transform.', head:['Property','Statement'], rows:[
  ['Linearity','$a x_1(t)+b x_2(t)\\;\\leftrightarrow\\;a X_1(j\\omega)+b X_2(j\\omega)$'],
  ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}X(j\\omega)$'],
  ['Frequency shift','$e^{j\\omega_0t}x(t)\\;\\leftrightarrow\\;X\\bigl(j(\\omega-\\omega_0)\\bigr)$'],
@@ -690,7 +690,7 @@ window.C5 = [
 ]},
 {t:'p', text:'Two rows carry a condition. Integration keeps $\\pi X(0)\\delta(\\omega)$ whenever the signal has non-zero area. Scaling carries $1/|a|$, with the modulus, so a reversal is counted once. Check every answer at $\\omega=0$ against the area.'},
 {t:'h3', text:'Transform pairs'},
-{t:'table', head:['Signal','Pair'], rows:[
+{t:'table', cap:'Continuous-time Fourier transform pairs.', head:['Signal','Pair'], rows:[
  ['Impulse','$\\delta(t)\\;\\leftrightarrow\\;1$'],
  ['Shifted impulse','$\\delta(t-t_0)\\;\\leftrightarrow\\;e^{-j\\omega t_0}$'],
  ['Unit step','$u(t)\\;\\leftrightarrow\\;\\frac{1}{j\\omega}+\\pi\\delta(\\omega)$'],

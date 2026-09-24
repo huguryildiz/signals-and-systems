@@ -267,7 +267,7 @@ window.C4 = [
 {t:'p', text:'So $a_{-k}=a_k^{*}$. Now split the synthesis sum into $k=0$, $k>0$ and $k<0$, and pair each $k$ with $-k$. A number plus its conjugate is twice its real part, $z+z^{*}=2\\operatorname{Re}\\{z\\}$:'},
 {t:'eq', tex:'\\begin{aligned}x(t)&=a_0+\\sum_{k=1}^{\\infty}\\bigl(a_ke^{jk\\omega_0t}+a_{-k}e^{-jk\\omega_0t}\\bigr)\\\\&=a_0+\\sum_{k=1}^{\\infty}\\Bigl(a_ke^{jk\\omega_0t}+\\bigl(a_ke^{jk\\omega_0t}\\bigr)^{*}\\Bigr)\\\\&=a_0+2\\sum_{k=1}^{\\infty}\\operatorname{Re}\\bigl\\{a_ke^{jk\\omega_0t}\\bigr\\}.\\end{aligned}'},
 {t:'p', text:'Two real forms follow, one for each way of writing $a_k$. In polar form, $a_k=A_ke^{j\\theta_k}$, so $\\operatorname{Re}\\{A_ke^{j(k\\omega_0t+\\theta_k)}\\}=A_k\\cos(k\\omega_0t+\\theta_k)$. In rectangular form, $a_k=B_k+jC_k$. Put $\\phi=k\\omega_0t$ and multiply out:'},
-{t:'eq', tex:'\\operatorname{Re}\\bigl\\{(B_k+jC_k)(\\cos\\phi+j\\sin\\phi)\\bigr\\}=\\operatorname{Re}\\bigl\\{B_k\\cos\\phi-C_k\\sin\\phi+j(B_k\\sin\\phi+C_k\\cos\\phi)\\bigr\\}=B_k\\cos\\phi-C_k\\sin\\phi.'},
+{t:'eq', tex:'\\begin{aligned}\\operatorname{Re}\\bigl\\{(B_k+jC_k)(\\cos\\phi+j\\sin\\phi)\\bigr\\}&=\\operatorname{Re}\\bigl\\{B_k\\cos\\phi-C_k\\sin\\phi+j(B_k\\sin\\phi+C_k\\cos\\phi)\\bigr\\}\\\\&=B_k\\cos\\phi-C_k\\sin\\phi.\\end{aligned}'},
 {t:'eqbox', cap:'Real forms of the series of a real signal',
  tex:['a_k=A_ke^{j\\theta_k}:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}A_k\\cos\\bigl(k\\omega_0t+\\theta_k\\bigr)',
       'a_k=B_k+jC_k:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}\\bigl[B_k\\cos k\\omega_0t-C_k\\sin k\\omega_0t\\bigr]'],
@@ -334,7 +334,7 @@ window.C4 = [
 {t:'eqbox', cap:'Truncated series and mean-square error',
  tex:['x_N(t)=\\sum_{k=-N}^{N}a_k\\,e^{jk\\omega_0t},\\qquad \\text{MSE}=\\frac{1}{T_0}\\int_{T_0}\\bigl|x(t)-x_N(t)\\bigr|^{2}\\,\\d t'],
  after:'Section 4.5 shows that the MSE equals the power in the dropped harmonics, $\\sum_{|k|>N}|a_k|^{2}$. The table uses that form.'},
-{t:'table', head:['$N$','Rectangular wave, $T_0=4T_1$','Sawtooth, $T_0=1$'], rows:[
+{t:'table', cap:'Mean-square error of the truncated series for the rectangular wave and the sawtooth.', head:['$N$','Rectangular wave, $T_0=4T_1$','Sawtooth, $T_0=1$'], rows:[
  ['3','$0.025$','$0.0144$'],
  ['9','$0.010$','$0.0053$'],
  ['27','$0.004$','$0.0018$'],
@@ -811,7 +811,7 @@ window.C4 = [
  ['Given','$x[n]=\\sum_{m=-\\infty}^{\\infty}\\delta[n-4m]$ into $y[n]-0.5\\,y[n-1]=x[n]$.'],
  ['Find','The output $y[n]$.'],
  ['Method','Take $a_k=\\tfrac14$ and $\\omega_0=\\pi/2$ from Example 4.19. Evaluate $H(e^{jk\\pi/2})$ for $k=0,1,2$, form $b_k=a_kH(e^{jk\\pi/2})$, and reassemble.'],
- ['Solution','With $a=0.5$, $H(e^{j\\omega})=1/(1-0.5e^{-j\\omega})$. At the harmonics, using $e^{-j\\pi/2}=-j$ and $e^{-j\\pi}=-1$: $$H(e^{j0})=\\frac{1}{1-0.5}=2,\\qquad H(e^{j\\pi/2})=\\frac{1}{1+0.5j},\\qquad H(e^{j\\pi})=\\frac{1}{1+0.5}=\\frac23.$$ For the middle value, $|1+0.5j|=\\sqrt{1.25}=1.118$ and $\\angle(1+0.5j)=\\arctan0.5=0.464$ rad, so $H(e^{j\\pi/2})=0.894e^{-j0.464}$. Then $$b_0=\\tfrac14\\cdot2=\\tfrac12,\\qquad b_1=\\frac{1/4}{1+0.5j}=\\frac{0.25}{1.118}e^{-j0.464}=0.2236e^{-j0.464},\\qquad b_2=\\tfrac14\\cdot\\tfrac23=\\tfrac16.$$ Also $b_{-1}=b_3=b_1^{*}$, because $x$ and the filter are real. The pair $k=\\pm1$ gives amplitude $2|b_1|=0.447$. The term at $k=N/2=2$ enters once, as $b_2(-1)^{n}$: $$y[n]=\\tfrac12+0.447\\cos\\!\\left(\\frac{\\pi}{2}n-0.464\\right)+\\tfrac16(-1)^{n}.$$'],
+ ['Solution','With $a=0.5$, $H(e^{j\\omega})=1/(1-0.5e^{-j\\omega})$. At the harmonics, using $e^{-j\\pi/2}=-j$ and $e^{-j\\pi}=-1$: $$\\begin{aligned}H(e^{j0})&=\\frac{1}{1-0.5}=2,\\\\H(e^{j\\pi/2})&=\\frac{1}{1+0.5j},\\\\H(e^{j\\pi})&=\\frac{1}{1+0.5}=\\frac23.\\end{aligned}$$ For the middle value, $|1+0.5j|=\\sqrt{1.25}=1.118$ and $\\angle(1+0.5j)=\\arctan0.5=0.464$ rad, so $H(e^{j\\pi/2})=0.894e^{-j0.464}$. Then $$\\begin{aligned}b_0&=\\tfrac14\\cdot2=\\tfrac12,\\\\b_1&=\\frac{1/4}{1+0.5j}=\\frac{0.25}{1.118}e^{-j0.464}=0.2236e^{-j0.464},\\\\b_2&=\\tfrac14\\cdot\\tfrac23=\\tfrac16.\\end{aligned}$$ Also $b_{-1}=b_3=b_1^{*}$, because $x$ and the filter are real. The pair $k=\\pm1$ gives amplitude $2|b_1|=0.447$. The term at $k=N/2=2$ enters once, as $b_2(-1)^{n}$: $$y[n]=\\tfrac12+0.447\\cos\\!\\left(\\frac{\\pi}{2}n-0.464\\right)+\\tfrac16(-1)^{n}.$$'],
  ['Check','Run the difference equation over one period. For $n=1,2,3$ the input is zero, so $y[1]=0.5y[0]$, $y[2]=0.25y[0]$ and $y[3]=0.125y[0]$. At $n=4$ the next impulse arrives and $y[4]=y[0]$ by periodicity: $y[0]=1+0.5y[3]=1+0.0625y[0]$, which gives $y[0]=1/0.9375=16/15=1.067$. The formula gives $0.5+0.447\\cos(-0.464)+0.167=0.5+0.4+0.167=1.067$, since $0.447\\cos(0.464)=\\sqrt{0.2}\\cdot2/\\sqrt5=0.4$. At $n=1$ it gives $0.5+0.447\\sin(0.464)-0.167=0.5+0.2-0.167=0.533=y[0]/2$.']
 ]},
 {t:'fig', svg:()=>{const a=ax({xr:[-13,13],yr:[-0.2,1.3],xlabel:'n',ylabel:'y[n]',xtarget:9,ytarget:3});
@@ -821,7 +821,7 @@ window.C4 = [
 /* ================================================================ 4.7 */
 {t:'h2', num:'4.7', text:'Summary'},
 {t:'p', text:'The two tables collect the properties of Section 4.5. To use them, recognise the signal as a known one with an operation applied. Look up the known coefficients, apply the rows in order, and check $a_0$ against the mean of the signal.'},
-{t:'table', head:['Property','Continuous time, period $T_0$, $\\omega_0=2\\pi/T_0$'], rows:[
+{t:'table', cap:'Properties of the continuous-time Fourier series.', head:['Property','Continuous time, period $T_0$, $\\omega_0=2\\pi/T_0$'], rows:[
  ['Linearity','$Ax(t)+By(t)\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
  ['Time shift','$x(t-t_0)\\;\\leftrightarrow\\;a_ke^{-jk\\omega_0t_0}$'],
  ['Frequency shift','$e^{jM\\omega_0t}x(t)\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],
@@ -838,7 +838,7 @@ window.C4 = [
  ['Even and odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{a_k\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{a_k\\}$, for real $x$'],
  ['Parseval','$\\frac{1}{T_0}\\int_{T_0}|x(t)|^{2}\\,\\d t=\\sum_{k}|a_k|^{2}$']
 ]},
-{t:'table', head:['Property','Discrete time, period $N$, $\\omega_0=2\\pi/N$'], rows:[
+{t:'table', cap:'Properties of the discrete-time Fourier series.', head:['Property','Discrete time, period $N$, $\\omega_0=2\\pi/N$'], rows:[
  ['Linearity','$Ax[n]+By[n]\\;\\leftrightarrow\\;Aa_k+Bb_k$'],
  ['Time shift','$x[n-n_0]\\;\\leftrightarrow\\;a_ke^{-jk(2\\pi/N)n_0}$'],
  ['Frequency shift','$e^{jM(2\\pi/N)n}x[n]\\;\\leftrightarrow\\;a_{k-M}$, $M$ an integer'],

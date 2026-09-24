@@ -717,7 +717,7 @@ window.C6 = [
 /* ================================================================ 6.7 */
 {t:'h2', num:'6.7', text:'Summary'},
 {t:'p', text:'The two tables collect the properties and the pairs of this chapter. In every row, $x[n]\\leftrightarrow X(e^{j\\omega})$, each spectrum repeats every $2\\pi$, and each sum over $k$ runs over all integers.'},
-{t:'table', head:['Property','Pair'],
+{t:'table', cap:'Properties of the discrete-time Fourier transform.', head:['Property','Pair'],
  rows:[
   ['Linearity','$a\\,x_1[n]+b\\,x_2[n]\\leftrightarrow a\\,X_1(e^{j\\omega})+b\\,X_2(e^{j\\omega})$'],
   ['Time shift','$x[n-n_0]\\leftrightarrow e^{-j\\omega n_0}X(e^{j\\omega})$'],
@@ -737,7 +737,7 @@ window.C6 = [
   ['Even and odd parts','$\\Ev\\{x\\}\\leftrightarrow\\operatorname{Re}\\{X\\}$, $\\Od\\{x\\}\\leftrightarrow j\\operatorname{Im}\\{X\\}$, for real $x$'],
   ['Parseval','$\\sum_n|x[n]|^{2}=\\frac{1}{2\\pi}\\int_{2\\pi}|X(e^{j\\omega})|^{2}\\d\\omega$']
  ]},
-{t:'table', head:['Sequence','Transform'],
+{t:'table', cap:'Discrete-time Fourier transform pairs.', head:['Sequence','Transform'],
  rows:[
   ['$\\delta[n]$','$1$'],
   ['$\\delta[n-n_0]$','$e^{-j\\omega n_0}$'],

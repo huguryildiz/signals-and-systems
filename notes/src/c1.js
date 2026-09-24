@@ -39,7 +39,7 @@ window.C1 = [
  ['4','Fourier series','The eigenfunction property. Synthesis and analysis. Series worked out. The discrete-time series. Properties. A periodic input through an LTI system: ideal, shaping and recursive filters.','OW CH3.1&ndash;3.11'],
  ['5','The continuous-time Fourier transform','From series to transform. The standard pairs. Periodic signals. Properties, with proofs. Convolution and multiplication. Systems from a differential equation.','OW CH4.1&ndash;4.7'],
  ['6','The discrete-time Fourier transform','The transform built from the series. Why the spectrum repeats. The DFT and zero padding. Standard pairs and periodic sequences. Every property with its proof. Periodic convolution, windows and the spectrogram. Difference equations and echoes.','OW CH5.1&ndash;5.8'],
- ['7','Sampling and aliasing','Impulse-train sampling. Replication and the guard band. The sampling theorem. Reconstruction, holds, and aliasing.','OW CH7.1&ndash;7.3'],
+ ['7','Sampling and aliasing','The sampler and the sampled spectrum. Aliasing and the sampling theorem, with band-pass sampling. Reconstruction: interpolation and the two holds. Aliasing in practice. Discrete-time processing of continuous-time signals. Decimation and interpolation.','OW CH7.1&ndash;7.5'],
  ['A','Summary of formulas','Everything from Chapters 1 to 7 on two pages.','']
 ]},
 
@@ -141,7 +141,7 @@ window.C1 = [
 {t:'eq', tex:'P_T=\\frac{E_T}{2T}=\\frac{2k+1}{2\\bigl(2k+\\tfrac12\\bigr)}=\\frac{2k+1}{4k+1}\\;\\longrightarrow\\;\\frac12\\quad\\text{as }k\\to\\infty.'},
 
 {t:'h3', text:'Energy signals, power signals, and neither'},
-{t:'table', head:['Type','Condition','Typical signals'], rows:[
+{t:'table', cap:'Energy signals, power signals, and signals that are neither.', head:['Type','Condition','Typical signals'], rows:[
  ['Energy signal','$E_\\infty<\\infty$, and then $P_\\infty=0$','Finite pulses and decaying responses'],
  ['Power signal','$0<P_\\infty<\\infty$, and then $E_\\infty\\to\\infty$','Constants, sinusoids and other continuing signals'],
  ['Neither','$E_\\infty\\to\\infty$ and $P_\\infty\\to\\infty$','Signals that grow without bound, such as $t\\,u(t)$']
@@ -427,9 +427,11 @@ window.C1 = [
 {t:'p', text:'A shifted impulse $\\delta[n-n_0]$ is $1$ only where $n-n_0=0$, that is at $n=n_0$. For example, $\\delta[n-3]$ is non-zero only at $n=3$. The step includes its first sample: $u[0]=1$. So $x[n]=u[n-2]$ has $x[2]=u[0]=1$.'},
 {t:'figrow', items:[
  {svg:()=>{const a=two({xr:[-3,5],yr:[-0.2,1.3],xlabel:'n',ylabel:'\\delta[n]',h:130,xtarget:5});
-   a.stem(D(n=>n===0?1:0,-3,5),{color:C.in}); return a.svg();}},
+   a.stem(D(n=>n===0?1:0,-3,5),{color:C.in}); return a.svg();},
+  cap:'The unit sample $\\delta[n]$: $1$ at $n=0$ and $0$ elsewhere.'},
  {svg:()=>{const a=two({xr:[-3,5],yr:[-0.2,1.3],xlabel:'n',ylabel:'u[n]',h:130,xtarget:5});
-   a.stem(D(n=>n>=0?1:0,-3,5),{color:C.h}); return a.svg();}}
+   a.stem(D(n=>n>=0?1:0,-3,5),{color:C.h}); return a.svg();},
+  cap:'The unit step $u[n]$: $1$ for $n\\ge0$, including $u[0]=1$.'}
 ]},
 
 {t:'h3', text:'First difference and running sum'},
@@ -705,7 +707,7 @@ window.C1 = [
 {t:'eqbox', cap:'Periodicity condition', big:true, tex:'\\frac{\\omega_0}{2\\pi}=\\frac{k}{N}\\in\\mathbb{Q}',
  after:'$N$ must be an integer, and so must $k$. This is possible only when $\\omega_0/2\\pi$ is rational. If the ratio is irrational, no integer $N$ satisfies the periodicity condition and the sequence is aperiodic.'},
 {t:'p', text:'For example, $x[n]=e^{j2n}$ has $\\omega_0/2\\pi=2/2\\pi=1/\\pi$, which is irrational. No integer period exists, so the sequence is aperiodic. The values $N=\\pi$ and $N=2\\pi$ are not periods, because a period must be an integer. In the same way, $\\cos(n/4)$ has $\\omega_0/2\\pi=1/(8\\pi)$ and is aperiodic.'},
-{t:'table', head:['','Continuous time, $e^{j\\omega_0t}$','Discrete time, $e^{j\\omega_0n}$'], rows:[
+{t:'table', cap:'Continuous-time and discrete-time complex exponentials compared.', head:['','Continuous time, $e^{j\\omega_0t}$','Discrete time, $e^{j\\omega_0n}$'], rows:[
  ['Periodic?','For every $\\omega_0\\neq0$','Only if $\\omega_0/2\\pi$ is rational'],
  ['Distinct frequencies','Each $\\omega_0$ gives a different signal','$\\omega_0$ and $\\omega_0+2\\pi$ give the same sequence']
 ]},
