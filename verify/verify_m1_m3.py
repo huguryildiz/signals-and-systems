@@ -261,6 +261,11 @@ chk("M1 evenodd-rules: t cos(pi t) is odd and integrates to 0 on [-2, 2]",
     and sp.integrate(t*sp.cos(sp.pi*t), (t, -2, 2)) == 0)
 chk("M1 evenodd-rules prediction: int_{-pi}^{pi} t^3 cos t dt = 0",
     sp.simplify(sp.integrate(t**3*sp.cos(t), (t, -sp.pi, sp.pi))) == 0)
+aa_ = sp.Symbol('a', positive=True)
+chk("M1 periodic-sum slider: on T = 0.5..24 only T = 12 and 24 give x(t+T) = x(t)",
+    [T_ for T_ in np.arange(0.5, 24.01, 0.5) if np.allclose(xs_(tv_ + T_), xs_(tv_))] == [12.0, 24.0])
+chk("M1 evenodd-rules slider: int_{-a}^{a} t cos(pi t) dt = 0 for every a",
+    sp.simplify(sp.integrate(t*sp.cos(sp.pi*t), (t, -aa_, aa_))) == 0)
 
 # ---------------------------------------------------------------- Module 2
 xs = sp.Function('x')
@@ -555,6 +560,15 @@ chk("M3 diffeq-ct: s(t) = int_0^t e^{-2tau} = (1 - e^{-2t})/2, limit 1/2",
 h5 = sp.exp(-5*t)*sp.Heaviside(t)
 chk("M3 diffeq-ct prediction: h = e^{-5t}u(t) satisfies h' + 5h = delta",
     sp.simplify((sp.diff(h5, t) + 5*h5 - sp.DiracDelta(t)).subs(sp.exp(-5*t)*sp.DiracDelta(t), sp.DiracDelta(t))) == 0)
+for a_v in [1, 1.5, 2, 2.5, 3, 3.5, 4]:
+    ha = sp.exp(-a_v*t)*sp.Heaviside(t)
+    chk(f"M3 diffeq-ct slider a={a_v}: h = e^(-at)u(t) solves h' + a h = delta, s settles at 1/a",
+        sp.simplify((sp.diff(ha, t) + a_v*ha - sp.DiracDelta(t)).subs(sp.exp(-a_v*t)*sp.DiracDelta(t), sp.DiracDelta(t))) == 0
+        and abs(float(sp.limit(sp.integrate(sp.exp(-a_v*tau), (tau, 0, t)), t, sp.oo)) - 1/a_v) < 1e-12)
+chk("M3 blockdiag frames: x = delta, b = 1, a = 1/2 give y[0..4] = 1, 1/2, 1/4, 1/8, 1/16",
+    np.allclose(recur(0.5, 1, d(0, 5)), [1, .5, .25, .125, .0625]))
+chk("M3 singular frames: running integral of delta is u, derivative of u is delta",
+    sp.integrate(sp.DiracDelta(tau), (tau, -sp.oo, t)) == sp.Heaviside(t) and sp.diff(sp.Heaviside(t), t) == sp.DiracDelta(t))
 
 # Module 3 gallery 3.5: each closed form solves its recursion or equation
 ns = np.arange(36)
