@@ -148,8 +148,8 @@ const REAL_CEXP = realGallery({ id:'m1-real-cexp', nav:'Exponentials around us',
       return a.svg(); }, 'A car body after a bump, sampled: $x[n]=(0.85)^n\\cos(0.6\\,n)$.']
   ],
   notes:[
-    {t:'note', kind:'def', head:'Real exponentials', html:'Cooling and savings follow $Ce^{at}$ or $Ca^n$. The sign of $a$, or whether $|a|$ exceeds 1, decides growth or decay.'},
-    {t:'note', kind:'def', head:'Complex exponentials', html:'A string or a car spring oscillates while it decays. That is the real part of $Ce^{st}$ with $s=\\sigma+j\\omega_0$ and $\\sigma<0$.'}
+    {t:'note', kind:'def', head:'Real exponentials', html:'Cooling and savings follow $Ce^{at}$ or $C\\alpha^n$. The sign of $a$, or whether $|\\alpha|$ exceeds 1, decides growth or decay.'},
+    {t:'note', kind:'def', head:'Complex exponentials', html:'A string or a car spring oscillates while it decays. That is the real part of $Ce^{at}$ with $a=r+j\\omega_0$ and $r<0$.'}
   ]});
 
 /* ---- a catalogue of common signals, section 1.7. Four gallery slides of the
@@ -1257,7 +1257,7 @@ REAL_TRANSFORM,
     {t:'legend', items:[['in','$x(t)$'],['mid','$x(t+T)$',true]]}
   ], right:[
     {t:'eq', tex:'T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}', label:'A common period',
-      note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0$ is the least common multiple of $T_1$ and $T_2$.'},
+      note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0=\\operatorname{lcm}(T_1,T_2)$ when no terms cancel.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}T_1&=\\frac{2\\pi}{2\\pi/3}=3,\\qquad T_2=\\frac{2\\pi}{\\pi/2}=4\\\\T_0&=\\operatorname{lcm}(3,4)=3\\cdot4=12\\end{aligned}', label:'For the signal on the left',
         note:'$3$ and $4=2^2$ share no prime factor, so the lcm is their product: four periods of the cosine and three of the sine.'}]},
@@ -2425,7 +2425,7 @@ CAT_RANDOM,
         why:'The impulse sits at $t=2$ and picks out the value of $x$ there. The result is a number.'}}],
     [{t:'note', kind:'def', head:'Complex exponential', html:'$\\operatorname{Re}\\{e^{(-1+j2)t}\\}$ is',
       ask:{key:'m1-qc10', choices:['a growing oscillation','a decaying oscillation','a pure sinusoid'], answer:1,
-        why:'It equals $e^{-t}\\cos 2t$. The real part $\\sigma=-1$ sets the decay and $\\omega_0=2$ the oscillation.'}}],
+        why:'It equals $e^{-t}\\cos 2t$. The real part $r=-1$ sets the decay and $\\omega_0=2$ the oscillation.'}}],
     [{t:'note', kind:'def', head:'Common signals', html:'For $t\\neq0$, $\\operatorname{sgn}(t)$ equals',
       ask:{key:'m1-qc11', choices:['$2u(t)-1$','$u(t)-1$','$2u(t)$'], answer:0,
         why:'$2u(t)-1$ is $1$ for $t>0$ and $-1$ for $t<0$.'}}]
@@ -2452,11 +2452,11 @@ CAT_RANDOM,
     {q:'How are $\\delta[n]$ and $u[n]$ related?', glyph:G.stepimp,
      a:'$\\delta[n]=u[n]-u[n-1]$ and $u[n]=\\sum_{k=-\\infty}^{n}\\delta[k]$: a first difference and a running sum.'},
     {q:'What kind of object is $\\delta[n]$, and what is $\\delta(t)$?', glyph:G.impulse,
-     a:'$\\delta[n]$ is a sequence. $\\delta(t)$ is a distribution. Both are defined by their sifting action.'},
+     a:'$\\delta[n]$ is an ordinary sequence: $1$ at $n=0$, $0$ elsewhere. $\\delta(t)$ is a distribution, defined by its sifting action.'},
     {q:'Does sifting give a number or a signal?', glyph:G.sift,
      a:'$\\int x(t)\\,\\delta(t-t_0)\\,\\d t=x(t_0)$ is a <b>number</b>. The product $x(t)\\,\\delta(t-t_0)=x(t_0)\\,\\delta(t-t_0)$ is a <b>signal</b>.'},
-    {q:'In $e^{(\\sigma+j\\omega_0)t}$, what do $\\sigma$ and $\\omega_0$ set?', glyph:G.cexp,
-     a:'$\\sigma$ sets the envelope $e^{\\sigma t}$: growth for $\\sigma>0$, decay for $\\sigma<0$. $\\omega_0$ sets the oscillation.'},
+    {q:'In $e^{(r+j\\omega_0)t}$, what do $r$ and $\\omega_0$ set?', glyph:G.cexp,
+     a:'$r$ sets the envelope $e^{rt}$: growth for $r>0$, decay for $r<0$. $\\omega_0$ sets the oscillation.'},
     {q:'When is a discrete-time exponential periodic?', glyph:G.dtper,
      a:'If and only if $\\omega_0/2\\pi$ is <b>rational</b>. A continuous-time one always is.'},
     {q:'Are $e^{j\\omega_0 n}$ and $e^{j(\\omega_0+2\\pi)n}$ different?', glyph:G.alias,

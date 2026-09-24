@@ -335,7 +335,7 @@ const SC = [
       a.curve(t=>rectp(t,1),{color:C.in,dash:'9 6',n:2400});
       a.curve(t=>(Si(W*(t+1))-Si(W*(t-1)))/PI,{color:C.out,n:3000});
       return a.svg(); },
-      caption:'Raise $W$: the ripples crowd toward the jumps at $t=\\pm1$, and the first peak stays near $1.09$.'},
+      caption:'Raise $W$: the ripples crowd toward the jumps at $t=\\pm1$, and the first peak settles near $1.09$.'},
     {t:'legend', items:[['in','$x(t)$',true],['out','$x_W(t)$']]}
   ], right:[
     {t:'eq', tex:'x_W(t)=\\frac{1}{2\\pi}\\int_{-W}^{W}\\frac{2\\sin\\omega}{\\omega}\\,e^{j\\omega t}\\,\\d\\omega', label:'Cut the synthesis integral',
@@ -343,11 +343,11 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'What converges', html:'As $W\\to\\infty$, $x_W(t)\\to x(t)$ at every $t$ except $t=\\pm1$. At a jump it tends to $\\tfrac12$, the midpoint of the jump. The energy of the error $x-x_W$ tends to $0$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'The overshoot does not shrink', html:'Near each jump, the first peak stays at about $1.09$ for every $W$. A larger $W$ only moves the peak closer to the jump, about $\\pi/W$ away. Partial sums of a Fourier series behave the same way.'}]},
+      {t:'note', kind:'warn', head:'The overshoot does not shrink', html:'Near each jump, the first peak tends to about $1.09$ as $W$ grows. A larger $W$ only moves the peak closer to the jump, about $\\pi/W$ away. Partial sums of a Fourier series behave the same way.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'The band edge is raised from $W=20$ to $W=200$ rad/s.<div class="nsep"></div>What is the highest value of $x_W(t)$ now?',
         ask:{key:'m5-gibbs', choices:['about $1.09$','about $1.009$','exactly $1$'], answer:0,
-          why:'The height of the peak does not depend on $W$; only its distance from the jump shrinks.'}}]}
+          why:'For large $W$ the peak height tends to about $1.09$; only its distance from the jump shrinks.'}}]}
   ]}
 ]},
 
