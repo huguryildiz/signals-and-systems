@@ -86,6 +86,36 @@ ${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
 </svg>`;
   };
 
+  /* State of one renderNotes call: the open chapter and section, the sections
+     of each chapter for the contents, and the numbered figures and tables. */
+  let S = null;
+  const pg = id => `<span class="pg" data-target="${id}"></span>`;
+  /* A list entry is the caption's first sentence: the caption explains the
+     figure, the list only names it. The cut is made in the source text and
+     never inside $...$, so no formula is split. `short` overrides it. */
+  const firstSentence = s => { s=String(s); let m=false;
+    for(let i=0;i<s.length;i++){ if(s[i]==='$') m=!m;
+      else if(!m && s[i]==='.' && (i===s.length-1 || s[i+1]===' ')) return s.slice(0,i+1); }
+    return s; };
+  const caption = (it, kind) => {
+    if(!S || !S.captions || !S.ch) return {id:'', html:it.cap?`<figcaption>${md(it.cap)}</figcaption>`:''};
+    const L = kind==='Figure' ? S.lof : S.lot, n = L.filter(e=>e.ch===S.ch).length + 1,
+          num = S.ch+'.'+n, id = (kind==='Figure'?'fig-':'tab-')+S.ch+'-'+n;
+    if(!it.cap) console.warn('NOTES: '+kind+' '+num+' has no caption');
+    L.push({ch:S.ch, num, id, text: it.short || (it.cap ? firstSentence(it.cap) : S.sec)});
+    return {id:` id="${id}"`, html:`<figcaption><span class="fl">${kind} ${num}</span>${it.cap?' '+md(it.cap):''}</figcaption>`};
+  };
+  /* Callout and worked-example icons: one 24-unit stroke set, drawn in the
+     colour of the title they sit in. */
+  const ICONS = {
+    note: '<circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.6v.01"/>',
+    warn: '<path d="M12 3.6 2.6 20h18.8z"/><path d="M12 10v4.6M12 17.4v.01"/>',
+    err:  '<circle cx="12" cy="12" r="9.5"/><path d="m8.6 8.6 6.8 6.8m0-6.8-6.8 6.8"/>',
+    ok:   '<circle cx="12" cy="12" r="9.5"/><path d="m7.6 12.4 3 3 5.8-6.2"/>',
+    ex:   '<path d="M4 20h4L19.2 8.8l-4-4L4 16z"/><path d="m13.4 6.6 4 4"/>'
+  };
+  const ico = k => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>`;
+
   const R = {
     page:   ()=>'</div><div class="page">',
     title:  b=>`<div class="title"><div class="mark">${LOGO}</div><p class="kicker">${md(b.kicker)}</p>
@@ -108,8 +138,17 @@ ${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
        <table class="cl-hist"><tr><th>Version</th><th>Date</th><th>Changes</th></tr>${
          window.DOC_HISTORY.map(([v,d,c])=>`<tr><td>${md(v)}</td><td>${md(d)}</td><td>${md(c)}</td></tr>`).join('')}</table>
        <p>© 2026 <a href="https://huguryildiz.com/">huguryildiz.com</a> · Course content: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></p></div>`,
-    h1:     b=>`<h1>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h1>${b.rule!==false?'<hr class="thick">':''}`,
-    h2:     b=>`<h2>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h2>`,
+    /* A numbered heading opens a chapter: its key is the last word of `num`
+       (CHAPTER 1 -> 1, APPENDIX A -> A), its id is `ch-<key>`, and the figure
+       and table counters restart. A numbered h2 gets the id `sec-<num>`. The
+       contents rows, the lists and the PDF bookmarks all point at these ids. */
+    h1:     b=>{ let num='', id='';
+       if(b.num){ const w=String(b.num).trim().split(/\s+/), k=w.pop();
+         if(S){ S.ch=k; S.sec=b.text; S.secs[k]=[]; S.chs.push({k,w:w.join(' '),text:b.text}); }
+         id=` id="ch-${k}"`; num=`<span class="num"><span class="w">${md(w.join(' '))}</span><span class="k">${md(k)}</span></span>`; }
+       return `<h1${b.num?' class="ch"':''}${id}>${num}${md(b.text)}</h1>${b.rule!==false?'<hr class="thick">':''}`; },
+    h2:     b=>{ if(S){ S.sec=b.text; if(b.num&&S.ch) S.secs[S.ch].push({num:b.num,text:b.text}); }
+       return `<h2${b.num?` id="sec-${b.num}"`:''}>${b.num?`<span class="num">${b.num}</span>`:''}${md(b.text)}</h2>`; },
     h3:     b=>`<h3>${md(b.text)}</h3>`,
     p:      b=>`<p${b.lead?' class="lead"':''}>${md(b.text)}</p>`,
     ul:     b=>`<ul>${b.items.map(i=>`<li>${md(i)}</li>`).join('')}</ul>`,
@@ -118,24 +157,32 @@ ${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
     eqbox:  b=>`<div class="eqbox">${b.cap?`<div class="cap">${md(b.cap)}</div>`:''}
        ${(Array.isArray(b.tex)?b.tex:[b.tex]).map(t=>`<div class="eq ${b.big?'big':''}">${T(t,true)}</div>`).join('')}
        ${b.after?`<div class="after">${md(b.after)}</div>`:''}</div>`,
-    box:    b=>`<div class="box ${b.kind||''}">${b.hd?`<span class="t">${md(b.hd)}</span>`:''}${md(b.html)}</div>`,
-    ex:     b=>`<div class="ex"><div class="h">${md(b.hd||'Example')}</div><dl>${
+    box:    b=>{ const i=ico(ICONS[b.kind]?b.kind:'note'), body=md(b.html);
+       return `<div class="box ${b.kind||''}">${b.hd?`<span class="t">${i}${md(b.hd)}</span>${body}`:body.replace('<span class="t">','<span class="t">'+i)}</div>`; },
+    ex:     b=>`<div class="ex"><div class="h">${ico('ex')}${md(b.hd||'Example')}</div><dl>${
        b.rows.map(([k,v])=>`<dt>${md(k)}</dt><dd>${md(v)}</dd>`).join('')}</dl></div>`,
-    fig:    b=>`<figure>${typeof b.svg==='function'?b.svg():b.svg}
-       ${b.cap?`<figcaption>${md(b.cap)}</figcaption>`:''}</figure>`,
-    figrow: b=>`<div class="figrow ${b.n===3?'three':'two'}">${b.items.map(it=>
-       `<figure>${typeof it.svg==='function'?it.svg():it.svg}${it.cap?`<figcaption>${md(it.cap)}</figcaption>`:''}</figure>`).join('')}</div>`,
-    table:  b=>`<table>${b.head?`<tr>${b.head.map(h=>`<th>${md(h)}</th>`).join('')}</tr>`:''}
-       ${b.rows.map(r=>`<tr>${r.map(c=>`<td>${md(c)}</td>`).join('')}</tr>`).join('')}</table>`,
+    fig:    b=>{ const c=caption(b,'Figure');
+       return `<figure${c.id}>${typeof b.svg==='function'?b.svg():b.svg}
+       ${c.html}</figure>`; },
+    figrow: b=>`<div class="figrow ${b.n===3?'three':'two'}">${b.items.map(it=>{ const c=caption(it,'Figure');
+       return `<figure${c.id}>${typeof it.svg==='function'?it.svg():it.svg}${c.html}</figure>`; }).join('')}</div>`,
+    /* A table's caption sits above it, as a table's caption does in print. */
+    table:  b=>{ const c=caption(b,'Table'), t=`<table>${b.head?`<tr>${b.head.map(h=>`<th>${md(h)}</th>`).join('')}</tr>`:''}
+       ${b.rows.map(r=>`<tr>${r.map(c=>`<td>${md(c)}</td>`).join('')}</tr>`).join('')}</table>`;
+       return c.html?`<figure class="tbl"${c.id}>${c.html}${t}</figure>`:t; },
     /* A contents row is number, title, summary and — where the same material is
        developed at length in the course textbook — an anchor into it. The anchor
        always carries its `OW` marker: these chapter numbers and the textbook's do
        not agree, and a bare section mark would read as one of these.
        The anchor is written before the summary so that grid auto-placement puts
-       it on the title line; the summary then spans the two columns beneath. */
-    toc:    b=>`<div class="toc">${b.items.map(([n,t,s,a])=>
-       `<div class="c"><div class="n">${md(n)}</div><div class="t">${md(t)}</div>${
-         `<div class="a">${a?md(a):''}</div>`}<div class="s">${md(s)}</div></div>`).join('')}</div>`,
+       it on the title line; the summary then spans the two columns beneath.
+       Each row links to its chapter and carries an empty page-number slot that
+       notes/topdf.js fills when it prints; the sections of the chapter are
+       listed under it once the whole document has been rendered. */
+    toc:    b=>`<div class="toc"><!--TOCFRONT-->${b.items.map(([n,t,s,a])=>{ const k=String(n).trim();
+       return `<div class="c"><div class="n">${md(n)}</div><a class="t" href="#ch-${k}">${md(t)}</a>${
+         `<div class="a">${a?md(a):''}</div>`}${pg('ch-'+k)}<div class="s">${md(s)}</div><!--TOCSEC:${k}--></div>`; }).join('')}</div>`,
+    lists:  ()=>'<!--LISTS-->',
     hr:     ()=>'<hr>',
     q:      b=>`<div class="q"><span class="n">${b.n}</span> ${md(b.text)}${
        b.ans?`<div class="ans">Answer: ${md(b.ans)}</div>`:''}</div>`,
@@ -146,9 +193,28 @@ ${trace(sy,['#8AD6E0','#6FC3CF'],1,.55,.45)}
      the same inline renderer the block types use. One renderer, one behaviour. */
   window.renderInline = md;
 
-  window.renderNotes = function(blocks, host){
-    host.innerHTML = '<div class="page">' + blocks.map(b=>{
+  /* With `captions` on (the lecture notes), every figure and table inside a
+     chapter is numbered by chapter, and a List of Figures and a List of Tables
+     are set on their own pages between the contents and Chapter 1. */
+  window.renderNotes = function(blocks, host, opts){
+    opts = opts || {};
+    S = {captions:!!opts.captions, ch:null, sec:'', chs:[], secs:{}, lof:[], lot:[]};
+    const first = blocks.findIndex(b=>b.t==='h1' && b.num);
+    if(S.captions && first>0) blocks = blocks.slice(0,first).concat([{t:'lists'},{t:'page'}], blocks.slice(first));
+    let html = '<div class="page">' + blocks.map(b=>{
       const f=R[b.t]; return f?f(b):'';
     }).join('') + '</div>';
+    const row = (cls,n,text,id) => `<a class="${cls}" href="#${id}"><span class="ln">${n}</span><span class="lt">${md(text)}</span><span class="ld"></span>${pg(id)}</a>`;
+    const list = (L,id,title) => `<h1 id="${id}">${title}</h1><hr class="thick"><div class="lol">${S.chs.map(c=>{
+      const e=L.filter(x=>x.ch===c.k); return e.length?`<div class="lg">${md(c.w)} ${md(c.k)} &middot; ${md(c.text)}</div>`+
+        e.map(x=>row('lr',x.num,x.text,x.id)).join(''):''; }).join('')}</div>`;
+    const front = [S.lof.length&&['lof','List of Figures'], S.lot.length&&['lot','List of Tables']].filter(Boolean);
+    html = html
+      .replace(/<!--TOCSEC:([^>]*?)-->/g, (m,k)=>(S.secs[k]||[]).map(x=>row('sr',x.num,x.text,'sec-'+x.num)).join(''))
+      .replace('<!--TOCFRONT-->', S.captions ? front.map(([id,t])=>
+        `<div class="c fm"><div class="n"></div><a class="t" href="#${id}">${t}</a><div class="a"></div>${pg(id)}</div>`).join('') : '')
+      .replace('<!--LISTS-->', front.map(([id,t])=>list(id==='lof'?S.lof:S.lot,id,t)).join(R.page()));
+    host.innerHTML = html;
+    S = null;
   };
 })();
