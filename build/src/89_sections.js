@@ -271,7 +271,7 @@ CONTENT.SECTIONS = {
     /* </m7-s6-sec> */
     /* <m7-s7-sec> */
     { n:'7.7', title:'Summary', ids:[
-        'm7-tables','m7-quick','m7-synth','m7-projects'] }
+        'm7-tables','m7-tables-b','m7-quick','m7-synth','m7-projects'] }
     /* </m7-s7-sec> */
   ],
 
@@ -459,7 +459,7 @@ CONTENT.BOOK = {
   'm7-code-rate':'7.5',
   /* </m7-s6-book> */
   /* <m7-s7-book> */
-  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
+  'm7-tables':'7.6', 'm7-tables-b':'7.4, 7.5', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
   /* </m7-s7-book> */
 };
 
