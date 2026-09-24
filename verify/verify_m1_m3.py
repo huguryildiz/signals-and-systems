@@ -177,6 +177,9 @@ chk("M1 cexp-sum: e^{j3t}+e^{j5t} = 2 e^{j4t} cos t",
     np.allclose(np.exp(3j*tt) + np.exp(5j*tt), 2*np.exp(4j*tt)*np.cos(tt)))
 chk("M1 cexp-sum: |x(t)| = 2|cos t| has period pi",
     np.allclose(2*np.abs(np.cos(tt + np.pi)), 2*np.abs(np.cos(tt))))
+chk("M1 cexp-sum slider: e^{j(4-d)t}+e^{j(4+d)t} = 2 e^{j4t} cos(dt) for d = 0.25..2",
+    all(np.allclose(np.exp(1j*(4-d)*tt) + np.exp(1j*(4+d)*tt), 2*np.exp(4j*tt)*np.cos(d*tt))
+        for d in np.arange(0.25, 2.01, 0.25)))
 chk("M1 predict |e^{j2t}+e^{j8t}| = 2|cos 3t|",
     np.allclose(np.abs(np.exp(2j*tt) + np.exp(8j*tt)), 2*np.abs(np.cos(3*tt))))
 nn = np.arange(-50, 51)
@@ -187,6 +190,8 @@ chk("M1 predict cos(11 pi n/6) = cos(pi n/6)", np.allclose(np.cos(11*np.pi*nn/6)
 N0s, ks = N0_of(6, 17)
 chk("M1 dt-sampled: cos(6 pi n/17) has N0 = 17 with k = 3", (N0s, ks) == (17, 3), f"N0={N0s}, k={ks}")
 chk("M1 dt-sampled: T0 = 17/3 and N0 = 3 T0", 2*sp.pi/(6*sp.pi/17) == sp.Rational(17,3) and 3*sp.Rational(17,3) == 17)
+chk("M1 dt-sampled frames: 17/3 and 34/3 are not integers, 3*17/3 = 17 is",
+    [(sp.Rational(17,3)*m).is_integer for m in (1, 2, 3)] == [False, False, True])
 chk("M1 dt-sampled: fundamental frequency 2pi/17 = w0/3", sp.simplify(2*sp.pi/17 - (6*sp.pi/17)/3) == 0)
 chk("M1 dt-sampled: no period of cos(6 pi n/17) below 17",
     all(not np.allclose(np.cos(6*np.pi*(nn+m)/17), np.cos(6*np.pi*nn/17)) for m in range(1, 17)))
