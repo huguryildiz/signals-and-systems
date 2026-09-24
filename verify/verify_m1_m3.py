@@ -146,6 +146,68 @@ chk("M1 quick: Re e^{(-1+j2)t} = e^{-t} cos 2t",
 chk("M1 quick: sgn(t) = 2u(t) - 1 for t != 0",
     all(sp.sign(v) == 2*sp.Heaviside(v) - 1 for v in (-3, -1, 2, 5)))
 
+# Module 1 additions: an aperiodic repeat, impulse scaling, derivative with jumps,
+# polar form, a sum of exponentials, DT frequency, sampled period, harmonics, geometric sums
+xpc = lambda v: sp.sin(sp.pi*v) if v < 0 else sp.cos(sp.pi*v)
+chk("M1 periodic-c: x(1.5) = 0 and x(-0.5) = -1, so T = 2 fails",
+    xpc(sp.Rational(3,2)) == 0 and xpc(-sp.Rational(1,2)) == -1)
+chk("M1 periodic-c: every multiple 2m of 2 fails at t = -0.5 (m = 1..50)",
+    all(xpc(-sp.Rational(1,2) + 2*m) != xpc(-sp.Rational(1,2)) for m in range(1, 51)))
+chk("M1 predict cos(pi t)u(t): y(-1) = 0 but y(1) = -1",
+    sp.cos(sp.pi*1)*sp.Heaviside(1) == -1 and sp.cos(-sp.pi)*sp.Heaviside(-1) == 0)
+chk("M1 impulse scaling: int delta(2t) dt = 1/2 and int delta(-3t) dt = 1/3",
+    sp.integrate(sp.DiracDelta(2*t), (t, -sp.oo, sp.oo)) == sp.Rational(1,2) and
+    sp.integrate(sp.DiracDelta(-3*t), (t, -sp.oo, sp.oo)) == sp.Rational(1,3))
+chk("M1 predict int cos t delta(2t) dt = 1/2",
+    sp.integrate(sp.cos(t)*sp.DiracDelta(2*t), (t, -sp.oo, sp.oo)) == sp.Rational(1,2))
+xd = lambda v: 0 if v < 0 else (v if v < 2 else (1 if v < 3 else 0))
+eps = 1e-9
+jumps = {v: round(xd(v + eps) - xd(v - eps), 6) for v in (0, 2, 3)}
+chk("M1 deriv: jumps of x(t) are 0 at t=0, -1 at t=2, -1 at t=3", jumps == {0: 0, 2: -1, 3: -1}, str(jumps))
+slope = sp.Piecewise((1, (tau > 0) & (tau < 2)), (0, True))
+spikes = -sp.DiracDelta(tau-2) - sp.DiracDelta(tau-3)
+chk("M1 deriv: running integral of x'(t) returns x(t) at t = -0.5, 1, 2.5, 3.5",
+    all(sp.simplify(sp.integrate(slope, (tau, -1, v)) + sp.integrate(spikes, (tau, -1, v)) - xd(v)) == 0
+        for v in (-sp.Rational(1,2), 1, sp.Rational(5,2), sp.Rational(7,2))))
+chk("M1 polar: 1 + j sqrt3 = 2 e^{j pi/3}",
+    sp.Abs(1 + sp.I*sp.sqrt(3)) == 2 and sp.arg(1 + sp.I*sp.sqrt(3)) == sp.pi/3)
+chk("M1 predict -2j: r = 2, theta = -pi/2", sp.Abs(-2*sp.I) == 2 and sp.arg(-2*sp.I) == -sp.pi/2)
+tt = np.linspace(0, 10, 2001)
+chk("M1 cexp-sum: e^{j3t}+e^{j5t} = 2 e^{j4t} cos t",
+    np.allclose(np.exp(3j*tt) + np.exp(5j*tt), 2*np.exp(4j*tt)*np.cos(tt)))
+chk("M1 cexp-sum: |x(t)| = 2|cos t| has period pi",
+    np.allclose(2*np.abs(np.cos(tt + np.pi)), 2*np.abs(np.cos(tt))))
+chk("M1 predict |e^{j2t}+e^{j8t}| = 2|cos 3t|",
+    np.allclose(np.abs(np.exp(2j*tt) + np.exp(8j*tt)), 2*np.abs(np.cos(3*tt))))
+nn = np.arange(-50, 51)
+chk("M1 dt-freq: e^{j(w+2pi)n} = e^{jwn} for w = 0.7",
+    np.allclose(np.exp(1j*(0.7 + 2*np.pi)*nn), np.exp(0.7j*nn)))
+chk("M1 dt-freq: e^{j pi n} = (-1)^n", np.allclose(np.exp(1j*np.pi*nn), (-1.0)**nn))
+chk("M1 predict cos(11 pi n/6) = cos(pi n/6)", np.allclose(np.cos(11*np.pi*nn/6), np.cos(np.pi*nn/6)))
+N0s, ks = N0_of(6, 17)
+chk("M1 dt-sampled: cos(6 pi n/17) has N0 = 17 with k = 3", (N0s, ks) == (17, 3), f"N0={N0s}, k={ks}")
+chk("M1 dt-sampled: T0 = 17/3 and N0 = 3 T0", 2*sp.pi/(6*sp.pi/17) == sp.Rational(17,3) and 3*sp.Rational(17,3) == 17)
+chk("M1 dt-sampled: fundamental frequency 2pi/17 = w0/3", sp.simplify(2*sp.pi/17 - (6*sp.pi/17)/3) == 0)
+chk("M1 dt-sampled: no period of cos(6 pi n/17) below 17",
+    all(not np.allclose(np.cos(6*np.pi*(nn+m)/17), np.cos(6*np.pi*nn/17)) for m in range(1, 17)))
+chk("M1 predict cos(4 pi n/9) has N0 = 9", N0_of(4, 9) == (9, 2), str(N0_of(4, 9)))
+chk("M1 harmonic: phi_k(t) = e^{j k 2pi t} repeats after T0 = 1 for k = 1..5",
+    all(np.allclose(np.exp(2j*np.pi*kk*(tt + 1)), np.exp(2j*np.pi*kk*tt)) for kk in range(1, 6)))
+phi = lambda kk, NN: np.exp(1j*kk*2*np.pi*nn/NN)
+chk("M1 harmonic: phi_{k+N}[n] = phi_k[n] for N = 6, k = -3..3",
+    all(np.allclose(phi(kk + 6, 6), phi(kk, 6)) for kk in range(-3, 4)))
+chk("M1 predict N = 6: phi_{-1} = phi_5", np.allclose(phi(-1, 6), phi(5, 6)) and not np.allclose(phi(-1, 6), phi(1, 6)))
+al = sp.Symbol('alpha')
+chk("M1 geosum: sum_{n=0}^{N-1} alpha^n = (1-alpha^N)/(1-alpha) for N = 1..8",
+    all(sp.simplify(sum(al**m for m in range(NN)) - (1 - al**NN)/(1 - al)) == 0 for NN in range(1, 9)))
+chk("M1 geosum: partial sums of 0.5^n approach 2",
+    abs(sum(0.5**m for m in range(60)) - 2) < 1e-12 and sp.summation(sp.Rational(1,2)**k, (k, 0, sp.oo)) == 2)
+chk("M1 geosum: sum of one harmonic over N = 6 is 6 for k in 6Z, else 0",
+    all(np.isclose(np.sum(np.exp(1j*kk*2*np.pi*np.arange(6)/6)), 6 if kk % 6 == 0 else 0) for kk in range(-12, 13)))
+chk("M1 predict N = 4, k = 1: sum of e^{j pi n/2}, n = 0..3, is 0",
+    abs(sum(np.exp(1j*np.pi*m/2) for m in range(4))) < 1e-12)
+chk("M1 predict sum (1/3)^n = 3/2", sp.summation(sp.Rational(1,3)**k, (k, 0, sp.oo)) == sp.Rational(3,2))
+
 # 1.7 catalogue of common signals
 a_ = sp.Symbol('a', positive=True); A_, T0_ = sp.symbols('A T0', positive=True)
 chk("M1 cat: d/dt r(t) = u(t) for t>0", sp.diff(t, t) == 1)

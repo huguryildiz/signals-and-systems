@@ -380,6 +380,12 @@ const waveBand=(a,f,t0,t1,col)=>{
 };
 /* a number as the slides print it: 0.5, 1.25, -2 */
 const num=v=>String(Math.round(v*100)/100);
+/* Axes with one unit the same length on both axes, for figures in the complex
+   plane. A probe call measures the data area at the height the slide gives the
+   figure, then the real call widens the x range about its centre to match. */
+const eqAxes=o=>{ const h=P.hOverride||o.h, q=Object.assign({},o,{h});
+  const pr=P.Axes(q), k=(pr.x1-pr.x0)/(pr.y0-pr.y1), c=(o.xr[0]+o.xr[1])/2, half=(o.yr[1]-o.yr[0])*k/2;
+  return P.Axes(Object.assign(q,{xr:[c-half,c+half]})); };
 
 const SC = [
 
@@ -1188,6 +1194,33 @@ REAL_TRANSFORM,
   ]}
 ]},
 
+{ id:'m1-periodic-c', module:'M1', nav:'A repeat that fails once', title:'A Repeating Shape That Is Not Periodic', src:'p. 5',
+  objective:'Show that one feature that does not recur makes a signal aperiodic.',
+  keywords:'aperiodic jump discontinuity piecewise sine cosine every feature recurs',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
+  {t:'title', text:'A Repeating Shape That Is Not Periodic'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const x=t=>t<0?Math.sin(Math.PI*t):Math.cos(Math.PI*t);
+      const a=P.Axes({w:560,h:380,xr:[-4,4],yr:[-1.4,1.7],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
+      a.curve(x,{color:C.in,n:1600});
+      a.point(0,1,{color:C.coral});
+      a.note(0.18,1.42,'\\text{jump at }t=0',{anchor:'start',color:C.coral,fs:14,tex:true});
+      return a.svg(); },
+      caption:'$x(t)=\\sin(\\pi t)$ for $t<0$ and $x(t)=\\cos(\\pi t)$ for $t\\ge 0$. Each side repeats every 2, but the jump at $t=0$ happens only once.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Test the whole signal', html:'Shift the whole graph by $T$. The signal is periodic only if the shifted graph lies on the original at every $t$, across the joint as well.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}x(-0.5+2)&=x(1.5)=\\cos(1.5\\pi)=0\\\\x(-0.5)&=\\sin(-0.5\\pi)=-1\\end{aligned}', label:'A shift of 2 fails',
+        note:'For large $t$ only a multiple of 2 can work, and every multiple of 2 fails at $t=-0.5$ in the same way.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$y(t)=\\cos(\\pi t)\\,u(t)$.<div class="nsep"></div>Is $y(t)$ periodic?',
+        ask:{key:'m1-periodic-c', choices:['Yes, $T_0=2$','No'], answer:1,
+          why:'$y(t)=0$ for every $t<0$, so a period would force the cosine part to be zero as well; $y(-1)=0$ but $y(1)=-1$.'}}]}
+  ]}
+]},
+
 { id:'m1-evenodd', module:'M1', nav:'Even and odd', title:'Even and odd parts', src:'pp. 5–6',
   objective:'Define even/odd and the unique decomposition.',
   keywords:'even odd decomposition Ev Od symmetry x(0)=0',
@@ -1647,6 +1680,68 @@ REAL_PERIODIC,
   ]}
 ]},
 
+{ id:'m1-ct-impulse-scale', module:'M1', nav:'Scaling an impulse', title:'Scaling the Impulse', src:'p. 7',
+  objective:'Show that a time-scaled impulse keeps its location and has weight 1/|a|.',
+  keywords:'delta(at) scaling weight 1/|a| substitution area compress',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
+  {t:'title', text:'Scaling the Impulse'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.25,1.6],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,yticksLeft:true});
+      a.poly([[-0.5,0],[-0.5,1],[0.5,1],[0.5,0]],{color:C.muted,width:1.6,dash:'6 5'});
+      a.raw('<g opacity=".18">'); a.rect(-0.25,0,0.25,1,{fill:C.out}); a.raw('</g>');
+      a.poly([[-0.25,0],[-0.25,1],[0.25,1],[0.25,0]],{color:C.out,width:2.2});
+      a.note(0.56,1.18,'\\delta_\\varepsilon(t):\\ \\text{area }1',{anchor:'start',color:C.muted,fs:14,tex:true});
+      a.note(-0.3,1.18,'\\delta_\\varepsilon(2t):\\ \\text{area }\\tfrac12',{anchor:'end',color:C.out,fs:14,tex:true});
+      return a.svg(); },
+      caption:'A unit-area rectangle $\\delta_\\varepsilon(t)$ of width $\\varepsilon=1$, dashed, and $\\delta_\\varepsilon(2t)$. Compressing by 2 halves the width and keeps the height, so the area becomes $\\tfrac12$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}\\int_{-\\infty}^{\\infty}\\delta(at)\\,\\d t&=\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\dfrac{\\d s}{a}\\\\&=\\dfrac{1}{a}\\end{aligned}', label:'Area for $a>0$',
+      note:'Substitute $s=at$, so $\\d t=\\d s/a$ and the limits stay $\\mp\\infty$. For $a<0$ the limits swap, and the area is $1/|a|$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\delta(at)=\\dfrac{1}{|a|}\\,\\delta(t),\\qquad a\\neq0', label:'Scaling',
+        note:'The impulse stays at $t=0$. Only its weight changes.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos t$.<div class="nsep"></div>What is $\\int_{-\\infty}^{\\infty}\\cos t\\;\\delta(2t)\\,\\d t$?',
+        ask:{key:'m1-ct-impulse-scale', choices:['$1/2$','$1$','$2$'], answer:0,
+          why:'$\\delta(2t)=\\tfrac12\\delta(t)$, and sifting at $t=0$ gives $\\tfrac12\\cos 0=\\tfrac12$.'}}]}
+  ]}
+]},
+
+/* The derivative of a signal with jumps: ordinary slopes plus one impulse per
+   jump, weighted by the jump. The reader sketches it first (fig.sketch). */
+{ id:'m1-ct-deriv', module:'M1', nav:'Derivative of a signal with jumps', title:'Differentiating a Signal with Jumps', src:'p. 7',
+  objective:'Differentiate a piecewise signal: slopes give the ordinary part, each jump gives an impulse weighted by the jump.',
+  keywords:'derivative jump discontinuity impulse weight running integral ramp worked example',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
+  {t:'title', text:'Differentiating a Signal with Jumps'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $x^{\\prime}(t)$ on the axes, then check it.'}, svg:()=>{
+      /* x(t) is the faint reference. The answer is the .sk-key group. */
+      const x=t=> t<0?0 : t<2?t : t<3?1 : 0;
+      const a=P.Axes({w:560,h:380,xr:[-1,4.5],yr:[-1.6,2.5],xlabel:'t',ylabel:'x^{\\prime}(t)',pad:{l:52,r:24,t:18,b:32},xtarget:6,ytarget:4});
+      a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+      a.curve(x,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
+      a.note(1.2,1.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.raw('<g class="sk-key">');
+      a.poly([[-1,0],[0,0]],{color:C.out}); a.poly([[0,1],[2,1]],{color:C.out}); a.poly([[2,0],[4.5,0]],{color:C.out});
+      a.impulse(2,-1,{color:C.out}); a.impulse(3,-1,{color:C.out});
+      a.note(4.4,2.2,'x^{\\prime}(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.raw('</g>');
+      return a.svg(); },
+      caption:'The dashed trace is $x(t)$: $x(t)=t$ on $[0,2]$, $x(t)=1$ on $(2,3)$, and 0 elsewhere. Draw its derivative, then show the answer.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Method', html:'Find $x^{\\prime}(t)$ in two parts.<ol class="steps"><li>Differentiate each piece: the ramp gives 1, a constant gives 0.</li><li>At each jump of size $k$ at $t_0$, add $k\\,\\delta(t-t_0)$.</li><li>Check that the running integral returns $x(t)$.</li></ol>'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'x^{\\prime}(t)=\\underbrace{u(t)-u(t-2)}_{\\text{slope of the ramp}}\\;\\underbrace{-\\,\\delta(t-2)-\\delta(t-3)}_{\\text{jumps of }-1\\text{ and }-1}', label:'Solution',
+        note:'At $t=2$ the signal falls from 2 to 1, and at $t=3$ from 1 to 0. At $t=0$ the ramp starts at 0, so there is no jump and no impulse.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Check', html:'For $2<t<3$: $\\int_{-\\infty}^{t}x^{\\prime}(\\tau)\\,\\d\\tau=\\int_0^2 1\\,\\d\\tau-1=2-1=1=x(t)$. For $t>3$: $2-1-1=0=x(t)$.'}]}
+  ]}
+]},
+
 REAL_IMPULSE,
 
 { id:'m1-lab-l', module:'M1', nav:'Laboratory {lab} · Sifting', title:'Laboratory {lab} — Sifting with a Narrowing Pulse', src:'pp. 6–7',
@@ -1665,6 +1760,41 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 1 · Impulses and steps in code', src:'pp. 6–7'},
   {t:'title', text:'Impulses and Steps in Code'},
   {t:'raw', html:()=>CODEBANK.page('m1-code-impulse')}
+]},
+
+{ id:'m1-polar', module:'M1', nav:'Complex numbers in polar form', title:'Complex Numbers in Polar Form', src:'pp. 7–9',
+  objective:'Write a complex number in Cartesian and polar form and convert between them.',
+  keywords:'complex number polar form modulus angle Euler Cartesian real imaginary part',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
+  {t:'title', text:'Complex Numbers in Polar Form'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=eqAxes({w:560,h:380,xr:[-0.8,2.8],yr:[-0.5,2.4],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:4});
+      const X=1, Y=Math.sqrt(3);
+      a.poly([[X,0],[X,Y]],{color:C.muted,width:1.3,dash:'5 5'});
+      a.poly([[0,Y],[X,Y]],{color:C.muted,width:1.3,dash:'5 5'});
+      const arc=[]; for(let i=0;i<=40;i++){ const p=Math.PI/3*i/40; arc.push([0.5*Math.cos(p),0.5*Math.sin(p)]); }
+      a.poly(arc,{color:C.coral,width:1.8});
+      a.poly([[0,0],[X,Y]],{color:C.in,width:2.6});
+      a.point(X,Y,{color:C.in});
+      a.note(X+0.1,Y+0.08,'z=1+j\\sqrt{3}',{anchor:'start',color:C.in,fs:15,tex:true});
+      a.note(0.3,1.12,'r=2',{anchor:'end',color:C.in,fs:15,tex:true});
+      a.note(0.58,0.2,'\\theta=\\pi/3',{anchor:'start',color:C.coral,fs:14,tex:true});
+      return a.svg(); },
+      caption:'The number $z=1+j\\sqrt{3}$ is the point $(1,\\sqrt{3})$. Its distance from the origin is $r=2$ and its angle from the real axis is $\\theta=\\pi/3$, so $z=2e^{j\\pi/3}$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}z&=x+jy\\\\&=re^{j\\theta}\\\\&=r\\cos\\theta+jr\\sin\\theta\\end{aligned}', label:'Two forms of one number',
+      note:'Euler\'s relation $e^{j\\theta}=\\cos\\theta+j\\sin\\theta$ links the two forms.'},
+    {t:'eq', tex:'r=|z|=\\sqrt{x^2+y^2},\\qquad\\theta=\\angle z', label:'Cartesian to polar',
+      note:'Read $\\theta$ from the quadrant of the point $(x,y)$. The value $\\arctan(y/x)$ alone cannot tell $1+j$ from $-1-j$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Why the polar form', html:'Products are simple in polar form: $r_1e^{j\\theta_1}\\,r_2e^{j\\theta_2}=r_1r_2\\,e^{j(\\theta_1+\\theta_2)}$. The moduli multiply and the angles add.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$z=-2j$.<div class="nsep"></div>What are its modulus and angle?',
+        ask:{key:'m1-polar', choices:['$r=2,\\;\\theta=-\\pi/2$','$r=-2,\\;\\theta=\\pi/2$','$r=2,\\;\\theta=\\pi/2$'], answer:0,
+          why:'$-2j$ lies on the negative imaginary axis at distance 2, so $-2j=2e^{-j\\pi/2}$.'}}]}
+  ]}
 ]},
 
 { id:'m1-ct-cexp', module:'M1', nav:'CT complex exponentials', title:'Continuous-time complex exponentials', src:'pp. 7–9',
@@ -1800,6 +1930,33 @@ REAL_IMPULSE,
   ]}
 ]},
 
+{ id:'m1-cexp-sum', module:'M1', nav:'Sum of two exponentials', title:'Factoring a Sum of Two Exponentials', src:'pp. 7–9',
+  objective:'Write a sum of two complex exponentials as one exponential times a cosine, and read its magnitude.',
+  keywords:'sum of exponentials average frequency factor Euler magnitude full-wave rectified',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 7–9'},
+  {t:'title', text:'Factoring a Sum of Two Exponentials'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,8],yr:[-2.4,2.9],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:4});
+      a.curve(t=>2*Math.cos(t)*Math.cos(4*t),{color:C.in,width:1.5,opacity:.55,n:1600});
+      a.curve(t=>2*Math.abs(Math.cos(t)),{color:C.out,n:1600});
+      return a.svg(); },
+      caption:'$x(t)=e^{j3t}+e^{j5t}$. Its magnitude $|x(t)|=2|\\cos t|$ is a full-wave rectified cosine with period $\\pi$. The real part $2\\cos t\\cos 4t$ oscillates inside it.'},
+    {t:'legend', items:[['out','$|x(t)|$'],['in','$\\operatorname{Re}\\{x(t)\\}$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'The idea', html:'Take out the exponential at the average frequency, $(3+5)/2=4$. What is left is two exponentials with opposite frequencies, and Euler\'s relation turns them into a cosine.'},
+    {t:'eq', tex:'\\begin{aligned}x(t)&=e^{j3t}+e^{j5t}\\\\&=e^{j4t}\\bigl(e^{-jt}+e^{jt}\\bigr)\\\\&=e^{j4t}\\,\\underbrace{2\\cos t}_{e^{-jt}+e^{jt}}\\end{aligned}', label:'Factor at the average frequency'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'|x(t)|=\\underbrace{\\bigl|e^{j4t}\\bigr|}_{1}\\,|2\\cos t|=2|\\cos t|', label:'Magnitude',
+        note:'A complex exponential with an imaginary exponent has magnitude 1 at every $t$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j2t}+e^{j8t}$.<div class="nsep"></div>What is $|x(t)|$?',
+        ask:{key:'m1-cexp-sum', choices:['$2|\\cos 3t|$','$2|\\cos 5t|$','$2$'], answer:0,
+          why:'The average frequency is 5, so $x(t)=e^{j5t}\\,2\\cos 3t$ and $|x(t)|=2|\\cos 3t|$.'}}]}
+  ]}
+]},
+
 { id:'m1-dt-cexp', module:'M1', nav:'DT complex exponentials', title:'Discrete-time complex exponentials', src:'pp. 9–10',
   objective:'Introduce x[n]=Cα^n and the three envelope cases.',
   keywords:'discrete complex exponential alpha beta growing decaying envelope',
@@ -1876,6 +2033,39 @@ REAL_IMPULSE,
   ]}
 ]},
 
+{ id:'m1-dt-freq', module:'M1', nav:'Low and high DT frequencies', title:'Low and High Frequencies in Discrete Time', src:'p. 10',
+  objective:'Show that DT frequencies repeat every 2π, with the slowest sequences near 0 and 2π and the fastest at π.',
+  keywords:'discrete frequency 2pi repeat low high pi (-1)^n alternating fastest',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'p. 10'},
+  {t:'title', text:'Low and High Frequencies in Discrete Time'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\omega_0=0$','$\\omega_0=\\pi/4$','$\\omega_0=\\pi/2$','$\\omega_0=\\pi$','$\\omega_0=3\\pi/2$','$\\omega_0=7\\pi/4$','$\\omega_0=2\\pi$']},
+      svg:v=>{
+      /* Frame k shows cos(w n) for the k-th frequency; between frames w moves
+         continuously, so the stems speed up to pi and slow down after it. */
+      const W=[0,0.25,0.5,1,1.5,1.75,2], k=v?v.frame:0, i=Math.min(5,Math.floor(k)), f=k-i;
+      const w=(W[i]+(W[i+1]-W[i])*f)*Math.PI;
+      const a=P.Axes({w:560,h:380,xr:[-12,12],yr:[-1.4,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:22,b:34},xtarget:7,ytarget:3,yticksLeft:true});
+      a.stem(disc(n=>Math.cos(w*n),-12,12),{color:C.in,r:3.2});
+      return a.svg(); },
+      caption:'Step through the frames: $x[n]=\\cos(\\omega_0 n)$. The samples change faster until $\\omega_0=\\pi$, then slower again. At $\\omega_0=2\\pi$ they are the constant sequence of $\\omega_0=0$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}e^{j(\\omega_0+2\\pi)n}&=e^{j\\omega_0n}\\,e^{j2\\pi n}\\\\&=e^{j\\omega_0n}\\end{aligned}', label:'Frequencies repeat every $2\\pi$',
+      note:'$e^{j2\\pi n}=1$ for every integer $n$. So one interval of length $2\\pi$ holds every distinct sequence.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Slow and fast', html:'Near $\\omega_0=0$ or $2\\pi$ the samples change slowly. Near $\\omega_0=\\pi$ they change fastest.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'e^{j\\pi n}=\\cos(\\pi n)+j\\underbrace{\\sin(\\pi n)}_{0}=(-1)^n', label:'The fastest sequence',
+        note:'It changes sign at every sample. No discrete-time sinusoid changes faster.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=\\cos(11\\pi n/6)$.<div class="nsep"></div>Does it change slowly or fast?',
+        ask:{key:'m1-dt-freq', choices:['Slowly, like $\\cos(\\pi n/6)$','Fast, near $\\omega_0=\\pi$'], answer:0,
+          why:'$11\\pi/6=2\\pi-\\pi/6$, so $\\cos(11\\pi n/6)=\\cos(2\\pi n-\\pi n/6)=\\cos(\\pi n/6)$.'}}]}
+  ]}
+]},
+
 { id:'m1-dt-period', module:'M1', nav:'DT periodicity condition', title:'When is a discrete-time exponential periodic?', src:'p. 10',
   objective:'Derive N = 2πk/ω₀ and the rationality condition; work the definition example.',
   keywords:'discrete periodicity rational multiple 2pi N0 integer condition',
@@ -1924,6 +2114,121 @@ REAL_IMPULSE,
       {t:'note', kind:'ok', head:'Solution', html:'The smallest such $k$ is 3, so<span class="val"><b>$N_0=10$</b><small>fundamental period</small></span>'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Check', html:'$\\omega_0 N_0=6\\pi=2\\pi\\cdot 3$. The phase advances three full turns in ten samples.'}]}
+  ]}
+]},
+
+{ id:'m1-dt-sampled', module:'M1', nav:'Sampled sinusoid · two periods', title:'A Sampled Sinusoid Has Its Own Period', src:'p. 10',
+  objective:'Compare the period of a CT sinusoid with the period of its integer samples, and separate the fundamental frequency from ω₀.',
+  keywords:'sampling integer samples period N0 T0 17 fundamental frequency omega0 over m',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity in discrete time', src:'p. 10'},
+  {t:'title', text:'A Sampled Sinusoid Has Its Own Period'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const w=6*Math.PI/17;
+      const a=P.Axes({w:560,h:380,xr:[-1,35],yr:[-1.4,2.1],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:3});
+      a.curve(t=>Math.cos(w*t),{color:C.muted,width:1.4,dash:'5 5',n:1400});
+      a.stem(disc(n=>Math.cos(w*n),0,35),{color:C.in,r:3});
+      a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
+      a.span(0,17,1.85,'N_0=17',{color:C.coral,tex:true});
+      return a.svg(); },
+      caption:'The stems are $x[n]=\\cos(6\\pi n/17)$. The dashed curve $\\cos(6\\pi t/17)$ repeats every $17/3$, but the stems repeat only every 17.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Samples of a curve', html:'$x[n]$ takes the values of $\\cos(6\\pi t/17)$ at integer $t$. The curve repeats every $T_0=17/3$. No sample falls at $t=17/3$.'},
+    {t:'eq', tex:'\\begin{aligned}N&=\\dfrac{2\\pi k}{\\omega_0}=\\dfrac{2\\pi k}{6\\pi/17}=\\dfrac{17}{3}k\\\\k&=3\\;\\Longrightarrow\\;N_0=17=3T_0\\end{aligned}', label:'The first period that is an integer',
+      note:'The sequence repeats after the curve has made 3 full cycles.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'Fundamental frequency', html:'The fundamental frequency is $2\\pi/N_0=2\\pi/17$. It equals $\\omega_0/3$, not $\\omega_0=6\\pi/17$, because one period of the sequence holds 3 cycles.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x[n]=\\cos(4\\pi n/9)$.<div class="nsep"></div>What is its fundamental period?',
+        ask:{key:'m1-dt-sampled', choices:['$N_0=9/2$','$N_0=9$','$N_0=18$'], answer:1,
+          why:'$N=2\\pi k/(4\\pi/9)=9k/2$, and the smallest integer comes at $k=2$, so $N_0=9$.'}}]}
+  ]}
+]},
+
+{ id:'m1-harmonic', module:'M1', nav:'Harmonically related exponentials', title:'Harmonically Related Exponentials', src:'pp. 8–10',
+  objective:'Define the harmonic families in CT and DT and show that DT has only N distinct members.',
+  keywords:'harmonic harmonically related complex exponentials common period T0 N distinct phi_k',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 8–10'},
+  {t:'title', text:'Harmonically Related Exponentials'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[0,2],yr:[-1.35,1.75],xlabel:'t',ylabel:'\\operatorname{Re}\\{\\phi_k(t)\\}',pad:{l:60,r:24,t:22,b:34},xtarget:5,ytarget:3});
+      [[1,C.in,'9 6'],[2,C.h],[3,C.out]].forEach(([k,col,dash])=>a.curve(t=>Math.cos(2*Math.PI*k*t),{color:col,dash,n:1200}));
+      a.vline(1,{color:C.coral,opacity:.7});
+      a.span(0,1,1.45,'T_0=1',{color:C.coral,tex:true});
+      return a.svg(); },
+      caption:'The harmonics $k=1,2,3$ with $T_0=1$. The $k$-th makes $k$ full cycles in $T_0$, so all three start together again at $t=T_0$.'},
+    {t:'legend', items:[['in','$k=1$',true],['h','$k=2$'],['out','$k=3$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Why a family', html:'Module 4 builds a periodic signal as a weighted sum of exponentials that share its period. This slide names that set.'},
+    {t:'eq', tex:'\\phi_k(t)=e^{jk\\omega_0t},\\qquad\\omega_0=\\dfrac{2\\pi}{T_0},\\quad k=0,\\pm1,\\pm2,\\dots', label:'Continuous-time family',
+      note:'For $k\\neq0$, $\\phi_k$ has fundamental period $T_0/|k|$, so every member repeats after $T_0$. All the members are different.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}\\phi_k[n]&=e^{jk(2\\pi/N)n}\\\\\\phi_{k+N}[n]&=e^{jk(2\\pi/N)n}\\,\\underbrace{e^{j2\\pi n}}_{1}=\\phi_k[n]\\end{aligned}', label:'Discrete-time family',
+        note:'Only $N$ members are different, for example $k=0,1,\\dots,N-1$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$N=6$.<div class="nsep"></div>Which member equals $\\phi_{-1}[n]$?',
+        ask:{key:'m1-harmonic', choices:['$\\phi_1[n]$','$\\phi_5[n]$','$\\phi_7[n]$'], answer:1,
+          why:'Adding $N=6$ to the index changes nothing, so $\\phi_{-1}[n]=\\phi_{-1+6}[n]=\\phi_5[n]$.'}}]}
+  ]}
+]},
+
+{ id:'m1-geosum', module:'M1', nav:'Geometric sums', title:'Geometric Sums', src:'pp. 9–10',
+  objective:'Derive the finite and infinite geometric sums.',
+  keywords:'geometric series finite sum infinite sum ratio alpha convergence harmonic sum N or 0',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
+  {t:'title', text:'Geometric Sums'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=P.Axes({w:560,h:380,xr:[-0.5,10.5],yr:[-0.1,2.5],xlabel:'N',ylabel:'S_N',pad:{l:52,r:24,t:22,b:34},xtarget:6,ytarget:3,yticksLeft:true});
+      a.hline(2,{color:C.coral,dash:'6 5',opacity:.9});
+      a.stem(disc(N=>2*(1-Math.pow(0.5,N)),0,10),{color:C.in,r:3.4,showZero:true});
+      a.note(10.3,2.2,'1/(1-0.5)=2',{anchor:'end',color:C.coral,fs:14,tex:true});
+      return a.svg(); },
+      caption:'Partial sums $S_N=\\sum_{n=0}^{N-1}(0.5)^n$. Each term halves the remaining gap, and the sums approach $1/(1-0.5)=2$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}S_N&=1+\\alpha+\\dots+\\alpha^{N-1}\\\\\\alpha S_N&=\\alpha+\\alpha^2+\\dots+\\alpha^{N}\\\\S_N-\\alpha S_N&=1-\\alpha^N\\\\S_N&=\\dfrac{1-\\alpha^N}{1-\\alpha},\\quad\\alpha\\neq1\\end{aligned}', label:'Finite sum',
+      note:'The subtraction cancels every middle term. For $\\alpha=1$, $S_N=N$ because every term is 1.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\sum_{n=0}^{\\infty}\\alpha^n=\\dfrac{1}{1-\\alpha},\\qquad|\\alpha|<1', label:'Infinite sum',
+        note:'For $|\\alpha|<1$, $\\alpha^N\\to0$ in the finite sum. For $|\\alpha|\\ge1$ the sum does not converge.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$\\alpha=1/3$.<div class="nsep"></div>What is $\\sum_{n=0}^{\\infty}(1/3)^n$?',
+        ask:{key:'m1-geosum', choices:['$3/2$','$3$','$\\infty$'], answer:0,
+          why:'$|1/3|<1$, so the sum is $1/(1-1/3)=3/2$.'}}]}
+  ]}
+]},
+
+{ id:'m1-harmsum', module:'M1', nav:'One harmonic over a period', title:'Summing One Harmonic over a Period', src:'pp. 9–10',
+  objective:'Use the finite geometric sum to show that one harmonic summed over a period gives N or 0.',
+  keywords:'harmonic sum period N zero unit circle roots geometric sum orthogonality',
+  slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 1 · Complex exponentials', src:'pp. 9–10'},
+  {t:'title', text:'Summing One Harmonic over a Period'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=eqAxes({w:560,h:380,xr:[-1.6,1.6],yr:[-1.45,1.55],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,xtickfmt:()=>'',ytickfmt:()=>''});
+      const c=[]; for(let i=0;i<=120;i++){ const p=2*Math.PI*i/120; c.push([Math.cos(p),Math.sin(p)]); }
+      a.poly(c,{color:C.muted,width:1.2,dash:'4 5'});
+      for(let m=0;m<6;m++){ const p=2*Math.PI*m/6, X=Math.cos(p), Y=Math.sin(p);
+        a.poly([[0,0],[X,Y]],{color:C.in,width:1.8}); a.point(X,Y,{color:C.in});
+        a.note(1.2*X,1.2*Y+(Math.abs(Y)<0.1?0.12:-0.04),'n='+m,{anchor:'middle',color:C.in,fs:14,tex:true}); }
+      a.point(0,0,{color:C.coral});
+      return a.svg(); },
+      caption:'The six terms $e^{j(2\\pi/6)n}$, $n=0,\\dots,5$, are equally spaced on the unit circle. Their vectors cancel, so the sum is 0.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}\\sum_{n=0}^{N-1}e^{jk(2\\pi/N)n}&=\\sum_{n=0}^{N-1}\\alpha^n,\\qquad\\alpha=e^{jk2\\pi/N}\\\\&=\\dfrac{1-\\alpha^N}{1-\\alpha}=\\dfrac{1-e^{jk2\\pi}}{1-\\alpha}=0\\end{aligned}', label:'Use the finite sum',
+      note:'This holds when $\\alpha\\neq1$, that is when $k$ is not a multiple of $N$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\sum_{n=0}^{N-1}e^{jk(2\\pi/N)n}=\\begin{cases}N,&k=0,\\pm N,\\pm2N,\\dots\\\\0,&\\text{otherwise}\\end{cases}', label:'One harmonic over a period',
+        note:'If $k$ is a multiple of $N$, then $\\alpha=1$ and all $N$ terms equal 1. Module 4 uses this result to find Fourier series coefficients.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$N=4$, $k=1$.<div class="nsep"></div>What is $\\sum_{n=0}^{3}e^{j\\pi n/2}$?',
+        ask:{key:'m1-harmsum', choices:['$0$','$4$','$j$'], answer:0,
+          why:'The terms are $1,\\,j,\\,-1,\\,-j$, and they add to 0.'}}]}
   ]}
 ]},
 
