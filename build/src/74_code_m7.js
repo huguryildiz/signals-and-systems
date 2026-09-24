@@ -136,7 +136,8 @@ Xp = zeros(size(w));
 for kk = k
     Xp = Xp + X(w - kk*ws)/T;
 end
-plot(w/pi, Xp), xlabel('frequency / pi'), ylabel('X_p(jw)')`,
+plot(w, Xp), xlabel('ω (rad/s)'), ylabel('X_p(jω)')
+xticks((-10:5:10)*pi), xticklabels({'-10π', '-5π', '0', '5π', '10π'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -154,8 +155,9 @@ for w in np.array([1, 2.5, 4])*np.pi:
 
 w = np.linspace(-12*np.pi, 12*np.pi, 2401)
 Xp = sum(X(w - kk*ws)/T for kk in k)
-plt.plot(w/np.pi, Xp)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X_p(j\\omega)$')
+plt.plot(w, Xp)
+plt.xticks(np.arange(-10, 11, 5)*np.pi, [rf'\${m}\\pi$' if m else '0' for m in range(-10, 11, 5)])
+plt.xlabel(r'$\\omega$ (rad/s)'); plt.ylabel(r'$X_p(j\\omega)$')
 plt.show()`},
 
 'm7s1-guard': {
@@ -175,9 +177,10 @@ for i = 1:3
     for k = -4:4
         Xp = Xp + X(w - k*ws)/T;          % copies at k*ws, each 1/T tall
     end
-    subplot(3, 1, i), plot(w/pi, Xp), ylabel('X_p(jw)')
+    subplot(3, 1, i), plot(w, Xp), ylabel('X_p(jω)')
+    xticks((-8:4:8)*pi), xticklabels({'-8π', '-4π', '0', '4π', '8π'})
 end
-xlabel('frequency / pi')`,
+xlabel('ω (rad/s)')`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -190,9 +193,11 @@ for i, T in enumerate([0.4, 0.5, 2/3]):
     ws = 2*np.pi/T
     print(f'T = {T:.2f} s: ws = {ws/np.pi:.2f} pi, guard = {(ws-2*wM)/np.pi:.2f} pi rad/s')
     Xp = sum(X(w - k*ws)/T for k in range(-4, 5))   # copies at k*ws, each 1/T tall
-    ax[i].plot(w/np.pi, Xp)
+    ax[i].plot(w, Xp)
     ax[i].set_ylabel(r'$X_p(j\\omega)$')
-ax[2].set_xlabel(r'$\\omega/\\pi$')
+ax[2].set_xticks(np.arange(-8, 9, 4)*np.pi)
+ax[2].set_xticklabels([rf'\${m}\\pi$' if m else '0' for m in range(-8, 9, 4)])
+ax[2].set_xlabel(r'$\\omega$ (rad/s)')
 plt.show()`},
 /* </m7-s1-code> */
 
@@ -217,8 +222,9 @@ Xp = zeros(size(w));
 for k = -4:4
     Xp = Xp + max(0, 1 - abs(w - k*ws)/wM) / T;   % copy k, height 1/T
 end
-plot(w/pi, Xp), grid on
-xlabel('w / pi (rad/s)'), ylabel('X_p(jw)')`,
+plot(w, Xp), grid on
+xticks((-6:3:6)*pi), xticklabels({'-6π', '-3π', '0', '3π', '6π'})
+xlabel('ω (rad/s)'), ylabel('X_p(jω)')`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -233,8 +239,9 @@ for T in [0.4, 0.5, 2/3]:
 
 w = np.linspace(-8*np.pi, 8*np.pi, 4001); T = 2/3; ws = 2*np.pi/T
 Xp = sum(np.maximum(0, 1 - np.abs(w - k*ws)/wM)/T for k in range(-4, 5))
-plt.plot(w/np.pi, Xp)
-plt.xlabel(r'$\\omega/\\pi$ (rad/s)'); plt.ylabel(r'$X_p(j\\omega)$')
+plt.plot(w, Xp)
+plt.xticks(np.arange(-6, 7, 3)*np.pi, [rf'\${m}\\pi$' if m else '0' for m in range(-6, 7, 3)])
+plt.xlabel(r'$\\omega$ (rad/s)'); plt.ylabel(r'$X_p(j\\omega)$')
 plt.grid(True)
 plt.show()`},
 
@@ -337,8 +344,9 @@ fprintf('T = %.1f us, copy height = %.2e\\n', T*1e6, Xmax/T)
 
 X = conv(R, R) * dw / (2*pi);             % the triangle
 wx = 2*w(1) + dw*(0:numel(X)-1);
-plot(wx/pi, X), grid on
-xlabel('w / pi (rad/s)'), ylabel('X(jw)')`,
+plot(wx, X), grid on
+xticks((-8000:4000:8000)*pi), xticklabels({'-8000π', '-4000π', '0', '4000π', '8000π'})
+xlabel('ω (rad/s)'), ylabel('X(jω)')`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -356,8 +364,9 @@ print(f'T = {T*1e6:.1f} us, copy height = {Xmax/T:.2e}')
 
 X = np.convolve(R, R)*dw/(2*np.pi)        # the triangle
 wx = 2*w[0] + dw*np.arange(X.size)
-plt.plot(wx/np.pi, X); plt.grid(True)
-plt.xlabel(r'$\\omega/\\pi$ (rad/s)'); plt.ylabel(r'$X(j\\omega)$')
+plt.plot(wx, X); plt.grid(True)
+plt.xticks(np.arange(-8000, 8001, 4000)*np.pi, [rf'\${m}\\pi$' if m else '0' for m in range(-8000, 8001, 4000)])
+plt.xlabel(r'$\\omega$ (rad/s)'); plt.ylabel(r'$X(j\\omega)$')
 plt.show()`},
 
 'm7s2-bandpass': {
@@ -524,8 +533,9 @@ fprintf('at w_s/2:  |H0|/T = %.4f   H1/T = %.4f\\n', H0(we)/T, H1(we)/T)
 fprintf('compensator boost at w_s/2 = %.4f\\n', T/H0(we))
 
 w = linspace(0.01, 3*ws, 600);
-plot(w/pi, H0(w), '--', w/pi, H1(w)), grid on
-xlabel('frequency / pi (rad/s)'), ylabel('magnitude')`,
+plot(w, H0(w), '--', w, H1(w)), grid on
+xticks((0:2:12)*pi), xticklabels({'0', '2π', '4π', '6π', '8π', '10π', '12π'})
+xlabel('ω (rad/s)'), ylabel('magnitude')`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -539,8 +549,9 @@ print(f'at w_s/2:  |H0|/T = {H0(we)/T:.4f}   H1/T = {H1(we)/T:.4f}')
 print(f'compensator boost at w_s/2 = {T/H0(we):.4f}')
 
 w = np.linspace(0.01, 3*ws, 600)
-plt.plot(w/np.pi, H0(w), '--', w/np.pi, H1(w))
-plt.xlabel(r'$\\omega/\\pi$ (rad/s)'); plt.ylabel('magnitude'); plt.grid(True)
+plt.plot(w, H0(w), '--', w, H1(w))
+plt.xticks(np.arange(0, 13, 2)*np.pi, [rf'\${m}\\pi$' if m else '0' for m in range(0, 13, 2)])
+plt.xlabel(r'$\\omega$ (rad/s)'); plt.ylabel('magnitude'); plt.grid(True)
 plt.show()`},
 
 'm7s3-tone': {

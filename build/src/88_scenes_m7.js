@@ -491,7 +491,6 @@ const G7 = (()=>{
   const stair = XS.map((x,i)=> (i?'L':'M')+x+','+sig(x).toFixed(1)+' H'+Math.min(x+12,90)).join(' ');
   return {
     samp:   sv(ln('M1 40 H91',AX,1)+tr(x=>40-30*Math.pow(snc((x-46)/22),2),CY,1.2)+[-5,-4,-3,-2,-1,0,1,2,3,4,5].map(k=>st(46+k*8,40-30*Math.pow(snc(k*8/22),2),VI)).join('')),
-    rates:  sv(ln('M1 40 H91',AX,1)+[0,1,2,3,4,5,6].map(k=>imp(10+k*12,20,AM)).join('')+ln('M34 11 V7 H46 V11',MK,1.3)),
     copies: sv(ln('M1 40 H91',AX,1)+tr(tri(46,11,26),CY,1.9)+tr(tri(16,11,26),VI,1.9)+tr(tri(76,11,26),VI,1.9)),
     guard:  sv(ln('M1 40 H91',AX,1)+tr(tri(30,12,26),CY,1.9)+tr(tri(62,12,26),VI,1.9)+ln('M42 30 V26 H50 V30',MK,1.3)),
     alias:  sv(ln('M1 40 H91',AX,1)+tr(tri(46,15,20),CY,1.2,null,null,'3 3')+tr(tri(26,15,20),VI,1.2,null,null,'3 3')+tr(tri(66,15,20),VI,1.2,null,null,'3 3')
@@ -503,13 +502,25 @@ const G7 = (()=>{
     foh:    sv(tr(sig,CY,1.2,2,90,'3 3')+ln(XS.map((x,i)=>(i?'L':'M')+x+','+sig(x).toFixed(1)).join(' '),GR,1.9)+XS.map(x=>dot(x,sig(x),VI)).join('')),
     alcos:  sv(ln('M1 22 H91',AX,1)+tr(x=>22-15*Math.cos(2*Math.PI*0.9*(x-6)/8),CY,1,2,90)+tr(x=>22-15*Math.cos(2*Math.PI*0.1*(x-6)/8),RD,2)
                +[0,1,2,3,4,5,6,7,8,9,10].map(k=>dot(6+k*8,22-15*Math.cos(2*Math.PI*0.1*k),VI)).join('')),
+    /* a signal, its samples, a digital system, the output */
+    dtproc: sv(ln('M1 40 H91',AX,1)+tr(x=>26-9*Math.sin(x/5),CY,1.8,2,20)+[26,32,38].map(x=>st(x,26-9*Math.sin(x/5),VI)).join('')
+               +box(45,12,18,20,AM)+ln('M40 22 H45 M63 22 H68',MK,1.2)+tr(x=>26-7*Math.sin((x-70)/5),GR,1.8,70,90)),
+    /* a sine whose samples snap to the levels of a coarse grid */
+    quant:  sv([4,10,16,28,34,40].map(y=>ln(`M1 ${y} H91`,AX,0.8,'2 3')).join('')+ln('M1 22 H91',AX,1)
+               +tr(x=>22-17*Math.sin((x-2)/88*2*Math.PI),CY,1.2,2,90,'3 3')
+               +[6,14,22,30,38,46,54,62,70,78,86].map(x=>st(x,22+6*Math.round(-17*Math.sin((x-2)/88*2*Math.PI)/6),VI,22)).join('')),
+    /* every third sample kept */
+    decim:  sv(ln('M1 40 H91',AX,1)+[...Array(13)].map((_,k)=>{ const x=4+7*k, y=26-11*Math.cos((x-4)/13);
+               return k%3 ? ln(`M${x} 40 V${y.toFixed(1)}`,CY,1.2)+`<circle cx="${x}" cy="${y.toFixed(1)}" r="1.6" fill="${CY}"/>` : st(x,y,GR); }).join('')),
     /* project cards */
     tone:   sv(ln('M1 40 H91',AX,1)+ln('M52 4 V42',AM,1.3,'3 3')+imp(72,10,CY)+imp(32,10,RD)+ln('M70 6 C62 0, 42 0, 34 6',MK,1.1,'2 3')),
     moire:  sv([...Array(46)].map((_,i)=>{ const x=2+i*1.95, o=0.15+0.8*Math.pow(Math.cos(Math.PI*(x-2)/88*2),2);
                return `<path d="M${x.toFixed(2)} 5 V39" stroke="${CY}" stroke-width="1.1" stroke-opacity="${o.toFixed(2)}"/>`; }).join('')),
     wheel:  sv(`<circle cx="46" cy="22" r="16" fill="none" stroke="${MK}" stroke-width="1.4"/>`+ln('M46 22 L57 11',CY,2.2)+dot(46,22,CY)
                +ln('M29 16 A18 18 0 0 1 40 5',RD,1.8)+`<path d="M27 21 l-2.2,-7.4 l6.8,1.6 Z" fill="${RD}"/>`),
-    dac:    sv(tr(sig,GR,1.9)+ln(stair,AM,1.5)+XS.map(x=>dot(x,sig(x),VI)).join(''))
+    dac:    sv(tr(sig,GR,1.9)+ln(stair,AM,1.5)+XS.map(x=>dot(x,sig(x),VI)).join('')),
+    /* the measured SNR against the number of bits, on a line of about 6 dB a bit */
+    bits:   sv(ln('M6 4 V40 H91',AX,1)+ln('M10 36 L88 6',MK,1.2,'3 3')+[0,1,2,3,4,5,6].map(k=>dot(14+12*k,34.5-4.6*k+(k<2?1.6-0.8*k:0),GR)).join(''))
   };
 })();
 /* </m7-s7-helpers> */
@@ -3379,7 +3390,7 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
 /* ============================================================ summary */
 { id:'m7-tables', module:'M7', nav:'Result summary', title:'Sampling Result Summary', src:'pp. 80–88',
   objective:'Collect the sampling, reconstruction and aliasing results of the module for reference.',
-  keywords:'summary table reference sampler rates sampled spectrum guard band theorem nyquist reconstruction filter interpolation zero-order hold first-order hold alias anti-aliasing',
+  keywords:'summary table reference sampler rates sampled spectrum guard band theorem nyquist band-pass sampling reconstruction filter interpolation zero-order hold first-order hold alias chirp anti-aliasing transition band 44.1 kHz',
   budget:'A reference table of results in two columns, with one closing note.',
   slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 7 · Reference', src:'pp. 80–88'},
@@ -3392,7 +3403,8 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
       ['Sampled spectrum','$X_p(j\\omega)=\\frac{1}{T}\\sum_kX\\bigl(j(\\omega-k\\omega_s)\\bigr)$ at every rate'],
       ['Guard band','$\\omega_s-2\\omega_M$: positive, zero at the Nyquist rate, negative when the copies overlap'],
       ['Sampling theorem','$X(j\\omega)=0$ for $|\\omega|>\\omega_M$ and $\\omega_s>2\\omega_M$: the samples $x(nT)$ fix $x(t)$'],
-      ['Nyquist rate','$2\\omega_M$ rad/s; the rate must be strictly above it']
+      ['Nyquist rate','$2\\omega_M$ rad/s; the rate must be strictly above it'],
+      ['Band-pass sampling','$\\omega_L<|\\omega|<\\omega_L+B$ with $\\omega_L$ a whole multiple of $B$: the copies fit at $\\omega_s=2B$']
     ]}
   ], right:[
     {t:'sub', text:'Reconstruction and aliasing'},
@@ -3402,16 +3414,55 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
       ['Zero-order hold','$H_0(j\\omega)=e^{-j\\omega T/2}\\,\\frac{2\\sin(\\omega T/2)}{\\omega}$, with $H_0(j0)=T$'],
       ['First-order hold','$H_1(j\\omega)=\\frac{1}{T}\\bigl[\\frac{\\sin(\\omega T/2)}{\\omega/2}\\bigr]^{2}$, with $H_1(j0)=T$'],
       ['Alias of a cosine','$\\frac{\\omega_s}{2}<\\omega_0<\\omega_s$ and $\\omega_c=\\frac{\\omega_s}{2}$: $x_r(t)=\\cos\\bigl((\\omega_s-\\omega_0)t\\bigr)$'],
-      ['Anti-aliasing','A lowpass with cutoff $\\omega_s/2$, placed before the sampler']
+      ['Chirp','$\\cos\\phi(t)$: frequency $f=\\frac{1}{2\\pi}\\frac{d\\phi}{dt}$ at each moment, heard at the fold $|f-kf_s|<f_s/2$'],
+      ['Anti-aliasing','A lowpass with cutoff $\\omega_s/2$, placed before the sampler'],
+      ['Transition band','A real filter that passes $|f|<f_M$ and stops above $f_M+\\Delta$ needs $f_s\\ge2(f_M+\\Delta)$']
     ]}
   ]},
   {t:'reveal', at:1, items:[
     {t:'note', kind:'warn', head:'Rows with a condition', html:'The <b>theorem</b> needs a band-limited $x(t)$, and a signal of finite duration never is. With $\\omega_c=\\pi/T$ the <b>interpolation</b> kernel is $\\operatorname{sinc}(\\pi t/T)$, where $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$.'}]}
 ]},
 
+{ id:'m7-tables-b', module:'M7', nav:'Result summary · discrete time', title:'Discrete-Time Result Summary', src:'—',
+  objective:'Collect the results on processing samples and on changing the rate of a sequence for reference.',
+  keywords:'summary table reference C/D D/C converter frequency map Omega = omega T rad/sample equivalent system digital cutoff differentiator half-sample delay quantization step SNR 6 dB per bit sampling a sequence decimation prefilter interpolation images rate change L/M',
+  budget:'A reference table of results in two columns, with one closing note.',
+  slide:true, steps:1, blocks:[
+  {t:'eyebrow', text:'Module 7 · Reference', src:'—'},
+  {t:'title', text:'Discrete-Time Result Summary'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'sub', text:'Processing the samples'},
+    {t:'wex', rows:[
+      ['Converters','$x_d[n]=x_c(nT)$ at C/D, $y_c(nT)=y_d[n]$ at D/C'],
+      ['Frequency map','$\\Omega=\\omega T$ in rad/sample, so $\\omega_s$ lands on $2\\pi$'],
+      ['Spectrum of $x_d[n]$','$X_d(e^{j\\Omega})=\\frac{1}{T}\\sum_kX_c\\bigl(j\\,\\frac{\\Omega-2\\pi k}{T}\\bigr)$'],
+      ['Equivalent system','$H_{\\text{eff}}(j\\omega)=H_d(e^{j\\omega T})$ for $|\\omega|<\\omega_s/2$, $0$ above'],
+      ['Digital cutoff','$f_c=\\frac{\\Omega_c}{2\\pi}f_s$ in Hz: it moves with $f_s$'],
+      ['Differentiator','$H_d(e^{j\\Omega})=j\\Omega/T$ for $|\\Omega|<\\pi$'],
+      ['Half-sample delay','$H_d(e^{j\\Omega})=e^{-j\\Omega/2}$, $h[n]=\\frac{\\sin(\\pi(n-1/2))}{\\pi(n-1/2)}$'],
+      ['Quantization','$B$ bits over $-1$ to $1$: $\\Delta=2/2^{B}$, $|e[n]|\\le\\Delta/2$, noise power $\\Delta^{2}/12$'],
+      ['Signal to noise','$\\text{SNR}\\approx6.02B+1.76$ dB for a full-scale sine']
+    ]}
+  ], right:[
+    {t:'sub', text:'Changing the rate of a sequence'},
+    {t:'wex', rows:[
+      ['Sampling','$x_p[n]=x[n]\\sum_k\\delta[n-kN]$: $x[n]$ at $n=kN$, $0$ elsewhere'],
+      ['Its spectrum','$X_p(e^{j\\omega})=\\frac{1}{N}\\sum_{k=0}^{N-1}X\\bigl(e^{j(\\omega-k\\omega_s)}\\bigr)$, $\\omega_s=2\\pi/N$'],
+      ['No aliasing','$\\omega_M<\\pi/N$, that is $\\omega_s>2\\omega_M$'],
+      ['Recovery','A low-pass of gain $N$ with $\\omega_M<\\omega_c<\\omega_s-\\omega_M$'],
+      ['Decimation','$x_b[n]=x[nN]$ and $X_b(e^{j\\omega})=X_p(e^{j\\omega/N})$'],
+      ['Prefilter','A low-pass with cutoff $\\pi/N$, placed before $\\downarrow N$'],
+      ['Interpolation','$N-1$ zeros give $X_b(e^{jN\\omega})$; then a low-pass of gain $N$ and cutoff $\\pi/N$'],
+      ['Rate $L/M$','$\\uparrow L$, one low-pass of gain $L$ and cutoff $\\min(\\pi/L,\\pi/M)$, then $\\downarrow M$']
+    ]}
+  ]},
+  {t:'reveal', at:1, items:[
+    {t:'note', kind:'warn', head:'Read the frequency variable', html:'On the left, $\\omega$ is in rad/s and $\\Omega$ in rad/sample; the <b>equivalent system</b> needs a band-limited input and $\\omega_s>2\\omega_M$. On the right, $\\omega$ is the frequency of a sequence, in rad/sample, and every spectrum repeats every $2\\pi$.'}]}
+]},
+
 { id:'m7-quick', module:'M7', nav:'Quick check', title:'Quick check', src:'pp. 80–88',
-  objective:'Check the module ideas with twelve short predictions.',
-  keywords:'quick check predict sampling frequency hertz rad/s copy height 1/T replica nyquist rate boundary triangle cutoff zero-order hold first-order hold alias anti-aliasing wheel',
+  objective:'Check the module ideas with twelve short predictions, two from each teaching section.',
+  keywords:'quick check predict sampling frequency hertz rad/s copy height 1/T nyquist rate boundary cutoff zero-order hold alias wheel digital cutoff hertz bits SNR decimation band edge rate change L/M low-pass cutoff',
   budget:'A set of twelve prediction cards; the questions carry no figure.',
   slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 7 · Quick check', src:'pp. 80–88'},
@@ -3423,60 +3474,58 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
     [{t:'note', kind:'def', head:'Copy height', html:'$X(j\\omega)$ peaks at $1$ and $T=0.2$ s. Each copy in $X_p(j\\omega)$ peaks at',
       ask:{key:'m7-qc1', choices:['$0.2$','$1$','$5$'], answer:2,
         why:'Each copy is scaled by $1/T$.'}}],
-    [{t:'note', kind:'def', head:'Replicas', html:'$T=0.125$ s. In rad/s, the copy $k=2$ is centred at',
-      ask:{key:'m7-qc2', choices:['$32\\pi$','$16\\pi$','$16$'], answer:0,
-        why:'$2\\omega_s$, with $\\omega_s=16\\pi$.'}}],
     [{t:'note', kind:'def', head:'Nyquist rate', html:'In rad/s, the Nyquist rate of $\\cos(300\\pi t)+\\cos(700\\pi t)$ is',
-      ask:{key:'m7-qc3', choices:['$1000\\pi$','$1400\\pi$','$700\\pi$'], answer:1,
+      ask:{key:'m7-qc2', choices:['$1000\\pi$','$1400\\pi$','$700\\pi$'], answer:1,
         why:'Twice $700\\pi$.'}}],
     [{t:'note', kind:'def', head:'Boundary', html:'$\\sin(50\\pi t)$ is sampled at exactly $\\omega_s=100\\pi$ rad/s. Every sample is',
-      ask:{key:'m7-qc4', choices:['$0$','$1$','$\\pm1$ in turn'], answer:0,
+      ask:{key:'m7-qc3', choices:['$0$','$1$','$\\pm1$ in turn'], answer:0,
         why:'Each sample is $\\sin(\\pi n)=0$.'}}],
-    [{t:'note', kind:'def', head:'Triangle', html:'$x(t)=\\bigl(\\sin(50t)/(\\pi t)\\bigr)^{2}$. In rad/s, its $\\omega_M$ is',
-      ask:{key:'m7-qc5', choices:['$50$','$2500$','$100$'], answer:2,
-        why:'The band doubles.'}}],
     [{t:'note', kind:'def', head:'Cutoff', html:'$\\omega_M=3\\pi$ and $\\omega_s=10\\pi$ rad/s. A working cutoff $\\omega_c$ is',
-      ask:{key:'m7-qc6', choices:['$2\\pi$','$5\\pi$','$8\\pi$'], answer:1,
+      ask:{key:'m7-qc4', choices:['$2\\pi$','$5\\pi$','$8\\pi$'], answer:1,
         why:'It needs $3\\pi<\\omega_c<7\\pi$.'}}],
     [{t:'note', kind:'def', head:'Zero-order hold', html:'$T=1$ ms. In rad/s, $|H_0(j\\omega)|$ first reaches zero at',
-      ask:{key:'m7-qc7', choices:['$1000\\pi$','$1000$','$2000\\pi$'], answer:2,
+      ask:{key:'m7-qc5', choices:['$1000\\pi$','$1000$','$2000\\pi$'], answer:2,
         why:'The first zero is at $\\omega_s$.'}}],
-    [{t:'note', kind:'def', head:'First-order hold', html:'Far above the band, $|H_1(j\\omega)|$ falls off like',
-      ask:{key:'m7-qc8', choices:['$1/\\omega$','$1/\\omega^{2}$','$1/\\omega^{3}$'], answer:1,
-        why:'Two factors of $1/\\omega$.'}}],
     [{t:'note', kind:'def', head:'Alias', html:'$\\cos(10\\pi t)$, $\\omega_s=16\\pi$ rad/s, $\\omega_c=8\\pi$. The output is $\\cos(\\omega t)$ with $\\omega=$',
-      ask:{key:'m7-qc9', choices:['$10\\pi$','$6\\pi$','$26\\pi$'], answer:1,
+      ask:{key:'m7-qc6', choices:['$10\\pi$','$6\\pi$','$26\\pi$'], answer:1,
         why:'$16\\pi-10\\pi=6\\pi<8\\pi$.'}}],
-    [{t:'note', kind:'def', head:'Anti-aliasing', html:'$\\omega_s=12\\pi$ rad/s. In rad/s, the lowpass before the sampler cuts off at',
-      ask:{key:'m7-qc10', choices:['$6\\pi$','$12\\pi$','$24\\pi$'], answer:0,
-        why:'It keeps $|\\omega|<\\omega_s/2$.'}}],
     [{t:'note', kind:'def', head:'Wheel', html:'A wheel turns at $23$ rev/s, filmed at $24$ frames/s. On film, its rate in rev/s is',
-      ask:{key:'m7-qc11', choices:['$23$','$1$','$-1$'], answer:2,
-        why:'It turns back: $23-24$.'}}]
+      ask:{key:'m7-qc7', choices:['$23$','$1$','$-1$'], answer:2,
+        why:'It turns back: $23-24$.'}}],
+    [{t:'note', kind:'def', head:'Digital cutoff', html:'A digital low-pass keeps $|\\Omega|<\\pi/3$ at $f_s=48$ kHz. In kHz, it cuts off at',
+      ask:{key:'m7-qc8', choices:['$8$','$16$','$24$'], answer:0,
+        why:'$f_c=\\tfrac{\\Omega_c}{2\\pi}f_s=\\tfrac16\\cdot48$ kHz.'}}],
+    [{t:'note', kind:'def', head:'Bits', html:'A full-scale sine is rounded to $B=10$ bits. In dB, its SNR is about',
+      ask:{key:'m7-qc9', choices:['$31$','$62$','$124$'], answer:1,
+        why:'$6.02\\cdot10+1.76\\approx62$ dB.'}}],
+    [{t:'note', kind:'def', head:'Decimation', html:'Decimation by $N=3$ moves the band edge $\\omega_M=\\pi/8$ of a sequence to',
+      ask:{key:'m7-qc10', choices:['$\\pi/24$','$\\pi/8$','$3\\pi/8$'], answer:2,
+        why:'It is $N\\omega_M$.'}}],
+    [{t:'note', kind:'def', head:'Rate change', html:'$32$ kHz becomes $48$ kHz with $L=3$, $M=2$. The low-pass cuts off at',
+      ask:{key:'m7-qc11', choices:['$\\pi/3$','$\\pi/2$','$2\\pi/3$'], answer:0,
+        why:'It is $\\min(\\pi/L,\\pi/M)$.'}}]
   ]}
 ]},
 
 { id:'m7-synth', module:'M7', nav:'Module 7 synthesis', title:'Module 7 — what to carry forward', src:'pp. 80–88',
   dark:true, objective:'Consolidate the module and lead into the closing synthesis of the course.',
-  keywords:'synthesis summary module 7 sampling impulse train rates replication guard band aliasing theorem reconstruction interpolation zero-order hold first-order hold alias', steps:1, blocks:[
+  keywords:'synthesis summary module 7 sampling impulse train rates replication guard band aliasing theorem reconstruction interpolation zero-order hold first-order hold alias discrete-time processing equivalent system quantization bits decimation interpolation rate change', steps:1, blocks:[
   {t:'eyebrow', text:'Module 7 · Synthesis', src:'pp. 80–88'},
   {t:'title', text:'Module 7 Summary'},
-  /* Ten results as prompts, in the order of the module: the student answers
-     each one, then opens the card. The sketch on each card is the picture to
-     remember. */
+  /* Twelve results as prompts, in the order of the module: the student
+     answers each one, then opens the card. The sketch on each card is the
+     picture to remember. */
   {t:'raw', html:()=>RECALL.deck('m7', [
     {q:'What does an ideal sampler produce?', glyph:G7.samp,
-     a:'$x_p(t)=\\sum_nx(nT)\\,\\delta(t-nT)$: an impulse at every $nT$ whose weight is the sample $x(nT)$.'},
-    {q:'One rate, two numbers', glyph:G7.rates,
-     a:'$\\omega_s=2\\pi/T$ in rad/s and $f_s=1/T$ in Hz, so $\\omega_s=2\\pi f_s$. Check every period with $\\omega_sT=2\\pi$.'},
+     a:'$x_p(t)=\\sum_nx(nT)\\,\\delta(t-nT)$: an impulse at every $nT$ weighted by $x(nT)$. The rate is $\\omega_s=2\\pi/T$ rad/s, or $f_s=1/T$ Hz.'},
     {q:'The spectrum of the samples', glyph:G7.copies,
      a:'$X_p(j\\omega)=\\frac{1}{T}\\sum_kX\\bigl(j(\\omega-k\\omega_s)\\bigr)$: a copy at every multiple of $\\omega_s$, scaled by $1/T$, at every rate.'},
     {q:'The guard band', glyph:G7.guard,
      a:'The gap $\\omega_s-2\\omega_M$ between the baseband and the first copy. It is positive, zero at the Nyquist rate, or negative.'},
     {q:'What is aliasing?', glyph:G7.alias,
-     a:'The overlap of neighbouring copies, which happens only when $\\omega_s<2\\omega_M$. No filter after the sampler can undo it; a lowpass before it prevents it.'},
+     a:'Neighbouring copies overlap, only when $\\omega_s<2\\omega_M$. No filter after the sampler undoes it; a lowpass before it prevents it.'},
     {q:'The sampling theorem', glyph:G7.theorem,
-     a:'If $X(j\\omega)=0$ for $|\\omega|>\\omega_M$ and $\\omega_s>2\\omega_M$, the samples fix $x(t)$. Equality is not enough, and a signal of finite duration is never band-limited.'},
+     a:'If $X(j\\omega)=0$ for $|\\omega|>\\omega_M$ and $\\omega_s>2\\omega_M$, the samples fix $x(t)$. Equality is not enough.'},
     {q:'Ideal reconstruction', glyph:G7.interp,
      a:'A lowpass of gain $T$ with $\\omega_M<\\omega_c<\\omega_s-\\omega_M$. In time, $x_r(t)=\\sum_nx(nT)\\,\\frac{T\\sin(\\omega_c(t-nT))}{\\pi(t-nT)}$.'},
     {q:'The zero-order hold', glyph:G7.zoh,
@@ -3484,19 +3533,25 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
     {q:'The first-order hold', glyph:G7.foh,
      a:'It joins the samples by straight lines. $H_1(j\\omega)=\\frac{1}{T}\\bigl[\\frac{\\sin(\\omega T/2)}{\\omega/2}\\bigr]^{2}$ falls off like $1/\\omega^{2}$, and the output is delayed by $T$.'},
     {q:'A cosine sampled too slowly', glyph:G7.alcos,
-     a:'For $\\frac{\\omega_s}{2}<\\omega_0<\\omega_s$ and $\\omega_c=\\frac{\\omega_s}{2}$, $\\cos(\\omega_0t)$ comes back as $\\cos\\bigl((\\omega_s-\\omega_0)t\\bigr)$. A wheel on film and stripes on a pixel grid follow the same rule.'}
+     a:'For $\\frac{\\omega_s}{2}<\\omega_0<\\omega_s$ and $\\omega_c=\\frac{\\omega_s}{2}$, $\\cos(\\omega_0t)$ comes back as $\\cos\\bigl((\\omega_s-\\omega_0)t\\bigr)$. A wheel on film and stripes on a pixel grid follow the same rule.'},
+    {q:'Processing samples with numbers', glyph:G7.dtproc,
+     a:'For a band-limited input and $\\omega_s>2\\omega_M$, C/D, $H_d$ and D/C act as $H_{\\text{eff}}(j\\omega)=H_d(e^{j\\omega T})$ for $|\\omega|<\\omega_s/2$, and $0$ above.'},
+    {q:'Rounding to $B$ bits', glyph:G7.quant,
+     a:'Over $-1$ to $1$ the step is $\\Delta=2/2^{B}$ and the error is at most $\\Delta/2$. A full-scale sine gets $\\text{SNR}\\approx6.02B+1.76$ dB.'},
+    {q:'Changing the rate of a sequence', glyph:G7.decim,
+     a:'Decimation keeps $x[nN]$ after a low-pass with cutoff $\\pi/N$. Interpolation adds $N-1$ zeros, then a low-pass of gain $N$, cutoff $\\pi/N$.'}
   ], {cols:2})},
   {t:'reveal', at:1, items:[
     {t:'note', kind:'ok', head:'After Module 7', html:'<span style="color:var(--graphite)">The closing synthesis joins the seven modules into one chain: signals, LTI systems and convolution, the transforms, and sampling as the bridge from continuous to discrete time.</span>'}]}
 ]},
 
-/* Four optional projects for students who want to try the module on their own
+/* Five optional projects for students who want to try the module on their own
    computer. They carry no grade and no code: each card gives an aim, what it
    practises, a few steps and what to look for. The briefs state no numerical
    answer beyond ones checked in verify/. */
 { id:'m7-projects', module:'M7', nav:'Projects to try', title:'Projects to Try', src:'pp. 80–88',
-  dark:true, objective:'Offer four optional projects that show sampling and aliasing in sound, in images, on film and in a converter.',
-  keywords:'projects matlab python audio resample decimate alias tone moire stripes camera wheel fan frame rate zero-order hold dac staircase sinc interpolation',
+  dark:true, objective:'Offer five optional projects that show sampling and aliasing in sound, in images, on film and in a converter, and quantization in sound.',
+  keywords:'projects matlab python audio resample decimate alias tone moire stripes camera wheel fan frame rate zero-order hold dac staircase sinc interpolation quantization bits SNR 6 dB per bit',
   steps:0, blocks:[
   {t:'eyebrow', text:'Module 7 · Projects', src:'pp. 80–88'},
   {t:'title', text:'Projects to Try'},
@@ -3540,7 +3595,17 @@ codeScene({ id:'m7-code-rate', nav:'Decimation and interpolation', title:'Decima
             'Hold each sample for $T$ on a fine time grid to make the staircase.',
             'Form $\\sum_nx(nT)\\operatorname{sinc}\\bigl(\\pi(t-nT)/T\\bigr)$ for $|t|\\le1$ s.',
             'Measure the RMS error of each against $x(t)$, then repeat with $T=0.05$ s.'],
-     look:'The sinc sum stays within $10^{-4}$ of the cosine. The staircase lags by $T/2$ and has an RMS error near $0.25$; halving $T$ halves it to about $0.13$.'}
+     look:'The sinc sum stays within $10^{-4}$ of the cosine. The staircase lags by $T/2$ and has an RMS error near $0.25$; halving $T$ halves it to about $0.13$.'},
+    {title:'Hearing the bits', glyph:G7.bits,
+     aim:'Hear and measure quantization: round a tone to fewer and fewer bits and track the noise.',
+     learn:['The step $\\Delta$ and the largest error $\\Delta/2$.',
+            'The signal-to-noise ratio in dB.',
+            'Why each extra bit adds about $6$ dB.'],
+     steps:['Make two seconds of $x[n]=\\sin(2\\pi\\cdot441\\,n/8000)$, a tone sampled at $8$ kHz.',
+            'Round it to $B$ bits over $-1$ to $1$: with $\\Delta=2/2^{B}$, take $\\Delta\\bigl(\\lfloor x[n]/\\Delta\\rfloor+\\tfrac12\\bigr)$, kept between $-1+\\Delta/2$ and $1-\\Delta/2$.',
+            'Play the result for $B=8$, $4$ and $2$, and plot the error $x_q[n]-x[n]$ of each.',
+            'Measure $10\\log_{10}\\bigl(\\sum x^{2}/\\sum(x_q-x)^{2}\\bigr)$ for $B=2$ to $12$ and plot it against $6.02B+1.76$ dB.'],
+     look:'From $3$ bits up the measured SNR lies within $1$ dB of $6.02B+1.76$: each bit adds about $6$ dB. At $8$ bits it is near $50$ dB.'}
   ])}
 ]}
 

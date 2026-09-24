@@ -1623,48 +1623,79 @@ for _w0, _ws in [(1.5*PI, 2*PI), (3*PI, 5*PI), (10*PI, 16*PI), (18*PI, 20*PI)]:
     _ok &= _ws/2 < _w0 < _ws and np.allclose(np.cos(_w0*_n*_T), np.cos((_ws - _w0)*_n*_T)) and abs(_ws - _w0) < _ws/2
 chk("M7 table: for w_s/2 < w_0 < w_s the samples of cos(w_0 t) equal those of cos((w_s - w_0) t), which lies below w_c = w_s/2", _ok)
 
+# --- summary table, new rows
+# band-pass sampling: a band kB < |w| < (k+1)B sampled at w_s = 2B; the copies of its
+# two halves tile the axis once (they touch only at the edges)
+_ok = True
+_B = 2*PI; _wg = np.linspace(-9.7*_B, 9.7*_B, 200001); _wg = _wg[np.abs(np.remainder(_wg, _B)) > 1e-3*_B]
+for _k in range(1, 7):
+    _cnt = np.zeros_like(_wg)
+    for _m in range(-30, 31):
+        _u = np.abs(_wg - _m*2*_B)
+        _cnt += (_u > _k*_B) & (_u < (_k + 1)*_B)
+    _ok &= np.all(_cnt == 1)
+chk("M7 table: a band kB < |w| < (k+1)B (k = 1..6) sampled at w_s = 2B: its copies cover the axis exactly once", _ok)
+_t = sp.symbols('t', real=True)
+chk("M7 table: a chirp cos(phi(t)) has frequency (1/2 pi) d phi/dt; phi = 2 pi 1000 t^2 gives 2000 t Hz",
+    sp.simplify(sp.diff(2*sp.pi*1000*_t**2, _t)/(2*sp.pi) - 2000*_t) == 0)
+_ok = True
+for _fM in (3.4, 20.0):
+    for _D in np.linspace(0, 5, 51):
+        for _fs in np.linspace(2*_fM, 2*_fM + 12, 241):
+            _ok &= ((_fs - (_fM + _D) >= _fM + _D - 1e-12) == (_fs >= 2*(_fM + _D) - 1e-12))
+chk("M7 table: the copy at f_s starts at f_s - (f_M + Delta), clear of f_M + Delta exactly when f_s >= 2(f_M + Delta)", _ok)
+_Tq = 0.5
+_env = lambda a, b: np.max((1/_Tq)*(np.sin(np.linspace(a, b, 20001)*_Tq/2)/(np.linspace(a, b, 20001)/2))**2)
+chk("M7 synthesis: far above the band |H_1| falls off like 1/w^2 (doubling w divides the envelope by 4)",
+    abs(_env(400*PI, 404*PI)/_env(800*PI, 804*PI) - 4) < 0.05,
+    f"ratio {_env(400*PI, 404*PI)/_env(800*PI, 804*PI):.4f}")
+
 # --- quick check (m7-qc0 ... m7-qc11)
 chk("M7 quick 0: T = 0.1 ms gives f_s = 10 kHz and w_s = 20000 pi rad/s",
     abs(fs_of(1e-4) - 1e4) < 1e-6 and abs(ws_of(1e-4) - 20000*PI) < 1e-6)
 chk("M7 quick 1: T = 0.2 s scales a peak of 1 to 1/T = 5", abs(1/0.2 - 5) < 1e-12)
-chk("M7 quick 2: T = 0.125 s gives w_s = 16 pi and the k = 2 copy at 32 pi rad/s",
-    abs(ws_of(0.125) - 16*PI) < 1e-12 and abs(2*ws_of(0.125) - 32*PI) < 1e-12)
-chk("M7 quick 3: cos(300 pi t) + cos(700 pi t) has w_M = 700 pi and Nyquist rate 1400 pi rad/s",
+chk("M7 quick 2: cos(300 pi t) + cos(700 pi t) has w_M = 700 pi and Nyquist rate 1400 pi rad/s",
     max(300*PI, 700*PI) == 700*PI and abs(2*700*PI - 1400*PI) < 1e-9)
 _n = np.arange(-50, 51)
-chk("M7 quick 4: sin(50 pi t) sampled at w_s = 100 pi (T = 0.02 s) is zero at every sample",
+chk("M7 quick 3: sin(50 pi t) sampled at w_s = 100 pi (T = 0.02 s) is zero at every sample",
     abs(2*PI/(100*PI) - 0.02) < 1e-15 and np.max(np.abs(np.sin(50*PI*_n*0.02))) < 1e-12)
-# (sin(50 t)/(pi t))^2: X = (1/2 pi) R*R with R = 1 on |w| <= 50, a triangle of peak 50/pi reaching zero at |w| = 100
-_dw = 0.01; _wg = np.arange(-50, 50 + _dw/2, _dw)
-_conv = np.convolve(np.ones_like(_wg), np.ones_like(_wg))*_dw/(2*PI)
-_wc = np.arange(len(_conv))*_dw - 100
-_L = 4000.0; _tq = np.linspace(-_L, _L, 8000001); _xq = np.where(np.abs(_tq) < 1e-12, (50/PI)**2, (np.sin(50*_tq)/(PI*np.where(np.abs(_tq) < 1e-12, 1, _tq)))**2)
-chk("M7 quick 5: (sin(50 t)/(pi t))^2 has a triangular spectrum of peak 50/pi that ends at w_M = 100 rad/s",
-    abs(_conv.max() - 50/PI) < 1e-2 and abs(_wc[np.nonzero(_conv > 1e-9)[0][-1]] - 100) < 0.02
-    and abs(np.trapezoid(_xq, _tq) - 50/PI) < 1e-3*50/PI,
-    f"peak {_conv.max():.4f}, 50/pi = {50/PI:.4f}, area in time {np.trapezoid(_xq, _tq):.4f}")
-chk("M7 quick 6: w_M = 3 pi, w_s = 10 pi admits 5 pi but not 2 pi or 8 pi",
+chk("M7 quick 4: w_M = 3 pi, w_s = 10 pi admits 5 pi but not 2 pi or 8 pi",
     3*PI < 5*PI < 10*PI - 3*PI and not (3*PI < 2*PI) and not (8*PI < 10*PI - 3*PI))
 _wq = np.linspace(1, 2*PI/1e-3 + 50, 200001)
 _H0q = np.abs(2*np.sin(_wq*1e-3/2)/_wq)
-chk("M7 quick 7: T = 1 ms: |H_0| first reaches zero at w_s = 2000 pi rad/s",
+chk("M7 quick 5: T = 1 ms: |H_0| first reaches zero at w_s = 2000 pi rad/s",
     abs(_wq[np.argmin(_H0q[_wq < 2*PI/1e-3 + 50])] - 2000*PI) < 0.1 and np.all(_H0q[_wq < 1900*PI] > 1e-6),
     f"first zero at {_wq[np.argmin(_H0q)]/PI:.2f} pi")
-_Tq = 0.5
-_env = lambda a, b: np.max((1/_Tq)*(np.sin(np.linspace(a, b, 20001)*_Tq/2)/(np.linspace(a, b, 20001)/2))**2)
-chk("M7 quick 8: far above the band |H_1| falls off like 1/w^2 (doubling w divides the envelope by 4)",
-    abs(_env(400*PI, 404*PI)/_env(800*PI, 804*PI) - 4) < 0.05,
-    f"ratio {_env(400*PI, 404*PI)/_env(800*PI, 804*PI):.4f}")
-_ok = True
 _n = np.arange(-40, 41); _T = 2*PI/(16*PI)
 _lines = sorted({round(abs(k*16*PI + s*10*PI)/PI, 9) for k in range(-4, 5) for s in (1, -1)})
-chk("M7 quick 9: cos(10 pi t) at w_s = 16 pi: only the copy line 6 pi lies inside w_c = 8 pi; the samples equal those of cos(6 pi t)",
+chk("M7 quick 6: cos(10 pi t) at w_s = 16 pi: only the copy line 6 pi lies inside w_c = 8 pi; the samples equal those of cos(6 pi t)",
     [l for l in _lines if l < 8] == [6.0] and np.allclose(np.cos(10*PI*_n*_T), np.cos(6*PI*_n*_T)))
-chk("M7 quick 10: w_s = 12 pi rad/s: the anti-aliasing cutoff w_s/2 is 6 pi rad/s", abs(12*PI/2 - 6*PI) < 1e-12)
 _adv = 23/24; _seen = (_adv + 0.5) % 1 - 0.5
-chk("M7 quick 11: 23 rev/s at 24 frames/s advances 23/24 turn a frame, seen as -1/24 turn, i.e. -1 rev/s",
+chk("M7 quick 7: 23 rev/s at 24 frames/s advances 23/24 turn a frame, seen as -1/24 turn, i.e. -1 rev/s",
     abs(_seen + 1/24) < 1e-12 and abs(_seen*24 + 1) < 1e-12
     and np.allclose(np.cos(2*PI*23*np.arange(48)/24), np.cos(2*PI*(-1)*np.arange(48)/24)))
+# a digital low-pass with Omega_c = pi/3 at 48 kHz: f_c = (Omega_c/2 pi) f_s; a 7.9 kHz tone
+# passes, an 8.1 kHz tone is stopped
+_Wc = PI/3; _fsq = 48000
+chk("M7 quick 8: Omega_c = pi/3 at f_s = 48 kHz cuts off at f_c = (1/6)(48 kHz) = 8 kHz (not 16 or 24)",
+    abs(_Wc/(2*PI)*_fsq - 8000) < 1e-9 and 2*PI*7900/_fsq < _Wc < 2*PI*8100/_fsq)
+def _q7(x, B):
+    D = 2/2**B
+    return np.clip(D*(np.floor(x/D) + 0.5), -1 + D/2, 1 - D/2)
+_x = np.sin(2*PI*0.0123456789*np.arange(200000))
+_s10 = 10*np.log10(np.sum(_x**2)/np.sum((_q7(_x, 10) - _x)**2))
+chk("M7 quick 9: 10 bits give 6.02*10 + 1.76 = 61.96, about 62 dB; measured on a full-scale sine it rounds to 62 dB",
+    round(6.02*10 + 1.76) == 62 and round(_s10) == 62, f"measured {_s10:.2f} dB")
+# decimation by 3 of a sequence band-limited to pi/8: X_b(e^{jw}) = X_p(e^{jw/3}) ends at 3 pi/8
+_nn = np.arange(-4000, 4001)
+_xs = np.sinc(_nn/16)**2                    # (sin(pi n/16)/(pi n/16))^2: a triangle spectrum ending at pi/8
+_xb = _xs[_nn % 3 == 0]; _nb = _nn[_nn % 3 == 0]//3
+_Xb = lambda w: np.abs(np.sum(_xb*np.exp(-1j*w*_nb)))
+chk("M7 quick 10: w_M = pi/8 decimated by N = 3 gives the band edge N w_M = 3 pi/8 < pi (no aliasing)",
+    abs(3*PI/8 - 3*(PI/8)) < 1e-15 and 3*PI/8 < PI and _Xb(0.30*PI) > 1e-2 and _Xb(0.40*PI) < 1e-3*_Xb(0),
+    f"|X_b| at 0.30 pi {_Xb(0.30*PI):.3e}, at 0.40 pi {_Xb(0.40*PI):.2e}")
+chk("M7 quick 11: 32 kHz to 48 kHz is L/M = 3/2; the one low-pass cuts off at min(pi/3, pi/2) = pi/3",
+    abs(48000/32000 - 3/2) < 1e-15 and min(PI/3, PI/2) == PI/3)
 
 # --- projects
 _fs0 = 48000; _t0 = np.arange(_fs0)/_fs0
@@ -1694,6 +1725,11 @@ chk("M7 projects: cos(2 pi t), T = 0.1 s: the staircase lags by T/2 with RMS err
     abs(_e1 - 0.25) < 0.01 and abs(_e2 - 0.13) < 0.005 and abs(np.angle(_c1) + 2*PI*0.05) < 1e-3
     and np.max(np.abs(_xr - np.cos(2*PI*_ti))) < 1e-4,
     f"RMS {_e1:.4f} and {_e2:.4f}, phase {np.angle(_c1):.4f} vs {-2*PI*0.05:.4f}, sinc max err {np.max(np.abs(_xr - np.cos(2*PI*_ti))):.2e}")
+_nq = np.arange(16000); _xq = np.sin(2*PI*441*_nq/8000)
+_sq = {B: 10*np.log10(np.sum(_xq**2)/np.sum((_q7(_xq, B) - _xq)**2)) for B in range(2, 13)}
+chk("M7 projects: 441 Hz at 8 kHz for 2 s, rounded to B bits: from 3 bits up the SNR is within 1 dB of 6.02 B + 1.76; at 8 bits near 50 dB",
+    all(abs(_sq[B] - (6.02*B + 1.76)) < 1 for B in range(3, 13)) and abs(_sq[8] - 50) < 0.5 and len(_nq) == 2*8000,
+    ", ".join(f"B={B}: {_sq[B]:.2f}" for B in _sq))
 # </m7-s7-verify>
 
 

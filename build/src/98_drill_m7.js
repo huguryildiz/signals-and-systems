@@ -369,8 +369,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   ]}),
   sol:'<b>Given.</b> A signal with $\\omega_M=140\\pi$ rad/s, sampled at $\\omega_s=200\\pi$ rad/s — below its Nyquist rate of $280\\pi$ — and reconstructed with cutoff at $\\omega_s/2=100\\pi$.<br>'
      +'<b>Find.</b> The output and the error, with and without a filter ahead of the sampler.<br>'
-     +'<b>Method.</b> Track each component separately because the prefilter may remove one before aliasing occurs. A component below the cutoff remains unchanged; without the prefilter, a component above it aliases to $|\\omega_s-\\omega_0|$.<br>'
-     +'<b>Solution — part (a).</b> $50\\pi<100\\pi$ survives unchanged. $140\\pi>100\\pi$ aliases to $|200\\pi-140\\pi|=60\\pi$. So$$x_r(t)=\\cos(50\\pi t)+\\cos(60\\pi t),\\qquad e(t)=\\cos(140\\pi t)-\\cos(60\\pi t).$$'
+     +'<b>Method.</b> Track each component separately because the prefilter may remove one before aliasing occurs. A component below the cutoff remains unchanged; without the prefilter, a component with $\\omega_s/2<\\omega_0<\\omega_s$ aliases to $\\omega_s-\\omega_0$.<br>'
+     +'<b>Solution — part (a).</b> $50\\pi<100\\pi$ survives unchanged. $140\\pi>100\\pi$ aliases to $200\\pi-140\\pi=60\\pi$. So$$x_r(t)=\\cos(50\\pi t)+\\cos(60\\pi t),\\qquad e(t)=\\cos(140\\pi t)-\\cos(60\\pi t).$$'
      +'<b>Solution — part (b).</b> The filter removes the $140\\pi$ component before the sampler ever sees it, leaving $\\tilde{x}(t)=\\cos(50\\pi t)$, safely below its own Nyquist rate of $100\\pi$ at this sampling rate. So$$x_r(t)=\\cos(50\\pi t),\\qquad e(t)=\\cos(140\\pi t).$$'
      +'<b>Solution — part (c).</b> Each cosine has mean-square value $\\tfrac12$, and the cross term of two cosines at different, non-zero frequencies averages to zero over time, so$$\\overline{e^2}\\Big|_{\\text{no filter}}=\\tfrac12+\\tfrac12=1,\\qquad\\overline{e^2}\\Big|_{\\text{filtered}}=\\tfrac12.$$Filtering first halves the error power.<br>'
      +'<b>Check.</b> The two error signals can be compared directly at $t=0$: $e_{\\text{no filter}}(0)=1-1=0$ while $e_{\\text{filtered}}(0)=1$, so the two curves are not simply scaled copies of one another — the reduction in part (c) is a statement about their average size, not about them matching pointwise, which the mean-square computation, and only that computation, correctly captures.',
@@ -446,12 +446,12 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> A product in time is a convolution in frequency, so the two rectangles convolve into a trapezoid. Its support is the sum of the two half-widths:$$30\\pi+60\\pi=90\\pi,$$with a flat top on $|\\omega|<30\\pi$. Hence$$\\omega_M=90\\pi,\\qquad\\omega_s=180\\pi\\;\\text{rad/s}.$$'
      +'<b>Check.</b> In (b), the two output frequencies are the sum and difference of the two inputs, $70\\pi\\pm30\\pi$, and the larger of them is what sets the rate — not $70\\pi$, which is the largest frequency written down. In (c) the trapezoid height is $2\\min(30\\pi,60\\pi)/(2\\pi)$, but only its width matters here. Comparing (c) with part (c) of the previous question makes the rule concrete: a product of sincs widens, a convolution of sincs narrows.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.5,4],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)\\;\\text{of (a)}',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.5,4],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'X(j\\omega)\\;\\text{of (a)}',
       pad:{l:60,r:26,t:28,b:38},xstep:50,ystep:1});
       a.poly([[-130,0],[-30,0],[-30,1],[30,1],[30,0],[130,0]],{color:C.in});
       a.impulse(-40,3,{color:C.mid}); a.impulse(40,3,{color:C.mid});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.15,1.35],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)\\;\\text{of (c)}',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-130,130],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'X(j\\omega)\\;\\text{of (c)}',
       pad:{l:60,r:26,t:28,b:38},xstep:50,ystep:0.5});
       a.poly([[-130,0],[-90,0],[-30,1],[30,1],[90,0],[130,0]],{color:C.out});
       return a.svg();})()),
@@ -471,11 +471,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Convolution in time multiplies the spectra, $Y=XH$. The factor $X$ is zero beyond $240\\pi$, so whatever $H$ does above that is irrelevant and $\\omega_M=240\\pi$. Then$$\\omega_s\\ge2(240\\pi)+80\\pi=560\\pi\\;\\text{rad/s},$$the same as part (a).<br>'
      +'<b>Check.</b> Part (c) must not exceed part (a): multiplying two spectra can only shrink the support, never grow it, so the rate for $y$ can be no larger than the rate for $x$. It comes out equal here because $H$ is non-zero throughout $|\\omega|<240\\pi$ — the two copies overlap the whole of $X$. Had the carrier been higher, $H$ would have vanished near the origin and the answer to (c) would have been smaller.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-300,300],yr:[-0.3,2.6],xlabel:'\\omega/\\pi',ylabel:'X(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-300,300],yr:[-0.3,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'X(j\\omega)',
       pad:{l:60,r:26,t:28,b:38},xstep:100,ystep:1});
       a.poly([[-300,0],[-240,0],[-240,1],[-120,1],[-120,2],[120,2],[120,1],[240,1],[240,0],[300,0]],{color:C.in});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-460,460],yr:[-0.2,1.6],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-460,460],yr:[-0.2,1.6],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'H(j\\omega)',
       pad:{l:60,r:26,t:28,b:38},xstep:200,ystep:0.5});
       const seg=c=>[[c-240,0],[c-240,0.5],[c-120,0.5],[c-120,1],[c+120,1],[c+120,0.5],[c+240,0.5],[c+240,0]];
       a.poly([[-460,0]].concat(seg(-160)).concat(seg(160)).concat([[460,0]]),{color:C.mid});
@@ -587,12 +587,12 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'At $\\omega_s=600\\pi$, however, $600\\pi<800\\pi$ and the condition fails. Neighbouring copies, centred $600\\pi$ apart and $800\\pi$ wide, overlap on $200\\pi<|\\omega|<400\\pi$, where the spectrum sums to $2$ instead of $1$. The filter cannot separate the overlapped part, and its output is a signal whose spectrum is $1$ on $|\\omega|<200\\pi$ and $2$ on $200\\pi<|\\omega|<400\\pi$ — not $x(t)$, and no choice of $\\omega_c$ repairs it.<br>'
      +'<b>Check.</b> The overlap width in the second case is $2\\omega_M-\\omega_s=800\\pi-600\\pi=200\\pi$, which matches the interval found. In the first case the same expression is negative, $800\\pi-1000\\pi=-200\\pi$, and its magnitude is the gap — one formula covering both, with the sign saying which situation applies.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-1400,1400],yr:[-0.2,1.5],xlabel:'\\omega/\\pi',ylabel:'X_p(j\\omega)\\;\\text{at}\\;1000\\pi',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1400,1400],yr:[-0.2,1.5],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'X_p(j\\omega)\\;\\text{at}\\;1000\\pi',
       pad:{l:70,r:26,t:28,b:38},xstep:500,ystep:0.5});
       const box=c=>[[c-400,0],[c-400,1],[c+400,1],[c+400,0]];
       a.poly([[-1400,0]].concat(box(-1000)).concat(box(0)).concat(box(1000)).concat([[1400,0]]),{color:C.in});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-1000,1000],yr:[-0.3,2.6],xlabel:'\\omega/\\pi',ylabel:'X_p(j\\omega)\\;\\text{at}\\;600\\pi',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-1000,1000],yr:[-0.3,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*PI),ylabel:'X_p(j\\omega)\\;\\text{at}\\;600\\pi',
       pad:{l:70,r:26,t:28,b:38},xstep:400,ystep:1});
       a.curve(w=>{let s=0; for(let k=-3;k<=3;k++) if(Math.abs(w-600*k)<400) s+=1; return s;},{color:C.err});
       return a.svg();})()),
