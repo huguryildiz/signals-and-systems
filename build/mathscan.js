@@ -11,7 +11,11 @@ const path = require('path');
     const out={err:0,raw:[],bogus:[]};
     out.err = host.querySelectorAll('.katex-error').length;
     host.querySelectorAll('.katex-error').forEach(e=>out.raw.push('KATEX-ERR: '+e.textContent.slice(0,80)));
-    const txt=host.innerText||'';
+    /* a program listing is plain code, not mathematics: MATLAB writes '\\pi' in
+       its tick labels, so the listing is left out of the raw-TeX search */
+    const clone=host.cloneNode(true); clone.querySelectorAll('pre,textarea').forEach(e=>e.remove());
+    document.body.appendChild(clone); clone.style.cssText='position:absolute;left:-99999px;top:0';
+    const txt=clone.innerText||''; clone.remove();
     const m=txt.match(/\$[^$\n]{1,80}\$|\\[a-zA-Z]{2,}|&lt;/g);
     if(m) out.raw.push(...[...new Set(m)].slice(0,8).map(x=>'RAW: '+x));
     const known=new Set(['DIV','SPAN','P','B','I','EM','BUTTON','SVG','PATH','G','TEXT','LINE','CIRCLE','RECT','DL','DT','DD','H1','H2','H3','H4','UL','OL','LI','FIGURE','FIGCAPTION','INPUT','LABEL','TABLE','TR','TD','TH','TBODY','THEAD','SMALL','BR','A','SUP','SUB','MATH','SEMANTICS','MROW','MI','MO','MN','ANNOTATION','MSUB','MSUP','MFRAC','MSTYLE','TSPAN','POLYLINE','POLYGON','SELECT','OPTION','CANVAS','CODE','STRONG','HR','KBD','SECTION','ARTICLE','HEADER','FOOTER','NAV','IMG','MSQRT','MUNDER','MOVER','MUNDEROVER','MSUBSUP','MTABLE','MTR','MTD','MTEXT','MSPACE','MPADDED','MENCLOSE','MOPERATOR','DEFS','MARKER','ELLIPSE','USE','CLIPPATH','FOREIGNOBJECT','MARQUEE','DFN',

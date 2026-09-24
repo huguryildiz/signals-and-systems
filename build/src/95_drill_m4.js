@@ -214,8 +214,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Using $1+\\cos\\omega=2\\cos^2(\\omega/2)$,$$H(e^{j\\omega})=e^{-j\\omega}\\cos^2(\\omega/2),$$and since $\\cos^2(\\omega/2)\\ge0$ for every $\\omega$, this <em>is</em> the magnitude: $|H(e^{j\\omega})|=\\cos^2(\\omega/2)$, with $\\angle H(e^{j\\omega})=-\\omega$.<br>'
      +'<b>Solution — part (c).</b> $H(e^{j0})=\\cos^2(0)=1$, and $H(e^{j\\pi})=\\cos^2(\\pi/2)=0$: the taps pass a constant unchanged and remove the fastest-alternating sequence entirely. This is a <b>low-pass</b> filter.<br>'
      +'<b>Check.</b> Summing the taps directly at $\\omega=\\pi$, where $e^{-j\\pi n}=(-1)^n$: $0.25(1)+0.5(-1)+0.25(1)=0.25-0.5+0.25=0$, matching part (c) without using the closed form at all. The three weights sum to $1$, which is exactly $H(e^{j0})$, the two facts being the same statement at the two ends of one period.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',
-      pad:{l:60,r:28,t:32,b:38},xstep:1,ystep:0.25});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'|H(e^{j\\omega})|',
+      pad:{l:60,r:28,t:32,b:38},ystep:0.25});
     a.curve(w=>Math.cos(w/2)**2,{color:C.h,n:900});
     return a.svg();},
   err:'Reporting $|H(e^{j\\omega})|=|0.5+0.5\\cos\\omega|$ and leaving the absolute value in place, treating it as though it could go negative, then plotting a spurious fold in the curve near $\\omega=\\pi$ where $\\cos^2(\\omega/2)$ is in fact smooth and already non-negative.',
@@ -471,8 +471,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$,$$b_k=\\frac14\\cdot\\frac{1}{1-\\tfrac12e^{-jk\\pi/2}}.$$Evaluating the four distinct harmonics:$$b_0=\\frac{1/4}{1-\\tfrac12}=\\frac12,\\qquad b_2=\\frac{1/4}{1+\\tfrac12}=\\frac16,$$$$b_1=\\frac{1/4}{1+\\tfrac j2},\\qquad b_3=\\frac{1/4}{1-\\tfrac j2},$$so $|b_1|=|b_3|=\\dfrac{1/4}{\\sqrt{5}/2}=\\dfrac{1}{2\\sqrt5}\\approx0.2236$.<br>'
      +'<b>Check.</b> The magnitudes must follow the shape of $\\left|H\\right|$, and they do: largest at $k=0$ where $|H|=2$, smallest at $k=2$ where $|H|=\\tfrac23$, and equal at $k=1$ and $k=3$ because those two frequencies, $\\tfrac{\\pi}{2}$ and $\\tfrac{3\\pi}{2}\\equiv-\\tfrac{\\pi}{2}$, are a conjugate pair. Each is $\\tfrac14$ times the corresponding $|H|$: $\\tfrac14\\cdot2=\\tfrac12$ and $\\tfrac14\\cdot\\tfrac23=\\tfrac16$.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'|H(e^{j\\omega})|',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>1/Math.sqrt(1.25-Math.cos(w)),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.06,0.62],xlabel:'k',ylabel:'|b_k|',
       pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.25});
@@ -493,8 +493,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{\\pi}{2}$,$$b_0=a_0H(0)=0,$$so the constant is removed entirely. For the first harmonic, $\\left|H\\!\\left(j\\tfrac{\\pi}{2}\\right)\\right|=\\dfrac{\\pi/2}{\\sqrt{4+\\pi^{2}/4}}\\approx0.6177$, so $|b_{\\pm1}|\\approx0.6177$. For the second, $\\left|H(j\\pi)\\right|=\\dfrac{\\pi}{\\sqrt{4+\\pi^{2}}}\\approx0.8436$, so $|b_{\\pm2}|=\\tfrac32\\cdot0.8436\\approx1.2654$.<br>'
      +'<b>Check.</b> The shape of the answer is what a high-pass filter must produce: the DC term is gone, the first harmonic is attenuated to about $62\\%$, and the second, being at twice the frequency, passes at about $84\\%$. The ordering $|b_0|<|b_1|<|b_2|$ is the reverse of what the low-pass system in the previous question gave, on an input with the same shape.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',
-      pad:{l:58,r:26,t:28,b:38},xstep:2,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|H(j\\omega)|',
+      pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>Math.abs(w)/Math.sqrt(4+w*w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.12,1.5],xlabel:'k',ylabel:'|b_k|',
       pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
@@ -520,8 +520,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
      +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\;y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
-      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},ystep:1});
       a.curve(w=>1+2*Math.cos(w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.4],xlabel:'k',ylabel:'b_k',
       pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
@@ -562,8 +562,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The harmonics sit at $k\\omega_0=k\\tfrac{\\pi}{3}$. Taking $k$ over one period and folding to $|\\omega|\\le\\pi$: $k=0$ gives $0$, $k=1$ gives $\\tfrac{\\pi}{3}$, $k=5$ gives $-\\tfrac{\\pi}{3}$ — all inside the band; $k=2,3,4$ give $\\tfrac{2\\pi}{3}$, $\\pi$, $-\\tfrac{2\\pi}{3}$ — all outside. So$$b_0=b_1=b_5=\\tfrac16,\\qquad b_2=b_3=b_4=0,$$and by Parseval$$P_y=\\sum_{k=\\langle6\\rangle}|b_k|^{2}=3\\cdot\\frac{1}{36}=\\frac{1}{12}\\;\\text{W}\\approx0.0833\\;\\text{W}.$$'
      +'<b>Check.</b> Build $y[n]$ and average it directly. From the three surviving coefficients,$$y[n]=\\tfrac16\\left(1+2\\cos\\tfrac{\\pi n}{3}\\right),$$so over one period $y=\\tfrac12,\\tfrac13,0,-\\tfrac16,0,\\tfrac13$ at $n=0,\\dots,5$, and$$P_y=\\frac16\\left(\\tfrac14+\\tfrac19+0+\\tfrac1{36}+0+\\tfrac19\\right)=\\frac16\\cdot\\frac12=\\frac1{12}\\;\\text{W}.$$The two routes agree. The input power is $\\sum|a_k|^{2}=6\\cdot\\tfrac1{36}=\\tfrac16$, so the filter removed exactly half of it.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
-      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
       return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,5.6],yr:[-0.03,0.22],xlabel:'k',ylabel:'|b_k|',

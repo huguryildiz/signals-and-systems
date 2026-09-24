@@ -2482,13 +2482,37 @@ const PLOT = (() => {
     for(let v=start; v<=hi+1e-9; v+=s) out.push(Math.abs(v)<1e-12?0:v);
     return out;
   }
+  /* ---------- a frequency axis is read in multiples of pi ----------
+     piTick(v) writes v radians as a rational multiple of pi (0, π/4, -π/2,
+     3π/2, -6π). A tick number is part of the scale, not of the running
+     mathematics, so it stays plain text. piTicks(lo,hi,step) lists the
+     multiples of `step` inside [lo,hi]. Axes takes `xpi: step` to use both. */
+  function piTick(v){
+    const r = v/Math.PI;
+    if(Math.abs(r) < 1e-9) return '0';
+    for(const den of [1,2,3,4,5,6,8,12]){
+      const num = r*den;
+      if(Math.abs(num-Math.round(num)) < 1e-7){
+        const k = Math.round(num), sg = k<0?'-':'', m = Math.abs(k);
+        const head = m===1 ? 'π' : m+'π';
+        return den===1 ? sg+head : sg+head+'/'+den;
+      }
+    }
+    return fmt(v,2);
+  }
+  function piTicks(lo,hi,step){ const o=[];
+    for(let k=Math.ceil(lo/step-1e-9); k<=hi/step+1e-9; k++) o.push(k===0?0:k*step);
+    return o; }
 
   /* ======================================================================
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes,yticksLeft}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi}
      xlabel and ylabel are TeX source — see texName above.
+     xpi: a frequency axis. Ticks at every multiple of xpi (radians) in the
+     range, written in pi form; xpi:true chooses the step from xtarget;
+     xticksOverride or xtickfmt still win.
      ====================================================================== */
   function Axes(opt){
     /* A slide figure is drawn again, taller, to fill the spare height of its
@@ -2507,6 +2531,14 @@ const PLOT = (() => {
       xticksOverride:null, yticksOverride:null, arrows:true
     }, opt);
     const [xa,xb]=o.xr, [ya,yb]=o.yr;
+    if(o.xpi){
+      /* xpi:true picks the step itself: the finest multiple of pi that keeps
+         the tick count within xtarget, for a range a laboratory sets at run time */
+      const PIS = [1/4,1/2,1,2,3,4,5,6,8,10,20,50,100,200,500,1000,2000,5000];
+      const step = o.xpi===true ? Math.PI*(PIS.find(m => (xb-xa)/(m*Math.PI) <= o.xtarget) || 10000) : o.xpi;
+      if(!opt.xticksOverride) o.xticksOverride = piTicks(xa,xb,step);
+      if(!opt.xtickfmt) o.xtickfmt = piTick;
+    }
     /* A scene that carries its own page colour — a navy module opening — needs
        the axis, the tick numbers and the axis names in that page's ink, not in
        the ink of the surrounding theme, or the frame of the figure disappears
@@ -2831,7 +2863,7 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null, labScale:1,
+  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, piTick, piTicks, setTheme, hOverride:null, labScale:1,
     labelScale:()=>LBLS };
   return API;
 })();
@@ -6106,7 +6138,8 @@ fprintf('b0 = %.4f\\n', real(b0))
 
 w = linspace(-15, 15, 601);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H|')`,
+xlabel('frequency (rad/s)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6125,7 +6158,7 @@ print(f'b0 = {(a[0] * H(0)).real:.4f}')
 
 w = np.linspace(-15, 15, 601)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$'); plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -6151,7 +6184,8 @@ fprintf('b0 = %.4f\\n', real(b0))
 
 w = linspace(-15, 15, 601);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H|')`,
+xlabel('frequency (rad/s)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6170,7 +6204,7 @@ print(f'b0 = {(a[0] * H(0)).real:.4f}')
 
 w = np.linspace(-15, 15, 601)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$'); plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -6518,7 +6552,7 @@ Object.assign(LABS, (function(){
       const wmax = c.dt ? Math.PI : 4*Math.PI;
       const A2 = PLOT.Axes({w:760,h:191,xr:[-wmax,wmax],yr:[-0.12,1.45],
         xlabel:c.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xtarget:5,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2});
       A2.curve(w=>cabs(c.dt?Hdt(w,c.hp):Hct(w,par,c.hp)),{color:PLOT.COL.h,n:1400});
       for(let k=-m.K;k<=m.K;k++){ const w=k*m.w0; if(Math.abs(w)>wmax) continue;
         A2.point(w, cabs(m.H(k)), {color:PLOT.COL.coral,r:4}); }
@@ -6646,7 +6680,7 @@ Object.assign(LABS, (function(){
       /* panel 2 — |H(w)| with the current point marked */
       const A2 = PLOT.Axes({w:760,h:267,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
         xlabel:s.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xtarget:6,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2});
       A2.curve(v=>cabs(s.H(v)),{color:PLOT.COL.h,n:1200});
       A2.point(w,mag,{color:PLOT.COL.coral,r:5});
 
@@ -7104,7 +7138,8 @@ end
 
 w = linspace(-10, 10, 800);
 plot(w, 2*sin(w*T1)./w, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7123,6 +7158,7 @@ for T in [4, 16]:
 w = np.linspace(-10, 10, 800)
 plt.plot(w, 2*np.sin(w*T1)/w, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7184,7 +7220,8 @@ end
 k = -50:50; w0 = 0.2*pi;
 Xk = 2*sin(k*w0*T1) ./ (k*w0); Xk(k==0) = 2*T1;
 stem(k*w0, Xk, 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jkw0)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jkw0)')
+xticks(pi*(-9:3:9)); xticklabels({'-9\\pi','-6\\pi','-3\\pi','0','3\\pi','6\\pi','9\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7204,7 +7241,7 @@ kk = np.where(k == 0, 1, k)
 Xk = np.where(k == 0, 2*T1, 2*np.sin(kk*w0*T1)/(kk*w0))
 plt.stem(k*w0, Xk)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(jk\\omega_0)$')
-plt.grid(True)
+plt.xticks(np.pi*np.arange(-9, 10, 3), [r'$-9\\pi$', r'$-6\\pi$', r'$-3\\pi$', '0', r'$3\\pi$', r'$6\\pi$', r'$9\\pi$']); plt.grid(True)
 plt.show()`},
 
 'tr-exist': {
@@ -7268,7 +7305,8 @@ fprintf('numeric X(j2) = %.4f   formula = %.4f\\n', real(Xnum), Xfor)
 
 wv = linspace(-12, 12, 1200);
 plot(wv, 2*T1*sin(wv*T1)./(wv*T1), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7288,7 +7326,7 @@ print(f'numeric X(j2) = {Xnum.real:.4f}   formula = {Xfor:.4f}')
 wv = np.linspace(-12, 12, 1200)
 plt.plot(wv, 2*T1*np.sin(wv*T1)/(wv*T1), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
-plt.grid(True)
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'pr-phase': {
@@ -7306,7 +7344,8 @@ fprintf('-arctan(w/a) = %.4f\\n', phf)
 
 wv = linspace(-6, 6, 600);
 plot(wv, angle(1./(a + 1j*wv)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('angle X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('angle X(jw)')
+xticks(pi*(-1.5:0.5:1.5)); xticklabels({'-3\\pi/2','-\\pi','-\\pi/2','0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7321,6 +7360,7 @@ print(f'-arctan(w/a) = {phf:.4f}')
 wv = np.linspace(-6, 6, 600)
 plt.plot(wv, np.angle(1/(a + 1j*wv)), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$\\angle X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-1.5, 1.6, 0.5), [r'$-3\\pi/2$', r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7341,7 +7381,8 @@ wm = w(mask);
 fprintf('first side lobe = %.4f at w = %.4f\\n', lobe, wm(idx))
 
 plot(w, X, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(0:0.5:2)); xticklabels({'0','\\pi/2','\\pi','3\\pi/2','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7359,6 +7400,7 @@ print(f'first side lobe = {lobe:.4f} at w = {wm:.4f}')
 
 plt.plot(w, X, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(0, 2.1, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7376,7 +7418,8 @@ end
 
 w = linspace(0.01, 15, 2000);
 plot(w, 2*sin(w*0.25)./w, 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(0:4)); xticklabels({'0','\\pi','2\\pi','3\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7389,6 +7432,7 @@ for T1 in [1, 0.25]:
 w = np.linspace(0.01, 15, 2000)
 plt.plot(w, 2*np.sin(w*0.25)/w, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(0, 5), ['0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7407,7 +7451,8 @@ fprintf('weight at origin = %.4f\\n', 2*pi*a0)
 k = -6:6;
 ak = sin(2*pi*k*T1/T) ./ (pi*k); ak(k==0) = a0;
 stem(k*w0, 2*pi*ak, 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/s)'), ylabel('2 pi a_k')
+xticks(pi*(-1.5:0.5:1.5)); xticklabels({'-3\\pi/2','-\\pi','-\\pi/2','0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7423,6 +7468,7 @@ kk = np.where(k == 0, 1, k)
 ak = np.where(k == 0, a0, np.sin(2*np.pi*kk*T1/T)/(np.pi*kk))
 plt.stem(k*w0, 2*np.pi*ak)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.pi*np.arange(-1.5, 1.6, 0.5), [r'$-3\\pi/2$', r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7506,7 +7552,8 @@ end
 
 k = -4:4; T = 1;
 stem(k*2*pi/T, (2*pi/T)*ones(size(k)), 'filled'), grid on
-xlabel('frequency (rad/s)'), ylabel('X(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('X(jw)')
+xticks(pi*(-8:4:8)); xticklabels({'-8\\pi','-4\\pi','0','4\\pi','8\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7519,6 +7566,7 @@ for T in [1, 2]:
 k = np.arange(-4, 5); T = 1
 plt.stem(k*2*np.pi/T, (2*np.pi/T)*np.ones(k.size))
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(j\\omega)$')
+plt.xticks(np.pi*np.arange(-8, 9, 4), [r'$-8\\pi$', r'$-4\\pi$', '0', r'$4\\pi$', r'$8\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7576,7 +7624,8 @@ fprintf('new band edge = %.4f\\n', newEdge)
 
 w = linspace(-15, 15, 1000);
 plot(w, newHeight*(abs(w) < newEdge), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('0.5X(jw/2)')`,
+xlabel('frequency (rad/s)'), ylabel('0.5X(jw/2)')
+xticks(pi*(-4:2:4)); xticklabels({'-4\\pi','-2\\pi','0','2\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7590,6 +7639,7 @@ print(f'new band edge = {newEdge:.4f}')
 w = np.linspace(-15, 15, 1000)
 plt.plot(w, newHeight*(np.abs(w) < newEdge), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$0.5X(j\\omega/2)$')
+plt.xticks(np.pi*np.arange(-4, 5, 2), [r'$-4\\pi$', r'$-2\\pi$', '0', r'$2\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7731,7 +7781,8 @@ fprintf('y(0) = %.4f\\n', y0)
 
 w = linspace(-15, 15, 1000);
 plot(w, Ay*(abs(w) <= Wy), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('Y(jw)')`,
+xlabel('frequency (rad/s)'), ylabel('Y(jw)')
+xticks(pi*(-4:2:4)); xticklabels({'-4\\pi','-2\\pi','0','2\\pi','4\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7750,6 +7801,7 @@ print(f'y(0) = {y0:.4f}')
 w = np.linspace(-15, 15, 1000)
 plt.plot(w, Ay*(np.abs(w) <= Wy), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Y(j\\omega)$')
+plt.xticks(np.pi*np.arange(-4, 5, 2), [r'$-4\\pi$', r'$-2\\pi$', '0', r'$2\\pi$', r'$4\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -7832,7 +7884,8 @@ fprintf('|H(j100)| = %.4f\\n', abs(H(100)))
 
 w = linspace(-10, 10, 1000);
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('frequency (rad/s)'), ylabel('|H(jw)|')`,
+xlabel('frequency (rad/s)'), ylabel('|H(jw)|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -7848,6 +7901,7 @@ print(f'|H(j100)| = {abs(H(100)):.4f}')
 w = np.linspace(-10, 10, 1000)
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(j\\omega)|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -8077,7 +8131,7 @@ Object.assign(LABS, (function(){
       if(s.real){
         const A2 = PLOT.Axes({w:760,h:236,xr:[-wmax,wmax],yr:[-0.55*topMag,1.28*topMag],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-          pad:{l:64,r:24,t:32,b:36},xtarget:7,ytarget:3});
+          pad:{l:64,r:24,t:32,b:36},xpi:true,xtarget:10,ytarget:3});
         A2.curve(w=>s.X(w,par).re,{color:PLOT.COL.mid,width:2.3,n:2400});
         panels = [A1,A2];
         root.querySelector('.plots').innerHTML =
@@ -8086,11 +8140,11 @@ Object.assign(LABS, (function(){
       } else {
         const A2 = PLOT.Axes({w:760,h:128,xr:[-wmax,wmax],yr:[-0.1*topMag,1.28*topMag],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-          pad:{l:64,r:24,t:28,b:32},xtarget:7,ytarget:3});
+          pad:{l:64,r:24,t:28,b:32},xpi:true,xtarget:10,ytarget:3});
         A2.curve(w=>cabs(s.X(w,par)),{color:PLOT.COL.mid,width:2.3,n:2400});
         const A3 = PLOT.Axes({w:760,h:140,xr:[-wmax,wmax],yr:[-1.9,1.9],
           xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
-          pad:{l:70,r:24,t:26,b:34},xtarget:7,
+          pad:{l:70,r:24,t:26,b:34},xpi:true,xtarget:10,
           yticksOverride:[-1.5708,0,1.5708],ytickfmt:v=>v.toFixed(2)});
         A3.curve(w=>carg(s.X(w,par)),{color:PLOT.COL.mid,width:2,n:2400});
         panels = [A1,A2,A3];
@@ -8212,7 +8266,7 @@ Object.assign(LABS, (function(){
       topc = Math.max(topc, 0.2);
       const A2 = PLOT.Axes({w:760,h:212,xr:[-wmax,wmax],yr:[-0.55*topc,1.28*topc],
         xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'T\\,a_k\\ \\text{and}\\ X(j\\omega)',
-        pad:{l:64,r:24,t:30,b:36},xtarget:7,ytarget:3});
+        pad:{l:64,r:24,t:30,b:36},xpi:true,xtarget:10,ytarget:3});
       A2.curve(w=>sh.X(w),{color:PLOT.COL.coral,width:1.6,dash:'6 5',n:1600});
       A2.stem(stems,{color:PLOT.COL.in,r:3.2,showZero:true});
 
@@ -8364,7 +8418,7 @@ Object.assign(LABS, (function(){
       const yl = s.kind==='sin' ? 'Im\\{X(j\\omega)\\}' : 'X(j\\omega)';
       const wtop = Math.max(0.6, Math.max.apply(null, weights.map(p=>Math.abs(p[1]))));
       const A2 = PLOT.Axes({w:760,h:280,xr:[-wmax,wmax],yr:[-1.25*wtop,1.25*wtop],
-        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:yl,pad:{l:60,r:24,t:22,b:30},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:yl,pad:{l:60,r:24,t:22,b:30},xpi:true,xtarget:10,ytarget:3});
       if(s.kind==='rect'){
         /* dashed envelope the weights sit on: w0 * 2 sin(w T1) / w */
         A2.curve(w=> Math.abs(w)<1e-6 ? 2*w0 : w0*2*Math.sin(w*s.T1)/w,
@@ -8539,16 +8593,18 @@ Object.assign(LABS, (function(){
       const magAfter = w=>{ const X=Xa(w); return Math.hypot(X.re,X.im); };
       let peakA=0; for(let i=0;i<=800;i++){ const w=-wmax+2*wmax*i/800; peakA=Math.max(peakA, magAfter(w)); }
       const A2 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-0.1*Math.max(2,peakA),1.25*Math.max(2,peakA)],
-        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X(j\\omega)|',pad:{l:56,r:24,t:12,b:28},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X(j\\omega)|',pad:{l:56,r:24,t:12,b:28},xpi:true,xtarget:10,ytarget:2});
       A2.curve(magBefore,{color:PLOT.COL.in,n:1600,dash:'5 4',opacity:.55});
       A2.curve(magAfter,{color:PLOT.COL.out,n:1600});
 
-      /* panel 3 — phase after, wrapped to (-pi, pi] */
+      /* panel 3 — phase after, wrapped to (-pi, pi]. Its jumps fall on the
+         multiples of pi where the tick numbers would stand, so the frequency
+         scale is read off the magnitude panel above. */
       const wrap = a=>{ let v=((a+PI)%(2*PI)+2*PI)%(2*PI)-PI; return v; };
       const phaseAfter = w=>{ const X=Xa(w); if(Math.hypot(X.re,X.im)<1e-9) return 0; return wrap(Math.atan2(X.im,X.re)); };
       const A3 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
         xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',
-        pad:{l:60,r:24,t:12,b:28},xtarget:7,yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
+        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
       A3.curve(phaseAfter,{color:PLOT.COL.out,n:1600});
 
       root.querySelector('.plots').innerHTML =
@@ -8661,7 +8717,7 @@ Object.assign(LABS, (function(){
       /* panel 1 — |X|, |H|, |Y| on one frequency plot */
       const topY = Math.max(0.3, inKind==='exp'?1:AEXP, sysKind==='exp'?1/b:HEXP, (inKind==='exp'?1:AEXP)*(sysKind==='exp'?1/b:HEXP));
       const A1 = PLOT.Axes({w:760,h:328,xr:[-wr,wr],yr:[-0.08*topY,1.35*topY],
-        xlabel:'\\omega\\;(\\text{rad/s})',pad:{l:56,r:24,t:22,b:32},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;(\\text{rad/s})',pad:{l:56,r:24,t:22,b:32},xpi:true,xtarget:10,ytarget:3});
       A1.curve(w=>XinMag(w),{color:PLOT.COL.in,n:1600});
       A1.curve(w=>HsysMag(w),{color:PLOT.COL.h,n:1600});
       A1.curve(w=>XinMag(w)*HsysMag(w),{color:PLOT.COL.out,n:1600,dash:'2 5'});
@@ -8750,7 +8806,7 @@ Object.assign(LABS, (function(){
     function drawModulate(root){
       const wr = wcm + W + 1;
       const A1 = PLOT.Axes({w:760,h:300,xr:[-wr,wr],yr:[-0.1,1.35],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{amplitude}',pad:{l:56,r:24,t:22,b:32},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{amplitude}',pad:{l:56,r:24,t:22,b:32},xpi:true,xtarget:10,ytarget:3});
       A1.curve(w=>Math.abs(w)<=W?1:0,{color:PLOT.COL.in,n:1600});
       /* Z(jw) = 1/2 X(j(w-wc)) + 1/2 X(j(w+wc)); where the two copies overlap the
          sum is drawn, height 1 where both land, 0.5 where only one does */
@@ -8891,11 +8947,11 @@ Object.assign(LABS, (function(){
       const hvals=[]; for(let i=0;i<=600;i++){ const w=-wmax+2*wmax*i/600; hvals.push(cabs(Hc(w))); }
       const hmax = Math.max(0.1,...hvals);
       const A1b = PLOT.Axes({w:760,h:192,xr:[-wmax,wmax],yr:[-0.05*hmax,1.3*hmax],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',pad:{l:56,r:24,t:20,b:30},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',pad:{l:56,r:24,t:20,b:30},xpi:true,xtarget:10,ytarget:2});
       A1b.curve(w=>cabs(Hc(w)),{color:PLOT.COL.h,n:1600});
 
       const A2 = PLOT.Axes({w:760,h:150,xr:[-wmax,wmax],yr:[-3.4,3.4],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',pad:{l:56,r:24,t:18,b:28},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',pad:{l:56,r:24,t:18,b:28},xpi:true,xtarget:10,ytarget:2});
       A2.curve(w=>Math.atan2(Hc(w).im,Hc(w).re),{color:PLOT.COL.h,n:1600});
 
       const A3 = PLOT.Axes({w:760,h:192,xr:[0,8],yr:(()=>{
@@ -9048,7 +9104,8 @@ for m = n
     X = X + exp(-1j*w*m);             % the analysis sum, term by term
 end
 plot(w/pi, real(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X(e^{jw})')`,
+xlabel('frequency (rad/sample)'), ylabel('X(e^{jw})')
+xticks(-2:1:2); xticklabels({'-2\\pi','-\\pi','0','\\pi','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9065,7 +9122,8 @@ for N in [9, 20]:
 w = np.linspace(-2*np.pi, 2*np.pi, 801)
 X = sum(np.exp(-1j*w*m) for m in n)   # the analysis sum, term by term
 plt.plot(w/np.pi, X.real, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-2, 3), [r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9086,7 +9144,8 @@ fprintf('formula = %.4f - %.4fj\\n', real(Xfor), abs(imag(Xfor)))
 
 wv = linspace(-2*pi, 2*pi, 801);
 plot(wv/pi, abs(1./(1 - 0.5*exp(-1j*wv))), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jw})|')
+xticks(-2:1:2); xticklabels({'-2\\pi','-\\pi','0','\\pi','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9102,7 +9161,8 @@ print(f'formula = {Xfor.real:.4f} - {abs(Xfor.imag):.4f}j')
 
 wv = np.linspace(-2*np.pi, 2*np.pi, 801)
 plt.plot(wv/np.pi, np.abs(1/(1 - 0.5*np.exp(-1j*wv))), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(-2, 3), [r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9124,7 +9184,8 @@ end
 N = 16; w0 = 2*pi/N; k = 0:N-1;
 Xk = 1 ./ (1 - 0.5*exp(-1j*k*w0));
 stem(k*w0/pi, abs(Xk), 'filled'), grid on
-xlabel('frequency / pi'), ylabel('|X(e^{jkw0})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jkw0})|')
+xticks(0:0.5:1.5); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9140,7 +9201,8 @@ for N in [8, 64]:
 N = 16; w0 = 2*np.pi/N; k = np.arange(N)
 Xk = 1/(1 - 0.5*np.exp(-1j*k*w0))
 plt.stem(k*w0/np.pi, np.abs(Xk))
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{jk\\omega_0})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{jk\\omega_0})|$')
+plt.xticks(np.arange(0, 1.6, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9164,7 +9226,8 @@ for m = n
     X = X + exp(-1j*wv*m);
 end
 plot(wv/pi, real(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X(e^{jw})')`,
+xlabel('frequency (rad/sample)'), ylabel('X(e^{jw})')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9180,7 +9243,8 @@ print(f'at w = 0.9 + 2pi: X = {X2.real:.4f}')
 wv = np.linspace(-3*np.pi, 3*np.pi, 1201)
 X = sum(np.exp(-1j*wv*m) for m in n)
 plt.plot(wv/np.pi, X.real, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 'dtr-dft': {
@@ -9203,7 +9267,8 @@ w = linspace(0, 2*pi, 801);
 X = sum(exp(-1j*n(:)*w));                  % the DTFT of the four ones
 plot(w/pi, abs(X), 'LineWidth', 1.5), hold on, grid on
 stem((0:31)/16, abs(fft(x, 32)), 'filled')   % N = 32
-xlabel('frequency / pi'), ylabel('|X(e^{jw})|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X(e^{jw})|')
+xticks(0:0.5:2); xticklabels({'0','\\pi/2','\\pi','3\\pi/2','2\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9220,7 +9285,8 @@ w = np.linspace(0, 2*np.pi, 801)
 X = sum(np.exp(-1j*w*n) for n in range(4))   # the DTFT of the four ones
 plt.plot(w/np.pi, np.abs(X), linewidth=1.5)
 plt.stem(np.arange(32)/16, np.abs(np.fft.fft(x, 32)))   # N = 32
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(0, 2.1, 0.5), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$', r'$2\\pi$'])
 plt.grid(True)
 plt.show()`},
 /* </m6-s1-code> */
@@ -9242,7 +9308,8 @@ fprintf('-n0*w = %.4f rad\\n', -n0*w)
 % the phase over three periods: a sawtooth of period 2*pi/n0
 wv = linspace(-3*pi, 3*pi, 3000);
 plot(wv/pi, angle(exp(-1j*wv*n0)), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('angle X (rad)')`,
+xlabel('frequency (rad/sample)'), ylabel('angle X (rad)')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9257,7 +9324,8 @@ print(f'-n0*w = {-n0*w:.4f} rad')
 # the phase over three periods: a sawtooth of period 2*pi/n0
 wv = np.linspace(-3*np.pi, 3*np.pi, 3000)
 plt.plot(wv/np.pi, np.angle(np.exp(-1j*wv*n0)), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$\\angle X(e^{j\\omega})$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$\\angle X(e^{j\\omega})$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9277,7 +9345,8 @@ fprintf('|X| smallest = %.4f   1/(1+a) = %.4f\\n', min(abs(X)), 1/(1+a))
 fprintf('largest |angle X| = %.4f   arcsin(a) = %.4f\\n', max(abs(angle(X))), asin(a))
 
 plot(w/pi, abs(X), 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|X|')`,
+xlabel('frequency (rad/sample)'), ylabel('|X|')
+xticks(-1:0.5:1); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9292,7 +9361,8 @@ print(f'|X| smallest = {np.min(abs(X)):.4f}   1/(1+a) = {1/(1+a):.4f}')
 print(f'largest |angle X| = {np.max(abs(np.angle(X))):.4f}   arcsin(a) = {np.arcsin(a):.4f}')
 
 plt.plot(w/np.pi, abs(X), linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.arange(-1, 1.1, 0.5), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9316,7 +9386,8 @@ Xv = real(sum(exp(-1j*wv(:)*n), 2));
 fprintf('least value = %.4f\\n', min(Xv))
 
 plot(wv/pi, Xv, 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('X')`,
+xlabel('frequency (rad/sample)'), ylabel('X')
+xticks(-1:0.5:1); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9335,8 +9406,8 @@ Xv = np.sum(np.exp(-1j*np.outer(wv, n)), axis=1).real
 print(f'least value = {np.min(Xv):.4f}')
 
 plt.plot(wv/np.pi, Xv, linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$X(e^{j\\omega})$')
-plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$X(e^{j\\omega})$')
+plt.xticks(np.arange(-1, 1.1, 0.5), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dpr-lpf': {
@@ -9434,7 +9505,8 @@ fprintf('2*pi*a_1 = %.4f\\n', 2*pi*a(2))
 fprintf('2*pi*a_3 = %.4f\\n', 2*pi*a(4))
 
 stem(2*pi*n/N, 2*pi*a, 'filled'), grid on
-xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')
+xticks(0:pi/2:1.5*pi); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9449,6 +9521,7 @@ print(f'2*pi*a_3 = {2*np.pi*a[3]:.4f}')
 
 plt.stem(2*np.pi*n/N, 2*np.pi*a)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.arange(0, 1.6*np.pi, np.pi/2), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9470,7 +9543,8 @@ fprintf('largest weight = %.4f\\n', max(w))
 fprintf('sum over one period = %.4f\\n', sum(w))
 
 stem(2*pi*n/N, w, 'filled'), grid on
-xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')`,
+xlabel('frequency (rad/sample)'), ylabel('2 pi a_k')
+xticks(0:pi/2:1.5*pi); xticklabels({'0','\\pi/2','\\pi','3\\pi/2'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9485,6 +9559,7 @@ print(f'sum over one period = {w.sum():.4f}')
 
 plt.stem(2*np.pi*n/N, w)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$2\\pi a_k$')
+plt.xticks(np.arange(0, 1.6*np.pi, np.pi/2), ['0', r'$\\pi/2$', r'$\\pi$', r'$3\\pi/2$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9583,7 +9658,8 @@ w  = linspace(-3*pi, 3*pi, 2001);
 Yw = zeros(size(w));
 for i = 1:numel(w), Yw(i) = Y2(w(i)); end
 plot(w/pi, Yw, 'LineWidth', 1.5), grid on
-xlabel('frequency / pi'), ylabel('|Y_{(2)}|')`,
+xlabel('frequency (rad/sample)'), ylabel('|Y_{(2)}|')
+xticks(-3:1:3); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9598,7 +9674,8 @@ print(f'|Y2| at w = pi/2: {Y2(np.pi/2):.4f}')
 
 w = np.linspace(-3*np.pi, 3*np.pi, 2001)
 plt.plot(w/np.pi, [Y2(v) for v in w], linewidth=1.5)
-plt.xlabel(r'$\\omega/\\pi$'); plt.ylabel(r'$|Y_{(2)}(e^{j\\omega})|$')
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|Y_{(2)}(e^{j\\omega})|$')
+plt.xticks(np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9652,7 +9729,8 @@ X2 = 1 ./ abs(1 - a*exp(-1j*w)).^2;
 fprintf('energy from the integral = %.4f\\n', mean(X2))   % mean = integral / 2pi
 
 plot(w, X2, 'LineWidth', 1.5), xlim([-pi pi]), grid on
-xlabel('frequency (rad/sample)'), ylabel('|X|^2')`,
+xlabel('frequency (rad/sample)'), ylabel('|X|^2')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9670,6 +9748,7 @@ print(f'energy from the integral = {np.mean(X2):.4f}')   # mean = integral / 2pi
 plt.plot(w, X2, linewidth=1.5)
 plt.xlim(-np.pi, np.pi)
 plt.xlabel(r'$\\omega$ (rad/sample)'); plt.ylabel(r'$|X(e^{j\\omega})|^2$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9730,7 +9809,8 @@ for n = 0:2
 end
 
 plot(w, Y, 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('Y')`,
+xlabel('w (rad/sample)'), ylabel('Y')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9749,6 +9829,7 @@ for n in range(3):
 
 plt.plot(w, Y, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Y(e^{j\\omega})$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9771,7 +9852,8 @@ fprintf('area/(2pi) = %.4f   x[0]*y[0] = %.4f\\n', sum(Z)*dw/(2*pi), 0.75*0.5)
 
 w = m*dw;  w(w >= pi) = w(w >= pi) - 2*pi;
 plot(w, Z, '.'), grid on
-xlabel('w (rad/sample)'), ylabel('Z')`,
+xlabel('w (rad/sample)'), ylabel('Z')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9790,6 +9872,7 @@ print(f'area/(2pi) = {Z.sum()*dw/(2*np.pi):.4f}   x[0]*y[0] = {0.75*0.5:.4f}')
 w = np.where(m*dw >= np.pi, m*dw - 2*np.pi, m*dw)
 plt.plot(w, Z, '.')
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Z(e^{j\\omega})$')
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$'])
 plt.grid(True)
 plt.show()`},
 
@@ -9814,7 +9897,8 @@ for n = [0 3]
 end
 
 plot(w, Z, 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('Z')`,
+xlabel('w (rad/sample)'), ylabel('Z')
+xticks(-pi:pi/2:pi); xticklabels({'-\\pi','-\\pi/2','0','\\pi/2','\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9834,7 +9918,7 @@ for n in (0, 3):
 
 plt.plot(w, Z, linewidth=1.5)
 plt.xlabel(r'$\\omega$'); plt.ylabel(r'$Z(e^{j\\omega})$')
-plt.grid(True)
+plt.xticks(np.arange(-np.pi, np.pi+0.01, np.pi/2), [r'$-\\pi$', r'$-\\pi/2$', '0', r'$\\pi/2$', r'$\\pi$']); plt.grid(True)
 plt.show()`},
 /* </m6-s5-code> */
 
@@ -9855,7 +9939,8 @@ d = max(abs(H(w + 2*pi) - H(w)));
 fprintf('largest change after a shift by 2pi = %.4f\\n', d)
 
 plot(w, abs(H(w)), 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('|H|')`,
+xlabel('w (rad/sample)'), ylabel('|H|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9872,7 +9957,8 @@ d = np.max(np.abs(H(w + 2*np.pi) - H(w)))
 print(f'largest change after a shift by 2pi = {d:.4f}')
 
 plt.plot(w, np.abs(H(w)), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(e^{j\\omega})|$'); plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|H(e^{j\\omega})|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dde-partial': {
@@ -9940,7 +10026,8 @@ d = max(abs(X - 1./(1 - a*exp(-1j*w)).^2));
 fprintf('largest difference from the pair = %.4f\\n', d)
 
 plot(w, abs(X), 'LineWidth', 1.5), grid on
-xlabel('w (rad/sample)'), ylabel('|X|')`,
+xlabel('w (rad/sample)'), ylabel('|X|')
+xticks(pi*(-3:3)); xticklabels({'-3\\pi','-2\\pi','-\\pi','0','\\pi','2\\pi','3\\pi'})`,
   py:`import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9959,7 +10046,8 @@ d = np.max(np.abs(X - 1/(1 - a*np.exp(-1j*w))**2))
 print(f'largest difference from the pair = {d:.4f}')
 
 plt.plot(w, np.abs(X), linewidth=1.5)
-plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$'); plt.grid(True)
+plt.xlabel(r'$\\omega$'); plt.ylabel(r'$|X(e^{j\\omega})|$')
+plt.xticks(np.pi*np.arange(-3, 4), [r'$-3\\pi$', r'$-2\\pi$', r'$-\\pi$', '0', r'$\\pi$', r'$2\\pi$', r'$3\\pi$']); plt.grid(True)
 plt.show()`},
 
 'dde-output': {
@@ -21166,7 +21254,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
       svg:v=>{
       /* a_k placed at w = k w0, with the envelope E(w)/T0 they sample; T1 = 1 */
       const f=cl(v?v.frame:0), E=w=>Math.abs(w)<1e-9?2:2*Math.sin(w)/w;
-      const a=AX({yticksLeft:true,xr:[-10,10],yr:[-0.16,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'a_k',xtarget:9,ytarget:4});
+      const a=AX({yticksLeft:true,xr:[-10,10],yr:[-0.16,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'a_k',xpi:Math.PI,ytarget:4});
       const one=T0=>{ const w0=2*Math.PI/T0;
         a.curve(w=>E(w)/T0,{color:C.mid,dash:'6 5',n:900});
         const pts=[]; for(let k=-20;k<=20;k++){ const w=k*w0; if(Math.abs(w)<=10) pts.push([w,E(w)/T0]); }
@@ -22124,7 +22212,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=AX({xr:[0,12],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:7,ytarget:3,
-        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1+w*w);
       a.curve(Hm,{color:C.h,n:900});
       [0,1,2,3].forEach(k=>a.point(k*Math.PI,Hm(k*Math.PI),{color:C.coral,r:5}));
@@ -22179,7 +22267,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=AX({xr:[0,12],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:7,ytarget:3,
-        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[Math.PI,2*Math.PI,3*Math.PI],xtickfmt:P.piTick});
       const Hm=w=>w/Math.sqrt(1+w*w);
       a.curve(Hm,{color:C.h,n:900});
       [0,1,2,3].forEach(k=>a.point(k*Math.PI,Hm(k*Math.PI),{color:C.coral,r:5}));
@@ -22236,7 +22324,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const wc=v?v.wc:3.5, K=Math.floor(wc), ab=k=>Math.abs(aq(k));
       return stack2(h=>{
-        const f=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.35],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega),\\ |a_k|',xtarget:13,ytarget:2});
+        const f=AX({h,pad:{l:52,r:24,t:16,b:30},yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.35],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'H(j\\omega),\\ |a_k|',xstep:1,xtickfmt:v=>P.piTick(v*Math.PI),ytarget:2});
         f.poly([[-6.6,0],[-wc,0],[-wc,1],[wc,1],[wc,0],[6.6,0]],{color:C.h});
         f.stem(D(ab,-K,K),{color:C.out,r:4});
         if(K<6) f.stem(D(ab,-6,-K-1).concat(D(ab,K+1,6)),{color:C.err,r:4});
@@ -22274,7 +22362,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$|H(j\\omega)|=|\\omega|$','$x(t)$','$y(t)=\\d x/\\d t$']},
       svg:v=>{
       const k=v?v.frame:0;
-      if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xtarget:5,ytarget:4});
+      if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xpi:Math.PI/4,ytarget:4});
         a.curve(w=>w,{color:C.h,n:200});
         a.point(1,1,{color:C.coral,r:5}); a.point(3,3,{color:C.coral,r:5});
         a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true});
@@ -22319,7 +22407,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
         a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.in,r:3.2,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H_1(e^{j\\omega})|',xtarget:5,ytarget:3,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>Math.abs(Math.sin(w/2));
       a.curve(Hm,{color:C.h,n:900});
       [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
@@ -22377,7 +22465,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const f=v?Math.round(v.frame):0;
       if(!f){ const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,1.25],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H_2(e^{j\\omega})|',xtarget:5,ytarget:3,
-          xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+          xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
         const Hm=w=>Math.abs(Math.cos(w/2));
         a.curve(Hm,{color:C.h,n:900});
         [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
@@ -22409,7 +22497,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const g=v?v.a:0.6;
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,5.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:5,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1-2*g*Math.cos(w)+g*g);
       a.hline(1,{color:C.muted,dash:'4 5'});
       a.curve(Hm,{color:g<0?C.err:C.out,n:900});
@@ -22450,7 +22538,7 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
         a.note(0.45,0.56,'b_0=\\tfrac12',{anchor:'start',color:C.out,fs:15,tex:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,2.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:3,
-        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:P.piTick});
       const Hm=w=>1/Math.sqrt(1.25-Math.cos(w));
       a.curve(Hm,{color:C.h,n:900});
       [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
@@ -22954,7 +23042,7 @@ const SC = [
       live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:4, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const T=v?v.T:4, w0=2*PI/T, st=[];
-      const a=AX({xr:[-10,10],yr:[-0.9,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Ta_k',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-10,10],yr:[-0.9,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'Ta_k',yticksOverride:[0,1,2]});
       a.curve(w=>rectFT(w,1),{color:C.mid,width:1.8,dash:'7 6',n:1400});
       for(let k=-Math.floor(10/w0);k<=Math.floor(10/w0);k++) st.push([k*w0, T*aSq(k,T,1)]);
       a.stem(st,{color:C.in,r:T>12?2.6:3.6,showZero:true});
@@ -22987,7 +23075,7 @@ const SC = [
       live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:6, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const T=v?v.T:6, w0=2*PI/T;
-      const a=AX({xr:[-9,9],yr:[-0.85,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-9,9],yr:[-0.85,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       for(let k=-Math.floor(9/w0);k<=Math.floor(9/w0);k++){
         const wv=k*w0, hv=rectFT(wv,1);
         a.rect(wv-w0/2,0,wv+w0/2,hv,{fill:C.in+'2E',stroke:C.in,width:1});
@@ -23117,7 +23205,7 @@ const SC = [
       live:{controls:[{k:'a', label:'$a$', min:0.1, max:1.5, step:0.05, v:1, show:v=>'$'+(Math.round(v*100)/100)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-6,6],yr:[-1.5,21],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,5,10,15,20]});
+      const a=AX({xr:[-6,6],yr:[-1.5,21],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,5,10,15,20]});
       a.area(w=>2*av/(av*av+w*w),-6,6,{color:C.in+'24',n:900});
       a.curve(w=>2*av/(av*av+w*w),{color:C.in,n:2400});
       return a.svg(); },
@@ -23181,7 +23269,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       svg:v=>{
       /* the phase line turns from slope 0 to slope -t0 = -1 */
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-3,-2,-1,1,2,3]});
+      const a=AX({xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-3,-2,-1,1,2,3]});
       a.curve(w=>-f*w,{color:C.mid,n:600});
       return a.svg(); },
       caption:'The phase of the transform, with $t_0=1$ s. The magnitude is $1$ at every frequency in both cases.'}
@@ -23205,7 +23293,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Transform of a Complex Exponential'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-3,3],yr:[-0.5,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,2,4,6]});
+      const a=AX({xr:[-3,3],yr:[-0.5,8.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'X(j\\omega)',yticksOverride:[0,2,4,6]});
       a.impulse(1,2*PI,{color:C.in,labelText:'6.28'});
       return a.svg(); },
       caption:'One impulse at $\\omega_0=1$ rad/s, of weight $2\\pi$. The spectrum is zero at every other frequency.'}
@@ -23260,7 +23348,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-6,6],yr:[-0.25,5.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[0,1,2,3,4,5]});
+      const a=AX({xr:[-6,6],yr:[-0.25,5.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'|X(j\\omega)|',yticksOverride:[0,1,2,3,4,5]});
       a.curve(w=>1/Math.hypot(av,w),{color:C.in,n:1600});
       a.point(0,1/av,{color:C.coral,r:4.4});
       return a.svg(); },
@@ -23289,7 +23377,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-8,8],yr:[-1.9,1.9],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
+      const a=AX({xr:[-8,8],yr:[-1.9,1.9],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
         yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
       a.curve(w=>-Math.atan(w/av),{color:C.in,n:1600});
       a.point(1,-Math.atan(1/av),{color:C.coral,r:4.4});
@@ -23316,7 +23404,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Two-Sided Exponential Transform'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.3,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.4,2,4]});
+      const a=AX({xr:[-6,6],yr:[-0.3,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.4,2,4]});
       [[0.5,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>{
         a.curve(w=>2*av/(av*av+w*w),{color:col,n:2400}); a.point(0,2/av,{color:C.coral,r:4}); });
       return a.svg(); },
@@ -23346,7 +23434,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'T1', label:'$T_1$', min:0.25, max:3, step:0.25, v:1, show:v=>'$'+v+'$ s'}]},
       svg:v=>{
       const T1=v?v.T1:1;
-      const a=AX({xr:[-12,12],yr:[-1.6,6.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[-1,0,2,4,6]});
+      const a=AX({xr:[-12,12],yr:[-1.6,6.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[-1,0,2,4,6]});
       a.curve(w=>rectFT(w,T1),{color:C.in,n:2400});
       a.point(0,2*T1,{color:C.coral,r:4.4});
       return a.svg(); },
@@ -23371,7 +23459,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'The Sinc Convention'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-10,10],yr:[-0.4,1.3],xlabel:'\\theta',ylabel:'\\text{value}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-10,10],yr:[-0.4,1.3],xlabel:'\\theta',xpi:PI,ylabel:'\\text{value}',yticksOverride:[0,0.5,1]});
       a.curve(th=>sincU(th),{color:C.in,n:2400});
       a.curve(th=>sincU(PI*th),{color:C.mid,dash:'9 6',n:2400});
       return a.svg(); },
@@ -23397,7 +23485,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Zeros of the Sinc Spectrum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-13,13],yr:[-0.75,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-13,13],yr:[-0.75,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
       for(let k=1;k<=4;k++){ a.point(k*PI,0,{color:C.err,r:4}); a.point(-k*PI,0,{color:C.err,r:4}); }
       a.point(0,2,{color:C.coral,r:4.6});
@@ -23458,7 +23546,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       frames:{labels:['$T_1=1$: first null at $\\pi$','$T_1=1/4$: first null at $4\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.6,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.6,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,2]});
       fade(a,1-f,()=>{ a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); a.point(PI,0,{color:C.err,r:4.4}); });
       fade(a,f,()=>{ a.curve(w=>rectFT(w,0.25),{color:C.out,n:2400}); a.point(4*PI,0,{color:C.err,r:4.4}); });
       return a.svg(); },
@@ -23487,7 +23575,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       frames:{labels:['$\\text{pulse}$: finite duration','$e^{-|t|}$: infinite duration']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-40,40],yr:[-0.8,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2],xtarget:9});
+      const a=AX({xr:[-40,40],yr:[-0.8,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:4*PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       fade(a,1-f,()=>a.curve(w=>rectFT(w,1),{color:C.in,n:4000}));
       fade(a,f,()=>a.curve(w=>2/(1+w*w),{color:C.err,n:4000}));
       return a.svg(); },
@@ -23557,7 +23645,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
         return a.svg();
       }
       const w0=2*PI/8;
-      const a=AX({xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      const a=AX({xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
       fade(a,2*f-1,()=>{
         a.curve(w=>w0*rectFT(w,1),{color:C.mid,width:1.6,dash:'7 6',n:1200});
         for(let k=-7;k<=7;k++){ const wt=2*PI*aSq(k,8,1); if(Math.abs(wt)<1e-9) continue;
@@ -23589,7 +23677,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       frames:{labels:['$T=8T_1$','$T=16T_1$','$T=32T_1$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      const a=AX({xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
       [[8,1-cl(f)],[16,cl(f)*(1-cl(f-1))],[32,cl(f-1)]].forEach(([T,o])=>fade(a,o,()=>{
         const w0=2*PI/T;
         for(let k=-Math.floor(4/w0);k<=Math.floor(4/w0);k++){ const wt=2*PI*aSq(k,T,1); if(Math.abs(wt)<1e-9) continue;
@@ -23617,7 +23705,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Cosine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
+      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
       a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
       a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
       return a.svg(); },
@@ -23642,7 +23730,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Sine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
+      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
       a.impulse(4*PI,-6*PI,{color:C.in,label:false});
       a.impulse(-4*PI,6*PI,{color:C.in,label:false});
       return a.svg(); },
@@ -23671,14 +23759,14 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{
           a.impulse(0,10*PI,{color:C.in,label:false});
           [3*PI,-3*PI].forEach(w=>a.impulse(w,4*PI,{color:C.in,label:false}));
           [4*PI,-4*PI].forEach(w=>a.impulse(w,6*PI,{color:C.in,label:false})); });
         return a.svg();
       }
-      const a=AX({xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,1.5708],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,1.5708],ytickfmt:v=>v.toFixed(2)});
       fade(a,2*f-1,()=>a.stem([[-4*PI,PI/2],[-3*PI,0],[0,0],[3*PI,0],[4*PI,-PI/2]],{color:C.mid,r:4.4,showZero:true}));
       return a.svg(); },
       caption:'$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$. The magnitude cannot tell the cosine from the sine; the phase does.'}
@@ -23705,7 +23793,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       frames:{labels:['$T=1$ s: spacing and weight $2\\pi$','$T=2$ s: spacing and weight $\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.8,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.8,8.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
       fade(a,1-f,()=>{ for(let k=-2;k<=2;k++) a.impulse(k*2*PI,2*PI,{color:C.in,label:false}); });
       fade(a,f,()=>{ for(let k=-5;k<=5;k++) a.impulse(k*PI,PI,{color:C.out,label:false}); });
       return a.svg(); },
@@ -23768,7 +23856,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'t0', label:'$t_0$', min:-3, max:3, step:0.5, v:3, show:v=>'$'+v+'$ s'}]},
       svg:v=>{
       const t0=v?v.t0:3;
-      const a=AX({xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle e^{-j\\omega t_0}\\;(\\text{rad})',yticksOverride:[-9,-6,-3,3,6,9]});
+      const a=AX({xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'\\angle e^{-j\\omega t_0}\\;(\\text{rad})',yticksOverride:[-9,-6,-3,3,6,9]});
       a.curve(w=>-t0*w,{color:C.out,n:400});
       return a.svg(); },
       caption:'The phase that a delay of $t_0$ adds, $-\\omega t_0$: a line of slope $-t_0$. The magnitude of $e^{-j\\omega t_0}$ is $1$ at every frequency.'}
@@ -23823,7 +23911,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'k', label:'$\\omega_0/\\pi$', min:-2, max:2, step:0.5, v:2, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const w0=(v?v.k:2)*PI;
-      const a=AX({xr:[-16,16],yr:[-0.25,1.45],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.25,1.45],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1]});
       a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
       a.curve(w=>Math.abs(w-w0)<2*PI?1:0,{color:C.out,n:3000});
       return a.svg(); },
@@ -23851,7 +23939,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Conjugation and Spectral Symmetry'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-13,13],yr:[-0.8,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-13,13],yr:[-0.8,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
       a.curve(w=>Math.abs(rectFT(w,1)),{color:C.mid,dash:'9 6',n:2400});
       a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
       return a.svg(); },
@@ -23936,7 +24024,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Differentiation in Time'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-1.5,2.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',ytarget:4});
+      const a=AX({xr:[-6,6],yr:[-1.5,2.0],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'\\text{spectrum}',ytarget:4});
       a.curve(w=>Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.in,n:1600});
       a.curve(w=>w*Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.out,n:1600});
       return a.svg(); },
@@ -24061,7 +24149,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'a', label:'$a$', min:0.5, max:3, step:0.25, v:2, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const av=v?v.a:2;
-      const a=AX({xr:[-13,13],yr:[-1.0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,3,4]});
+      const a=AX({xr:[-13,13],yr:[-1.0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,3,4]});
       a.curve(w=>rectFT(w,1),{color:C.in,dash:'9 6',n:2400});
       a.curve(w=>rectFT(w/av,1)/av,{color:C.out,n:2400});
       return a.svg(); },
@@ -24119,7 +24207,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       frames:{labels:['$x(0.5t)$: height $2$ on $|\\omega|<\\pi$','$x(t)$: height $1$ on $|\\omega|<2\\pi$','$x(2t)$: height $0.5$ on $|\\omega|<4\\pi$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1,2]});
       [[PI,2,C.in,1-cl(f)],[2*PI,1,C.mid,cl(f)*(1-cl(f-1))],[4*PI,0.5,C.out,cl(f-1)]].forEach(([W,H,col,o])=>fade(a,o,()=>{
         a.area(w=>Math.abs(w)<W?H:0,-16,16,{color:col+'29',n:900});
         a.curve(w=>Math.abs(w)<W?H:0,{color:col,n:3000}); }));
@@ -24178,7 +24266,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Duality Example'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.6,7.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-6,6],yr:[-0.6,7.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X_2(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
       a.area(w=>Math.abs(w)<PI?2*PI:0,-6,6,{color:C.out+'29',n:900});
       a.curve(w=>Math.abs(w)<PI?2*PI:0,{color:C.out,n:3000});
       return a.svg(); },
@@ -24204,7 +24292,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Parseval’s Relation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-8,8],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|^{2}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-8,8],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|^{2}',yticksOverride:[0,0.5,1]});
       a.area(w=>1/(1+w*w),-8,8,{color:C.mid+'29',n:900});
       a.curve(w=>1/(1+w*w),{color:C.mid,n:2400});
       return a.svg(); },
@@ -24256,7 +24344,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       frames:{labels:['$X_3(j\\omega)$','$|X_3(j\\omega)|^{2}$: area $20\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.4,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,4],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.4,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,4]});
       const X=w=>Math.abs(w)<2*PI?2:(Math.abs(w)<4*PI?1:0);
       fade(a,1-f,()=>{ a.area(X,-16,16,{color:C.mid+'29',n:1200}); a.curve(X,{color:C.mid,n:4000}); });
       fade(a,f,()=>{ a.area(w=>X(w)*X(w),-16,16,{color:C.out+'29',n:1200}); a.curve(w=>X(w)*X(w),{color:C.out,n:4000}); });
@@ -24361,7 +24449,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['delay: $|H(j\\omega)|=1$','differentiator: $|H(j\\omega)|=|\\omega|$','integrator: $|H(j\\omega)|=1/|\\omega|$ and $\\pi\\delta(\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-4,4],yr:[-0.2,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[1,2,3,4],xtarget:9});
+      const a=AX({xr:[-4,4],yr:[-0.2,4.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'|H(j\\omega)|',yticksOverride:[1,2,3,4]});
       const o=k=>1-cl(Math.abs(f-k));
       fade(a,o(0),()=>a.curve(()=>1,{color:C.h,n:400}));
       fade(a,o(1),()=>a.curve(w=>Math.abs(w),{color:C.h,n:1200}));
@@ -24420,7 +24508,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Spectra of the Two Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{magnitude}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-6,6],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'\\text{magnitude}',yticksOverride:[0,0.5,1]});
       a.curve(w=>1/Math.hypot(1,w),{color:C.in,n:1600});
       a.curve(w=>1/Math.hypot(2,w),{color:C.h,n:1600});
       a.curve(w=>1/(Math.hypot(1,w)*Math.hypot(2,w)),{color:C.out,n:1600});
@@ -24449,7 +24537,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$ and $H(j\\omega)$','$Y(j\\omega)=X(j\\omega)H(j\\omega)$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.6,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,2,3,6],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.6,7.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,2,3,6]});
       fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<=4*PI?2:0,{color:C.in,n:3000});
         a.curve(w=>Math.abs(w)<=2*PI?3:0,{color:C.h,n:3000,dash:'9 6'}); });
       fade(a,f,()=>{ a.area(w=>Math.abs(w)<=2*PI?6:0,-16,16,{color:C.out+'29',n:900});
@@ -24479,7 +24567,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)=Y(j\\omega)$: a band of half-width $2\\pi$','$Z(j\\omega)=\\tfrac{1}{2\\pi}X*Y$: a triangle']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
       const tri=w=>Math.abs(w)<4*PI ? 2*(1-Math.abs(w)/(4*PI)) : 0;
       fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:3000}); });
       fade(a,f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
@@ -24510,7 +24598,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$','$Z(j\\omega)$: two copies at half height']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-20,20],yr:[-0.2,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.2,1.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1]});
       const tri=(w,c)=>Math.max(0,1-Math.abs(w-c)/(2*PI));
       fade(a,1-f,()=>{ a.area(w=>tri(w,0),-20,20,{color:C.in+'29',n:900}); a.curve(w=>tri(w,0),{color:C.in,n:2400}); });
       fade(a,f,()=>{ const z=w=>0.5*tri(w,4*PI)+0.5*tri(w,-4*PI);
@@ -24543,7 +24631,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$: weight $\\pi$ at $\\pm\\pi$','$Z(j\\omega)$: weight $\\pi/2$ at $\\pm3\\pi$, $\\pm5\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-20,20],yr:[-0.35,4.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[1.5708,3.1416],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.35,4.0],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[1.5708,3.1416],ytickfmt:v=>v.toFixed(2)});
       fade(a,1-f,()=>{ [PI,-PI].forEach(w=>a.impulse(w,PI,{color:C.in,label:false})); });
       fade(a,f,()=>{ [3*PI,5*PI,-3*PI,-5*PI].forEach(w=>a.impulse(w,PI/2,{color:C.out,label:false}));
         a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
@@ -24579,7 +24667,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
           a.curve(t=>-lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
           a.curve(t=>lpfTime(t,2*PI)*Math.cos(4*PI*t),{color:C.out,n:6000}); });
         return a.svg(); }
-      const a=AX({xr:[-26,26],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-26,26],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'Z(j\\omega)',yticksOverride:[0.5,1]});
       fade(a,2*f-1,()=>{ const z=w=>((Math.abs(w-4*PI)<2*PI)?0.5:0)+((Math.abs(w+4*PI)<2*PI)?0.5:0);
         a.area(z,-26,26,{color:C.out+'29',n:900}); a.curve(z,{color:C.out,n:4000});
         a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
@@ -24608,7 +24696,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$','the two copies','their sum $Z(j\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-20,20],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1]});
       const B=w=>(Math.abs(w)>=PI&&Math.abs(w)<=3*PI)?1:0;
       const up=w=>0.5*B(w-2*PI), dn=w=>0.5*B(w+2*PI);
       fade(a,1-cl(f),()=>{ a.area(B,-20,20,{color:C.in+'29',n:1200}); a.curve(B,{color:C.in,n:4000}); });
@@ -24639,7 +24727,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$Z(j\\omega)$ at the receiver','$Y(j\\omega)$ after the second multiplication','the low-pass filter returns $X(j\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-46,46],yr:[-0.15,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1,2],xtarget:9});
+      const a=AX({xr:[-46,46],yr:[-0.15,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:6*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1,2]});
       const tri=(w,c,h)=>h*Math.max(0,1-Math.abs(w-c)/(2*PI));
       const Z=w=>tri(w,6*PI,0.5)+tri(w,-6*PI,0.5);
       const Y=w=>tri(w,0,0.5)+tri(w,12*PI,0.25)+tri(w,-12*PI,0.25);
@@ -24677,7 +24765,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const f=v?v.frame:0;
       const wc=12, w0=3;
-      const a=AX({xr:[-26,26],yr:[-0.15,1.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-26,26],yr:[-0.15,1.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1]});
       const X=w=>1/(1+Math.pow(w/10,2));
       const Wf=w=>X(w+wc);
       const Y=w=>Math.abs(w-wc)<w0?X(w):0;
@@ -24719,7 +24807,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
         fade(a,1-2*f,()=>{ a.curve(t=>lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
           a.curve(t=>Math.pow(lpfTime(t,2*PI),2),{color:C.out,n:2400}); });
         return a.svg(); }
-      const a=AX({xr:[-16,16],yr:[-0.2,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.2,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'Z(j\\omega)',yticksOverride:[1,2]});
       fade(a,2*f-1,()=>{ const tri=w=>Math.abs(w)<4*PI?2*(1-Math.abs(w)/(4*PI)):0;
         a.area(tri,-16,16,{color:C.out+'29',n:900}); a.curve(tri,{color:C.out,n:2400}); });
       return a.svg(); },
@@ -24747,7 +24835,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const w1=2*PI, w2=(v?v.w2:4)*PI, lo=Math.abs(w2-w1), hi=w1+w2;
       const trap=w=>{ const aw=Math.abs(w); if(aw<=lo) return 2; if(aw>=hi) return 0; return 2*(hi-aw)/(hi-lo); };
-      const a=AX({xr:[-24,24],yr:[-0.2,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      const a=AX({xr:[-24,24],yr:[-0.2,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'Z(j\\omega)',yticksOverride:[1,2]});
       a.area(trap,-24,24,{color:C.mid+'29',n:900}); a.curve(trap,{color:C.mid,n:3000});
       return a.svg(); },
       caption:'Bands of half-width $\\omega_1=2\\pi$ and $\\omega_2$. The top is flat on $|\\omega|\\le\\omega_2-\\omega_1$ and the edge is at $\\omega_1+\\omega_2$.'}
@@ -24879,10 +24967,10 @@ codeScene({ id:'m5-code-conv', nav:'Convolution and multiplication', title:'Conv
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-10,10],yr:[-0.08,0.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[0.3333,0.6667],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({xr:[-10,10],yr:[-0.08,0.8],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|H(j\\omega)|',yticksOverride:[0.3333,0.6667],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{ a.curve(w=>Math.hypot(2,w)/(Math.hypot(1,w)*Math.hypot(3,w)),{color:C.h,n:2000}); a.point(0,2/3,{color:C.coral,r:4.2}); });
         return a.svg(); }
-      const a=AX({xr:[-10,10],yr:[-1.7,1.7],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-10,10],yr:[-1.7,1.7],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
       fade(a,2*f-1,()=>{ a.curve(w=>Math.atan2(w,2)-Math.atan2(w,1)-Math.atan2(w,3),{color:C.mid,n:2000}); });
       return a.svg(); },
       caption:'The magnitude peaks at $0.667$ at $\\omega=0$. The phase is odd, as a real $h$ requires.'}
@@ -33568,8 +33656,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Using $1+\\cos\\omega=2\\cos^2(\\omega/2)$,$$H(e^{j\\omega})=e^{-j\\omega}\\cos^2(\\omega/2),$$and since $\\cos^2(\\omega/2)\\ge0$ for every $\\omega$, this <em>is</em> the magnitude: $|H(e^{j\\omega})|=\\cos^2(\\omega/2)$, with $\\angle H(e^{j\\omega})=-\\omega$.<br>'
      +'<b>Solution — part (c).</b> $H(e^{j0})=\\cos^2(0)=1$, and $H(e^{j\\pi})=\\cos^2(\\pi/2)=0$: the taps pass a constant unchanged and remove the fastest-alternating sequence entirely. This is a <b>low-pass</b> filter.<br>'
      +'<b>Check.</b> Summing the taps directly at $\\omega=\\pi$, where $e^{-j\\pi n}=(-1)^n$: $0.25(1)+0.5(-1)+0.25(1)=0.25-0.5+0.25=0$, matching part (c) without using the closed form at all. The three weights sum to $1$, which is exactly $H(e^{j0})$, the two facts being the same statement at the two ends of one period.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',
-      pad:{l:60,r:28,t:32,b:38},xstep:1,ystep:0.25});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'|H(e^{j\\omega})|',
+      pad:{l:60,r:28,t:32,b:38},ystep:0.25});
     a.curve(w=>Math.cos(w/2)**2,{color:C.h,n:900});
     return a.svg();},
   err:'Reporting $|H(e^{j\\omega})|=|0.5+0.5\\cos\\omega|$ and leaving the absolute value in place, treating it as though it could go negative, then plotting a spurious fold in the curve near $\\omega=\\pi$ where $\\cos^2(\\omega/2)$ is in fact smooth and already non-negative.',
@@ -33825,8 +33913,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$,$$b_k=\\frac14\\cdot\\frac{1}{1-\\tfrac12e^{-jk\\pi/2}}.$$Evaluating the four distinct harmonics:$$b_0=\\frac{1/4}{1-\\tfrac12}=\\frac12,\\qquad b_2=\\frac{1/4}{1+\\tfrac12}=\\frac16,$$$$b_1=\\frac{1/4}{1+\\tfrac j2},\\qquad b_3=\\frac{1/4}{1-\\tfrac j2},$$so $|b_1|=|b_3|=\\dfrac{1/4}{\\sqrt{5}/2}=\\dfrac{1}{2\\sqrt5}\\approx0.2236$.<br>'
      +'<b>Check.</b> The magnitudes must follow the shape of $\\left|H\\right|$, and they do: largest at $k=0$ where $|H|=2$, smallest at $k=2$ where $|H|=\\tfrac23$, and equal at $k=1$ and $k=3$ because those two frequencies, $\\tfrac{\\pi}{2}$ and $\\tfrac{3\\pi}{2}\\equiv-\\tfrac{\\pi}{2}$, are a conjugate pair. Each is $\\tfrac14$ times the corresponding $|H|$: $\\tfrac14\\cdot2=\\tfrac12$ and $\\tfrac14\\cdot\\tfrac23=\\tfrac16$.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'|H(e^{j\\omega})|',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>1/Math.sqrt(1.25-Math.cos(w)),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.06,0.62],xlabel:'k',ylabel:'|b_k|',
       pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.25});
@@ -33847,8 +33935,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{\\pi}{2}$,$$b_0=a_0H(0)=0,$$so the constant is removed entirely. For the first harmonic, $\\left|H\\!\\left(j\\tfrac{\\pi}{2}\\right)\\right|=\\dfrac{\\pi/2}{\\sqrt{4+\\pi^{2}/4}}\\approx0.6177$, so $|b_{\\pm1}|\\approx0.6177$. For the second, $\\left|H(j\\pi)\\right|=\\dfrac{\\pi}{\\sqrt{4+\\pi^{2}}}\\approx0.8436$, so $|b_{\\pm2}|=\\tfrac32\\cdot0.8436\\approx1.2654$.<br>'
      +'<b>Check.</b> The shape of the answer is what a high-pass filter must produce: the DC term is gone, the first harmonic is attenuated to about $62\\%$, and the second, being at twice the frequency, passes at about $84\\%$. The ordering $|b_0|<|b_1|<|b_2|$ is the reverse of what the low-pass system in the previous question gave, on an input with the same shape.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',
-      pad:{l:58,r:26,t:28,b:38},xstep:2,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|H(j\\omega)|',
+      pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>Math.abs(w)/Math.sqrt(4+w*w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.12,1.5],xlabel:'k',ylabel:'|b_k|',
       pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
@@ -33874,8 +33962,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
      +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\;y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
-      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},ystep:1});
       a.curve(w=>1+2*Math.cos(w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.4],xlabel:'k',ylabel:'b_k',
       pad:{l:52,r:26,t:28,b:34},xstep:1,ystep:0.5});
@@ -33916,8 +34004,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The harmonics sit at $k\\omega_0=k\\tfrac{\\pi}{3}$. Taking $k$ over one period and folding to $|\\omega|\\le\\pi$: $k=0$ gives $0$, $k=1$ gives $\\tfrac{\\pi}{3}$, $k=5$ gives $-\\tfrac{\\pi}{3}$ — all inside the band; $k=2,3,4$ give $\\tfrac{2\\pi}{3}$, $\\pi$, $-\\tfrac{2\\pi}{3}$ — all outside. So$$b_0=b_1=b_5=\\tfrac16,\\qquad b_2=b_3=b_4=0,$$and by Parseval$$P_y=\\sum_{k=\\langle6\\rangle}|b_k|^{2}=3\\cdot\\frac{1}{36}=\\frac{1}{12}\\;\\text{W}\\approx0.0833\\;\\text{W}.$$'
      +'<b>Check.</b> Build $y[n]$ and average it directly. From the three surviving coefficients,$$y[n]=\\tfrac16\\left(1+2\\cos\\tfrac{\\pi n}{3}\\right),$$so over one period $y=\\tfrac12,\\tfrac13,0,-\\tfrac16,0,\\tfrac13$ at $n=0,\\dots,5$, and$$P_y=\\frac16\\left(\\tfrac14+\\tfrac19+0+\\tfrac1{36}+0+\\tfrac19\\right)=\\frac16\\cdot\\frac12=\\frac1{12}\\;\\text{W}.$$The two routes agree. The input power is $\\sum|a_k|^{2}=6\\cdot\\tfrac1{36}=\\tfrac16$, so the filter removed exactly half of it.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H(e^{j\\omega})',
-      pad:{l:58,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+      pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
       return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,5.6],yr:[-0.03,0.22],xlabel:'k',ylabel:'|b_k|',
@@ -34019,8 +34107,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{0}^{\\infty}e^{-4t}e^{-j\\omega t}\\,\\d t=\\frac{1}{4+j\\omega}.$$The integral converges because the real part of the exponent, $-4$, is negative.<br>'
      +'<b>Solution — part (b).</b> $|X(j3)|=\\dfrac{1}{\\sqrt{16+9}}=\\dfrac{1}{5}=0.2$, and $\\angle X(j3)=-\\arctan\\!\\left(\\dfrac34\\right)=-0.6435$ rad. The curve $|X(j\\omega)|=1/\\sqrt{16+\\omega^{2}}$ peaks at $\\omega=0$ and falls off as $1/|\\omega|$.<br>'
      +'<b>Check.</b> $X(0)=\\dfrac14=0.25$, and directly $\\displaystyle\\int_{0}^{\\infty}e^{-4t}\\,\\d t=\\dfrac14$. They agree.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.02,0.28],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:0.05});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.02,0.28],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|X(j\\omega)|',
+      pad:{l:58,r:28,t:34,b:40},ystep:0.05});
     a.curve(w=>1/Math.sqrt(16+w*w),{color:C.mid});
     a.point(3,0.2,{color:C.coral});
     a.note(3.4,0.235,'|X(j3)|=0.2',{color:C.coral,fs:13,tex:true});
@@ -34039,8 +34127,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{0}^{\\infty}t\\,e^{-(3+j\\omega)t}\\,\\d t=\\frac{1}{(3+j\\omega)^{2}}.$$'
      +'<b>Solution — part (b).</b> Since $|z^{2}|=|z|^{2}$ for any complex $z$,$$|X(j\\omega)|=\\frac{1}{9+\\omega^{2}},$$which peaks at $\\omega=0$ with value $1/9$ and decreases monotonically on either side.<br>'
      +'<b>Check.</b> $X(0)=\\dfrac19$, and directly $\\displaystyle\\int_{0}^{\\infty}t\\,e^{-3t}\\,\\d t=\\dfrac{1}{3^{2}}=\\dfrac19$, using the same standard integral with $\\omega=0$. They agree.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.01,0.13],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:0.02});
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-8.4,8.4],yr:[-0.01,0.13],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|X(j\\omega)|',
+      pad:{l:58,r:28,t:34,b:40},ystep:0.02});
     a.curve(w=>1/(9+w*w),{color:C.mid});
     a.point(0,1/9,{color:C.coral});
     return a.svg();},
@@ -34061,8 +34149,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b>$$X(j\\omega)=\\int_{-2}^{2}3e^{-j\\omega t}\\,\\d t=3\\cdot\\frac{2\\sin(2\\omega)}{\\omega}=\\frac{6\\sin(2\\omega)}{\\omega}=12\\operatorname{sinc}(2\\omega).$$'
      +'<b>Solution — part (b).</b> $X(j\\omega)=0$ when $\\sin(2\\omega)=0$ and $\\omega\\neq0$, that is at$$\\omega=\\pm\\frac{\\pi}{2},\\pm\\pi,\\pm\\frac{3\\pi}{2},\\dots$$'
      +'<b>Check.</b> Taking the limit, $X(0)=12$, and the area of the pulse is $3\\cdot4=12$. They agree. $X$ is real and even, as it must be for a real even signal, and the first zero at $\\omega=\\pi/2$ is $2\\pi$ divided by the pulse width $4$, the usual reciprocal spacing.',
-  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-12.6,12.6],yr:[-3.2,13.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:58,r:28,t:34,b:40},xstep:2,ystep:3});
+  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-12.6,12.6],yr:[-3.2,13.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:58,r:28,t:34,b:40},ystep:3});
     a.curve(w=>Math.abs(w)<1e-9?12:6*Math.sin(2*w)/w,{color:C.mid,n:1600});
     return a.svg();},
   err:'Reporting $X(j\\omega)=\\dfrac{3\\sin(2\\omega)}{\\omega}$, by integrating correctly but forgetting the factor $2$ that comes from $e^{j2\\omega}-e^{-j2\\omega}=2j\\sin(2\\omega)$.',
@@ -34084,8 +34172,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> The impulse weight is $2\\pi a_k$, which simplifies to $2\\sin(k\\pi/2)/k$ for $k\\neq0$ and $\\pi$ at $k=0$:$$X(j\\omega)=\\pi\\,\\delta(\\omega)+\\sum_{k\\neq0}\\frac{2\\sin(k\\pi/2)}{k}\\,\\delta\\!\\left(\\omega-\\frac{k\\pi}{2}\\right).$$Numerically: weight $\\pi=3.1416$ at $\\omega=0$; weight $2$ at $\\omega=\\pm\\pi/2$; weight $0$ at $\\omega=\\pm\\pi$; weight $-2/3=-0.6667$ at $\\omega=\\pm3\\pi/2$.<br>'
      +'<b>Solution — part (c).</b> The impulses at $k=\\pm2$ (that is, at $\\omega=\\pm\\pi$) vanish, because $\\sin(\\pi)=0$; the impulse at $k=\\pm3$ points downward, since $\\sin(3\\pi/2)=-1$. The spectrum is symmetric about $\\omega=0$, with the negative-frequency impulses carrying the same real weights as their positive-frequency partners.<br>'
      +'<b>Check.</b> $a_0$ must equal the average value of $x(t)$ over one period, which is $\\text{width}/\\text{period}=2/4=0.5$ — read directly off the picture, with no series involved. Independently, taking the limit of the general formula for $a_k$ as $k\\to0$ gives $\\sin(k\\omega_0)/(2k\\omega_0)\\to\\omega_0k/(2k\\omega_0)=1/2$ by l\u2019H\u00f4pital, the same number by a route that never used the average-value picture.',
-  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-7,7],yr:[-1.3,4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:58,r:28,t:34,b:40},xstep:1,ystep:1});
+  figSol:()=>{const a=P.Axes({w:1080,h:290,xr:[-7,7],yr:[-1.3,4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:58,r:28,t:34,b:40},ystep:1});
     for(let k=-4;k<=4;k++){ const wt = k===0?Math.PI:2*Math.sin(k*Math.PI/2)/k; if(Math.abs(wt)<1e-9) continue;
       a.impulse(k*Math.PI/2, wt, {color:C.mid,labelText:wt.toFixed(2)}); }
     return a.svg();},
@@ -34203,8 +34291,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D5-12', module:'M5', type:'ft-dual', src:'MT2 Q3',
   stem:'Let $x(t)=\\dfrac{\\sin(\\pi t)}{\\pi t}$, whose transform is $X(j\\omega)=1$ on $|\\omega|<\\pi$, $0$ elsewhere. Let $$z(t)=e^{j3t}x(t).$$',
-  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-6,6],yr:[-0.3,1.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:28,t:32,b:36},xstep:1,ystep:1});
+  figure:()=>{const a=P.Axes({w:1080,h:260,xr:[-6,6],yr:[-0.3,1.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'X(j\\omega)',
+      pad:{l:56,r:28,t:32,b:36},ystep:1});
     a.poly([[-6,0],[-Math.PI,0],[-Math.PI,1],[Math.PI,1],[Math.PI,0],[6,0]],{color:C.in}); return a.svg();},
   parts:['State the frequency-shift property in the form used here, naming what is fixed and what is being multiplied.',
          'Apply it to find $Z(j\\omega)$ and sketch it, giving the band edges numerically.',
@@ -34414,11 +34502,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The exponent is $-2t-j10\\pi t$, so this is $e^{-2t}u(t)$ multiplied by $e^{-j10\\pi t}$:$$X(j\\omega)=\\frac{1}{2+j(\\omega+10\\pi)},\\qquad|X(j\\omega)|=\\frac{1}{\\sqrt{4+(\\omega+10\\pi)^{2}}},$$the usual one-pole magnitude, but centred at $\\omega=-10\\pi$ instead of at the origin.<br>'
      +'<b>Check.</b> In (b), $X(j0)=6$ must be the area under the rectangle, and it is: height $1$ times width $6$. In (c) the peak value is $\\tfrac12$ at $\\omega=-10\\pi$, which is what $\\left|X\\right|$ gives when the bracket vanishes, and it matches the area $\\int_0^{\\infty}e^{-2t}\\,\\d t=\\tfrac12$ of the unmodulated signal. In (a) the impulses carry the average of the one-sided cosine, and the rational part is odd in $\\omega$, as the transform of a real signal that is neither even nor odd must be in its imaginary part.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-1,6.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-6.5,6.5],yr:[-1,6.8],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*Math.PI/3,ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>Math.abs(w)<1e-6?6:2*Math.sin(3*w)/w,{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-46,-16],yr:[-0.05,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',
-      pad:{l:56,r:26,t:28,b:38},xstep:10,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-46,-16],yr:[-0.05,0.62],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*Math.PI,ylabel:'|X(j\\omega)|',
+      pad:{l:56,r:26,t:28,b:38},ystep:0.25});
       a.curve(w=>1/Math.sqrt(4+Math.pow(w+10*Math.PI,2)),{color:C.mid}); return a.svg();})()),
   err:'Dropping the impulses in part (a) and reporting only $\\dfrac{j\\omega}{4-\\omega^{2}}$. The step has a non-zero average, so its transform carries an impulse at the origin, and shifting that impulse to $\\pm2$ is what the two carriers do to it.',
   teach:'For part (c), separate $-2t$ from $-j10\\pi t$ before selecting a formula. This identifies a standard exponential pair followed by a frequency shift, so direct integration is unnecessary.' },
@@ -34436,11 +34524,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> By Parseval,$$E=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}|Y(j\\omega)|^{2}\\,\\d\\omega=\\frac{1}{2\\pi}\\int_{-\\infty}^{\\infty}4\\pi^{2}e^{-6|\\omega|}\\,\\d\\omega=2\\pi\\cdot\\frac{2}{6}=\\frac{2\\pi}{3}\\approx2.094\\;\\text{J}.$$'
      +'<b>Check.</b> Compute the energy in the time domain instead:$$E=\\int_{-\\infty}^{\\infty}\\left(\\frac{6}{9+t^{2}}\\right)^{2}\\d t=36\\int_{-\\infty}^{\\infty}\\frac{\\d t}{(9+t^{2})^{2}}=36\\cdot\\frac{\\pi}{2\\cdot3^{3}}=\\frac{2\\pi}{3},$$using $\\int_{-\\infty}^{\\infty}\\dfrac{\\d t}{(a^{2}+t^{2})^{2}}=\\dfrac{\\pi}{2a^{3}}$. The two agree. A second check: $Y(j0)=2\\pi$ must be the area under $y(t)$, and $\\int\\dfrac{6\\,\\d t}{9+t^{2}}=6\\cdot\\dfrac{\\pi}{3}=2\\pi$.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.08,0.78],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,8],yr:[-0.08,0.78],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:0.25});
       a.curve(w=>6/(9+w*w),{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.7,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:1,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.7,7.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/4,ylabel:'Y(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>2*Math.PI*Math.exp(-3*Math.abs(w)),{color:C.out}); return a.svg();})()),
   err:'Answering (b) with $e^{-3|\\omega|}$ and losing the factor $2\\pi$. Duality is not a symmetry of the transform pair: going from $X(t)$ back to a signal costs a factor of $2\\pi$, and it shows up in the energy as a factor of $4\\pi^{2}$.',
   teach:'Ask why the reflection $x(-\\omega)$ in the duality statement does not change this result. It does not change the result because $x$ is even.' },
@@ -34506,11 +34594,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The filter is a sinc of bandwidth $2\\pi$ shifted by $-3\\pi$:$$H(j\\omega)=\\begin{cases}1,&-5\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$Multiplying, $Z=YH$. The copy on $-14\\pi<\\omega<-6\\pi$ misses the passband entirely. The copy on $-2\\pi<\\omega<6\\pi$ meets it on $-2\\pi<\\omega<-\\pi$. So$$Z(j\\omega)=\\begin{cases}\\tfrac12,&-2\\pi<\\omega<-\\pi\\\\0,&\\text{otherwise.}\\end{cases}$$'
      +'<b>Check.</b> Widths account for themselves at every stage. $X$ is $8\\pi$ wide; $Y$ is two copies of that width at half height, so its total area is unchanged; $Z$ keeps only a slice of width $\\pi$, one eighth of one copy. The filter passband is $4\\pi$ wide but only $\\pi$ of it holds any signal, which is why the output band is narrower than the filter.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-16,10],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Y(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-16,10],yr:[-0.12,0.75],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'Y(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:4,ystep:0.25});
       a.poly([[-16,0],[-14,0],[-14,0.5],[-6,0.5],[-6,0],[-2,0],[-2,0.5],[6,0.5],[6,0],[10,0]],{color:C.mid});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,4],yr:[-0.12,0.75],xlabel:'\\omega/\\pi',ylabel:'Z(j\\omega)',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-8,4],yr:[-0.12,0.75],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'Z(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:0.25});
       a.poly([[-8,0],[-2,0],[-2,0.5],[-1,0.5],[-1,0],[4,0]],{color:C.out}); return a.svg();})()),
   err:'Assuming the two copies in part (b) are symmetric about the origin because a cosine was used. They are symmetric about $\\pm6\\pi$, not about zero, and since $X$ was one-sided to begin with, the result is one-sided about each carrier too.',
@@ -34562,11 +34650,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> A trapezoid flat on $|t|\\le1$ and vanishing at $|t|=3$ is the convolution of a rectangle of half-width $2$ with one of half-width $1$: the total half-width is $2+1=3$ and the flat top has half-width $2-1=1$, both as required. Choosing unit heights makes the peak $2\\cdot\\min(2,1)=2$, which matches. So$$X_3(j\\omega)=\\frac{2\\sin(2\\omega)}{\\omega}\\cdot\\frac{2\\sin\\omega}{\\omega}=\\frac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}.$$'
      +'<b>Check.</b> Each transform at $\\omega=0$ must be the area of its signal. For $x_2$: $\\tfrac12\\cdot4\\cdot2=4$, and $4\\left(\\tfrac{\\sin\\omega}{\\omega}\\right)^{2}\\to4$. For $x_3$: the flat part contributes $2\\cdot2=4$ and the two sloping ends $2\\cdot\\tfrac12\\cdot2\\cdot2=4$, total $8$; and $\\dfrac{4\\sin(2\\omega)\\sin\\omega}{\\omega^{2}}\\to4\\cdot2\\cdot1=8$. Both match.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.5,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-0.5,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X_2(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:1});
       a.curve(w=>Math.abs(w)<1e-6?4:4*Math.pow(Math.sin(w)/w,2),{color:C.in}); return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-2.2,8.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_3(j\\omega)',
-      pad:{l:56,r:26,t:28,b:38},xstep:2,ystep:2});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-2.2,8.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI,ylabel:'X_3(j\\omega)',
+      pad:{l:56,r:26,t:28,b:38},ystep:2});
       a.curve(w=>Math.abs(w)<1e-6?8:4*Math.sin(2*w)*Math.sin(w)/(w*w),{color:C.out}); return a.svg();})()),
   err:'Building the trapezoid from rectangles of half-widths $3$ and $1$, reading the two numbers straight off the plot. The half-widths add to give the total and subtract to give the flat top, so they are $2$ and $1$, not $3$ and $1$.',
   teach:'Each part uses a different known structure: the impulse-train pair, a rectangle convolved with itself, and two unequal rectangles convolved together. Ask which parts could also be calculated by direct integration and compare the required steps.' },
@@ -34583,7 +34671,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> With $\\omega_c=10\\pi$,$$S(j\\omega)=\\tfrac12X(j(\\omega-10\\pi))+\\tfrac12X(j(\\omega+10\\pi)),$$so$$S(j\\omega)=\\pi\\left[\\delta(\\omega-10\\pi)+\\delta(\\omega+10\\pi)\\right]+\\tfrac{3\\pi}{2}\\left[\\delta(\\omega-12\\pi)+\\delta(\\omega-8\\pi)+\\delta(\\omega+8\\pi)+\\delta(\\omega+12\\pi)\\right].$$Six impulses in all: a pair at the carrier and a pair of sidebands on each side of it.<br>'
      +'<b>Solution — part (c).</b> The spectrum of $x$ extends to $\\omega_M=2\\pi$, so a copy centred at $\\omega_c$ occupies $\\omega_c\\pm2\\pi$ and the copy centred at $-\\omega_c$ occupies $-\\omega_c\\pm2\\pi$. They stay apart as long as$$\\omega_c-2\\pi>-\\omega_c+2\\pi\\quad\\Longleftrightarrow\\quad\\omega_c>2\\pi.$$Below that the upper sideband of the negative copy crosses the lower sideband of the positive one, the two add, and the original cannot be recovered by filtering — the components that overlap can no longer be told apart.<br>'
      +'<b>Check.</b> The total weight is preserved in the right way. Each impulse of $X$ has been halved and duplicated, so the sum of all weights in $S$ is the same as in $X$: $2\\pi+3\\pi+3\\pi=8\\pi$ before, and $\\pi+\\pi+4\\cdot\\tfrac{3\\pi}{2}=8\\pi$ after. With $\\omega_c=10\\pi$ the copies run over $8\\pi$ to $12\\pi$ and $-12\\pi$ to $-8\\pi$, comfortably clear of each other, consistent with part (c).',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega/\\pi',ylabel:'S(j\\omega)',
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'S(j\\omega)',
       pad:{l:52,r:28,t:30,b:38},xstep:2,ystep:2});
     [[-12,1.5*Math.PI],[-10,Math.PI],[-8,1.5*Math.PI],[8,1.5*Math.PI],[10,Math.PI],[12,1.5*Math.PI]]
       .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
@@ -34603,8 +34691,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Multiplication by $t$ is differentiation in frequency: if $g(t)=e^{-3t}u(t)$ has $G=\\dfrac{1}{3+j\\omega}$, then$$X(j\\omega)=j\\frac{\\d G}{\\d\\omega}=j\\cdot\\frac{-j}{(3+j\\omega)^{2}}=\\frac{1}{(3+j\\omega)^{2}}.$$'
      +'<b>Solution — part (c).</b> Convolution in time is multiplication in frequency. The rectangle of height $1$ on $|t|<2$ has transform $\\dfrac{2\\sin(2\\omega)}{\\omega}$, so$$X(j\\omega)=\\left(\\frac{2\\sin(2\\omega)}{\\omega}\\right)^{2}=\\frac{4\\sin^{2}(2\\omega)}{\\omega^{2}}.$$In the time domain this is a triangle of height $4$ on $|t|<4$.<br>'
      +'<b>Check.</b> Part (a) at $\\omega=0$ gives $\\dfrac{e^{-6}}{3}$, which is $\\int_2^{\\infty}e^{-3t}\\,\\d t$ exactly. Part (b) at $\\omega=0$ gives $\\tfrac19$, and $\\int_0^{\\infty}te^{-3t}\\,\\d t=\\tfrac1{9}$. Part (c) at $\\omega=0$ gives $16$, the area of a triangle of height $4$ and base $8$, $\\tfrac12\\cdot8\\cdot4=16$; it is also the product of the two rectangle areas, $4\\cdot4$, as the convolution rule requires.',
-  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-5,5],yr:[-1.5,17.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)\\;\\text{of part (c)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:4});
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-5,5],yr:[-1.5,17.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'X(j\\omega)\\;\\text{of part (c)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:4});
     a.curve(w=>Math.abs(w)<1e-6?16:4*Math.pow(Math.sin(2*w)/w,2),{color:C.out}); return a.svg();},
   err:'Writing the answer to (a) as $\\dfrac{e^{-j2\\omega}}{3+j\\omega}$, keeping the shift and dropping the amplitude. Delaying $e^{-3t}u(t)$ by two gives $e^{-3(t-2)}u(t-2)$, which is $e^{6}$ times the signal asked for, so the factor $e^{-6}$ has to appear somewhere.',
   teach:'Parts (a) and (b) both look like the same table entry and use different properties. Ask which property each needs before either is computed; naming them first is what stops the two from being confused.' },
@@ -35051,8 +35139,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['$z[n]=u[-n+4]-u[-n-1]$.',
          '$y[n]=x[n]p[n]$, where $p[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-4k]$.',
          '$y[n]=x[n]p[n]$, where $p[n]=(-1)^{n}$.'],
-  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})',
-      pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.5});
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'X(e^{j\\omega})',
+      pad:{l:60,r:28,t:30,b:38},ystep:0.5});
     a.poly([[-3.4,0],[-Math.PI/2,0],[0,1],[Math.PI/2,0],[3.4,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A reversed pair of steps, and a sequence with a known triangular spectrum multiplied by two different sampling patterns.<br>'
      +'<b>Find.</b> Three transforms.<br>'
@@ -35062,13 +35150,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Here $p[n]=(-1)^{n}=e^{j\\pi n}$, a single exponential, so the spectrum is shifted rather than replicated:$$Y(e^{j\\omega})=X\\!\\left(e^{j(\\omega-\\pi)}\\right),$$the same triangle centred at $\\omega=\\pi$ instead of at $\\omega=0$. A low-pass shape has become a high-pass one.<br>'
      +'<b>Check.</b> In (a), $Z(e^{j0})=5$ must be the sum of the samples, and the limit of $\\dfrac{\\sin(5\\omega/2)}{\\sin(\\omega/2)}$ as $\\omega\\to0$ is indeed $5$. In (b), $Y(e^{j0})=\\tfrac14\\sum_kX\\!\\left(e^{-j\\pi k/2}\\right)=\\tfrac14(1+0+0+0)=\\tfrac14$, which is also $y[0]$ summed: the sampling keeps every fourth sample of $x$, so the sum of $y$ is a quarter of what $x$ would give if $x$ were smooth on that scale. In (c) the total spectral area is unchanged, only relocated, as a pure shift must leave it.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.08,0.42],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})\\;\\text{of (b)}',
-      pad:{l:64,r:26,t:28,b:38},xstep:1,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.08,0.42],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'Y(e^{j\\omega})\\;\\text{of (b)}',
+      pad:{l:64,r:26,t:28,b:38},ystep:0.25});
       const tri=w=>{const a1=Math.abs(w); return a1<Math.PI/2 ? 0.25*(1-a1/(Math.PI/2)) : 0;};
       a.curve(w=>{let s=0; for(let k=-4;k<=4;k++) s+=tri(w-k*Math.PI/2); return s;},{color:C.mid});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})\\;\\text{of (c)}',
-      pad:{l:64,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'Y(e^{j\\omega})\\;\\text{of (c)}',
+      pad:{l:64,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,1-(Math.PI-3.4>0?0:0)],[-Math.PI,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI,1],[3.4,1]],{color:C.out});
       return a.svg();})()),
   err:'Reading $u[-n+4]$ as a signal that starts at $n=4$ and runs forwards. The argument is reversed, so the step is on for every $n$ up to and including $4$, and it is the second step that cuts the sequence off from below.',
@@ -35087,13 +35175,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Since $\\cos(\\pi n)=(-1)^{n}=e^{j\\pi n}$ for integer $n$,$$x[n]=e^{j\\pi n}\\,\\frac{\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right)}{\\pi n}.$$The sinc alone has transform $1$ on $|\\omega|<\\tfrac{\\pi}{3}$, and the exponential shifts that band to be centred at $\\pi$. Folding into $-\\pi\\le\\omega\\le\\pi$,$$X(e^{j\\omega})=\\begin{cases}1,&\\tfrac{2\\pi}{3}<|\\omega|\\le\\pi\\\\0,&|\\omega|<\\tfrac{2\\pi}{3},\\end{cases}$$an ideal high-pass filter with cut-off $\\tfrac{2\\pi}{3}$.<br>'
      +'<b>Check.</b> In (a), $X(e^{j0})=\\dfrac{4}{2}=2$, and summing directly, $1+2\\sum_{n\\ge1}\\left(\\tfrac13\\right)^{n}=1+2\\cdot\\tfrac12=2$. In (b) the frequency $\\tfrac{5\\pi}{2}$ is above $\\pi$ and cannot be drawn where written; reducing it is not optional, because $\\cos\\!\\left(\\tfrac{5\\pi}{2}n\\right)$ and $\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$ are the same sequence sample for sample. In (c) the shifted band keeps its total width $\\tfrac{2\\pi}{3}$, split into two halves at the edges of the period.',
   figSol:()=>
-    (()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-1.5,8],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})\\;\\text{of (b)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:2});
+    (()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-1.5,8],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-2/3,-1/2,0,1/2,2/3,1].map(k=>k*Math.PI),ylabel:'X(e^{j\\omega})\\;\\text{of (b)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:2});
       [[-2*Math.PI/3,2*Math.PI],[-Math.PI/2,Math.PI],[Math.PI/2,Math.PI],[2*Math.PI/3,2*Math.PI]]
         .forEach(p=>a.impulse(p[0],p[1],{color:C.in}));
       return a.svg();})()
-    +(()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})\\;\\text{of (c)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:0.5});
+    +(()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/3,ylabel:'X(e^{j\\omega})\\;\\text{of (c)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:0.5});
       a.poly([[-3.4,1],[-2*Math.PI/3,1],[-2*Math.PI/3,0],[2*Math.PI/3,0],[2*Math.PI/3,1],[3.4,1]],{color:C.out});
       return a.svg();})(),
   err:'Plotting impulses at $\\tfrac{5\\pi}{2}$ and $\\tfrac{4\\pi}{3}$ in part (b) without reducing them. Discrete-time frequencies live on a circle of circumference $2\\pi$, so a frequency above $\\pi$ is the same as one below it, and drawing it outside the period says the sequence has content it does not have.',
@@ -35112,13 +35200,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Multiply band by band. On $|\\omega|<\\tfrac{\\pi}{5}$ the filter is zero, so the tall centre of $X$ is removed entirely. On $\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}$ we have $1\\cdot2=2$. Above $\\tfrac{3\\pi}{5}$ the input is zero. So$$Y(e^{j\\omega})=\\begin{cases}2,&\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}\\\\0,&\\text{otherwise in }-\\pi\\le\\omega\\le\\pi,\\end{cases}$$a band-pass result.<br>'
      +'<b>Check.</b> The output band is the intersection of the input band with the passband, $\\left(\\tfrac{\\pi}{5},\\tfrac{3\\pi}{5}\\right)$, and its height is the product of the two heights there, $1\\cdot2=2$. Both cut-offs of $Y$ come from somewhere: the lower from the filter and the upper from the input. A cascade of a low-pass input spectrum with a high-pass filter can produce nothing else.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-3/5,-1/5,0,1/5,3/5,1].map(k=>k*Math.PI),ylabel:'X(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:1});
       const p=Math.PI;
       a.poly([[-3.4,0],[-3*p/5,0],[-3*p/5,1],[-p/5,1],[-p/5,3],[p/5,3],[p/5,1],[3*p/5,1],[3*p/5,0],[3.4,0]],{color:C.in});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-3/5,-1/5,0,1/5,3/5,1].map(k=>k*Math.PI),ylabel:'Y(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:1});
       const p=Math.PI;
       a.poly([[-3.4,0],[-3*p/5,0],[-3*p/5,2],[-p/5,2],[-p/5,0],[p/5,0],[p/5,2],[3*p/5,2],[3*p/5,0],[3.4,0]],{color:C.out});
       return a.svg();})()),
@@ -35213,12 +35301,12 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> In series the responses multiply:$$H_1H_2=H_1\\left(1-H_1\\right)=H_1-H_1^{2}.$$Since $H_1$ is $0$ or $1$ everywhere, $H_1^{2}=H_1$ and the product is zero at every frequency. The cascade passes nothing at all — its impulse response is the zero sequence.<br>'
      +'<b>Check.</b> Part (c) makes sense band by band: below $\\tfrac{\\pi}{2}$ the second filter blocks whatever the first passed, and above it the first blocks whatever the second would pass. No frequency survives both. Part (b) is the same statement read the other way: every frequency survives exactly one of them.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H_1(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H_1(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H_2(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H_2(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,1],[-Math.PI/2,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI/2,1],[3.4,1]],{color:C.mid});
       return a.svg();})()),
   err:'Concluding from part (b) that the series connection also gives $\\delta[n]$, on the grounds that the two filters are inverses of one another. Complementary is not inverse: complementary filters add to one, inverse filters multiply to one, and these two multiply to zero.',
@@ -35236,8 +35324,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Periodic convolution with the factor $\\tfrac{1}{2\\pi}$ gives$$Y(e^{j\\omega})=\\frac15\\sum_{k=0}^{4}X\\!\\left(e^{j(\\omega-2\\pi k/5)}\\right),$$five copies of the band, each of height $\\tfrac15$, centred at $\\omega=0,\\pm\\tfrac{2\\pi}{5},\\pm\\tfrac{4\\pi}{5}$. Each copy occupies a width of $\\tfrac{2\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so the copies fill the axis edge to edge without overlapping.<br>'
      +'<b>Solution — part (c).</b> <b>Yes.</b> Because the copies do not overlap, the one centred at the origin is intact. An ideal low-pass filter with cut-off $\\tfrac{\\pi}{5}$ and gain $5$,$$H(e^{j\\omega})=\\begin{cases}5,&|\\omega|<\\tfrac{\\pi}{5}\\\\0,&\\text{otherwise,}\\end{cases}$$keeps that copy and restores its height, giving $X$ exactly.<br>'
      +'<b>Check.</b> Count the widths. Five copies of width $\\tfrac{2\\pi}{5}$ occupy $2\\pi$ in total, exactly one period, so they tile it with nothing left over and nothing doubled. Had the band been any wider than $\\tfrac{\\pi}{5}$ on each side, the copies would have overlapped and part (c) would have failed — which is the sampling condition in the discrete-time setting.',
-  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-3.4,3.4],yr:[-0.05,0.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})',
-      pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.1});
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-3.4,3.4],yr:[-0.05,0.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'Y(e^{j\\omega})',
+      pad:{l:60,r:28,t:30,b:38},ystep:0.1});
     a.poly([[-3.4,0.2],[3.4,0.2]],{color:C.out}); return a.svg();},
   err:'Reporting five separated bands with gaps between them. The band half-width is $\\tfrac{\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so each copy is exactly as wide as the gap it has to fill: the result is a constant $\\tfrac15$ across the whole period, with no gaps at all.',
   teach:'Explain why the spectrum in part (b) is flat: the replicated bands exactly cover the period without gaps or overlap. Then ask for $y[n]$ in time. It is $x[0]\\delta[n]$ repeated, whose transform is constant.' }

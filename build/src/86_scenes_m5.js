@@ -198,7 +198,7 @@ const SC = [
       live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:4, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const T=v?v.T:4, w0=2*PI/T, st=[];
-      const a=AX({xr:[-10,10],yr:[-0.9,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Ta_k',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-10,10],yr:[-0.9,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'Ta_k',yticksOverride:[0,1,2]});
       a.curve(w=>rectFT(w,1),{color:C.mid,width:1.8,dash:'7 6',n:1400});
       for(let k=-Math.floor(10/w0);k<=Math.floor(10/w0);k++) st.push([k*w0, T*aSq(k,T,1)]);
       a.stem(st,{color:C.in,r:T>12?2.6:3.6,showZero:true});
@@ -231,7 +231,7 @@ const SC = [
       live:{controls:[{k:'T', label:'$T/T_1$', min:3, max:24, step:1, v:6, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const T=v?v.T:6, w0=2*PI/T;
-      const a=AX({xr:[-9,9],yr:[-0.85,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-9,9],yr:[-0.85,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       for(let k=-Math.floor(9/w0);k<=Math.floor(9/w0);k++){
         const wv=k*w0, hv=rectFT(wv,1);
         a.rect(wv-w0/2,0,wv+w0/2,hv,{fill:C.in+'2E',stroke:C.in,width:1});
@@ -361,7 +361,7 @@ const SC = [
       live:{controls:[{k:'a', label:'$a$', min:0.1, max:1.5, step:0.05, v:1, show:v=>'$'+(Math.round(v*100)/100)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-6,6],yr:[-1.5,21],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,5,10,15,20]});
+      const a=AX({xr:[-6,6],yr:[-1.5,21],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,5,10,15,20]});
       a.area(w=>2*av/(av*av+w*w),-6,6,{color:C.in+'24',n:900});
       a.curve(w=>2*av/(av*av+w*w),{color:C.in,n:2400});
       return a.svg(); },
@@ -425,7 +425,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       svg:v=>{
       /* the phase line turns from slope 0 to slope -t0 = -1 */
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-3,-2,-1,1,2,3]});
+      const a=AX({xr:[-3,3],yr:[-3.6,3.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-3,-2,-1,1,2,3]});
       a.curve(w=>-f*w,{color:C.mid,n:600});
       return a.svg(); },
       caption:'The phase of the transform, with $t_0=1$ s. The magnitude is $1$ at every frequency in both cases.'}
@@ -449,7 +449,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Transform of a Complex Exponential'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-3,3],yr:[-0.5,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,2,4,6]});
+      const a=AX({xr:[-3,3],yr:[-0.5,8.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'X(j\\omega)',yticksOverride:[0,2,4,6]});
       a.impulse(1,2*PI,{color:C.in,labelText:'6.28'});
       return a.svg(); },
       caption:'One impulse at $\\omega_0=1$ rad/s, of weight $2\\pi$. The spectrum is zero at every other frequency.'}
@@ -504,7 +504,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-6,6],yr:[-0.25,5.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[0,1,2,3,4,5]});
+      const a=AX({xr:[-6,6],yr:[-0.25,5.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'|X(j\\omega)|',yticksOverride:[0,1,2,3,4,5]});
       a.curve(w=>1/Math.hypot(av,w),{color:C.in,n:1600});
       a.point(0,1/av,{color:C.coral,r:4.4});
       return a.svg(); },
@@ -533,7 +533,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'a', label:'$a$', min:0.2, max:5, step:0.1, v:1, show:v=>'$'+(Math.round(v*10)/10)+'$'}]},
       svg:v=>{
       const av=v?v.a:1;
-      const a=AX({xr:[-8,8],yr:[-1.9,1.9],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
+      const a=AX({xr:[-8,8],yr:[-1.9,1.9],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',
         yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
       a.curve(w=>-Math.atan(w/av),{color:C.in,n:1600});
       a.point(1,-Math.atan(1/av),{color:C.coral,r:4.4});
@@ -560,7 +560,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Two-Sided Exponential Transform'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.3,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.4,2,4]});
+      const a=AX({xr:[-6,6],yr:[-0.3,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.4,2,4]});
       [[0.5,C.in],[1,C.mid],[5,C.out]].forEach(([av,col])=>{
         a.curve(w=>2*av/(av*av+w*w),{color:col,n:2400}); a.point(0,2/av,{color:C.coral,r:4}); });
       return a.svg(); },
@@ -590,7 +590,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       live:{controls:[{k:'T1', label:'$T_1$', min:0.25, max:3, step:0.25, v:1, show:v=>'$'+v+'$ s'}]},
       svg:v=>{
       const T1=v?v.T1:1;
-      const a=AX({xr:[-12,12],yr:[-1.6,6.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[-1,0,2,4,6]});
+      const a=AX({xr:[-12,12],yr:[-1.6,6.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[-1,0,2,4,6]});
       a.curve(w=>rectFT(w,T1),{color:C.in,n:2400});
       a.point(0,2*T1,{color:C.coral,r:4.4});
       return a.svg(); },
@@ -615,7 +615,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'The Sinc Convention'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-10,10],yr:[-0.4,1.3],xlabel:'\\theta',ylabel:'\\text{value}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-10,10],yr:[-0.4,1.3],xlabel:'\\theta',xpi:PI,ylabel:'\\text{value}',yticksOverride:[0,0.5,1]});
       a.curve(th=>sincU(th),{color:C.in,n:2400});
       a.curve(th=>sincU(PI*th),{color:C.mid,dash:'9 6',n:2400});
       return a.svg(); },
@@ -641,7 +641,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
   {t:'title', text:'Zeros of the Sinc Spectrum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-13,13],yr:[-0.75,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-13,13],yr:[-0.75,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
       for(let k=1;k<=4;k++){ a.point(k*PI,0,{color:C.err,r:4}); a.point(-k*PI,0,{color:C.err,r:4}); }
       a.point(0,2,{color:C.coral,r:4.6});
@@ -702,7 +702,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       frames:{labels:['$T_1=1$: first null at $\\pi$','$T_1=1/4$: first null at $4\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.6,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.6,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,2]});
       fade(a,1-f,()=>{ a.curve(w=>rectFT(w,1),{color:C.in,n:2400}); a.point(PI,0,{color:C.err,r:4.4}); });
       fade(a,f,()=>{ a.curve(w=>rectFT(w,0.25),{color:C.out,n:2400}); a.point(4*PI,0,{color:C.err,r:4.4}); });
       return a.svg(); },
@@ -731,7 +731,7 @@ codeScene({ id:'m5-code-transform', nav:'Series to transform', title:'The Transf
       frames:{labels:['$\\text{pulse}$: finite duration','$e^{-|t|}$: infinite duration']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-40,40],yr:[-0.8,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,1,2],xtarget:9});
+      const a=AX({xr:[-40,40],yr:[-0.8,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:4*PI,ylabel:'X(j\\omega)',yticksOverride:[0,1,2]});
       fade(a,1-f,()=>a.curve(w=>rectFT(w,1),{color:C.in,n:4000}));
       fade(a,f,()=>a.curve(w=>2/(1+w*w),{color:C.err,n:4000}));
       return a.svg(); },
@@ -801,7 +801,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
         return a.svg();
       }
       const w0=2*PI/8;
-      const a=AX({xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      const a=AX({xr:[-6,6],yr:[-0.6,1.95],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
       fade(a,2*f-1,()=>{
         a.curve(w=>w0*rectFT(w,1),{color:C.mid,width:1.6,dash:'7 6',n:1200});
         for(let k=-7;k<=7;k++){ const wt=2*PI*aSq(k,8,1); if(Math.abs(wt)<1e-9) continue;
@@ -833,7 +833,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       frames:{labels:['$T=8T_1$','$T=16T_1$','$T=32T_1$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
+      const a=AX({xr:[-4,4],yr:[-0.65,1.85],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X(j\\omega)',yticksOverride:[0,0.5,1,1.5]});
       [[8,1-cl(f)],[16,cl(f)*(1-cl(f-1))],[32,cl(f-1)]].forEach(([T,o])=>fade(a,o,()=>{
         const w0=2*PI/T;
         for(let k=-Math.floor(4/w0);k<=Math.floor(4/w0);k++){ const wt=2*PI*aSq(k,T,1); if(Math.abs(wt)<1e-9) continue;
@@ -861,7 +861,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Cosine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
+      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
       a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
       a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
       return a.svg(); },
@@ -886,7 +886,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Sine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
+      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
       a.impulse(4*PI,-6*PI,{color:C.in,label:false});
       a.impulse(-4*PI,6*PI,{color:C.in,label:false});
       return a.svg(); },
@@ -915,14 +915,14 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{
           a.impulse(0,10*PI,{color:C.in,label:false});
           [3*PI,-3*PI].forEach(w=>a.impulse(w,4*PI,{color:C.in,label:false}));
           [4*PI,-4*PI].forEach(w=>a.impulse(w,6*PI,{color:C.in,label:false})); });
         return a.svg();
       }
-      const a=AX({xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,1.5708],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-16,16],yr:[-2.1,2.1],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\angle X(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,1.5708],ytickfmt:v=>v.toFixed(2)});
       fade(a,2*f-1,()=>a.stem([[-4*PI,PI/2],[-3*PI,0],[0,0],[3*PI,0],[4*PI,-PI/2]],{color:C.mid,r:4.4,showZero:true}));
       return a.svg(); },
       caption:'$x(t)=5+4\\cos(3\\pi t)+6\\sin(4\\pi t)$. The magnitude cannot tell the cosine from the sine; the phase does.'}
@@ -949,7 +949,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       frames:{labels:['$T=1$ s: spacing and weight $2\\pi$','$T=2$ s: spacing and weight $\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.8,8.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.8,8.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
       fade(a,1-f,()=>{ for(let k=-2;k<=2;k++) a.impulse(k*2*PI,2*PI,{color:C.in,label:false}); });
       fade(a,f,()=>{ for(let k=-5;k<=5;k++) a.impulse(k*PI,PI,{color:C.out,label:false}); });
       return a.svg(); },
@@ -1012,7 +1012,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'t0', label:'$t_0$', min:-3, max:3, step:0.5, v:3, show:v=>'$'+v+'$ s'}]},
       svg:v=>{
       const t0=v?v.t0:3;
-      const a=AX({xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle e^{-j\\omega t_0}\\;(\\text{rad})',yticksOverride:[-9,-6,-3,3,6,9]});
+      const a=AX({xr:[-3,3],yr:[-10.5,10.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/4,ylabel:'\\angle e^{-j\\omega t_0}\\;(\\text{rad})',yticksOverride:[-9,-6,-3,3,6,9]});
       a.curve(w=>-t0*w,{color:C.out,n:400});
       return a.svg(); },
       caption:'The phase that a delay of $t_0$ adds, $-\\omega t_0$: a line of slope $-t_0$. The magnitude of $e^{-j\\omega t_0}$ is $1$ at every frequency.'}
@@ -1067,7 +1067,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'k', label:'$\\omega_0/\\pi$', min:-2, max:2, step:0.5, v:2, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const w0=(v?v.k:2)*PI;
-      const a=AX({xr:[-16,16],yr:[-0.25,1.45],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.25,1.45],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1]});
       a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
       a.curve(w=>Math.abs(w-w0)<2*PI?1:0,{color:C.out,n:3000});
       return a.svg(); },
@@ -1095,7 +1095,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Conjugation and Spectral Symmetry'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-13,13],yr:[-0.8,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
+      const a=AX({xr:[-13,13],yr:[-0.8,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
       a.curve(w=>Math.abs(rectFT(w,1)),{color:C.mid,dash:'9 6',n:2400});
       a.curve(w=>rectFT(w,1),{color:C.in,n:2400});
       return a.svg(); },
@@ -1180,7 +1180,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Differentiation in Time'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-1.5,2.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',ytarget:4});
+      const a=AX({xr:[-6,6],yr:[-1.5,2.0],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'\\text{spectrum}',ytarget:4});
       a.curve(w=>Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.in,n:1600});
       a.curve(w=>w*Math.sqrt(PI)*Math.exp(-w*w/4),{color:C.out,n:1600});
       return a.svg(); },
@@ -1305,7 +1305,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       live:{controls:[{k:'a', label:'$a$', min:0.5, max:3, step:0.25, v:2, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const av=v?v.a:2;
-      const a=AX({xr:[-13,13],yr:[-1.0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,3,4]});
+      const a=AX({xr:[-13,13],yr:[-1.0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,3,4]});
       a.curve(w=>rectFT(w,1),{color:C.in,dash:'9 6',n:2400});
       a.curve(w=>rectFT(w/av,1)/av,{color:C.out,n:2400});
       return a.svg(); },
@@ -1363,7 +1363,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       frames:{labels:['$x(0.5t)$: height $2$ on $|\\omega|<\\pi$','$x(t)$: height $1$ on $|\\omega|<2\\pi$','$x(2t)$: height $0.5$ on $|\\omega|<4\\pi$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1,2]});
       [[PI,2,C.in,1-cl(f)],[2*PI,1,C.mid,cl(f)*(1-cl(f-1))],[4*PI,0.5,C.out,cl(f-1)]].forEach(([W,H,col,o])=>fade(a,o,()=>{
         a.area(w=>Math.abs(w)<W?H:0,-16,16,{color:col+'29',n:900});
         a.curve(w=>Math.abs(w)<W?H:0,{color:col,n:3000}); }));
@@ -1422,7 +1422,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Duality Example'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.6,7.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'X_2(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-6,6],yr:[-0.6,7.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'X_2(j\\omega)',yticksOverride:[0,3.1416,6.2832],ytickfmt:v=>v.toFixed(2)});
       a.area(w=>Math.abs(w)<PI?2*PI:0,-6,6,{color:C.out+'29',n:900});
       a.curve(w=>Math.abs(w)<PI?2*PI:0,{color:C.out,n:3000});
       return a.svg(); },
@@ -1448,7 +1448,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   {t:'title', text:'Parseval’s Relation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-8,8],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|X(j\\omega)|^{2}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-8,8],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|^{2}',yticksOverride:[0,0.5,1]});
       a.area(w=>1/(1+w*w),-8,8,{color:C.mid+'29',n:900});
       a.curve(w=>1/(1+w*w),{color:C.mid,n:2400});
       return a.svg(); },
@@ -1500,7 +1500,7 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       frames:{labels:['$X_3(j\\omega)$','$|X_3(j\\omega)|^{2}$: area $20\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.4,4.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,4],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.4,4.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2,4]});
       const X=w=>Math.abs(w)<2*PI?2:(Math.abs(w)<4*PI?1:0);
       fade(a,1-f,()=>{ a.area(X,-16,16,{color:C.mid+'29',n:1200}); a.curve(X,{color:C.mid,n:4000}); });
       fade(a,f,()=>{ a.area(w=>X(w)*X(w),-16,16,{color:C.out+'29',n:1200}); a.curve(w=>X(w)*X(w),{color:C.out,n:4000}); });
@@ -1605,7 +1605,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['delay: $|H(j\\omega)|=1$','differentiator: $|H(j\\omega)|=|\\omega|$','integrator: $|H(j\\omega)|=1/|\\omega|$ and $\\pi\\delta(\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-4,4],yr:[-0.2,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[1,2,3,4],xtarget:9});
+      const a=AX({xr:[-4,4],yr:[-0.2,4.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'|H(j\\omega)|',yticksOverride:[1,2,3,4]});
       const o=k=>1-cl(Math.abs(f-k));
       fade(a,o(0),()=>a.curve(()=>1,{color:C.h,n:400}));
       fade(a,o(1),()=>a.curve(w=>Math.abs(w),{color:C.h,n:1200}));
@@ -1664,7 +1664,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Spectra of the Two Exponentials'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-6,6],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{magnitude}',yticksOverride:[0,0.5,1]});
+      const a=AX({xr:[-6,6],yr:[-0.1,1.25],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI/2,ylabel:'\\text{magnitude}',yticksOverride:[0,0.5,1]});
       a.curve(w=>1/Math.hypot(1,w),{color:C.in,n:1600});
       a.curve(w=>1/Math.hypot(2,w),{color:C.h,n:1600});
       a.curve(w=>1/(Math.hypot(1,w)*Math.hypot(2,w)),{color:C.out,n:1600});
@@ -1693,7 +1693,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$ and $H(j\\omega)$','$Y(j\\omega)=X(j\\omega)H(j\\omega)$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.6,7.2],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,2,3,6],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.6,7.2],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,2,3,6]});
       fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<=4*PI?2:0,{color:C.in,n:3000});
         a.curve(w=>Math.abs(w)<=2*PI?3:0,{color:C.h,n:3000,dash:'9 6'}); });
       fade(a,f,()=>{ a.area(w=>Math.abs(w)<=2*PI?6:0,-16,16,{color:C.out+'29',n:900});
@@ -1723,7 +1723,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)=Y(j\\omega)$: a band of half-width $2\\pi$','$Z(j\\omega)=\\tfrac{1}{2\\pi}X*Y$: a triangle']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.3,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\text{spectrum}',yticksOverride:[0,1,2]});
       const tri=w=>Math.abs(w)<4*PI ? 2*(1-Math.abs(w)/(4*PI)) : 0;
       fade(a,1-f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,n:3000}); });
       fade(a,f,()=>{ a.curve(w=>Math.abs(w)<2*PI?1:0,{color:C.in,dash:'9 6',n:3000});
@@ -1754,7 +1754,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$','$Z(j\\omega)$: two copies at half height']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-20,20],yr:[-0.2,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.2,1.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1]});
       const tri=(w,c)=>Math.max(0,1-Math.abs(w-c)/(2*PI));
       fade(a,1-f,()=>{ a.area(w=>tri(w,0),-20,20,{color:C.in+'29',n:900}); a.curve(w=>tri(w,0),{color:C.in,n:2400}); });
       fade(a,f,()=>{ const z=w=>0.5*tri(w,4*PI)+0.5*tri(w,-4*PI);
@@ -1787,7 +1787,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$: weight $\\pi$ at $\\pm\\pi$','$Z(j\\omega)$: weight $\\pi/2$ at $\\pm3\\pi$, $\\pm5\\pi$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-20,20],yr:[-0.35,4.0],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[1.5708,3.1416],ytickfmt:v=>v.toFixed(2),xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.35,4.0],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[1.5708,3.1416],ytickfmt:v=>v.toFixed(2)});
       fade(a,1-f,()=>{ [PI,-PI].forEach(w=>a.impulse(w,PI,{color:C.in,label:false})); });
       fade(a,f,()=>{ [3*PI,5*PI,-3*PI,-5*PI].forEach(w=>a.impulse(w,PI/2,{color:C.out,label:false}));
         a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
@@ -1823,7 +1823,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
           a.curve(t=>-lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
           a.curve(t=>lpfTime(t,2*PI)*Math.cos(4*PI*t),{color:C.out,n:6000}); });
         return a.svg(); }
-      const a=AX({xr:[-26,26],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-26,26],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'Z(j\\omega)',yticksOverride:[0.5,1]});
       fade(a,2*f-1,()=>{ const z=w=>((Math.abs(w-4*PI)<2*PI)?0.5:0)+((Math.abs(w+4*PI)<2*PI)?0.5:0);
         a.area(z,-26,26,{color:C.out+'29',n:900}); a.curve(z,{color:C.out,n:4000});
         a.vline(4*PI,{color:C.err}); a.vline(-4*PI,{color:C.err}); });
@@ -1852,7 +1852,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$X(j\\omega)$','the two copies','their sum $Z(j\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-20,20],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-20,20],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1]});
       const B=w=>(Math.abs(w)>=PI&&Math.abs(w)<=3*PI)?1:0;
       const up=w=>0.5*B(w-2*PI), dn=w=>0.5*B(w+2*PI);
       fade(a,1-cl(f),()=>{ a.area(B,-20,20,{color:C.in+'29',n:1200}); a.curve(B,{color:C.in,n:4000}); });
@@ -1883,7 +1883,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       frames:{labels:['$Z(j\\omega)$ at the receiver','$Y(j\\omega)$ after the second multiplication','the low-pass filter returns $X(j\\omega)$']},
       svg:v=>{
       const f=v?v.frame:0;
-      const a=AX({xr:[-46,46],yr:[-0.15,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1,2],xtarget:9});
+      const a=AX({xr:[-46,46],yr:[-0.15,2.4],xlabel:'\\omega\\;(\\text{rad/s})',xpi:6*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1,2]});
       const tri=(w,c,h)=>h*Math.max(0,1-Math.abs(w-c)/(2*PI));
       const Z=w=>tri(w,6*PI,0.5)+tri(w,-6*PI,0.5);
       const Y=w=>tri(w,0,0.5)+tri(w,12*PI,0.25)+tri(w,-12*PI,0.25);
@@ -1921,7 +1921,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const f=v?v.frame:0;
       const wc=12, w0=3;
-      const a=AX({xr:[-26,26],yr:[-0.15,1.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const a=AX({xr:[-26,26],yr:[-0.15,1.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'\\text{spectrum}',yticksOverride:[0.5,1]});
       const X=w=>1/(1+Math.pow(w/10,2));
       const Wf=w=>X(w+wc);
       const Y=w=>Math.abs(w-wc)<w0?X(w):0;
@@ -1963,7 +1963,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
         fade(a,1-2*f,()=>{ a.curve(t=>lpfTime(t,2*PI),{color:C.in,dash:'9 6',n:2400});
           a.curve(t=>Math.pow(lpfTime(t,2*PI),2),{color:C.out,n:2400}); });
         return a.svg(); }
-      const a=AX({xr:[-16,16],yr:[-0.2,2.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      const a=AX({xr:[-16,16],yr:[-0.2,2.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'Z(j\\omega)',yticksOverride:[1,2]});
       fade(a,2*f-1,()=>{ const tri=w=>Math.abs(w)<4*PI?2*(1-Math.abs(w)/(4*PI)):0;
         a.area(tri,-16,16,{color:C.out+'29',n:900}); a.curve(tri,{color:C.out,n:2400}); });
       return a.svg(); },
@@ -1991,7 +1991,7 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       svg:v=>{
       const w1=2*PI, w2=(v?v.w2:4)*PI, lo=Math.abs(w2-w1), hi=w1+w2;
       const trap=w=>{ const aw=Math.abs(w); if(aw<=lo) return 2; if(aw>=hi) return 0; return 2*(hi-aw)/(hi-lo); };
-      const a=AX({xr:[-24,24],yr:[-0.2,2.6],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Z(j\\omega)',yticksOverride:[1,2],xtarget:9});
+      const a=AX({xr:[-24,24],yr:[-0.2,2.6],xlabel:'\\omega\\;(\\text{rad/s})',xpi:2*PI,ylabel:'Z(j\\omega)',yticksOverride:[1,2]});
       a.area(trap,-24,24,{color:C.mid+'29',n:900}); a.curve(trap,{color:C.mid,n:3000});
       return a.svg(); },
       caption:'Bands of half-width $\\omega_1=2\\pi$ and $\\omega_2$. The top is flat on $|\\omega|\\le\\omega_2-\\omega_1$ and the edge is at $\\omega_1+\\omega_2$.'}
@@ -2123,10 +2123,10 @@ codeScene({ id:'m5-code-conv', nav:'Convolution and multiplication', title:'Conv
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-10,10],yr:[-0.08,0.8],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[0.3333,0.6667],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({xr:[-10,10],yr:[-0.08,0.8],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|H(j\\omega)|',yticksOverride:[0.3333,0.6667],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{ a.curve(w=>Math.hypot(2,w)/(Math.hypot(1,w)*Math.hypot(3,w)),{color:C.h,n:2000}); a.point(0,2/3,{color:C.coral,r:4.2}); });
         return a.svg(); }
-      const a=AX({xr:[-10,10],yr:[-1.7,1.7],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
+      const a=AX({xr:[-10,10],yr:[-1.7,1.7],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',yticksOverride:[-1.5708,-0.7854,0.7854,1.5708],ytickfmt:v=>v.toFixed(2)});
       fade(a,2*f-1,()=>{ a.curve(w=>Math.atan2(w,2)-Math.atan2(w,1)-Math.atan2(w,3),{color:C.mid,n:2000}); });
       return a.svg(); },
       caption:'The magnitude peaks at $0.667$ at $\\omega=0$. The phase is odd, as a real $h$ requires.'}

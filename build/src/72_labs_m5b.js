@@ -79,7 +79,7 @@ Object.assign(LABS, (function(){
       const yl = s.kind==='sin' ? 'Im\\{X(j\\omega)\\}' : 'X(j\\omega)';
       const wtop = Math.max(0.6, Math.max.apply(null, weights.map(p=>Math.abs(p[1]))));
       const A2 = PLOT.Axes({w:760,h:280,xr:[-wmax,wmax],yr:[-1.25*wtop,1.25*wtop],
-        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:yl,pad:{l:60,r:24,t:22,b:30},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:yl,pad:{l:60,r:24,t:22,b:30},xpi:true,xtarget:10,ytarget:3});
       if(s.kind==='rect'){
         /* dashed envelope the weights sit on: w0 * 2 sin(w T1) / w */
         A2.curve(w=> Math.abs(w)<1e-6 ? 2*w0 : w0*2*Math.sin(w*s.T1)/w,
@@ -254,16 +254,18 @@ Object.assign(LABS, (function(){
       const magAfter = w=>{ const X=Xa(w); return Math.hypot(X.re,X.im); };
       let peakA=0; for(let i=0;i<=800;i++){ const w=-wmax+2*wmax*i/800; peakA=Math.max(peakA, magAfter(w)); }
       const A2 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-0.1*Math.max(2,peakA),1.25*Math.max(2,peakA)],
-        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X(j\\omega)|',pad:{l:56,r:24,t:12,b:28},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'|X(j\\omega)|',pad:{l:56,r:24,t:12,b:28},xpi:true,xtarget:10,ytarget:2});
       A2.curve(magBefore,{color:PLOT.COL.in,n:1600,dash:'5 4',opacity:.55});
       A2.curve(magAfter,{color:PLOT.COL.out,n:1600});
 
-      /* panel 3 — phase after, wrapped to (-pi, pi] */
+      /* panel 3 — phase after, wrapped to (-pi, pi]. Its jumps fall on the
+         multiples of pi where the tick numbers would stand, so the frequency
+         scale is read off the magnitude panel above. */
       const wrap = a=>{ let v=((a+PI)%(2*PI)+2*PI)%(2*PI)-PI; return v; };
       const phaseAfter = w=>{ const X=Xa(w); if(Math.hypot(X.re,X.im)<1e-9) return 0; return wrap(Math.atan2(X.im,X.re)); };
       const A3 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
         xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',
-        pad:{l:60,r:24,t:12,b:28},xtarget:7,yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
+        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
       A3.curve(phaseAfter,{color:PLOT.COL.out,n:1600});
 
       root.querySelector('.plots').innerHTML =

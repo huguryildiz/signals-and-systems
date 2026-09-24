@@ -130,13 +130,37 @@ const PLOT = (() => {
     for(let v=start; v<=hi+1e-9; v+=s) out.push(Math.abs(v)<1e-12?0:v);
     return out;
   }
+  /* ---------- a frequency axis is read in multiples of pi ----------
+     piTick(v) writes v radians as a rational multiple of pi (0, π/4, -π/2,
+     3π/2, -6π). A tick number is part of the scale, not of the running
+     mathematics, so it stays plain text. piTicks(lo,hi,step) lists the
+     multiples of `step` inside [lo,hi]. Axes takes `xpi: step` to use both. */
+  function piTick(v){
+    const r = v/Math.PI;
+    if(Math.abs(r) < 1e-9) return '0';
+    for(const den of [1,2,3,4,5,6,8,12]){
+      const num = r*den;
+      if(Math.abs(num-Math.round(num)) < 1e-7){
+        const k = Math.round(num), sg = k<0?'-':'', m = Math.abs(k);
+        const head = m===1 ? 'π' : m+'π';
+        return den===1 ? sg+head : sg+head+'/'+den;
+      }
+    }
+    return fmt(v,2);
+  }
+  function piTicks(lo,hi,step){ const o=[];
+    for(let k=Math.ceil(lo/step-1e-9); k<=hi/step+1e-9; k++) o.push(k===0?0:k*step);
+    return o; }
 
   /* ======================================================================
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes,yticksLeft}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi}
      xlabel and ylabel are TeX source — see texName above.
+     xpi: a frequency axis. Ticks at every multiple of xpi (radians) in the
+     range, written in pi form; xpi:true chooses the step from xtarget;
+     xticksOverride or xtickfmt still win.
      ====================================================================== */
   function Axes(opt){
     /* A slide figure is drawn again, taller, to fill the spare height of its
@@ -155,6 +179,14 @@ const PLOT = (() => {
       xticksOverride:null, yticksOverride:null, arrows:true
     }, opt);
     const [xa,xb]=o.xr, [ya,yb]=o.yr;
+    if(o.xpi){
+      /* xpi:true picks the step itself: the finest multiple of pi that keeps
+         the tick count within xtarget, for a range a laboratory sets at run time */
+      const PIS = [1/4,1/2,1,2,3,4,5,6,8,10,20,50,100,200,500,1000,2000,5000];
+      const step = o.xpi===true ? Math.PI*(PIS.find(m => (xb-xa)/(m*Math.PI) <= o.xtarget) || 10000) : o.xpi;
+      if(!opt.xticksOverride) o.xticksOverride = piTicks(xa,xb,step);
+      if(!opt.xtickfmt) o.xtickfmt = piTick;
+    }
     /* A scene that carries its own page colour — a navy module opening — needs
        the axis, the tick numbers and the axis names in that page's ink, not in
        the ink of the surrounding theme, or the frame of the figure disappears
@@ -479,7 +511,7 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, setTheme, hOverride:null, labScale:1,
+  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, piTick, piTicks, setTheme, hOverride:null, labScale:1,
     labelScale:()=>LBLS };
   return API;
 })();

@@ -394,8 +394,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   parts:['$z[n]=u[-n+4]-u[-n-1]$.',
          '$y[n]=x[n]p[n]$, where $p[n]=\\sum_{k=-\\infty}^{\\infty}\\delta[n-4k]$.',
          '$y[n]=x[n]p[n]$, where $p[n]=(-1)^{n}$.'],
-  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})',
-      pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.5});
+  figure:()=>{const a=P.Axes({w:1080,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'X(e^{j\\omega})',
+      pad:{l:60,r:28,t:30,b:38},ystep:0.5});
     a.poly([[-3.4,0],[-Math.PI/2,0],[0,1],[Math.PI/2,0],[3.4,0]],{color:C.in}); return a.svg();},
   sol:'<b>Given.</b> A reversed pair of steps, and a sequence with a known triangular spectrum multiplied by two different sampling patterns.<br>'
      +'<b>Find.</b> Three transforms.<br>'
@@ -405,13 +405,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Here $p[n]=(-1)^{n}=e^{j\\pi n}$, a single exponential, so the spectrum is shifted rather than replicated:$$Y(e^{j\\omega})=X\\!\\left(e^{j(\\omega-\\pi)}\\right),$$the same triangle centred at $\\omega=\\pi$ instead of at $\\omega=0$. A low-pass shape has become a high-pass one.<br>'
      +'<b>Check.</b> In (a), $Z(e^{j0})=5$ must be the sum of the samples, and the limit of $\\dfrac{\\sin(5\\omega/2)}{\\sin(\\omega/2)}$ as $\\omega\\to0$ is indeed $5$. In (b), $Y(e^{j0})=\\tfrac14\\sum_kX\\!\\left(e^{-j\\pi k/2}\\right)=\\tfrac14(1+0+0+0)=\\tfrac14$, which is also $y[0]$ summed: the sampling keeps every fourth sample of $x$, so the sum of $y$ is a quarter of what $x$ would give if $x$ were smooth on that scale. In (c) the total spectral area is unchanged, only relocated, as a pure shift must leave it.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.08,0.42],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})\\;\\text{of (b)}',
-      pad:{l:64,r:26,t:28,b:38},xstep:1,ystep:0.25});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.08,0.42],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'Y(e^{j\\omega})\\;\\text{of (b)}',
+      pad:{l:64,r:26,t:28,b:38},ystep:0.25});
       const tri=w=>{const a1=Math.abs(w); return a1<Math.PI/2 ? 0.25*(1-a1/(Math.PI/2)) : 0;};
       a.curve(w=>{let s=0; for(let k=-4;k<=4;k++) s+=tri(w-k*Math.PI/2); return s;},{color:C.mid});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})\\;\\text{of (c)}',
-      pad:{l:64,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'Y(e^{j\\omega})\\;\\text{of (c)}',
+      pad:{l:64,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,1-(Math.PI-3.4>0?0:0)],[-Math.PI,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI,1],[3.4,1]],{color:C.out});
       return a.svg();})()),
   err:'Reading $u[-n+4]$ as a signal that starts at $n=4$ and runs forwards. The argument is reversed, so the step is on for every $n$ up to and including $4$, and it is the second step that cuts the sequence off from below.',
@@ -430,13 +430,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Since $\\cos(\\pi n)=(-1)^{n}=e^{j\\pi n}$ for integer $n$,$$x[n]=e^{j\\pi n}\\,\\frac{\\sin\\!\\left(\\tfrac{\\pi}{3}n\\right)}{\\pi n}.$$The sinc alone has transform $1$ on $|\\omega|<\\tfrac{\\pi}{3}$, and the exponential shifts that band to be centred at $\\pi$. Folding into $-\\pi\\le\\omega\\le\\pi$,$$X(e^{j\\omega})=\\begin{cases}1,&\\tfrac{2\\pi}{3}<|\\omega|\\le\\pi\\\\0,&|\\omega|<\\tfrac{2\\pi}{3},\\end{cases}$$an ideal high-pass filter with cut-off $\\tfrac{2\\pi}{3}$.<br>'
      +'<b>Check.</b> In (a), $X(e^{j0})=\\dfrac{4}{2}=2$, and summing directly, $1+2\\sum_{n\\ge1}\\left(\\tfrac13\\right)^{n}=1+2\\cdot\\tfrac12=2$. In (b) the frequency $\\tfrac{5\\pi}{2}$ is above $\\pi$ and cannot be drawn where written; reducing it is not optional, because $\\cos\\!\\left(\\tfrac{5\\pi}{2}n\\right)$ and $\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$ are the same sequence sample for sample. In (c) the shifted band keeps its total width $\\tfrac{2\\pi}{3}$, split into two halves at the edges of the period.',
   figSol:()=>
-    (()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-1.5,8],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})\\;\\text{of (b)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:2});
+    (()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-1.5,8],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-2/3,-1/2,0,1/2,2/3,1].map(k=>k*Math.PI),ylabel:'X(e^{j\\omega})\\;\\text{of (b)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:2});
       [[-2*Math.PI/3,2*Math.PI],[-Math.PI/2,Math.PI],[Math.PI/2,Math.PI],[2*Math.PI/3,2*Math.PI]]
         .forEach(p=>a.impulse(p[0],p[1],{color:C.in}));
       return a.svg();})()
-    +(()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})\\;\\text{of (c)}',
-      pad:{l:64,r:28,t:30,b:38},xstep:1,ystep:0.5});
+    +(()=>{const a=P.Axes({w:1080,h:260,xr:[-3.4,3.4],yr:[-0.15,1.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/3,ylabel:'X(e^{j\\omega})\\;\\text{of (c)}',
+      pad:{l:64,r:28,t:30,b:38},ystep:0.5});
       a.poly([[-3.4,1],[-2*Math.PI/3,1],[-2*Math.PI/3,0],[2*Math.PI/3,0],[2*Math.PI/3,1],[3.4,1]],{color:C.out});
       return a.svg();})(),
   err:'Plotting impulses at $\\tfrac{5\\pi}{2}$ and $\\tfrac{4\\pi}{3}$ in part (b) without reducing them. Discrete-time frequencies live on a circle of circumference $2\\pi$, so a frequency above $\\pi$ is the same as one below it, and drawing it outside the period says the sequence has content it does not have.',
@@ -455,13 +455,13 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Multiply band by band. On $|\\omega|<\\tfrac{\\pi}{5}$ the filter is zero, so the tall centre of $X$ is removed entirely. On $\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}$ we have $1\\cdot2=2$. Above $\\tfrac{3\\pi}{5}$ the input is zero. So$$Y(e^{j\\omega})=\\begin{cases}2,&\\tfrac{\\pi}{5}<|\\omega|<\\tfrac{3\\pi}{5}\\\\0,&\\text{otherwise in }-\\pi\\le\\omega\\le\\pi,\\end{cases}$$a band-pass result.<br>'
      +'<b>Check.</b> The output band is the intersection of the input band with the passband, $\\left(\\tfrac{\\pi}{5},\\tfrac{3\\pi}{5}\\right)$, and its height is the product of the two heights there, $1\\cdot2=2$. Both cut-offs of $Y$ come from somewhere: the lower from the filter and the upper from the input. A cascade of a low-pass input spectrum with a high-pass filter can produce nothing else.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'X(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-3/5,-1/5,0,1/5,3/5,1].map(k=>k*Math.PI),ylabel:'X(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:1});
       const p=Math.PI;
       a.poly([[-3.4,0],[-3*p/5,0],[-3*p/5,1],[-p/5,1],[-p/5,3],[p/5,3],[p/5,1],[3*p/5,1],[3*p/5,0],[3.4,0]],{color:C.in});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:1});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.3,3.6],xlabel:'\\omega\\;(\\text{rad/sample})',xtickfmt:P.piTick,xticksOverride:[-1,-3/5,-1/5,0,1/5,3/5,1].map(k=>k*Math.PI),ylabel:'Y(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:1});
       const p=Math.PI;
       a.poly([[-3.4,0],[-3*p/5,0],[-3*p/5,2],[-p/5,2],[-p/5,0],[p/5,0],[p/5,2],[3*p/5,2],[3*p/5,0],[3.4,0]],{color:C.out});
       return a.svg();})()),
@@ -556,12 +556,12 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> In series the responses multiply:$$H_1H_2=H_1\\left(1-H_1\\right)=H_1-H_1^{2}.$$Since $H_1$ is $0$ or $1$ everywhere, $H_1^{2}=H_1$ and the product is zero at every frequency. The cascade passes nothing at all — its impulse response is the zero sequence.<br>'
      +'<b>Check.</b> Part (c) makes sense band by band: below $\\tfrac{\\pi}{2}$ the second filter blocks whatever the first passed, and above it the first blocks whatever the second would pass. No frequency survives both. Part (b) is the same statement read the other way: every frequency survives exactly one of them.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H_1(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H_1(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
       return a.svg();})(),
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'H_2(e^{j\\omega})',
-      pad:{l:60,r:26,t:28,b:38},xstep:1,ystep:0.5});
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.35],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H_2(e^{j\\omega})',
+      pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,1],[-Math.PI/2,1],[-Math.PI/2,0],[Math.PI/2,0],[Math.PI/2,1],[3.4,1]],{color:C.mid});
       return a.svg();})()),
   err:'Concluding from part (b) that the series connection also gives $\\delta[n]$, on the grounds that the two filters are inverses of one another. Complementary is not inverse: complementary filters add to one, inverse filters multiply to one, and these two multiply to zero.',
@@ -579,8 +579,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Periodic convolution with the factor $\\tfrac{1}{2\\pi}$ gives$$Y(e^{j\\omega})=\\frac15\\sum_{k=0}^{4}X\\!\\left(e^{j(\\omega-2\\pi k/5)}\\right),$$five copies of the band, each of height $\\tfrac15$, centred at $\\omega=0,\\pm\\tfrac{2\\pi}{5},\\pm\\tfrac{4\\pi}{5}$. Each copy occupies a width of $\\tfrac{2\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so the copies fill the axis edge to edge without overlapping.<br>'
      +'<b>Solution — part (c).</b> <b>Yes.</b> Because the copies do not overlap, the one centred at the origin is intact. An ideal low-pass filter with cut-off $\\tfrac{\\pi}{5}$ and gain $5$,$$H(e^{j\\omega})=\\begin{cases}5,&|\\omega|<\\tfrac{\\pi}{5}\\\\0,&\\text{otherwise,}\\end{cases}$$keeps that copy and restores its height, giving $X$ exactly.<br>'
      +'<b>Check.</b> Count the widths. Five copies of width $\\tfrac{2\\pi}{5}$ occupy $2\\pi$ in total, exactly one period, so they tile it with nothing left over and nothing doubled. Had the band been any wider than $\\tfrac{\\pi}{5}$ on each side, the copies would have overlapped and part (c) would have failed — which is the sampling condition in the discrete-time setting.',
-  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-3.4,3.4],yr:[-0.05,0.3],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'Y(e^{j\\omega})',
-      pad:{l:60,r:28,t:30,b:38},xstep:1,ystep:0.1});
+  figSol:()=>{const a=P.Axes({w:1080,h:270,xr:[-3.4,3.4],yr:[-0.05,0.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'Y(e^{j\\omega})',
+      pad:{l:60,r:28,t:30,b:38},ystep:0.1});
     a.poly([[-3.4,0.2],[3.4,0.2]],{color:C.out}); return a.svg();},
   err:'Reporting five separated bands with gaps between them. The band half-width is $\\tfrac{\\pi}{5}$ and the spacing is $\\tfrac{2\\pi}{5}$, so each copy is exactly as wide as the gap it has to fill: the result is a constant $\\tfrac15$ across the whole period, with no gaps at all.',
   teach:'Explain why the spectrum in part (b) is flat: the replicated bands exactly cover the period without gaps or overlap. Then ask for $y[n]$ in time. It is $x[0]\\delta[n]$ repeated, whose transform is constant.' }

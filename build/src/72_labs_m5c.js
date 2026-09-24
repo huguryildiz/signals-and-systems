@@ -43,7 +43,7 @@ Object.assign(LABS, (function(){
       /* panel 1 — |X|, |H|, |Y| on one frequency plot */
       const topY = Math.max(0.3, inKind==='exp'?1:AEXP, sysKind==='exp'?1/b:HEXP, (inKind==='exp'?1:AEXP)*(sysKind==='exp'?1/b:HEXP));
       const A1 = PLOT.Axes({w:760,h:328,xr:[-wr,wr],yr:[-0.08*topY,1.35*topY],
-        xlabel:'\\omega\\;(\\text{rad/s})',pad:{l:56,r:24,t:22,b:32},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;(\\text{rad/s})',pad:{l:56,r:24,t:22,b:32},xpi:true,xtarget:10,ytarget:3});
       A1.curve(w=>XinMag(w),{color:PLOT.COL.in,n:1600});
       A1.curve(w=>HsysMag(w),{color:PLOT.COL.h,n:1600});
       A1.curve(w=>XinMag(w)*HsysMag(w),{color:PLOT.COL.out,n:1600,dash:'2 5'});
@@ -132,7 +132,7 @@ Object.assign(LABS, (function(){
     function drawModulate(root){
       const wr = wcm + W + 1;
       const A1 = PLOT.Axes({w:760,h:300,xr:[-wr,wr],yr:[-0.1,1.35],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{amplitude}',pad:{l:56,r:24,t:22,b:32},xtarget:7,ytarget:3});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{amplitude}',pad:{l:56,r:24,t:22,b:32},xpi:true,xtarget:10,ytarget:3});
       A1.curve(w=>Math.abs(w)<=W?1:0,{color:PLOT.COL.in,n:1600});
       /* Z(jw) = 1/2 X(j(w-wc)) + 1/2 X(j(w+wc)); where the two copies overlap the
          sum is drawn, height 1 where both land, 0.5 where only one does */
@@ -273,11 +273,11 @@ Object.assign(LABS, (function(){
       const hvals=[]; for(let i=0;i<=600;i++){ const w=-wmax+2*wmax*i/600; hvals.push(cabs(Hc(w))); }
       const hmax = Math.max(0.1,...hvals);
       const A1b = PLOT.Axes({w:760,h:192,xr:[-wmax,wmax],yr:[-0.05*hmax,1.3*hmax],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',pad:{l:56,r:24,t:20,b:30},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',pad:{l:56,r:24,t:20,b:30},xpi:true,xtarget:10,ytarget:2});
       A1b.curve(w=>cabs(Hc(w)),{color:PLOT.COL.h,n:1600});
 
       const A2 = PLOT.Axes({w:760,h:150,xr:[-wmax,wmax],yr:[-3.4,3.4],
-        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',pad:{l:56,r:24,t:18,b:28},xtarget:7,ytarget:2});
+        xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\angle H(j\\omega)\\;(\\text{rad})',pad:{l:56,r:24,t:18,b:28},xpi:true,xtarget:10,ytarget:2});
       A2.curve(w=>Math.atan2(Hc(w).im,Hc(w).re),{color:PLOT.COL.h,n:1600});
 
       const A3 = PLOT.Axes({w:760,h:192,xr:[0,8],yr:(()=>{
