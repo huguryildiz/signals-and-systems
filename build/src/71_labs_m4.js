@@ -457,8 +457,11 @@ Object.assign(LABS, (function(){
       const sig = sigs[key], T0=sig.T0, w0=2*Math.PI/T0;
       const a = ak(sig,k);
 
-      /* panel 1 — the probe over one period, shaded */
-      const A1 = PLOT.Axes({w:760,h:338,xr:[-T0/2-0.15,T0/2+0.15],yr:[-1.7,1.7],
+      /* panel 1 — the probe over one period, shaded. |x e^{-jkw0t}| <= |x|, so
+         the peak of |x| bounds both traces for every k; the room above it keeps
+         the legend clear of them. */
+      let pk=0; for(let i=0;i<=800;i++) pk=Math.max(pk,Math.abs(sig.f(-T0/2+T0*i/800)));
+      const A1 = PLOT.Axes({w:760,h:338,xr:[-T0/2-0.15,T0/2+0.15],yr:[-1.12*pk,1.6*pk],
         xlabel:'t',pad:{l:50,r:24,t:20,b:30},xtarget:7,ytarget:3});
       const re = t=>sig.f(t)*Math.cos(-k*w0*t), im = t=>sig.f(t)*Math.sin(-k*w0*t);
       A1.area(re,-T0/2,T0/2,{color:'rgba(20,112,127,.18)'});
