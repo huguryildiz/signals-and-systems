@@ -90,14 +90,14 @@ CONTENT.SECTIONS = {
     { n:'1.3', title:'Signal operations', ids:[
         'm1-shift','m1-shift-dt','m1-reverse','m1-reverse-b','m1-scale','m1-scale-b','m1-combined','m1-combined-b','m1-real-transform','m1-lab-a','m1-code-ops'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:[
-        'm1-periodic','m1-periodic-b','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-real-periodic','m1-lab-k','m1-code-periodic'] },
+        'm1-periodic','m1-periodic-b','m1-periodic-c','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
-        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-ct-impulse-scale','m1-ct-deriv','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
-        'm1-ct-cexp','m1-ct-cexp-grow','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c',
-        'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c',
-        'm1-dt-period','m1-dt-period-b','m1-real-cexp','m1-lab-c','m1-code-cexp'] },
+        'm1-polar','m1-ct-cexp','m1-ct-cexp-grow','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c','m1-cexp-sum',
+        'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c','m1-dt-freq',
+        'm1-dt-period','m1-dt-period-b','m1-dt-sampled','m1-harmonic','m1-geosum','m1-harmsum','m1-real-cexp','m1-lab-c','m1-code-cexp'] },
     { n:'1.7', title:'A catalogue of common signals',             ids:[
         'm1-cat-blocks','m1-cat-pulse','m1-cat-wave','m1-cat-sound','m1-cat-random'] },
     { n:'1.8', title:'Summary',                                    ids:['m1-quick','m1-synth','m1-projects'] }
@@ -229,15 +229,15 @@ CONTENT.BOOK = {
   'm1-shift':'1.2.1', 'm1-shift-dt':'1.2.1', 'm1-real-transform':'1.2.1', 'm1-reverse':'1.2.1', 'm1-reverse-b':'1.2.1', 'm1-scale':'1.2.1', 'm1-scale-b':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1', 'm1-code-ops':'1.2.1',
-  'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2',
+  'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2', 'm1-periodic-c':'1.2.2',
   'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
-  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
+  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-ct-impulse-scale':'1.4.2', 'm1-ct-deriv':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
   'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-grow':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
-  'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1',
-  'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2',
-  'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3',
+  'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1', 'm1-polar':'1.3.1', 'm1-cexp-sum':'1.3.1',
+  'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2', 'm1-dt-freq':'1.3.3',
+  'm1-dt-period':'1.3.3', 'm1-dt-period-b':'1.3.3', 'm1-dt-sampled':'1.3.3', 'm1-harmonic':'1.3.1, 1.3.3', 'm1-geosum':'1.3.3', 'm1-harmsum':'1.3.3',
   'm1-lab-c':'1.3.3', 'm1-code-cexp':'1.3.3', 'm1-real-cexp':'1.3',
   'm1-quick':'1.7', 'm1-synth':'1.7', 'm1-projects':'1.7',
 
