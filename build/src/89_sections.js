@@ -90,7 +90,8 @@ CONTENT.SECTIONS = {
     { n:'1.3', title:'Signal operations', ids:[
         'm1-shift','m1-shift-dt','m1-reverse','m1-reverse-b','m1-scale','m1-scale-b','m1-combined','m1-combined-b','m1-real-transform','m1-lab-a','m1-code-ops'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:[
-        'm1-periodic','m1-periodic-b','m1-periodic-c','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-real-periodic','m1-lab-k','m1-code-periodic'] },
+        'm1-periodic','m1-periodic-b','m1-periodic-c','m1-periodic-sum','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-evenodd-rules',
+        'm1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
         'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-ct-impulse-scale','m1-ct-deriv','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
@@ -232,8 +233,8 @@ CONTENT.BOOK = {
   'm1-shift':'1.2.1', 'm1-shift-dt':'1.2.1', 'm1-real-transform':'1.2.1', 'm1-reverse':'1.2.1', 'm1-reverse-b':'1.2.1', 'm1-scale':'1.2.1', 'm1-scale-b':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1', 'm1-code-ops':'1.2.1',
-  'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2', 'm1-periodic-c':'1.2.2',
-  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
+  'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2', 'm1-periodic-c':'1.2.2', 'm1-periodic-sum':'1.2.2',
+  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-evenodd-rules':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
   'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-ct-impulse-scale':'1.4.2', 'm1-ct-deriv':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
