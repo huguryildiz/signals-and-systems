@@ -126,7 +126,7 @@ Object.assign(LABS, (function(){
     }
     function draw(root){
       const c=cases[key]; const n = dt? Math.round(pos) : pos;
-      const mk=o=>PLOT.Axes(Object.assign({w:700,h:128,xr:c.kr,yr:c.yr,xlabel:dt?'k':'\\tau',ylabel:'\\text{amplitude}',
+      const mk=o=>PLOT.Axes(Object.assign({w:700,h:184,xr:c.kr,yr:c.yr,xlabel:dt?'k':'\\tau',ylabel:'\\text{amplitude}',
         pad:{l:44,r:40,t:12,b:26},xnameDrop:44,xnameRight:34,xtarget:8,ytarget:2},o));
       const disc=f=>{const p=[];for(let k=Math.ceil(c.kr[0]);k<=c.kr[1];k++)p.push([k,f(k)]);return p;};
       const A1=mk({});
@@ -137,7 +137,7 @@ Object.assign(LABS, (function(){
       if(dt){ A2.stem(disc(k=>c.x(k)*c.h(n-k)),{color:PLOT.COL.mid}); }
       else { A2.area(t=>c.x(t)*c.h(n-t), c.kr[0], c.kr[1], {color:'rgba(106,90,146,.22)'});
              A2.curve(t=>c.x(t)*c.h(n-t),{color:PLOT.COL.mid}); }
-      const A3=PLOT.Axes({w:700,h:138,xr:c.nr,yr:c.yr,xlabel:dt?'n':'t',ylabel:dt?'y[n]':'y(t)',pad:{l:44,r:40,t:12,b:26},xnameDrop:44,xnameRight:34,xtarget:8,ytarget:2});
+      const A3=PLOT.Axes({w:700,h:198,xr:c.nr,yr:c.yr,xlabel:dt?'n':'t',ylabel:dt?'y[n]':'y(t)',pad:{l:44,r:40,t:12,b:26},xnameDrop:44,xnameRight:34,xtarget:8,ytarget:2});
       if(dt){ const p=[]; for(let m=Math.ceil(c.nr[0]);m<=c.nr[1];m++) p.push([m, m<=n?conv(c,m):0]);
         A3.stem(p.filter(q=>q[0]<=n),{color:PLOT.COL.out}); }
       else { const pts=[]; for(let i=0;i<=260;i++){ const t=c.nr[0]+(Math.min(n,c.nr[1])-c.nr[0])*i/260;
