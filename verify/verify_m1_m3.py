@@ -501,6 +501,64 @@ chk("M3 lab O: sum 0.5^|k| = 1 + 2 = 3", 1 + 2*sp.summation(sp.Rational(1,2)**nn
 chk("M3 lab O: 2delta, delta[n+1]+delta[n], delta[n]-delta[n-1] each sum |h| = 2", (2, 1+1, 1+abs(-1)) == (2, 2, 2))
 chk("M3 lab O: (1.1)^k grows, so the sum diverges", 1.1**50 > 100)
 
+# Module 3 step response, integrator and differentiator (3.4)
+chk("M3 step: s(t) = int_0^t e^{-tau} = 1 - e^{-t}",
+    sp.simplify(sp.integrate(sp.exp(-tau), (tau, 0, t)) - (1 - sp.exp(-t))) == 0)
+hq = np.array([1., 0., -1.] + [0.]*5)          # delta[n] - delta[n-2] on n = 0..7
+chk("M3 step prediction: running sum of delta[n]-delta[n-2] is delta[n]+delta[n-1]",
+    np.allclose(np.cumsum(hq), [1, 1, 0, 0, 0, 0, 0, 0]))
+chk("M3 step: first difference of the running sum returns h",
+    np.allclose(np.diff(np.r_[0., np.cumsum(hq)]), hq))
+chk("M3 singular: d/dt u(t) = delta(t), so u*u1 = delta",
+    sp.diff(sp.Heaviside(t), t) == sp.DiracDelta(t))
+
+# Module 3 difference and differential equations (3.5)
+def recur(a, b, x):
+    y, prev = [], 0.0
+    for v in x: prev = a*prev + b*v; y.append(prev)
+    return np.array(y)
+dl = d(0, 12)
+chk("M3 diffeq: y[n]=y[n-1]/2+x[n] at rest gives h = 1, 1/2, (1/2)^n",
+    np.allclose(recur(0.5, 1, dl), 0.5**np.arange(12)))
+chk("M3 diffeq prediction: a = -1/2 gives h[2] = 1/4", abs(recur(-0.5, 1, dl)[2] - 0.25) < 1e-15)
+chk("M3 fir-iir: y[n]=a y[n-1]+b x[n] gives h = b a^n u[n] (a=0.8, b=0.2)",
+    np.allclose(recur(0.8, 0.2, dl), 0.2*0.8**np.arange(12)))
+chk("M3 fir-iir: sum 0.2*0.8^n = 1 (the recursive smoother averages)",
+    sp.summation(sp.Rational(1,5)*sp.Rational(4,5)**nn_, (nn_, 0, sp.oo)) == 1)
+hf = np.convolve(dl, [1, 2, 0, -1])[:12]
+chk("M3 fir-iir prediction: x[n]+2x[n-1]-x[n-3] has 3 non-zero samples", np.count_nonzero(hf) == 3)
+chk("M3 blockdiag prediction: a = b = 1 gives h = u[n] (running sum)", np.allclose(recur(1, 1, dl), np.ones(12)))
+hc = sp.exp(-2*t)*sp.Heaviside(t)
+chk("M3 diffeq-ct: h = e^{-2t}u(t) satisfies h' + 2h = delta",
+    sp.simplify((sp.diff(hc, t) + 2*hc - sp.DiracDelta(t)).subs(sp.exp(-2*t)*sp.DiracDelta(t), sp.DiracDelta(t))) == 0)
+chk("M3 diffeq-ct: s(t) = int_0^t e^{-2tau} = (1 - e^{-2t})/2, limit 1/2",
+    sp.simplify(sp.integrate(sp.exp(-2*tau), (tau, 0, t)) - (1 - sp.exp(-2*t))/2) == 0
+    and sp.limit((1 - sp.exp(-2*t))/2, t, sp.oo) == sp.Rational(1,2))
+h5 = sp.exp(-5*t)*sp.Heaviside(t)
+chk("M3 diffeq-ct prediction: h = e^{-5t}u(t) satisfies h' + 5h = delta",
+    sp.simplify((sp.diff(h5, t) + 5*h5 - sp.DiracDelta(t)).subs(sp.exp(-5*t)*sp.DiracDelta(t), sp.DiracDelta(t))) == 0)
+
+# Module 3 gallery 3.5: each closed form solves its recursion or equation
+ns = np.arange(36)
+chk("M3 real-diffeq: savings y[n]=1.005y[n-1]+100 gives 20000(1.005^{n+1}-1)",
+    np.allclose(recur(1.005, 100, np.ones(36)), 20000*(1.005**(ns+1) - 1)))
+chk("M3 real-diffeq: display y[n]=0.8y[n-1]+0.2*25 gives 25(1-0.8^{n+1})",
+    np.allclose(recur(0.8, 0.2, 25*np.ones(21)), 25*(1 - 0.8**(np.arange(21)+1))))
+vC = 5*(1 - sp.exp(-t)); vv = 30*(1 - sp.exp(-t/10))
+chk("M3 real-diffeq: RC v' + v = 5 solved by 5(1-e^{-t}), v(0) = 0",
+    sp.simplify(sp.diff(vC, t) + vC - 5) == 0 and vC.subs(t, 0) == 0)
+chk("M3 real-diffeq: car 10v' + v = 30 solved by 30(1-e^{-t/10}), v(0) = 0",
+    sp.simplify(10*sp.diff(vv, t) + vv - 30) == 0 and vv.subs(t, 0) == 0)
+
+# laboratory T: recursion equals x*h, and the stability verdict
+for a_v in [-1.2, -0.5, 0.0, 0.5, 0.9, 1.0, 1.2]:
+    hT = a_v**np.arange(13)
+    for nm, xT in (('delta', d(0, 13)), ('u', np.ones(13)), ('pulse3', np.r_[np.ones(3), np.zeros(10)])):
+        chk(f"LabT a={a_v} x={nm}: recursion equals x*h on n=0..12",
+            np.allclose(recur(a_v, 1, xT), np.convolve(xT, hT)[:13]))
+chk("LabT default a=0.5, x=u: y[3] = 1.875, sum|h| = 2",
+    abs(recur(0.5, 1, np.ones(4))[3] - 1.875) < 1e-15 and abs(1/(1 - 0.5) - 2) < 1e-15)
+
 # laboratory E numerical engine reproduces the closed forms
 def convDT(xf_, hf_, m, lo=-40, hi=60):
     return sum(xf_(kk)*hf_(m-kk) for kk in range(lo, hi))

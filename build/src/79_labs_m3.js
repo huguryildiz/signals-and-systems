@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Laboratories 3.1–3.4 (keys M, E, N, O) — Module 3
+   Laboratories 3.1–3.5 (keys M, E, N, O, T) — Module 3
    Every displayed number is computed from the definitions at interaction time.
    Laboratory E (Laboratory 3.2, discrete convolution) moves here from
    70_labs.js, converted to discrete time only and to the slide card language.
@@ -352,5 +352,86 @@ Object.assign(LABS, (function(){
     }};
   })();
 
-  return { M:M3M, E, N:NLab, O };
+  /* =======================================================================
+     T · A DIFFERENCE EQUATION, STEP BY STEP          [OW 2.4.2]
+     y[n] = a y[n-1] + x[n], at rest before n = 0. The output is computed by
+     the recursion up to the chosen n and compared with x*h, h[n] = a^n u[n].
+     The stability verdict comes from |a|.
+     ======================================================================= */
+  const RecLab = (() => {
+    const inputs = {
+      d:  { tex:'\\delta[n]',     x:n=> n===0?1:0 },
+      u:  { tex:'u[n]',           x:n=> n>=0?1:0 },
+      p3: { tex:'u[n]-u[n-3]',    x:n=> (n>=0&&n<=2)?1:0 }
+    };
+    const NMAX = 12, xr=[-2,NMAX+0.6];
+    let st = { a:0.5, inp:'u', n:3 };
+    const r1 = v=> Math.round(v*10)/10;
+    /* the recursion from rest: y[-1] = 0 */
+    function recur(a, x){ const y=[]; let prev=0; for(let n=0;n<=NMAX;n++){ prev=a*prev+x(n); y.push(prev); } return y; }
+    function draw(root){
+      const a=r1(st.a), inp=inputs[st.inp], x=inp.x, n=st.n;
+      const y = recur(a, x);
+      const h = k=> k>=0?Math.pow(a,k):0;
+      const conv = m=>{ let s=0; for(let k=0;k<=m;k++) s+=x(k)*h(m-k); return s; };
+      const gap = Math.abs(conv(n)-y[n]);
+      const big = Math.max(1, ...y.map(Math.abs));
+      const yr = [Math.min(-0.3*big/3, ...y.map(v=>v*1.15)), Math.max(1.3, ...y.map(v=>v*1.15))];
+      const ax = o=> PLOT.Axes(Object.assign({w:660,h:170,xr,xlabel:'n',
+        pad:{l:50,r:40,t:16,b:34},xnameDrop:44,xnameRight:34,xtarget:8,ytarget:3},o));
+      const A1 = ax({yr:[-0.3,1.4],ylabel:'x[n]'});
+      const pts=[]; for(let k=-2;k<=NMAX;k++) pts.push([k,x(k)]);
+      A1.stem(pts,{color:PLOT.COL.in});
+      const A2 = ax({yr,ylabel:'y[n]'});
+      const done=[]; for(let k=-2;k<=n;k++) done.push([k,k<0?0:y[k]]);
+      A2.stem(done,{color:PLOT.COL.out});
+      A2.vline(n,{color:PLOT.COL.coral,dash:'4 4'});
+      root.querySelector('.plots').innerHTML =
+        `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L('in',`x[n]=${inp.tex}`)}</div></div>`
+      + `<div class="plot-wrap">${A2.svg()}<div class="legend in-plot lg-at-tr">${L('out','y[n]\\ \\text{up to the cursor}')}</div></div>`;
+      root.querySelector('.lab-eq').innerHTML = T(`y[n]=${N3(a,1)}\\,y[n-1]+x[n]`,true);
+      root.querySelector('[data-out=a]').textContent = N3(a,1);
+      root.querySelector('[data-out=n]').textContent = String(n);
+      const yPrev = n>0?y[n-1]:0;
+      const stable = Math.abs(a)<1;
+      root.querySelector('.ro').innerHTML = `
+        <div><dt>y[${n}] by recursion</dt><dd>${N3(y[n],4)}</dd></div>
+        <div><dt>(x*h)[${n}]</dt><dd class="${gap<1e-9?'okv':''}">${N3(conv(n),4)}</dd></div>`;
+      root.querySelector('.derive').innerHTML = M(`
+        <div class="eq"><span class="eq-label">Recursion at n = ${n}</span>${T(
+          `y[${n}]=${N3(a,1)}\\cdot ${n>0?'y['+(n-1)+']':'y[-1]'}+x[${n}]=${N3(a,1)}\\cdot(${N3(yPrev,4)})+${N3(x(n),1)}=${N3(y[n],4)}`,true)}</div>
+        ${stable
+          ? `<div class="note ok"><span class="note-h">BIBO stable</span>$h[n]=(${N3(a,1)})^{n}u[n]$ and $\\sum_n|h[n]|=\\dfrac{1}{1-${N3(Math.abs(a),1)}}=${N3(1/(1-Math.abs(a)),3)}$.</div>`
+          : `<div class="note err"><span class="note-h">Not BIBO stable</span>$|a|=${N3(Math.abs(a),1)}\\ge1$, so the samples of $h[n]=a^{n}u[n]$ do not shrink and $\\sum_n|h[n]|$ diverges.</div>`}`);
+      root.querySelectorAll('[data-seg]').forEach(bt=> bt.setAttribute('aria-pressed', String(bt.dataset.val===st.inp)));
+    }
+    return { mount(root){
+      root.innerHTML = M(`
+        <div class="cols c-7-5" style="gap:44px">
+          <div class="col stack"><div class="plots" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div class="note warn"><span class="note-h">At rest</span>
+              The recursion starts from $y[-1]=0$. Each new sample needs only the last output and the new input.</div></div>
+          <div class="col stack">
+            <div class="lab-eq eq key" style="padding:14px 20px"></div>
+            <div class="ctrls one">
+              <div class="ctrl"><label>Feedback gain a <span class="val" data-out="a"></span></label>
+                <input type="range" data-v="a" min="-1.2" max="1.2" step="0.1" value="${st.a}"></div>
+              <div class="ctrl"><label>Input
+                <span class="seg">${Object.entries(inputs).map(([k,it])=>
+                  `<button data-seg="inp" data-val="${k}">$${it.tex}$</button>`).join('')}</span></label></div>
+              <div class="ctrl"><label>Cursor n <span class="val" data-out="n"></span></label>
+                <input type="range" data-v="n" min="0" max="${NMAX}" step="1" value="${st.n}"></div>
+            </div>
+            <dl class="readout ro"></dl>
+            <div class="derive stack"></div>
+          </div></div>`);
+      root.addEventListener('input', e=>{ const k=e.target.dataset.v; if(!k) return;
+        st[k] = k==='n' ? Math.round(+e.target.value) : +e.target.value; draw(root); });
+      root.addEventListener('click', e=>{ const b=e.target.closest('[data-seg]'); if(!b) return;
+        st.inp=b.dataset.val; draw(root); RENDER.fit(); });
+      draw(root);
+    }};
+  })();
+
+  return { M:M3M, E, N:NLab, O, T:RecLab };
 })());
