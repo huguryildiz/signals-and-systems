@@ -33,7 +33,9 @@ function realGallery(cfg){
     {t:'cols', ratio:'c-8-4', fill:true, left:[
       {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg])=>
         [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[{t:'legend', items:lg}]:[]))}
-    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+    ], right:(cfg.photos ? [{t:'grid', cols:cfg.photos.length, gap:'12px 14px', items:cfg.photos.map(([k,alt,cap])=>
+        [{t:'fig', svg:()=>`<img class="photo" src="${IMG[k]}" alt="${alt}">`, caption:cap}])}] : [])
+      .concat(cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n))}
   ]};
 }
 
@@ -45,6 +47,7 @@ const REAL_IMPULSE = realGallery({ id:'m3-real-impulse', nav:'Impulse responses 
   title:'Impulse Responses Around Us', eyebrow:'Module 3 · Impulse response', src:'pp. 14–15',
   objective:'Recognise impulse responses in systems students meet every day.',
   keywords:'examples impulse response car suspension pothole RC filter moving average echo',
+  photos:[['m3_pothole','A car wheel dropping into a pothole','A pothole is a short sharp input; the car body answers with its impulse response.']],
   figs:[
     [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-2,4],xlabel:'t\\;(\\text{s})',ylabel:'y(t)\\;(\\text{cm})',xstep:1}));
       a.curve(t=>5*Math.exp(-2*t)*Math.sin(2*Math.PI*t),{color:C.h,n:900});
@@ -68,6 +71,7 @@ const REAL_CONVSUM = realGallery({ id:'m3-real-convsum', nav:'Convolution sums a
   title:'Convolution Sums Around Us', eyebrow:'Module 3 · The convolution sum', src:'pp. 15–17',
   objective:'Recognise an output built from shifted copies of one response.',
   keywords:'examples moving average temperature echo clicks footsteps bridge ECG heartbeat copies',
+  photos:[['m3_footbridge','People walking across a footbridge','Each footstep sets the deck ringing; the motion is the sum of shifted responses.']],
   figs:[
     [()=>{ const x=n=>n<5?10:20;
       const a=P.Axes(EXO({xr:[-1,12],yr:[0,24],xlabel:'n\\;(\\text{day})',ylabel:'y[n]\\;(^{\\circ}\\text{C})',xstep:2}));

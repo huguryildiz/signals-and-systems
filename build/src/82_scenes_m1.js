@@ -19,7 +19,9 @@ function realGallery(cfg){
     {t:'cols', ratio:'c-8-4', fill:true, left:[
       {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,listen])=>
         [Object.assign({t:'fig', frame:true, svg, caption:cap}, listen?{listen}:{})])}
-    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+    ], right:(cfg.photos ? [{t:'grid', cols:cfg.photos.length, gap:'12px 14px', items:cfg.photos.map(([k,alt,cap])=>
+        [{t:'fig', svg:()=>`<img class="photo" src="${IMG[k]}" alt="${alt}">`, caption:cap}])}] : [])
+      .concat(cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n))}
   ]};
 }
 
@@ -51,6 +53,7 @@ const REAL_TRANSFORM = realGallery({ id:'m1-real-transform', nav:'Transformation
   title:'Transformations Around Us', eyebrow:'Module 1 · Signal operations', src:'pp. 3–4',
   objective:'Recognise shift, reversal and scaling in everyday sound and video.',
   keywords:'examples thunder delay echo reverse playback double speed frames decimation',
+  photos:[['m1_thunder','Lightning striking far away over an open field','The flash reaches us at once; the thunder arrives later, the same sound shifted in time.']],
   figs:[
     [()=>{ const g=t=>t<0?NaN:Math.exp(-t/0.4)*Math.sin(2*Math.PI*6*t);
       const a=P.Axes(EXO({xr:[-0.5,5],yr:[-1.3,1.3],xlabel:'t\\;(\\text{s})',ylabel:'p(t)',xstep:1}));
@@ -81,6 +84,7 @@ const REAL_PERIODIC = realGallery({ id:'m1-real-periodic', nav:'Periodic signals
   title:'Periodic Signals Around Us', eyebrow:'Module 1 · Periodicity', src:'p. 5',
   objective:'Show periodicity as a model of signals that repeat in practice.',
   keywords:'examples heartbeat mains tides monthly temperature period',
+  photos:[['m1_tide','Harbour pilings at low tide with waterline bands','The bands on the pilings mark where the tide returns, twice a day.']],
   figs:[
     [()=>{ const a=P.Axes(EXO({xr:[0,3.2],yr:[-0.4,1.5],xlabel:'t\\;(\\text{s})',ylabel:'v(t)\\;(\\text{mV})',xstep:0.8}));
       a.curve(ecgBeat,{color:C.in,n:1400}); a.span(1.1,1.9,1.35,'T\\approx 0.8\\;\\text{s}',{tex:true});
