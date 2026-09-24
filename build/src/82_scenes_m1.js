@@ -1228,14 +1228,19 @@ REAL_TRANSFORM,
   {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
   {t:'title', text:'The Period of a Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const x=t=>Math.cos(2*Math.PI*t/3)+Math.sin(Math.PI*t/2);
-      const a=P.Axes({w:560,h:380,xr:[0,24],yr:[-2.3,2.9],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'T', label:'$T$', min:0.5, max:24, step:0.5, v:12, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      /* the dashed copy is x(t+T); it lies on x(t) only for T = 12, 24 */
+      const T=v?v.T:12, x=t=>Math.cos(2*Math.PI*t/3)+Math.sin(Math.PI*t/2);
+      const a=P.Axes({w:560,h:380,xr:[0,24],yr:[-2.3,3.7],xlabel:'t',ylabel:'x(t)',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:3});
       a.curve(x,{color:C.in,n:2400});
+      a.curve(t=>x(t+T),{color:C.mid,dash:'7 5',n:2400});
       a.vline(12,{color:C.coral,dash:'4 4'});
       a.span(0,12,2.35,'T_0=12',{color:C.coral,tex:true});
       return a.svg(); },
-      caption:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$. The pattern on $[0,12]$ repeats on $[12,24]$, and no shorter piece repeats.'}
+      caption:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$. Drag $T$: the dashed copy $x(t+T)$ lies on $x(t)$ only when $T$ is a multiple of $12$.'},
+    {t:'legend', items:[['in','$x(t)$'],['mid','$x(t+T)$',true]]}
   ], right:[
     {t:'eq', tex:'T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}', label:'A common period',
       note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0$ is the least common multiple of $T_1$ and $T_2$.'},
@@ -1371,15 +1376,19 @@ REAL_TRANSFORM,
   {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
   {t:'title', text:'Products of Even and Odd Signals'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const y=t=>t*Math.cos(Math.PI*t);
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'A', label:'$a$', min:0.25, max:2, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      /* the shaded interval is [-a, a]; its signed area is 0 for every a */
+      const A=v?v.A:2, y=t=>t*Math.cos(Math.PI*t);
       const a=P.Axes({w:560,h:380,xr:[-2.2,2.2],yr:[-2.4,2.4],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:5,yticksLeft:true});
-      a.area(y,-2,2,{color:'rgba(106,90,146,.18)'});
+      a.area(y,-A,A,{color:'rgba(106,90,146,.18)'});
+      a.vline(-A,{color:C.coral,dash:'4 4'}); a.vline(A,{color:C.coral,dash:'4 4'});
       a.curve(t=>Math.cos(Math.PI*t),{color:C.in,dash:'6 5',n:1200});
       a.curve(t=>t,{color:C.h,dash:'6 5',n:400});
       a.curve(y,{color:C.mid,n:1600});
       return a.svg(); },
-      caption:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Each shaded lobe on $[0,2]$ has a lobe of opposite sign on $[-2,0]$, so the total area is $0$.'},
+      caption:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Drag $a$: each shaded lobe on $[0,a]$ has a lobe of opposite sign on $[-a,0]$, so the area on $[-a,a]$ is always $0$.'},
     {t:'legend', at:'tl', items:[['in','$\\cos(\\pi t)$',true],['h','$t$',true],['mid','$t\\cos(\\pi t)$']]}
   ], right:[
     {t:'eq', tex:'y(-t)=x_e(-t)\\,x_o(-t)=x_e(t)\\bigl(-x_o(t)\\bigr)=-y(t)', label:'Even $\\times$ odd is odd',
