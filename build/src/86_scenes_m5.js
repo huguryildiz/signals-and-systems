@@ -19,6 +19,15 @@ const rectFT = (w,T1)=> 2*T1*sincU(w*T1);
 const aSq = (k,T,T1)=> k===0 ? 2*T1/T : Math.sin(2*PI*k*T1/T)/(PI*k);
 /* the ideal low-pass pair, the other way round */
 const lpfTime = (t,W)=> (W/PI)*sincU(W*t);
+/* the sine integral Si(x), the integral of sin(u)/u from 0 to x: Simpson's
+   rule near the origin, the asymptotic series beyond x = 12 */
+const Si = x=>{
+  if(x<0) return -Si(-x);
+  if(x>12){ const x2=x*x;
+    return PI/2-Math.cos(x)/x*(1-2/x2+24/(x2*x2))-Math.sin(x)/x2*(1-6/x2+120/(x2*x2)); }
+  const n=80, h=x/n; let s=1+sincU(x);
+  for(let i=1;i<n;i++) s+=(i%2?4:2)*sincU(i*h);
+  return s*h/3; };
 
 const cl = u=>Math.max(0,Math.min(1,u));
 /* a group drawn at an opacity: the faint given signal on a sketch slide, or a
@@ -307,6 +316,38 @@ const SC = [
       {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{-2t}u(t)$.<div class="nsep"></div>Which conditions does it meet?',
         ask:{key:'m5-exist', choices:['A only','B only','both'], answer:2,
           why:'Its area is $1/2$ and its energy is $1/4$. Both are finite.'}}]}
+  ]}
+]},
+
+{ id:'m5-gibbs', module:'M5', nav:'Convergence at a jump', title:'Convergence at a Jump', src:'p. 44',
+  objective:'Show what the synthesis integral gives at a jump when it is cut off at a band edge W.',
+  keywords:'gibbs phenomenon convergence jump discontinuity midpoint overshoot 1.09 truncated synthesis integral ripples energy of the error', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · From series to transform', src:'p. 44'},
+  {t:'title', text:'Convergence at a Jump'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'W', label:'$W$', min:4, max:60, step:1, v:12, show:v=>'$'+v+'$ rad/s'}]},
+      svg:v=>{
+      const W=v?v.W:12;
+      const a=AX({xr:[-2.5,2.5],yr:[-0.3,1.45],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[0,0.5,1],xtarget:6});
+      a.hline(1.0895,{color:C.coral});
+      a.note(-2.4,1.0895,'1.09',{tex:true,fs:15,color:C.coral,dy:-12});
+      a.curve(t=>rectp(t,1),{color:C.in,dash:'9 6',n:2400});
+      a.curve(t=>(Si(W*(t+1))-Si(W*(t-1)))/PI,{color:C.out,n:3000});
+      return a.svg(); },
+      caption:'Raise $W$: the ripples crowd toward the jumps at $t=\\pm1$, and the first peak stays near $1.09$.'},
+    {t:'legend', items:[['in','$x(t)$',true],['out','$x_W(t)$']]}
+  ], right:[
+    {t:'eq', tex:'x_W(t)=\\frac{1}{2\\pi}\\int_{-W}^{W}\\frac{2\\sin\\omega}{\\omega}\\,e^{j\\omega t}\\,\\d\\omega', label:'Cut the synthesis integral',
+      note:'$x(t)=1$ for $|t|<1$ and $0$ elsewhere, so $X(j\\omega)=2\\sin\\omega/\\omega$. Only the band $|\\omega|<W$ is kept.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'What converges', html:'As $W\\to\\infty$, $x_W(t)\\to x(t)$ at every $t$ except $t=\\pm1$. At a jump it tends to $\\tfrac12$, the midpoint of the jump. The energy of the error $x-x_W$ tends to $0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'The overshoot does not shrink', html:'Near each jump, the first peak stays at about $1.09$ for every $W$. A larger $W$ only moves the peak closer to the jump, about $\\pi/W$ away. Partial sums of a Fourier series behave the same way.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The band edge is raised from $W=20$ to $W=200$ rad/s.<div class="nsep"></div>What is the highest value of $x_W(t)$ now?',
+        ask:{key:'m5-gibbs', choices:['about $1.09$','about $1.009$','exactly $1$'], answer:0,
+          why:'The height of the peak does not depend on $W$; only its distance from the jump shrinks.'}}]}
   ]}
 ]},
 
@@ -1160,6 +1201,37 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
   ]}
 ]},
 
+{ id:'m5-step', module:'M5', nav:'Worked example · the unit step', title:'Transform of the Unit Step', src:'p. 53',
+  objective:'Derive the transform of the unit step from the sign function and its mean.',
+  keywords:'unit step transform sign function sgn mean one half pi delta 1 over j omega limit e^{-a|t|} odd', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Properties', src:'p. 53'},
+  {t:'title', text:'Transform of the Unit Step'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'a', label:'$a$', min:0.05, max:2, step:0.05, v:0.5, show:v=>'$'+(Math.round(v*100)/100)+'$'}]},
+      svg:v=>{
+      const av=v?v.a:0.5;
+      const a=AX({xr:[-6,6],yr:[-1.5,2.1],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[-1,1],xtarget:7});
+      a.curve(t=>Math.sign(t),{color:C.mid,dash:'9 6',n:2400});
+      a.curve(t=>Math.exp(-av*Math.abs(t))*Math.sign(t),{color:C.in,n:2400});
+      return a.svg(); },
+      caption:'Lower $a$: $e^{-a|t|}\\operatorname{sgn}(t)$ approaches $\\operatorname{sgn}(t)$, which is $1$ for $t>0$ and $-1$ for $t<0$.'},
+    {t:'legend', at:'tl', items:[['in','$e^{-a|t|}\\operatorname{sgn}(t)$'],['mid','$\\operatorname{sgn}(t)$',true]]}
+  ], right:[
+    {t:'eq', tex:'e^{-a|t|}\\operatorname{sgn}(t)\\;\\longleftrightarrow\\;\\frac{1}{a+j\\omega}-\\frac{1}{a-j\\omega}=\\frac{-2j\\omega}{a^{2}+\\omega^{2}}\\;\\xrightarrow{\\;a\\to0\\;}\\;\\frac{2}{j\\omega}', label:'Step 1 · The sign function',
+      note:'Split the analysis integral at $t=0$ and use $e^{-at}u(t)\\leftrightarrow1/(a+j\\omega)$ on each side. At $\\omega=0$ the value is $0$ for every $a$, so no impulse appears.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'u(t)=\\underbrace{\\tfrac12}_{\\text{mean}}+\\underbrace{\\tfrac12\\operatorname{sgn}(t)}_{\\text{odd part}}\\;\\longleftrightarrow\\;\\pi\\delta(\\omega)+\\frac{1}{j\\omega}', label:'Step 2 · Add the mean',
+        note:'The constant $\\tfrac12$ gives $\\tfrac12\\cdot2\\pi\\delta(\\omega)$. The odd part gives $\\tfrac12\\cdot2/(j\\omega)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Check', html:'$\\d u/\\d t=\\delta(t)$, whose transform is $1$. Differentiation multiplies by $j\\omega$: $j\\omega\\cdot\\dfrac{1}{j\\omega}=1$, and $\\omega\\,\\delta(\\omega)=0$ removes the impulse.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$u(-t)=\\tfrac12-\\tfrac12\\operatorname{sgn}(t)$.<div class="nsep"></div>What is its transform?',
+        ask:{key:'m5-step', choices:['$\\pi\\delta(\\omega)-\\dfrac{1}{j\\omega}$','$-\\pi\\delta(\\omega)+\\dfrac{1}{j\\omega}$','$\\dfrac{1}{j\\omega}$'], answer:0,
+          why:'The mean is still $\\tfrac12$; only the odd part changes sign.'}}]}
+  ]}
+]},
+
 { id:'m5-props-int', module:'M5', nav:'Properties · integration', title:'Integration in Time', src:'p. 53',
   objective:'State the integration property with its impulse term and show where the term comes from.',
   keywords:'integration property running integral impulse at origin pi X(0) delta omega dc term area zero mean', slide:true, steps:3, blocks:[
@@ -1189,6 +1261,37 @@ codeScene({ id:'m5-code-periodic', nav:'Periodic signals', title:'Line Spectra i
       {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ on $0<t<2$ and $0$ elsewhere.<div class="nsep"></div>What weight does the impulse term carry?',
         ask:{key:'m5-props-int', choices:['$2\\pi$','$\\pi$','$0$'], answer:0,
           why:'$X(0)=2$, the area, so $\\pi X(0)=2\\pi$.'}}]}
+  ]}
+]},
+
+{ id:'m5-props-deriv-ex', module:'M5', nav:'Worked example · transform by differentiation', title:'Transform by Differentiation', src:'p. 53',
+  objective:'Find the transform of a trapezoid by differentiating it into two pulses.',
+  keywords:'worked example trapezoid differentiate pulses integration property G(0) area 3 piecewise linear', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Worked example', src:'p. 53'},
+  {t:'title', text:'Transform by Differentiation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$: a trapezoid','$g(t)=\\d x/\\d t$: two pulses']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-3,3],yr:[-1.5,2.1],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',yticksOverride:[-1,1],xtarget:7});
+      const x=t=>{ const u=Math.abs(t); return u<1?1:(u<2?2-u:0); };
+      const g=t=>[-2,-1,1,2].some(c=>Math.abs(t-c)<0.004)?NaN:((t>-2&&t<-1)?1:((t>1&&t<2)?-1:0));
+      fade(a,1-f,()=>a.curve(x,{color:C.in,n:2400}));
+      fade(a,f,()=>{ a.curve(x,{color:C.in,dash:'9 6',n:2400}); a.curve(g,{color:C.mid,n:3000}); });
+      return a.svg(); },
+      caption:'The ramps become pulses of height $\\pm1$; the flat parts become $0$. Pulses have a known transform.'},
+    {t:'legend', items:[['in','$x(t)$'],['mid','$g(t)$']]}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $|t|\\le1$, $2-|t|$ for $1<|t|<2$, $0$ elsewhere. Find $X(j\\omega)$.<div class="nsep"></div>What is $G(j0)$, the area of $g$?',
+      ask:{key:'m5-props-deriv-ex', choices:['$0$','$3$','$2$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Differentiate: $g=1$ on $(-2,-1)$ and $-1$ on $(1,2)$.</li><li>Transform $g$ with the unit-width pulse $\\leftrightarrow2\\sin(\\omega/2)/\\omega$ and the time shift.</li><li>Integrate back: $X=G/(j\\omega)+\\pi G(0)\\delta(\\omega)$, and $G(0)=0$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\begin{aligned}G(j\\omega)&=\\bigl(e^{j1.5\\omega}-e^{-j1.5\\omega}\\bigr)\\frac{2\\sin(\\omega/2)}{\\omega}=\\frac{4j\\sin(1.5\\omega)\\sin(\\omega/2)}{\\omega}\\\\X(j\\omega)&=\\frac{G(j\\omega)}{j\\omega}=\\frac{4\\sin(1.5\\omega)\\sin(\\omega/2)}{\\omega^{2}}\\end{aligned}', label:'Solution',
+        note:'The pulse centred at $-1.5$ carries $e^{j1.5\\omega}$, the one at $1.5$ carries $-e^{-j1.5\\omega}$, and $e^{j\\theta}-e^{-j\\theta}=2j\\sin\\theta$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Check', html:'For small $\\omega$, $\\sin(1.5\\omega)\\approx1.5\\omega$ and $\\sin(\\omega/2)\\approx\\omega/2$, so $X(j0)=4\\cdot1.5\\cdot0.5=3$. The trapezoid has area $\\tfrac12(2+4)\\cdot1=3$. $X$ is real and even, as $x$ is.'}]}
   ]}
 ]},
 
@@ -1492,6 +1595,36 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
   ]}
 ]},
 
+{ id:'m5-systems', module:'M5', nav:'Three simple systems', title:'Delay, Differentiator, Integrator', src:'p. 56',
+  objective:'Read the frequency response of a delay, a differentiator and an integrator from the properties.',
+  keywords:'frequency response delay differentiator integrator e^{-j omega t0} j omega 1 over j omega magnitude high frequencies noise', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 5 · Convolution and multiplication', src:'p. 56'},
+  {t:'title', text:'Delay, Differentiator, Integrator'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['delay: $|H(j\\omega)|=1$','differentiator: $|H(j\\omega)|=|\\omega|$','integrator: $|H(j\\omega)|=1/|\\omega|$ and $\\pi\\delta(\\omega)$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const a=AX({xr:[-4,4],yr:[-0.2,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',yticksOverride:[1,2,3,4],xtarget:9});
+      const o=k=>1-cl(Math.abs(f-k));
+      fade(a,o(0),()=>a.curve(()=>1,{color:C.h,n:400}));
+      fade(a,o(1),()=>a.curve(w=>Math.abs(w),{color:C.h,n:1200}));
+      fade(a,o(2),()=>{ a.curve(w=>Math.abs(w)<0.02?NaN:1/Math.abs(w),{color:C.h,n:4000});
+        a.impulse(0,PI,{color:C.h,label:false}); });
+      return a.svg(); },
+      caption:'The delay passes every frequency at gain $1$. The differentiator lifts high frequencies; the integrator lifts low ones and has an impulse of weight $\\pi$ at $\\omega=0$.'}
+  ], right:[
+    {t:'eq', tex:'\\begin{aligned}y(t)&=x(t-t_0)&&\\longleftrightarrow\\quad H(j\\omega)=e^{-j\\omega t_0}\\\\ y(t)&=\\frac{\\d x}{\\d t}&&\\longleftrightarrow\\quad H(j\\omega)=j\\omega\\\\ y(t)&=\\int_{-\\infty}^{t}x(\\tau)\\,\\d\\tau&&\\longleftrightarrow\\quad H(j\\omega)=\\frac{1}{j\\omega}+\\pi\\delta(\\omega)\\end{aligned}', label:'Read H from a property',
+      note:'Each system is one operation of this module: a shift, a derivative, a running integral. Its property gives $Y=HX$ directly.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'warn', head:'What the magnitude says', html:'A delay changes only the phase, by $-\\omega t_0$. A differentiator multiplies each frequency by $|\\omega|$, so it also amplifies high-frequency noise. An integrator does the opposite.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(2t)$ is the input of the differentiator.<div class="nsep"></div>What is the amplitude of the output?',
+        ask:{key:'m5-systems', choices:['$2$','$1$','$0.5$'], answer:0,
+          why:'$|H(j2)|=|j2|=2$; the output is $-2\\sin(2t)$.'}}]}
+  ]}
+]},
+
 { id:'m5-conv-ex', module:'M5', nav:'Worked example · two exponentials', title:'Convolution of Two Exponentials', src:'p. 57',
   objective:'Solve an LTI problem by transform and partial fractions, and check the peak.',
   keywords:'worked example LTI two exponentials partial fractions cover-up peak log 2 quarter', slide:true, steps:3, blocks:[
@@ -1737,6 +1870,81 @@ codeScene({ id:'m5-code-props', nav:'Properties', title:'Properties in Code', sr
       {t:'eq', key:true, tex:'Z(j\\omega)=\\begin{cases}1,&|\\omega|\\le\\pi\\\\0.5,&3\\pi\\le|\\omega|\\le5\\pi\\\\0,&\\text{elsewhere}\\end{cases}', label:'Solution'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'warn', head:'Copies and overlap are different events', html:'Copies appear at every carrier and do no harm. Overlap happens only when the carrier is low enough for the copies to meet; once added, they cannot be separated. Sampling raises the same question.'}]}
+  ]}
+]},
+
+{ id:'m5-demod', module:'M5', nav:'Synchronous demodulation', title:'Synchronous Demodulation', src:'p. 60',
+  objective:'Recover a modulated message by a second multiplication and a low-pass filter.',
+  keywords:'demodulation synchronous receiver cos squared half message copies at 2 omega_c low-pass gain 2 cutoff carrier phase', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Convolution and multiplication', src:'p. 60'},
+  {t:'title', text:'Synchronous Demodulation'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$Z(j\\omega)$ at the receiver','$Y(j\\omega)$ after the second multiplication','the low-pass filter returns $X(j\\omega)$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const a=AX({xr:[-46,46],yr:[-0.15,2.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1,2],xtarget:9});
+      const tri=(w,c,h)=>h*Math.max(0,1-Math.abs(w-c)/(2*PI));
+      const Z=w=>tri(w,6*PI,0.5)+tri(w,-6*PI,0.5);
+      const Y=w=>tri(w,0,0.5)+tri(w,12*PI,0.25)+tri(w,-12*PI,0.25);
+      const o=k=>1-cl(Math.abs(f-k));
+      fade(a,o(0),()=>{ a.area(Z,-46,46,{color:C.in+'29',n:1600}); a.curve(Z,{color:C.in,n:4000}); });
+      fade(a,o(1),()=>{ a.area(Y,-46,46,{color:C.mid+'29',n:1600}); a.curve(Y,{color:C.mid,n:4000}); });
+      fade(a,o(2),()=>{ a.curve(Y,{color:C.mid,dash:'9 6',n:4000});
+        a.rect(-4*PI,0,4*PI,2,{stroke:C.h,dash:'7 5',width:2});
+        a.area(w=>tri(w,0,1),-46,46,{color:C.out+'29',n:1600}); a.curve(w=>tri(w,0,1),{color:C.out,n:4000}); });
+      return a.svg(); },
+      caption:'Here $W=2\\pi$ and $\\omega_c=6\\pi$. The copies at $\\pm12\\pi$ lie far outside the filter, a dashed box of gain $2$ on $|\\omega|<4\\pi$.'}
+  ], right:[
+    {t:'eq', tex:'y(t)=z(t)\\cos(\\omega_c t)=x(t)\\cos^{2}(\\omega_c t)=\\tfrac12x(t)+\\tfrac12x(t)\\cos(2\\omega_c t)', label:'Multiply by the carrier again',
+      note:'$z(t)=x(t)\\cos(\\omega_c t)$ arrives, with $X(j\\omega)=0$ for $|\\omega|>W$. Use $\\cos^{2}\\theta=\\tfrac12(1+\\cos2\\theta)$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'Y(j\\omega)=\\tfrac12X(j\\omega)+\\tfrac14X\\bigl(j(\\omega-2\\omega_c)\\bigr)+\\tfrac14X\\bigl(j(\\omega+2\\omega_c)\\bigr)', label:'In frequency',
+        note:'A low-pass filter of gain $2$, with its cutoff between $W$ and $2\\omega_c-W$, keeps $\\tfrac12X$ and returns $x(t)$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Why “synchronous”', html:'The receiver needs the carrier with the right phase. With $\\cos(\\omega_c t+\\phi)$ the filter returns $x(t)\\cos\\phi$, and at $\\phi=\\pi/2$ nothing is left.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$W=3\\pi$ and $\\omega_c=5\\pi$ rad/s.<div class="nsep"></div>What is the highest cutoff the low-pass filter may have?',
+        ask:{key:'m5-demod', choices:['$7\\pi$','$5\\pi$','$3\\pi$'], answer:0,
+          why:'The lower copy begins at $2\\omega_c-W=10\\pi-3\\pi=7\\pi$.'}}]}
+  ]}
+]},
+
+{ id:'m5-tune', module:'M5', nav:'A tunable band-pass filter', title:'A Band-Pass Filter with a Tunable Centre', src:'p. 60',
+  objective:'Build a band-pass filter whose centre moves with one oscillator frequency.',
+  keywords:'tunable band-pass filter variable centre frequency complex exponential shift fixed low-pass oscillator dial', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 5 · Convolution and multiplication', src:'p. 60'},
+  {t:'title', text:'A Band-Pass Filter with a Tunable Centre'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$X(j\\omega)$ and the band near $\\omega_c$','shifted down by $\\omega_c$: the fixed low-pass filter','shifted back: $Y(j\\omega)$']},
+      svg:v=>{
+      const f=v?v.frame:0;
+      const wc=12, w0=3;
+      const a=AX({xr:[-26,26],yr:[-0.15,1.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'\\text{spectrum}',yticksOverride:[0.5,1],xtarget:9});
+      const X=w=>1/(1+Math.pow(w/10,2));
+      const Wf=w=>X(w+wc);
+      const Y=w=>Math.abs(w-wc)<w0?X(w):0;
+      const o=k=>1-cl(Math.abs(f-k));
+      fade(a,o(0),()=>{ a.area(X,wc-w0,wc+w0,{color:C.in+'29',n:600}); a.curve(X,{color:C.in,n:3000}); });
+      fade(a,o(1),()=>{ a.area(Wf,-w0,w0,{color:C.mid+'29',n:600}); a.curve(Wf,{color:C.mid,n:3000});
+        a.rect(-w0,0,w0,1.2,{stroke:C.h,dash:'7 5',width:2}); });
+      fade(a,o(2),()=>{ a.curve(X,{color:C.in,dash:'9 6',n:3000});
+        a.area(Y,-26,26,{color:C.out+'29',n:1600}); a.curve(Y,{color:C.out,n:4000}); });
+      return a.svg(); },
+      caption:'Here $\\omega_c=12$ and $\\omega_0=3$ rad/s. Only the part of $X$ on $9<\\omega<15$ reaches the output.'}
+  ], right:[
+    {t:'eq', tex:'x(t)\\;\\xrightarrow{\\;\\times\\,e^{-j\\omega_c t}\\;}\\;\\boxed{H_{\\text{lp}}}\\;\\xrightarrow{\\;\\times\\,e^{j\\omega_c t}\\;}\\;y(t)', label:'The system',
+      note:'$H_{\\text{lp}}$ is a fixed ideal low-pass filter: gain $1$ for $|\\omega|<\\omega_0$. Only the oscillator frequency $\\omega_c$ is turned.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}&\\text{shift down:}&&X\\bigl(j(\\omega+\\omega_c)\\bigr)\\\\&\\text{filter:}&&H_{\\text{lp}}(j\\omega)\\,X\\bigl(j(\\omega+\\omega_c)\\bigr)\\\\&\\text{shift back:}&&Y(j\\omega)=H_{\\text{lp}}\\bigl(j(\\omega-\\omega_c)\\bigr)\\,X(j\\omega)\\end{aligned}', label:'Follow the spectrum',
+        note:'Each multiplication by $e^{\\pm j\\omega_c t}$ is a frequency shift. Overall, $Y=X$ on $|\\omega-\\omega_c|<\\omega_0$ and $0$ elsewhere.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'One band only', html:'The band near $-\\omega_c$ is not passed. So $Y$ is not conjugate-symmetric, and $y(t)$ is complex even when $x(t)$ is real.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$\\omega_0=1$ rad/s, and the oscillator is set to $\\omega_c=8$ rad/s.<div class="nsep"></div>Which band passes?',
+        ask:{key:'m5-tune', choices:['$7<\\omega<9$','$-1<\\omega<1$','$8<\\omega<9$'], answer:0,
+          why:'The pass band is $|\\omega-\\omega_c|<\\omega_0$: centred at $8$, of width $2$.'}}]}
   ]}
 ]},
 
