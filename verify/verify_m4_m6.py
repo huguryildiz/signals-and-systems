@@ -876,6 +876,69 @@ chk("M5 diffeq-b2: direct convolution of e^{-t} with h matches at t=1.5",
 chk("M5 real-diffeq: thermometer 20 + 17 -> 37; coffee 20 + 60 = 80 at n=0",
     20 + 17 == 37 and 20 + 60*0.9**0 == 80)
 
+# 5.1, 5.4, 5.5 scenes added from the textbook: gibbs, step, props-deriv-ex,
+# systems, demod, tune
+_xW = lambda t, W: float((_mp.si(W*(t + 1)) - _mp.si(W*(t - 1)))/_mp.pi)
+def _xWpeak(W):
+    ts_ = np.linspace(1 - 3*_pi/W, 1, 4001)
+    v = np.array([_xW(t, W) for t in ts_]); i = int(np.argmax(v))
+    return v[i], ts_[i]
+_g12, _g20, _g200 = _xWpeak(12), _xWpeak(20), _xWpeak(200)
+chk("M5 gibbs: the first peak of x_W is about 1.09 for W = 12, 20 and 200 rad/s",
+    all(abs(pk - 1.09) < 0.01 for pk, _ in (_g12, _g20, _g200)), "%.4f %.4f %.4f" % (_g12[0], _g20[0], _g200[0]))
+chk("M5 gibbs: the peak sits about pi/W before the jump at t = 1 (W = 200)",
+    abs((1 - _g200[1]) - _pi/200) < 0.1*_pi/200, "%.5f vs %.5f" % (1 - _g200[1], _pi/200))
+chk("M5 gibbs: the guide line 1.0895 is 1/2 + Si(pi)/pi", _near(0.5 + float(_mp.si(_mp.pi))/_pi, 1.0895, 5e-5))
+chk("M5 gibbs: at the jump x_W(1) = Si(2W)/pi tends to 1/2",
+    _near(_xW(1, 200), 0.5, 2e-3) and _near(_xW(1, 2000), 0.5, 2e-4))
+_a5, _w5 = 0.5, 1.3
+_sgnft = (_q(lambda t: np.exp(-_a5*t)*np.cos(_w5*t), 0, np.inf) - 1j*_q(lambda t: np.exp(-_a5*t)*np.sin(_w5*t), 0, np.inf)) \
+       - (_q(lambda t: np.exp(_a5*t)*np.cos(_w5*t), -np.inf, 0) - 1j*_q(lambda t: np.exp(_a5*t)*np.sin(_w5*t), -np.inf, 0))
+chk("M5 step: e^{-a|t|}sgn(t) transforms to -2jw/(a^2+w^2) (a = 0.5, w = 1.3)",
+    abs(_sgnft - (-2j*_w5/(_a5**2 + _w5**2))) < 1e-9)
+chk("M5 step: -2jw/(a^2+w^2) tends to 2/(jw) as a -> 0 and is 0 at w = 0",
+    abs(-2j*_w5/(1e-8 + _w5**2) - 2/(1j*_w5)) < 1e-8 and -2j*0/(_a5**2) == 0)
+chk("M5 step: u(-t) = 1/2 - 1/2 sgn(t); e^{at}u(-t) -> 1/(a-jw) tends to -1/(jw)",
+    abs(1/(1e-9 - 1j*_w5) - (-1/(1j*_w5))) < 1e-8)
+_Xtz = lambda w: 3.0 if abs(w) < 1e-12 else 4*np.sin(1.5*w)*np.sin(0.5*w)/w**2
+_xtz = lambda t: 1.0 if abs(t) <= 1 else (2 - abs(t) if abs(t) < 2 else 0.0)
+chk("M5 props-deriv-ex: X(jw) = 4 sin(1.5w) sin(w/2)/w^2 matches the analysis integral at w = 0.8 and 2.1",
+    all(abs(_q(lambda t: _xtz(t)*np.cos(w*t), -2, 2, 4) - _Xtz(w)) < 1e-9 for w in (0.8, 2.1)))
+chk("M5 props-deriv-ex: X(j0) = 4*1.5*0.5 = 3 = trapezoid area; G(j0) = 0",
+    _near(4*1.5*0.5, 3, 1e-12) and _near(_q(_xtz, -2, 2, 4), 3, 1e-10) and _near(1*1 - 1*1, 0, 1e-12)
+    and _near(_Xtz(1e-5), 3, 1e-8))
+_Gtz = lambda w: (np.exp(1.5j*w) - np.exp(-1.5j*w))*2*np.sin(w/2)/w
+chk("M5 props-deriv-ex: G = 4j sin(1.5w) sin(w/2)/w and X = G/(jw) at w = 1.7",
+    abs(_Gtz(1.7) - 4j*np.sin(2.55)*np.sin(0.85)/1.7) < 1e-12 and abs(_Gtz(1.7)/(1j*1.7) - _Xtz(1.7)) < 1e-12)
+_tt5 = np.linspace(0, 3, 7)
+chk("M5 systems: d/dt cos(2t) = -2 sin(2t), amplitude |j2| = 2",
+    abs(1j*2) == 2 and np.allclose(np.gradient(np.cos(2*np.linspace(0, 3, 300001)), np.linspace(0, 3, 300001))[::50000], -2*np.sin(2*_tt5), atol=1e-4))
+chk("M5 systems: the integrator impulse weight is pi = 3.14", _near(_pi, 3.14, 2e-3))
+chk("M5 demod: x cos^2 = x/2 + x/2 cos(2wc t); with a phase phi the baseband term is x cos(phi)/2",
+    np.allclose(np.cos(3*_tt5)**2, 0.5 + 0.5*np.cos(6*_tt5))
+    and np.allclose(np.cos(3*_tt5)*np.cos(3*_tt5 + 0.7), 0.5*np.cos(0.7) + 0.5*np.cos(6*_tt5 + 0.7))
+    and abs(np.cos(_pi/2)) < 1e-15)
+chk("M5 demod: W = 2pi, wc = 6pi: copies at +-12pi reach down to 10pi, the cutoff 4pi lies in (2pi, 10pi)",
+    _near(12*_pi - 2*_pi, 10*_pi, 1e-12) and 2*_pi < 4*_pi < 10*_pi)
+chk("M5 demod: W = 3pi, wc = 5pi gives the highest cutoff 2wc - W = 7pi", _near(2*5*_pi - 3*_pi, 7*_pi, 1e-12))
+# the tunable band-pass filter, simulated on a sampled grid: tones at 5, 8.5 and 12 rad/s
+_fs, _N = 200.0, 2**16
+_t = np.arange(_N)/_fs
+_x = np.cos(5*_t) + np.cos(8.5*_t) + np.cos(12*_t)
+def _tune(x, wc, w0):
+    v = x*np.exp(-1j*wc*_t)
+    V = np.fft.fft(v); wg = 2*_pi*np.fft.fftfreq(_N, 1/_fs)
+    V[np.abs(wg) >= w0] = 0
+    return np.fft.ifft(V)*np.exp(1j*wc*_t)
+_y = _tune(_x, 8, 1)
+_Y = np.abs(np.fft.fft(_y))/_N; _wg = 2*_pi*np.fft.fftfreq(_N, 1/_fs)
+_band = lambda lo, hi: _Y[(_wg > lo) & (_wg < hi)].max()
+chk("M5 tune: wc = 8, w0 = 1 passes the tone at 8.5 (in 7..9) and stops 5, 12 and -8.5",
+    _band(8.3, 8.7) > 0.4 and _band(4.8, 5.2) < 0.02 and _band(11.8, 12.2) < 0.02 and _band(-8.7, -8.3) < 0.02,
+    "%.3f %.3f %.3f %.3f" % (_band(8.3, 8.7), _band(4.8, 5.2), _band(11.8, 12.2), _band(-8.7, -8.3)))
+chk("M5 tune: wc = 12, w0 = 3 passes 9 < w < 15", (12 - 3, 12 + 3) == (9, 15))
+chk("M5 tune: the output is complex for a real input", np.max(np.abs(_y.imag)) > 0.1)
+
 # 5.7 quick check and projects
 chk("M5 quick: area 6, |1/(2+j0)| = 0.5, first zero 2pi, weight pi, energy 0.5, 3*2 = 6, 2/2 = 1, 1/2 = 0.5",
     _rft(0, 3) == 6 and abs(1/(2+0j)) == 0.5 and abs(_rft(2*_pi, 0.5)) < 1e-12 and _near(2*_pi*0.5, _pi, 1e-12)
