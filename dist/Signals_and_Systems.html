@@ -30802,9 +30802,9 @@ CONTENT.BOOKICON =
    material; both are short enough that a section level would be an empty
    frame.
 
-   Chapter A exists because `end-synth`, `end-map` and `end-conventions` carry
+   Chapter A exists because `end-synth` and `end-conventions` carry
    `module:'Synthesis'`, which is not in `CONTENT.MODULES`. The contents rail
-   filters on that list, so before this file those three scenes appeared
+   filters on that list, so before this file those scenes appeared
    nowhere in the contents at all. */
 CONTENT.CHAPTERS = [
   { n:'0', module:'M0',        title:'Why signals and systems?',            flat:true },
@@ -31020,7 +31020,7 @@ CONTENT.SECTIONS = {
   ],
 
   Synthesis: [
-    { n:'A', ids:['end-synth','end-map','end-conventions'] }
+    { n:'A', ids:['end-synth','end-conventions'] }
   ]
 };
 
@@ -31313,34 +31313,6 @@ const SC = [
       {t:'note', kind:'warn', head:'Misconceptions to guard against', html:'Confusing energy with power · applying shift and scale in the wrong order · assuming every discrete-time sinusoid is periodic · classifying a system without a formal test · forgetting the flip in convolution · naming the forward transform “synthesis” · dropping the $2\\pi$ from an impulse weight · drawing a discrete-time spectrum over one period only · reading replication and aliasing as one event.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'ok', head:'Central result', html:'One impulse response completely describes a linear time-invariant system. Compute its output by convolving with $h$ in time or by multiplying by $H$ in frequency. Fourier series and transforms provide the frequency representation, while the sampling theorem states when discrete samples preserve it.'}]}
-  ]}
-]},
-
-{ id:'end-map', module:'Synthesis', nav:'Contributions of each module', title:'Contributions of each module', src:'pp. 2–88',
-  objective:'Name the one thing each module contributes and the equation that carries it.',
-  keywords:'course map modules summary equations laboratories practice questions', steps:1, blocks:[
-  {t:'eyebrow', text:'Synthesis · Modules 0–7', src:'pp. 2–88'},
-  {t:'title', text:'Contributions of Each Module'},
-  {t:'cols', ratio:'c-6-6', left:[
-    {t:'wex', rows:[
-        ['Module 0','The purpose, structure, and notation of the course.'],
-      ['Module 1','A signal is a function. Energy against power, transformations of the independent variable, impulses, and the complex exponential family.'],
-        ['Module 2','A system maps input signals to output signals. Each property is established by a proof or disproved by one counterexample.'],
-      ['Module 3','Linear and time invariant together give $y=x*h$. One function describes the system; one operation computes the output.']
-    ]},
-    {t:'reveal', at:1, items:[
-      {t:'wex', rows:[
-        ['Module 4','A periodic signal is a sum of harmonics, and an exponential passes through an LTI system unchanged: $a_k\\to a_kH(jk\\omega_0)$.'],
-        ['Module 5','An aperiodic signal is an integral of exponentials: $X(j\\omega)=\\int x(t)e^{-j\\omega t}\\d t$, and convolution becomes a product.'],
-        ['Module 6','The same construction in discrete time, where the spectrum is $2\\pi$-periodic because the time index is an integer.'],
-        ['Module 7','Sampling replicates a spectrum. Whether the copies overlap is decided by $\\omega_s-2\\omega_M$, and that number decides whether the signal survives.']
-      ]}]}
-  ], right:[
-    {t:'sub', text:'Where the practice sits'},
-    {t:'body', html:`<p>The twelve laboratories, each named after the section it closes, let one parameter vary while linked plots and numerical readouts show the result. They cover signal transformations, even and odd parts, the sifting property of the impulse, system properties, convolution, harmonic approximation, filtering, modulation, and sampling.</p>
-      <p>Every module from 1 to 7 ends with thirty open-ended questions. The last ten are multi-part problems. Work each question on paper before opening its solution, then compare both the calculation and its independent check.</p>`},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'How to practise', html:'Use a laboratory first to connect each control with its plotted effect. Then close the solution panels and answer the module questions. The laboratory shows the behaviour; the questions test whether you can predict it.'}]}
   ]}
 ]},
 

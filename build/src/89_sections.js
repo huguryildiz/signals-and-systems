@@ -49,9 +49,9 @@ CONTENT.BOOKICON =
    material; both are short enough that a section level would be an empty
    frame.
 
-   Chapter A exists because `end-synth`, `end-map` and `end-conventions` carry
+   Chapter A exists because `end-synth` and `end-conventions` carry
    `module:'Synthesis'`, which is not in `CONTENT.MODULES`. The contents rail
-   filters on that list, so before this file those three scenes appeared
+   filters on that list, so before this file those scenes appeared
    nowhere in the contents at all. */
 CONTENT.CHAPTERS = [
   { n:'0', module:'M0',        title:'Why signals and systems?',            flat:true },
@@ -267,7 +267,7 @@ CONTENT.SECTIONS = {
   ],
 
   Synthesis: [
-    { n:'A', ids:['end-synth','end-map','end-conventions'] }
+    { n:'A', ids:['end-synth','end-conventions'] }
   ]
 };
 
