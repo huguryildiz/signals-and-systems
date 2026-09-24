@@ -70,7 +70,9 @@ function realGallery(cfg){
     {t:'cols', ratio:'c-8-4', fill:true, left:[
       {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg])=>
         [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[{t:'legend', items:lg}]:[]))}
-    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+    ], right:(cfg.photos ? [{t:'grid', cols:cfg.photos.length, gap:'12px 14px', items:cfg.photos.map(([k,alt,cap])=>
+        [{t:'fig', svg:()=>`<img class="photo" src="${IMG[k]}" alt="${alt}">`, caption:cap}])}] : [])
+      .concat(cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n))}
   ]};
 }
 /* a laboratory scene: the title, then the laboratory itself */
@@ -611,6 +613,7 @@ realGallery({ id:'m4-real-harmonics', nav:'Harmonics around us',
   title:'Harmonics Around Us', eyebrow:'Module 4 · Synthesis and analysis', src:'pp. 26–29',
   objective:'See periodic everyday signals as sums of harmonics of one fundamental.',
   keywords:'examples guitar string rectifier current monthly temperature electricity demand harmonics fundamental period',
+  photos:[['m4_string','A finger plucking an acoustic guitar string','A plucked string vibrates at its fundamental and at whole multiples of it.']],
   figs:[
     [()=>{ const a=P.Axes(EXO({xr:[0,30],yr:[-2,2.3],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
       a.curve(t=>Math.sin(2*Math.PI*0.11*t)+0.5*Math.sin(2*Math.PI*0.22*t)+0.3*Math.sin(2*Math.PI*0.33*t),{color:C.in,n:1500});
@@ -879,6 +882,7 @@ realGallery({ id:'m4-real-series', nav:'Fourier series around us',
   title:'Fourier Series Around Us', eyebrow:'Module 4 · Series worked out', src:'pp. 29–31',
   objective:'Recognise pulse waves, ramps and impulse trains in everyday devices.',
   keywords:'examples LED dimming pulse width oscilloscope sweep sawtooth metronome clicks impulse train turn signal',
+  photos:[['m4_led','An LED strip glowing dimly under a kitchen shelf','A dimmed LED is switched on and off faster than the eye can follow.']],
   figs:[
     [()=>{ const a=P.Axes(EXO({xr:[0,4],yr:[-0.5,6.5],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:1}));
       a.curve(t=>{ const u=t-Math.floor(t); return u<0.25?5:0; },{color:C.in,n:2400});

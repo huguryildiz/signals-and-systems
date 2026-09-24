@@ -25,7 +25,9 @@ function realGallery(cfg){
     {t:'cols', ratio:'c-8-4', fill:true, left:[
       {t:'grid', cols:2, gap:'18px 22px', items:cfg.figs.map(([svg,cap,lg])=>
         [{t:'fig', frame:true, svg, caption:cap}].concat(lg?[{t:'legend', items:lg}]:[]))}
-    ], right:cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n)}
+    ], right:(cfg.photos ? [{t:'grid', cols:cfg.photos.length, gap:'12px 14px', items:cfg.photos.map(([k,alt,cap])=>
+        [{t:'fig', svg:()=>`<img class="photo" src="${IMG[k]}" alt="${alt}">`, caption:cap}])}] : [])
+      .concat(cfg.notes.map((n,i)=>i ? {t:'reveal', at:i, items:[n]} : n))}
   ]};
 }
 
@@ -33,6 +35,7 @@ const REAL_SYSTEMS = realGallery({ id:'m2-real-systems', nav:'Systems around us'
   title:'Systems Around Us', eyebrow:'Module 2 · Systems in practice', src:'pp. 11–14',
   objective:'Attach the six properties to systems students meet every day.',
   keywords:'examples RC circuit overdrive clipping savings account echo memory linear stable',
+  photos:[['m2_rc','A resistor and a capacitor on a breadboard with a probe','An RC circuit remembers its past through the capacitor.'],['m2_overdrive','A guitar overdrive pedal on a stage floor','An overdrive pedal clips the guitar signal at each instant.']],
   figs:[
     [()=>{ const a=P.Axes(EXO({xr:[-1,5],yr:[-0.8,9],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:1}));
       a.curve(t=>t>=0?5:0,{color:C.in,dash:'9 6'});
