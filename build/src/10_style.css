@@ -1261,7 +1261,8 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
   background:var(--paper-2); border:1px solid var(--rule-strong); white-space:nowrap; }
 .dr-count .dr-n{ color:var(--coral); font-weight:600; font-size:1.2em; margin:0 2px; }
 /* the number is a field the reader can type a question number into */
-.dr-count input.dr-n{ font-family:inherit; letter-spacing:inherit; width:2.4ch; padding:1px 3px;
+.dr-count input.dr-n{ font-family:inherit; letter-spacing:inherit; box-sizing:content-box;
+  width:calc(2ch + .24em); padding:1px 5px;
   text-align:center; background:var(--paper); border:1px solid var(--rule-strong); border-radius:6px;
   -moz-appearance:textfield; appearance:textfield; cursor:text; }
 .dr-count input.dr-n::-webkit-inner-spin-button,
