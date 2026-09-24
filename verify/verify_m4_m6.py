@@ -458,6 +458,52 @@ chk("M4 real-lti: two-point average of 3 cos(pi n/2) gives 2.12 at -pi/4",
 chk("M4 real-lti: first difference of 10 cos(2 pi n/7) gives 8.68 at 5 pi/14",
     _near(10*abs(_Hd(2*_pi/7)), 8.68, 5e-3) and _near(np.angle(_Hd(2*_pi/7)), 5*_pi/14, 1e-12))
 
+# 4.2 cosine and sine forms of a real signal
+_ttr = np.linspace(0, 4, 4001)
+_a1t = 0.4 + 0.3j
+chk("M4 trig: a_1 = 0.4 + j0.3 gives A_1 = 0.5, theta_1 = 0.644, and 2B cos - 2C sin = 2A cos(. + theta)",
+    _near(abs(_a1t), 0.5, 1e-12) and _near(np.angle(_a1t), 0.644)
+    and np.allclose(0.8*np.cos(_pi*_ttr) - 0.6*np.sin(_pi*_ttr), np.cos(_pi*_ttr + np.angle(_a1t)))
+    and np.allclose(2*(_a1t*np.exp(1j*_pi*_ttr)).real, np.cos(_pi*_ttr + np.angle(_a1t))))
+_xt = (1-1j)*np.exp(1j*_pi*_ttr) + (1+1j)*np.exp(-1j*_pi*_ttr)
+chk("M4 trig: a_1 = 1 - j, a_-1 = 1 + j gives 2 cos(pi t) + 2 sin(pi t)",
+    np.max(np.abs(_xt.imag)) < 1e-12 and np.allclose(_xt.real, 2*np.cos(_pi*_ttr) + 2*np.sin(_pi*_ttr)))
+
+# 4.6 ideal low-pass, frequency shaping, recursive filter
+_tid = np.linspace(-2, 2, 8001)
+_yid = sum(_aq(k)*np.exp(1j*k*_pi*_tid) for k in range(-3, 4)).real
+chk("M4 ideal: cutoff 3.5 pi on the T0 = 2 rectangular wave gives 1/2 + (2/pi) cos pi t - (2/(3 pi)) cos 3 pi t",
+    np.allclose(_yid, 0.5 + 2/_pi*np.cos(_pi*_tid) - 2/(3*_pi)*np.cos(3*_pi*_tid)))
+_kept = [k for k in range(1, 20) if k*_pi < 2.5*_pi and abs(_aq(k)) > 1e-12]
+chk("M4 ideal: cutoff 2.5 pi leaves one cosine besides the constant", _kept == [1], str(_kept))
+_ts = sp.symbols('t', real=True)
+chk("M4 shaping: d/dt [cos t + cos(3t)/9] = -sin t - sin(3t)/3",
+    sp.simplify(sp.diff(sp.cos(_ts) + sp.cos(3*_ts)/9, _ts) - (-sp.sin(_ts) - sp.sin(3*_ts)/3)) == 0)
+chk("M4 shaping: differentiator gain 4 pi / 2 pi = 2 for cos 2 pi t + cos 4 pi t",
+    _near(abs(1j*4*_pi)/abs(1j*2*_pi), 2, 1e-12))
+_Hr = lambda w, a: 1/(1 - a*np.exp(-1j*w))
+_wr = np.linspace(-_pi, _pi, 721)
+chk("M4 dt-rec: |H| for a = -0.6 is |H| for a = 0.6 mirrored about pi/2",
+    np.allclose(np.abs(_Hr(_wr, -0.6)), np.abs(_Hr(_pi - _wr, 0.6))))
+chk("M4 dt-rec: a = 0.5 gives |H(e^{j pi})| = 2/3", _near(abs(_Hr(_pi, 0.5)), 2/3, 1e-12))
+chk("M4 dt-rec: H(1) = 1/(1-a) and H(-1) = 1/(1+a)",
+    _near(_Hr(0, 0.6), 2.5, 1e-12) and _near(_Hr(_pi, 0.6), 0.625, 1e-12))
+_brec = [_ad[k]*_Hr(k*_pi/2, 0.5) for k in range(4)]
+chk("M4 dt-rec-b: gains 2, 1/(1+0.5j), 2/3 and b_0 = 1/2, b_1 = 0.2236 e^{-j0.464}, b_2 = 1/6",
+    _near(_Hr(0, 0.5), 2, 1e-12) and _near(_Hr(_pi/2, 0.5), 1/(1+0.5j), 1e-12) and _near(_Hr(_pi, 0.5), 2/3, 1e-12)
+    and _near(_brec[0], 0.5, 1e-12) and _near(abs(_brec[1]), 0.2236) and _near(np.angle(_brec[1]), -0.464)
+    and _near(_brec[2], 1/6, 1e-12) and _near(abs(1+0.5j), 1.118) and _near(np.arctan(0.5), 0.464))
+_yr = np.zeros(400); _xr = np.tile([1, 0, 0, 0.], 100)
+for _i in range(400):
+    _yr[_i] = _xr[_i] + 0.5*(_yr[_i-1] if _i else 0)
+_nr = np.arange(396, 400)
+chk("M4 dt-rec-c: 1/2 + 0.447 cos(pi n/2 - 0.464) + (1/6)(-1)^n matches the steady-state recursion",
+    np.allclose(_yr[396:], 0.5 + 2*abs(_brec[1])*np.cos(_pi*_nr/2 + np.angle(_brec[1])) + (-1.0)**_nr/6)
+    and _near(2*abs(_brec[1]), 0.447))
+chk("M4 dt-rec-c: y[0] = 16/15 = 1.067 and 0.5 + 0.4 + 0.167 = 1.067",
+    _near(_yr[396], 16/15, 1e-12) and _near(16/15, 1.067) and _near(2*abs(_brec[1])*np.cos(0.464), 0.4)
+    and _near(0.5 + 0.4 + 1/6, 1.067))
+
 # 4.7 quick check and projects
 chk("M4 quick: sqrt2 cos has power 1 and b_3 = 0.4 x 0.5 = 0.2",
     _near(2*(np.sqrt(2)/2)**2, 1, 1e-12) and _near(0.4*0.5, 0.2, 1e-12))

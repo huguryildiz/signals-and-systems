@@ -14697,6 +14697,36 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   ]}
 ]},
 
+{ id:'m4-trig', module:'M4', nav:'Real signals · two real forms', title:'Real Signals: Cosine and Sine Forms', src:'—',
+  objective:'Write the series of a real signal with real functions only, in amplitude–phase form and in cosine–sine form.',
+  keywords:'real signal conjugate symmetry trigonometric form amplitude phase A_k theta_k cosine sine B_k C_k real part', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'—'},
+  {t:'title', text:'Real Signals: Cosine and Sine Forms'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[0,4],yr:[-1.4,2.3],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      a.curve(t=>0.8*Math.cos(Math.PI*t),{color:C.in,dash:'8 5',n:1600});
+      a.curve(t=>-0.6*Math.sin(Math.PI*t),{color:C.mid,dash:'3 5',n:1600});
+      a.curve(t=>Math.cos(Math.PI*t+Math.atan2(0.3,0.4)),{color:C.out,n:1600});
+      return a.svg(); },
+      caption:'$a_1=0.4+j0.3$ with $\\omega_0=\\pi$: $B_1=0.4$, $C_1=0.3$, $A_1=0.5$, $\\theta_1=0.644$ rad. The cosine and the sine add to one cosine of amplitude $2A_1=1$.'},
+    {t:'legend', items:[['in','$2B_1\\cos\\pi t$',true],['mid','$-2C_1\\sin\\pi t$',true],['out','$2A_1\\cos(\\pi t+\\theta_1)$']]}
+  ], right:[
+    {t:'eq', key:true, tex:'x(t)=a_0+\\sum_{k=1}^{\\infty}\\bigl(a_ke^{jk\\omega_0t}+a_k^{*}e^{-jk\\omega_0t}\\bigr)=a_0+2\\sum_{k=1}^{\\infty}\\operatorname{Re}\\bigl\\{a_ke^{jk\\omega_0t}\\bigr\\}', label:'Real signal',
+      note:'For real $x(t)$, $a_{-k}=a_k^{*}$. A number plus its conjugate is twice its real part.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'a_k=A_ke^{j\\theta_k}:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}A_k\\cos\\bigl(k\\omega_0t+\\theta_k\\bigr)', label:'Amplitude–phase form',
+        note:'Each harmonic is one cosine with its own phase.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'a_k=B_k+jC_k:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}\\bigl[B_k\\cos k\\omega_0t-C_k\\sin k\\omega_0t\\bigr]', label:'Cosine–sine form',
+        note:'With $\\phi=k\\omega_0t$, $\\operatorname{Re}\\{(B_k+jC_k)(\\cos\\phi+j\\sin\\phi)\\}=B_k\\cos\\phi-C_k\\sin\\phi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$a_1=1-j$, $a_{-1}=1+j$, every other $a_k=0$, and $\\omega_0=\\pi$.<div class="nsep"></div>Which signal is $x(t)$?',
+        ask:{key:'m4-trig', choices:['$2\\cos\\pi t+2\\sin\\pi t$','$2\\cos\\pi t-2\\sin\\pi t$','$\\cos\\pi t+\\sin\\pi t$'], answer:0,
+          why:'$B_1=1$ and $C_1=-1$, so $2[B_1\\cos\\pi t-C_1\\sin\\pi t]=2\\cos\\pi t+2\\sin\\pi t$.'}}]}
+  ]}
+]},
+
 realGallery({ id:'m4-real-harmonics', nav:'Harmonics around us',
   title:'Harmonics Around Us', eyebrow:'Module 4 · Synthesis and analysis', src:'pp. 26–29',
   objective:'See periodic everyday signals as sums of harmonics of one fundamental.',
@@ -14872,7 +14902,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'What shrinks is the width', html:'The ripple moves into a narrower band around the jump. So the mean-square error still goes to zero while the largest error does not.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Convergence in the mean', html:'For a signal that meets the Dirichlet conditions, the series converges in the mean: $\\text{MSE}\\to0$. It does not promise a small error at every $t$.'}]},
+      {t:'note', kind:'def', head:'Convergence in the mean', html:'If $x(t)$ has finite energy in one period, $\\int_{T_0}|x(t)|^2\\,\\d t<\\infty$, the series converges in the mean: $\\text{MSE}\\to0$. This does not promise a small error at every $t$.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'A square wave jumps from $0$ to $2$.<div class="nsep"></div>About how high does $x_{81}$ reach beside the jump?',
         ask:{key:'m4-howmany-b', choices:['$2.18$','$2.02$','$2.00$'], answer:0,
@@ -15851,6 +15881,79 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   ]}
 ]},
 
+{ id:'m4-ideal', module:'M4', nav:'Ideal low-pass filter', title:'Ideal Frequency-Selective Filtering', src:'—',
+  objective:'Define passband, stopband and cutoff, and see that an ideal low-pass filter returns a partial sum of the input series.',
+  keywords:'ideal low pass filter frequency selective passband stopband cutoff frequency partial sum rectangular wave Gibbs', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Periodic inputs to LTI systems', src:'—'},
+  {t:'title', text:'Ideal Frequency-Selective Filtering'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$H(j\\omega)\\text{ and }|a_k|$','$x(t)\\text{ and }y(t)$']},
+      svg:v=>{
+      const f=v?Math.round(v.frame):0;
+      if(!f){ const a=AX({yticksLeft:true,xr:[-6.6,6.6],yr:[0,1.3],xlabel:'\\omega/\\pi',ylabel:'H(j\\omega),\\ |a_k|',xtarget:13,ytarget:4});
+        a.poly([[-6.6,0],[-3.5,0],[-3.5,1],[3.5,1],[3.5,0],[6.6,0]],{color:C.h});
+        a.stem(D(k=>Math.abs(aq(k)),-3,3),{color:C.out,r:4});
+        a.stem(D(k=>Math.abs(aq(k)),-6,-4).concat(D(k=>Math.abs(aq(k)),4,6)),{color:C.err,r:4});
+        a.note(3.6,1.12,'\\omega_c=3.5\\pi',{anchor:'start',color:C.h,fs:15,tex:true});
+        return a.svg(); }
+      const a=AX({xr:[-2,2],yr:[-0.4,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      a.curve(t=>rectWave(t,2,0.5),{color:C.ink,opacity:.35,dash:'6 5',n:3000});
+      a.curve(t=>0.5+2/Math.PI*Math.cos(Math.PI*t)-2/(3*Math.PI)*Math.cos(3*Math.PI*t),{color:C.out,n:1600});
+      a.note(-1.95,1.25,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(1.95,1.25,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A rectangular wave with $T_0=2$, so $\\omega_0=\\pi$. The cutoff $\\omega_c=3.5\\pi$ keeps $|k|\\le3$ and removes the rest. Step to the output beside the input.'}
+  ], right:[
+    {t:'eq', key:true, tex:'H(j\\omega)=\\begin{cases}1, & |\\omega|<\\omega_c\\\\ 0, & |\\omega|>\\omega_c\\end{cases}', label:'Ideal low-pass filter',
+      note:'$|\\omega|<\\omega_c$ is the passband, the rest is the stopband, and $\\omega_c$ is the cutoff frequency. A real filter can only approach this shape.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'b_k=a_kH(jk\\omega_0)=\\begin{cases}a_k, & |k|\\omega_0<\\omega_c\\\\ 0, & |k|\\omega_0>\\omega_c\\end{cases}', label:'Periodic input',
+        note:'The output is a partial sum of the input series. So beside each jump it shows the Gibbs ripple.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'y(t)=\\frac12+\\frac{2}{\\pi}\\cos\\pi t-\\frac{2}{3\\pi}\\cos3\\pi t', label:'Rectangular wave, $\\omega_c=3.5\\pi$',
+        note:'$a_k=\\sin(k\\pi/2)/(k\\pi)$ passes for $|k|\\le3$, and $a_{\\pm2}=0$. Each pair gives $2a_k\\cos k\\pi t$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The same wave, with the cutoff lowered to $\\omega_c=2.5\\pi$.<div class="nsep"></div>How many cosines does $y(t)$ hold besides its constant?',
+        ask:{key:'m4-ideal', choices:['$1$','$2$','$3$'], answer:0,
+          why:'The passband keeps $|k|\\le2$, and $a_{\\pm2}=0$, so only $\\cos\\pi t$ remains.'}}]}
+  ]}
+]},
+
+{ id:'m4-shaping', module:'M4', nav:'Frequency shaping · differentiator', title:'Frequency-Shaping Filters', src:'—',
+  objective:'Separate frequency shaping from frequency selection, and show how a differentiator raises the high harmonics.',
+  keywords:'frequency shaping filter equaliser equalizer bass treble differentiator j omega harmonics emphasised relative size', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Periodic inputs to LTI systems', src:'—'},
+  {t:'title', text:'Frequency-Shaping Filters'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x(t)$','$y(t)=\\d x/\\d t$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[0,12.6],yr:[-1.6,1.9],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
+      fade(a,1-f,()=>{ a.curve(t=>Math.cos(3*t)/9,{color:C.mid,dash:'3 5',n:1600});
+        a.curve(t=>Math.cos(t)+Math.cos(3*t)/9,{color:C.in,n:1600});
+        a.note(12.4,1.6,'x(t)',{anchor:'end',color:C.in,fs:15,tex:true}); });
+      if(f>0) fade(a,f,()=>{ a.curve(t=>-Math.sin(3*t)/3,{color:C.mid,dash:'3 5',n:1600});
+        a.curve(t=>-Math.sin(t)-Math.sin(3*t)/3,{color:C.out,n:1600});
+        a.note(12.4,1.6,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true}); });
+      return a.svg(); },
+      caption:'The dotted trace is the third harmonic. It is small in $x(t)$ and three times larger, relative to the first, in $y(t)$.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Frequency shaping', html:'A frequency-shaping filter changes the relative size of the harmonics instead of passing or stopping whole bands. An audio equaliser is one: it raises or lowers the bass and the treble.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'H(j\\omega)=j\\omega\\quad\\Rightarrow\\quad b_k=jk\\omega_0\\,a_k', label:'Differentiator',
+        note:'This is the differentiation property. The gain $|k|\\omega_0$ grows with $k$, so the high harmonics are raised.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'x(t)=\\cos t+\\tfrac19\\cos3t\\quad\\Rightarrow\\quad y(t)=-\\sin t-\\tfrac13\\sin3t', label:'Example, $\\omega_0=1$ rad/s',
+        note:'The third harmonic is $\\tfrac19$ of the first at the input and $\\tfrac13$ at the output. The ratio grew by a factor of $3$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos2\\pi t+\\cos4\\pi t$ into $H(j\\omega)=j\\omega$.<div class="nsep"></div>In $y(t)$, how large is the second harmonic next to the first?',
+        ask:{key:'m4-shaping', choices:['Twice as large','Equal','Half as large'], answer:0,
+          why:'$|H|$ is $4\\pi$ at the second harmonic and $2\\pi$ at the first, a ratio of $2$.'}}]}
+  ]}
+]},
+
 { id:'m4-dt-filt', module:'M4', nav:'Worked example · discrete high-pass', title:'Discrete-Time High-Pass Filtering', src:'pp. 40–41',
   objective:'Filter a period-4 impulse train with a two-tap high-pass system.',
   keywords:'discrete filtering two tap first difference impulse train period 4 frequency response high pass', slide:true, steps:3, blocks:[
@@ -15941,6 +16044,97 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       {t:'eq', key:true, tex:'y[n]=0.25+0.354\\cos\\!\\left(\\frac{\\pi}{2}n-\\frac{\\pi}{4}\\right)', label:'Solution'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'ok', head:'Compare', html:'The high-pass system removes $b_0$ and keeps $b_2$. The low-pass system keeps $b_0$ and removes $b_2$. Both responses repeat every $2\\pi$ in $\\omega$.'}]}
+  ]}
+]},
+
+{ id:'m4-dt-rec', module:'M4', nav:'Recursive discrete-time filter', title:'First-Order Recursive Filters', src:'—',
+  objective:'Find the frequency response of y[n] − a y[n−1] = x[n] and read whether it is low-pass or high-pass from the sign of a.',
+  keywords:'recursive filter first order difference equation feedback nonrecursive frequency response 1/(1 - a e^{-j omega}) low pass high pass sign of a', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Periodic inputs to LTI systems', src:'—'},
+  {t:'title', text:'First-Order Recursive Filters'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,3.9],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:4,
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+      const Hm=(w,g)=>1/Math.sqrt(1-2*g*Math.cos(w)+g*g);
+      a.curve(w=>Hm(w,0.6),{color:C.out,n:900});
+      a.curve(w=>Hm(w,-0.6),{color:C.err,dash:'8 5',n:900});
+      return a.svg(); },
+      caption:'$|H(e^{j\\omega})|$ for $a=0.6$ and $a=-0.6$. Each curve is the other one mirrored about $\\omega=\\pi/2$.'},
+    {t:'legend', items:[['out','$a=0.6$'],['err','$a=-0.6$',true]]}
+  ], right:[
+    {t:'eq', key:true, tex:'y[n]-a\\,y[n-1]=x[n],\\qquad |a|<1', label:'Recursive filter',
+      note:'Each output uses the previous output, so the filter is recursive. The two-tap filters used inputs only: they are nonrecursive.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}He^{j\\omega n}-a\\,He^{j\\omega(n-1)}&=e^{j\\omega n}\\\\H\\bigl(1-ae^{-j\\omega}\\bigr)&=1\\\\H(e^{j\\omega})&=\\frac{1}{1-ae^{-j\\omega}}\\end{aligned}', label:'Frequency response',
+        note:'Put in $x[n]=e^{j\\omega n}$ and $y[n]=H(e^{j\\omega})e^{j\\omega n}$, then divide by $e^{j\\omega n}$. With $|a|<1$ the impulse response $a^nu[n]$ is absolutely summable, so the system is stable.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Read the sign of $a$', html:'$H(e^{j0})=\\dfrac{1}{1-a}$ and $H(e^{j\\pi})=\\dfrac{1}{1+a}$. With $a>0$ the gain is largest at $\\omega=0$: low-pass. With $a<0$ it is largest at $\\omega=\\pi$: high-pass.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The filter $y[n]-0.5\\,y[n-1]=x[n]$, so $a=0.5$.<div class="nsep"></div>What is the gain $|H(e^{j\\pi})|$?',
+        ask:{key:'m4-dt-rec', choices:['$\\tfrac23$','$2$','$\\tfrac12$'], answer:0,
+          why:'$H(e^{j\\pi})=1/(1+0.5)=2/3$.'}}]}
+  ]}
+]},
+
+{ id:'m4-dt-rec-b', module:'M4', nav:'Worked example · recursive filter', title:'Recursive Filtering of an Impulse Train', src:'—',
+  objective:'Filter the period-4 impulse train with the recursive filter a = 0.5: gains and output coefficients.',
+  keywords:'recursive filter worked example impulse train period 4 a = 0.5 gains 2 2/3 coefficients b_k', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Worked example', src:'—'},
+  {t:'title', text:'Recursive Filtering of an Impulse Train'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$','$|H(e^{j\\omega})|$']},
+      svg:v=>{
+      const f=v?Math.round(v.frame):0;
+      if(!f){ const a=AX({yticksLeft:true,xr:[-13,13],yr:[-0.2,1.35],xlabel:'n',ylabel:'x[n]',xtarget:9,ytarget:2});
+        a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.in,r:3.2,showZero:true});
+        return a.svg(); }
+      const a=AX({yticksLeft:true,xr:[-Math.PI,Math.PI],yr:[0,2.4],xlabel:'\\omega\\;(\\text{rad/sample})',ylabel:'|H(e^{j\\omega})|',xtarget:5,ytarget:3,
+        xticksOverride:[-Math.PI,-Math.PI/2,Math.PI/2,Math.PI],xtickfmt:v=>v.toFixed(2)});
+      const Hm=w=>1/Math.sqrt(1.25-Math.cos(w));
+      a.curve(Hm,{color:C.h,n:900});
+      [-1,0,1,2].forEach(k=>a.point(k*Math.PI/2,Hm(k*Math.PI/2),{color:C.coral,r:5}));
+      return a.svg(); },
+      caption:'One impulse every four samples. Step to the gain of the filter with $a=0.5$, with the harmonics $k\\omega_0$, $\\omega_0=\\pi/2$, marked.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x[n]=\\sum_{m}\\delta[n-4m]$ into $y[n]-0.5\\,y[n-1]=x[n]$. Find $y[n]$.<div class="nsep"></div>What is the average of $y[n]$?',
+      ask:{key:'m4-dt-rec-b', choices:['$\\tfrac12$','$\\tfrac14$','$2$'], answer:0}},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Take $a_k=\\tfrac14$ and $\\omega_0=\\pi/2$.</li><li>Evaluate $H(e^{jk\\pi/2})$ for $k=0,1,2$.</li><li>Form $b_k=a_kH(e^{jk\\pi/2})$.</li></ol>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'H(e^{j0})=\\frac{1}{1-0.5}=2,\\quad H(e^{j\\pi/2})=\\frac{1}{1+0.5j},\\quad H(e^{j\\pi})=\\frac{1}{1+0.5}=\\tfrac23', label:'Gains at the harmonics',
+        note:'$e^{-j\\pi/2}=-j$, so $1-0.5e^{-j\\pi/2}=1+0.5j$. Also $|1+0.5j|=\\sqrt{1.25}=1.118$ and $\\angle(1+0.5j)=\\arctan0.5=0.464$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'eq', tex:'b_0=\\tfrac12,\\quad b_1=\\frac{1/4}{1+0.5j}=0.2236e^{-j0.464},\\quad b_2=\\tfrac14\\cdot\\tfrac23=\\tfrac16', label:'One product per harmonic',
+        note:'$b_{-1}=b_3=b_1^{*}$, since $x[n]$ and the filter are real.'}]}
+  ]}
+]},
+
+{ id:'m4-dt-rec-c', module:'M4', nav:'Recursive filter · the output', title:'Recursive Filter Output', src:'—',
+  objective:'Assemble the output of the recursive filter and check it against the difference equation.',
+  keywords:'recursive filter output 0.447 cos pi n/2 - 0.464 1/6 (-1)^n check 16/15 tail feedback', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Worked example', src:'—'},
+  {t:'title', text:'Recursive Filter Output'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y[n]$ on the axes, then check it.'}, svg:()=>{
+      const a=AX({yticksLeft:true,xr:[-13,13],yr:[-0.2,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:9,ytarget:4});
+      skArea(a);
+      a.raw('<g opacity=".35">'); a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.ink,r:3}); a.raw('</g>');
+      a.note(-12.6,1.3,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.raw('<g class="sk-key">');
+      a.stem(D(n=>0.5+Math.sqrt(0.2)*Math.cos(Math.PI*n/2-Math.atan(0.5))+Math.pow(-1,n)/6,-12,12),{color:C.out,r:3.4,showZero:true});
+      a.note(12.6,1.3,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.raw('</g>');
+      return a.svg(); },
+      caption:'The faint stems are $x[n]$. Sketch the output of the recursive filter, then show the answer.'}
+  ], right:[
+    {t:'eq', key:true, tex:'y[n]=\\tfrac12+0.447\\cos\\!\\left(\\frac{\\pi}{2}n-0.464\\right)+\\tfrac16(-1)^{n}', label:'Solution',
+      note:'The pair $k=\\pm1$ gives $2|b_1|=0.447$. The term at $k=N/2=2$ enters once, as $b_2(-1)^n$.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'def', head:'Check', html:'Inside one period $y[1]=0.5y[0]$, $y[2]=0.25y[0]$, $y[3]=0.125y[0]$. So $y[0]=1+0.5y[3]=1+0.0625y[0]$, which gives $y[0]=16/15=1.067$. The formula gives $0.5+0.4+0.167=1.067$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'ok', head:'Compare', html:'Each two-tap response ended after two samples. Here every impulse leaves a tail $0.5^{n}$ that reaches into the next period, because the output feeds back.'}]}
   ]}
 ]},
 
@@ -21662,7 +21856,7 @@ CONTENT.SECTIONS = {
         'm4-lab-p','m4-code-eigen'] },
     { n:'4.2', title:'Synthesis and analysis',               ids:[
         'm4-fs-exist','m4-fs-synth','m4-fs-synth-b','m4-period','m4-period-ex','m4-fs-coef',
-        'm4-fs-proof','m4-dc','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
+        'm4-fs-proof','m4-dc','m4-trig','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
     { n:'4.3', title:'Series worked out',                    ids:[
         'm4-rect','m4-rect-b','m4-rect-sample','m4-howmany','m4-howmany-b','m4-saw','m4-saw-b',
         'm4-imptrain','m4-real-series','m4-lab-f','m4-code-series'] },
@@ -21674,8 +21868,8 @@ CONTENT.SECTIONS = {
         'm4-props-conv','m4-props-mult','m4-props-calc','m4-props-dt-calc','m4-parseval',
         'm4-parseval-b','m4-real-props','m4-lab-s','m4-code-props'] },
     { n:'4.6', title:'A periodic input through an LTI system', ids:[
-        'm4-lti','m4-pairing','m4-lpf','m4-lpf-b','m4-hpf','m4-hpf-b','m4-dt-filt','m4-dt-filt-b',
-        'm4-dt-filt-c','m4-real-lti','m4-lab-g','m4-code-lti'] },
+        'm4-lti','m4-pairing','m4-lpf','m4-lpf-b','m4-hpf','m4-hpf-b','m4-ideal','m4-shaping',
+        'm4-dt-filt','m4-dt-filt-b','m4-dt-filt-c','m4-dt-rec','m4-dt-rec-b','m4-dt-rec-c','m4-real-lti','m4-lab-g','m4-code-lti'] },
     { n:'4.7', title:'Summary',                              ids:[
         'm4-tables','m4-tables-dt','m4-quick','m4-synth','m4-projects'] }
   ],
@@ -21802,8 +21996,9 @@ CONTENT.BOOK = {
   'm4-props-scale':'3.7', 'm4-props-conv':'3.5, 3.7', 'm4-props-mult':'3.5.5, 3.7.1',
   'm4-props-calc':'3.5', 'm4-props-dt-calc':'3.7.2', 'm4-parseval':'3.5.7, 3.7.3',
   'm4-parseval-b':'3.5.7', 'm4-real-props':'3.5', 'm4-lti':'3.8', 'm4-pairing':'3.8', 'm4-lpf':'3.9.2',
-  'm4-lpf-b':'3.9.2', 'm4-hpf':'3.10.2', 'm4-hpf-b':'3.10.2', 'm4-dt-filt':'3.11.1',
-  'm4-dt-filt-b':'3.11.1', 'm4-dt-filt-c':'3.11.1', 'm4-real-lti':'3.9', 'm4-lab-p':'3.2',
+  'm4-lpf-b':'3.9.2', 'm4-hpf':'3.10.2', 'm4-hpf-b':'3.10.2', 'm4-dt-filt':'3.11.2',
+  'm4-dt-filt-b':'3.11.2', 'm4-dt-filt-c':'3.11.2', 'm4-trig':'3.3.1', 'm4-ideal':'3.9.2',
+  'm4-shaping':'3.9.1', 'm4-dt-rec':'3.11.1', 'm4-dt-rec-b':'3.11.1', 'm4-dt-rec-c':'3.11.1', 'm4-real-lti':'3.9', 'm4-lab-p':'3.2',
   'm4-code-eigen':'3.2', 'm4-lab-q':'3.3.2', 'm4-code-synth':'3.3.2', 'm4-lab-f':'3.4',
   'm4-code-series':'3.3.2', 'm4-lab-r':'3.6', 'm4-code-dtfs':'3.6', 'm4-lab-s':'3.5',
   'm4-code-props':'3.5', 'm4-lab-g':'3.9', 'm4-code-lti':'3.8', 'm4-tables':'3.5.8',
