@@ -1990,19 +1990,134 @@ body[data-display=projector] .scene.slide .lab[data-lab="X"] .ctrls{ padding:14p
 body[data-display=projector] .scene.slide .lab[data-lab="X"] .readout.ro div{ padding:8px 12px; }
 
 /* <m6-s1-css> */
+/* Laboratory 6.1 (key I1): two stacked plots beside a controls card, a
+   readout row, an equation and two cards. In lecture mode the larger type
+   pushes the right column past the plot column, so its vertical rhythm is
+   tightened here rather than shrinking the type below the floor (see the
+   key-W rule above). */
+.scene.slide .lab[data-lab="I1"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I1"] .ctrls{ padding:14px 20px; gap:12px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I1"] .readout.ro div{ padding:8px 12px; }
+/* the laboratory type floor, as Module 1 sets it for its laboratories */
+.scene .lab[data-lab="I1"] .ctrl label,
+.scene .lab[data-lab="I1"] .readout dt,
+.scene .lab[data-lab="I1"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="I1"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="I1"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="I1"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab[data-lab="I1"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
 /* </m6-s1-css> */
 
 /* <m6-s2-css> */
+/* Laboratory 6.2 (key I): the laboratory type floor (labels and tabs 16 px,
+   segmented choices 17 px, values 20 px, readout values 21 px, card text
+   19 px, all times --ts). Its six sequence choices sit in a 3 x 2 grid, so
+   they keep the floor without breaking a word across two lines. */
+.scene .lab[data-lab="I"] .ctrl label,
+.scene .lab[data-lab="I"] .readout dt,
+.scene .lab[data-lab="I"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="I"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="I"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="I"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab[data-lab="I"] .seg{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.scene .lab[data-lab="I"] .seg button{ font-size:calc(17px * var(--ts)); padding:8px 10px; white-space:nowrap; }
+.scene .lab[data-lab="I"] .seg button:nth-child(3n){ border-right:0; }
+.scene .lab[data-lab="I"] .seg button:nth-child(-n+3){ border-bottom:1px solid var(--rule-strong); }
 /* </m6-s2-css> */
 
 /* <m6-s3-css> */
+/* Laboratory 6.3 (key I3): the laboratory type floor (labels, readout keys
+   and tabs 16 px, segmented choices 17 px, readout values 21 px, card text
+   19 px, all times --ts). */
+.scene .lab[data-lab="I3"] .ctrl label,
+.scene .lab[data-lab="I3"] .readout dt,
+.scene .lab[data-lab="I3"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene.slide .lab[data-lab="I3"] .eq:not(.plain) > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="I3"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="I3"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="I3"] .note{ font-size:calc(19px * var(--ts)); }
+/* In lecture mode the larger type pushes the card column past the plot
+   column, so its vertical rhythm is tightened rather than the type shrunk
+   (the key-W rule for Laboratory 5.4 is the precedent). */
+.scene.slide .lab[data-lab="I3"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I3"] .ctrls{ padding:14px 20px; gap:12px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I3"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s3-css> */
 
 /* <m6-s4-css> */
+/* Laboratory 6.4 (key I4): three stacked spectra and sequence plots beside
+   the operation buttons, a readout grid and three cards. The six operations
+   sit in a 3x2 grid of buttons under their label, so each keeps the 17 px
+   floor; the four readouts share one row. In lecture mode the right column's
+   vertical rhythm is tightened, as for Laboratory W, rather than the type. */
+.scene.slide .lab[data-lab="I4"] .ctrl label,
+.scene.slide .lab[data-lab="I4"] .readout dt,
+.scene.slide .lab[data-lab="I4"] .note-h,
+.scene.slide .lab[data-lab="I4"] .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene.slide .lab[data-lab="I4"] .ctrl:first-child label{ flex-direction:column; align-items:stretch; gap:8px; }
+.scene.slide .lab[data-lab="I4"] .seg{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.scene.slide .lab[data-lab="I4"] .seg button{ font-size:calc(17px * var(--ts)); padding:8px 8px; letter-spacing:.02em;
+  border-right:1px solid var(--rule-strong); border-bottom:1px solid var(--rule-strong); }
+.scene.slide .lab[data-lab="I4"] .seg button:nth-child(3n){ border-right:0; }
+.scene.slide .lab[data-lab="I4"] .seg button:nth-child(n+4){ border-bottom:0; }
+.scene.slide .lab[data-lab="I4"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene.slide .lab[data-lab="I4"] .readout{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.scene.slide .lab[data-lab="I4"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene.slide .lab[data-lab="I4"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="I4"] .ctrls.one{ gap:12px; padding:16px 20px; }
+.scene.slide .lab[data-lab="I4"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I4"] .ctrls.one{ padding:12px 18px; gap:8px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I4"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s4-css> */
 
 /* <m6-s5-css> */
+/* Laboratory 6.5 (I5): the laboratory type floor, then the X spacing */
+.scene .lab[data-lab="I5"] .ctrl label,
+.scene .lab[data-lab="I5"] .readout dt,
+.scene .lab[data-lab="I5"] .note-h{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="I5"] .seg button{ font-size:calc(17px * var(--ts)); }
+.scene .lab[data-lab="I5"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="I5"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="I5"] .note{ font-size:calc(19px * var(--ts)); }
+.scene.slide .lab[data-lab="I5"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack .eq,
+body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack .note{ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I5"] .ctrls{ padding:14px 20px; gap:10px 24px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I5"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s5-css> */
 
 /* <m6-s6-css> */
+/* Laboratory 6.6 (key I6): three stacked plots beside two sliders, an input
+   choice, a readout row and four cards. The type floor is set here (labels
+   16, choices 17, values 20, readouts 21, card text 19, all times --ts); the
+   input choice sits on its own row under its label, and the vertical rhythm
+   is tightened in lecture mode rather than shrinking the type. */
+.scene .lab[data-lab="I6"] .ctrl label,
+.scene .lab[data-lab="I6"] .readout dt,
+.scene .lab[data-lab="I6"] .note-h,
+.scene .lab[data-lab="I6"] .eq-label,
+.scene.slide .lab[data-lab="I6"] .derive .eq > .eq-label{ font-size:calc(16px * var(--ts)); }
+.scene .lab[data-lab="I6"] .seg button{ font-size:calc(17px * var(--ts)); padding:6px 12px; }
+.scene .lab[data-lab="I6"] .ctrl label .val{ font-size:calc(20px * var(--ts)); }
+.scene .lab[data-lab="I6"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
+.scene .lab[data-lab="I6"] .note{ font-size:calc(19px * var(--ts)); }
+.scene .lab[data-lab="I6"] .nowrap{ white-space:nowrap; }
+.scene.slide .lab[data-lab="I6"] .ctrls{ gap:10px 24px; padding:16px 20px; }
+.scene.slide .lab[data-lab="I6"] .ctrl:last-child{ grid-column:1 / -1; }
+.scene.slide .lab[data-lab="I6"] .ctrl:last-child label{ flex-direction:column; align-items:flex-start; gap:7px; }
+.scene.slide .lab[data-lab="I6"] .derive.stack{ gap:10px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I6"] .derive.stack{ gap:6px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I6"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
+body[data-display=projector] .scene.slide .lab[data-lab="I6"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s6-css> */
