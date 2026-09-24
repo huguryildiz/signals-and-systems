@@ -26,6 +26,12 @@ const CODE_BANKS_M7 = {
   /* <m7-s4-bank> */
   'm7-code-alias':    ['m7s4-fold', 'm7s4-periods', 'm7s4-two', 'm7s4-aa', 'm7s4-wheel'],
   /* </m7-s4-bank> */
+
+  /* <m7-s5-bank> */
+  /* </m7-s5-bank> */
+
+  /* <m7-s6-bank> */
+  /* </m7-s6-bank> */
 };
 
 const CODE_M7 = {
@@ -710,5 +716,11 @@ plt.stem(n, seen)
 plt.xlabel(r'frame $n$'); plt.ylabel(r'angle seen (rad)'); plt.grid(True)
 plt.show()`},
 /* </m7-s4-code> */
+
+/* <m7-s5-code> */
+/* </m7-s5-code> */
+
+/* <m7-s6-code> */
+/* </m7-s6-code> */
 
 };

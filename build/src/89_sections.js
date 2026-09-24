@@ -257,9 +257,13 @@ CONTENT.SECTIONS = {
         'm7-spatial','m7-spatial-b','m7-real-alias','m7-lab-j4','m7-code-alias'] },
     /* </m7-s4-sec> */
     /* <m7-s5-sec> */
-    { n:'7.5', title:'Summary', ids:[
-        'm7-tables','m7-quick','m7-synth','m7-projects'] }
     /* </m7-s5-sec> */
+    /* <m7-s6-sec> */
+    /* </m7-s6-sec> */
+    /* <m7-s7-sec> */
+    { n:'7.7', title:'Summary', ids:[
+        'm7-tables','m7-quick','m7-synth','m7-projects'] }
+    /* </m7-s7-sec> */
   ],
 
   Synthesis: [
@@ -435,8 +439,12 @@ CONTENT.BOOK = {
   'm7-real-alias':'7.3', 'm7-lab-j4':'7.3', 'm7-code-alias':'7.3',
   /* </m7-s4-book> */
   /* <m7-s5-book> */
-  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
   /* </m7-s5-book> */
+  /* <m7-s6-book> */
+  /* </m7-s6-book> */
+  /* <m7-s7-book> */
+  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
+  /* </m7-s7-book> */
 };
 
 /* ---- derivation --------------------------------------------------------

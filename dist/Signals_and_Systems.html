@@ -876,10 +876,10 @@ body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"])
    tall enough to fill it in normal display. The plots take only the height the
    column has, so in projector display, where the widened column would draw them
    taller, they shrink inside it instead of forcing the scene to scale down. */
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
-body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"],[data-lab="J5"],[data-lab="J6"]) > .cols > .col:first-child{ display:flex; flex-direction:column; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"],[data-lab="J5"],[data-lab="J6"]) > .cols > .col:first-child > .plots{ flex:1 1 0; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"],[data-lab="J5"],[data-lab="J6"]) .plots > .plot-wrap{ flex:0 1 auto; min-height:0; }
+body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"],[data-lab="F"],[data-lab="G"],[data-lab="P"],[data-lab="Q"],[data-lab="R"],[data-lab="S"],[data-lab="H"],[data-lab="U"],[data-lab="V"],[data-lab="W"],[data-lab="X"],[data-lab="Y"],[data-lab="I"],[data-lab="I1"],[data-lab="I3"],[data-lab="I4"],[data-lab="I5"],[data-lab="I6"],[data-lab="J1"],[data-lab="J2"],[data-lab="J"],[data-lab="J4"],[data-lab="J5"],[data-lab="J6"]) .plots > .plot-wrap > svg{ display:block; width:100%; height:100%; }
 .scene.slide .cols > .col > :first-child:not(.reveal),
 .scene.slide .cols > .col > .reveal:first-child > :first-child{ margin-top:var(--tab-room); }
 /* `figure.fig{ margin:0 }` out-specifies the flow rule, so a figure has no gap
@@ -2227,6 +2227,12 @@ body[data-display=projector] .scene.slide .lab[data-lab="J4"] .derive.stack :is(
 body[data-display=projector] .scene.slide .lab[data-lab="J4"] .ctrls{ padding:12px 18px; gap:8px 20px; }
 body[data-display=projector] .scene.slide .lab[data-lab="J4"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s4-css> */
+
+/* <m7-s5-css> */
+/* </m7-s5-css> */
+
+/* <m7-s6-css> */
+/* </m7-s6-css> */
 </style>
 </head>
 <body data-mode="study" data-edition="student" data-motion="full" data-sidebar="on">
@@ -11259,6 +11265,12 @@ const CODE_BANKS_M7 = {
   /* <m7-s4-bank> */
   'm7-code-alias':    ['m7s4-fold', 'm7s4-periods', 'm7s4-two', 'm7s4-aa', 'm7s4-wheel'],
   /* </m7-s4-bank> */
+
+  /* <m7-s5-bank> */
+  /* </m7-s5-bank> */
+
+  /* <m7-s6-bank> */
+  /* </m7-s6-bank> */
 };
 
 const CODE_M7 = {
@@ -11943,6 +11955,12 @@ plt.stem(n, seen)
 plt.xlabel(r'frame $n$'); plt.ylabel(r'angle seen (rad)'); plt.grid(True)
 plt.show()`},
 /* </m7-s4-code> */
+
+/* <m7-s5-code> */
+/* </m7-s5-code> */
+
+/* <m7-s6-code> */
+/* </m7-s6-code> */
 
 };
 
@@ -28716,6 +28734,10 @@ const s4Err = wa => { const N=6000, lo=-s4AAB, h=2*s4AAB/N; let s=0;
 const s4R = 9, s4FS = 10;
 /* </m7-s4-helpers> */
 /* <m7-s5-helpers> */
+/* </m7-s5-helpers> */
+/* <m7-s6-helpers> */
+/* </m7-s6-helpers> */
+/* <m7-s7-helpers> */
 /* Small sketches for the summary and project cards. Both pages are navy, so
    they are drawn in the dark-page signal tints: cyan the signal, violet the
    samples and the copies, amber a filter or a hold, green an output, red an
@@ -28762,7 +28784,7 @@ const G7 = (()=>{
     dac:    sv(tr(sig,GR,1.9)+ln(stair,AM,1.5)+XS.map(x=>dot(x,sig(x),VI)).join(''))
   };
 })();
-/* </m7-s5-helpers> */
+/* </m7-s7-helpers> */
 
 const SC = [
 
@@ -30543,7 +30565,15 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
 
 /* </m7-s4> */
 
-/* <m7-s5> ============================================ 7.5 summary */
+/* <m7-s5> ============================================ 7.5 discrete-time processing of continuous-time signals */
+
+/* </m7-s5> */
+
+/* <m7-s6> ============================================ 7.6 sampling a sequence: decimation and interpolation */
+
+/* </m7-s6> */
+
+/* <m7-s7> ============================================ 7.7 summary */
 
 /* ============================================================ summary */
 { id:'m7-tables', module:'M7', nav:'Result summary', title:'Sampling Result Summary', src:'pp. 80–88',
@@ -30713,7 +30743,7 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
   ])}
 ]}
 
-/* </m7-s5> */
+/* </m7-s7> */
 ];
 window.SCENES_M7 = SC;
 })();
@@ -30980,9 +31010,13 @@ CONTENT.SECTIONS = {
         'm7-spatial','m7-spatial-b','m7-real-alias','m7-lab-j4','m7-code-alias'] },
     /* </m7-s4-sec> */
     /* <m7-s5-sec> */
-    { n:'7.5', title:'Summary', ids:[
-        'm7-tables','m7-quick','m7-synth','m7-projects'] }
     /* </m7-s5-sec> */
+    /* <m7-s6-sec> */
+    /* </m7-s6-sec> */
+    /* <m7-s7-sec> */
+    { n:'7.7', title:'Summary', ids:[
+        'm7-tables','m7-quick','m7-synth','m7-projects'] }
+    /* </m7-s7-sec> */
   ],
 
   Synthesis: [
@@ -31158,8 +31192,12 @@ CONTENT.BOOK = {
   'm7-real-alias':'7.3', 'm7-lab-j4':'7.3', 'm7-code-alias':'7.3',
   /* </m7-s4-book> */
   /* <m7-s5-book> */
-  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
   /* </m7-s5-book> */
+  /* <m7-s6-book> */
+  /* </m7-s6-book> */
+  /* <m7-s7-book> */
+  'm7-tables':'7.6', 'm7-quick':'7.6', 'm7-synth':'7.6', 'm7-projects':'7.6',
+  /* </m7-s7-book> */
 };
 
 /* ---- derivation --------------------------------------------------------

@@ -291,6 +291,10 @@ const s4Err = wa => { const N=6000, lo=-s4AAB, h=2*s4AAB/N; let s=0;
 const s4R = 9, s4FS = 10;
 /* </m7-s4-helpers> */
 /* <m7-s5-helpers> */
+/* </m7-s5-helpers> */
+/* <m7-s6-helpers> */
+/* </m7-s6-helpers> */
+/* <m7-s7-helpers> */
 /* Small sketches for the summary and project cards. Both pages are navy, so
    they are drawn in the dark-page signal tints: cyan the signal, violet the
    samples and the copies, amber a filter or a hold, green an output, red an
@@ -337,7 +341,7 @@ const G7 = (()=>{
     dac:    sv(tr(sig,GR,1.9)+ln(stair,AM,1.5)+XS.map(x=>dot(x,sig(x),VI)).join(''))
   };
 })();
-/* </m7-s5-helpers> */
+/* </m7-s7-helpers> */
 
 const SC = [
 
@@ -2118,7 +2122,15 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
 
 /* </m7-s4> */
 
-/* <m7-s5> ============================================ 7.5 summary */
+/* <m7-s5> ============================================ 7.5 discrete-time processing of continuous-time signals */
+
+/* </m7-s5> */
+
+/* <m7-s6> ============================================ 7.6 sampling a sequence: decimation and interpolation */
+
+/* </m7-s6> */
+
+/* <m7-s7> ============================================ 7.7 summary */
 
 /* ============================================================ summary */
 { id:'m7-tables', module:'M7', nav:'Result summary', title:'Sampling Result Summary', src:'pp. 80–88',
@@ -2288,7 +2300,7 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
   ])}
 ]}
 
-/* </m7-s5> */
+/* </m7-s7> */
 ];
 window.SCENES_M7 = SC;
 })();
