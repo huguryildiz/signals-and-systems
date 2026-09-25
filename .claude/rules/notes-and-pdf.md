@@ -13,6 +13,8 @@ Keep `build/` and `notes/` as sibling directories. The notes pipeline writes int
 
 Before shipping any PDF, run `pdftotext -layout` over every page and fail on a `$...$` pair, a bare TeX macro, or a nearly empty page. Render every page to an image and inspect it. The automated gates do not read the PDFs.
 
+`notes/src/notes.css` still carries an earlier palette than the artifact's own tokens; the lecture notes and the artifact are not guaranteed to read as the same colour until that gap is closed. Do not assume the two are in step without checking `10_style.css` against `notes/src/notes.css` directly.
+
 ## Print layout
 
 These rules are shared with the other course repository (`signals-and-systems` and
