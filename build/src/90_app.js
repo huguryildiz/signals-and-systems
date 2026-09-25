@@ -802,7 +802,10 @@ def _ss_figs():
         emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
-    if(typeof PLOT!=='undefined') PLOT.labScale = 1;
+    if(typeof PLOT!=='undefined'){
+      PLOT.labScale = 1;
+      PLOT.maxAspect = (S.layout==='phone' && /-lab-/.test(sc.id)) ? 2.4 : 0;
+    }
     delete host.dataset.labgrown;
     host.className = 'scene is-active' + (sc.dark?' dark':'') + (sc.slide?' slide':'');
     TITLE_ICON = titleIcon(sc.id);

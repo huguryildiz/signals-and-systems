@@ -178,6 +178,10 @@ const PLOT = (() => {
       xtickfmt:v=>fmt(v,3), ytickfmt:v=>fmt(v,3),
       xticksOverride:null, yticksOverride:null, arrows:true
     }, opt);
+    /* On a phone a laboratory's plot is the width of the screen, and a plot
+       drawn four times wider than tall comes out a strip a finger high. There
+       it is drawn no flatter than `PLOT.maxAspect` (RENDER sets it; 0 is off). */
+    if(API.maxAspect && o.w / o.h > API.maxAspect) o.h = Math.round(o.w / API.maxAspect);
     const [xa,xb]=o.xr, [ya,yb]=o.yr;
     if(o.xpi){
       /* xpi:true picks the step itself: the finest multiple of pi that keeps
@@ -511,7 +515,7 @@ const PLOT = (() => {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
   }
 
-  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, piTick, piTicks, setTheme, hOverride:null, labScale:1,
+  const API = { Axes, blocks, texName, COL, ticks, fmt, niceStep, piTick, piTicks, setTheme, hOverride:null, labScale:1, maxAspect:0,
     labelScale:()=>LBLS };
   return API;
 })();
