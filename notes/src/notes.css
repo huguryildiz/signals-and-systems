@@ -105,9 +105,13 @@ hr.thick{ border-top:2pt solid var(--accent); width:56pt; margin:6pt 0 14pt; }
 /* figures */
 figure{ margin:11pt 0; break-inside:avoid; }
 figure svg{ display:block; width:100%; height:auto; }
-/* an axis name is typeset mathematics inside the figure; the small svg pieces a
-   formula uses for roots and stretched brackets keep their own intrinsic size */
-figure .katex svg{ display:inline; width:auto; height:auto; }
+/* An axis name is typeset mathematics inside the figure, and the rule above
+   would stretch the small svg pieces a formula uses for roots and for stretched
+   brackets to the width of the column. They are given back exactly the geometry
+   KaTeX sets for them, rather than a size of our choosing: a tall square root is
+   a surd whose tail is one of these svgs, and any other geometry collapses the
+   surd onto the expression under it. */
+figure .katex svg{ display:block; position:absolute; width:100%; height:inherit; }
 figcaption{ font-size:9pt; color:var(--muted); line-height:1.4; margin-top:4pt;
   padding-left:1pt; border-left:0; }
 figcaption b{ color:var(--body); font-weight:650; }

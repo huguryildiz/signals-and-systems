@@ -2470,6 +2470,10 @@ const PLOT = (() => {
   let LBLS = 1;   /* label scale  */
   let STRW = 1;   /* stroke scale */
   let EMPH = false; /* lecture slides and laboratories use the back-row scale */
+  let FEATHER = false; /* the soft outer edge of a TeX label's halo: the app turns it
+                          on through setTheme; the printed notes never call setTheme
+                          and leave it off, because a PDF stores every blurred edge
+                          as its own raster mask (about a quarter of the notes' size) */
   let CLIPN = 0;  /* serial number for the data-area clip of each figure */
   function setTheme(o){
     o = o || {};
@@ -2477,6 +2481,7 @@ const PLOT = (() => {
     LBLS = o.scale || 1;
     STRW = 1 + (LBLS - 1) * 0.75;
     EMPH = !!o.emphasis;
+    FEATHER = true;
   }
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -2504,6 +2509,52 @@ const PLOT = (() => {
      paragraph and as source in a figure. The two renderers must agree. */
   const TEXOPT = { throwOnError:true, strict:false, output:'html',
     macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{dd}' } };
+  /* Safari and every browser on an iPad paint a positioned element inside a
+     foreignObject as if the svg were drawn at its own size: the label leaves
+     its place whenever the figure is scaled, which it always is. KaTeX places
+     the rows of a sub- or superscript with position:relative and a top offset.
+     The same rows are laid out here in normal flow, each one moved by a top
+     margin equal to the step from the row above (the rows have no height), so
+     the label sets exactly as before and holds no positioned element. */
+  const FLOW = ['base','vlist','delimcenter','op-symbol','rule','accent-body'];
+  function flatTeX(html){
+    if(typeof document === 'undefined') return html;
+    const t = document.createElement('template'); t.innerHTML = html;
+    t.content.querySelectorAll('.vlist').forEach(v=>{
+      let prev = 0;
+      for(const row of v.children){
+        const m = /top:\s*(-?[\d.]+)em/.exec(row.getAttribute('style')||'');
+        const top = m ? +m[1] : 0;
+        row.style.removeProperty('top');
+        row.style.marginTop = +(top-prev).toFixed(5)+'em';
+        row.style.position = 'static';
+        prev = top;
+      }
+    });
+    /* an accent is set sideways by a left offset: the same shift as margins
+       that give back to the right what they take on the left */
+    t.content.querySelectorAll(FLOW.map(c=>'.'+c).join(',')).forEach(e=>{
+      /* a top below a hundredth of an em (the lift of a small integral) is not seen */
+      if(e.style.top && Math.abs(parseFloat(e.style.top))<0.01) e.style.removeProperty('top');
+      if(e.style.top) return;
+      const m = /^(-?[\d.]+)em$/.exec(e.style.left);
+      if(m){
+        const em = v => parseFloat(v)||0;
+        e.style.marginLeft = +(em(e.style.marginLeft)+(+m[1])).toFixed(5)+'em';
+        e.style.marginRight = +(em(e.style.marginRight)-(+m[1])).toFixed(5)+'em';
+        e.style.removeProperty('left');
+      } else if(e.style.left) return;
+      e.style.position = 'static'; });
+    /* a root sign is an svg cut to its box; the svg clips itself, so the box
+       needs neither a position nor a clip of its own. Its width is taken from
+       the box and never given to it, as when it stood outside the flow. */
+    t.content.querySelectorAll('.hide-tail').forEach(e=>{
+      e.style.position = 'static'; e.style.overflow = 'visible';
+      for(const g of e.children) if(g.tagName.toLowerCase()==='svg'){
+        g.style.position = 'static'; g.style.width = '0'; g.style.minWidth = '100%'; }
+    });
+    return t.innerHTML;
+  }
   function texName(src, opts){
     const { xRight, xLeft, xMid, baseline, size } = opts;
     const ink = opts.color || COL.ink;
@@ -2525,7 +2576,7 @@ const PLOT = (() => {
       x = xLeft; BW = figW!=null ? Math.max(40, Math.min(BWMAX, figW-xLeft)) : BWMAX; just='flex-start';
     }
     let html;
-    try { html = katex.renderToString(String(src), TEXOPT); }
+    try { html = flatTeX(katex.renderToString(String(src), TEXOPT)); }
     catch(e){
       console.error('PLOT: figure label is not valid TeX: ' + src + ' — ' + e.message);
       const x = xRight!=null ? xRight : xMid!=null ? xMid : xLeft;
@@ -2539,7 +2590,7 @@ const PLOT = (() => {
     const c = 'var(--fig-halo,#FCF9F3)';
     const r = (2.2*LBLS).toFixed(2), d = (1.6*LBLS).toFixed(2);
     const ring = [[r,0],[-r,0],[0,r],[0,-r],[d,d],[d,-d],[-d,d],[-d,-d]]
-      .map(([a,b]) => `${a}px ${b}px 0 ${c}`).join(',') + `,0 0 ${r}px ${c}`;
+      .map(([a,b]) => `${a}px ${b}px 0 ${c}`).join(',') + (FEATHER ? `,0 0 ${r}px ${c}` : '');
     return `<foreignObject x="${x.toFixed(2)}" y="${(baseline-BH).toFixed(2)}" width="${BW}" height="${BH}"
       overflow="visible" data-texlabel="1"${role} style="overflow:visible;pointer-events:none">
       <div xmlns="http://www.w3.org/1999/xhtml" style="height:${BH}px;display:flex;align-items:flex-end;
