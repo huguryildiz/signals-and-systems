@@ -361,22 +361,25 @@ A dense scene is split, one example or one idea a slide. Splitting is a renumber
 Spacing is tight inside a card and generous between cards, with 30 px above every card so a tab never
 touches the block above it.
 
-### Phone and portrait tablet
+### Phone and portrait tablet — LOCKED
 
 The 1920×1080 stage fits a phone held upright at about a fifth, and a tablet held upright at about
 two fifths. Both are too small to read. So these screens do not scale the stage. They drop it, and
 the scene becomes one column of real pixels that scrolls. One media query in `build/src/40_core.js`
 picks the layout and writes it to `body[data-layout]`:
 
-- **Phone layout** (`phone`): a window up to 760 px wide; a touch screen up to 480 px tall (a phone
-  on its side); a touch screen up to 1024 px wide held upright (a portrait tablet).
-- **Stage** (`wide`): everything else. A tablet held sideways is 1024 px wide or more and gets the
-  desktop stage unchanged. There is no third, tablet-only layout.
+- **Phone layout** (`phone`): a window up to 760 px wide held upright; a touch screen up to 1024 px
+  wide held upright (a portrait tablet).
+- **Stage** (`wide`): everything else. Any screen on its side, a phone included, gets the desktop
+  stage unchanged, scaled to its height. On a touch screen under 480 px tall the contents rail opens
+  closed, and the reader's stored rail choice is kept for the desktop. There is no third,
+  tablet-only layout.
 
 In the phone layout:
 
 - The contents rail becomes a drawer over the scene, and the display, theme, mode, edition and
-  motion switches move to its foot. Their icons are one size. The laser and ink tools are hidden.
+  motion switches move to its foot, and the settings gear opens the drawer rather than an emptied
+  menu. Their icons are one size. The laser and ink tools are hidden.
 - Columns become one column, capped at 680 px and centred, so a portrait tablet keeps a readable
   line. Type follows the phone sizes in `10_style.css`. A scene that raises `--ts` inline to fill
   the stage does not raise it here.
@@ -384,6 +387,9 @@ In the phone layout:
   adds on the stage does not apply.
 - A control's choices sit under its name at the full width of the panel and wrap to a second row
   when they do not fit. A choice is never cut with an ellipsis.
+- Captions, cards and slider labels take the phone reading sizes, not the slide sizes set for the
+  back of a lecture room. A legend that is a card over the plot on the stage becomes one row above
+  the drawing, since a column has no free corner.
 - A formula too wide for the column is set smaller, down to 0.70, and pans with its right edge
   faded if it is still too wide. A figure too wide to stay legible pans the same way.
 - Every touch target is at least 38 px.
@@ -755,7 +761,8 @@ systems apart. `#scene-host svg` makes every SVG a full-width figure, so
   as a `legend` block right after its `fig`; the renderer draws it inside that figure. `at` picks the
   corner: `'tr'` (default), `'tl'`, or `'tl-axis'` for a plot whose vertical axis is its left edge
   (`m1-ct-cexp-grow`). A laboratory panel wraps each plot and its legend in
-  `.plot-wrap`, where the card lies in one row in the strip above the data area. No legend sits
+  `.plot-wrap`, where the card lies in one row in the strip above the data area. In the phone
+  layout every figure legend lies in that row above the drawing, without the card. No legend sits
   below or beside a plot, and no card may cover a trace, tick label or annotation in either display
   mode; move the card or widen the axis range instead. In the dark theme the card fill is a light
   step above the figure card (`--paper-2` mixed with 10% white) with a `--rule-strong` border, so the

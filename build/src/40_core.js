@@ -49,21 +49,24 @@ const APP = (() => {
      honest the stage is not shrunk further — it is dropped. The scene becomes
      one fluid column of real pixels that scrolls, the contents rail becomes a
      drawer over it, and the header keeps only the controls a thumb reaches for.
-     The measure is content-driven, and there are three ways to fail it. A
-     window narrower than 760 px cannot hold the two-column editorial grid or a
-     readable line at the scale the basis is then reduced to, whatever is
-     showing it. A screen under 480 px tall with a finger on it is a phone
-     lying on its side, where the factor is set by the height and comes out
-     smaller still. A screen up to 1024 px wide, upright, with a finger on it is
-     a tablet held as a page, which the stage fits at about two fifths — small
-     print at arm's length. Every one of the three asks for the same thing: the
-     column, in real pixels. A laptop window is none of them, because a mouse is
-     not a finger. */
+     The measure is content-driven and holds only for a screen held upright.
+     A window narrower than 760 px cannot hold the two-column editorial grid or a
+     readable line at the scale the basis is then reduced to, and a screen up to
+     1024 px wide with a finger on it is a tablet held as a page, which the
+     stage fits at about two fifths — small print at arm's length. Both ask for
+     the column, in real pixels. A screen on its side, a phone included, gets
+     the slide exactly as the desktop does: the stage scaled to its height, the
+     same page the lecture shows. A laptop window is neither, because a mouse
+     is not a finger. */
   const NARROW = matchMedia(
-    '(max-width:760px),'
-  + '(max-height:480px) and (pointer:coarse),'
+    '(max-width:760px) and (orientation:portrait),'
   + '(max-width:1024px) and (orientation:portrait) and (pointer:coarse)');
   const layoutNow = () => NARROW.matches ? 'phone' : 'wide';
+  /* A phone on its side keeps the wide layout, but at 390 px of height the
+     contents rail takes half the stage from the slide. There the rail opens
+     closed, and the reader's stored choice is left for the desktop. */
+  const SHORT = matchMedia('(max-height:480px) and (pointer:coarse)');
+  const railRoom = () => !SHORT.matches;
 
   let SCENES = [], MODULES = [], CHAPTERS = [], onRender = ()=>{};
 
@@ -92,7 +95,7 @@ const APP = (() => {
        desktop the same reader comes back to. */
     state.layout = layoutNow();
     state.rail = state.sidebar;
-    if(state.layout==='phone') state.sidebar = 'off';
+    if(state.layout==='phone' || !railRoom()) state.sidebar = 'off';
     applyBodyFlags();
     relayoutChrome();
     bindKeys();
@@ -106,7 +109,7 @@ const APP = (() => {
 
   function persist(){
     /* what is stored for the rail is always the wide-layout choice */
-    if(state.layout!=='phone') state.rail = state.sidebar;
+    if(state.layout!=='phone' && railRoom()) state.rail = state.sidebar;
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.rail,
                   theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
@@ -147,11 +150,16 @@ const APP = (() => {
                document.querySelector('#chrome .byline')])
       .filter(Boolean);
     if(!_home) _home = items.map(el=>({el, parent:el.parentNode, next:el.nextSibling}));
+    /* The settings menu is emptied onto the drawer's foot, so on a phone the
+       gear opens the drawer, where its switches now sit, and not an empty menu. */
+    const gear = document.getElementById('btn-settings');
     if(state.layout==='phone'){
       const reset = foot.querySelector('[data-act=reset]');
       items.forEach(el=>{ el.classList.add('hmoved'); foot.insertBefore(el, reset); });
+      if(gear){ gear.removeAttribute('popovertarget'); gear.dataset.act = 'settings'; }
     } else {
       _home.forEach(h=>{ h.el.classList.remove('hmoved'); h.parent.insertBefore(h.el, h.next); });
+      if(gear){ gear.setAttribute('popovertarget', 'setmenu'); delete gear.dataset.act; }
     }
   }
 
@@ -303,8 +311,8 @@ const APP = (() => {
     const onLayout = () => {
       const L = layoutNow();
       if(L === state.layout) return;
-      if(L === 'phone'){ state.rail = state.sidebar; state.sidebar = 'off'; }
-      else state.sidebar = state.rail || 'on';
+      if(L === 'phone'){ if(railRoom()) state.rail = state.sidebar; state.sidebar = 'off'; }
+      else state.sidebar = railRoom() ? (state.rail || 'on') : 'off';
       state.layout = L;
       applyBodyFlags(); relayoutChrome();
       requestAnimationFrame(()=>{ fit(); onRender(); });
@@ -503,6 +511,7 @@ const APP = (() => {
       else if(a==='edition') toggleEdition();
       else if(a==='motion') toggleMotion();
       else if(a==='sidebar') toggleSidebar();
+      else if(a==='settings'){ if(state.sidebar!=='on') toggleSidebar(); }
       else if(a==='theme') toggleTheme();
       else if(a==='display') toggleDisplay();
       else if(a==='pointer') togglePointer();
