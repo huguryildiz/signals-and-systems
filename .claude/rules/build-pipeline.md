@@ -39,6 +39,8 @@ cd build && node pw.js labwalk.js
 cd build && node pw.js seccheck.js
 cd verify && ../.venv/bin/python verify_m1_m3.py
 cd verify && ../.venv/bin/python verify_m4_m6.py
+cd verify && for m in 4 5 6 7; do ../.venv/bin/python verify_m$m.py | tail -1; done
+cd verify && for c in 1 23 4 5 6 7; do ../.venv/bin/python notes_c$c.py | tail -1; done
 cd verify && ../.venv/bin/python verify_drills.py
 .venv/bin/python tools/rule_check.py "build/src/8[1-9]_scenes*.js" "build/src/9[2-8]_drill_m*.js" "build/src/91_*.js" "build/src/70_labs.js" "notes/src/*.js"
 .venv/bin/python tools/content_guard.py --source --artifacts --hook
