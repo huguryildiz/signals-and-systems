@@ -1605,6 +1605,26 @@ body[data-layout=phone] figure.fig.pans{
           mask-image:linear-gradient(90deg,#000 88%,rgba(0,0,0,.35) 100%);
 }
 body[data-layout=phone] .fig-frame{ padding:10px 11px; }
+/* A slide sets its captions, cards and slider labels at the size the wide
+   stage needs to be read from the back of a lecture room, and those rules name
+   the slide, so they outweigh the phone reading sizes above. A phone is read in
+   the hand; these name the slide too and give the column its own sizes back. */
+body[data-layout=phone] .scene.slide figcaption{ font-size:calc(13.5px * var(--ts)); line-height:1.42; }
+body[data-layout=phone] :is(.scene.slide, .dr-sol) .note{ font-size:calc(16px * var(--ts)); padding:13px 15px 12px; }
+body[data-layout=phone] .scene.slide .eq-note{ font-size:calc(16px * var(--ts)); }
+body[data-layout=phone] .scene.slide .eq:not(.plain){ padding:11px 13px 11px 15px; }
+body[data-layout=phone] .ask-why{ font-size:calc(15px * var(--ts)); }
+body[data-layout=phone] .live-k{ font-size:calc(17px * var(--ts)); }
+body[data-layout=phone] .live-v{ font-size:calc(17px * var(--ts)); }
+/* a figure that opens its column needs no room for a tab it does not have */
+body[data-layout=phone] .scene.slide .cols > .col > figure.fig:first-child{ margin-top:0; }
+/* On the wide stage the legend is a card over a corner of the data. A phone
+   column is too narrow to have a free corner, and the card lands on a trace or
+   an axis name, so there the legend is one row above the drawing. */
+body[data-layout=phone] figure.fig > .legend.in-plot{
+  position:static; order:-1; flex-direction:row; justify-content:flex-end;
+  gap:4px 16px; padding:0 4px; background:none; border:0; box-shadow:none;
+}
 
 /* --- laboratories ------------------------------------------------------- */
 /* A slider is dragged with a finger, so its track and its handle are drawn at

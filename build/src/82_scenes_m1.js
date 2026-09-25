@@ -846,11 +846,9 @@ REAL_ENERGY,
       }
       if(t0!==0){
         const lbl=(t0>0?'delay by ':'advance by ')+num(Math.abs(t0))+' s';
-        if(Math.abs(t0)>=2) a.span(Math.min(0,t0),Math.max(0,t0),-0.38,lbl,{color:C.mid});
-        else {   // short bracket: set the label beside it, clear of the vertical axis
-          a.span(Math.min(0,t0),Math.max(0,t0),-0.38,'',{color:C.mid});
-          a.note(t0+(t0>0?0.15:-0.15),-0.38,lbl,{anchor:t0>0?'start':'end',color:C.mid,dy:-2});
-        }
+        // the label goes under the bracket, clear of the tick numbers above it
+        a.span(Math.min(0,t0),Math.max(0,t0),-0.38,'',{color:C.mid});
+        a.note(t0>0?0.15:-0.15,-0.38,lbl,{anchor:t0>0?'start':'end',color:C.mid,dy:16});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $t_0$. The pulse keeps its shape and only its position changes. A positive $t_0$ moves it to the right.'},
@@ -885,11 +883,9 @@ REAL_ENERGY,
       if(n0!==0){
         a.note(n0,Math.abs(n0)>=2?1.14:1.46,n0>0?'x[n-'+num(n0)+']':'x[n+'+num(-n0)+']',{anchor:'middle',color:C.mid,fs:15,tex:true});
         const lbl=(n0>0?'delay by ':'advance by ')+num(Math.abs(n0))+(Math.abs(n0)===1?' sample':' samples');
-        if(Math.abs(n0)>=2) a.span(Math.min(0,n0),Math.max(0,n0),-0.38,lbl,{color:C.mid});
-        else {   // short bracket: set the label beside it, clear of the vertical axis
-          a.span(Math.min(0,n0),Math.max(0,n0),-0.38,'',{color:C.mid});
-          a.note(n0+(n0>0?0.3:-0.3),-0.38,lbl,{anchor:n0>0?'start':'end',color:C.mid,dy:-2});
-        }
+        // the label goes under the bracket, clear of the tick numbers above it
+        a.span(Math.min(0,n0),Math.max(0,n0),-0.38,'',{color:C.mid});
+        a.note(n0>0?0.3:-0.3,-0.38,lbl,{anchor:n0>0?'start':'end',color:C.mid,dy:16});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $n_0$. Every sample moves by the same whole number of steps. A positive $n_0$ moves the sequence to the right.'},
