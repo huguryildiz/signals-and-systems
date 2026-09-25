@@ -168,6 +168,9 @@ html,body{
   font-family:var(--sans);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
+  /* a mobile browser otherwise enlarges the text of any wide block on its own
+     judgement, block by block, and the type scale stops being one scale */
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;
   overflow:hidden;
 }
 
@@ -1444,6 +1447,10 @@ body[data-layout=phone] .hmoved{
   color:var(--muted); padding:9px 10px; cursor:pointer; flex:0 1 auto; text-align:center;
   min-height:42px; min-width:42px;      /* a control is hit with a thumb */
 }
+/* an icon in the drawer is drawn at one size; left to the width of its label
+   it grows with the word under it */
+body[data-layout=phone] .hmoved:has(svg){ display:inline-flex; flex-direction:column; align-items:center; gap:4px; }
+body[data-layout=phone] .hmoved svg{ display:block; width:20px; height:20px; flex:none; }
 body[data-layout=phone] .hmoved[aria-pressed=true]{ color:var(--coral); border-color:var(--coral); }
 body[data-layout=phone] .hmoved:disabled{ opacity:.4; }
 /* the byline is a line of text among buttons, and is set as one */
@@ -1497,6 +1504,9 @@ body[data-layout=phone] .note-h{ font-size:calc(11.5px * var(--ts)); letter-spac
 body[data-layout=phone] .scene.slide .note > .note-h{
   white-space:normal; max-width:calc(100% + 6px); text-align:left;
 }
+/* A scene may raise the type scale inline to fill the spare height of the wide
+   stage. A phone has no spare height to fill, so the scale of the page holds. */
+body[data-layout=phone] [style*="--ts:"]{ --ts:inherit !important; }
 body[data-layout=phone] .eyebrow{
   font-size:calc(11.5px * var(--ts)); letter-spacing:.1em; gap:7px; margin-bottom:12px; flex-wrap:wrap;
 }
@@ -1606,6 +1616,27 @@ body[data-layout=phone] .seg button{
 body[data-layout=phone] .ctrl label{ flex-wrap:wrap; }
 body[data-layout=phone] .ctrl label .seg{ display:flex; flex:1 1 100%; margin-top:2px; }
 body[data-layout=phone] .ctrl label .seg button{ flex:1 1 0; min-width:0; padding:11px 6px; }
+/* The per-laboratory sizes above are written for the wide stage and name the
+   laboratory, which outweighs the phone rule; this one names it too. A long
+   choice wraps inside its cell rather than spilling into the next one; it is
+   never cut, since a choice half hidden cannot be read. */
+body[data-layout=phone] .scene .lab[data-lab] .seg button{
+  font-size:calc(12.5px * var(--ts)); letter-spacing:0; padding:9px 4px;
+  min-width:0; white-space:normal; overflow-wrap:break-word; line-height:1.25;
+}
+body[data-layout=phone] .scene .lab[data-lab] .seg button .katex{ white-space:normal; }
+/* Five or six choices do not fit one row of a phone. The row wraps, each choice
+   takes the width its label needs, and each carries its own lower and right
+   rule, pulled one pixel under the frame so the outer edge stays single. */
+body[data-layout=phone] .ctrl label .seg{ flex-wrap:wrap; align-self:stretch; width:100%; }
+/* A few slide laboratories stack a control's name over its choices with a
+   wrapping column; there the full-width choices would wrap into a second
+   column beside the name. A wrapping row puts them under it, as intended. */
+body[data-layout=phone] .scene.slide .lab[data-lab] .ctrl label{ flex-direction:row; }
+body[data-layout=phone] .scene .lab[data-lab] .ctrl label .seg button{
+  flex:1 1 auto; border-right:1px solid var(--rule-strong); border-bottom:1px solid var(--rule-strong);
+  margin:0 -1px -1px 0; min-width:44px;
+}
 body[data-layout=phone] .readout div{ padding:10px 12px; }
 body[data-layout=phone] .readout dd{ font-size:calc(17px * var(--ts)); }
 
