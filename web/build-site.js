@@ -293,8 +293,26 @@ copy(path.join(DIST, 'Student_Workbook.pdf'), 'Student_Workbook.pdf');
 copy(path.join(DIST, 'Formula_Reference.pdf'), 'Formula_Reference.pdf');
 
 /* The cover page, its backdrop, Figure 1, and the cover and inside page of
-   each PDF, rendered from the PDFs themselves. */
-for (const f of ['index.html', 'backdrop.js', 'fig.js'])
+   each PDF, rendered from the PDFs themselves. The label over each download
+   (`PDF · 106 pp · 5.6 MB`) is read from the PDF it links to, so it cannot
+   fall behind a rebuilt document. The page count is the number of page
+   objects; Chromium writes them uncompressed. */
+function pdfLabel(file) {
+  const buf = fs.readFileSync(file);
+  const pages = (buf.toString('latin1').match(/\/Type\s*\/Page(?![a-zA-Z])/g) || []).length;
+  if (!pages) fail('no pages found in ' + path.basename(file));
+  const size = buf.length >= 1048576 ? (buf.length / 1048576).toFixed(1) + ' MB'
+                                     : Math.round(buf.length / 1024) + ' KB';
+  return 'PDF · ' + pages + ' pp · ' + size;
+}
+let labels = 0;
+const index = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8').replace(
+  /(<a class="doc" href="([^"]+\.pdf)"[\s\S]*?<span class="label">)[^<]*(<\/span>)/g,
+  (m, head, pdf, tail) => { labels++; return head + pdfLabel(path.join(SITE, pdf)) + tail; });
+if (labels !== 3) fail('expected 3 PDF labels on the cover page, found ' + labels);
+fs.writeFileSync(path.join(SITE, 'index.html'), index);
+log('  · index.html  (' + labels + ' PDF labels from the PDFs)');
+for (const f of ['backdrop.js', 'fig.js'])
   copy(path.join(__dirname, f), f);
 copy(path.join(ROOT, 'assets', 'icon.svg'), 'icon.svg');
 fs.mkdirSync(path.join(SITE, 'img'));
