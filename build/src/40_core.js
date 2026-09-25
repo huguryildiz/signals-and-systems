@@ -157,8 +157,9 @@ const APP = (() => {
   /* ---------- laser pointer, projector mode only ----------
      In front of a class the pointer is an instrument, not a control: the
      system arrow is too small to follow from the back of a room. In
-     projector mode it becomes a red dot. Holding the mouse button down draws
-     with it. Strokes accumulate and fade together after a pause, or remain
+     projector mode it becomes a red dot. Holding the mouse button down, or
+     pressing a pen such as the Apple Pencil to a tablet, draws with it; a
+     finger still scrolls. Strokes accumulate and fade together after a pause, or remain
      until cleared, according to the header control. Everything is drawn on
      one fixed canvas above the page that takes no clicks, so nothing else
      changes. Under reduced motion the stroke is left out and only the dot is
@@ -228,12 +229,16 @@ const APP = (() => {
       if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
       drawing=true; head={x:e.clientX,y:e.clientY}; strokes.push([head]); tick();
     }
-    function up(){ if(!drawing) return; drawing=false; released=performance.now(); tick(); }
+    /* a pencil lifted from glass leaves no hover to follow, so its dot goes with it */
+    function up(e){ if(e && e.pointerType==='pen') head=null; if(!drawing) return; drawing=false; released=performance.now(); tick(); }
+    /* on a tablet the browser takes a moving pencil for a scroll and cancels the
+       stroke; while a stroke is being drawn its touch moves are kept from it */
+    function still(e){ if(drawing && e.cancelable) e.preventDefault(); }
     /* a picture or a link would otherwise start a native drag and cut the stroke */
     function nodrag(e){ e.preventDefault(); }
     function leave(){ if(drawing){ drawing=false; released=performance.now(); } head=null; tick(); }
     function start(){
-      if(on || !window.matchMedia || !matchMedia('(pointer:fine)').matches) return;
+      if(on) return;
       if(!cv){ cv=document.createElement('canvas'); cv.id='laser'; cv.setAttribute('aria-hidden','true'); document.body.appendChild(cv); cx=cv.getContext('2d'); }
       on=true; cv.style.display='block'; size();
       window.addEventListener('pointermove',move,{passive:true});
@@ -241,12 +246,13 @@ const APP = (() => {
       window.addEventListener('pointerup',up,{passive:true});
       window.addEventListener('pointercancel',up,{passive:true});
       window.addEventListener('dragstart',nodrag);
+      window.addEventListener('touchmove',still,{passive:false});
       document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',size);
     }
     function stop(){
       if(!on) return;
       on=false; window.removeEventListener('pointermove',move); window.removeEventListener('pointerdown',down);
-      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag);
+      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag); window.removeEventListener('touchmove',still);
       document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',size);
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave(); if(cv) cv.style.display='none';
     }
