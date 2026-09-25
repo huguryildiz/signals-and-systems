@@ -143,7 +143,7 @@ body[data-display=projector] .cols{ gap:34px; }
 }
 /* drawing with the button held would otherwise sweep a text selection across
    the scene; the fields the reader types into keep theirs */
-body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user-select:none; }
+body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
 body[data-display=projector][data-pointer=laser] input,
 body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
 
