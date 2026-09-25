@@ -106,6 +106,9 @@ body[data-theme=dark]{
   --sig-out-soft: rgba(130,194,123,.15);
   --sig-err-soft: rgba(232,120,95,.16);
 }
+/* native scrollbars follow the palette: a muted thumb on a transparent track */
+body[data-theme=dark]{ color-scheme:dark; }
+body[data-theme=dark] *{ scrollbar-color:var(--rule-strong) transparent; }
 body[data-theme=dark] #stage::after{ opacity:.25;
   background-image:radial-gradient(rgba(214,230,255,.045) 1px, transparent 1px); }
 body[data-theme=dark] .eq{ background:rgba(255,255,255,.035); }
