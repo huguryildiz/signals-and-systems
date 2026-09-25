@@ -402,7 +402,7 @@ labelled equation has a tab like a card, so it counts as one: the first keeps co
 equation or a prediction card on the same slide takes a neutral tone. The kind,
 its icon and its meaning do not change; only the colour does. `draw()` in `build/src/90_app.js` applies
 this through `toneCards()`, which sets `data-tone` on the repeat, so scene data never names a colour.
-A quick-check grid of six cards keeps its own form and is outside the rule.
+A quick-check grid of twelve cards keeps its own form and is outside the rule.
 
 Tab text is white in the light theme and the canvas colour in the dark theme, where every token is a
 light tint. Computed contrast: white on slate 7.5:1, on green 5.0:1, on red 6.4:1, on `#8A5E12` 5.7:1,
@@ -524,7 +524,7 @@ caption, one sentence. Control labels are at least 17 px, values 20 px, all time
 button on the slide keeps its own Space key; the arrow keys still change the scene. Print and PDF
 hide the controls and keep the default figure.
 
-A **quick-check slide** closes a module before its summary: six `note.ask` cards in a 3×2 grid,
+A **quick-check slide** closes a module before its summary: twelve `note.ask` cards in a 4×3 grid,
 each answerable in a few seconds. It carries `budget:` because it has no figure. The module's
 practice questions stay open-ended.
 

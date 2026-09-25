@@ -49,7 +49,7 @@ Alongside the scenes, the artifact contains:
 
 - **Laboratories.** Each has controls for a signal or system; moving one updates the plot and the result, such as a classification, a period or a convolution case.
 - **Practice questions.** Open-ended questions for each module, each with a worked solution that checks its own answer a second way.
-- **Projects to try.** Optional projects at the end of a module, to be done in MATLAB or Python on the student's own computer. Each card gives an aim, what it practises, a few steps and what to look for. They carry no grade and nothing is handed in. Modules 1 and 2 have four each so far.
+- **Projects to try.** Optional projects at the end of a module, to be done in MATLAB or Python on the student's own computer. Each card gives an aim, what it practises, a few steps and what to look for. They carry no grade and nothing is handed in. Every module from 1 to 7 has four or five.
 - **Code pages.** Short Python programs that reproduce a result from the lecture. A reader can run them in the browser from the course site.
 
 The same content also produces a set of printable PDF editions: the lecture notes, a student workbook
@@ -62,11 +62,11 @@ with the questions only, and a formula reference.
 | 0 | Why signals and systems? | What a signal is · what a system is · the black box · continuous and discrete time · everyday examples and applications · books · the course map |
 | 1 | Signals | Definitions and notation · energy and power · signal operations · periodicity, even and odd · the impulse and the step · complex exponentials · a catalogue of common signals |
 | 2 | Systems and their properties | The input–output abstraction · memory, invertibility, causality, stability, time invariance, linearity · classification in practice |
-| 3 | Linear time-invariant systems | Impulse response and the representation property · the convolution sum · the convolution integral · properties of convolution |
+| 3 | Linear time-invariant systems | Impulse response and the representation property · the convolution sum · the convolution integral · properties of convolution · difference and differential equations |
 | 4 | Fourier series | The eigenfunction property · synthesis and analysis · series worked out · the discrete-time series · properties · a periodic input through an LTI system |
 | 5 | The continuous-time Fourier transform | From series to transform · the standard pairs · periodic signals · properties · convolution and multiplication · systems from a differential equation |
 | 6 | The discrete-time Fourier transform | Building the transform · the standard pairs · periodic sequences · properties · convolution and multiplication · duality · difference equations |
-| 7 | Sampling and aliasing | The sampler and the sampled spectrum · aliasing and the sampling theorem · reconstruction · aliasing in practice |
+| 7 | Sampling and aliasing | The sampler and the sampled spectrum · aliasing and the sampling theorem · reconstruction · aliasing in practice · discrete-time processing · decimation and interpolation |
 
 ## How students use it
 

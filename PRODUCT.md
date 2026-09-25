@@ -16,7 +16,7 @@ needs each scene to work as a lecture slide.
 ## Product Purpose
 
 A one-semester Signals and Systems course in four documents built from one set of sources: the
-interactive artifact (234 scenes, ten laboratories, 210 practice questions with worked solutions), the
+interactive artifact (531 scenes, 35 laboratories, 210 practice questions with worked solutions), the
 lecture notes and their PDF, the student workbook, and the formula reference. It is published as a
 static site behind a cover page.
 
