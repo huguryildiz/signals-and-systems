@@ -88,3 +88,6 @@ web/.cache/
 
 # Working TODO: local working document, not tracked.
 TODO.md
+
+# --- Promotional video and its raw scene recordings (large, local only) ---
+assets/promo/

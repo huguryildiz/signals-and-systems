@@ -361,6 +361,36 @@ A dense scene is split, one example or one idea a slide. Splitting is a renumber
 Spacing is tight inside a card and generous between cards, with 30 px above every card so a tab never
 touches the block above it.
 
+### Phone and portrait tablet
+
+The 1920×1080 stage fits a phone held upright at about a fifth, and a tablet held upright at about
+two fifths. Both are too small to read. So these screens do not scale the stage. They drop it, and
+the scene becomes one column of real pixels that scrolls. One media query in `build/src/40_core.js`
+picks the layout and writes it to `body[data-layout]`:
+
+- **Phone layout** (`phone`): a window up to 760 px wide; a touch screen up to 480 px tall (a phone
+  on its side); a touch screen up to 1024 px wide held upright (a portrait tablet).
+- **Stage** (`wide`): everything else. A tablet held sideways is 1024 px wide or more and gets the
+  desktop stage unchanged. There is no third, tablet-only layout.
+
+In the phone layout:
+
+- The contents rail becomes a drawer over the scene, and the display, theme, mode, edition and
+  motion switches move to its foot. Their icons are one size. The laser and ink tools are hidden.
+- Columns become one column, capped at 680 px and centred, so a portrait tablet keeps a readable
+  line. Type follows the phone sizes in `10_style.css`. A scene that raises `--ts` inline to fill
+  the stage does not raise it here.
+- A laboratory's plots are drawn no flatter than 2.4:1 (`PLOT.maxAspect`). The height `growLabs()`
+  adds on the stage does not apply.
+- A control's choices sit under its name at the full width of the panel and wrap to a second row
+  when they do not fit. A choice is never cut with an ellipsis.
+- A formula too wide for the column is set smaller, down to 0.70, and pans with its right edge
+  faded if it is still too wide. A figure too wide to stay legible pans the same way.
+- Every touch target is at least 38 px.
+
+Implementation traps and the check commands are in `.claude/rules/figures-and-math.md`, *Phone and
+tablet*.
+
 ## Elevation & Depth
 
 Flat. Depth is tonal: canvas, raised panel, sunken well. There are no shadows on cards, figures or
