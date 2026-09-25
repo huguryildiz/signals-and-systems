@@ -96,6 +96,7 @@ const APP = (() => {
     applyBodyFlags();
     relayoutChrome();
     bindKeys();
+    bindSwipe();
     bindChrome();
     window.addEventListener('hashchange', fromHash);
     watchSize();
@@ -410,6 +411,50 @@ const APP = (() => {
         case 'c': case 'C': laser.clear(); break;
       }
     });
+  }
+
+  /* ---------- finger swipe ----------
+     A quick sideways swipe of one finger on the slide is Next or Previous,
+     as the arrow keys are. Touch events are used, not pointer events, because
+     the browser cancels a pointer as soon as it takes the finger for a scroll.
+     A pencil (touchType 'stylus') never swipes: it draws the laser trail. A
+     swipe that starts on a control, a sketch figure, or anything that scrolls
+     sideways belongs to that element, and so does one whose pointerdown a
+     laboratory already took for a drag (it called preventDefault; pointer
+     events arrive before touch events). One that starts at the screen edge
+     belongs to the browser's own back gesture; a zoomed page is being panned. */
+  function bindSwipe(){
+    let t0 = null, claimed = false;
+    const EDGE = 24, MIN = 60, MAXT = 700;
+    function owned(el){
+      const wrap = document.getElementById('stagewrap');
+      if(!wrap || !wrap.contains(el)) return true;
+      if(el.closest('input,textarea,select,[contenteditable],figure.sketch > svg')) return true;
+      for(let e = el; e && e !== wrap; e = e.parentElement){
+        if(e.scrollWidth > e.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(e).overflowX)) return true;
+      }
+      return false;
+    }
+    document.addEventListener('pointerdown', e=>{ claimed = e.pointerType==='touch' && e.defaultPrevented; });
+    document.addEventListener('touchstart', e=>{
+      t0 = null;
+      if(e.touches.length !== 1 || anyOpen() || claimed) return;
+      const p = e.touches[0];
+      if(p.touchType === 'stylus') return;
+      if(p.clientX < EDGE || p.clientX > window.innerWidth - EDGE) return;
+      if(window.visualViewport && window.visualViewport.scale > 1.05) return;
+      if(owned(e.target)) return;
+      t0 = { x:p.clientX, y:p.clientY, t:performance.now() };
+    }, {passive:true});
+    document.addEventListener('touchmove', e=>{ if(e.touches.length > 1) t0 = null; }, {passive:true});
+    document.addEventListener('touchcancel', ()=>{ t0 = null; }, {passive:true});
+    document.addEventListener('touchend', e=>{
+      if(!t0) return;
+      const p = e.changedTouches[0], s = t0; t0 = null;
+      const dx = p.clientX - s.x, dy = p.clientY - s.y;
+      if(performance.now() - s.t > MAXT || Math.abs(dx) < MIN || Math.abs(dx) < 1.5*Math.abs(dy)) return;
+      dx < 0 ? next() : prev();
+    }, {passive:true});
   }
 
   function toggleMode(){ state.mode = state.mode==='lecture'?'study':'lecture'; applyBodyFlags(); persist(); onRender(); }
