@@ -202,7 +202,8 @@ body[data-sidebar=off] #viewport{ --sbw:0px; }
 :root{ --sbw:268px; }
 
 /* --- brand mark ------------------------------------------------------- */
-#appheader .eelogo{ width:22px; height:22px; flex:none; display:block; }
+#appheader .eelogo{ width:22px; height:22px; flex:none; display:block;
+  animation:eelogo-shine 2.6s ease-in-out infinite; }
 .eelogo-trace{ fill:none; stroke:url(#eelogo-gt); stroke-width:3.6;
   stroke-linecap:round; stroke-linejoin:round; }
 .eelogo-halo{ fill:none; stroke:url(#eelogo-gt); stroke-width:4.6;
@@ -215,9 +216,15 @@ body[data-sidebar=off] #viewport{ --sbw:0px; }
   22%{transform:scale(1.03)} 31%{transform:scale(1)} 100%{transform:scale(1)} }
 @keyframes eelogo-glow{ 0%{opacity:.16} 7%{opacity:.62} 15%{opacity:.24}
   22%{opacity:.45} 31%{opacity:.16} 100%{opacity:.16} }
+@keyframes eelogo-shine{ 0%{filter:none}
+  7%{filter:drop-shadow(0 0 3.5px rgba(106,168,247,.75))}
+  15%{filter:drop-shadow(0 0 1.5px rgba(106,168,247,.35))}
+  22%{filter:drop-shadow(0 0 2.5px rgba(106,168,247,.5))}
+  31%{filter:none} 100%{filter:none} }
+body[data-motion=reduced] #appheader .eelogo,
 body[data-motion=reduced] .eelogo-beat,
-body[data-motion=reduced] .eelogo-halo{ animation:none; }
-@media (prefers-reduced-motion:reduce){ .eelogo-beat, .eelogo-halo{ animation:none; } }
+body[data-motion=reduced] .eelogo-halo{ animation:none; filter:none; }
+@media (prefers-reduced-motion:reduce){ #appheader .eelogo, .eelogo-beat, .eelogo-halo{ animation:none; filter:none; } }
 
 /* --- top bar --------------------------------------------------------- */
 #appheader{
