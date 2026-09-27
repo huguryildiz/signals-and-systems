@@ -1555,6 +1555,8 @@ body[data-layout=phone] .scene.slide .eq.side{ grid-template-columns:minmax(0,1f
 /* The recall deck writes its column count inline as a custom property; one
    card a row on a phone, with the sketch kept small beside the question. */
 body[data-layout=phone] .recall-list{ --rc-cols:1 !important; }
+body[data-layout=phone] .proj{ grid-template-columns:minmax(0,1fr); gap:var(--s3); }
+body[data-layout=phone] .proj-right{ grid-template-columns:minmax(0,1fr); }
 body[data-layout=phone] .recall-card{ gap:12px; padding:14px 14px 14px 12px; }
 body[data-layout=phone] .rc-glyph{ width:72px; }
 /* the worked-example ladder puts its key above the step rather than beside it:
