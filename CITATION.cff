@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Yıldız"
     given-names: "Hüseyin Uğur"
-url: "https://signals-and-systems-tedu.vercel.app"
+url: "https://signals-and-systems.huguryildiz.com/"
 repository-code: "https://github.com/huguryildiz/signals-and-systems"
 license: CC-BY-NC-SA-4.0
 version: "1.8"
