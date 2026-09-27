@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/Pyodide-0b1220?style=for-the-badge&logo=python&logoColor=3776AB" alt="Pyodide">
   <img src="https://img.shields.io/badge/NumPy_%C2%B7_SymPy-0b1220?style=for-the-badge&logo=numpy&logoColor=4DABCF" alt="NumPy and SymPy">
   <img src="https://img.shields.io/badge/Playwright-0b1220?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
-  <a href="https://signals-and-systems-tedu.vercel.app"><img src="https://img.shields.io/badge/signals--and--systems--tedu.vercel.app-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Live"></a>
+  <a href="https://signals-and-systems.huguryildiz.com/"><img src="https://img.shields.io/badge/signals--and--systems.huguryildiz.com-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Live site"></a>
   <a href="https://github.com/huguryildiz/signals-and-systems/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/huguryildiz/signals-and-systems/checks.yml?branch=main&style=for-the-badge&label=checks" alt="Checks"></a>
 </p>
 
@@ -189,7 +189,7 @@ gives it in APA and BibTeX. In BibTeX:
   title        = {Signals and Systems: An Interactive Lecture Artifact},
   year         = {2026},
   version      = {1.8},
-  howpublished = {\url{https://signals-and-systems-tedu.vercel.app}},
+  howpublished = {\url{https://signals-and-systems.huguryildiz.com/}},
   note         = {Source: \url{https://github.com/huguryildiz/signals-and-systems}}
 }
 ```
