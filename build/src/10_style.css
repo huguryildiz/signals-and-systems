@@ -154,6 +154,28 @@ body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user
 body[data-display=projector][data-pointer=laser] input,
 body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
 
+/* the board: a blank page over the whole window, built by the core the first
+   time it is opened and lifted into the top layer as a manual popover. Its
+   canvas takes every touch, so a pen writes and the page under it never
+   scrolls; the tools sit in a row at its top right. */
+#board{
+  position:fixed; inset:0; width:auto; height:auto; display:none;
+  margin:0; padding:0; border:0; overflow:hidden; background:var(--paper);
+  z-index:2147483646; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+}
+#board::backdrop{ display:none; background:transparent; }
+#board canvas{ position:absolute; left:0; top:0; touch-action:none; cursor:crosshair !important; }
+#board .bd-tools{
+  position:absolute; top:12px; right:12px; display:flex; gap:6px;
+  padding:6px; border:1px solid var(--rule); border-radius:8px; background:var(--paper-2);
+}
+#board .bd-tools button{
+  font:500 13px/1 var(--sans); color:var(--graphite); background:transparent;
+  border:1px solid transparent; border-radius:5px; padding:8px 11px; min-height:36px; cursor:pointer !important;
+}
+#board .bd-tools button[aria-pressed=true]{ border-color:var(--slate); color:var(--ink); background:var(--paper-3); }
+#board .bd-tools i{ display:block; width:16px; height:16px; border-radius:50%; }
+
 /* the two pointer controls belong to projector mode and are hidden outside it */
 #appheader .proj-only{ display:none; }
 body[data-display=projector] #appheader .proj-only{ display:block; }
@@ -239,6 +261,8 @@ body[data-motion=reduced] .eelogo-halo{ animation:none; filter:none; }
 #appheader button:has(svg){ display:inline-flex; align-items:center; gap:6px; }
 #appheader button svg{ display:block; width:16px; height:16px; flex:none; }
 @media (max-width:1180px){ #appheader button:has(svg) span{ display:none; } }
+/* projector mode adds four tools to the bar; below this width their words would wrap */
+@media (max-width:1500px){ body[data-display=projector] #appheader button:has(svg) span{ display:none; } }
 #setmenu{ position:fixed; inset:auto; margin:0; padding:6px; min-width:200px;
   flex-direction:column; align-items:stretch; gap:2px;
   background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius);

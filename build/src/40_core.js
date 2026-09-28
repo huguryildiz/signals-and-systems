@@ -260,7 +260,7 @@ const APP = (() => {
       if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(frame); }
-    function mouse(e){ return !e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'; }
+    function mouse(e){ return !board.isOpen() && (!e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'); }
     function move(e){
       if(!mouse(e)) return;
       head=at(e);
@@ -308,7 +308,147 @@ const APP = (() => {
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
       if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
-    return { sync(){ (state.display==='projector'&&state.pointer==='laser') ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } } };
+    return { sync(){ (state.display==='projector'&&state.pointer==='laser') ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
+             rest(){ if(on) leave(); } };
+  })();
+
+  /* ---------- the board ----------
+     A blank page for working a derivation in front of the class, opened with W
+     or the Board button and closed the same way or with Esc. It lies over the
+     whole window in the top layer, on the page colour of the theme, so no slide
+     shows through it, and the keys that move the slides do nothing while it is
+     open. A pen or the mouse writes. Once a pen has touched the board a finger
+     is taken for the palm resting on the glass and does nothing, so a hand can
+     lie on an iPad while the Pencil writes; before that a finger writes too.
+     The eraser removes whole strokes, and so does the eraser end of a pen that
+     has one. The writing stays in memory while the board is closed, so the
+     class can look at a slide and come back to it; a reload loses it. C clears
+     the board and Z undoes, a clearing included. A stroke keeps the name of its
+     colour, not the colour, so the board redraws in the other theme's inks.
+     Points are carried into the canvas through its own box, as the laser's
+     are, and the canvas takes every touch, so the page under it never scrolls. */
+  const board = (() => {
+    const INK = { ink:'--ink', red:'--sig-err', blue:'--slate' };
+    const LW = 3.2, ERASE = 14, UNDO = 200;
+    const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
+    let el=null, cv=null, cx=null, W=0, H=0, dpr=1, open=false, raf=0;
+    let strokes=[], past=[], cur=null, id=null, erasing=false, cut=false, pen=false, tool='ink';
+    function size(){
+      const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
+      const k = Math.min(window.devicePixelRatio||1, 3);
+      if(w===W && h===H && k===dpr) return;
+      W = w; H = h; dpr = k;
+      cv.style.width = W+'px'; cv.style.height = H+'px';
+      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+    }
+    function at(e){
+      const r = cv.getBoundingClientRect();
+      return { x:(e.clientX-r.left)*(r.width ? W/r.width : 1), y:(e.clientY-r.top)*(r.height ? H/r.height : 1) };
+    }
+    function draw(){
+      raf = 0;
+      cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height);
+      cx.setTransform(dpr,0,0,dpr,0,0);
+      cx.lineCap='round'; cx.lineJoin='round'; cx.lineWidth=LW;
+      const css = getComputedStyle(el);
+      for(const s of strokes){
+        const p = s.p;
+        cx.strokeStyle = cx.fillStyle = css.getPropertyValue(INK[s.c]).trim();
+        if(p.length===1){ cx.beginPath(); cx.arc(p[0].x,p[0].y,LW/2,0,Math.PI*2); cx.fill(); continue; }
+        cx.beginPath(); cx.moveTo(p[0].x,p[0].y);
+        for(let k=1;k<p.length-1;k++) cx.quadraticCurveTo(p[k].x,p[k].y,(p[k].x+p[k+1].x)/2,(p[k].y+p[k+1].y)/2);
+        cx.lineTo(p[p.length-1].x,p[p.length-1].y); cx.stroke();
+      }
+    }
+    function tick(){ if(!raf) raf=requestAnimationFrame(draw); }
+    function save(){ past.push(strokes); if(past.length>UNDO) past.shift(); }
+    /* the distance from q to the segment a–b, for the eraser */
+    function near(q,a,b){
+      const dx=b.x-a.x, dy=b.y-a.y, L=dx*dx+dy*dy;
+      const t = L ? Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/L)) : 0;
+      return Math.hypot(q.x-a.x-t*dx, q.y-a.y-t*dy) < ERASE;
+    }
+    function rub(q){
+      const left = strokes.filter(s=>{
+        const p = s.p;
+        if(p.length===1) return !near(q,p[0],p[0]);
+        for(let k=1;k<p.length;k++) if(near(q,p[k-1],p[k])) return false;
+        return true;
+      });
+      if(left.length!==strokes.length){ strokes = left; cut = true; tick(); }
+    }
+    function down(e){
+      if(id!==null) return;
+      if(e.pointerType==='pen') pen = true;
+      else if(e.pointerType==='touch' && pen) return;
+      if(e.button!==0 && e.button!==5) return;
+      e.preventDefault();
+      id = e.pointerId; try{ cv.setPointerCapture(id); }catch(_){}
+      save();
+      if(tool==='erase' || e.button===5){ erasing = true; cut = false; rub(at(e)); }
+      else { cur = { c:tool, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
+    }
+    function move(e){
+      if(e.pointerId!==id) return;
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+      for(const v of (evs.length ? evs : [e])){
+        if(erasing) rub(at(v)); else cur.p.push(at(v));
+      }
+      tick();
+    }
+    function up(e){
+      if(e.pointerId!==id) return;
+      /* an eraser that touched nothing leaves nothing to undo */
+      if(erasing && !cut) past.pop();
+      id = null; cur = null; erasing = false;
+    }
+    function pick(t){
+      tool = t;
+      el.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===t));
+    }
+    function build(){
+      el = document.createElement('div'); el.id = 'board';
+      if(TOP) el.setAttribute('popover','manual');
+      el.innerHTML = '<canvas aria-label="Board"></canvas><div class="bd-tools">'
+        + '<button data-tool="ink" title="Pen">Pen</button>'
+        + '<button data-tool="red" title="Red pen"><i style="background:var(--sig-err)"></i></button>'
+        + '<button data-tool="blue" title="Blue pen"><i style="background:var(--slate)"></i></button>'
+        + '<button data-tool="erase" title="Eraser: removes whole strokes">Eraser</button>'
+        + '<button data-bd="undo" title="Undo (Z)">Undo</button>'
+        + '<button data-bd="clear" title="Clear the board (C)">Clear</button>'
+        + '<button data-act="board" title="Close the board (W or Esc)">Close</button></div>';
+      document.body.appendChild(el);
+      cv = el.querySelector('canvas'); cx = cv.getContext('2d');
+      cv.addEventListener('pointerdown',down);
+      cv.addEventListener('pointermove',move);
+      cv.addEventListener('pointerup',up);
+      cv.addEventListener('pointercancel',up);
+      el.addEventListener('click', e=>{
+        const b = e.target.closest('button'); if(!b) return;
+        if(b.dataset.tool) pick(b.dataset.tool);
+        else if(b.dataset.bd==='undo') undo();
+        else if(b.dataset.bd==='clear') clear();
+      });
+      pick(tool);
+    }
+    function refit(){ if(open){ size(); tick(); } }
+    function show(){
+      if(!el) build();
+      open = true; laser.rest();
+      el.style.display = 'block';
+      if(TOP){ try{ el.showPopover(); }catch(_){} }
+      size(); draw();
+      window.addEventListener('resize',refit);
+    }
+    function hide(){
+      open = false; id = null; cur = null; erasing = false;
+      window.removeEventListener('resize',refit);
+      if(TOP){ try{ el.hidePopover(); }catch(_){} }
+      el.style.display = 'none';
+    }
+    function undo(){ if(past.length){ strokes = past.pop(); tick(); } }
+    function clear(){ if(strokes.length){ save(); strokes = []; tick(); } }
+    return { isOpen:()=>open, toggle(){ open ? hide() : show(); }, close(){ if(open) hide(); }, undo, clear };
   })();
 
   /* ---------- stage scaling: exact 1920×1080 basis, scaled to fit ---------- */
@@ -437,6 +577,14 @@ const APP = (() => {
     document.addEventListener('keydown', e=>{
       const tag=(e.target.tagName||'').toLowerCase();
       const typing = tag==='input'||tag==='textarea';
+      /* the board takes the keyboard while it is open: the slides under it stay put */
+      if(board.isOpen()){
+        if(e.metaKey||e.ctrlKey||e.altKey){ if((e.key==='z'||e.key==='Z') && !e.shiftKey){ e.preventDefault(); board.undo(); } return; }
+        if(e.key==='Escape'||e.key==='w'||e.key==='W') board.close();
+        else if(e.key==='c'||e.key==='C') board.clear();
+        else if(e.key==='z'||e.key==='Z') board.undo();
+        e.preventDefault(); return;
+      }
       if(e.key==='Escape'){ closeAll(); return; }
       if(typing) return;
       /* a focused button on the slide (a prediction, a sound) takes its own Space */
@@ -460,6 +608,7 @@ const APP = (() => {
         case 'p': case 'P': toggleDisplay(); break;
         case 't': case 'T': toggleTrail(); break;
         case 'c': case 'C': laser.clear(); break;
+        case 'w': case 'W': e.preventDefault(); closeAll(); board.toggle(); break;
       }
     });
   }
@@ -559,6 +708,7 @@ const APP = (() => {
       else if(a==='display') toggleDisplay();
       else if(a==='pointer') togglePointer();
       else if(a==='trail') toggleTrail();
+      else if(a==='board') board.toggle();
       else if(a==='goto'){ goId(t.dataset.id, parseInt(t.dataset.step||'0',10));
         /* a drawer has done its job once a scene is chosen */
         if(state.layout==='phone' && state.sidebar==='on') toggleSidebar(); }

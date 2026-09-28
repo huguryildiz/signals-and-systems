@@ -1145,6 +1145,7 @@ def _ss_figs():
     trail:    '<path d="M3 19c3-1 4-5 7-5s3 3 6 2"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
     trailfade:'<path d="M3 19c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 3"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
     trailoff: '<path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/><path d="M3 3l18 18"/>',
+    board:    '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21l4-4 4 4M7 11c1.5-2 3 2 4.5 0s3-2 4.5 0"/>',
     sun:      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     moon:     '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
     lecture:  '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v3M8 21l4-2 4 2M7 12l3-3 2 2 5-5"/>',
@@ -1203,6 +1204,7 @@ def _ss_figs():
     const tl=document.getElementById('trail-sec'); if(tl){ tl.value=S.trailSec;
       tl.disabled = S.pointer!=='laser' || S.trail!=='fade';
       tl.nextElementSibling.textContent = S.trailSec+' s'; }
+    const bb=document.getElementById('btn-board'); if(bb) tb(bb, false, 'board', 'Board');
     APP.buildMap();
     APP.buildSidebar();
   }
