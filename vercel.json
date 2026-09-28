@@ -4,6 +4,9 @@
   "outputDirectory": "site",
   "installCommand": "echo \"no dependencies\"",
   "framework": null,
+  "git": {
+    "deploymentEnabled": { "main": true, "**": false }
+  },
   "headers": [
     {
       "source": "/(.*).html",
