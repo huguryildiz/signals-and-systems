@@ -324,7 +324,8 @@ const APP = (() => {
      in one of four inks and three widths. Once a pen has touched the board a
      finger is taken for the palm resting on the glass and does nothing, so a
      hand can lie on an iPad while the Pencil writes; before that a finger
-     writes too. The laser tool hands the pointer to the laser, which then works
+     writes too, and a pen set down while a finger is writing takes the board
+     from it, the finger's stroke being dropped as a palm. The laser tool hands the pointer to the laser, which then works
      over the board as it does over a slide, whatever the header has it set to.
      The eraser removes whole strokes, and so does the eraser end of a pen that
      has one. The writing stays in memory while the board is closed, so the
@@ -332,7 +333,8 @@ const APP = (() => {
      the board and Z undoes, a clearing included. A stroke keeps the name of its
      ink, not the colour, so the board redraws in the other theme's inks.
      Points are carried into the canvas through its own box, as the laser's
-     are, and the canvas takes every touch, so the page under it never scrolls. */
+     are, and the canvas takes every touch, so the page under it never scrolls
+     and the browser never reads a pencil's tap or stroke as a gesture. */
   const board = (() => {
     const INKS = [['ink','--ink','Black'],['red','--sig-err','Red'],['blue','--slate','Blue'],['green','--sig-out','Green']];
     const WIDTHS = [[2,'Fine'],[3.4,'Medium'],[6.5,'Bold']];
@@ -342,7 +344,7 @@ const APP = (() => {
     const ERASE = 14, UNDO = 200;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let el=null, cv=null, cx=null, W=0, H=0, dpr=1, open=false, raf=0;
-    let strokes=[], past=[], cur=null, id=null, erasing=false, cut=false, pen=false;
+    let strokes=[], past=[], cur=null, id=null, kind='', erasing=false, cut=false, pen=false;
     let tool='pen', ink='ink', width=WIDTHS[1][0];
     function size(){
       const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
@@ -390,12 +392,17 @@ const APP = (() => {
       if(left.length!==strokes.length){ strokes = left; cut = true; tick(); }
     }
     function down(e){
-      if(id!==null || tool==='laser') return;
+      if(tool==='laser') return;
       if(e.pointerType==='pen') pen = true;
       else if(e.pointerType==='touch' && pen) return;
       if(e.button!==0 && e.button!==5) return;
+      if(id!==null){
+        if(e.pointerType!=='pen' || kind==='pen') return;
+        try{ cv.releasePointerCapture(id); }catch(_){}
+        strokes = past.pop(); id = null; cur = null; erasing = false;
+      }
       e.preventDefault();
-      id = e.pointerId; try{ cv.setPointerCapture(id); }catch(_){}
+      id = e.pointerId; kind = e.pointerType; try{ cv.setPointerCapture(id); }catch(_){}
       save();
       if(tool==='erase' || e.button===5){ erasing = true; cut = false; rub(at(e)); }
       else { cur = { c:ink, w:width, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
@@ -450,6 +457,11 @@ const APP = (() => {
       cv.addEventListener('pointermove',move);
       cv.addEventListener('pointerup',up);
       cv.addEventListener('pointercancel',up);
+      /* touch-action alone does not keep iPadOS from taking a pencil's first
+         contact for a tap, a long press or a scroll and cancelling it */
+      const hold = e=>{ if(e.cancelable) e.preventDefault(); };
+      cv.addEventListener('touchstart',hold,{passive:false});
+      cv.addEventListener('touchmove',hold,{passive:false});
       el.addEventListener('click', e=>{
         const b = e.target.closest('button'); if(!b) return;
         if(b.dataset.ink){ ink = b.dataset.ink; use('pen'); }
