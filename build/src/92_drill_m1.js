@@ -301,9 +301,9 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D1-17', module:'M1', type:'impulse', src:'MT1 Q1',
   stem:'Evaluate each of the following.'
-      +'$$\\text{(i)}\\;\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\bigl[\\delta(t+2)+\\delta(t-4)\\bigr]\\d t\\qquad'
-      +'\\text{(ii)}\\;\\int_{-\\infty}^{\\infty}\\!e^{-2t}\\sin(\\pi t)\\,\\delta(t-1.5)\\,\\d t\\qquad'
-      +'\\text{(iii)}\\;\\int_{-\\infty}^{\\infty}\\!t^{2}\\,\\delta(4t-8)\\,\\d t$$',
+      +'$$\\begin{aligned}\\text{(i)}\\;&\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\bigl[\\delta(t+2)+\\delta(t-4)\\bigr]\\d t\\\\'
+      +'\\text{(ii)}\\;&\\int_{-\\infty}^{\\infty}\\!e^{-2t}\\sin(\\pi t)\\,\\delta(t-1.5)\\,\\d t\\\\'
+      +'\\text{(iii)}\\;&\\int_{-\\infty}^{\\infty}\\!t^{2}\\,\\delta(4t-8)\\,\\d t\\end{aligned}$$',
   parts:['Evaluate the three integrals.',
          'State which property of the impulse each one uses, and say why the answer is a number rather than a signal.'],
   sol:'<b>Given.</b> Three integrals of an ordinary function against an impulse.<br>'
