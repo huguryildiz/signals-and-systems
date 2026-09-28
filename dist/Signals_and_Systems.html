@@ -3438,7 +3438,7 @@ const APP = (() => {
       /* the backing store follows the glass, so zoomed-in ink stays sharp; it
          is stepped by halves, so a pinch does not reallocate it every frame */
       const w = de.clientWidth, h = de.clientHeight;
-      const k = Math.min(Math.ceil((window.devicePixelRatio||1)*zoom*2)/2, Math.sqrt(MAXPX/Math.max(1,w*h)));
+      const k = Math.min(Math.round((window.devicePixelRatio||1)*zoom*2)/2, Math.sqrt(MAXPX/Math.max(1,w*h)));
       if(w===W && h===H && k===dpr) return;
       W = w; H = h; dpr = k;
       cv.style.width = W+'px'; cv.style.height = H+'px';
