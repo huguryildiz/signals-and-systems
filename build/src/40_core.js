@@ -180,13 +180,16 @@ const APP = (() => {
      painted over it on an iPad. A menu opened later enters the top layer above
      it, so the canvas steps back in front each time one opens. Elsewhere the
      highest z-index and a layer of its own do the same job.
-     Pinched in on a tablet, the window no longer describes the glass: a
-     pointer's client coordinates and a fixed box refer to the layout viewport,
-     while window.innerWidth gives the visible part. The canvas is therefore
-     laid over the visual viewport, points are carried into it through its
-     measured box, and the ink is drawn at the size it has unzoomed. */
+     Pinched in on a tablet, browsers disagree about which viewport client
+     coordinates refer to: Safari on iOS, and so every browser on an iPad,
+     measures them from the visible part, Chrome on a desktop from the page.
+     The canvas is therefore never moved: it covers the whole page, as the
+     application frame does, and zooms with it, so the ink stays on what it was
+     drawn over. Each point is carried into it through the canvas's own box,
+     measured in the same client coordinates at the same moment, whichever
+     viewport they refer to. The ink keeps the size it has unzoomed. */
   const laser = (() => {
-    const FADE = 900, KEEP = 6000, MAXPX = 16e6;
+    const FADE = 900, KEEP = 6000, MAXPX = 12e6;
     const hold = () => state.trailSec*1000;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0, zoom=1;
@@ -200,23 +203,22 @@ const APP = (() => {
       }
     }
     function size(){
-      const v = window.visualViewport;
+      const v = window.visualViewport, de = document.documentElement;
       zoom = (v && v.scale) || 1;
-      W = v ? v.width : window.innerWidth; H = v ? v.height : window.innerHeight;
+      /* the backing store follows the glass, so zoomed-in ink stays sharp; it
+         is stepped by halves, so a pinch does not reallocate it every frame */
+      const w = de.clientWidth, h = de.clientHeight;
+      const k = Math.min(Math.ceil((window.devicePixelRatio||1)*zoom*2)/2, Math.sqrt(MAXPX/Math.max(1,w*h)));
+      if(w===W && h===H && k===dpr) return;
+      W = w; H = h; dpr = k;
       cv.style.width = W+'px'; cv.style.height = H+'px';
-      /* where a fixed box at 0,0 lands differs between browsers once zoomed;
-         it is measured, then moved onto the visible part */
-      cv.style.left = '0px'; cv.style.top = '0px';
-      const r0 = cv.getBoundingClientRect();
-      cv.style.left = ((v ? v.offsetLeft : 0) - r0.left)+'px'; cv.style.top = ((v ? v.offsetTop : 0) - r0.top)+'px';
-      /* the backing store follows the glass, so zoomed-in ink stays sharp */
-      dpr = Math.min((window.devicePixelRatio||1)*zoom, Math.sqrt(MAXPX/Math.max(1,W*H)));
       cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
-      /* client coordinates and the canvas's own box are measured in the same
-         frame, whichever viewport the browser anchors a fixed box to */
+      cx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    /* a client point in the canvas's own coordinates */
+    function at(e){
       const r = cv.getBoundingClientRect();
-      const kx = r.width ? W/r.width : 1, ky = r.height ? H/r.height : 1;
-      cx.setTransform(dpr*kx,0,0,dpr*ky,-r.left*dpr*kx,-r.top*dpr*ky);
+      return { x:(e.clientX-r.left)*(r.width ? W/r.width : 1), y:(e.clientY-r.top)*(r.height ? H/r.height : 1) };
     }
     function refit(){ if(!on) return; size(); tick(); }
     function raise(){
@@ -261,14 +263,14 @@ const APP = (() => {
     function mouse(e){ return !e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'; }
     function move(e){
       if(!mouse(e)) return;
-      head={x:e.clientX,y:e.clientY};
+      head=at(e);
       if(drawing){ strokes[strokes.length-1].push(head); drop(); }
       tick();
     }
     function down(e){
       if(!mouse(e)||e.button!==0) return;
       if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
-      drawing=true; head={x:e.clientX,y:e.clientY}; strokes.push([head]); tick();
+      drawing=true; head=at(e); strokes.push([head]); tick();
     }
     /* a pencil lifted from glass leaves no hover to follow, so its dot goes with it */
     function up(e){ if(e && e.pointerType==='pen') head=null; if(!drawing) return; drawing=false; released=performance.now(); tick(); }
@@ -287,7 +289,7 @@ const APP = (() => {
       }
       on=true; cv.style.display='block'; raise(); size();
       document.addEventListener('toggle',toggled,true);
-      if(window.visualViewport){ visualViewport.addEventListener('resize',refit); visualViewport.addEventListener('scroll',refit); }
+      if(window.visualViewport){ visualViewport.addEventListener('resize',refit); }
       window.addEventListener('pointermove',move,{passive:true});
       window.addEventListener('pointerdown',down,{passive:true});
       window.addEventListener('pointerup',up,{passive:true});
@@ -302,7 +304,7 @@ const APP = (() => {
       window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag); window.removeEventListener('touchmove',still);
       document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',refit);
       document.removeEventListener('toggle',toggled,true);
-      if(window.visualViewport){ visualViewport.removeEventListener('resize',refit); visualViewport.removeEventListener('scroll',refit); }
+      if(window.visualViewport){ visualViewport.removeEventListener('resize',refit); }
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
       if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
