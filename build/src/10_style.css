@@ -135,11 +135,16 @@ body[data-display=projector] .cols{ gap:34px; }
    first time projector mode is entered; it never takes a click. The system
    arrow is hidden only while the laser is the pointer, and only where there
    is a real mouse to hide it from — on a touch screen there is nothing to
-   replace it with. */
+   replace it with. The core places and sizes it over the visible part of the
+   page and, where it can, lifts it into the top layer as a manual popover;
+   the popover's own box, border and backdrop are taken off here, and the
+   backdrop must never catch a touch meant for the page. */
 #laser{
-  position:fixed; inset:0; display:none;
-  pointer-events:none; z-index:90;
+  position:fixed; inset:auto; left:0; top:0; display:none;
+  margin:0; padding:0; border:0; background:transparent; overflow:visible;
+  pointer-events:none; z-index:2147483647; transform:translateZ(0);
 }
+#laser::backdrop{ display:none; pointer-events:none; background:transparent; }
 @media (pointer:fine){
   body[data-display=projector][data-pointer=laser],
   body[data-display=projector][data-pointer=laser] *{ cursor:none; }
