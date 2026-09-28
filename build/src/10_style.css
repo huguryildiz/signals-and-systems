@@ -156,21 +156,23 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 
 /* the board: a page over the whole window, built by the core the first time
    it is opened and lifted into the top layer as a manual popover. The paper is
-   blank, squared or ruled in the theme's hairline colour. Its canvas takes
+   blank, squared or ruled in a faint tint of the theme's hairline colour,
+   so the lines guide the hand without competing with the writing. Its canvas takes
    every touch, so a pen writes and the page under it never scrolls; under the
    laser tool the laser's dot is the only cursor. The tools sit in a row at its
    top right and wrap on a narrow screen. */
 #board{
   position:fixed; inset:0; width:auto; height:auto; display:none;
   margin:0; padding:0; border:0; overflow:hidden; background:var(--paper);
+  --bd-line:color-mix(in srgb, var(--rule) 45%, var(--paper));
   z-index:2147483646; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
 }
 #board[data-paper=grid]{
-  background-image:linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-image:linear-gradient(var(--bd-line) 1px, transparent 1px), linear-gradient(90deg, var(--bd-line) 1px, transparent 1px);
   background-size:32px 32px;
 }
 #board[data-paper=lined]{
-  background-image:linear-gradient(transparent 39px, var(--rule) 39px);
+  background-image:linear-gradient(transparent 39px, var(--bd-line) 39px);
   background-size:100% 40px;
 }
 #board::backdrop{ display:none; background:transparent; }
