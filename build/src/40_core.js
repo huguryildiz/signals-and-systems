@@ -172,11 +172,24 @@ const APP = (() => {
      until cleared, according to the header control. Everything is drawn on
      one fixed canvas above the page that takes no clicks, so nothing else
      changes. Under reduced motion the stroke is left out and only the dot is
-     drawn. */
+     drawn.
+     The canvas must stay in front of everything. Where the browser has a top
+     layer (the popover API) the canvas is put there, above every card,
+     figure, sheet and menu whatever stacking context or compositing layer
+     they make; a flip card turned in 3D or a scaled stage could otherwise be
+     painted over it on an iPad. A menu opened later enters the top layer above
+     it, so the canvas steps back in front each time one opens. Elsewhere the
+     highest z-index and a layer of its own do the same job.
+     Pinched in on a tablet, the window no longer describes the glass: a
+     pointer's client coordinates and a fixed box refer to the layout viewport,
+     while window.innerWidth gives the visible part. The canvas is therefore
+     laid over the visual viewport, points are carried into it through its
+     measured box, and the ink is drawn at the size it has unzoomed. */
   const laser = (() => {
-    const FADE = 900, KEEP = 6000;
+    const FADE = 900, KEEP = 6000, MAXPX = 16e6;
     const hold = () => state.trailSec*1000;
-    let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0;
+    const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
+    let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0, zoom=1;
     let head=null, drawing=false, released=0;
     const strokes = [];
     function count(){ let n=0; for(const s of strokes) n+=s.length; return n; }
@@ -187,19 +200,38 @@ const APP = (() => {
       }
     }
     function size(){
-      dpr = Math.min(window.devicePixelRatio||1, 2);
-      W = window.innerWidth; H = window.innerHeight;
-      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+      const v = window.visualViewport;
+      zoom = (v && v.scale) || 1;
+      W = v ? v.width : window.innerWidth; H = v ? v.height : window.innerHeight;
       cv.style.width = W+'px'; cv.style.height = H+'px';
-      cx.setTransform(dpr,0,0,dpr,0,0);
+      /* where a fixed box at 0,0 lands differs between browsers once zoomed;
+         it is measured, then moved onto the visible part */
+      cv.style.left = '0px'; cv.style.top = '0px';
+      const r0 = cv.getBoundingClientRect();
+      cv.style.left = ((v ? v.offsetLeft : 0) - r0.left)+'px'; cv.style.top = ((v ? v.offsetTop : 0) - r0.top)+'px';
+      /* the backing store follows the glass, so zoomed-in ink stays sharp */
+      dpr = Math.min((window.devicePixelRatio||1)*zoom, Math.sqrt(MAXPX/Math.max(1,W*H)));
+      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+      /* client coordinates and the canvas's own box are measured in the same
+         frame, whichever viewport the browser anchors a fixed box to */
+      const r = cv.getBoundingClientRect();
+      const kx = r.width ? W/r.width : 1, ky = r.height ? H/r.height : 1;
+      cx.setTransform(dpr*kx,0,0,dpr*ky,-r.left*dpr*kx,-r.top*dpr*ky);
     }
+    function refit(){ if(!on) return; size(); tick(); }
+    function raise(){
+      if(!TOP || !on) return;
+      try{ if(cv.matches(':popover-open')) cv.hidePopover(); cv.showPopover(); }catch(_){}
+    }
+    function toggled(e){ if(e.target!==cv && e.newState==='open') raise(); }
     function frame(){
       raf = 0;
       const keep = state.trail==='hold';
       const idle = (drawing||keep) ? 0 : performance.now() - released;
       let a = idle<=hold() ? 1 : 1 - (idle-hold())/FADE;
       if(a<=0){ a=0; strokes.length=0; }
-      cx.clearRect(0,0,W,H);
+      cx.save(); cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height); cx.restore();
+      const u = 1/zoom;
       if(a>0 && strokes.length && state.trail!=='off' && state.motion==='full'){
         cx.lineCap='round'; cx.lineJoin='round'; cx.globalAlpha=a;
         cx.beginPath();
@@ -209,19 +241,19 @@ const APP = (() => {
           for(let k=1;k<pts.length-1;k++) cx.quadraticCurveTo(pts[k].x,pts[k].y,(pts[k].x+pts[k+1].x)/2,(pts[k].y+pts[k+1].y)/2);
           const b=pts[pts.length-1]; cx.lineTo(b.x,b.y);
         }
-        cx.strokeStyle='rgba(255,66,44,0.26)'; cx.lineWidth=21; cx.stroke();
-        cx.strokeStyle='rgba(228,38,22,0.94)'; cx.lineWidth=11; cx.stroke();
-        cx.strokeStyle='rgba(255,231,226,0.96)'; cx.lineWidth=4; cx.stroke();
+        cx.strokeStyle='rgba(255,66,44,0.26)'; cx.lineWidth=21*u; cx.stroke();
+        cx.strokeStyle='rgba(228,38,22,0.94)'; cx.lineWidth=11*u; cx.stroke();
+        cx.strokeStyle='rgba(255,231,226,0.96)'; cx.lineWidth=4*u; cx.stroke();
         cx.globalAlpha=1;
       }
       if(head){
-        const g=cx.createRadialGradient(head.x,head.y,0,head.x,head.y,19);
+        const g=cx.createRadialGradient(head.x,head.y,0,head.x,head.y,19*u);
         g.addColorStop(0,'rgba(255,236,230,1)');
         g.addColorStop(.10,'rgba(255,64,40,1)');
         g.addColorStop(.32,'rgba(214,45,32,.92)');
         g.addColorStop(.55,'rgba(214,45,32,.32)');
         g.addColorStop(1,'rgba(214,45,32,0)');
-        cx.fillStyle=g; cx.beginPath(); cx.arc(head.x,head.y,19,0,Math.PI*2); cx.fill();
+        cx.fillStyle=g; cx.beginPath(); cx.arc(head.x,head.y,19*u,0,Math.PI*2); cx.fill();
       }
       if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
     }
@@ -248,22 +280,31 @@ const APP = (() => {
     function leave(){ if(drawing){ drawing=false; released=performance.now(); } head=null; tick(); }
     function start(){
       if(on) return;
-      if(!cv){ cv=document.createElement('canvas'); cv.id='laser'; cv.setAttribute('aria-hidden','true'); document.body.appendChild(cv); cx=cv.getContext('2d'); }
-      on=true; cv.style.display='block'; size();
+      if(!cv){
+        cv=document.createElement('canvas'); cv.id='laser'; cv.setAttribute('aria-hidden','true');
+        if(TOP) cv.setAttribute('popover','manual');
+        document.body.appendChild(cv); cx=cv.getContext('2d');
+      }
+      on=true; cv.style.display='block'; raise(); size();
+      document.addEventListener('toggle',toggled,true);
+      if(window.visualViewport){ visualViewport.addEventListener('resize',refit); visualViewport.addEventListener('scroll',refit); }
       window.addEventListener('pointermove',move,{passive:true});
       window.addEventListener('pointerdown',down,{passive:true});
       window.addEventListener('pointerup',up,{passive:true});
       window.addEventListener('pointercancel',up,{passive:true});
       window.addEventListener('dragstart',nodrag);
       window.addEventListener('touchmove',still,{passive:false});
-      document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',size);
+      document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',refit);
     }
     function stop(){
       if(!on) return;
       on=false; window.removeEventListener('pointermove',move); window.removeEventListener('pointerdown',down);
       window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag); window.removeEventListener('touchmove',still);
-      document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',size);
-      if(raf){ cancelAnimationFrame(raf); raf=0; } leave(); if(cv) cv.style.display='none';
+      document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',refit);
+      document.removeEventListener('toggle',toggled,true);
+      if(window.visualViewport){ visualViewport.removeEventListener('resize',refit); visualViewport.removeEventListener('scroll',refit); }
+      if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
+      if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
     return { sync(){ (state.display==='projector'&&state.pointer==='laser') ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } } };
   })();
