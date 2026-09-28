@@ -34,6 +34,7 @@ const APP = (() => {
     pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
     trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
     trailSec: 1,        // seconds a faded trail stays fully visible
+    paper:   'blank',   // 'blank' | 'grid' | 'lined' — the board's paper
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
     drillPage: {},      // module id -> index of the drill question on screen
     secOpen: {},        // section number -> the reader's own open/closed choice
@@ -84,6 +85,7 @@ const APP = (() => {
       pointer: saved.pointer || 'laser',
       trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
       trailSec: saved.trailLen || 1,
+      paper:   saved.paper || 'blank',
       visited: saved.visited || {},
       quiz: saved.quiz || {},
       drillPage: saved.drillPage || {}
@@ -111,7 +113,7 @@ const APP = (() => {
     /* what is stored for the rail is always the wide-layout choice */
     if(state.layout!=='phone' && railRoom()) state.rail = state.sidebar;
     store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.rail,
-                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec,
+                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec, paper:state.paper,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
@@ -260,7 +262,7 @@ const APP = (() => {
       if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(frame); }
-    function mouse(e){ return !board.isOpen() && (!e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'); }
+    function mouse(e){ return (!board.isOpen() || board.lasering()) && (!e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'); }
     function move(e){
       if(!mouse(e)) return;
       head=at(e);
@@ -308,31 +310,40 @@ const APP = (() => {
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
       if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
-    return { sync(){ (state.display==='projector'&&state.pointer==='laser') ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
+    return { sync(){ ((state.display==='projector'&&state.pointer==='laser') || board.lasering()) ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
              rest(){ if(on) leave(); } };
   })();
 
   /* ---------- the board ----------
-     A blank page for working a derivation in front of the class, opened with W
-     or the Board button and closed the same way or with Esc. It lies over the
+     A page for working a derivation in front of the class, opened with W or
+     the Board button and closed the same way or with Esc. It lies over the
      whole window in the top layer, on the page colour of the theme, so no slide
      shows through it, and the keys that move the slides do nothing while it is
-     open. A pen or the mouse writes. Once a pen has touched the board a finger
-     is taken for the palm resting on the glass and does nothing, so a hand can
-     lie on an iPad while the Pencil writes; before that a finger writes too.
+     open. The paper is blank, squared or ruled, drawn in the theme's hairline
+     colour and remembered with the other settings. A pen or the mouse writes,
+     in one of four inks and three widths. Once a pen has touched the board a
+     finger is taken for the palm resting on the glass and does nothing, so a
+     hand can lie on an iPad while the Pencil writes; before that a finger
+     writes too. The laser tool hands the pointer to the laser, which then works
+     over the board as it does over a slide, whatever the header has it set to.
      The eraser removes whole strokes, and so does the eraser end of a pen that
      has one. The writing stays in memory while the board is closed, so the
      class can look at a slide and come back to it; a reload loses it. C clears
      the board and Z undoes, a clearing included. A stroke keeps the name of its
-     colour, not the colour, so the board redraws in the other theme's inks.
+     ink, not the colour, so the board redraws in the other theme's inks.
      Points are carried into the canvas through its own box, as the laser's
      are, and the canvas takes every touch, so the page under it never scrolls. */
   const board = (() => {
-    const INK = { ink:'--ink', red:'--sig-err', blue:'--slate' };
-    const LW = 3.2, ERASE = 14, UNDO = 200;
+    const INKS = [['ink','--ink','Black'],['red','--sig-err','Red'],['blue','--slate','Blue'],['green','--sig-out','Green']];
+    const WIDTHS = [[2,'Fine'],[3.4,'Medium'],[6.5,'Bold']];
+    const PAPERS = [['blank','Blank paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/>'],
+                    ['grid','Squared paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/>'],
+                    ['lined','Ruled paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16"/>']];
+    const ERASE = 14, UNDO = 200;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let el=null, cv=null, cx=null, W=0, H=0, dpr=1, open=false, raf=0;
-    let strokes=[], past=[], cur=null, id=null, erasing=false, cut=false, pen=false, tool='ink';
+    let strokes=[], past=[], cur=null, id=null, erasing=false, cut=false, pen=false;
+    let tool='pen', ink='ink', width=WIDTHS[1][0];
     function size(){
       const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
       const k = Math.min(window.devicePixelRatio||1, 3);
@@ -349,12 +360,13 @@ const APP = (() => {
       raf = 0;
       cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height);
       cx.setTransform(dpr,0,0,dpr,0,0);
-      cx.lineCap='round'; cx.lineJoin='round'; cx.lineWidth=LW;
-      const css = getComputedStyle(el);
+      cx.lineCap='round'; cx.lineJoin='round';
+      const css = getComputedStyle(el), col = {};
+      INKS.forEach(([k,v])=>{ col[k] = css.getPropertyValue(v).trim(); });
       for(const s of strokes){
         const p = s.p;
-        cx.strokeStyle = cx.fillStyle = css.getPropertyValue(INK[s.c]).trim();
-        if(p.length===1){ cx.beginPath(); cx.arc(p[0].x,p[0].y,LW/2,0,Math.PI*2); cx.fill(); continue; }
+        cx.strokeStyle = cx.fillStyle = col[s.c]; cx.lineWidth = s.w;
+        if(p.length===1){ cx.beginPath(); cx.arc(p[0].x,p[0].y,s.w/2,0,Math.PI*2); cx.fill(); continue; }
         cx.beginPath(); cx.moveTo(p[0].x,p[0].y);
         for(let k=1;k<p.length-1;k++) cx.quadraticCurveTo(p[k].x,p[k].y,(p[k].x+p[k+1].x)/2,(p[k].y+p[k+1].y)/2);
         cx.lineTo(p[p.length-1].x,p[p.length-1].y); cx.stroke();
@@ -378,7 +390,7 @@ const APP = (() => {
       if(left.length!==strokes.length){ strokes = left; cut = true; tick(); }
     }
     function down(e){
-      if(id!==null) return;
+      if(id!==null || tool==='laser') return;
       if(e.pointerType==='pen') pen = true;
       else if(e.pointerType==='touch' && pen) return;
       if(e.button!==0 && e.button!==5) return;
@@ -386,7 +398,7 @@ const APP = (() => {
       id = e.pointerId; try{ cv.setPointerCapture(id); }catch(_){}
       save();
       if(tool==='erase' || e.button===5){ erasing = true; cut = false; rub(at(e)); }
-      else { cur = { c:tool, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
+      else { cur = { c:ink, w:width, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
     }
     function move(e){
       if(e.pointerId!==id) return;
@@ -402,18 +414,33 @@ const APP = (() => {
       if(erasing && !cut) past.pop();
       id = null; cur = null; erasing = false;
     }
-    function pick(t){
-      tool = t;
-      el.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===t));
+    /* the pressed state of every tool follows from tool, ink, width and paper */
+    function mark(){
+      el.dataset.tool = tool; el.dataset.paper = state.paper;
+      el.querySelectorAll('[data-ink]').forEach(b=>b.setAttribute('aria-pressed', tool==='pen' && b.dataset.ink===ink));
+      el.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', tool==='pen' && +b.dataset.w===width));
+      el.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===tool));
+      el.querySelectorAll('[data-paper]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.paper===state.paper));
     }
+    function use(t){
+      if(t!=='laser' && tool==='laser') laser.clear();
+      tool = t; laser.sync(); if(tool!=='laser') laser.rest(); mark();
+    }
+    const svg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
     function build(){
       el = document.createElement('div'); el.id = 'board';
       if(TOP) el.setAttribute('popover','manual');
+      const sep = '<span class="bd-sep"></span>';
       el.innerHTML = '<canvas aria-label="Board"></canvas><div class="bd-tools">'
-        + '<button data-tool="ink" title="Pen">Pen</button>'
-        + '<button data-tool="red" title="Red pen"><i style="background:var(--sig-err)"></i></button>'
-        + '<button data-tool="blue" title="Blue pen"><i style="background:var(--slate)"></i></button>'
+        + INKS.map(([k,v,n])=>'<button data-ink="'+k+'" title="'+n+' pen" aria-label="'+n+' pen"><i style="background:var('+v+')"></i></button>').join('')
+        + sep
+        + WIDTHS.map(([w,n])=>'<button data-w="'+w+'" title="'+n+' line" aria-label="'+n+' line"><b style="height:'+w+'px"></b></button>').join('')
+        + sep
+        + '<button data-tool="laser" title="Laser pointer over the board">Laser</button>'
         + '<button data-tool="erase" title="Eraser: removes whole strokes">Eraser</button>'
+        + sep
+        + PAPERS.map(([k,n,d])=>'<button data-paper="'+k+'" title="'+n+'" aria-label="'+n+'">'+svg(d)+'</button>').join('')
+        + sep
         + '<button data-bd="undo" title="Undo (Z)">Undo</button>'
         + '<button data-bd="clear" title="Clear the board (C)">Clear</button>'
         + '<button data-act="board" title="Close the board (W or Esc)">Close</button></div>';
@@ -425,18 +452,21 @@ const APP = (() => {
       cv.addEventListener('pointercancel',up);
       el.addEventListener('click', e=>{
         const b = e.target.closest('button'); if(!b) return;
-        if(b.dataset.tool) pick(b.dataset.tool);
+        if(b.dataset.ink){ ink = b.dataset.ink; use('pen'); }
+        else if(b.dataset.w){ width = +b.dataset.w; use('pen'); }
+        else if(b.dataset.tool) use(b.dataset.tool);
+        else if(b.dataset.paper){ state.paper = b.dataset.paper; persist(); mark(); }
         else if(b.dataset.bd==='undo') undo();
         else if(b.dataset.bd==='clear') clear();
       });
-      pick(tool);
     }
     function refit(){ if(open){ size(); tick(); } }
     function show(){
       if(!el) build();
-      open = true; laser.rest();
+      open = true;
       el.style.display = 'block';
       if(TOP){ try{ el.showPopover(); }catch(_){} }
+      use(tool);
       size(); draw();
       window.addEventListener('resize',refit);
     }
@@ -445,10 +475,12 @@ const APP = (() => {
       window.removeEventListener('resize',refit);
       if(TOP){ try{ el.hidePopover(); }catch(_){} }
       el.style.display = 'none';
+      laser.clear(); laser.sync();
     }
     function undo(){ if(past.length){ strokes = past.pop(); tick(); } }
     function clear(){ if(strokes.length){ save(); strokes = []; tick(); } }
-    return { isOpen:()=>open, toggle(){ open ? hide() : show(); }, close(){ if(open) hide(); }, undo, clear };
+    return { isOpen:()=>open, lasering:()=>open && tool==='laser',
+             toggle(){ open ? hide() : show(); }, close(){ if(open) hide(); }, undo, clear };
   })();
 
   /* ---------- stage scaling: exact 1920×1080 basis, scaled to fit ---------- */
