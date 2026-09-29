@@ -190,6 +190,7 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 }
 #board .bd-tools button[aria-pressed=true]{ border-color:var(--slate); color:var(--ink); background:var(--paper-3); }
 #board .bd-tools i{ display:block; width:18px; height:18px; border-radius:50%; }
+#board .bd-tools u{ display:block; border:1.5px solid currentColor; border-radius:50%; box-sizing:border-box; }
 #board .bd-tools b{ display:block; width:18px; border-radius:4px; background:currentColor; }
 #board .bd-tools svg{ display:block; width:18px; height:18px; }
 #board .bd-sep{ width:1px; height:22px; margin:0 4px; background:var(--rule); }

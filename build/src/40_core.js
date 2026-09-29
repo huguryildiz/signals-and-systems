@@ -327,9 +327,10 @@ const APP = (() => {
      writes too, and a pen set down while a finger is writing takes the board
      from it, the finger's stroke being dropped as a palm. The laser tool hands the pointer to the laser, which then works
      over the board as it does over a slide, whatever the header has it set to.
-     The eraser removes whole strokes, and so does the eraser end of a pen that
-     has one. The writing stays in memory while the board is closed, so the
-     class can look at a slide and come back to it; a reload loses it. C clears
+     The eraser, in three sizes, removes every stroke it touches, and so does
+     the eraser end of a pen that has one, at the size last chosen.
+     The writing stays in memory while the board is closed, so the class can
+     look at a slide and come back to it; a reload loses it. C clears
      the board and Z undoes, a clearing included. A stroke keeps the name of its
      ink, not the colour, so the board redraws in the other theme's inks.
      Points are carried into the canvas through its own box, as the laser's
@@ -341,11 +342,12 @@ const APP = (() => {
     const PAPERS = [['blank','Blank paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/>'],
                     ['grid','Squared paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16M9.3 4v16M14.7 4v16"/>'],
                     ['lined','Ruled paper','<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9.3h16M4 14.7h16"/>']];
-    const ERASE = 14, UNDO = 200;
+    const RUBS = [[8,'Small'],[16,'Medium'],[30,'Large']];
+    const UNDO = 200;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let el=null, cv=null, cx=null, W=0, H=0, dpr=1, open=false, raf=0;
     let strokes=[], past=[], cur=null, id=null, kind='', erasing=false, cut=false, pen=false;
-    let tool='pen', ink='ink', width=WIDTHS[1][0];
+    let tool='pen', ink='ink', width=WIDTHS[1][0], rubr=RUBS[1][0];
     function size(){
       const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
       const k = Math.min(window.devicePixelRatio||1, 3);
@@ -380,7 +382,7 @@ const APP = (() => {
     function near(q,a,b){
       const dx=b.x-a.x, dy=b.y-a.y, L=dx*dx+dy*dy;
       const t = L ? Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/L)) : 0;
-      return Math.hypot(q.x-a.x-t*dx, q.y-a.y-t*dy) < ERASE;
+      return Math.hypot(q.x-a.x-t*dx, q.y-a.y-t*dy) < rubr;
     }
     function rub(q){
       const left = strokes.filter(s=>{
@@ -421,11 +423,12 @@ const APP = (() => {
       if(erasing && !cut) past.pop();
       id = null; cur = null; erasing = false;
     }
-    /* the pressed state of every tool follows from tool, ink, width and paper */
+    /* the pressed state of every tool follows from tool, ink, width, eraser size and paper */
     function mark(){
       el.dataset.tool = tool; el.dataset.paper = state.paper;
       el.querySelectorAll('[data-ink]').forEach(b=>b.setAttribute('aria-pressed', tool==='pen' && b.dataset.ink===ink));
       el.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', tool==='pen' && +b.dataset.w===width));
+      el.querySelectorAll('[data-rub]').forEach(b=>b.setAttribute('aria-pressed', tool==='erase' && +b.dataset.rub===rubr));
       el.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===tool));
       el.querySelectorAll('[data-paper]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.paper===state.paper));
     }
@@ -444,7 +447,8 @@ const APP = (() => {
         + WIDTHS.map(([w,n])=>'<button data-w="'+w+'" title="'+n+' line" aria-label="'+n+' line"><b style="height:'+w+'px"></b></button>').join('')
         + sep
         + '<button data-tool="laser" title="Laser pointer over the board">Laser</button>'
-        + '<button data-tool="erase" title="Eraser: removes whole strokes">Eraser</button>'
+        + sep
+        + RUBS.map(([r,n])=>'<button data-rub="'+r+'" title="'+n+' eraser: removes whole strokes" aria-label="'+n+' eraser"><u style="width:'+(8+r*0.35)+'px;height:'+(8+r*0.35)+'px"></u></button>').join('')
         + sep
         + PAPERS.map(([k,n,d])=>'<button data-paper="'+k+'" title="'+n+'" aria-label="'+n+'">'+svg(d)+'</button>').join('')
         + sep
@@ -466,6 +470,7 @@ const APP = (() => {
         const b = e.target.closest('button'); if(!b) return;
         if(b.dataset.ink){ ink = b.dataset.ink; use('pen'); }
         else if(b.dataset.w){ width = +b.dataset.w; use('pen'); }
+        else if(b.dataset.rub){ rubr = +b.dataset.rub; use('erase'); }
         else if(b.dataset.tool) use(b.dataset.tool);
         else if(b.dataset.paper){ state.paper = b.dataset.paper; persist(); mark(); }
         else if(b.dataset.bd==='undo') undo();
