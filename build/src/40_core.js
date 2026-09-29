@@ -328,7 +328,9 @@ const APP = (() => {
      from it, the finger's stroke being dropped as a palm. The laser tool hands the pointer to the laser, which then works
      over the board as it does over a slide, whatever the header has it set to.
      The eraser, in three sizes, removes every stroke it touches, and so does
-     the eraser end of a pen that has one, at the size last chosen.
+     the eraser end of a pen that has one, at the size last chosen. While the
+     eraser is chosen a ring of its reach follows the mouse or a hovering pen,
+     in place of the cursor, and a finger's contact while it rubs.
      The writing stays in memory while the board is closed, so the class can
      look at a slide and come back to it; a reload loses it. C clears
      the board and Z undoes, a clearing included. A stroke keeps the name of its
@@ -345,7 +347,7 @@ const APP = (() => {
     const RUBS = [[8,'Small'],[16,'Medium'],[30,'Large']];
     const UNDO = 200;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
-    let el=null, cv=null, cx=null, W=0, H=0, dpr=1, open=false, raf=0;
+    let el=null, cv=null, cx=null, ring=null, W=0, H=0, dpr=1, open=false, raf=0;
     let strokes=[], past=[], cur=null, id=null, kind='', erasing=false, cut=false, pen=false;
     let tool='pen', ink='ink', width=WIDTHS[1][0], rubr=RUBS[1][0];
     function size(){
@@ -377,6 +379,14 @@ const APP = (() => {
       }
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(draw); }
+    /* the ring shows the eraser's reach where the pointer is */
+    function aim(e){
+      if(tool!=='erase' && !erasing){ ring.style.display = 'none'; return; }
+      const q = at(e);
+      ring.style.width = ring.style.height = 2*rubr+'px';
+      ring.style.transform = 'translate('+(q.x-rubr)+'px,'+(q.y-rubr)+'px)';
+      ring.style.display = 'block';
+    }
     function save(){ past.push(strokes); if(past.length>UNDO) past.shift(); }
     /* the distance from q to the segment a–b, for the eraser */
     function near(q,a,b){
@@ -404,12 +414,15 @@ const APP = (() => {
         strokes = past.pop(); id = null; cur = null; erasing = false;
       }
       e.preventDefault();
+      if(e.button===5) erasing = true;
+      aim(e);
       id = e.pointerId; kind = e.pointerType; try{ cv.setPointerCapture(id); }catch(_){}
       save();
       if(tool==='erase' || e.button===5){ erasing = true; cut = false; rub(at(e)); }
       else { cur = { c:ink, w:width, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
     }
     function move(e){
+      if(id===null || e.pointerId===id) aim(e);
       if(e.pointerId!==id) return;
       const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
       for(const v of (evs.length ? evs : [e])){
@@ -421,6 +434,7 @@ const APP = (() => {
       if(e.pointerId!==id) return;
       /* an eraser that touched nothing leaves nothing to undo */
       if(erasing && !cut) past.pop();
+      if(e.pointerType==='touch' || e.type==='pointercancel' || tool!=='erase') ring.style.display = 'none';
       id = null; cur = null; erasing = false;
     }
     /* the pressed state of every tool follows from tool, ink, width, eraser size and paper */
@@ -434,14 +448,14 @@ const APP = (() => {
     }
     function use(t){
       if(t!=='laser' && tool==='laser') laser.clear();
-      tool = t; laser.sync(); if(tool!=='laser') laser.rest(); mark();
+      tool = t; if(ring && t!=='erase') ring.style.display = 'none'; laser.sync(); if(tool!=='laser') laser.rest(); mark();
     }
     const svg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
     function build(){
       el = document.createElement('div'); el.id = 'board';
       if(TOP) el.setAttribute('popover','manual');
       const sep = '<span class="bd-sep"></span>';
-      el.innerHTML = '<canvas aria-label="Board"></canvas><div class="bd-tools">'
+      el.innerHTML = '<canvas aria-label="Board"></canvas><div class="bd-ring"></div><div class="bd-tools">'
         + INKS.map(([k,v,n])=>'<button data-ink="'+k+'" title="'+n+' pen" aria-label="'+n+' pen"><i style="background:var('+v+')"></i></button>').join('')
         + sep
         + WIDTHS.map(([w,n])=>'<button data-w="'+w+'" title="'+n+' line" aria-label="'+n+' line"><b style="height:'+w+'px"></b></button>').join('')
@@ -456,11 +470,12 @@ const APP = (() => {
         + '<button data-bd="clear" title="Clear the board (C)">Clear</button>'
         + '<button data-act="board" title="Close the board (W or Esc)">Close</button></div>';
       document.body.appendChild(el);
-      cv = el.querySelector('canvas'); cx = cv.getContext('2d');
+      cv = el.querySelector('canvas'); cx = cv.getContext('2d'); ring = el.querySelector('.bd-ring');
       cv.addEventListener('pointerdown',down);
       cv.addEventListener('pointermove',move);
       cv.addEventListener('pointerup',up);
       cv.addEventListener('pointercancel',up);
+      cv.addEventListener('pointerleave',e=>{ if(e.pointerId!==id) ring.style.display = 'none'; });
       /* touch-action alone does not keep iPadOS from taking a pencil's first
          contact for a tap, a long press or a scroll and cancelling it */
       const hold = e=>{ if(e.cancelable) e.preventDefault(); };

@@ -177,7 +177,8 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 }
 #board::backdrop{ display:none; background:transparent; }
 #board canvas{ position:absolute; left:0; top:0; touch-action:none; cursor:crosshair !important; }
-#board[data-tool=laser] canvas{ cursor:none !important; }
+#board[data-tool=laser] canvas, #board[data-tool=erase] canvas{ cursor:none !important; }
+#board .bd-ring{ position:absolute; left:0; top:0; display:none; box-sizing:border-box; border:1.5px solid var(--graphite); border-radius:50%; background:color-mix(in srgb, var(--graphite) 8%, transparent); pointer-events:none; }
 #board .bd-tools{
   position:absolute; top:12px; right:12px; max-width:calc(100% - 24px);
   display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:4px;
