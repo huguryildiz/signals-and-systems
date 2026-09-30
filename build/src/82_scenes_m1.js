@@ -1014,7 +1014,7 @@ REAL_ENERGY,
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:150,xr:[-0.25,4.3],yr:[-2,2],ylabel:'x(t)',pad:{l:48,r:24,t:16,b:14},xtarget:9,ytarget:3});
-      waveBand(a,SND.phrase,0,4.3,C.ink);
+      waveBand(a,SND.phrase,0,4.3,C.in);
       return a.svg(); }},
     {t:'fig', frame:true, grow:true,
       live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
@@ -1024,10 +1024,10 @@ REAL_ENERGY,
       svg:v=>{
       const k=v?v.a:2;
       const a=P.Axes({w:560,h:180,xr:[-0.25,4.3],yr:[-2,2],xlabel:'t\\ (\\text{s})',ylabel:'x('+num(k)+'t)',pad:{l:48,r:24,t:16,b:34},xtarget:9,ytarget:3});
-      waveBand(a,t=>SND.phrase(k*t),0,4.3,C.mid);
+      waveBand(a,t=>SND.phrase(k*t),0,4.3,C.h);
       return a.svg(); },
       caption:'Four plucked notes, 0.4 s apart. At $a=2$ the melody is twice as fast and an octave higher, like a voice message at double speed.'},
-    {t:'legend', items:[['muted','$x(t)$'],['mid','$x(at)$']]}
+    {t:'legend', items:[['in','$x(t)$'],['h','$x(at)$']]}
   ], right:[
     {t:'eq', key:true, tex:'\\sin(2\\pi f_0 t)\\;\\longrightarrow\\;\\sin(2\\pi\\,a f_0\\,t)', label:'One tone under $t\\to at$'},
     {t:'note', kind:'def', head:'What you hear',
@@ -1280,7 +1280,7 @@ REAL_TRANSFORM,
       a.curve(t=>t*t,{color:C.in}); a.vline(0,{color:C.err,dash:'5 4',width:1.6,opacity:1});
       a.poly([[-0.7,0.49],[0.7,0.49]],{color:C.err,dash:'4 4',width:1.2});
       a.point(-0.7,0.49,{color:C.in}); a.point(0.7,0.49,{color:C.in});
-      a.note(0.04,-0.62,'axis of symmetry',{color:C.err,fs:13});
+      a.note(0.04,-0.84,'axis of symmetry',{color:C.err,fs:13});
       return a.svg(); },
       caption:'$t^2$ is even: the graph is its own mirror image about the axis $t=0$.'},
     {t:'fig', frame:true, svg:()=>{
@@ -1288,7 +1288,7 @@ REAL_TRANSFORM,
       a.curve(t=>t*t*t,{color:C.mid});
       a.poly([[-0.8,-0.512],[0.8,0.512]],{color:C.err,dash:'4 4',width:1.2});
       a.point(-0.8,-0.512,{color:C.mid}); a.point(0.8,0.512,{color:C.mid}); a.point(0,0,{color:C.err});
-      a.note(0.06,-0.62,'centre of symmetry: the origin',{color:C.err,fs:13});
+      a.note(0.06,-0.84,'centre of symmetry: the origin',{color:C.err,fs:13});
       return a.svg(); },
       caption:'$t^3$ is odd: a half-turn about the origin maps the graph onto itself, so $x(0)=0$.'}
   ], right:[
