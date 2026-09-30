@@ -332,7 +332,9 @@ const APP = (() => {
      eraser is chosen a ring of its reach follows the mouse or a hovering pen,
      in place of the cursor, and a finger's contact while it rubs.
      The board has no edge. A finger's drag moves the paper under the glass, in
-     any direction, and so does the wheel or a two-finger slide on a trackpad:
+     any direction, and so does the wheel or a two-finger slide on a trackpad;
+     two fingers pinching also zoom it, about the point between them, and so
+     does a pinch on a trackpad, from a quarter to four times its size:
      with two fingers always, and with one once a pen has touched the board or
      under the laser tool, where a finger has nothing else to do. A finger must
      travel a little before the paper follows, and a pen set down puts the
@@ -361,7 +363,8 @@ const APP = (() => {
     /* the paper's offset under the glass; the fingers that drag it, each with
        where it was last seen and whether it has travelled far enough to count */
     const SLOP = 8;
-    let ox=0, oy=0, pox=0, poy=0;
+    const ZMIN = 0.25, ZMAX = 4;
+    let ox=0, oy=0, zm=1, pox=0, poy=0, pzm=1, gest=null;
     const fing = new Map();
     function size(){
       const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
@@ -376,12 +379,20 @@ const APP = (() => {
       const r = cv.getBoundingClientRect();
       return { x:(e.clientX-r.left)*(r.width ? W/r.width : 1), y:(e.clientY-r.top)*(r.height ? H/r.height : 1) };
     }
-    function at(e){ const q = scr(e); return { x:q.x+ox, y:q.y+oy }; }
-    function place(){ el.style.backgroundPosition = (-ox)+'px '+(-oy)+'px'; tick(); }
+    function at(e){ const q = scr(e); return { x:q.x/zm+ox, y:q.y/zm+oy }; }
+    function place(){
+      el.style.setProperty('--z', zm);
+      el.style.backgroundPosition = (-ox*zm)+'px '+(-oy*zm)+'px'; tick();
+    }
+    /* zoom to k about the glass point (x,y), which stays over the same paper */
+    function zoomAt(k, x, y){
+      const z = Math.max(ZMIN, Math.min(ZMAX, zm*k));
+      ox += x/zm - x/z; oy += y/zm - y/z; zm = z; place();
+    }
     function draw(){
       raf = 0;
       cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height);
-      cx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr);
+      cx.setTransform(dpr*zm,0,0,dpr*zm,-ox*dpr*zm,-oy*dpr*zm);
       cx.lineCap='round'; cx.lineJoin='round';
       const css = getComputedStyle(el), col = {};
       INKS.forEach(([k,v])=>{ col[k] = css.getPropertyValue(v).trim(); });
@@ -408,7 +419,7 @@ const APP = (() => {
     function near(q,a,b){
       const dx=b.x-a.x, dy=b.y-a.y, L=dx*dx+dy*dy;
       const t = L ? Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/L)) : 0;
-      return Math.hypot(q.x-a.x-t*dx, q.y-a.y-t*dy) < rubr;
+      return Math.hypot(q.x-a.x-t*dx, q.y-a.y-t*dy) < rubr/zm;
     }
     function rub(q){
       const left = strokes.filter(s=>{
@@ -420,7 +431,8 @@ const APP = (() => {
       if(left.length!==strokes.length){ strokes = left; cut = true; tick(); }
     }
     function drag(e){
-      if(!fing.size){ pox = ox; poy = oy; }
+      if(!fing.size){ pox = ox; poy = oy; pzm = zm; }
+      gest = null;
       fing.set(e.pointerId, null); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
     }
     function down(e){
@@ -436,7 +448,7 @@ const APP = (() => {
       if(tool==='laser') return;
       if(e.pointerType==='pen'){
         pen = true;
-        if(fing.size){ fing.clear(); ox = pox; oy = poy; place(); }   /* that drag was the palm */
+        if(fing.size){ fing.clear(); gest = null; ox = pox; oy = poy; zm = pzm; place(); }   /* that drag was the palm */
       }
       if(e.button!==0 && e.button!==5) return;
       if(id!==null){
@@ -455,10 +467,23 @@ const APP = (() => {
     function move(e){
       if(fing.has(e.pointerId)){
         const f = fing.get(e.pointerId), q = scr(e);
-        if(!f){ fing.set(e.pointerId, { x:q.x, y:q.y, go:false }); return; }
-        if(!f.go){ if(Math.hypot(q.x-f.x, q.y-f.y) < SLOP) return; f.go = true; }
-        else { ox -= (q.x-f.x)/fing.size; oy -= (q.y-f.y)/fing.size; place(); }
-        f.x = q.x; f.y = q.y; return;
+        if(!f){ fing.set(e.pointerId, { x:q.x, y:q.y, sx:q.x, sy:q.y, go:false }); return; }
+        const px = f.x, py = f.y;
+        f.x = q.x; f.y = q.y;
+        if(!f.go){ if(Math.hypot(q.x-f.sx, q.y-f.sy) < SLOP) return; f.go = true; gest = null; }
+        /* two fingers: the paper follows their midpoint and their spread zooms it */
+        const two = fing.size===2 ? [...fing.values()] : null;
+        if(two && two[0] && two[1]){
+          const cxm = (two[0].x+two[1].x)/2, cym = (two[0].y+two[1].y)/2;
+          const d = Math.hypot(two[0].x-two[1].x, two[0].y-two[1].y);
+          if(gest){
+            zoomAt(gest.d ? d/gest.d : 1, gest.x, gest.y);
+            ox -= (cxm-gest.x)/zm; oy -= (cym-gest.y)/zm; place();
+          }
+          gest = { x:cxm, y:cym, d };
+          return;
+        }
+        ox -= (q.x-px)/zm/fing.size; oy -= (q.y-py)/zm/fing.size; place(); return;
       }
       if(id===null || e.pointerId===id) aim(e);
       if(e.pointerId!==id) return;
@@ -469,7 +494,7 @@ const APP = (() => {
       tick();
     }
     function up(e){
-      if(fing.delete(e.pointerId)) return;
+      if(fing.delete(e.pointerId)){ gest = null; return; }
       if(e.pointerId!==id) return;
       /* an eraser that touched nothing leaves nothing to undo */
       if(erasing && !cut) past.pop();
@@ -521,9 +546,10 @@ const APP = (() => {
       cv.addEventListener('touchstart',hold,{passive:false});
       cv.addEventListener('touchmove',hold,{passive:false});
       cv.addEventListener('wheel', e=>{
-        e.preventDefault(); if(e.ctrlKey) return;               /* a pinch is not a slide */
+        e.preventDefault();
         const k = e.deltaMode===1 ? 32 : 1;
-        ox += e.deltaX*k; oy += e.deltaY*k; place();
+        if(e.ctrlKey){ const q = scr(e); zoomAt(Math.exp(-e.deltaY*k*0.01), q.x, q.y); return; }   /* a trackpad pinch */
+        ox += e.deltaX*k/zm; oy += e.deltaY*k/zm; place();
       }, {passive:false});
       el.addEventListener('click', e=>{
         const b = e.target.closest('button'); if(!b) return;
@@ -547,7 +573,7 @@ const APP = (() => {
       window.addEventListener('resize',refit);
     }
     function hide(){
-      open = false; id = null; cur = null; erasing = false; fing.clear();
+      open = false; id = null; cur = null; erasing = false; fing.clear(); gest = null;
       window.removeEventListener('resize',refit);
       if(TOP){ try{ el.hidePopover(); }catch(_){} }
       el.style.display = 'none';

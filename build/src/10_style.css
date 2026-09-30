@@ -169,11 +169,11 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 }
 #board[data-paper=grid]{
   background-image:linear-gradient(var(--bd-line) 1px, transparent 1px), linear-gradient(90deg, var(--bd-line) 1px, transparent 1px);
-  background-size:32px 32px;
+  background-size:calc(32px*var(--z,1)) calc(32px*var(--z,1));
 }
 #board[data-paper=lined]{
-  background-image:linear-gradient(transparent 39px, var(--bd-line) 39px);
-  background-size:100% 40px;
+  background-image:linear-gradient(transparent calc(39px*var(--z,1)), var(--bd-line) calc(39px*var(--z,1)));
+  background-size:100% calc(40px*var(--z,1));
 }
 #board::backdrop{ display:none; background:transparent; }
 #board canvas{ position:absolute; left:0; top:0; touch-action:none; cursor:crosshair !important; }
