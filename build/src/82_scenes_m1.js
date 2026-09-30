@@ -724,7 +724,7 @@ const SC = [
     {t:'eq', tex:'E_T=\\int_{0}^{T}t^{2}\\,\\d t=\\left.\\dfrac{t^{3}}{3}\\right|_{0}^{T}=\\dfrac{T^{3}}{3}\\;\\to\\;\\infty',
       label:'Energy in the window', note:'The lower limit is $0$ because $x(t)=0$ for $t<0$.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}=\\infty',
+      {t:'eq', key:true, tex:'P_\\infty=\\lim_{T\\to\\infty}\\dfrac{E_T}{2T}=\\lim_{T\\to\\infty}\\dfrac{T^{2}}{6}\\to\\infty',
         label:'Average power', note:'Both quantities diverge, so the ramp is in neither class.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{t}$ for every $t$.<div class="nsep"></div>Which class is it in?',
