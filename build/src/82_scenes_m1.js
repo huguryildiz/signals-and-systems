@@ -9,6 +9,9 @@ const disc=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)])
 const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
 const ecgBeat = t => { const u=((t%0.8)+0.8)%0.8, g=(c,w,a)=>a*Math.exp(-(((u-c)/w)**2));
   return g(0.16,0.035,0.15)-g(0.285,0.008,0.12)+g(0.30,0.011,1.1)-g(0.318,0.01,0.25)+g(0.52,0.05,0.3); };
+/* the slides whose captions run to three lines get a shorter plot, so the page
+   does not lean on the fit-to-scene rescue in projector mode */
+const EXS = o => EXO(Object.assign({h:205}, o));
 function realGallery(cfg){
   return { id:cfg.id, module:'M1', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -236,16 +239,16 @@ const CAT_WAVE = realGallery({ id:'m1-cat-wave', nav:'Sine, square, triangle, sa
   keywords:'catalogue common signals periodic waveform sine square triangle sawtooth average power pitch timbre harmonics sound',
   budget:'A catalogue of four periodic waveforms; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
       a.curve(WAVE.sine,{color:C.in,n:900});
       return a.svg(); }, 'Sine: $x(t)=A\\sin(2\\pi t/T_0)$. Average power $A^2/2$.', at220(WAVE.sine)],
-    [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
       a.curve(WAVE.square,{color:C.in,n:1800});
       return a.svg(); }, 'Square: $x(t)=A$ for $0\\le t<T_0/2$ and $-A$ for $T_0/2\\le t<T_0$. Average power $A^2$.', at220(WAVE.square)],
-    [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
       a.curve(WAVE.tri,{color:C.in,n:900});
       return a.svg(); }, 'Triangle: $x(t)=A\\,(1-4|t|/T_0)$ for $|t|\\le T_0/2$. Average power $A^2/3$.', at220(WAVE.tri)],
-    [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
       a.curve(WAVE.saw,{color:C.in,n:1800});
       return a.svg(); }, 'Sawtooth: $x(t)=A\\,(2t/T_0-1)$ for $0\\le t<T_0$. Average power $A^2/3$.', at220(WAVE.saw)]
   ],
@@ -260,22 +263,22 @@ const CAT_SOUND = realGallery({ id:'m1-cat-sound', nav:'Chirp, beats, AM, FM',
   keywords:'catalogue common signals chirp sweep instantaneous frequency beats amplitude modulation AM tremolo frequency modulation FM vibrato siren sound',
   budget:'A catalogue of four audible signals; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
       a.curve(t=>Math.cos(2*Math.PI*(0.3*t+0.25*t*t)),{color:C.in,n:1600});
       return a.svg(); }, 'Chirp: $x(t)=\\cos\\!\\big(2\\pi(f_0t+\\tfrac{k}{2}t^2)\\big)$. Its frequency $f_0+kt$ rises with time. Drawn with $f_0=0.3$ Hz, $k=0.5$ Hz/s.',
       {items:[{label:'Play 200 Hz to 2 kHz', sound:()=>({f:t=>Math.cos(2*Math.PI*(200*t+450*t*t)), dur:2})}]}],
-    [()=>{ const a=P.Axes(EXO({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
       a.curve(t=>2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'}); a.curve(t=>-2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'});
       a.curve(t=>Math.cos(2*Math.PI*10*t)+Math.cos(2*Math.PI*11*t),{color:C.in,n:1600});
       return a.svg(); }, 'Beats: $\\cos(2\\pi f_1t)+\\cos(2\\pi f_2t)=2\\cos(\\pi(f_1-f_2)t)\\cos(\\pi(f_1+f_2)t)$. The loudness peaks $|f_1-f_2|$ times a second.',
       {items:[{label:'Play 440 Hz + 444 Hz', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+Math.cos(2*Math.PI*444*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXO({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
       const env=t=>1+0.8*Math.cos(2*Math.PI*t);
       a.curve(env,{color:C.muted,dash:'4 4'}); a.curve(t=>-env(t),{color:C.muted,dash:'4 4'});
       a.curve(t=>env(t)*Math.cos(2*Math.PI*12*t),{color:C.in,n:1600});
       return a.svg(); }, 'AM: $x(t)=\\big(1+m\\cos(2\\pi f_mt)\\big)\\cos(2\\pi f_ct)$ with $0<m\\le1$. The dashed envelope is $\\pm\\big(1+m\\cos(2\\pi f_mt)\\big)$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz', sound:()=>({f:t=>(1+0.8*Math.cos(2*Math.PI*3*t))*Math.cos(2*Math.PI*440*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXO({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
       a.curve(t=>Math.cos(2*Math.PI*10*t+5*Math.sin(2*Math.PI*t)),{color:C.in,n:1600});
       return a.svg(); }, 'FM: $x(t)=\\cos\\!\\big(2\\pi f_ct+\\beta\\sin(2\\pi f_mt)\\big)$. The amplitude stays fixed; the frequency $f_c+\\beta f_m\\cos(2\\pi f_mt)$ swings about $f_c$. Drawn with $f_c=10$ Hz, $f_m=1$ Hz, $\\beta=5$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz, $\\beta=30$', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t+30*Math.sin(2*Math.PI*3*t)), dur:3})}]}]
@@ -294,25 +297,25 @@ const telegraph = (rate,dur) => { const T=[]; let t=0, i=0;
 const TEL = telegraph(2.5,4);
 
 const CAT_RANDOM = realGallery({ id:'m1-cat-random', nav:'Noise, noisy tone, random walk, telegraph',
-  title:'Random Signals: Noise, a Noisy Tone, a Random Walk and a Telegraph Signal', eyebrow:'Module 1 · Common signals', src:'pp. 2–10',
+  title:'Random Signals: Noise, Noisy Tone, Random Walk and Telegraph', eyebrow:'Module 1 · Common signals', src:'pp. 2–10',
   objective:'Show four signals whose values are not given by a formula but drawn at random, and hear them.',
   keywords:'catalogue common signals random signal noise white noise noisy sinusoid signal plus noise random walk brown noise random telegraph sound',
   budget:'A catalogue of four random signals; each figure carries its rule and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[0,40],yr:[-1.2,1.2],xlabel:'n',ylabel:'w[n]',xstep:10}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,40],yr:[-1.2,1.2],xlabel:'n',ylabel:'w[n]',xstep:10}));
       a.stem(disc(hiss,0,40),{color:C.mid});
       return a.svg(); }, 'White noise $w[n]$: the samples are independent, with zero mean and the same variance. No sample predicts the next one.',
       {items:[{label:'Play noise', sound:()=>({f:t=>hiss(Math.floor(16000*t)), dur:1.5})}]}],
-    [()=>{ const a=P.Axes(EXO({xr:[0,3],yr:[-1.8,1.8],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.8,1.8],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
       a.curve(t=>Math.cos(2*Math.PI*t),{color:C.muted,dash:'4 4'});
       a.curve(t=>Math.cos(2*Math.PI*t)+0.35*hiss(Math.floor(60*t)),{color:C.in,n:1800});
       return a.svg(); }, 'Signal plus noise: $x(t)=\\cos(2\\pi f_0t)+\\sigma\\,w(t)$. The dashed curve is the tone alone. A measured signal almost always looks like this.',
       {items:[{label:'Play 440 Hz + noise', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+0.5*hiss(Math.floor(16000*t)), dur:2})}]}],
-    [()=>{ const w=walkSeq(60,1), a=P.Axes(EXO({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20}));
+    [()=>{ const w=walkSeq(60,1), a=P.Axes(EXS({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20}));
       a.stem(w.map((v,n)=>[n,v]),{color:C.mid,r:2.6});
       return a.svg(); }, 'Random walk: $x[n]=x[n-1]+w[n]$ with $x[0]=0$. Each step is random, but the sum wanders far from zero.',
       {items:[{label:'Play a random walk', sound:()=>{ const w=walkSeq(16000*2,0.995); return {f:t=>w[Math.floor(16000*t)]||0, dur:2}; }}]}],
-    [()=>{ const a=P.Axes(EXO({xr:[0,4],yr:[-1.5,1.5],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXS({xr:[0,4],yr:[-1.5,1.5],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
       a.curve(TEL,{color:C.in,n:2000});
       return a.svg(); }, 'Random telegraph: $x(t)$ is $+1$ or $-1$ and flips sign at random times. Only the times of the flips are random.',
       {items:[{label:'Play a telegraph signal', sound:()=>{ const f=telegraph(400,1.5); return {f, dur:1.5}; }}]}]
