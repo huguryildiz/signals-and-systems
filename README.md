@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/NumPy_%C2%B7_SymPy-0b1220?style=for-the-badge&logo=numpy&logoColor=4DABCF" alt="NumPy and SymPy">
   <img src="https://img.shields.io/badge/Playwright-0b1220?style=for-the-badge&logo=playwright&logoColor=45BA4B" alt="Playwright">
   <a href="https://signals-and-systems.huguryildiz.com/"><img src="https://img.shields.io/badge/signals--and--systems.huguryildiz.com-0b1220?style=for-the-badge&logo=vercel&logoColor=white" alt="Live site"></a>
+  <a href="https://github.com/huguryildiz/signals-and-systems/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/huguryildiz/signals-and-systems/checks.yml?branch=main&style=for-the-badge&label=checks" alt="Checks"></a>
 </p>
 
 <h3 align="center">
