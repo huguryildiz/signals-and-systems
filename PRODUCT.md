@@ -35,7 +35,8 @@ full argument reads the notes; a student in the room reads the slide and listens
 
 - One HTML file, served by the site. It makes no network request of its own; the one exception is
   the Python runtime, loaded from the course site when a reader presses **Run** in a code drawer.
-  No analytics. Progress is stored on the device only.
+  No analytics in the artifact or the notes; the site cover page alone
+  counts visits with cookieless GoatCounter. Progress is stored on the device only.
 - Fixed 1920×1080 stage, scaled to the window.
 - Every number on a page is recomputed by a verification script; every label in every figure is swept
   for collisions. A design change that a gate cannot check is a change someone has to check by eye.

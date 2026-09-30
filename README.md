@@ -73,7 +73,9 @@ with the questions only, and a formula reference.
 
 Students open the course at its site address and work there; the artifact is not handed out as a
 download. The PDF editions are available from the same site. Reading progress is kept in the reader's
-own browser and is not sent anywhere. The site has no sign-in and no analytics.
+own browser and is not sent anywhere. The site has no sign-in. Its cover page counts visits and
+clicks on its links with GoatCounter, which sets no cookies and stores no personal data; the
+artifact and the notes send nothing.
 
 The artifact has a student edition and an instructor edition. The published site carries the student
 edition only: the site build removes presenter notes, source references and teaching notes from the
