@@ -322,7 +322,7 @@ const APP = (() => {
      open. The paper is blank, squared or ruled, drawn in the theme's hairline
      colour and remembered with the other settings. A pen or the mouse writes,
      in one of four inks and three widths. Once a pen has touched the board a
-     finger is taken for the palm resting on the glass and does nothing, so a
+     finger is taken for the palm resting on the glass and writes nothing, so a
      hand can lie on an iPad while the Pencil writes; before that a finger
      writes too, and a pen set down while a finger is writing takes the board
      from it, the finger's stroke being dropped as a palm. The laser tool hands the pointer to the laser, which then works
@@ -331,6 +331,14 @@ const APP = (() => {
      the eraser end of a pen that has one, at the size last chosen. While the
      eraser is chosen a ring of its reach follows the mouse or a hovering pen,
      in place of the cursor, and a finger's contact while it rubs.
+     The board has no edge. A finger's drag moves the paper under the glass, in
+     any direction, and so does the wheel or a two-finger slide on a trackpad:
+     with two fingers always, and with one once a pen has touched the board or
+     under the laser tool, where a finger has nothing else to do. A finger must
+     travel a little before the paper follows, and a pen set down puts the
+     paper back where that drag found it, so a palm laid down ahead of the
+     Pencil does not shift the page. Strokes are kept in the paper's own
+     coordinates, and the squared or ruled paper moves with them.
      The writing stays in memory while the board is closed, so the class can
      look at a slide and come back to it; a reload loses it. C clears
      the board and Z undoes, a clearing included. A stroke keeps the name of its
@@ -350,6 +358,11 @@ const APP = (() => {
     let el=null, cv=null, cx=null, ring=null, W=0, H=0, dpr=1, open=false, raf=0;
     let strokes=[], past=[], cur=null, id=null, kind='', erasing=false, cut=false, pen=false;
     let tool='pen', ink='ink', width=WIDTHS[1][0], rubr=RUBS[1][0];
+    /* the paper's offset under the glass; the fingers that drag it, each with
+       where it was last seen and whether it has travelled far enough to count */
+    const SLOP = 8;
+    let ox=0, oy=0, pox=0, poy=0;
+    const fing = new Map();
     function size(){
       const de = document.documentElement, w = de.clientWidth, h = de.clientHeight;
       const k = Math.min(window.devicePixelRatio||1, 3);
@@ -358,14 +371,17 @@ const APP = (() => {
       cv.style.width = W+'px'; cv.style.height = H+'px';
       cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
     }
-    function at(e){
+    /* a point on the glass, and the same point on the paper */
+    function scr(e){
       const r = cv.getBoundingClientRect();
       return { x:(e.clientX-r.left)*(r.width ? W/r.width : 1), y:(e.clientY-r.top)*(r.height ? H/r.height : 1) };
     }
+    function at(e){ const q = scr(e); return { x:q.x+ox, y:q.y+oy }; }
+    function place(){ el.style.backgroundPosition = (-ox)+'px '+(-oy)+'px'; tick(); }
     function draw(){
       raf = 0;
       cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height);
-      cx.setTransform(dpr,0,0,dpr,0,0);
+      cx.setTransform(dpr,0,0,dpr,-ox*dpr,-oy*dpr);
       cx.lineCap='round'; cx.lineJoin='round';
       const css = getComputedStyle(el), col = {};
       INKS.forEach(([k,v])=>{ col[k] = css.getPropertyValue(v).trim(); });
@@ -382,7 +398,7 @@ const APP = (() => {
     /* the ring shows the eraser's reach where the pointer is */
     function aim(e){
       if(tool!=='erase' && !erasing){ ring.style.display = 'none'; return; }
-      const q = at(e);
+      const q = scr(e);
       ring.style.width = ring.style.height = 2*rubr+'px';
       ring.style.transform = 'translate('+(q.x-rubr)+'px,'+(q.y-rubr)+'px)';
       ring.style.display = 'block';
@@ -403,10 +419,25 @@ const APP = (() => {
       });
       if(left.length!==strokes.length){ strokes = left; cut = true; tick(); }
     }
+    function drag(e){
+      if(!fing.size){ pox = ox; poy = oy; }
+      fing.set(e.pointerId, null); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    }
     function down(e){
+      if(e.pointerType==='touch'){
+        if(id!==null && kind!=='touch') return;               /* a palm beside the writing pen */
+        if(pen || tool==='laser' || fing.size || id!==null){
+          e.preventDefault();
+          /* a second finger turns the first one's stroke into a drag */
+          if(id!==null){ fing.set(id, null); strokes = past.pop(); id = null; cur = null; erasing = false; ring.style.display = 'none'; tick(); }
+          drag(e); return;
+        }
+      }
       if(tool==='laser') return;
-      if(e.pointerType==='pen') pen = true;
-      else if(e.pointerType==='touch' && pen) return;
+      if(e.pointerType==='pen'){
+        pen = true;
+        if(fing.size){ fing.clear(); ox = pox; oy = poy; place(); }   /* that drag was the palm */
+      }
       if(e.button!==0 && e.button!==5) return;
       if(id!==null){
         if(e.pointerType!=='pen' || kind==='pen') return;
@@ -422,6 +453,13 @@ const APP = (() => {
       else { cur = { c:ink, w:width, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
     }
     function move(e){
+      if(fing.has(e.pointerId)){
+        const f = fing.get(e.pointerId), q = scr(e);
+        if(!f){ fing.set(e.pointerId, { x:q.x, y:q.y, go:false }); return; }
+        if(!f.go){ if(Math.hypot(q.x-f.x, q.y-f.y) < SLOP) return; f.go = true; }
+        else { ox -= (q.x-f.x)/fing.size; oy -= (q.y-f.y)/fing.size; place(); }
+        f.x = q.x; f.y = q.y; return;
+      }
       if(id===null || e.pointerId===id) aim(e);
       if(e.pointerId!==id) return;
       const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
@@ -431,6 +469,7 @@ const APP = (() => {
       tick();
     }
     function up(e){
+      if(fing.delete(e.pointerId)) return;
       if(e.pointerId!==id) return;
       /* an eraser that touched nothing leaves nothing to undo */
       if(erasing && !cut) past.pop();
@@ -481,6 +520,11 @@ const APP = (() => {
       const hold = e=>{ if(e.cancelable) e.preventDefault(); };
       cv.addEventListener('touchstart',hold,{passive:false});
       cv.addEventListener('touchmove',hold,{passive:false});
+      cv.addEventListener('wheel', e=>{
+        e.preventDefault(); if(e.ctrlKey) return;               /* a pinch is not a slide */
+        const k = e.deltaMode===1 ? 32 : 1;
+        ox += e.deltaX*k; oy += e.deltaY*k; place();
+      }, {passive:false});
       el.addEventListener('click', e=>{
         const b = e.target.closest('button'); if(!b) return;
         if(b.dataset.ink){ ink = b.dataset.ink; use('pen'); }
@@ -503,7 +547,7 @@ const APP = (() => {
       window.addEventListener('resize',refit);
     }
     function hide(){
-      open = false; id = null; cur = null; erasing = false;
+      open = false; id = null; cur = null; erasing = false; fing.clear();
       window.removeEventListener('resize',refit);
       if(TOP){ try{ el.hidePopover(); }catch(_){} }
       el.style.display = 'none';

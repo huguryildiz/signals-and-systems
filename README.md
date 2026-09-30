@@ -51,7 +51,7 @@ Alongside the scenes, the artifact contains:
 - **Practice questions.** Open-ended questions for each module, each with a worked solution that checks its own answer a second way.
 - **Projects to try.** Optional projects at the end of a module, to be done in MATLAB or Python on the student's own computer. Each card gives an aim, what it practises, a few steps and what to look for. They carry no grade and nothing is handed in. Every module from 1 to 7 has four or five.
 - **Code pages.** Short Python programs that reproduce a result from the lecture. A reader can run them in the browser from the course site.
-- **Laser pointer and whiteboard.** In projector mode the pointer becomes a red laser dot; holding the mouse button or pressing a pen draws strokes that fade after a pause or stay until cleared. Pressing `W` opens a whiteboard over the page, with four inks, three line widths and blank, squared or ruled paper. It takes a mouse, a finger or a pen such as the Apple Pencil, and its laser tool brings the pointer over the board.
+- **Laser pointer and whiteboard.** In projector mode the pointer becomes a red laser dot; holding the mouse button or pressing a pen draws strokes that fade after a pause or stay until cleared. Pressing `W` opens a whiteboard over the page, with four inks, three line widths and blank, squared or ruled paper. It takes a mouse, a finger or a pen such as the Apple Pencil, and its laser tool brings the pointer over the board. The board has no edge: a finger drags the paper in any direction, as does the wheel or a trackpad.
 
 The same content also produces a set of printable PDF editions: the lecture notes, a student workbook
 with the questions only, and a formula reference.
