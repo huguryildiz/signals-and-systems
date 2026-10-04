@@ -3077,6 +3077,8 @@ const PLOT = (() => {
         g.push(`<text x="${it.x}" y="${it.y+6}" ${halo()} font-size="${18*LBLS}" fill="${COL.ink}" text-anchor="middle">+</text>`);
       } else if(it.t==='line'){
         g.push(`<path d="${it.d}" fill="none" stroke="${it.color||COL.ink}" stroke-width="${1.5*STRW}"/>`);
+      } else if(it.t==='dot'){
+        g.push(`<circle cx="${it.x}" cy="${it.y}" r="${it.r||6}" fill="${it.color||COL.ink}"/>`);
       }
     });
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
@@ -20011,6 +20013,10 @@ const SC = [
       {t:'text',x:105,y:95,label:'inputs',fs:14},{t:'text',x:455,y:95,label:'outputs',fs:14},
       {t:'line',d:'M105 180 C 210 150, 350 150, 455 180',color:C.in},
       {t:'line',d:'M105 240 C 210 270, 350 270, 455 240',color:C.out},
+      {t:'dot',x:105,y:180,r:7,color:C.in},{t:'dot',x:455,y:180,r:7,color:C.in},
+      {t:'dot',x:105,y:240,r:7,color:C.out},{t:'dot',x:455,y:240,r:7,color:C.out},
+      {t:'text',x:70,y:180,label:'x_1',fs:19,tex:true,color:C.in},{t:'text',x:70,y:240,label:'x_2',fs:19,tex:true,color:C.out},
+      {t:'text',x:492,y:180,label:'y_1',fs:19,tex:true,color:C.in},{t:'text',x:492,y:240,label:'y_2',fs:19,tex:true,color:C.out},
       {t:'text',x:280,y:138,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
     ]}), caption:'Invertibility is a property of the map. Distinct inputs must land on distinct outputs.'}
   ], right:[
