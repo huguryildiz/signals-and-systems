@@ -250,22 +250,24 @@ const SC = [
 
 { id:'m2-memory-b', module:'M2', nav:'Accumulator', title:'Feedback Gives Memory', src:'p. 11',
   objective:'Show that output feedback can make a system remember its input.',
-  keywords:'accumulator feedback memory sum', slide:true, steps:2, blocks:[
+  keywords:'accumulator feedback memory sum', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 2 · Property 1', src:'p. 11'},
   {t:'title', text:'Feedback Gives Memory'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
       const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       a.stem(disc(n=>(n>=0&&n<=5)?1:0,-2,9),{color:C.in});
-      a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.out,r:3});
+      a.stem(disc(n=>n<0?0:Math.min(n+1,6),-2,9),{color:C.h,r:3});
       return a.svg(); },
       caption:'Each output of the accumulator carries every earlier input.'},
-    {t:'legend', items:[['in','$x[n]$'],['out','$y[n]$']], at:'tl'}
+    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']], at:'tl'}
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+y[n-1]\\\\&=x[n]+x[n-1]+y[n-2]\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]},
+      {t:'eq', tex:'y[n-1]=x[n-1]+y[n-2]', label:'Replace $n$ by $n-1$', note:'The equation holds at every time. Put $n-1$ where $n$ stands and it gives $y[n-1]$ in terms of $x[n-1]$ and $y[n-2]$.'}]},
     {t:'reveal', at:2, items:[
+      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+y[n-1]\\\\&=x[n]+x[n-1]+y[n-2]\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]},
+    {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'The accumulator is at rest and $x[n]=\\delta[n]$.<div class="nsep"></div>What is $y[3]$?',
         ask:{key:'m2-memory-b', choices:['$0$','$1$','$3$'], answer:1,
           why:'The impulse enters once and the feedback keeps it, so $y[n]=u[n]$ and $y[3]=1$.'}}]}
