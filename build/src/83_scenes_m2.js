@@ -291,7 +291,7 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'y[n-1]=x[n-1]+y[n-2]', label:'Replace $n$ by $n-1$', note:'The equation holds at every time. Put $n-1$ where $n$ stands and it gives $y[n-1]$ in terms of $x[n-1]$ and $y[n-2]$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+y[n-1]\\\\&=x[n]+x[n-1]+y[n-2]\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]},
+      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+\\underbrace{y[n-1]}_{\\text{previous output}}\\\\&=x[n]+\\underbrace{x[n-1]+y[n-2]}_{y[n-1]}\\\\&=x[n]+x[n-1]+\\underbrace{x[n-2]+y[n-3]}_{y[n-2]}\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'The accumulator is at rest and $x[n]=\\delta[n]$.<div class="nsep"></div>What is $y[3]$?',
         ask:{key:'m2-memory-b', choices:['$0$','$1$','$3$'], answer:1,
