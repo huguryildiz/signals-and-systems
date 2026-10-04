@@ -327,6 +327,42 @@ chk("M2 qc y[n]=x[n]x[n-1] is time invariant (two paths agree for a random input
 chk("M2 qc y=t x(t) is linear", sp.simplify(t*(a_*x1 + b_*x2) - (a_*t*x1 + b_*t*x2)) == 0)
 chk("M2 qc x(t-2) is LTI; x^2 fails superposition with a=2",
     (2*1)**2 != 2*(1**2))
+# Laboratory 2.3: the thirteen laboratory systems and their counterexamples
+gv = lambda v: v*abs(v)
+chk("Lab 2.3 x|x| is strictly increasing and sgn(y)sqrt|y| inverts it; 2x gives 4, not 2",
+    np.allclose([np.sign(gv(v))*np.sqrt(abs(gv(v))) for v in np.linspace(-3, 3, 61)], np.linspace(-3, 3, 61))
+    and np.all(np.diff(gv(np.linspace(-3, 3, 601))) > 0) and gv(2.0) == 4 and 2*gv(1.0) == 2)
+nn_ = np.arange(-6, 7)
+dl = lambda m: (nn_ == m).astype(float)
+chk("Lab 2.3 x[n^2]: delta[n-1] gives pulses at n = 1 and n = -1; no n has n^2 = 2",
+    np.array_equal((nn_**2 == 1).astype(float), dl(1) + dl(-1)) and not any(nn_**2 == 2))
+chk("Lab 2.3 2^n x[n]: delta[n-1] gives 2 delta[n-1]; x = 1 gives 2^n", 2**1 == 2 and 2**20 > 10**6)
+yv2 = lambda tv, t0: max(0.0, 2*tv - t0)                 # response to u(t - t0) of the 2t-limit integrator
+chk("Lab 2.3 int^{2t}: u(t-1) gives 1 at t = 1, the shifted output gives 0; u gives 2t; dy/dt = 2x(2t)",
+    yv2(1, 1) == 1 and 2*(1 - 1)*1 == 0 and yv2(3, 0) == 6
+    and sp.diff(sp.integrate(1, (tau, 0, 2*t)), t) == 2)
+mx = lambda x: np.maximum(x, np.concatenate(([0.0], x[:-1])))
+chk("Lab 2.3 max{x[n],x[n-1]}: -delta gives 0; delta gives delta[n] + delta[n-1]",
+    np.array_equal(mx(-dl(0)), 0*dl(0)) and np.array_equal(mx(dl(0)), dl(0) + dl(1)))
+fl = lambda tv, t0: 1.0 if math.floor(tv) - t0 >= 0 else 0.0
+chk("Lab 2.3 x(floor t): u(t-0.5) gives u(t-1); sin(pi t) is zero at the integers",
+    all(fl(tv, 0.5) == (1.0 if tv >= 1 else 0.0) for tv in np.linspace(-2, 3, 501))
+    and fl(0.75, 0.5) == 0 and np.allclose(np.sin(np.pi*np.arange(-5, 6)), 0))
+chk("Lab 2.3 y[n] = y[n-1] + x^2[n]: u[n] gives n+1; 2 delta gives 4u[n]",
+    list(np.cumsum(np.ones(6))) == [1, 2, 3, 4, 5, 6] and (2*1)**2 == 4)
+chk("Lab 2.3 cos(pi t/2) gives zero output in (x(t+1) + x(t-1))/2",
+    sp.simplify(sp.cos(sp.pi*(t + 1)/2) + sp.cos(sp.pi*(t - 1)/2)) == 0)
+Irc, xrc = sp.Function('I'), sp.Function('x')
+yrc = sp.exp(-t)*Irc(t)                                  # y = e^{-t} I(t), with I'(t) = e^{t} x(t)
+chk("Lab 2.3 RC: dy/dt + y = x; the weight integrates to 1",
+    sp.simplify(sp.diff(yrc, t).subs(sp.Derivative(Irc(t), t), sp.exp(t)*xrc(t)) + yrc - xrc(t)) == 0
+    and sp.integrate(sp.exp(-tau), (tau, 0, sp.oo)) == 1)
+chk("Lab 2.3 (-1)^n x[n]: y1[n-1] = -(-1)^n", all((-1)**(m - 1) == -(-1)**m for m in range(-5, 6)))
+up = lambda m: dl(2*m)                                   # upsampler response to delta[n-m]
+chk("Lab 2.3 upsampler: delta[n-1] gives delta[n-2], not delta[n-1]",
+    np.array_equal(up(1), dl(2)) and not np.array_equal(up(1), dl(1)))
+chk("Lab 2.3 the window integral of sin(pi t) over [t-2, t] is 0",
+    sp.simplify(sp.integrate(sp.sin(sp.pi*tau), (tau, t - 2, t))) == 0)
 # Laboratory 2.3 and the code page
 chk("M2 code accumulator on six ones: y[0..9] = 1..6, then 6",
     accum([1]*6 + [0]*4) == [1, 2, 3, 4, 5, 6, 6, 6, 6, 6])

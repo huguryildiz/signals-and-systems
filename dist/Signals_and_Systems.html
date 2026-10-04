@@ -3162,111 +3162,113 @@ const CONTENT = {
       crit:'$a x_1 + b x_2 \\to a y_1 + b y_2$ for all $a,b\\in\\mathbb{C}$. This is additivity and homogeneity together.' }
   ],
 
-  /* ---- system catalogue for Laboratory 2.3; every entry  ---- */
+  /* ---- system catalogue for Laboratory 2.3. The thirteen systems differ from the
+     lecture examples, the quick check and the practice questions, so the laboratory
+     tests transfer rather than recall. No two share the same six verdicts. ---- */
   SYSTEMS: [
-    { tex:'y(t)=\\bigl[\\,2x(t)-x^{2}(t)\\,\\bigr]^{2}', src:'p. 11', p:{
-      mem:{v:true, arg:'Only $x(t)$ appears. There is no $x(t+1)$, no $x(t-2)$ and no integral. The output at $t$ is a fixed function of the input at $t$.'},
-      inv:{v:false,arg:'Let $g(u)=(2u-u^{2})^{2}$. Then $g(1)=1$ and $g(1+\\sqrt2\\,)=\\bigl(2(1+\\sqrt2)-(1+\\sqrt2)^{2}\\bigr)^{2}=1$. Two constant inputs give the same output, so the map is not one-to-one.'},
-      caus:{v:true, arg:'A memoryless system is automatically causal: nothing later than $t$ is used.'},
-      stab:{v:true, arg:'If $|x(t)|\\le B$ then $|2x-x^{2}|\\le 2B+B^{2}$, so $|y|\\le(2B+B^{2})^{2}\\lt\\infty$.'},
-      ti:{v:true,  arg:'The rule contains no explicit $t$. Feeding $x(t-t_0)$ returns $[2x(t-t_0)-x^{2}(t-t_0)]^{2}=y(t-t_0)$.'},
-      lin:{v:false,arg:'Squaring is not additive: with $x_1=x_2=1$, $y_1=y_2=1$ but the response to $x_1+x_2=2$ is $[4-4]^{2}=0\\neq y_1+y_2=2$.'} } },
+    { tex:'y(t)=x(t)\\,u(t)', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:true, arg:'The output at $t$ uses only $x(t)$. The unit step $u(t)$ is a known function of $t$, not a stored input.'},
+      inv:{v:false,arg:'Take $x_1(t)=0$, and $x_2(t)=1$ for $t\\lt-1$ and $0$ otherwise. Both give $y(t)=0$, because the step sets every value for $t\\lt0$ to zero.'},
+      caus:{v:true, arg:'A memoryless system is causal: nothing later than $t$ is used.'},
+      stab:{v:true, arg:'$|u(t)|\\le1$, so $|y(t)|\\le|x(t)|\\le B$.'},
+      ti:{v:false, arg:'Take $x(t)=1$, so $y_1(t)=u(t)$. The shifted input $x(t-t_0)=1$ is the same constant and gives $u(t)$ again. The shifted output is $y_1(t-t_0)=u(t-t_0)$. They differ for every $t_0\\neq0$.'},
+      lin:{v:true, arg:'$\\bigl(a x_1(t)+b x_2(t)\\bigr)u(t)=a\\,x_1(t)u(t)+b\\,x_2(t)u(t)=a y_1(t)+b y_2(t)$.'} } },
 
-    { tex:'y[n]=x[n-1]', src:'pp. 11–12', p:{
-      mem:{v:false,arg:'The output at $n$ uses the sample at $n-1$: a one-step memory.'},
-      inv:{v:true, arg:'Inversion formula $x[n]=y[n+1]$; the unit delay is undone by a unit advance.'},
-      caus:{v:true, arg:'Only the past sample $x[n-1]$ is used.'},
-      stab:{v:true, arg:'$|y[n]|=|x[n-1]|\\le B$.'},
-      ti:{v:true,  arg:'Shifting the input by $n_0$ shifts $x[n-1]$ by $n_0$, hence shifts the output by $n_0$.'},
-      lin:{v:true, arg:'Delay is additive and homogeneous: $a x_1[n-1]+b x_2[n-1]$ is exactly $a y_1[n]+b y_2[n]$.'} } },
+    { tex:'y[n]=x[n^{2}]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'At $n=2$ the output is $y[2]=x[4]$, an input at a different time.'},
+      inv:{v:false,arg:'No integer $n$ has $n^{2}=2$, so $x[2]$ never reaches the output. The inputs $x_1[n]=0$ and $x_2[n]=\\delta[n-2]$ both give $y[n]=0$.'},
+      caus:{v:false,arg:'At $n=2$ the output needs $x[4]$, a future sample.'},
+      stab:{v:true, arg:'Every output sample is one input sample, so $|y[n]|\\le B$.'},
+      ti:{v:false, arg:'$x_1[n]=\\delta[n]$ gives $y_1[n]=\\delta[n^{2}]=\\delta[n]$. The delayed input $\\delta[n-1]$ gives $\\delta[n^{2}-1]=\\delta[n-1]+\\delta[n+1]$, a pulse at $n=1$ and at $n=-1$. But $y_1[n-1]=\\delta[n-1]$ has one pulse.'},
+      lin:{v:true, arg:'The system only reads the input at the index $n^{2}$: $a x_1[n^{2}]+b x_2[n^{2}]=a y_1[n]+b y_2[n]$.'} } },
 
-    { tex:'y[n]=x[n]+y[n-1]', src:'p. 11', p:{
-      mem:{v:false,arg:'Back-substitution gives $y[n]=\\sum_{k=0}^{\\infty}x[n-k]$, so the output depends on the entire input history.'},
-      inv:{v:true, arg:'The first difference recovers the input: $x[n]=y[n]-y[n-1]$.'},
-      caus:{v:true, arg:'Only present and past inputs enter the accumulated sum.'},
-      stab:{v:false,arg:'Take the bounded input $x[n]=u[n]$, $|x|\\le1$. Then $y[n]=n+1\\to\\infty$: bounded input, unbounded output.'},
-      ti:{v:true,  arg:'The recursion has constant coefficients and no explicit $n$. Starting from rest, delaying the input delays the whole output by the same amount.'},
-      lin:{v:true, arg:'The accumulation $\\sum_{k\\ge0}x[n-k]$ is a linear operation on $x$ (assuming initial rest).'} } },
+    { tex:'y(t)=x(t)\\,\\bigl|x(t)\\bigr|', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:true, arg:'Only $x(t)$ appears.'},
+      inv:{v:true, arg:'Let $g(v)=v|v|$. It equals $v^{2}$ for $v\\ge0$ and $-v^{2}$ for $v\\lt0$, so it is strictly increasing and the sign of $y$ is the sign of $x$. The inverse is $x(t)=\\operatorname{sgn}\\bigl(y(t)\\bigr)\\sqrt{|y(t)|}$.'},
+      caus:{v:true, arg:'A memoryless system is causal.'},
+      stab:{v:true, arg:'$|y(t)|=|x(t)|^{2}\\le B^{2}$.'},
+      ti:{v:true,  arg:'The rule has no explicit $t$. The input $x(t-t_0)$ gives $x(t-t_0)\\,|x(t-t_0)|=y(t-t_0)$.'},
+      lin:{v:false,arg:'Homogeneity fails. $x(t)=1$ gives $y=1$, but $2x(t)=2$ gives $2\\cdot|2|=4\\neq2\\cdot1$. A system can be invertible without being linear.'} } },
 
-    { tex:'y(t)=\\bigl[\\cos(t)+2\\bigr]\\,x(t)', src:'p. 12', p:{
-      mem:{v:true, arg:'Only $x(t)$ appears; $\\cos(t)+2$ is a known deterministic gain.'},
-      inv:{v:true, arg:'Since $\\cos(t)+2\\ge1\\gt0$ for every $t$, the gain never vanishes and $x(t)=\\dfrac{y(t)}{\\cos(t)+2}$.'},
-      caus:{v:true, arg:'Memoryless ⇒ causal.'},
-      stab:{v:true, arg:'$|y(t)|\\le 3|x(t)|\\le 3B$.'},
-      ti:{v:false, arg:'The gain depends on $t$. Take $x(t)=1$, which gives $y_1(t)=\\cos t+2$. The shifted input $x(t-t_0)=1$ is the same constant, so it gives $\\cos t+2$ again. But $y_1(t-t_0)=\\cos(t-t_0)+2$. The two differ unless $t_0=2\\pi k$.'},
-      lin:{v:true, arg:'Multiplication by a fixed function of $t$ is linear in $x$.'} } },
+    { tex:'y[n]=2^{n}\\,x[n]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:true, arg:'The output at $n$ uses only $x[n]$. The factor $2^{n}$ is a known gain.'},
+      inv:{v:true, arg:'$2^{n}\\gt0$ for every $n$, so $x[n]=2^{-n}\\,y[n]$.'},
+      caus:{v:true, arg:'A memoryless system is causal.'},
+      stab:{v:false,arg:'The input $x[n]=1$ is bounded by $B=1$, but $y[n]=2^{n}$ grows without bound as $n\\to\\infty$.'},
+      ti:{v:false, arg:'$x_1[n]=\\delta[n]$ gives $y_1[n]=2^{0}\\delta[n]=\\delta[n]$. The delayed input $\\delta[n-1]$ gives $2^{1}\\delta[n-1]=2\\,\\delta[n-1]$. But $y_1[n-1]=\\delta[n-1]$.'},
+      lin:{v:true, arg:'Multiplication by the fixed sequence $2^{n}$ is linear in $x$.'} } },
 
-    { tex:'y(t)=x^{2}(t)', src:'p. 12', p:{
-      mem:{v:true, arg:'The output at $t$ uses only $x(t)$.'},
-      inv:{v:false,arg:'Counterexample: $x_1(t)=1$ and $x_2(t)=-1$ are distinct inputs, yet $y_1(t)=y_2(t)=1$.'},
-      caus:{v:true, arg:'Memoryless ⇒ causal.'},
-      stab:{v:true, arg:'$|y|\\le B^{2}\\lt\\infty$.'},
-      ti:{v:true,  arg:'No explicit $t$ appears.'},
-      lin:{v:false,arg:'$(x_1+x_2)^{2}=x_1^{2}+2x_1x_2+x_2^{2}$; the cross term is not $y_1+y_2$.'} } },
+    { tex:'y(t)=\\int_{-\\infty}^{2t}x(\\tau)\\,d\\tau', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'At $t=1$ the output integrates $x(\\tau)$ over $\\tau\\le2$, not only at $\\tau=1$.'},
+      inv:{v:true, arg:'Differentiate with the chain rule: $\\dfrac{dy}{dt}=2\\,x(2t)$. Put $s=2t$, so $x(s)=\\tfrac12\\,\\dfrac{dy}{dt}\\Big|_{t=s/2}$.'},
+      caus:{v:false,arg:'At $t=1$ the upper limit is $2$, so the output uses $x(\\tau)$ for $1\\lt\\tau\\le2$, which are future values.'},
+      stab:{v:false,arg:'$x(t)=u(t)$ is bounded by $1$. For $t\\gt0$, $y(t)=\\int_{0}^{2t}1\\,d\\tau=2t$, which grows without bound.'},
+      ti:{v:false, arg:'Take $x(t)=u(t)$ and $t_0=1$. The input $u(t-1)$ gives $\\int_{1}^{2t}d\\tau=2t-1$ for $t\\ge\\tfrac12$, so the output at $t=1$ is $1$. The shifted output $y(t-1)=2(t-1)u(t-1)$ is $0$ at $t=1$.'},
+      lin:{v:true, arg:'Integration is linear: $\\int_{-\\infty}^{2t}\\bigl(a x_1+b x_2\\bigr)d\\tau=a y_1(t)+b y_2(t)$.'} } },
 
-    { tex:'y[n]=x[-n]', src:'p. 12', p:{
-      mem:{v:false,arg:'For $n\\neq0$ the output at $n$ uses the input at $-n$, a different instant.'},
-      inv:{v:true, arg:'Time reversal is its own inverse: applying it twice returns $x[n]$.'},
-      caus:{v:false,arg:'Counterexample: $y[-1]=x[1]$ — the output at $n=-1$ requires a future input.'},
-      stab:{v:true, arg:'$|y[n]|=|x[-n]|\\le B$.'},
-      ti:{v:false, arg:'With $x_1[n]=\\delta[n-1]$, $y_1[n]=\\delta[-n-1]=\\delta[n+1]$. Delaying the input by 1 gives $x_2[n]=\\delta[n-2]$ and $y_2[n]=\\delta[n+2]$, but $y_1[n-1]=\\delta[n]$. They differ.'},
-      lin:{v:true, arg:'Reversal maps $a x_1[n]+b x_2[n]$ to $a x_1[-n]+b x_2[-n]$.'} } },
+    { tex:'y[n]=\\max\\bigl\\{x[n],\\,x[n-1]\\bigr\\}', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'The output at $n$ also uses $x[n-1]$.'},
+      inv:{v:false,arg:'$x_1[n]=0$ gives $y_1[n]=0$. The input $x_2[n]=-\\delta[n]$ gives $\\max\\{-1,0\\}=0$ at $n=0$ and $\\max\\{0,-1\\}=0$ at $n=1$, so $y_2[n]=0$ too.'},
+      caus:{v:true, arg:'Only $x[n]$ and $x[n-1]$ are used: the present and the past.'},
+      stab:{v:true, arg:'The output is one of the two input samples, so $|y[n]|\\le B$.'},
+      ti:{v:true,  arg:'The rule has no explicit $n$. The input $x[n-n_0]$ gives $\\max\\{x[n-n_0],x[n-n_0-1]\\}=y[n-n_0]$.'},
+      lin:{v:false,arg:'Homogeneity fails for $a=-1$. $x[n]=\\delta[n]$ gives $y[n]=\\delta[n]+\\delta[n-1]$. The input $-\\delta[n]$ gives $y[n]=0$, not $-\\delta[n]-\\delta[n-1]$.'} } },
 
-    { tex:'y(t)=\\int_{-\\infty}^{t}x(\\tau)\\,d\\tau', src:'p. 12', p:{
-      mem:{v:false,arg:'The entire past of the input is integrated.'},
-      inv:{v:true, arg:'Differentiation inverts integration: $x(t)=\\dfrac{dy}{dt}$.'},
+    { tex:'y(t)=x\\bigl(\\lfloor t\\rfloor\\bigr)', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'$\\lfloor t\\rfloor$ is the largest integer not above $t$. At $t=1.5$ the output is $x(1)$, an input at an earlier time.'},
+      inv:{v:false,arg:'The system reads the input only at integer times. $x_1(t)=0$ and $x_2(t)=\\sin(\\pi t)$ agree at every integer, so both give $y(t)=0$.'},
+      caus:{v:true, arg:'$\\lfloor t\\rfloor\\le t$ for every $t$, so only present and past inputs are used.'},
+      stab:{v:true, arg:'Every output value is an input value, so $|y(t)|\\le B$.'},
+      ti:{v:false, arg:'$x_1(t)=u(t)$ gives $y_1(t)=u(\\lfloor t\\rfloor)=u(t)$. The input $u(t-0.5)$ gives $u(\\lfloor t\\rfloor-0.5)$, which is $1$ only when $\\lfloor t\\rfloor\\ge1$, that is $u(t-1)$. But $y_1(t-0.5)=u(t-0.5)$. They differ for $0.5\\le t\\lt1$.'},
+      lin:{v:true, arg:'$a x_1(\\lfloor t\\rfloor)+b x_2(\\lfloor t\\rfloor)=a y_1(t)+b y_2(t)$.'} } },
+
+    { tex:'y[n]=y[n-1]+x^{2}[n]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'From rest, back-substitution gives $y[n]=\\sum_{k=-\\infty}^{n}x^{2}[k]$, so the output depends on the whole input history.'},
+      inv:{v:false,arg:'$x[n]$ and $-x[n]$ have the same square, so they give the same output.'},
+      caus:{v:true, arg:'The sum $\\sum_{k\\le n}x^{2}[k]$ uses only present and past samples.'},
+      stab:{v:false,arg:'$x[n]=u[n]$ is bounded by $1$, but $y[n]=\\sum_{k=0}^{n}1=n+1$ grows without bound.'},
+      ti:{v:true,  arg:'The input $x[n-n_0]$ gives $\\sum_{k\\le n}x^{2}[k-n_0]$. Put $m=k-n_0$: the sum becomes $\\sum_{m\\le n-n_0}x^{2}[m]=y[n-n_0]$.'},
+      lin:{v:false,arg:'Homogeneity fails. $x[n]=\\delta[n]$ gives $y[n]=u[n]$, but $2\\delta[n]$ gives $4u[n]\\neq2u[n]$.'} } },
+
+    { tex:'y(t)=\\tfrac12\\bigl[x(t+1)+x(t-1)\\bigr]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'The output at $t$ uses the input at $t+1$ and at $t-1$.'},
+      inv:{v:false,arg:'Take $x(t)=\\cos(\\pi t/2)$. The sum-to-product identity gives $\\cos\\bigl(\\tfrac{\\pi(t+1)}{2}\\bigr)+\\cos\\bigl(\\tfrac{\\pi(t-1)}{2}\\bigr)=2\\cos\\bigl(\\tfrac{\\pi t}{2}\\bigr)\\cos\\bigl(\\tfrac{\\pi}{2}\\bigr)=0$. The zero input also gives $y(t)=0$.'},
+      caus:{v:false,arg:'The term $x(t+1)$ is a future value.'},
+      stab:{v:true, arg:'By the triangle inequality, $|y(t)|\\le\\tfrac12(B+B)=B$.'},
+      ti:{v:true,  arg:'The rule has no explicit $t$. The input $x(t-t_0)$ gives $\\tfrac12[x(t-t_0+1)+x(t-t_0-1)]=y(t-t_0)$.'},
+      lin:{v:true, arg:'Both terms are shifts of $x$, and an average of shifts is linear.'} } },
+
+    { tex:'y(t)=\\int_{-\\infty}^{t}e^{-(t-\\tau)}x(\\tau)\\,d\\tau', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'The output weights the whole past of the input.'},
+      inv:{v:true, arg:'Write $y(t)=e^{-t}\\int_{-\\infty}^{t}e^{\\tau}x(\\tau)\\,d\\tau$. The product rule gives $\\dfrac{dy}{dt}=-y(t)+x(t)$, so $x(t)=\\dfrac{dy}{dt}+y(t)$.'},
       caus:{v:true, arg:'The upper limit is $t$, so only $\\tau\\le t$ contributes.'},
-      stab:{v:false,arg:'For the bounded input $x(t)=u(t)$ the output is $y(t)=t\\,u(t)$, which is unbounded.'},
-      ti:{v:true,  arg:'A change of variable shows that delaying the input delays the integral by the same amount.'},
-      lin:{v:true, arg:'Integration is linear.'} } },
+      stab:{v:true, arg:'$|y(t)|\\le B\\int_{-\\infty}^{t}e^{-(t-\\tau)}\\,d\\tau$. Put $s=t-\\tau$: the integral is $\\int_{0}^{\\infty}e^{-s}\\,ds=1$, so $|y(t)|\\le B$.'},
+      ti:{v:true,  arg:'The input $x(t-t_0)$ gives $\\int_{-\\infty}^{t}e^{-(t-\\tau)}x(\\tau-t_0)\\,d\\tau$. Put $\\sigma=\\tau-t_0$: this is $\\int_{-\\infty}^{t-t_0}e^{-(t-t_0-\\sigma)}x(\\sigma)\\,d\\sigma=y(t-t_0)$.'},
+      lin:{v:true, arg:'Integration is linear, and the weight $e^{-(t-\\tau)}$ does not depend on $x$.'} } },
 
-    { tex:'y(t)=2x^{2}(t-1)+x(3t)', src:'p. 12', p:{
-      mem:{v:false,arg:'Both $x(t-1)$ and $x(3t)$ are evaluated away from $t$.'},
-      inv:{v:false,arg:'The squared term removes sign information, so two different inputs can give the same output.'},
-      caus:{v:false,arg:'For $t\\gt0$ the term $x(3t)$ needs a future value. At $t=1$ the output uses $x(3)$.'},
-      stab:{v:true, arg:'Proof: $|y|\\le 2|x^{2}(t-1)|+|x(3t)|\\le 2B^{2}+B\\lt\\infty$ by the triangle inequality.'},
-      ti:{v:false, arg:'The time-scaled term breaks it: the response to $x(t-t_0)$ contains $x(3t-t_0)$, whereas $y(t-t_0)$ contains $x(3t-3t_0)$.'},
-      lin:{v:false,arg:'The squared term is not additive.'} } },
+    { tex:'y[n]=(-1)^{n}\\,x[n]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:true, arg:'Only $x[n]$ appears. The sign $(-1)^{n}$ is a known gain.'},
+      inv:{v:true, arg:'$\\bigl((-1)^{n}\\bigr)^{2}=1$, so applying the same system again returns the input: $x[n]=(-1)^{n}\\,y[n]$.'},
+      caus:{v:true, arg:'A memoryless system is causal.'},
+      stab:{v:true, arg:'$|y[n]|=|x[n]|\\le B$.'},
+      ti:{v:false, arg:'Take $x[n]=1$, so $y_1[n]=(-1)^{n}$. The shifted input $x[n-1]=1$ gives $(-1)^{n}$ again. But $y_1[n-1]=(-1)^{n-1}=-(-1)^{n}$.'},
+      lin:{v:true, arg:'Multiplication by the fixed sequence $(-1)^{n}$ is linear in $x$.'} } },
 
-    { tex:'y[n]=\\sum_{k=-\\infty}^{n}x[k]', src:'p. 13', p:{
-      mem:{v:false,arg:'All past samples are accumulated.'},
-      inv:{v:true, arg:'First difference: $x[n]=y[n]-y[n-1]$.'},
-      caus:{v:true, arg:'The summation stops at $k=n$.'},
-      stab:{v:false,arg:'Proof: $x[n]=u[n]$ gives $|x[n]|\\le1$ but $y[n]=\\sum_{k=0}^{n}1=n+1\\to\\infty$.'},
-      ti:{v:true,  arg:'Shifting the input shifts the accumulated sum identically.'},
-      lin:{v:true, arg:'Summation is linear.'} } },
+    { tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,\\delta[n-2k]', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'The sum puts $x[k]$ at $n=2k$ and zero at every odd $n$. So $y[2]=x[1]$, an input at a different time.'},
+      inv:{v:true, arg:'Every input sample appears in the output: $x[n]=y[2n]$.'},
+      caus:{v:false,arg:'At $n=-2$ the output is $x[-1]$, and $-1\\gt-2$ is a future time.'},
+      stab:{v:true, arg:'Every output sample is an input sample or zero, so $|y[n]|\\le B$.'},
+      ti:{v:false, arg:'$x_1[n]=\\delta[n]$ gives $y_1[n]=\\delta[n]$. The delayed input $\\delta[n-1]$ puts its pulse at $n=2\\cdot1$, that is $\\delta[n-2]$. But $y_1[n-1]=\\delta[n-1]$.'},
+      lin:{v:true, arg:'$\\sum_{k}\\bigl(a x_1[k]+b x_2[k]\\bigr)\\delta[n-2k]=a y_1[n]+b y_2[n]$.'} } },
 
-    { tex:'y(t)=\\sin\\bigl(x(t)\\bigr)', src:'p. 13', p:{
-      mem:{v:true, arg:'Only $x(t)$ enters.'},
-      inv:{v:false,arg:'$\\sin$ is not one-to-one on ℝ: constant inputs $0$ and $\\pi$ both give $y=0$.'},
-      caus:{v:true, arg:'Memoryless ⇒ causal.'},
-      stab:{v:true, arg:'$|y|\\le1$ for every input, bounded or not.'},
-      ti:{v:true,  arg:'Proof: $y_2(t)=\\sin(x_1(t-t_0))=y_1(t-t_0)$.'},
-      lin:{v:false,arg:'$\\sin(a+b)\\neq\\sin a+\\sin b$ in general; e.g. $a=b=\\pi/2$ gives $0$ versus $2$.'} } },
-
-    { tex:'y[n]=n\\,x[n]', src:'p. 13', p:{
-      mem:{v:true, arg:'The output at $n$ uses only $x[n]$; the factor $n$ is a known coefficient, not a memory.'},
-      inv:{v:false,arg:'At $n=0$ the output is 0 regardless of $x[0]$, so $x[0]$ cannot be recovered.'},
-      caus:{v:true, arg:'Memoryless ⇒ causal.'},
-      stab:{v:false,arg:'$x[n]=1$ is bounded but $y[n]=n$ grows without bound.'},
-      ti:{v:false, arg:'Counterexample: $x_1[n]=\\delta[n]\\Rightarrow y_1[n]=n\\delta[n]=0$; $x_2[n]=\\delta[n-1]\\Rightarrow y_2[n]=n\\delta[n-1]=\\delta[n-1]$. But $y_1[n-1]=0\\neq y_2[n]$.'},
-      lin:{v:true, arg:'Multiplication by the fixed sequence $n$ is linear in $x$.'} } },
-
-    { tex:'y[n]=\\bigl(x[2n]\\bigr)^{2}', src:'p. 14', p:{
-      mem:{v:false,arg:'For $n\\neq0$ the output at $n$ uses the sample at $2n$.'},
-      inv:{v:false,arg:'Squaring loses the sign, and keeping only even indices discards the odd-indexed samples.'},
-      caus:{v:false,arg:'At $n=1$ the output needs $x[2]$, a future sample.'},
-      stab:{v:true, arg:'$|y[n]|\\le B^{2}$.'},
-      ti:{v:false, arg:'Keeping only every second sample is not time invariant. Delaying the input by one sample does not delay $x[2n]$ by one sample.'},
-      lin:{v:false,arg:'Proof: $(a x_1[2n]+b x_2[2n])^{2}$ contains the cross term $2ab\\,x_1[2n]x_2[2n]$, which is absent from $a y_1[n]+b y_2[n]$.'} } },
-
-    { tex:'y(t)=2\\pi\\,x(t)', src:'p. 14', p:{
-      mem:{v:true, arg:'Pure gain.'},
-      inv:{v:true, arg:'$x(t)=y(t)/2\\pi$.'},
-      caus:{v:true, arg:'Memoryless ⇒ causal.'},
-      stab:{v:true, arg:'$|y|\\le 2\\pi B$.'},
-      ti:{v:true,  arg:'No explicit $t$.'},
-      lin:{v:true, arg:'Proof: $y_3=2\\pi(ax_1+bx_2)=a\\,2\\pi x_1+b\\,2\\pi x_2=ay_1+by_2$. This system is LTI.'} } }
+    { tex:'y(t)=\\int_{t-2}^{t}x(\\tau)\\,d\\tau', src:'editorial (consistent with pp. 11–14)', p:{
+      mem:{v:false,arg:'The output integrates the input over the last two seconds.'},
+      inv:{v:false,arg:'Take $x(t)=\\sin(\\pi t)$, with period $2$. Then $y(t)=\\Bigl[-\\tfrac{\\cos(\\pi\\tau)}{\\pi}\\Bigr]_{t-2}^{t}=\\tfrac{\\cos(\\pi t-2\\pi)-\\cos(\\pi t)}{\\pi}=0$, the same output as the zero input.'},
+      caus:{v:true, arg:'The window $t-2\\le\\tau\\le t$ contains only present and past times.'},
+      stab:{v:true, arg:'$|y(t)|\\le\\int_{t-2}^{t}|x(\\tau)|\\,d\\tau\\le2B$.'},
+      ti:{v:true,  arg:'The input $x(t-t_0)$ gives $\\int_{t-2}^{t}x(\\tau-t_0)\\,d\\tau$. Put $\\sigma=\\tau-t_0$: this is $\\int_{t-t_0-2}^{t-t_0}x(\\sigma)\\,d\\sigma=y(t-t_0)$.'},
+      lin:{v:true, arg:'Integration over a fixed window is linear.'} } }
   ],
 
 
