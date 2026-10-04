@@ -585,13 +585,27 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Counterexamples to Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
+    /* Three panels on one n axis: the common input, then the result of each
+       path in the order of the cards on the right. The dashed line at n = 1
+       is where the two results differ. */
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-3,4],yr:[-0.3,1.5],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:40,r:16,t:14,b:28},xtarget:4,ytarget:2});
-      a.stem(disc(()=>0,-3,4),{color:C.out,showZero:true,r:3});
-      a.stem(disc(n=>n===1?1:0,-3,4),{color:C.err,r:3});
-      return a.svg(); },
-      caption:'Path 2 stays at 0. Path 1 puts a 1 at $n=1$.'},
-    {t:'legend', items:[['out','$y_1[n-1]=0$'],['err','$y_2[n]=\\delta[n-1]$']], at:'tl'}
+      const H = P.hOverride || 420, h = Math.round(H/3); P.hOverride = null;
+      const panel = (ylabel, f, col, tag)=>{
+        const a=P.Axes({w:560,h,xr:[-3,4],yr:[-0.3,1.4],grid:false,xlabel:'n',ylabel,xnameDrop:30,
+          pad:{l:46,r:30,t:12,b:24},xticksOverride:[-3,-2,-1,0,1,2,3],yticksOverride:[0,1]});
+        a.vline(1,{color:C.muted});
+        a.stem(disc(f,-3,3),{color:col,r:4});
+        if(tag) a.note(3.9,1.05,tag,{tex:true,color:col,fs:15,anchor:'end'});
+        return a.svg(); };
+      /* each panel is a nested svg; the inline size outweighs the
+         figure.fig svg rule, which would stretch it to the whole figure */
+      const place = (svg,y)=>svg.replace('<svg ',`<svg x="0" y="${y}" width="560" height="${h}" style="width:560px;height:${h}px" `);
+      return `<svg viewBox="0 0 560 ${3*h}" xmlns="http://www.w3.org/2000/svg" role="img">`
+        + place(panel('x_1[n]=\\delta[n]', n=>n===0?1:0, C.in, '\\text{input}'),0)
+        + place(panel('y_1[n-1]=0', ()=>0, C.out, '\\text{path 2}'),h)
+        + place(panel('y_2[n]=\\delta[n-1]', n=>n===1?1:0, C.err, '\\text{path 1}'),2*h)
+        + '</svg>'; },
+      caption:'The impulse $\\delta[n]$ sits at $n=0$, where the factor $n$ is 0, so path 2 returns zero everywhere. Path 1 moves the impulse to $n=1$, where the factor is 1, so it survives. The results differ at $n=1$.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=n\\,x[n]$.<div class="nsep"></div>Is the system time invariant?',
       ask:{key:'m2-ti-b', choices:['Time invariant','Not time invariant'], answer:1}},
