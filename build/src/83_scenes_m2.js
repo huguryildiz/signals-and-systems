@@ -368,16 +368,20 @@ const SC = [
   {t:'title', text:'Inverse Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['input $x[n]$','accumulator $y[n]$','first difference $w[n]$']},
+      frames:{labels:['input $x[n]$','accumulate $n=0$','accumulate $n=1$','accumulate $n=2$','accumulate $n=3$',
+        'accumulate $n\\ge4$','difference $n=0$','difference $n=1$','difference $n=2$','difference $n=3$',
+        'difference $n\\ge4$: $w[n]=x[n]$'], ms:700},
       svg:v=>{
-      /* The chain on top, the signal after the active block below. The stems
-         move from one signal to the next as the frame runs. */
+      /* The chain on top, one line of working under it, the signal below. Frames
+         1-5 build y[n]=y[n-1]+x[n] one sample at a time: the old level, then the
+         piece x[n] stacked on it (dashed when x[n] is negative). Frames 6-10 take
+         y[n]-y[n-1] one sample at a time: that piece slides down onto the axis and
+         becomes w[n]. Frame 0 is the printed figure. */
       const k=v?v.frame:0, H=P.hOverride||420; P.hOverride=null;
       const xs=[0,0,1,2,-1,1,0,0,0,0,0], n0=-2;                  /* x[n] for n = -2..8 */
       const ys=xs.map((_,i)=>xs.slice(0,i+1).reduce((p,q)=>p+q,0));
-      const sig=[xs,ys,xs], i0=Math.floor(k), i1=Math.ceil(k), f=k-i0;
-      const val=j=>sig[i0][j]+(sig[i1][j]-sig[i0][j])*f;
-      const on=i=>Math.round(k)===i;
+      const cl=u=>Math.max(0,Math.min(1,u));
+      const stage=k<0.5?0:k<5.5?1:2, on=i=>stage===i;
       const top=P.blocks({w:560,h:140,items:[
         {t:'arrow',x1:20,y1:70,x2:110,y2:70,color:on(0)?C.coral:C.ink},
         {t:'box',x:110,y:35,w:140,h:70,label:'\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
@@ -386,11 +390,49 @@ const SC = [
         {t:'arrow',x1:470,y1:70,x2:545,y2:70},
         {t:'text',x:62,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:285,y:54,label:'y[n]',tex:true,fs:16},
         {t:'text',x:508,y:54,label:'w[n]',tex:true,fs:16}]});
+      const work=['x[n]=\\delta[n]+2\\delta[n-1]-\\delta[n-2]+\\delta[n-3]',
+        'y[0]=y[-1]+x[0]=0+1=1','y[1]=y[0]+x[1]=1+2=3','y[2]=y[1]+x[2]=3-1=2','y[3]=y[2]+x[3]=2+1=3',
+        'y[n]=y[n-1]+x[n]=3+0=3,\\quad n\\ge4',
+        'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=3-1=2','w[2]=y[2]-y[1]=2-3=-1','w[3]=y[3]-y[2]=3-2=1',
+        'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge4'];
+      const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
+      const line=P.blocks({w:560,h:200,items:[{t:'text',x:280,y:138,label:work[r],tex:true,fs:17,color:C.ink}]});
       const a=P.Axes({w:560,h:H,xr:[-2.5,8.5],yr:[-1.6,3.8],xlabel:'n',ylabel:'\\text{amplitude}',
-        pad:{l:50,r:24,t:156,b:34},xtarget:11,ystep:1});
-      a.stem(xs.map((_,j)=>[n0+j,val(j)]),{color:[C.in,C.out,C.mid][Math.round(k)]});
-      return a.svg().replace(/<\/svg>\s*$/, inner(top)+'</svg>'); },
-      caption:'The accumulator followed by its inverse, the first difference. Step through the chain: $w[n]$ equals $x[n]$.'}
+        pad:{l:50,r:24,t:196,b:34},xtarget:11,ystep:1});
+      const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), SW=3;
+      const seg=(n,u0,u1,col,dash)=>a.raw(`<line x1="${X(n)}" y1="${Y(u0)}" x2="${X(n)}" y2="${Y(u1)}" stroke="${col}" stroke-width="${SW}"${dash?' stroke-dasharray="6 4"':''}/>`);
+      const dot=(n,u,col)=>a.raw(`<circle cx="${X(n)}" cy="${Y(u)}" r="4.6" fill="${col}"/>`);
+      const lvl=(n,u,col)=>a.raw(`<line x1="${X(n-1)}" y1="${Y(u)}" x2="${X(n)}" y2="${Y(u)}" stroke="${col}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/>`);
+      /* the input: full strength in frame 0, a ghost afterwards */
+      a.raw(`<g opacity="${(1-.72*cl(k)).toFixed(3)}">`); a.stem(xs.map((_,j)=>[n0+j,xs[j]]),{color:C.in}); a.raw('</g>');
+      if(k>0){
+        /* the accumulator: the samples reached so far */
+        const yo=1-.5*cl(k-5);
+        a.raw(`<g opacity="${yo.toFixed(3)}">`);
+        a.stem([[-2,0],[-1,0]],{color:C.out});
+        for(let n=0;n<=8;n++){
+          const j=n+2, am=cl(k-Math.min(n,4)); if(am<=0) continue;
+          const pv=ys[j-1], tp=pv+(ys[j]-pv)*am;
+          seg(n,0,Math.min(pv,tp),C.out);
+          if(Math.abs(tp-pv)>1e-9) seg(n,Math.min(pv,tp),Math.max(pv,tp),C.in,tp<pv);
+          if(n>=1&&n<=3&&k<=n+1+1e-9&&k>n+1e-9) lvl(n,pv,C.out);
+          dot(n,tp,C.out);
+        }
+        a.raw('</g>');
+      }
+      if(k>5){
+        /* the first difference: the piece between y[n-1] and y[n] slides down to the axis */
+        a.stem([[-2,0],[-1,0]],{color:C.mid});
+        for(let n=0;n<=8;n++){
+          const j=n+2, b=cl(k-5-Math.min(n,4)); if(b<=0) continue;
+          const pv=ys[j-1], sh=b*pv;
+          if(n>=1&&n<=3&&k<=n+6+1e-9&&k>n+5+1e-9) lvl(n,pv,C.out);
+          seg(n,pv-sh,ys[j]-sh,C.mid);
+          dot(n,ys[j]-sh,C.mid);
+        }
+      }
+      return a.svg().replace(/<\/svg>\s*$/, inner(top)+`<g opacity="${wop.toFixed(3)}">`+inner(line)+'</g></svg>'); },
+      caption:'Step through the chain. The accumulator adds $x[n]$ to the previous output. The first difference takes it out again, so $w[n]$ equals $x[n]$.'}
   ], right:[
     {t:'note', kind:'def', head:'Inverse system', html:'An invertible system $S$ has an inverse system. Placed in series after $S$, the inverse returns the input: $w=x$ for every $x$.'},
     {t:'reveal', at:1, items:[
