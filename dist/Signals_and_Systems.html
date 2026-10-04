@@ -20123,7 +20123,7 @@ const SC = [
         'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=3-1=2','w[2]=y[2]-y[1]=2-3=-1','w[3]=y[3]-y[2]=3-2=1',
         'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge4'];
       const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
-      const line=P.blocks({w:560,h:200,items:[{t:'text',x:280,y:138,label:work[r],tex:true,fs:17,color:C.ink}]});
+      const line=P.blocks({w:560,h:200,items:[{t:'text',x:280,y:148,label:work[r],tex:true,fs:13,color:C.coral}]});
       const a=P.Axes({w:560,h:H,xr:[-2.5,8.5],yr:[-1.6,3.8],xlabel:'n',ylabel:'\\text{amplitude}',
         pad:{l:50,r:24,t:196,b:34},xtarget:11,ystep:1});
       const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), SW=3;
