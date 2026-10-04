@@ -563,6 +563,8 @@ const PLOT = (() => {
         g.push(`<text x="${it.x}" y="${it.y+6}" ${halo()} font-size="${18*LBLS}" fill="${COL.ink}" text-anchor="middle">+</text>`);
       } else if(it.t==='line'){
         g.push(`<path d="${it.d}" fill="none" stroke="${it.color||COL.ink}" stroke-width="${1.5*STRW}"/>`);
+      } else if(it.t==='dot'){
+        g.push(`<circle cx="${it.x}" cy="${it.y}" r="${it.r||6}" fill="${it.color||COL.ink}"/>`);
       }
     });
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="${NS}" role="img" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;

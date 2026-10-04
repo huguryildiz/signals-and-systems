@@ -286,6 +286,10 @@ const SC = [
       {t:'text',x:105,y:95,label:'inputs',fs:14},{t:'text',x:455,y:95,label:'outputs',fs:14},
       {t:'line',d:'M105 180 C 210 150, 350 150, 455 180',color:C.in},
       {t:'line',d:'M105 240 C 210 270, 350 270, 455 240',color:C.out},
+      {t:'dot',x:105,y:180,r:7,color:C.in},{t:'dot',x:455,y:180,r:7,color:C.in},
+      {t:'dot',x:105,y:240,r:7,color:C.out},{t:'dot',x:455,y:240,r:7,color:C.out},
+      {t:'text',x:70,y:180,label:'x_1',fs:19,tex:true,color:C.in},{t:'text',x:70,y:240,label:'x_2',fs:19,tex:true,color:C.out},
+      {t:'text',x:492,y:180,label:'y_1',fs:19,tex:true,color:C.in},{t:'text',x:492,y:240,label:'y_2',fs:19,tex:true,color:C.out},
       {t:'text',x:280,y:138,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
     ]}), caption:'Invertibility is a property of the map. Distinct inputs must land on distinct outputs.'}
   ], right:[
