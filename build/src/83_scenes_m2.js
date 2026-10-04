@@ -340,12 +340,12 @@ const SC = [
       {t:'line',d:'M115 210 m-95,0 a95,125 0 1,0 190,0 a95,125 0 1,0 -190,0'},
       {t:'line',d:'M445 210 m-95,0 a95,125 0 1,0 190,0 a95,125 0 1,0 -190,0'},
       {t:'text',x:115,y:62,label:'\\text{inputs}',fs:16,tex:true},{t:'text',x:445,y:62,label:'\\text{outputs}',fs:16,tex:true},
-      {t:'line',d:'M170 165 L385 210',color:C.in},
-      {t:'line',d:'M170 255 L385 210',color:C.mid},
-      {t:'dot',x:170,y:165,r:7,color:C.in},{t:'dot',x:170,y:255,r:7,color:C.mid},
+      {t:'line',d:'M184 165 L385 210',color:C.in},
+      {t:'line',d:'M184 255 L385 210',color:C.mid},
+      {t:'dot',x:184,y:165,r:7,color:C.in},{t:'dot',x:184,y:255,r:7,color:C.mid},
       {t:'dot',x:385,y:210,r:8,color:C.err},
-      {t:'text',x:152,y:165,label:'x_1(t)=1',fs:19,tex:true,color:C.in,anchor:'end'},
-      {t:'text',x:152,y:255,label:'x_2(t)=-1',fs:19,tex:true,color:C.mid,anchor:'end'},
+      {t:'text',x:168,y:165,label:'x_1(t)=1',fs:17,tex:true,color:C.in,anchor:'end'},
+      {t:'text',x:168,y:255,label:'x_2(t)=-1',fs:17,tex:true,color:C.mid,anchor:'end'},
       {t:'text',x:403,y:210,label:'y(t)=1',fs:19,tex:true,color:C.err,anchor:'start'}
     ]}),
       caption:'Two distinct inputs map to one output, so squaring is not one-to-one and not invertible.'}
