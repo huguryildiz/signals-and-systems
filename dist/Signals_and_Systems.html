@@ -3056,7 +3056,9 @@ const PLOT = (() => {
           stroke="${it.color||COL.ink}" stroke-width="${1.6*STRW}" rx="2"/>`);
         (it.label||'').split('\n').forEach((L,i,arr)=>{
           const y = it.y+it.h/2+5+(i-(arr.length-1)/2)*18;
-          if(it.tex){ g.push(texName(L,{xMid:it.x+it.w/2, baseline:y+3, size:it.fs||16, color:COL.ink, figW:w})); return; }
+          /* the laid-out box puts the glyphs above its foot, so a TeX label is
+             lowered by a fifth of its size to sit in the middle of the box */
+          if(it.tex){ g.push(texName(L,{xMid:it.x+it.w/2, baseline:y+3+0.22*(it.fs||16)*LBLS, size:it.fs||16, color:COL.ink, figW:w})); return; }
           g.push(`<text x="${it.x+it.w/2}" y="${y}" ${halo()}
             font-size="${(it.fs||16)*LBLS}" fill="${COL.ink}" text-anchor="middle">${esc(L)}</text>`); });
       } else if(it.t==='arrow'){
