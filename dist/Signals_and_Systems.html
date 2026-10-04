@@ -19886,15 +19886,15 @@ const SC = [
       a.curve(t=>t>=0?1-Math.exp(-t/mr):0,{color:C.mid,dash:'7 5'});
       return a.svg(); },
       caption:'A constant input switched on at rest. With equal time constants $\\tau=RC=m/\\rho$ the two outputs follow the same curve $1-e^{-t/\\tau}$.'},
-    {t:'legend', items:[['in','input',true],['out','capacitor voltage'],['mid','car speed',true]]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'A model has limits', html:'Ohm\'s law and linear friction are idealizations. An analysis holds only while the signals stay in the range where the model is accurate.'}]}
+    {t:'legend', items:[['in','input',true],['out','capacitor voltage'],['mid','car speed',true]]}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\frac{dv_C(t)}{dt}+\\frac{1}{RC}\\,v_C(t)&=\\frac{1}{RC}\\,v_s(t)\\\\\\frac{dv(t)}{dt}+\\frac{\\rho}{m}\\,v(t)&=\\frac{1}{m}\\,f(t)\\end{aligned}', label:'Two systems',
       note:'RC circuit: voltage $v_s$ in, $v_C$ out. Car of mass $m$: force $f$ in, speed $v$ out, friction $\\rho v$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}\\frac{dy(t)}{dt}+a\\,y(t)&=b\\,x(t)\\\\y[n]+a\\,y[n-1]&=b\\,x[n]\\end{aligned}', label:'One form',
         note:'Both systems have the first line, and a savings account the second. One method serves every system of a form.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'A model has limits', html:'Ohm\'s law and linear friction are idealizations. An analysis holds only while the signals stay in the range where the model is accurate.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'A savings account with 1 % interest a month: $y[n]=1.01\\,y[n-1]+x[n]$.<div class="nsep"></div>Written as $y[n]+a\\,y[n-1]=b\\,x[n]$, what is $a$?',
         ask:{key:'m2-models', choices:['$-1.01$','$1.01$','$0.01$'], answer:0,
