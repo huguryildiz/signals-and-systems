@@ -20186,8 +20186,10 @@ const SC = [
       a.rect(-5,0,0,1,{fill:'rgba(74,122,70,.14)'});
       a.rect(0,0,5,1,{fill:'rgba(166,59,42,.13)'});
       a.vline(0,{color:C.coral,dash:'0',width:1.6,opacity:1});
-      a.note(-2.5,0.55,'available to a causal system',{anchor:'middle',color:C.out,fs:15});
-      a.note(2.5,0.55,'forbidden — the future',{anchor:'middle',color:C.err,fs:15});
+      a.note(-2.5,0.6,'available to',{anchor:'middle',color:C.out,fs:15});
+      a.note(-2.5,0.505,'a causal system',{anchor:'middle',color:C.out,fs:15});
+      a.note(2.5,0.6,'forbidden:',{anchor:'middle',color:C.err,fs:15});
+      a.note(2.5,0.505,'the future',{anchor:'middle',color:C.err,fs:15});
       a.note(0,1.12,'now',{anchor:'middle',color:C.coral,fs:14});
       return a.svg(); },
       caption:'A causal system may use the past and the present. It may not use the future.'}
