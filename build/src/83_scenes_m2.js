@@ -285,7 +285,7 @@ const SC = [
       }
       return a.svg(); },
       caption:'Each output of the accumulator carries every earlier input. Step through the frames to see $y[n]$ built one sample at a time.'},
-    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']], at:'tl'}
+    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']]}
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
