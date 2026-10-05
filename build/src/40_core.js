@@ -102,6 +102,7 @@ const APP = (() => {
     relayoutChrome();
     bindKeys();
     bindSwipe();
+    bindSliderTouch();
     bindChrome();
     window.addEventListener('hashchange', fromHash);
     watchSize();
@@ -595,7 +596,7 @@ const APP = (() => {
        real pixels and scrolls. Any transform left over from the wide layout is
        cleared here, so turning a phone from landscape to portrait does not
        leave the column shrunk. */
-    if(state.layout==='phone'){ stage.style.transform=''; stage.style.height=''; stage.dataset.k='1'; return; }
+    if(state.layout==='phone'){ stage.style.transform=''; stage.style.height=''; stage.dataset.k='1'; stage.style.setProperty('--ik','1'); return; }
     /* measure the painted box, not the window: inside a panel, an iframe or a
        zoomed view, window.innerWidth does not describe the area we can use. */
     const r = wrap.getBoundingClientRect();
@@ -612,6 +613,7 @@ const APP = (() => {
     const dy = Math.round((h - H*k) / 2);
     stage.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
     stage.dataset.k = k.toFixed(4);
+    stage.style.setProperty('--ik', Math.min(2.5, 1/k).toFixed(3));
   }
   function watchSize(){
     const wrap = document.getElementById('stagewrap');
@@ -789,6 +791,46 @@ const APP = (() => {
       if(performance.now() - s.t > MAXT || Math.abs(dx) < MIN || Math.abs(dx) < 1.5*Math.abs(dy)) return;
       dx < 0 ? next() : prev();
     }, {passive:true});
+  }
+
+  /* ---------- slider under a finger ----------
+     iOS Safari moves a range input only when the finger lands on its handle.
+     A finger anywhere on the slider sets the value at that point and drags it
+     from there; the input and change events are the ones a mouse would fire.
+     THUMB is the handle width in screen pixels that 10_style.css draws for a
+     coarse pointer, whatever the stage scale; the rectangle is in screen pixels. */
+  function bindSliderTouch(){
+    const THUMB = 26;
+    let r = null, id = null;
+    function setAt(x){
+      const b = r.getBoundingClientRect(), w = Math.min(THUMB, b.width/4);
+      const f = Math.min(1, Math.max(0, (x - b.left - w/2) / Math.max(1, b.width - w)));
+      const lo = +r.min || 0, hi = r.max === '' ? 100 : +r.max;
+      const old = r.value;
+      r.value = lo + f*(hi - lo);
+      if(r.value !== old) r.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    const find = e=>{ for(const t of e.changedTouches) if(t.identifier === id) return t; return null; };
+    document.addEventListener('touchstart', e=>{
+      const el = e.target.closest && e.target.closest('input[type=range]');
+      if(!el || el.disabled || r || e.touches.length !== 1) return;
+      e.preventDefault();
+      r = el; id = e.changedTouches[0].identifier;
+      setAt(e.changedTouches[0].clientX);
+    }, {passive:false});
+    document.addEventListener('touchmove', e=>{
+      const t = r && find(e);
+      if(!t) return;
+      e.preventDefault();
+      setAt(t.clientX);
+    }, {passive:false});
+    const end = e=>{
+      if(!r || !find(e)) return;
+      r.dispatchEvent(new Event('change', {bubbles:true}));
+      r = null; id = null;
+    };
+    document.addEventListener('touchend', end);
+    document.addEventListener('touchcancel', end);
   }
 
   function toggleMode(){ state.mode = state.mode==='lecture'?'study':'lecture'; applyBodyFlags(); persist(); onRender(); }
