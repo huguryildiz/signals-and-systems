@@ -255,42 +255,6 @@ window.C23 = [
  ['Check','Scaling the input by $a$ scales this output by $a^{2}$, so homogeneity fails on its own.']
 ]},
 
-{t:'h3', text:'Complex scale factors'},
-{t:'p', text:'Additivity and homogeneity are separate conditions. A system can pass one and fail the other. Homogeneity must hold for every complex $a$, and a real $a$ can hide a failure.'},
-{t:'ex', hd:'Example 2.12', rows:[
- ['Given','$y[n]=\\mathrm{Re}\\{x[n]\\}$, with complex inputs.'],
- ['Find','Is the system linear?'],
- ['Method','Additivity holds, because the real part of a sum is the sum of the real parts. Test homogeneity with the complex scale factor $a=j$.'],
- ['Solution','Write $x_1[n]=r[n]+j\\,s[n]$, where $r[n]$ and $s[n]$ are its real and imaginary parts. Then $y_1[n]=r[n]$. Scale the input by $j$ and use $j^{2}=-1$: $$\\begin{aligned}x_2[n]&=j\\,x_1[n]\\\\&=j\\,r[n]+j^{2}s[n]\\\\&=-s[n]+j\\,r[n].\\end{aligned}$$ The output is its real part, $y_2[n]=-s[n]$. Homogeneity asks for $a\\,y_1[n]=j\\,r[n]$. A real $-s[n]$ cannot equal an imaginary $j\\,r[n]$ unless both are zero. So $y_2\\neq a\\,y_1$, and the system is <b>not</b> linear.'],
- ['Check','Take the single value $x_1=2+j$. Then $y_1=2$ and $a\\,y_1=2j$. The scaled input is $j(2+j)=2j+j^{2}=-1+2j$, whose real part is $y_2=-1\\neq2j$. For a real $a$, $\\mathrm{Re}\\{a\\,x\\}=a\\,\\mathrm{Re}\\{x\\}$, so the test with a real scalar passes.']
-]},
-{t:'fig', svg:()=>{const a=ax({xr:[-3.2,3.2],yr:[-1.2,2.7],xlabel:'\\mathrm{Re}',ylabel:'\\mathrm{Im}',h:215,pad:{l:50,r:20,t:14,b:32},xstep:1,ystep:1});
-  a.poly([[2,1],[2,0]],{color:C.in,dash:'4 4',width:1.4}); a.poly([[-1,2],[-1,0]],{color:C.mid,dash:'4 4',width:1.4});
-  a.poly([[0,0],[2,1]],{color:C.in}); a.poly([[0,0],[-1,2]],{color:C.mid});
-  a.point(2,1,{color:C.in}); a.point(-1,2,{color:C.mid}); a.point(2,0,{color:C.out}); a.point(0,2,{color:C.out}); a.point(-1,0,{color:C.err});
-  a.note(2,1,'x_1=2+j',{tex:true,dx:10,dy:4,color:C.in,fs:14});
-  a.note(-1,2,'a\\,x_1=-1+2j',{tex:true,anchor:'end',dx:-10,dy:4,color:C.mid,fs:14});
-  a.note(0,2,'a\\,y_1=2j',{tex:true,dx:10,dy:-6,color:C.out,fs:14});
-  a.note(2,0,'y_1=2',{tex:true,dx:8,dy:-12,color:C.out,fs:14});
-  a.note(-1,0,'y_2=-1',{tex:true,anchor:'end',dx:-8,dy:-10,color:C.err,fs:14});
-  return a.svg();},
- cap:'Example 2.12 in the complex plane with $a=j$. The output $y_2=\\mathrm{Re}\\{a\\,x_1\\}$ is $-1$, but $a\\,y_1$ is $2j$.'},
-
-{t:'h3', text:'Incrementally linear systems'},
-{t:'p', text:'Every linear system maps the zero input to the zero output. Put $a=0$ in homogeneity: $S\\{0\\cdot x\\}=0\\cdot y=0$. So a rule with an added constant cannot be linear. For example, $y(t)=x(t)+1$ gives $y=1$ for the zero input.'},
-{t:'ex', hd:'Example 2.13', rows:[
- ['Given','$y[n]=3\\,x[n]+2$, with the constant inputs $x_1[n]=1$ and $x_2[n]=2$.'],
- ['Find','Does $x_1+x_2$ give $y_1+y_2$?'],
- ['Method','Compute the three outputs directly from the rule.'],
- ['Solution','$$\\begin{aligned}y_1[n]&=3\\cdot1+2=5,\\\\y_2[n]&=3\\cdot2+2=8,\\\\y_3[n]&=3\\cdot(1+2)+2=11.\\end{aligned}$$ But $y_1+y_2=5+8=13\\neq11$. Additivity fails, so the system is not linear.'],
- ['Check','The gap $13-11=2$ is the added constant. It enters $y_3$ once but $y_1+y_2$ twice.']
-]},
-{t:'p', text:'Split the output into a linear part and a part that does not depend on the input:'},
-{t:'eq', tex:'y[n]=\\underbrace{3\\,x[n]}_{\\text{linear}}+\\underbrace{2}_{y_0[n]}.'},
-{t:'p', text:'The term $y_0[n]$ is the <b>zero-input response</b>, the output when $x[n]=0$. The difference of two outputs is linear in the difference of the inputs, because the constant cancels:'},
-{t:'eq', tex:'\\begin{aligned}y_1[n]-y_2[n]&=\\bigl(3\\,x_1[n]+2\\bigr)-\\bigl(3\\,x_2[n]+2\\bigr)\\\\&=3\\bigl(x_1[n]-x_2[n]\\bigr).\\end{aligned}'},
-{t:'p', text:'A system with this property is called <b>incrementally linear</b>. It is a linear system plus a zero-input response.'},
-
 {t:'h2', num:'2.3', text:'Classification in practice'},
 {t:'p', text:'Test an unfamiliar system in a fixed order. The order puts the tests that most often fail first.'},
 {t:'ol', items:[
