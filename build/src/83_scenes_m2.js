@@ -190,7 +190,7 @@ const SC = [
           {t:'arrow',x1:35,y1:78,x2:120,y2:78},{t:'box',x:120,y:52,w:100,h:52,label:'S_1',tex:true},
           {t:'arrow',x1:220,y1:78,x2:320,y2:78},{t:'box',x:320,y:52,w:100,h:52,label:'S_2',tex:true},
           {t:'arrow',x1:420,y1:78,x2:525,y2:78},
-          {t:'text',x:70,y:62,label:'x',tex:true,fs:17},{t:'text',x:480,y:62,label:'y',tex:true,fs:17}], ''],
+          {t:'text',x:70,y:62,label:'x',tex:true,fs:17},{t:'text',x:480,y:62,label:'y',tex:true,fs:17}], '', {t:'text',x:525,y:26,label:'y=S_2\\big(S_1(x)\\big)',tex:true,fs:15,anchor:'end',color:C.ink}],
         [[tag(146,'PARALLEL',2),
           {t:'line',d:'M35 215 H90 M90 185 V245'},
           {t:'arrow',x1:90,y1:185,x2:200,y2:185},{t:'box',x:200,y:163,w:100,h:44,label:'S_1',tex:true},
@@ -198,16 +198,20 @@ const SC = [
           {t:'line',d:'M300 185 H410 V201 M300 245 H410 V229'},{t:'sum',x:410,y:215},
           {t:'arrow',x1:424,y1:215,x2:525,y2:215},
           {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17}],
-         head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z')],
+         head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z'),
+         {t:'text',x:525,y:146,label:'y=S_1(x)+S_2(x)',tex:true,fs:15,anchor:'end',color:C.ink}],
         [[tag(296,'FEEDBACK',3),
           {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
           {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
           {t:'arrow',x1:300,y1:345,x2:525,y2:345},
           {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
-          {t:'text',x:58,y:329,label:'x',tex:true,fs:17},{t:'text',x:480,y:329,label:'y',tex:true,fs:17}],
-         head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z')]
+          {t:'text',x:58,y:329,label:'x[n]',tex:true,fs:17},{t:'text',x:480,y:329,label:'y[n]',tex:true,fs:17},
+          {t:'text',x:175,y:388,label:'y[n-1]',tex:true,fs:15}],
+         head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z'),
+         {t:'text',x:525,y:296,label:'y[n]=x[n]+y[n-1]',tex:true,fs:15,anchor:'end',color:C.ink}]
       ];
-      const body=groups.map(([items,extra],i)=>`<g opacity="${groupOp(k,i+1).toFixed(3)}">${inner(P.blocks({w:560,h:440,items}))}${extra}</g>`).join('');
+      // each relation appears once Next reaches its connection, and stays
+      const body=groups.map(([items,extra,eq],i)=>`<g opacity="${groupOp(k,i+1).toFixed(3)}">${inner(P.blocks({w:560,h:440,items}))}${extra}<g opacity="${Math.min(1,Math.max(0,k-i)).toFixed(3)}">${inner(P.blocks({w:560,h:440,items:[eq]}))}</g></g>`).join('');
       return `<svg viewBox="0 0 560 440" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'Three ways to connect two systems, taken one at a time with Next. The circle adds the signals that enter it.'}
   ], right:[
@@ -369,20 +373,20 @@ const SC = [
   {t:'title', text:'Inverse Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['input $x[n]$','accumulate $n=0$','accumulate $n=1$','accumulate $n=2$','accumulate $n=3$',
-        'accumulate $n\\ge4$','difference $n=0$','difference $n=1$','difference $n=2$','difference $n=3$',
-        'difference $n\\ge4$: $w[n]=x[n]$'], ms:700},
+      frames:{labels:['input $x[n]$','accumulate $n=0$','accumulate $n=1$','accumulate $n=2$',
+        'accumulate $n\\ge3$','difference $n=0$','difference $n=1$','difference $n=2$',
+        'difference $n\\ge3$: $w[n]=x[n]$'], ms:700},
       svg:v=>{
       /* The chain on top, one line of working under it, the signal below. Frames
-         1-5 build y[n]=y[n-1]+x[n] one sample at a time: the old level, then the
-         piece x[n] stacked on it (dashed when x[n] is negative). Frames 6-10 take
+         1-4 build y[n]=y[n-1]+x[n] one sample at a time: the old level, then the
+         piece x[n] stacked on it (dashed when x[n] is negative). Frames 5-8 take
          y[n]-y[n-1] one sample at a time: that piece slides down onto the axis and
          becomes w[n]. Frame 0 is the printed figure. */
       const k=v?v.frame:0, H=P.hOverride||420; P.hOverride=null;
-      const xs=[0,0,1,2,-1,1,0,0,0,0,0], n0=-2;                  /* x[n] for n = -2..8 */
+      const xs=[0,0,1,1,1,0,0,0,0,0,0], n0=-2;                  /* x[n] for n = -2..8 */
       const ys=xs.map((_,i)=>xs.slice(0,i+1).reduce((p,q)=>p+q,0));
       const cl=u=>Math.max(0,Math.min(1,u));
-      const stage=k<0.5?0:k<5.5?1:2, on=i=>stage===i;
+      const stage=k<0.5?0:k<4.5?1:2, on=i=>stage===i;
       const top=P.blocks({w:560,h:140,items:[
         {t:'arrow',x1:15,y1:70,x2:85,y2:70,color:on(0)?C.coral:C.ink},
         {t:'box',x:85,y:35,w:190,h:70,label:'y[n]=\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
@@ -391,14 +395,14 @@ const SC = [
         {t:'arrow',x1:495,y1:70,x2:550,y2:70},
         {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
         {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
-      const work=['x[n]=\\delta[n]+2\\delta[n-1]-\\delta[n-2]+\\delta[n-3]',
-        'y[n]=x[n]+\\underbrace{x[n-1]+x[n-2]+\\cdots}_{y[n-1]},\\quad y[0]=x[0]+y[-1]=1+0=1','y[1]=y[0]+x[1]=1+2=3','y[2]=y[1]+x[2]=3-1=2','y[3]=y[2]+x[3]=2+1=3',
-        'y[n]=y[n-1]+0=3,\\quad n\\ge4',
-        'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=3-1=2','w[2]=y[2]-y[1]=2-3=-1','w[3]=y[3]-y[2]=3-2=1',
-        'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge4'];
+      const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
+        'y[n]=x[n]+\\underbrace{x[n-1]+x[n-2]+\\cdots}_{y[n-1]},\\quad y[0]=x[0]+y[-1]=1+0=1','y[1]=y[0]+x[1]=1+1=2','y[2]=y[1]+x[2]=2+1=3',
+        'y[n]=y[n-1]+0=3,\\quad n\\ge3',
+        'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=2-1=1','w[2]=y[2]-y[1]=3-2=1',
+        'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge3'];
       const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
       const line=P.blocks({w:560,h:200,items:[{t:'text',x:280,y:148,label:work[r],tex:true,fs:13,color:C.coral}]});
-      const a=P.Axes({w:560,h:H,xr:[-2.5,8.5],yr:[-1.6,3.8],xlabel:'n',ylabel:['x[n]','y[n]','w[n]'][stage],
+      const a=P.Axes({w:560,h:H,xr:[-2.5,8.5],yr:[-0.6,3.8],xlabel:'n',ylabel:['x[n]','y[n]','w[n]'][stage],
         pad:{l:50,r:24,t:196,b:34},xtarget:11,ystep:1});
       const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), SW=3;
       const seg=(n,u0,u1,col,dash)=>a.raw(`<line x1="${X(n)}" y1="${Y(u0)}" x2="${X(n)}" y2="${Y(u1)}" stroke="${col}" stroke-width="${SW}"${dash?' stroke-dasharray="6 4"':''}/>`);
@@ -408,26 +412,26 @@ const SC = [
       a.raw(`<g opacity="${(1-.72*cl(k)).toFixed(3)}">`); a.stem(xs.map((_,j)=>[n0+j,xs[j]]),{color:C.in}); a.raw('</g>');
       if(k>0){
         /* the accumulator: the samples reached so far */
-        const yo=1-.5*cl(k-5);
+        const yo=1-.5*cl(k-4);
         a.raw(`<g opacity="${yo.toFixed(3)}">`);
         a.stem([[-2,0],[-1,0]],{color:C.out});
         for(let n=0;n<=8;n++){
-          const j=n+2, am=cl(k-Math.min(n,4)); if(am<=0) continue;
+          const j=n+2, am=cl(k-Math.min(n,3)); if(am<=0) continue;
           const pv=ys[j-1], tp=pv+(ys[j]-pv)*am;
           seg(n,0,Math.min(pv,tp),C.out);
           if(Math.abs(tp-pv)>1e-9) seg(n,Math.min(pv,tp),Math.max(pv,tp),C.in,tp<pv);
-          if(n>=1&&n<=3&&k<=n+1+1e-9&&k>n+1e-9) lvl(n,pv,C.out);
+          if(n>=1&&n<=2&&k<=n+1+1e-9&&k>n+1e-9) lvl(n,pv,C.out);
           dot(n,tp,C.out);
         }
         a.raw('</g>');
       }
-      if(k>5){
+      if(k>4){
         /* the first difference: the piece between y[n-1] and y[n] slides down to the axis */
         a.stem([[-2,0],[-1,0]],{color:C.mid});
         for(let n=0;n<=8;n++){
-          const j=n+2, b=cl(k-5-Math.min(n,4)); if(b<=0) continue;
+          const j=n+2, b=cl(k-4-Math.min(n,3)); if(b<=0) continue;
           const pv=ys[j-1], sh=b*pv;
-          if(n>=1&&n<=3&&k<=n+6+1e-9&&k>n+5+1e-9) lvl(n,pv,C.out);
+          if(n>=1&&n<=2&&k<=n+5+1e-9&&k>n+4+1e-9) lvl(n,pv,C.out);
           seg(n,pv-sh,ys[j]-sh,C.mid);
           dot(n,ys[j]-sh,C.mid);
         }
