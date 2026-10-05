@@ -302,6 +302,10 @@ window.C1 = [
 {t:'eqbox', cap:'Fundamental frequency', tex:'\\omega_0=\\frac{2\\pi}{T_0}\\qquad\\text{and}\\qquad \\omega_0=\\frac{2\\pi}{N_0}',
  after:'Without the word <em>smallest</em>, $\\omega_0$ would not be well defined.'},
 {t:'p', text:'Two short cases show the definition at work. For $x(t)=\\cos(\\pi t/3)$, the angular frequency is $\\omega_0=\\pi/3$, so $T_0=2\\pi/(\\pi/3)=6$. For $x[n]=(-1)^{n}$, the test $N=1$ fails because $(-1)^{n+1}=-(-1)^{n}$. The test $N=2$ succeeds because $(-1)^{n+2}=(-1)^{n}(-1)^{2}=(-1)^{n}$ for every $n$. So $N_0=2$.'},
+{t:'p', text:'A frequency can be counted in two units. The <b>frequency</b> $f_0=1/T_0$ counts full cycles per second, and its unit is hertz (Hz), that is $1/\\text{s}$. The <b>angular frequency</b> $\\omega_0$ counts radians per second (rad/s). One full cycle is an angle of $2\\pi$ rad, so in one period $T_0$ the angle $\\omega_0t$ grows by $2\\pi$.'},
+{t:'eqbox', cap:'Angular frequency and frequency', tex:'\\omega_0=2\\pi f_0=\\frac{2\\pi}{T_0}\\qquad\\text{and}\\qquad f_0=\\frac{\\omega_0}{2\\pi}=\\frac{1}{T_0}',
+ after:'For $x(t)=\\cos(\\pi t)$ with $t$ in seconds, $\\omega_0=\\pi$ rad/s, $T_0=2\\pi/\\pi=2$ s and $f_0=1/2=0.5$ Hz.'},
+{t:'box', kind:'err', html:'<span class="t">The factor of $2\\pi$</span>A radian is a length divided by a length, so it has no physical dimension. Both rad/s and Hz therefore reduce to $1/\\text{s}$, and only the unit name shows which quantity is meant. Write the unit every time: $\\omega=10$ rad/s and $f=10$ Hz differ by a factor of $2\\pi$. In discrete time, $\\omega_0$ is measured in radians per sample.'},
 {t:'figrow', items:[
  {svg:()=>{const saw=t=>{const u=((t%4)+4)%4;return u/2-1;};
    const a=two({xr:[0,20],yr:[-1.3,1.45],xlabel:'t',ylabel:'x(t)',xtarget:5});
@@ -348,6 +352,9 @@ window.C1 = [
   return a.svg();},
  cap:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$ repeats every 12.'},
 {t:'p', text:'A second case: $x(t)=\\cos(4t)+\\cos(6t)$ has $T_1=2\\pi/4=\\pi/2$ and $T_2=2\\pi/6=\\pi/3$. The condition $k\\,\\pi/2=m\\,\\pi/3$ gives $3k=2m$, and the smallest positive solution is $k=2$, $m=3$. So $T_0=2\\cdot\\pi/2=\\pi$.'},
+{t:'p', text:'When the periods are fractions, write both over a common denominator first. With $T_1=a/d$ and $T_2=b/d$, the condition $kT_1=mT_2=T$ becomes $ka=mb=dT$, so $dT$ is a common multiple of the numerators $a$ and $b$. The smallest common period is therefore $\\operatorname{lcm}(a,b)/d$. For $T_1=\\tfrac45$ and $T_2=\\tfrac34$ the common denominator is $20$:'},
+{t:'eq', tex:'\\begin{aligned}\\operatorname{lcm}\\Bigl(\\frac45,\\frac34\\Bigr)&=\\operatorname{lcm}\\Bigl(\\frac{16}{20},\\frac{15}{20}\\Bigr)\\\\&=\\frac{\\operatorname{lcm}(16,15)}{20}\\\\&=\\frac{240}{20}=12.\\end{aligned}'},
+{t:'p', text:'The factorisations $16=2^{4}$ and $15=3\\cdot5$ share no prime factor, so $\\operatorname{lcm}(16,15)=16\\cdot15=240$. Check: $12=15\\cdot\\tfrac45=16\\cdot\\tfrac34$, so $k=15$ and $m=16$.'},
 {t:'box', kind:'warn', html:'<span class="t">When no period exists</span><b>Continuous time.</b> $\\cos t+\\cos(\\sqrt2\\,t)$ has $T_1=2\\pi$ and $T_2=2\\pi/\\sqrt2$. The ratio $T_1/T_2=\\sqrt2$ is irrational, so no common period exists and the sum is aperiodic.<br><b>Discrete time.</b> A sum of two periodic sequences is always periodic. The periods $N_1$ and $N_2$ are integers, so $N=N_1N_2$ is a whole number of periods of each part: $x_1[n+N_2N_1]=x_1[n]$ and $x_2[n+N_1N_2]=x_2[n]$.'},
 
 {t:'h3', text:'Even and odd signals'},
@@ -398,24 +405,6 @@ window.C1 = [
    a.curve(t=>0.5*(x(t)-x(-t)),{color:C.mid,n:1600}); return a.svg();},
   cap:'$\\Od\\{x(t)\\}$: the left half flips below the axis.'}
 ]},
-
-{t:'h3', text:'Products of even and odd signals'},
-{t:'p', text:'Many integrals of a product are zero by symmetry alone. Two short results give this. Let $x_e$ be even, let $x_o$ be odd, and let $y(t)=x_e(t)\\,x_o(t)$. Replace $t$ by $-t$ and use the two definitions:'},
-{t:'eqbox', cap:'Even times odd is odd', tex:'y(-t)=x_e(-t)\\,x_o(-t)=x_e(t)\\bigl(-x_o(t)\\bigr)=-y(t).',
- after:'The same step shows that even times even is even, and odd times odd is even, because $(-1)(-1)=1$.'},
-{t:'p', text:'Next, an odd signal integrates to zero over a symmetric interval $[-a,a]$. Split the integral at $0$. In the left half put $t=-s$, so $\\d t=-\\d s$; the limit $t=-a$ becomes $s=a$ and the limit $t=0$ becomes $s=0$. Then use $x_o(-s)=-x_o(s)$:'},
-{t:'eq', tex:'\\begin{aligned}\\int_{-a}^{0}x_o(t)\\,\\d t&=\\int_{a}^{0}x_o(-s)\\,(-\\d s)\\\\&=\\int_{a}^{0}x_o(s)\\,\\d s\\\\&=-\\int_{0}^{a}x_o(s)\\,\\d s,\\\\\\int_{-a}^{a}x_o(t)\\,\\d t&=\\int_{-a}^{0}x_o(t)\\,\\d t+\\int_{0}^{a}x_o(t)\\,\\d t\\\\&=-\\int_{0}^{a}x_o(s)\\,\\d s+\\int_{0}^{a}x_o(t)\\,\\d t=0.\\end{aligned}'},
-{t:'p', text:'In discrete time, $\\sum_{n=-N}^{N}x_o[n]=0$ for the same reason: the terms at $n$ and $-n$ cancel, and $x_o[0]=0$. For example, $t^{3}$ is odd and $\\cos t$ is even. Their product $t^{3}\\cos t$ is odd, so $\\int_{-\\pi}^{\\pi}t^{3}\\cos t\\,\\d t=0$ with no calculation. Chapter 4 uses this to find the Fourier coefficients of even and odd signals.'},
-{t:'fig', svg:()=>{const y=t=>t*Math.cos(Math.PI*t);
-  const a=ax({xr:[-2.2,2.2],yr:[-2.4,2.4],xlabel:'t',ylabel:'x',w:700,h:210,xtarget:9,ytarget:5});
-  a.area(y,-2,2,{color:'rgba(106,90,146,.18)',n:600});
-  a.vline(-2,{color:C.coral,dash:'4 4'}); a.vline(2,{color:C.coral,dash:'4 4'});
-  a.curve(t=>Math.cos(Math.PI*t),{color:C.in,dash:'6 5',n:1200});
-  a.curve(t=>t,{color:C.h,dash:'6 5',n:400});
-  a.curve(y,{color:C.mid,n:1600});
-  a.note(-2.15,2.05,'t\\cos(\\pi t)\\;\\text{solid},\\;\\cos(\\pi t)\\;\\text{and}\\;t\\;\\text{dashed}',{anchor:'start',color:C.muted,fs:12,tex:true});
-  return a.svg();},
- cap:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Each shaded lobe on $[0,2]$ has a lobe of opposite sign on $[-2,0]$, so the area on $[-2,2]$ is $0$.'},
 
 /* ---------- 1.5 ---------- */
 {t:'h2', num:'1.5', text:'The impulse and the step'},

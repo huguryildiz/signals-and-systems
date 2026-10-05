@@ -96,6 +96,8 @@ chk("M1 predict cos(2 pi 440 t) is even", sp.simplify(sp.cos(-2*sp.pi*440*t) - s
 chk("M1 predict x(2t) on [2,6] is non-zero on [1,3]", (sp.Rational(2,2), sp.Rational(6,2)) == (1, 3))
 chk("M1 predict 440 Hz at a = 1/2 sounds at 220 Hz", sp.Rational(1,2)*440 == 220)
 chk("M1 predict cos(pi t/3) has T0 = 6", sp.periodicity(sp.cos(sp.pi*t/3), t) == 6)
+chk("M1 predict cos(100 pi t): omega0 = 100 pi rad/s, f0 = 50 Hz", 1/sp.periodicity(sp.cos(100*sp.pi*t), t) == 50)
+chk("M1 units: cos(pi t) has T0 = 2 s, f0 = 1/2 Hz, omega0 = pi rad/s", sp.periodicity(sp.cos(sp.pi*t), t) == 2 and 2*sp.pi*sp.Rational(1,2) == sp.pi)
 chk("M1 predict (-1)^n has N0 = 2",
     min(N for N in range(1, 10) if all((-1)**(m+N) == (-1)**m for m in range(-10, 10))) == 2)
 chk("M1 predict t sin t is even", sp.simplify((-t)*sp.sin(-t) - t*sp.sin(t)) == 0)
@@ -261,16 +263,8 @@ x46 = lambda v: np.cos(4*v) + np.cos(6*v)
 chk("M1 periodic-sum prediction: cos4t + cos6t has T0 = pi = 2(pi/2) = 3(pi/3)",
     np.allclose(x46(tv_ + np.pi), x46(tv_)) and not np.allclose(x46(tv_ + np.pi/2), x46(tv_))
     and sp.pi == 2*(sp.pi/2) == 3*(sp.pi/3))
-chk("M1 evenodd-rules: t cos(pi t) is odd and integrates to 0 on [-2, 2]",
-    sp.simplify((t*sp.cos(sp.pi*t)).subs(t, -t) + t*sp.cos(sp.pi*t)) == 0
-    and sp.integrate(t*sp.cos(sp.pi*t), (t, -2, 2)) == 0)
-chk("M1 evenodd-rules prediction: int_{-pi}^{pi} t^3 cos t dt = 0",
-    sp.simplify(sp.integrate(t**3*sp.cos(t), (t, -sp.pi, sp.pi))) == 0)
-aa_ = sp.Symbol('a', positive=True)
 chk("M1 periodic-sum slider: on T = 0.5..24 only T = 12 and 24 give x(t+T) = x(t)",
     [T_ for T_ in np.arange(0.5, 24.01, 0.5) if np.allclose(xs_(tv_ + T_), xs_(tv_))] == [12.0, 24.0])
-chk("M1 evenodd-rules slider: int_{-a}^{a} t cos(pi t) dt = 0 for every a",
-    sp.simplify(sp.integrate(t*sp.cos(sp.pi*t), (t, -aa_, aa_))) == 0)
 
 # ---------------------------------------------------------------- Module 2
 xs = sp.Function('x')
