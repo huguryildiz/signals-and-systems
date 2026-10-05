@@ -1053,33 +1053,31 @@ REAL_ENERGY,
   {t:'title', text:'Combined Time Transformations'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x(t)$','(1) shift: $v(t)=x(t-b)$','(2) scale: $y(t)=v(at)$']},
       live:{controls:[
         {k:'b', label:'(1) shift $b$', min:0, max:5, step:0.25, v:5, show:v=>'$'+num(v)+'$'},
         {k:'a', label:'(2) scale $a$', min:1, max:3, step:0.25, v:3, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
-      /* One step at a time: frame 0 draws x(t); frame 1 draws v(t)=x(t-b) over a
-         faded x; frame 2 draws y(t)=x(at-b) over a faded, dashed v, and x is gone.
-         a stays in [1,3] so every signal fits the unit-tick axis on [-3,10]. */
-      const st=v?Math.round(v.frame):0, b=v?v.b:5, k=v?v.a:3;
+      /* x(t) faded, v(t)=x(t-b) dashed, y(t)=x(at-b) solid. a stays in [1,3] so
+         every signal fits the unit-tick axis on [-3,10]. */
+      const b=v?v.b:5, k=v?v.a:3;
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.85,3],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       const arg=b>0?num(k)+'t-'+num(b):num(k)+'t';
-      if(st<2){ a.curve(x,{color:C.ink,opacity:st?.3:1,n:1200});
-        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true}); }
-      if(st>=1){ a.curve(t=>x(t-b),{color:C.mid,opacity:st>1?.45:1,dash:st>1?'6 5':null,n:1200});
-        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true}); }
-      if(st>=2){ a.curve(t=>x(k*t-b),{color:C.out,width:2.6,n:1200});
-        a.note(9.6,2.35,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
-        /* corner times (c+b)/a of y for the corners c=-2,0,2,4 of x, written as
-           reduced fractions under the tick labels, each on its own guide line */
-        const g=(m,n)=>n?g(n,m%n):m;
-        [-2,0,2,4].forEach(c=>{ const t=(c+b)/k, p=Math.round(4*(c+b)), q=Math.round(4*k), d=Math.abs(g(p,q))||1;
-          const l=q/d===1 ? String(p/d) : (p<0?'-':'')+'\\dfrac{'+Math.abs(p)/d+'}{'+q/d+'}';
-          a.poly([[t,0],[t,2.2]],{color:C.out,width:.8,dash:'3 4'});
-          a.note(t,-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true}); }); }
+      a.curve(x,{color:C.ink,opacity:.3,n:1200});
+      a.note(9.6,2.85,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.curve(t=>x(t-b),{color:C.mid,opacity:.6,dash:'6 5',n:1200});
+      a.note(9.6,2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true});
+      a.curve(t=>x(k*t-b),{color:C.out,width:2.6,n:1200});
+      a.note(9.6,2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
+      /* corner times (c+b)/a of y for the corners c=-2,0,2,4 of x, written as
+         reduced fractions under the tick labels, each on its own guide line */
+      const g=(m,n)=>n?g(n,m%n):m;
+      [-2,0,2,4].forEach(c=>{ const t=(c+b)/k, p=Math.round(4*(c+b)), q=Math.round(4*k), d=Math.abs(g(p,q))||1;
+        const l=q/d===1 ? String(p/d) : (p<0?'-':'')+'\\dfrac{'+Math.abs(p)/d+'}{'+q/d+'}';
+        a.poly([[t,0],[t,2.2]],{color:C.out,width:.8,dash:'3 4'});
+        a.note(t,-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true}); });
       return a.svg(); },
-      caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Press Next to shift by $b$, then again to compress by $a$ about $t=0$. The green numbers are the new corner times $(c+b)/a$.'}
+      caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Move $b$ to shift $x(t)$ right; move $a$ to compress the shifted signal about $t=0$. The green numbers are the new corner times $(c+b)/a$.'}
   ], right:[
     {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
       label:'Shift, then scale', note:'Shift by $b$ first. Then scale the result by $a$.'},
