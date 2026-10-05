@@ -757,9 +757,12 @@ def _ss_figs():
   });
 
   /* Drawing on a sketch figure. The pointer is mapped into the svg's own
-     units, so the stage scale and a grown figure need no correction. */
+     units, so the stage scale and a grown figure need no correction. While
+     the laser pointer is on, a mouse or a pen belongs to the laser and leaves
+     no ink on the figure; a finger still sketches. */
   let SK = null;
   document.addEventListener('pointerdown', e=>{
+    if(S.display==='projector' && S.pointer==='laser' && e.pointerType!=='touch') return;
     const svg = e.target.closest('figure.sketch > svg');
     const fig = svg && svg.parentNode, b = fig && FX[+fig.dataset.fx];
     const area = svg && skArea(svg);
