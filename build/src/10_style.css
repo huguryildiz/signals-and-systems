@@ -1682,6 +1682,22 @@ body[data-layout=phone] figure.fig > .legend.in-plot{
 body[data-layout=phone] input[type=range]{ height:34px; }
 body[data-layout=phone] input[type=range]::-webkit-slider-thumb{ width:24px; height:24px; margin-top:-10.5px; }
 body[data-layout=phone] input[type=range]::-moz-range-thumb{ width:22px; height:22px; }
+/* Any finger-driven screen, a tablet included, gets a handle a finger can land
+   on and a slider that keeps the gesture instead of scrolling the page. On the
+   scaled stage, --ik (1/scale, set by fit()) keeps the handle about 26 screen
+   pixels wide and the touch band about 40 tall; negative margins hold the
+   slider's place in the layout at its usual 22px. */
+@media (pointer: coarse){
+  input[type=range]{ touch-action:none; }
+  body:not([data-layout=phone]) input[type=range]{
+    height:calc(40px * var(--ik, 1)); margin:calc((22px - 40px * var(--ik, 1)) / 2) 0; }
+  body:not([data-layout=phone]) input[type=range]::-webkit-slider-thumb{
+    width:calc(26px * var(--ik, 1)); height:calc(26px * var(--ik, 1));
+    margin-top:calc((3px - 26px * var(--ik, 1)) / 2); }
+  body:not([data-layout=phone]) input[type=range]::-moz-range-thumb{
+    width:calc(24px * var(--ik, 1)); height:calc(24px * var(--ik, 1)); }
+  body[data-layout=phone] input[type=range]::-webkit-slider-thumb{ width:26px; height:26px; margin-top:-11.5px; }
+}
 body[data-layout=phone] .seg button{
   padding:11px 13px; font-size:calc(12.5px * var(--ts)); min-height:44px;
 }
