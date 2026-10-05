@@ -1055,20 +1055,21 @@ REAL_ENERGY,
     {t:'fig', frame:true, grow:true,
       live:{controls:[
         {k:'b', label:'(1) shift $b$', min:0, max:5, step:0.25, v:5, show:v=>'$'+num(v)+'$'},
-        {k:'a', label:'(2) scale $a$', min:1, max:3, step:0.25, v:3, show:v=>'$'+num(v)+'$'}]},
+        {k:'a', label:'(2) scale $a$', min:0.5, max:3, step:0.25, v:3, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
-      /* x(t) faded, v(t)=x(t-b) dashed, y(t)=x(at-b) solid. a stays in [1,3] so
-         every signal fits the unit-tick axis on [-3,10]. */
+      /* x(t) faded, v(t)=x(t-b) dashed, y(t)=x(at-b) solid. The t range starts
+         at [-3,10] and widens to the right when 0<a<1 stretches y past it. */
       const b=v?v.b:5, k=v?v.a:3;
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.85,3],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
-      const arg=b>0?num(k)+'t-'+num(b):num(k)+'t';
+      const hi=Math.max(10, Math.ceil((4+b)/k)+1);
+      const a=P.Axes({w:560,h:380,xr:[-3,hi],yr:[-0.85,3],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:hi>10?8:9,ytarget:3});
+      const at=k===1?'t':num(k)+'t', arg=b>0?at+'-'+num(b):at;
       a.curve(x,{color:C.ink,opacity:.3,n:1200});
-      a.note(9.6,2.85,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.note(hi-0.4,2.85,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
       a.curve(t=>x(t-b),{color:C.mid,opacity:.6,dash:'6 5',n:1200});
-      a.note(9.6,2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true});
+      a.note(hi-0.4,2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true});
       a.curve(t=>x(k*t-b),{color:C.out,width:2.6,n:1200});
-      a.note(9.6,2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(hi-0.4,2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
       /* corner times (c+b)/a of y for the corners c=-2,0,2,4 of x, written as
          reduced fractions under the tick labels, each on its own guide line */
       const g=(m,n)=>n?g(n,m%n):m;
@@ -1077,7 +1078,7 @@ REAL_ENERGY,
         a.poly([[t,0],[t,2.2]],{color:C.out,width:.8,dash:'3 4'});
         a.note(t,-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true}); });
       return a.svg(); },
-      caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Move $b$ to shift $x(t)$ right; move $a$ to compress the shifted signal about $t=0$. The green numbers are the new corner times $(c+b)/a$.'}
+      caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Move $b$ to shift $x(t)$ right; move $a$ to scale the shifted signal about $t=0$: $a>1$ compresses, $0<a<1$ stretches, and the axis widens to follow it. The green numbers are the new corner times $(c+b)/a$.'}
   ], right:[
     {t:'eq', key:true, tex:'\\text{(1)}\\quad v(t)=x(t-b)\\qquad\\text{(2)}\\quad y(t)=v(at)=x(at-b)',
       label:'Shift, then scale', note:'Shift by $b$ first. Then scale the result by $a$.'},
