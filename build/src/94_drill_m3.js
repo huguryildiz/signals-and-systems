@@ -96,7 +96,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> Their impulse responses, and the impulse response of the cascade and of the parallel combination.<br>'
      +'<b>Method.</b> Apply an impulse to each system to find $h_1$ and $h_2$. For the cascade, convolve them because cascaded LTI systems have impulse response $h_1*h_2$. For the parallel connection, add them because the two outputs are added.<br>'
      +'<b>Solution — part (a).</b>$$h_1[n]=\\delta[n]+\\delta[n-1],\\qquad h_2[n]=\\delta[n]-\\delta[n-1],$$that is $h_1[0]=h_1[1]=1$ and $h_2[0]=1,\\,h_2[1]=-1$.<br>'
-     +'<b>Solution — part (b).</b>$$h_c[0]=h_1[0]h_2[0]=1,\\quad h_c[1]=h_1[0]h_2[1]+h_1[1]h_2[0]=-1+1=0,\\quad h_c[2]=h_1[1]h_2[1]=-1,$$so$$h_c[n]=\\delta[n]-\\delta[n-2].$$'
+     +'<b>Solution — part (b).</b>$$\\begin{aligned}h_c[0]&=h_1[0]h_2[0]=1,\\\\h_c[1]&=h_1[0]h_2[1]+h_1[1]h_2[0]=-1+1=0,\\\\h_c[2]&=h_1[1]h_2[1]=-1,\\end{aligned}$$so$$h_c[n]=\\delta[n]-\\delta[n-2].$$'
      +'<b>Solution — part (c).</b>$$h_p[0]=1+1=2,\\qquad h_p[1]=1-1=0,$$so $h_p[n]=2\\delta[n]$ — a pure gain of $2$. The response to $x[n]=3\\delta[n-4]$ is $y[n]=h_p[n]*x[n]=2\\cdot3\\,\\delta[n-4]=6\\delta[n-4]$.<br>'
      +'<b>Check.</b> Commutativity requires $h_2*h_1$ to give the same result. It gives $h_2[0]h_1[0]=1$, $h_2[0]h_1[1]+h_2[1]h_1[0]=1-1=0$, and $h_2[1]h_1[1]=-1$. The total also agrees: $\\sum h_1=2$ and $\\sum h_2=0$, so $\\sum h_c=2\\cdot0=0$, and $1+0-1=0$.',
   figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-1.6,3.6],yr:[-1.6,1.6],xlabel:'n',ylabel:'h_c[n]',
@@ -637,7 +637,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> The impulse response, and the response to a second input.<br>'
      +'<b>Method.</b> Use causality to set $h[n]=0$ for $n<0$. The earliest convolution equation then contains only $h[0]$. Solve that equation first and continue in increasing order of $n$.<br>'
      +'<b>Solution — part (a).</b> With $x[0]=x[1]=1$,$$y[0]=h[0]=1,$$$$y[1]=h[1]+h[0]=3\\;\\Rightarrow\\;h[1]=2,$$$$y[2]=h[2]+h[1]=2\\;\\Rightarrow\\;h[2]=0.$$Every later equation gives $h[n]=-h[n-1]$ with $h[2]=0$, so all remaining samples vanish and$$h[n]=\\delta[n]+2\\delta[n-1].$$'
-     +'<b>Solution — part (b).</b> The relation is $y[n]=x[n]+2x[n-1]$. With $x_2=\\{1,-1,1,-1\\}$ on $0\\le n\\le3$,$$y_2[0]=1,\\;y_2[1]=-1+2=1,\\;y_2[2]=1-2=-1,\\;y_2[3]=-1+2=1,\\;y_2[4]=0-2=-2,$$and zero elsewhere.<br>'
+     +'<b>Solution — part (b).</b> The relation is $y[n]=x[n]+2x[n-1]$. With $x_2=\\{1,-1,1,-1\\}$ on $0\\le n\\le3$,$$\\begin{gathered}y_2[0]=1,\\;y_2[1]=-1+2=1,\\;y_2[2]=1-2=-1,\\\\y_2[3]=-1+2=1,\\;y_2[4]=0-2=-2,\\end{gathered}$$and zero elsewhere.<br>'
      +'<b>Check.</b> The sum rule holds in both parts. In (a), $\\sum x=2$ and $\\sum y=6$, so $\\sum h$ must be $3$, and $1+2=3$. In (b), $\\sum x_2=0$, so $\\sum y_2$ must be zero: $1+1-1+1-2=0$. The support is right too, $[0,3]+[0,1]=[0,4]$.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,3.6],yr:[-0.6,2.6],xlabel:'n',ylabel:'h[n]',
@@ -680,7 +680,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> The difference equation, one convolution, and two properties.<br>'
      +'<b>Method.</b> Read the difference equation directly from the two impulse terms in $h$. For the rectangular input, use those same terms to write the output as the difference of two shifted copies of $x[n]$, which is shorter than evaluating the full sum.<br>'
      +'<b>Solution — part (a).</b> Reading the taps off $h$,$$y[n]=x[n]-x[n-2].$$'
-     +'<b>Solution — part (b).</b> The input has $x[n]=1$ for $0\\le n\\le3$ and zero elsewhere. Then $y[n]=x[n]-x[n-2]$ gives$$y[0]=1,\\;y[1]=1,\\;y[2]=1-1=0,\\;y[3]=1-1=0,\\;y[4]=0-1=-1,\\;y[5]=0-1=-1,$$and zero elsewhere. The system passes the two edges of the pulse and cancels its flat interior.<br>'
+     +'<b>Solution — part (b).</b> The input has $x[n]=1$ for $0\\le n\\le3$ and zero elsewhere. Then $y[n]=x[n]-x[n-2]$ gives$$\\begin{gathered}y[0]=1,\\;y[1]=1,\\;y[2]=1-1=0,\\\\y[3]=1-1=0,\\;y[4]=0-1=-1,\\;y[5]=0-1=-1,\\end{gathered}$$and zero elsewhere. The system passes the two edges of the pulse and cancels its flat interior.<br>'
      +'<b>Solution — part (c).</b> <b>Causal</b>, since $h[n]=0$ for $n<0$; the output uses only $x[n]$ and $x[n-2]$. <b>Stable</b>, since $\\sum_n|h[n]|=1+1=2<\\infty$.<br>'
      +'<b>Check.</b> The sum rule gives $\\sum y=(\\sum x)(\\sum h)=4(1-1)=0$, and the computed samples give $1+1+0+0-1-1=0$. The support is $[0,3]+[0,2]=[0,5]$. The zero samples in the interior also agree with the role of a difference operator: a constant region has no change to measure.',
   figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-1.6,7.6],yr:[-1.8,1.8],xlabel:'n',ylabel:'y[n]',
