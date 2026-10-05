@@ -258,7 +258,7 @@ const SC = [
       frames:{labels:['$y[n]$','$y[0]=x[0]+y[-1]=1$','$y[1]=x[1]+y[0]=2$','$y[2]=x[2]+y[1]=3$',
         '$y[3]=x[3]+y[2]=4$','$y[4]=x[4]+y[3]=5$','$y[5]=x[5]+y[4]=6$','$y[n]=y[n-1]$ for $n\\ge 6$']},
       svg:v=>{
-      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:560,h:440,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       /* Frame 0 is the printed response. Frame 1 keeps only y[0]; from there
          y[m] rises from 0 to y[m-1]+x[m] while the frame runs from m to m+1.
          Past n=5 the input is 0, so y[m] only repeats y[m-1] and its stem
@@ -285,17 +285,18 @@ const SC = [
       }
       return a.svg(); },
       caption:'Each output of the accumulator carries every earlier input. Step through the frames to see $y[n]$ built one sample at a time.'},
-    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']]}
+    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'The accumulator is at rest and $x[n]=\\delta[n]$.<div class="nsep"></div>What is $y[3]$?',
+        ask:{key:'m2-memory-b', choices:['$0$','$1$','$3$'], answer:1,
+          why:'The impulse enters once and the feedback keeps it, so $y[n]=u[n]$ and $y[3]=1$.'}}]}
   ], right:[
     {t:'eq', tex:'y[n]=x[n]+y[n-1]', label:'Feedback'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'y[n-1]=x[n-1]+y[n-2]', label:'Replace $n$ by $n-1$', note:'The equation holds at every time. Put $n-1$ where $n$ stands and it gives $y[n-1]$ in terms of $x[n-1]$ and $y[n-2]$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+\\underbrace{y[n-1]}_{\\text{previous output}}\\\\&=x[n]+\\underbrace{x[n-1]+y[n-2]}_{y[n-1]}\\\\&=x[n]+x[n-1]+\\underbrace{x[n-2]+y[n-3]}_{y[n-2]}\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'The accumulator is at rest and $x[n]=\\delta[n]$.<div class="nsep"></div>What is $y[3]$?',
-        ask:{key:'m2-memory-b', choices:['$0$','$1$','$3$'], answer:1,
-          why:'The impulse enters once and the feedback keeps it, so $y[n]=u[n]$ and $y[3]=1$.'}}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}y[n]&=x[n]+\\underbrace{y[n-1]}_{\\text{previous output}}\\\\&=x[n]+\\underbrace{x[n-1]+y[n-2]}_{y[n-1]}\\\\&=x[n]+x[n-1]+\\underbrace{x[n-2]+y[n-3]}_{y[n-2]}\\\\&=x[n]+x[n-1]+x[n-2]+\\cdots\\\\&=\\sum_{k=0}^{\\infty}x[n-k]\\end{aligned}', label:'The past', note:'The output uses $x[n-k]$ for every $k\\ge 0$, so feedback gives the system memory. This form assumes initial rest.'}]}
+
   ]}
 ]},
 
