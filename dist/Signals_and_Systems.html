@@ -20113,13 +20113,13 @@ const SC = [
       const cl=u=>Math.max(0,Math.min(1,u));
       const stage=k<0.5?0:k<5.5?1:2, on=i=>stage===i;
       const top=P.blocks({w:560,h:140,items:[
-        {t:'arrow',x1:20,y1:70,x2:110,y2:70,color:on(0)?C.coral:C.ink},
-        {t:'box',x:110,y:35,w:140,h:70,label:'\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
-        {t:'arrow',x1:250,y1:70,x2:320,y2:70},
-        {t:'box',x:320,y:40,w:150,h:60,label:'y[n]-y[n-1]',tex:true,fs:15,color:on(2)?C.coral:C.ink},
-        {t:'arrow',x1:470,y1:70,x2:545,y2:70},
-        {t:'text',x:62,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:285,y:54,label:'y[n]',tex:true,fs:16},
-        {t:'text',x:508,y:54,label:'w[n]',tex:true,fs:16}]});
+        {t:'arrow',x1:15,y1:70,x2:85,y2:70,color:on(0)?C.coral:C.ink},
+        {t:'box',x:85,y:35,w:190,h:70,label:'y[n]=\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
+        {t:'arrow',x1:275,y1:70,x2:305,y2:70},
+        {t:'box',x:305,y:35,w:190,h:70,label:'w[n]=y[n]-y[n-1]',tex:true,fs:15,color:on(2)?C.coral:C.ink},
+        {t:'arrow',x1:495,y1:70,x2:550,y2:70},
+        {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
+        {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+2\\delta[n-1]-\\delta[n-2]+\\delta[n-3]',
         'y[0]=y[-1]+x[0]=0+1=1','y[1]=y[0]+x[1]=1+2=3','y[2]=y[1]+x[2]=3-1=2','y[3]=y[2]+x[3]=2+1=3',
         'y[n]=y[n-1]+x[n]=3+0=3,\\quad n\\ge4',
