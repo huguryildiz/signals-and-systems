@@ -19987,7 +19987,7 @@ const SC = [
       frames:{labels:['$y[n]$','$y[0]=x[0]+y[-1]=1$','$y[1]=x[1]+y[0]=2$','$y[2]=x[2]+y[1]=3$',
         '$y[3]=x[3]+y[2]=4$','$y[4]=x[4]+y[3]=5$','$y[5]=x[5]+y[4]=6$','$y[n]=y[n-1]$ for $n\\ge 6$']},
       svg:v=>{
-      const a=P.Axes({w:720,h:440,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:590,h:360,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
       /* Frame 0 is the printed response. Frame 1 keeps only y[0]; from there
          y[m] rises from 0 to y[m-1]+x[m] while the frame runs from m to m+1.
          Past n=5 the input is 0, so y[m] only repeats y[m-1] and its stem
@@ -20121,8 +20121,8 @@ const SC = [
         {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
         {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+2\\delta[n-1]-\\delta[n-2]+\\delta[n-3]',
-        'y[0]=y[-1]+x[0]=0+1=1','y[1]=y[0]+x[1]=1+2=3','y[2]=y[1]+x[2]=3-1=2','y[3]=y[2]+x[3]=2+1=3',
-        'y[n]=y[n-1]+x[n]=3+0=3,\\quad n\\ge4',
+        'y[n]=x[n]+\\underbrace{x[n-1]+x[n-2]+\\cdots}_{y[n-1]},\\quad y[0]=x[0]+y[-1]=1+0=1','y[1]=y[0]+x[1]=1+2=3','y[2]=y[1]+x[2]=3-1=2','y[3]=y[2]+x[3]=2+1=3',
+        'y[n]=y[n-1]+0=3,\\quad n\\ge4',
         'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=3-1=2','w[2]=y[2]-y[1]=2-3=-1','w[3]=y[3]-y[2]=3-2=1',
         'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge4'];
       const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
