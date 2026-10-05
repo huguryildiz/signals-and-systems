@@ -289,7 +289,7 @@ const SC = [
       }
       return a.svg(); },
       caption:'Each output of the accumulator carries every earlier input. Step through the frames to see $y[n]$ built one sample at a time.'},
-    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']], at:'tl-axis'},
+    {t:'legend', items:[['in','$x[n]$'],['h','$y[n]$']]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'The accumulator is at rest and $x[n]=\\delta[n]$.<div class="nsep"></div>What is $y[3]$?',
         ask:{key:'m2-memory-b', choices:['$0$','$1$','$3$'], answer:1,
@@ -516,13 +516,26 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 4', src:'pp. 12–13'},
   {t:'title', text:'BIBO Stability'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:420,items:[
-      {t:'arrow',x1:35,y1:210,x2:170,y2:210},
-      {t:'box',x:170,y:165,w:220,h:90,label:'2x^{2}(t-1)+x(3t)',tex:true,fs:16},
-      {t:'arrow',x1:390,y1:210,x2:525,y2:210},
-      {t:'text',x:102,y:194,label:'x(t)',tex:true,fs:18},
-      {t:'text',x:458,y:194,label:'y(t)',tex:true,fs:18}
-    ]}), caption:'A proof of stability has to hold for every input that stays within $B$.'}
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      /* The system on top; below it the pulse x(t)=1 on 0<=t<3 and its output.
+         x(3t) is 1 on 0<=t<1 and 2x^2(t-1) is 2 on 1<=t<4, so y(t) steps 1, 2, 0. */
+      const H=P.hOverride||420; P.hOverride=null;
+      const top=P.blocks({w:560,h:130,items:[
+        {t:'arrow',x1:35,y1:70,x2:170,y2:70},
+        {t:'box',x:170,y:35,w:220,h:70,label:'2x^{2}(t-1)+x(3t)',tex:true,fs:16},
+        {t:'arrow',x1:390,y1:70,x2:525,y2:70},
+        {t:'text',x:102,y:54,label:'x(t)',tex:true,fs:18},
+        {t:'text',x:458,y:54,label:'y(t)',tex:true,fs:18}]});
+      const a=P.Axes({w:560,h:H,xr:[-1.5,5.5],yr:[-0.3,2.6],xlabel:'t',ylabel:'\\text{amplitude}',
+        pad:{l:50,r:24,t:150,b:34},xstep:1,ystep:1});
+      const x=t=>(t>=0&&t<3)?1:0, y=t=>(t>=0&&t<1)?1:(t>=1&&t<4)?2:0;
+      a.area(y,0,4,{color:'rgba(74,122,70,.14)'});
+      a.curve(y,{color:C.out,n:1400});
+      a.curve(x,{color:C.in,dash:'8 5',n:1400});
+      a.note(2.5,2.3,'y(t)',{anchor:'middle',color:C.out,fs:16,tex:true});
+      a.note(-0.55,1.15,'x(t)',{anchor:'middle',color:C.in,fs:16,tex:true});
+      return a.svg().replace(/<\/svg>\s*$/, inner(top)+'</svg>'); },
+      caption:'For $x(t)=1$ on $0\\le t<3$, the output is $1$ on $0\\le t<1$ and $2$ on $1\\le t<4$. A proof of stability has to hold for every input that stays within $B$.'},
   ], right:[
     {t:'note', kind:'def', head:'BIBO stability', html:'A signal is bounded if some finite $B$ satisfies $|x(t)|<B$ for every $t$. A system is BIBO stable if every bounded input gives a bounded output.'},
     {t:'reveal', at:1, items:[
