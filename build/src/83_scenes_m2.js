@@ -587,7 +587,7 @@ const SC = [
       }
       return a.svg(); },
       caption:'Drag $n$ to run the accumulator. Each step adds $u[n]=1$ to the previous output, so $y[n]=n+1$ grows without a bound while the input never exceeds 1.'},
-    {t:'legend', items:[['in','$u[n]$'],['err','$y[n]$']]}
+    {t:'legend', at:'tl', items:[['in','$u[n]$'],['err','$y[n]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$.<div class="nsep"></div>Is the accumulator BIBO stable?',
       ask:{key:'m2-stable-b', choices:['Stable','Not stable'], answer:1}},
