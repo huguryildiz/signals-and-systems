@@ -184,7 +184,7 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
   display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:4px;
   padding:6px; border:1px solid var(--rule); border-radius:8px; background:var(--paper-2);
 }
-#board .bd-tools button{
+#board .bd-tools button, #board .bd-menu button{
   display:inline-flex; align-items:center; justify-content:center;
   font:500 13px/1 var(--sans); color:var(--graphite); background:transparent;
   border:1px solid transparent; border-radius:5px; padding:0 11px; min-width:38px; min-height:38px; cursor:pointer !important;
@@ -195,6 +195,12 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 #board .bd-tools b{ display:block; width:18px; border-radius:4px; background:currentColor; }
 #board .bd-tools svg{ display:block; width:18px; height:18px; }
 #board .bd-sep{ width:1px; height:22px; margin:0 4px; background:var(--rule); }
+/* the select tool's buttons beside the selection; the cursor over it says it can be dragged */
+#board .bd-menu{
+  position:absolute; left:0; top:0; display:none; gap:4px; padding:6px;
+  border:1px solid var(--rule); border-radius:8px; background:var(--paper-2);
+}
+#board[data-over] canvas{ cursor:move !important; }
 
 /* the two pointer controls belong to projector mode and are hidden outside it */
 #appheader .proj-only{ display:none; }

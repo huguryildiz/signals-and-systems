@@ -337,13 +337,21 @@ const APP = (() => {
      two fingers pinching also zoom it, about the point between them, and so
      does a pinch on a trackpad, from a quarter to four times its size:
      with two fingers always, and with one once a pen has touched the board or
-     under the laser tool, where a finger has nothing else to do. A finger must
+     under the laser or select tool, where a finger has nothing else to do. A finger must
      travel a little before the paper follows, and a pen set down puts the
      paper back where that drag found it, so a palm laid down ahead of the
      Pencil does not shift the page. Strokes are kept in the paper's own
      coordinates, and the squared or ruled paper moves with them.
      The writing stays in memory while the board is closed, so the class can
-     look at a slide and come back to it; a reload loses it. C clears
+     look at a slide and come back to it; a reload loses it.
+     The select tool takes the strokes a pen or the mouse circles, each one that
+     has at least half its points inside the loop, and puts a dashed box round
+     them with Cut, Copy, Paste and Delete beside it; dragged from inside the
+     box they move. Paste puts the copied strokes a step down and to the right
+     of where they were, or, after a tap on empty paper, centred on the tap, and
+     the pasted strokes are then the selection, ready to be dragged into place.
+     The keys are the usual ones (Ctrl or Cmd with X, C, V; Delete; Esc lets go
+     of the selection). What is copied stays while the board is closed. C clears
      the board and Z undoes, a clearing included. A stroke keeps the name of its
      ink, not the colour, so the board redraws in the other theme's inks.
      Points are carried into the canvas through its own box, as the laser's
@@ -361,6 +369,11 @@ const APP = (() => {
     let el=null, cv=null, cx=null, ring=null, W=0, H=0, dpr=1, open=false, raf=0;
     let strokes=[], past=[], cur=null, id=null, kind='', erasing=false, cut=false, pen=false;
     let tool='pen', ink='ink', width=WIDTHS[1][0], rubr=RUBS[1][0];
+    /* the select tool: the selected strokes, the copied ones, the loop being
+       drawn, what the pointer is doing ('lasso' or 'move'), where a drag last
+       was and whether it has moved anything, the pointer over the paper, and
+       the point of a tap where Paste would go */
+    let sel=[], clip=[], lasso=null, mode='', grab=null, moved=false, hov=null, spot=null, mn=null;
     /* the paper's offset under the glass; the fingers that drag it, each with
        where it was last seen and whether it has travelled far enough to count */
     const SLOP = 8;
@@ -405,6 +418,58 @@ const APP = (() => {
         for(let k=1;k<p.length-1;k++) cx.quadraticCurveTo(p[k].x,p[k].y,(p[k].x+p[k+1].x)/2,(p[k].y+p[k+1].y)/2);
         cx.lineTo(p[p.length-1].x,p[p.length-1].y); cx.stroke();
       }
+      cx.strokeStyle = css.getPropertyValue('--graphite').trim(); cx.lineWidth = 1.2/zm; cx.setLineDash([5/zm,4/zm]);
+      if(lasso){ cx.beginPath(); lasso.forEach((q,k)=>k ? cx.lineTo(q.x,q.y) : cx.moveTo(q.x,q.y)); if(lasso.length>2) cx.closePath(); cx.stroke(); }
+      if(sel.length){ const b = box(sel); cx.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0); }
+      cx.setLineDash([]);
+      menu();
+    }
+    /* the box round some strokes, with a margin, and whether q lies in it or in the loop */
+    function box(ss){
+      let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
+      for(const s of ss) for(const q of s.p){
+        x0 = Math.min(x0,q.x-s.w/2); y0 = Math.min(y0,q.y-s.w/2);
+        x1 = Math.max(x1,q.x+s.w/2); y1 = Math.max(y1,q.y+s.w/2);
+      }
+      const m = 8/zm; return { x0:x0-m, y0:y0-m, x1:x1+m, y1:y1+m };
+    }
+    const inBox = (q,b) => q.x>=b.x0 && q.x<=b.x1 && q.y>=b.y0 && q.y<=b.y1;
+    function inLoop(q,L){
+      let n = false;
+      for(let i=0, j=L.length-1; i<L.length; j=i++){
+        const a = L[i], b = L[j];
+        if((a.y>q.y)!==(b.y>q.y) && q.x < (b.x-a.x)*(q.y-a.y)/(b.y-a.y)+a.x) n = !n;
+      }
+      return n;
+    }
+    /* Cut, Copy, Paste and Delete sit under the selection, or over it at the
+       foot of the screen, and Paste alone at a tap when something is copied */
+    function menu(){
+      const on = !mode && tool==='select' && (sel.length>0 || (!!spot && clip.length>0));
+      mn.style.display = on ? 'flex' : 'none';
+      if(!on) return;
+      mn.querySelectorAll('[data-sel]').forEach(b=>{ b.style.display = (b.dataset.sel==='paste' ? clip.length : sel.length) ? '' : 'none'; });
+      let x, y, top;
+      if(sel.length){ const b = box(sel); x = ((b.x0+b.x1)/2-ox)*zm; y = (b.y1-oy)*zm+8; top = (b.y0-oy)*zm-8; }
+      else { x = (spot.x-ox)*zm; y = (spot.y-oy)*zm+12; top = y-24; }
+      const w = mn.offsetWidth, h = mn.offsetHeight;
+      if(y+h > H-8) y = top-h;
+      x = Math.max(8, Math.min(W-w-8, x-w/2)); y = Math.max(8, Math.min(H-h-8, y));
+      mn.style.transform = 'translate('+x+'px,'+y+'px)';
+    }
+    const dup = s => ({ c:s.c, w:s.w, p:s.p.map(q=>({ x:q.x, y:q.y })) });
+    function copySel(){ if(sel.length){ clip = sel.map(dup); spot = null; tick(); } }
+    function delSel(){ if(!sel.length) return; save(); strokes = strokes.filter(s=>!sel.includes(s)); sel = []; tick(); }
+    function cutSel(){ copySel(); delSel(); }
+    function pasteSel(){
+      if(!clip.length) return;
+      const b = box(clip), cp = clip.map(dup);
+      let dx = 24/zm, dy = 24/zm;
+      if(spot){ dx = spot.x-(b.x0+b.x1)/2; dy = spot.y-(b.y0+b.y1)/2; }
+      cp.forEach(s=>s.p.forEach(q=>{ q.x += dx; q.y += dy; }));
+      if(!spot) clip = cp.map(dup);                  /* the next paste goes a step further */
+      save(); strokes = strokes.concat(cp); sel = cp; spot = null;
+      if(tool!=='select') use('select'); tick();
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(draw); }
     /* the ring shows the eraser's reach where the pointer is */
@@ -439,7 +504,7 @@ const APP = (() => {
     function down(e){
       if(e.pointerType==='touch'){
         if(id!==null && kind!=='touch') return;               /* a palm beside the writing pen */
-        if(pen || tool==='laser' || fing.size || id!==null){
+        if(pen || tool==='laser' || tool==='select' || fing.size || id!==null){
           e.preventDefault();
           /* a second finger turns the first one's stroke into a drag */
           if(id!==null){ fing.set(id, null); strokes = past.pop(); id = null; cur = null; erasing = false; ring.style.display = 'none'; tick(); }
@@ -455,12 +520,19 @@ const APP = (() => {
       if(id!==null){
         if(e.pointerType!=='pen' || kind==='pen') return;
         try{ cv.releasePointerCapture(id); }catch(_){}
-        strokes = past.pop(); id = null; cur = null; erasing = false;
+        if(mode!=='lasso' && (mode!=='move' || moved)) strokes = past.pop();
+        id = null; cur = null; erasing = false; mode = ''; lasso = null; moved = false;
       }
       e.preventDefault();
       if(e.button===5) erasing = true;
       aim(e);
       id = e.pointerId; kind = e.pointerType; try{ cv.setPointerCapture(id); }catch(_){}
+      if(tool==='select' && e.button!==5){
+        const q = at(e);
+        if(sel.length && inBox(q, box(sel))){ mode = 'move'; grab = q; moved = false; }
+        else { sel = []; spot = null; mode = 'lasso'; lasso = [q]; }
+        tick(); return;
+      }
       save();
       if(tool==='erase' || e.button===5){ erasing = true; cut = false; rub(at(e)); }
       else { cur = { c:ink, w:width, p:[at(e)] }; strokes = strokes.concat([cur]); tick(); }
@@ -486,9 +558,22 @@ const APP = (() => {
         }
         ox -= (q.x-px)/zm/fing.size; oy -= (q.y-py)/zm/fing.size; place(); return;
       }
+      if(e.pointerType!=='touch'){
+        hov = at(e);
+        el.toggleAttribute('data-over', tool==='select' && sel.length>0 && (id===null ? inBox(hov, box(sel)) : mode==='move'));
+      }
       if(id===null || e.pointerId===id) aim(e);
       if(e.pointerId!==id) return;
       const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+      if(mode==='lasso'){ for(const v of (evs.length ? evs : [e])) lasso.push(at(v)); tick(); return; }
+      if(mode==='move'){
+        const q = at(e), dx = q.x-grab.x, dy = q.y-grab.y;
+        if(!dx && !dy) return;
+        /* the strokes moved are copies, so the ones kept for Undo stay where they were */
+        if(!moved){ save(); const cp = sel.map(dup); strokes = strokes.map(s=>{ const k = sel.indexOf(s); return k<0 ? s : cp[k]; }); sel = cp; moved = true; }
+        for(const s of sel) for(const p of s.p){ p.x += dx; p.y += dy; }
+        grab = q; tick(); return;
+      }
       for(const v of (evs.length ? evs : [e])){
         if(erasing) rub(at(v)); else cur.p.push(at(v));
       }
@@ -497,6 +582,17 @@ const APP = (() => {
     function up(e){
       if(fing.delete(e.pointerId)){ gest = null; return; }
       if(e.pointerId!==id) return;
+      if(mode){
+        if(mode==='lasso'){
+          /* a loop that hardly leaves its start is a tap: Paste goes there */
+          const q0 = lasso[0]; let far = 0;
+          for(const q of lasso) far = Math.max(far, Math.hypot(q.x-q0.x, q.y-q0.y));
+          if(far*zm < 6){ sel = []; spot = clip.length ? q0 : null; }
+          else sel = strokes.filter(s=>2*s.p.filter(q=>inLoop(q,lasso)).length >= s.p.length);
+          lasso = null;
+        }
+        id = null; mode = ''; grab = null; moved = false; tick(); return;
+      }
       /* an eraser that touched nothing leaves nothing to undo */
       if(erasing && !cut) past.pop();
       if(e.pointerType==='touch' || e.type==='pointercancel' || tool!=='erase') ring.style.display = 'none';
@@ -513,7 +609,8 @@ const APP = (() => {
     }
     function use(t){
       if(t!=='laser' && tool==='laser') laser.clear();
-      tool = t; if(ring && t!=='erase') ring.style.display = 'none'; laser.sync(); if(tool!=='laser') laser.rest(); mark();
+      if(t!=='select'){ sel = []; spot = null; if(el) el.removeAttribute('data-over'); }
+      tool = t; if(ring && t!=='erase') ring.style.display = 'none'; laser.sync(); if(tool!=='laser') laser.rest(); mark(); tick();
     }
     const svg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
     function build(){
@@ -526,6 +623,7 @@ const APP = (() => {
         + WIDTHS.map(([w,n])=>'<button data-w="'+w+'" title="'+n+' line" aria-label="'+n+' line"><b style="height:'+w+'px"></b></button>').join('')
         + sep
         + '<button data-tool="laser" title="Laser pointer over the board">Laser</button>'
+        + '<button data-tool="select" title="Select: circle strokes to cut, copy, paste or move them">Select</button>'
         + sep
         + RUBS.map(([r,n])=>'<button data-rub="'+r+'" title="'+n+' eraser: removes whole strokes" aria-label="'+n+' eraser"><u style="width:'+(8+r*0.35)+'px;height:'+(8+r*0.35)+'px"></u></button>').join('')
         + sep
@@ -533,9 +631,11 @@ const APP = (() => {
         + sep
         + '<button data-bd="undo" title="Undo (Z)">Undo</button>'
         + '<button data-bd="clear" title="Clear the board (C)">Clear</button>'
-        + '<button data-act="board" title="Close the board (W or Esc)">Close</button></div>';
+        + '<button data-act="board" title="Close the board (W or Esc)">Close</button></div>'
+        + '<div class="bd-menu"><button data-sel="cut" title="Cut (Ctrl or Cmd X)">Cut</button><button data-sel="copy" title="Copy (Ctrl or Cmd C)">Copy</button>'
+        + '<button data-sel="paste" title="Paste (Ctrl or Cmd V)">Paste</button><button data-sel="del" title="Delete (Delete)">Delete</button></div>';
       document.body.appendChild(el);
-      cv = el.querySelector('canvas'); cx = cv.getContext('2d'); ring = el.querySelector('.bd-ring');
+      cv = el.querySelector('canvas'); cx = cv.getContext('2d'); ring = el.querySelector('.bd-ring'); mn = el.querySelector('.bd-menu');
       cv.addEventListener('pointerdown',down);
       cv.addEventListener('pointermove',move);
       cv.addEventListener('pointerup',up);
@@ -561,6 +661,7 @@ const APP = (() => {
         else if(b.dataset.paper){ state.paper = b.dataset.paper; persist(); mark(); }
         else if(b.dataset.bd==='undo') undo();
         else if(b.dataset.bd==='clear') clear();
+        else if(b.dataset.sel) ({ cut:cutSel, copy:copySel, paste:pasteSel, del:delSel })[b.dataset.sel]();
       });
     }
     function refit(){ if(open){ size(); tick(); } }
@@ -575,15 +676,18 @@ const APP = (() => {
     }
     function hide(){
       open = false; id = null; cur = null; erasing = false; fing.clear(); gest = null;
+      mode = ''; lasso = null; moved = false; sel = []; spot = null;
       window.removeEventListener('resize',refit);
       if(TOP){ try{ el.hidePopover(); }catch(_){} }
       el.style.display = 'none';
       laser.clear(); laser.sync();
     }
-    function undo(){ if(past.length){ strokes = past.pop(); tick(); } }
-    function clear(){ if(strokes.length){ save(); strokes = []; tick(); } }
+    function undo(){ if(past.length){ strokes = past.pop(); sel = []; spot = null; tick(); } }
+    function clear(){ if(strokes.length){ save(); strokes = []; sel = []; spot = null; tick(); } }
+    function deselect(){ if(!sel.length && !spot) return false; sel = []; spot = null; tick(); return true; }
     return { isOpen:()=>open, lasering:()=>open && tool==='laser',
-             toggle(){ open ? hide() : show(); }, close(){ if(open) hide(); }, undo, clear };
+             toggle(){ open ? hide() : show(); }, close(){ if(open) hide(); }, undo, clear,
+             cut:cutSel, copy:copySel, paste:pasteSel, del:delSel, deselect };
   })();
 
   /* ---------- stage scaling: exact 1920×1080 basis, scaled to fit ---------- */
@@ -715,8 +819,15 @@ const APP = (() => {
       const typing = tag==='input'||tag==='textarea';
       /* the board takes the keyboard while it is open: the slides under it stay put */
       if(board.isOpen()){
-        if(e.metaKey||e.ctrlKey||e.altKey){ if((e.key==='z'||e.key==='Z') && !e.shiftKey){ e.preventDefault(); board.undo(); } return; }
-        if(e.key==='Escape'||e.key==='w'||e.key==='W') board.close();
+        if(e.metaKey||e.ctrlKey||e.altKey){
+          const k = e.key.toLowerCase(), f = { x:board.cut, c:board.copy, v:board.paste }[k];
+          if(k==='z' && !e.shiftKey){ e.preventDefault(); board.undo(); }
+          else if(f && !e.altKey){ e.preventDefault(); f(); }
+          return;
+        }
+        if(e.key==='Escape'){ if(!board.deselect()) board.close(); }
+        else if(e.key==='w'||e.key==='W') board.close();
+        else if(e.key==='Delete'||e.key==='Backspace') board.del();
         else if(e.key==='c'||e.key==='C') board.clear();
         else if(e.key==='z'||e.key==='Z') board.undo();
         e.preventDefault(); return;
