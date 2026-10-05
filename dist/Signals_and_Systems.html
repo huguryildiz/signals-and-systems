@@ -5826,7 +5826,12 @@ def _ss_figs():
         const tot = hs.reduce((a,b)=>a+b, 0);
         if(tot < 40) break;
         const keep = Math.max(0.45, 1 - (inner.scrollHeight - room) / tot);
+        const before = inner.scrollHeight, was = figs.map(s => s.style.maxHeight);
         figs.forEach((s,i) => s.style.maxHeight = (hs[i] * keep).toFixed(1) + 'px');
+        /* When the overflow is in another column, a smaller figure gives nothing
+           back however far it shrinks. The pass is undone and the rescue stops,
+           so the figure is not crushed for a height it never held. */
+        if(inner.scrollHeight > before - 1){ figs.forEach((s,i) => s.style.maxHeight = was[i]); break; }
         kept *= keep;
       }
       if(kept < 0.97) host.dataset.capped = (1 - kept).toFixed(3);
