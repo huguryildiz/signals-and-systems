@@ -20317,9 +20317,9 @@ const SC = [
           a.raw(`<line x1="${X(m-1)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m-1))}" stroke="${C.err}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/>`);
           a.raw(`<line x1="${X(m)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m))}" stroke="${C.in}" stroke-width="3"/>`);
           a.raw(`<circle cx="${X(m)}" cy="${Y(y(m))}" r="4.6" fill="${C.in}"/>`);
-          const lab='y['+m+']=y['+(m-1)+']+u['+m+']='+y(m);
-          if(m<6) a.note(m,y(m)+1,lab,{anchor:'middle',color:C.err,fs:15,tex:true});
-          else a.note(m-0.5,y(m)+0.3,lab,{anchor:'end',color:C.err,fs:15,tex:true});
+          const lab='y['+m+']=\\displaystyle\\sum_{k=-\\infty}^{'+m+'}u[k]='+y(m);
+          if(m<6) a.note(m+0.4,y(m)+1.8,lab,{anchor:'start',color:C.err,fs:15,tex:true});
+          else a.note(m-0.5,y(m)+1.5,lab,{anchor:'end',color:C.err,fs:15,tex:true});
         }
       }
       return a.svg(); },
