@@ -20475,25 +20475,30 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'A Rule That Is Not Linear'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:35,y:50,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:125,x2:190,y2:125},{t:'box',x:190,y:90,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:125,x2:500,y2:125},
-      {t:'text',x:112,y:109,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
-      {t:'text',x:420,y:109,label:'y_3',tex:true,fs:15},
-      {t:'text',x:35,y:235,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:310,x2:190,y2:310},{t:'box',x:190,y:275,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:310,x2:500,y2:310},
-      {t:'text',x:112,y:294,label:'x_1,\\;x_2',tex:true,fs:15},
-      {t:'text',x:420,y:294,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
-      {t:'text',x:490,y:222,label:'equal?',fs:16,anchor:'end',color:C.coral},
-      {t:'line',d:'M505 125 h20 v185 h-20',color:C.coral}
-    ]}), caption:'The two paths ask whether $y_3$ equals $a y_1+b y_2$. For this rule they do not.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_1\\to y_1$','$x_2\\to y_2$','Combined input']},
+      svg:v=>{
+      const k=v?v.frame:0, H=Math.max(P.hOverride||440,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
+      const row=(y,xin,yout)=>[
+        {t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
+        {t:'arrow',x1:355,y1:y,x2:530,y2:y},
+        {t:'text',x:117,y:y-16,label:xin,tex:true,fs:15},{t:'text',x:443,y:y-16,label:yout,tex:true,fs:15}];
+      const groups=[
+        row(60,'x_1[n]','x_1^2[2n]'),
+        row(170,'x_2[n]','x_2^2[2n]'),
+        [...row(300,'a\\,x_1+b\\,x_2','y_3[n]'),
+         {t:'text',x:280,y:370,label:'y_3\\neq a\\,y_1+b\\,y_2',tex:true,fs:16,color:C.coral},
+         {t:'line',d:'M15,246 H545 V390 H15 Z',color:C.coral}]
+      ];
+      // same three rows as the Linearity slide; the third one fails
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'Each input alone comes out squared. The combined input comes out as $(a\\,x_1[2n]+b\\,x_2[2n])^2$, which carries the cross term $2ab\\,x_1[2n]x_2[2n]$.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=\\bigl(x[2n]\\bigr)^{2}$.<div class="nsep"></div>Is the system linear?',
       ask:{key:'m2-linear-b', choices:['Linear','Not linear'], answer:1}},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\begin{aligned}x_3[n]&=ax_1[n]+bx_2[n]\\\\y_3[n]&=\\bigl(x_3[2n]\\bigr)^2\\\\&=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^2\\\\&=a^2x_1^2[2n]+2ab\\,x_1[2n]x_2[2n]+b^2x_2^2[2n]\\end{aligned}', label:'Combine, then apply the system'}]},
+      {t:'eq', tex:'\\begin{aligned}y_3[n]&=\\bigl(ax_1[2n]+bx_2[2n]\\bigr)^2\\\\&=a^2x_1^2[2n]+2ab\\,x_1[2n]x_2[2n]+b^2x_2^2[2n]\\end{aligned}', label:'Combine, then apply the system'}]},
     {t:'reveal', at:2, items:[
       {t:'eq', tex:'a\\,y_1[n]+b\\,y_2[n]=a\\,x_1^2[2n]+b\\,x_2^2[2n]\\neq y_3[n]', label:'Apply, then combine',
         note:'There is no cross term, and the powers of $a$ and $b$ differ. The system is not linear.'}]}
