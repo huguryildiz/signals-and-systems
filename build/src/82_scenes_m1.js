@@ -1055,7 +1055,7 @@ REAL_ENERGY,
     {t:'fig', frame:true, grow:true,
       live:{controls:[
         {k:'b', label:'(1) shift $b$', min:0, max:5, step:0.25, v:5, show:v=>'$'+num(v)+'$'},
-        {k:'a', label:'(2) scale $a$', min:0.5, max:3, step:0.25, v:3, show:v=>'$'+num(v)+'$'}]},
+        {k:'a', label:'(2) scale $a$', min:0.25, max:3, step:0.25, v:3, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       /* x(t) faded, v(t)=x(t-b) dashed, y(t)=x(at-b) solid. The t range starts
          at [-3,10] and widens to the right when 0<a<1 stretches y past it. */
