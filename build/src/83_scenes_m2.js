@@ -278,7 +278,7 @@ const SC = [
          y[n-1] (dashed) with the piece x[n] stacked on it in the input colour.
          Past n=5 the input is 0 and y[n] only repeats y[n-1]. */
       const m=v?v.n:9;
-      const a=P.Axes({w:590,h:360,xr:[-2,9],yr:[-0.4,8],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const a=P.Axes({w:590,h:360,xr:[-2,9],yr:[-0.4,9],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ystep:2});
       const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2);
       const x=n=>(n>=0&&n<=5)?1:0, y=n=>n<0?0:Math.min(n+1,6);
       a.raw(`<g opacity="${m<-2?1:0.35}">`); a.stem(disc(x,-2,9),{color:C.in}); a.raw('</g>');
@@ -579,7 +579,7 @@ const SC = [
          sample at n is the old level y[n-1] (dashed) with the piece u[n]=1
          stacked on it in the input colour. */
       const m=v?v.n:12;
-      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,14],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
+      const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,18],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
       const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), y=n=>n>=0?n+1:0;
       a.raw(`<g opacity="${m<-2?1:0.35}">`); a.stem(disc(n=>n>=0?1:0,-2,12),{color:C.in}); a.raw('</g>');
       if(m>=-2){
@@ -595,7 +595,7 @@ const SC = [
       }
       return a.svg(); },
       caption:'Drag $n$ to run the accumulator. Each step adds $u[n]=1$ to the previous output, so $y[n]=n+1$ grows without a bound while the input never exceeds 1.'},
-    {t:'legend', at:'tl', items:[['in','$u[n]$'],['err','$y[n]$']]}
+    {t:'legend', items:[['in','$u[n]$'],['err','$y[n]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$y[n]=\\displaystyle\\sum_{k=-\\infty}^{n}x[k]$.<div class="nsep"></div>Is the accumulator BIBO stable?',
       ask:{key:'m2-stable-b', choices:['Stable','Not stable'], answer:1}},
