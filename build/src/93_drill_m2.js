@@ -341,15 +341,19 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D2-19', module:'M2', type:'p-connect',
   stem:'The system below is built with feedback: $$y[n]=x[n]-a\\,y[n-1],$$ where $a$ is a real constant, the output returning through a gain $a$ and a one-sample delay and entering with a negative sign.',
-  figure:()=>P.blocks({w:820,h:260,items:[
-    {t:'arrow',x1:50,y1:100,x2:190,y2:100},
-    {t:'box',x:190,y:68,w:140,h:64,label:'S',tex:true},
-    {t:'arrow',x1:330,y1:100,x2:470,y2:100},
-    {t:'text',x:130,y:86,label:'x[n]',tex:true,fs:17},
-    {t:'text',x:520,y:86,label:'y[n]',tex:true,fs:17},
-    {t:'line',d:'M470,100 L620,100 L620,200'},
-    {t:'arrow',x1:620,y1:200,x2:260,y2:200,label:'a\\,z^{-1}',tex:true,color:C.mid},
-    {t:'arrow',x1:260,y1:200,x2:260,y2:132}
+  figure:()=>P.blocks({w:700,h:250,items:[
+    {t:'arrow',x1:50,y1:90,x2:226,y2:90},
+    {t:'sum',x:240,y:90},
+    {t:'arrow',x1:254,y1:90,x2:640,y2:90},
+    {t:'dot',x:520,y:90,r:4},
+    {t:'text',x:130,y:76,label:'x[n]',tex:true,fs:17},
+    {t:'text',x:590,y:76,label:'y[n]',tex:true,fs:17},
+    {t:'line',d:'M520,90 V200 H469'},
+    {t:'line',d:'M460,200 l9,-4.5 v9 Z M462,200 l6,-3 v6 Z M464,200 l3,-1.5 v3 Z'},
+    {t:'box',x:340,y:176,w:120,h:48,label:'a\\,z^{-1}',tex:true},
+    {t:'line',d:'M340,200 H240 V113'},
+    {t:'line',d:'M240,104 l-4.5,9 h9 Z M240,106 l-3,6 h6 Z M240,108 l-1.5,3 h3 Z'},
+    {t:'text',x:262,y:130,label:'-',tex:true,fs:18,color:C.ink}
   ]}),
   parts:['Determine whether the system is memoryless, causal and linear, for any real value of $a$.',
          'Iterate the recursion to express $y[n]$ as a sum involving only $x[n],x[n-1],x[n-2],\\dots$, assuming $y[k]\\to0$ as $k\\to-\\infty$.',

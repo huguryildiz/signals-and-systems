@@ -980,15 +980,20 @@ REAL_ENERGY,
   {t:'title', text:'Time Scaling'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'a', label:'$a$', min:0.25, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const k=v?v.a:2, r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,13],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.curve(r,{color:C.in});
       a.note(2,1.2,'x(t)',{anchor:'middle',color:C.in,fs:15,tex:true});
       if(k!==1){
         a.curve(t=>r(k*t),{color:C.h});
         a.note(2/k,1.62,'x('+num(k)+'t)',{anchor:'middle',color:C.h,fs:15,tex:true});
+        /* edges 1/a and 3/a, written under the tick labels; a=4k/4, so a value
+           that is not a short decimal is written as a reduced fraction */
+        const g=(m,n)=>n?g(n,m%n):m, edge=p=>{ const n=Math.round(4*k), q=4*p, d=g(q,n);
+          return Math.abs(100*p/k-Math.round(100*p/k))<1e-9 ? num(p/k) : '\\tfrac{'+q/d+'}{'+n/d+'}'; };
+        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true}));
       }
       return a.svg(); },
       caption:'Drag $a$. The pulse on $[1,3]$ moves to $[1/a,\\,3/a]$. Its height does not change.'},
@@ -1020,7 +1025,7 @@ REAL_ENERGY,
       waveBand(a,SND.phrase,0,4.3,C.in);
       return a.svg(); }},
     {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'a', label:'$a$', min:0.25, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       listen:{items:[
           {label:'Play $x(t)$', sound:()=>({f:SND.phrase, dur:2})},
           {label:'Play $x(at)$', sound:v=>({f:t=>SND.phrase(v.a*t), dur:2/v.a})}]},
@@ -1174,6 +1179,36 @@ REAL_TRANSFORM,
   ]}
 ]},
 
+{ id:'m1-periodic-units', module:'M1', nav:'Radians per second and hertz', title:'Radians per Second and Hertz', src:'p. 5',
+  objective:'Tell angular frequency in rad/s from frequency in hertz, and convert with omega0 = 2 pi f0.',
+  keywords:'hertz Hz cycles per second rad/s radian angular frequency f0 omega0 2 pi f0 units 1/s',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
+  {t:'title', text:'Radians per Second and Hertz'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      /* cos(pi t): one cycle every 2 s, while the angle pi t grows by 2 pi */
+      const a=P.Axes({w:560,h:380,xr:[0,4.4],yr:[-1.4,2.3],xlabel:'t\\ (\\text{s})',ylabel:'x(t)',pad:{l:56,r:40,t:22,b:36},xtarget:9,yticksOverride:[-1,0,1]});
+      a.curve(t=>Math.cos(Math.PI*t),{color:C.in,n:1200});
+      a.span(0,2,1.3,'T_0=2\\ \\text{s}',{color:C.coral,tex:true});
+      ['0','\\pi','2\\pi','3\\pi','4\\pi'].forEach((s,k)=>a.note(k,1.95,s,{anchor:'middle',color:C.h,fs:15,tex:true}));
+      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true});
+      return a.svg(); },
+      caption:'$x(t)=\\cos(\\pi t)$. In one period, $T_0=2$ s, the angle $\\omega_0 t$ grows by $2\\pi$ rad. So $f_0=0.5$ Hz and $\\omega_0=\\pi$ rad/s.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Frequency in hertz', html:'$f_0=1/T_0$ counts full cycles per second. Its unit is $1/\\text{s}$, called hertz (Hz).'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\omega_0=2\\pi f_0=\\dfrac{2\\pi}{T_0}', label:'Angular frequency',
+        note:'$\\omega_0$ counts radians per second. One cycle is $2\\pi$ rad, so $\\omega_0$ is $2\\pi$ times $f_0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Write the unit every time', html:'<div class="cmp"><div><span class="cmp-h">Hz</span>Cycles per second. Used for $f$.</div><div><span class="cmp-h">rad/s</span>Radians per second. Used for $\\omega$.</div></div><div class="nsep"></div>A radian has no physical dimension, so both reduce to $1/\\text{s}$. The unit name is the only thing that shows the factor $2\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(100\\pi t)$, with $t$ in seconds.<div class="nsep"></div>What is its frequency $f_0$?',
+        ask:{key:'m1-periodic-units', choices:['$f_0=50$ Hz','$f_0=100$ Hz','$f_0=100\\pi$ Hz'], answer:0,
+          why:'$\\omega_0=100\\pi$ rad/s, so $f_0=\\omega_0/2\\pi=50$ Hz.'}}]}
+  ]}
+]},
+
 { id:'m1-periodic-b', module:'M1', nav:'Discrete-time period', title:'A Discrete-Time Period', src:'p. 5',
   objective:'State the discrete-time period and the fundamental frequency.',
   keywords:'periodic N0 integer fundamental frequency',
@@ -1242,7 +1277,7 @@ REAL_TRANSFORM,
       {t:'eq', tex:'\\begin{aligned}x(-0.5+2)&=x(1.5)=\\cos(1.5\\pi)=0\\\\x(-0.5)&=\\sin(-0.5\\pi)=-1\\end{aligned}', label:'A shift of 2 fails',
         note:'For large $t$ only a multiple of 2 can work, and every multiple of 2 fails at $t=-0.5$ in the same way.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Given', html:'$y(t)=\\cos(\\pi t)\\,u(t)$.<div class="nsep"></div>Is $y(t)$ periodic?',
+      {t:'note', kind:'def', head:'Given', html:'$$y(t)=\\begin{cases}\\cos(\\pi t), & t\\ge 0\\\\0, & t<0\\end{cases}$$<div class="nsep"></div>Is $y(t)$ periodic?',
         ask:{key:'m1-periodic-c', choices:['Yes, $T_0=2$','No'], answer:1,
           why:'$y(t)=0$ for every $t<0$, so a period would force the cosine part to be zero as well; $y(-1)=0$ but $y(1)=-1$.'}}]}
   ]}
@@ -1269,8 +1304,8 @@ REAL_TRANSFORM,
       caption:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$. Drag $T$: the dashed copy $x(t+T)$ lies on $x(t)$ only when $T$ is a multiple of $12$.'},
     {t:'legend', items:[['in','$x(t)$'],['mid','$x(t+T)$',true]]}
   ], right:[
-    {t:'eq', tex:'T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}', label:'A common period',
-      note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0=\\operatorname{lcm}(T_1,T_2)$ when no terms cancel.'},
+    {t:'eq', tex:'\\begin{gathered}T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}\\\\[6pt]\\operatorname{lcm}\\Bigl(\\frac45,\\frac34\\Bigr)=\\operatorname{lcm}\\Bigl(\\frac{16}{20},\\frac{15}{20}\\Bigr)=\\frac{\\operatorname{lcm}(16,15)}{20}=\\frac{240}{20}=12\\end{gathered}', label:'A common period',
+      note:'The sum repeats when both parts repeat together, with integers $k,m\\ge1$, so $T_1/T_2$ must be rational and $T_0=\\operatorname{lcm}(T_1,T_2)$ when no terms cancel. For fractional periods, write both over a common denominator first, as in the second line.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}T_1&=\\frac{2\\pi}{2\\pi/3}=3,\\qquad T_2=\\frac{2\\pi}{\\pi/2}=4\\\\T_0&=\\operatorname{lcm}(3,4)=3\\cdot4=12\\end{aligned}', label:'For the signal on the left',
         note:'$3$ and $4=2^2$ share no prime factor, so the lcm is their product: four periods of the cosine and three of the sine.'}]},
@@ -1393,42 +1428,6 @@ REAL_TRANSFORM,
       {t:'note', kind:'def', head:'Given', html:'$x(t)=t+1$.<div class="nsep"></div>What is $\\Od\\{x(t)\\}$?',
         ask:{key:'m1-evenodd-b', choices:['$t$','$1$','$t+1$'], answer:0,
           why:'$\\tfrac12(t+1)-\\tfrac12(-t+1)=t$.'}}]}
-  ]}
-]},
-
-{ id:'m1-evenodd-rules', module:'M1', nav:'Products of even and odd', title:'Products of Even and Odd Signals', src:'pp. 5–6',
-  objective:'Give the symmetry of a product of even and odd signals, and show that an odd signal sums to zero over a symmetric interval.',
-  keywords:'even times odd product symmetry odd integral zero symmetric interval sum cancel',
-  slide:true, steps:3, blocks:[
-  {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
-  {t:'title', text:'Products of Even and Odd Signals'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'A', label:'$a$', min:0.25, max:2, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
-      svg:v=>{
-      /* the shaded interval is [-a, a]; its signed area is 0 for every a */
-      const A=v?v.A:2, y=t=>t*Math.cos(Math.PI*t);
-      const a=P.Axes({w:560,h:380,xr:[-2.2,2.2],yr:[-2.4,2.4],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:5,yticksLeft:true});
-      a.area(y,-A,A,{color:'rgba(106,90,146,.18)'});
-      a.vline(-A,{color:C.coral,dash:'4 4'}); a.vline(A,{color:C.coral,dash:'4 4'});
-      a.curve(t=>Math.cos(Math.PI*t),{color:C.in,dash:'6 5',n:1200});
-      a.curve(t=>t,{color:C.h,dash:'6 5',n:400});
-      a.curve(y,{color:C.mid,n:1600});
-      return a.svg(); },
-      caption:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Drag $a$: each shaded lobe on $[0,a]$ has a lobe of opposite sign on $[-a,0]$, so the area on $[-a,a]$ is always $0$.'},
-    {t:'legend', at:'tl', items:[['in','$\\cos(\\pi t)$',true],['h','$t$',true],['mid','$t\\cos(\\pi t)$']]}
-  ], right:[
-    {t:'eq', tex:'y(-t)=x_e(-t)\\,x_o(-t)=x_e(t)\\bigl(-x_o(t)\\bigr)=-y(t)', label:'Even $\\times$ odd is odd',
-      note:'Here $y=x_e\\,x_o$ with $x_e$ even and $x_o$ odd. The same step shows that even $\\times$ even and odd $\\times$ odd are even.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\int_{-a}^{a}x_o(t)\\,\\d t=\\underbrace{\\int_{-a}^{0}x_o(t)\\,\\d t}_{=\\,-\\int_0^a x_o(t)\\,\\d t}+\\int_{0}^{a}x_o(t)\\,\\d t=0', label:'An odd signal cancels',
-        note:'In the left half put $t=-s$, so $\\d t=-\\d s$ and $x_o(-s)=-x_o(s)$. In discrete time, $\\sum_{n=-N}^{N}x_o[n]=0$ for the same reason.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Why it helps', html:'Many integrals of a product are zero by symmetry alone, with no calculation. Module 4 uses this for the Fourier coefficients of even and odd signals.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'$x(t)=t^{3}\\cos t$.<div class="nsep"></div>What is $\\int_{-\\pi}^{\\pi}x(t)\\,\\d t$?',
-        ask:{key:'m1-evenodd-rules', choices:['$0$','$2\\pi^{3}$','$\\pi^{4}/2$'], answer:0,
-          why:'$t^{3}$ is odd and $\\cos t$ is even, so the product is odd and its integral over $[-\\pi,\\pi]$ is $0$.'}}]}
   ]}
 ]},
 

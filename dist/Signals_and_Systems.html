@@ -4504,7 +4504,12 @@ const LABS = (() => {
       const e1=(P.sup[0]+b)/a, e2=(P.sup[1]+b)/a;
       const lo=Math.min(e1,e2), hi=Math.max(e1,e2);
       const critY = P.crit.map(c=>(c+b)/a).sort((p,q)=>p-q);
-      const xr=[-8,8];
+      /* The window grows to hold x, v and y whole; all three panels share it so
+         the shift and the scaling stay comparable by eye. */
+      const ends=[P.sup[0],P.sup[1],P.sup[0]+b,P.sup[1]+b];
+      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40) ends.push(lo,hi);
+      const xr=[Math.min(-8,2*Math.floor((Math.min(...ends)-1)/2)),
+                Math.max(8,2*Math.ceil((Math.max(...ends)+1)/2))];
       const ax = o => PLOT.Axes(Object.assign({w:760,h:190,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
         pad:{l:44,r:26,t:16,b:34}, xtarget:9, ytarget:3},o));
       const disc = f => { const out=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) out.push([n,f(n)]); return out; };
@@ -4517,7 +4522,18 @@ const LABS = (() => {
       const y = t => P.f(a*t-b);
       if(st.dt){ A3.stem(disc(y),{color:PLOT.COL.out}); } else { A3.curve(y,{color:PLOT.COL.out}); }
       A3.note(xr[1]-0.2,P.yr[1]*0.78, st.dt?'y[n] = x[an − b]':'y(t) = x(at − b)',{anchor:'end',color:PLOT.COL.out,fs:15,italic:true});
-      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40){ A3.vline(lo,{color:PLOT.COL.out}); A3.vline(hi,{color:PLOT.COL.out}); }
+      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40){
+        if(st.dt){ A3.vline(lo,{color:PLOT.COL.out}); A3.vline(hi,{color:PLOT.COL.out}); }
+        else {
+          /* Each mapped critical point gets its dashed line and its exact value.
+             Values closer than a label's width alternate between two rows. */
+          const pxU = 690/(xr[1]-xr[0]), dyRow = (P.yr[1]-P.yr[0])*0.13;
+          let prev=-Infinity, row=0;
+          critY.forEach(c=>{ A3.vline(c,{color:PLOT.COL.out});
+            row = (c-prev)*pxU < 40 ? 1-row : 0; prev=c;
+            A3.note(c,P.yr[1]-row*dyRow,F(c,3),{anchor:'middle',color:PLOT.COL.out,fs:12.5}); });
+        }
+      }
       const stages = [A1,A2,A3].slice(0, st.stage+1);
       root.querySelector('.plots').innerHTML = stages.map(z=>z.svg()).join('');
       root.querySelector('.ro').innerHTML = `
@@ -4563,7 +4579,11 @@ const LABS = (() => {
               intermediate signal v(t) = x(t − b). Then scale that signal.</div>
           </div></div>`;
       root.addEventListener('input', e=>{ const k=e.target.dataset.v; if(!k) return;
-        st[k]=parseFloat(e.target.value); draw(root); });
+        let v=parseFloat(e.target.value);
+        /* a = 0 collapses x(at − b) to the constant x(−b); the slider steps over it
+           to ±0.25 in the direction it was moving. */
+        if(k==='a' && v===0){ v = st.a>0 ? -0.25 : 0.25; e.target.value=v; }
+        st[k]=v; draw(root); });
       root.addEventListener('click', e=>{ const b=e.target.closest('[data-seg]'); if(!b) return;
         if(b.dataset.seg==='dom') st.dt = b.dataset.val==='dt';
         else if(b.dataset.seg==='proto') st.proto=b.dataset.val;
@@ -5103,7 +5123,7 @@ const RENDER = (() => {
     if(!b.live.v){ b.live.v = {}; b.live.controls.forEach(c=>{ b.live.v[c.k] = c.v; }); }
     return b.live.v;
   }
-  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(b.frames ? {frame:b.frames.t!=null ? b.frames.t : b.frames.i|0} : liveVals(b)) : b.svg;
+  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(b.frames ? Object.assign({frame:b.frames.t!=null ? b.frames.t : b.frames.i|0}, liveVals(b)) : liveVals(b)) : b.svg;
     return b.sketch ? sketchInk(s, b.sketch) : s; }
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){
@@ -18361,15 +18381,20 @@ REAL_ENERGY,
   {t:'title', text:'Time Scaling'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'a', label:'$a$', min:0.25, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       const k=v?v.a:2, r=t=>(t>=1&&t<=3)?1:0;
-      const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-1,13],yr:[-0.45,2.15],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       a.curve(r,{color:C.in});
       a.note(2,1.2,'x(t)',{anchor:'middle',color:C.in,fs:15,tex:true});
       if(k!==1){
         a.curve(t=>r(k*t),{color:C.h});
         a.note(2/k,1.62,'x('+num(k)+'t)',{anchor:'middle',color:C.h,fs:15,tex:true});
+        /* edges 1/a and 3/a, written under the tick labels; a=4k/4, so a value
+           that is not a short decimal is written as a reduced fraction */
+        const g=(m,n)=>n?g(n,m%n):m, edge=p=>{ const n=Math.round(4*k), q=4*p, d=g(q,n);
+          return Math.abs(100*p/k-Math.round(100*p/k))<1e-9 ? num(p/k) : '\\tfrac{'+q/d+'}{'+n/d+'}'; };
+        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true}));
       }
       return a.svg(); },
       caption:'Drag $a$. The pulse on $[1,3]$ moves to $[1/a,\\,3/a]$. Its height does not change.'},
@@ -18401,7 +18426,7 @@ REAL_ENERGY,
       waveBand(a,SND.phrase,0,4.3,C.in);
       return a.svg(); }},
     {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'a', label:'$a$', min:0.5, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'a', label:'$a$', min:0.25, max:2.5, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
       listen:{items:[
           {label:'Play $x(t)$', sound:()=>({f:SND.phrase, dur:2})},
           {label:'Play $x(at)$', sound:v=>({f:t=>SND.phrase(v.a*t), dur:2/v.a})}]},
@@ -18555,6 +18580,36 @@ REAL_TRANSFORM,
   ]}
 ]},
 
+{ id:'m1-periodic-units', module:'M1', nav:'Radians per second and hertz', title:'Radians per Second and Hertz', src:'p. 5',
+  objective:'Tell angular frequency in rad/s from frequency in hertz, and convert with omega0 = 2 pi f0.',
+  keywords:'hertz Hz cycles per second rad/s radian angular frequency f0 omega0 2 pi f0 units 1/s',
+  slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 1 · Periodicity', src:'p. 5'},
+  {t:'title', text:'Radians per Second and Hertz'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      /* cos(pi t): one cycle every 2 s, while the angle pi t grows by 2 pi */
+      const a=P.Axes({w:560,h:380,xr:[0,4.4],yr:[-1.4,2.3],xlabel:'t\\ (\\text{s})',ylabel:'x(t)',pad:{l:56,r:40,t:22,b:36},xtarget:9,yticksOverride:[-1,0,1]});
+      a.curve(t=>Math.cos(Math.PI*t),{color:C.in,n:1200});
+      a.span(0,2,1.3,'T_0=2\\ \\text{s}',{color:C.coral,tex:true});
+      ['0','\\pi','2\\pi','3\\pi','4\\pi'].forEach((s,k)=>a.note(k,1.95,s,{anchor:'middle',color:C.h,fs:15,tex:true}));
+      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true});
+      return a.svg(); },
+      caption:'$x(t)=\\cos(\\pi t)$. In one period, $T_0=2$ s, the angle $\\omega_0 t$ grows by $2\\pi$ rad. So $f_0=0.5$ Hz and $\\omega_0=\\pi$ rad/s.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Frequency in hertz', html:'$f_0=1/T_0$ counts full cycles per second. Its unit is $1/\\text{s}$, called hertz (Hz).'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\omega_0=2\\pi f_0=\\dfrac{2\\pi}{T_0}', label:'Angular frequency',
+        note:'$\\omega_0$ counts radians per second. One cycle is $2\\pi$ rad, so $\\omega_0$ is $2\\pi$ times $f_0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'warn', head:'Write the unit every time', html:'<div class="cmp"><div><span class="cmp-h">Hz</span>Cycles per second. Used for $f$.</div><div><span class="cmp-h">rad/s</span>Radians per second. Used for $\\omega$.</div></div><div class="nsep"></div>A radian has no physical dimension, so both reduce to $1/\\text{s}$. The unit name is the only thing that shows the factor $2\\pi$.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos(100\\pi t)$, with $t$ in seconds.<div class="nsep"></div>What is its frequency $f_0$?',
+        ask:{key:'m1-periodic-units', choices:['$f_0=50$ Hz','$f_0=100$ Hz','$f_0=100\\pi$ Hz'], answer:0,
+          why:'$\\omega_0=100\\pi$ rad/s, so $f_0=\\omega_0/2\\pi=50$ Hz.'}}]}
+  ]}
+]},
+
 { id:'m1-periodic-b', module:'M1', nav:'Discrete-time period', title:'A Discrete-Time Period', src:'p. 5',
   objective:'State the discrete-time period and the fundamental frequency.',
   keywords:'periodic N0 integer fundamental frequency',
@@ -18623,7 +18678,7 @@ REAL_TRANSFORM,
       {t:'eq', tex:'\\begin{aligned}x(-0.5+2)&=x(1.5)=\\cos(1.5\\pi)=0\\\\x(-0.5)&=\\sin(-0.5\\pi)=-1\\end{aligned}', label:'A shift of 2 fails',
         note:'For large $t$ only a multiple of 2 can work, and every multiple of 2 fails at $t=-0.5$ in the same way.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Given', html:'$y(t)=\\cos(\\pi t)\\,u(t)$.<div class="nsep"></div>Is $y(t)$ periodic?',
+      {t:'note', kind:'def', head:'Given', html:'$$y(t)=\\begin{cases}\\cos(\\pi t), & t\\ge 0\\\\0, & t<0\\end{cases}$$<div class="nsep"></div>Is $y(t)$ periodic?',
         ask:{key:'m1-periodic-c', choices:['Yes, $T_0=2$','No'], answer:1,
           why:'$y(t)=0$ for every $t<0$, so a period would force the cosine part to be zero as well; $y(-1)=0$ but $y(1)=-1$.'}}]}
   ]}
@@ -18650,8 +18705,8 @@ REAL_TRANSFORM,
       caption:'$x(t)=\\cos\\bigl(\\tfrac{2\\pi t}{3}\\bigr)+\\sin\\bigl(\\tfrac{\\pi t}{2}\\bigr)$. Drag $T$: the dashed copy $x(t+T)$ lies on $x(t)$ only when $T$ is a multiple of $12$.'},
     {t:'legend', items:[['in','$x(t)$'],['mid','$x(t+T)$',true]]}
   ], right:[
-    {t:'eq', tex:'T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}', label:'A common period',
-      note:'The sum repeats when both parts repeat at the same time, with integers $k,m\\ge1$. So $T_1/T_2$ must be rational, and $T_0=\\operatorname{lcm}(T_1,T_2)$ when no terms cancel.'},
+    {t:'eq', tex:'\\begin{gathered}T=k\\,T_1=m\\,T_2\\quad\\Rightarrow\\quad\\frac{T_1}{T_2}=\\frac{m}{k}\\\\[6pt]\\operatorname{lcm}\\Bigl(\\frac45,\\frac34\\Bigr)=\\operatorname{lcm}\\Bigl(\\frac{16}{20},\\frac{15}{20}\\Bigr)=\\frac{\\operatorname{lcm}(16,15)}{20}=\\frac{240}{20}=12\\end{gathered}', label:'A common period',
+      note:'The sum repeats when both parts repeat together, with integers $k,m\\ge1$, so $T_1/T_2$ must be rational and $T_0=\\operatorname{lcm}(T_1,T_2)$ when no terms cancel. For fractional periods, write both over a common denominator first, as in the second line.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'\\begin{aligned}T_1&=\\frac{2\\pi}{2\\pi/3}=3,\\qquad T_2=\\frac{2\\pi}{\\pi/2}=4\\\\T_0&=\\operatorname{lcm}(3,4)=3\\cdot4=12\\end{aligned}', label:'For the signal on the left',
         note:'$3$ and $4=2^2$ share no prime factor, so the lcm is their product: four periods of the cosine and three of the sine.'}]},
@@ -18774,42 +18829,6 @@ REAL_TRANSFORM,
       {t:'note', kind:'def', head:'Given', html:'$x(t)=t+1$.<div class="nsep"></div>What is $\\Od\\{x(t)\\}$?',
         ask:{key:'m1-evenodd-b', choices:['$t$','$1$','$t+1$'], answer:0,
           why:'$\\tfrac12(t+1)-\\tfrac12(-t+1)=t$.'}}]}
-  ]}
-]},
-
-{ id:'m1-evenodd-rules', module:'M1', nav:'Products of even and odd', title:'Products of Even and Odd Signals', src:'pp. 5–6',
-  objective:'Give the symmetry of a product of even and odd signals, and show that an odd signal sums to zero over a symmetric interval.',
-  keywords:'even times odd product symmetry odd integral zero symmetric interval sum cancel',
-  slide:true, steps:3, blocks:[
-  {t:'eyebrow', text:'Module 1 · Symmetry', src:'pp. 5–6'},
-  {t:'title', text:'Products of Even and Odd Signals'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'A', label:'$a$', min:0.25, max:2, step:0.25, v:2, show:v=>'$'+num(v)+'$'}]},
-      svg:v=>{
-      /* the shaded interval is [-a, a]; its signed area is 0 for every a */
-      const A=v?v.A:2, y=t=>t*Math.cos(Math.PI*t);
-      const a=P.Axes({w:560,h:380,xr:[-2.2,2.2],yr:[-2.4,2.4],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:26,t:22,b:36},xtarget:9,ytarget:5,yticksLeft:true});
-      a.area(y,-A,A,{color:'rgba(106,90,146,.18)'});
-      a.vline(-A,{color:C.coral,dash:'4 4'}); a.vline(A,{color:C.coral,dash:'4 4'});
-      a.curve(t=>Math.cos(Math.PI*t),{color:C.in,dash:'6 5',n:1200});
-      a.curve(t=>t,{color:C.h,dash:'6 5',n:400});
-      a.curve(y,{color:C.mid,n:1600});
-      return a.svg(); },
-      caption:'The even $\\cos(\\pi t)$ times the odd $t$ gives the odd $t\\cos(\\pi t)$. Drag $a$: each shaded lobe on $[0,a]$ has a lobe of opposite sign on $[-a,0]$, so the area on $[-a,a]$ is always $0$.'},
-    {t:'legend', at:'tl', items:[['in','$\\cos(\\pi t)$',true],['h','$t$',true],['mid','$t\\cos(\\pi t)$']]}
-  ], right:[
-    {t:'eq', tex:'y(-t)=x_e(-t)\\,x_o(-t)=x_e(t)\\bigl(-x_o(t)\\bigr)=-y(t)', label:'Even $\\times$ odd is odd',
-      note:'Here $y=x_e\\,x_o$ with $x_e$ even and $x_o$ odd. The same step shows that even $\\times$ even and odd $\\times$ odd are even.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\int_{-a}^{a}x_o(t)\\,\\d t=\\underbrace{\\int_{-a}^{0}x_o(t)\\,\\d t}_{=\\,-\\int_0^a x_o(t)\\,\\d t}+\\int_{0}^{a}x_o(t)\\,\\d t=0', label:'An odd signal cancels',
-        note:'In the left half put $t=-s$, so $\\d t=-\\d s$ and $x_o(-s)=-x_o(s)$. In discrete time, $\\sum_{n=-N}^{N}x_o[n]=0$ for the same reason.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'warn', head:'Why it helps', html:'Many integrals of a product are zero by symmetry alone, with no calculation. Module 4 uses this for the Fourier coefficients of even and odd signals.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'$x(t)=t^{3}\\cos t$.<div class="nsep"></div>What is $\\int_{-\\pi}^{\\pi}x(t)\\,\\d t$?',
-        ask:{key:'m1-evenodd-rules', choices:['$0$','$2\\pi^{3}$','$\\pi^{4}/2$'], answer:0,
-          why:'$t^{3}$ is odd and $\\cos t$ is even, so the product is odd and its integral over $[-\\pi,\\pi]$ is $0$.'}}]}
   ]}
 ]},
 
@@ -20063,30 +20082,35 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'One Equation, Many Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:390,items:[
-      {t:'arrow',x1:20,y1:95,x2:150,y2:95,label:'v_s(t)',tex:true},
-      {t:'box',x:150,y:15,w:270,h:160,label:''},
-      {t:'arrow',x1:420,y1:95,x2:545,y2:95,label:'v_C(t)',tex:true},
-      {t:'line',d:'M195,79 V45 H235 l5,-8 l10,16 l10,-16 l10,16 l10,-16 l10,16 l5,-8 H370 V87 M352,87 H388 M352,103 H388 M370,103 V145 H195 V111'},
-      {t:'line',d:'M195,79 a16,16 0 1,0 0.01,0 M190,89 h10 M195,84 v10 M190,103 h10'},
-      {t:'text',x:265,y:72,label:'R',tex:true,fs:16},
-      {t:'text',x:402,y:99,label:'C',tex:true,fs:16},
-      {t:'arrow',x1:20,y1:300,x2:150,y2:300,label:'f(t)',tex:true},
-      {t:'box',x:150,y:215,w:270,h:160,label:''},
-      {t:'arrow',x1:420,y1:300,x2:545,y2:300,label:'v(t)',tex:true},
-      {t:'box',x:225,y:265,w:120,h:52,label:'m',tex:true},
-      {t:'dot',x:250,y:328,r:10},{t:'dot',x:320,y:328,r:10},
-      {t:'line',d:'M175,339 H395'},
-      {t:'arrow',x1:172,y1:291,x2:223,y2:291,label:'f',tex:true},
-      {t:'arrow',x1:290,y1:245,x2:345,y2:245,label:'v',tex:true},
-      {t:'text',x:285,y:361,label:'\\text{friction }\\rho v',tex:true,fs:14}
-    ]}), caption:'Each system drawn inside a box: one signal goes in, one comes out.'},
-    {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>P.blocks({w:560,h:130,items:[
-        {t:'arrow',x1:20,y1:65,x2:150,y2:65,label:'x(t)',tex:true},
-        {t:'box',x:150,y:15,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
-        {t:'arrow',x1:420,y1:65,x2:545,y2:65,label:'y(t)',tex:true}
-      ]}), caption:'Seen from outside, both boxes are the same box.'}]}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['RC circuit','Car','One equation']},
+      svg:v=>{
+      const k=v?v.frame:0, H=Math.max(P.hOverride||440,220), dy=((H-220)/2).toFixed(1); P.hOverride=null;
+      const groups=[
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'v_s(t)',tex:true},
+         {t:'box',x:150,y:30,w:270,h:160,label:''},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'v_C(t)',tex:true},
+         {t:'line',d:'M195,94 V60 H235 l5,-8 l10,16 l10,-16 l10,16 l10,-16 l10,16 l5,-8 H370 V102 M352,102 H388 M352,118 H388 M370,118 V160 H195 V126'},
+         {t:'line',d:'M195,94 a16,16 0 1,0 0.01,0 M190,104 h10 M195,99 v10 M190,118 h10'},
+         {t:'text',x:265,y:87,label:'R',tex:true,fs:16},
+         {t:'text',x:402,y:114,label:'C',tex:true,fs:16}],
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'f(t)',tex:true},
+         {t:'box',x:150,y:30,w:270,h:160,label:''},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'v(t)',tex:true},
+         {t:'box',x:225,y:75,w:120,h:52,label:'m',tex:true},
+         {t:'dot',x:250,y:138,r:10},{t:'dot',x:320,y:138,r:10},
+         {t:'line',d:'M175,149 H395'},
+         {t:'arrow',x1:172,y1:101,x2:223,y2:101,label:'f',tex:true},
+         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:'v',tex:true},
+         {t:'text',x:285,y:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'x(t)',tex:true},
+         {t:'box',x:150,y:60,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'y(t)',tex:true}]
+      ];
+      // one system at a time; Next cross-fades to the following one
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:220,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'An RC circuit and a car, each drawn inside a box, taken one at a time with Next. Seen from outside, both boxes are the same box.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\frac{dv_C(t)}{dt}+\\frac{1}{RC}\\,v_C(t)&=\\frac{1}{RC}\\,v_s(t)\\\\[10pt]\\frac{dv(t)}{dt}+\\frac{\\rho}{m}\\,v(t)&=\\frac{1}{m}\\,f(t)\\end{aligned}', label:'Two systems',
       note:'RC circuit: voltage $v_s$ in, $v_C$ out. Car of mass $m$: force $f$ in, speed $v$ out, friction $\\rho v$.'},
@@ -20323,8 +20347,8 @@ const SC = [
         {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
         {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
-        'y[n]=x[n]+\\underbrace{x[n-1]+x[n-2]+\\cdots}_{y[n-1]},\\quad y[0]=x[0]+y[-1]=1+0=1','y[1]=y[0]+x[1]=1+1=2','y[2]=y[1]+x[2]=2+1=3',
-        'y[n]=y[n-1]+0=3,\\quad n\\ge3',
+        'y[0]=\\sum_{k=-\\infty}^{0}x[k]=x[0]=1','y[1]=\\sum_{k=-\\infty}^{1}x[k]=x[0]+x[1]=1+1=2','y[2]=\\sum_{k=-\\infty}^{2}x[k]=x[0]+x[1]+x[2]=1+1+1=3',
+        'y[n]=\\sum_{k=-\\infty}^{n}x[k]=x[0]+x[1]+x[2]=1+1+1=3,\\quad n\\ge3',
         'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=2-1=1','w[2]=y[2]-y[1]=3-2=1',
         'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge3'];
       const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
@@ -20494,19 +20518,14 @@ const SC = [
         show:v=>v<-2?'input only':'$y['+v+']='+Math.max(0,v+1)+'$'}]},
       svg:v=>{
       /* The slider runs the accumulator one sample at a time. At its left end
-         only the input u[n] is drawn. At n the outputs up to n are drawn; the
-         sample at n is the old level y[n-1] (dashed) with the piece u[n]=1
-         stacked on it in the input colour. */
+         only the input u[n] is drawn. At n the outputs up to n are drawn. */
       const m=v?v.n:12;
       const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,18],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
-      const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), y=n=>n>=0?n+1:0;
+      const y=n=>n>=0?n+1:0;
       a.raw(`<g opacity="${m<-2?1:0.35}">`); a.stem(disc(n=>n>=0?1:0,-2,12),{color:C.in}); a.raw('</g>');
       if(m>=-2){
-        a.stem(disc(n=>n<m?y(n):y(n-1),-2,m),{color:C.err});
+        a.stem(disc(y,-2,m),{color:C.err});
         if(m>=0){
-          a.raw(`<line x1="${X(m-1)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m-1))}" stroke="${C.err}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/>`);
-          a.raw(`<line x1="${X(m)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m))}" stroke="${C.in}" stroke-width="3"/>`);
-          a.raw(`<circle cx="${X(m)}" cy="${Y(y(m))}" r="4.6" fill="${C.in}"/>`);
           const lab='y['+m+']=\\displaystyle\\sum_{k=-\\infty}^{'+m+'}u[k]='+y(m);
           if(m<6) a.note(m+0.4,y(m)+1.8,lab,{anchor:'start',color:C.err,fs:15,tex:true});
           else a.note(m-0.5,y(m)+1.5,lab,{anchor:'end',color:C.err,fs:15,tex:true});
@@ -20532,20 +20551,30 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:35,y:50,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:125,x2:145,y2:125},{t:'box',x:145,y:90,w:120,h:70,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:265,y1:125,x2:330,y2:125},{t:'box',x:330,y:90,w:100,h:70,label:'S',tex:true},
-      {t:'arrow',x1:430,y1:125,x2:540,y2:125},
-      {t:'text',x:90,y:109,label:'x(t)',tex:true,fs:17},{t:'text',x:485,y:109,label:'y_2(t)',tex:true,fs:17},
-      {t:'text',x:35,y:235,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:310,x2:145,y2:310},{t:'box',x:145,y:275,w:100,h:70,label:'S',tex:true},
-      {t:'arrow',x1:245,y1:310,x2:310,y2:310},{t:'box',x:310,y:275,w:120,h:70,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:430,y1:310,x2:540,y2:310},
-      {t:'text',x:90,y:294,label:'x(t)',tex:true,fs:17},{t:'text',x:485,y:294,label:'y_1(t-t_0)',tex:true,fs:17}
-    ]}), caption:'Path 1 shifts the input, then applies $S$. Path 2 applies $S$, then shifts the output. A time-invariant system makes them agree.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_1\\to y_1$','$x_2=x_1(t-t_0)\\to y_2$','Compare']},
+      svg:v=>{
+      /* Rows build up one per Next, worked for y(t)=sin(x(t)): the input and
+         its output, the shifted input and its output, then the comparison of
+         y2 with the shifted y1. */
+      const k=v?v.frame:0, H=Math.max(P.hOverride||420,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
+      const op=i=>Math.max(0,Math.min(1,k-i+1)).toFixed(3);
+      const nm=(x,y,l)=>({t:'text',x,y:y-16,label:l,tex:true,fs:15,color:C.ink});
+      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*(r||0),label:l,tex:true,fs:14,color:C.coral});
+      const row=y=>[{t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
+        {t:'arrow',x1:355,y1:y,x2:530,y2:y}];
+      const r1=70, r2=205, r3=345;
+      const groups=[
+        [...row(r1),nm(117,r1,'x_1(t)'),nm(443,r1,'y_1(t)'),ex(443,r1,'=\\sin\\bigl(x_1(t)\\bigr)')],
+        [...row(r2),nm(117,r2,'x_2(t)'),ex(117,r2,'=x_1(t-t_0)'),nm(443,r2,'y_2(t)'),
+         ex(443,r2,'=\\sin\\bigl(x_2(t)\\bigr)'),ex(443,r2,'=\\sin\\bigl(x_1(t-t_0)\\bigr)',1)],
+        [{t:'line',d:`M15,${r3-32} H545 V${r3+32} H15 Z`,color:C.coral},
+         {t:'text',x:280,y:r3+4,label:'y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)=y_2(t)',tex:true,fs:16,color:C.coral}]];
+      const body=groups.map((items,i)=>`<g opacity="${op(i)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'Worked for $y(t)=\\sin\\bigl(x(t)\\bigr)$. The shifted input $x_2$ gives $y_2$, and $y_2$ equals $y_1$ shifted by $t_0$, so the system is time invariant.'}
   ], right:[
-    {t:'note', kind:'def', head:'Criterion', html:'If $x(t)$ produces $y(t)$, then $x(t-t_0)$ must produce $y(t-t_0)$, for every shift $t_0$.'},
+    {t:'note', kind:'def', head:'Criterion', html:'If $x_1(t)$ produces $y_1(t)$, then the shifted input $x_2(t)=x_1(t-t_0)$ must produce $y_2(t)=y_1(t-t_0)$, for every shift $t_0$.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Given', html:'$y(t)=\\sin\\bigl(x(t)\\bigr)$.<div class="nsep"></div>Is the system time invariant?',
         ask:{key:'m2-ti', choices:['Time invariant','Not time invariant'], answer:0}}]},
@@ -20634,20 +20663,24 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'Linearity'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:35,y:50,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:125,x2:190,y2:125},{t:'box',x:190,y:90,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:125,x2:500,y2:125},
-      {t:'text',x:112,y:109,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
-      {t:'text',x:420,y:109,label:'y_3',tex:true,fs:15},
-      {t:'text',x:35,y:235,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:310,x2:190,y2:310},{t:'box',x:190,y:275,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:310,x2:500,y2:310},
-      {t:'text',x:112,y:294,label:'x_1,\\;x_2',tex:true,fs:15},
-      {t:'text',x:420,y:294,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
-      {t:'text',x:490,y:222,label:'equal?',fs:16,anchor:'end',color:C.coral},
-      {t:'line',d:'M505 125 h20 v185 h-20',color:C.coral}
-    ]}), caption:'A linear system gives the same result when the signals are combined before the system or after it.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_1\\to y_1$','$x_2\\to y_2$','Superposition']},
+      svg:v=>{
+      const k=v?v.frame:0, H=Math.max(P.hOverride||440,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
+      const row=(y,xin,yout)=>[
+        {t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
+        {t:'arrow',x1:355,y1:y,x2:530,y2:y},
+        {t:'text',x:117,y:y-16,label:xin,tex:true,fs:15},{t:'text',x:443,y:y-16,label:yout,tex:true,fs:15}];
+      const groups=[
+        row(70,'x_1(t)','y_1(t)'),
+        row(190,'x_2(t)','y_2(t)'),
+        [...row(330,'a\\,x_1(t)+b\\,x_2(t)','a\\,y_1(t)+b\\,y_2(t)'),
+         {t:'line',d:'M15,276 H545 V384 H15 Z',color:C.coral}]
+      ];
+      // rows build up one per Next: the two known pairs, then the combined input
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'$x_1$ gives $y_1$ and $x_2$ gives $y_2$. In a linear system the input $a\\,x_1+b\\,x_2$ gives $a\\,y_1+b\\,y_2$.'}
   ], right:[
     {t:'eq', key:true, result:true, tex:'a\\,x_1+b\\,x_2\\;\\longrightarrow\\;a\\,y_1+b\\,y_2', label:'Key result · Superposition', note:'$a$ and $b$ are complex. $x_1$ produces $y_1$ and $x_2$ produces $y_2$.'},
     {t:'reveal', at:1, items:[
@@ -20811,17 +20844,17 @@ REAL_SYSTEMS,
      the test, then opens the card. The sketch on each card is the picture to
      remember. */
   {t:'raw', html:()=>RECALL.deck('m2', [
-    {tag:'Limit', q:'Memoryless', glyph:G.mem,
+    {q:'Memoryless', glyph:G.mem,
      a:'<b>Memoryless.</b> The output at $t$ uses only the input at the same $t$.'},
-    {tag:'Limit', q:'Invertible', glyph:G.inv,
+    {q:'Invertible', glyph:G.inv,
      a:'<b>Invertible.</b> Different inputs give different outputs, so the input can be recovered from the output.'},
-    {tag:'Limit', q:'Causal', glyph:G.caus,
+    {q:'Causal', glyph:G.caus,
      a:'<b>Causal.</b> The output at $t$ uses only $x(\\tau)$ for $\\tau\\le t$.'},
-    {tag:'Limit', q:'BIBO stable', glyph:G.stab,
+    {q:'BIBO stable', glyph:G.stab,
      a:'<b>BIBO stable.</b> Every bounded input gives a bounded output.'},
-    {tag:'LTI', q:'Time invariant', glyph:G.ti,
+    {q:'Time invariant', glyph:G.ti,
      a:'<b>Time invariant.</b> $x(t-t_0)\\;\\to\\;y(t-t_0)$ for every shift $t_0$.'},
-    {tag:'LTI', q:'Linear', glyph:G.lin,
+    {q:'Linear', glyph:G.lin,
      a:'<b>Linear.</b> $ax_1+bx_2\\;\\to\\;ay_1+by_2$ for all $a$ and $b$.'},
     {tag:'Method', q:'How do you prove or disprove a property?', glyph:G.proof,
      a:'A proof must hold for <b>every</b> input. <b>One</b> explicit counterexample disproves the property.'},
@@ -33968,7 +34001,7 @@ CONTENT.SECTIONS = {
     { n:'1.3', title:'Signal operations', ids:[
         'm1-shift','m1-shift-dt','m1-reverse','m1-reverse-b','m1-scale','m1-scale-b','m1-combined','m1-combined-b','m1-real-transform','m1-lab-a','m1-code-ops'] },
     { n:'1.4', title:'Periodicity, even and odd',                  ids:[
-        'm1-periodic','m1-periodic-b','m1-periodic-c','m1-periodic-sum','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b','m1-evenodd-rules',
+        'm1-periodic','m1-periodic-units','m1-periodic-b','m1-periodic-c','m1-periodic-sum','m1-evenodd','m1-evenodd-quiz','m1-evenodd-b',
         'm1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
@@ -34175,8 +34208,8 @@ CONTENT.BOOK = {
   'm1-shift':'1.2.1', 'm1-shift-dt':'1.2.1', 'm1-real-transform':'1.2.1', 'm1-reverse':'1.2.1', 'm1-reverse-b':'1.2.1', 'm1-scale':'1.2.1', 'm1-scale-b':'1.2.1',
   'm1-combined':'1.2.1', 'm1-combined-b':'1.2.1',
   'm1-lab-a':'1.2.1', 'm1-code-ops':'1.2.1',
-  'm1-periodic':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2', 'm1-periodic-c':'1.2.2', 'm1-periodic-sum':'1.2.2',
-  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-evenodd-rules':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
+  'm1-periodic':'1.2.2', 'm1-periodic-units':'1.2.2', 'm1-real-periodic':'1.2.2', 'm1-periodic-b':'1.2.2', 'm1-periodic-c':'1.2.2', 'm1-periodic-sum':'1.2.2',
+  'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
   'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-ct-impulse-scale':'1.4.2', 'm1-ct-deriv':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
@@ -34767,8 +34800,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> $x(-t)$, the two parts, and the three energies.<br>'
      +'<b>Method.</b> Substitute $t\\to-t$ in each piece of the definition to get $x(-t)$, then apply $\\Ev\\{x\\}=\\tfrac12[x(t)+x(-t)]$ and $\\Od\\{x\\}=\\tfrac12[x(t)-x(-t)]$ region by region, and integrate the square of each result. The values at the single points where a region changes do not affect any energy.<br>'
      +'<b>Solution — part (a).</b> Replace $t$ by $-t$ in each condition and solve for $t$. The piece $-2\\le t<0$ becomes $-2\\le-t<0$; multiplying by $-1$ reverses the inequalities, $2\\ge t>0$, so $x(-t)=-1$ on $0<t\\le2$. The piece $0\\le t\\le3$ becomes $0\\le-t\\le3$, that is $0\\ge t\\ge-3$, so $x(-t)=2$ on $-3\\le t\\le0$. Together,$$x(-t)=\\begin{cases}2,&-3\\le t\\le0,\\\\[2pt] -1,&0<t\\le2,\\\\[2pt] 0,&\\text{otherwise.}\\end{cases}$$'
-     +'<b>Solution — part (b).</b> Either $x(t)$ or $x(-t)$ is non-zero on $[-3,3]$. Split that interval at every point where one of them changes, $t=-2,0,2$, and read both values on each region:$$\\begin{aligned}-3\\le t<-2:&\\quad x(t)=0,\\;x(-t)=2,&\\Ev&=\\tfrac12(0+2)=1,&\\Od&=\\tfrac12(0-2)=-1,\\\\-2\\le t<0:&\\quad x(t)=-1,\\;x(-t)=2,&\\Ev&=\\tfrac12(-1+2)=\\tfrac12,&\\Od&=\\tfrac12(-1-2)=-\\tfrac32,\\\\0<t<2:&\\quad x(t)=2,\\;x(-t)=-1,&\\Ev&=\\tfrac12(2-1)=\\tfrac12,&\\Od&=\\tfrac12(2+1)=\\tfrac32,\\\\2<t\\le3:&\\quad x(t)=2,\\;x(-t)=0,&\\Ev&=\\tfrac12(2+0)=1,&\\Od&=\\tfrac12(2-0)=1.\\end{aligned}$$So$$\\Ev\\{x(t)\\}=\\begin{cases}1,&-3\\le t<-2,\\\\ 0.5,&-2\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}\\qquad\\Od\\{x(t)\\}=\\begin{cases}-1,&-3\\le t<-2,\\\\ -1.5,&-2\\le t<0,\\\\ 1.5,&0\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}$$both zero outside $[-3,3]$.<br>'
-     +'<b>Solution — part (c).</b> Square each level and integrate over its own region. For $x$:$$E_x=\\int_{-2}^{0}(-1)^{2}\\,\\d t+\\int_{0}^{3}2^{2}\\,\\d t=\\bigl[t\\bigr]_{-2}^{0}+\\bigl[4t\\bigr]_{0}^{3}=(0+2)+(12-0)=14.$$For the even part, $1^{2}=1$ and $(0.5)^{2}=0.25$:$$E_{\\Ev}=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{2}0.25\\,\\d t+\\int_{2}^{3}1\\,\\d t=1\\cdot1+0.25\\cdot4+1\\cdot1=1+1+1=3.$$For the odd part, $(\\pm1)^{2}=1$ and $(\\pm1.5)^{2}=2.25$:$$E_{\\Od}=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{0}2.25\\,\\d t+\\int_{0}^{2}2.25\\,\\d t+\\int_{2}^{3}1\\,\\d t=1+2.25\\cdot2+2.25\\cdot2+1=1+4.5+4.5+1=11.$$Then $E_{\\Ev}+E_{\\Od}=3+11=14=E_x$.<br>'
+     +'<b>Solution — part (b).</b> Either $x(t)$ or $x(-t)$ is non-zero on $[-3,3]$. Split that interval at every point where one of them changes, $t=-2,0,2$, and read both values on each region:$$\\begin{aligned}-3\\le t<-2:&\\quad x(t)=0,\\;x(-t)=2,\\\\&\\quad\\Ev=\\tfrac12(0+2)=1,\;\\Od=\\tfrac12(0-2)=-1,\\\\-2\\le t<0:&\\quad x(t)=-1,\\;x(-t)=2,\\\\&\\quad\\Ev=\\tfrac12(-1+2)=\\tfrac12,\;\\Od=\\tfrac12(-1-2)=-\\tfrac32,\\\\0<t<2:&\\quad x(t)=2,\\;x(-t)=-1,\\\\&\\quad\\Ev=\\tfrac12(2-1)=\\tfrac12,\;\\Od=\\tfrac12(2+1)=\\tfrac32,\\\\2<t\\le3:&\\quad x(t)=2,\\;x(-t)=0,\\\\&\\quad\\Ev=\\tfrac12(2+0)=1,\;\\Od=\\tfrac12(2-0)=1.\\end{aligned}$$So$$\\Ev\\{x(t)\\}=\\begin{cases}1,&-3\\le t<-2,\\\\ 0.5,&-2\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}\\qquad\\Od\\{x(t)\\}=\\begin{cases}-1,&-3\\le t<-2,\\\\ -1.5,&-2\\le t<0,\\\\ 1.5,&0\\le t<2,\\\\ 1,&2\\le t\\le3,\\end{cases}$$both zero outside $[-3,3]$.<br>'
+     +'<b>Solution — part (c).</b> Square each level and integrate over its own region. For $x$:$$E_x=\\int_{-2}^{0}(-1)^{2}\\,\\d t+\\int_{0}^{3}2^{2}\\,\\d t=\\bigl[t\\bigr]_{-2}^{0}+\\bigl[4t\\bigr]_{0}^{3}=(0+2)+(12-0)=14.$$For the even part, $1^{2}=1$ and $(0.5)^{2}=0.25$:$$E_{\\Ev}=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{2}0.25\\,\\d t+\\int_{2}^{3}1\\,\\d t=1\\cdot1+0.25\\cdot4+1\\cdot1=1+1+1=3.$$For the odd part, $(\\pm1)^{2}=1$ and $(\\pm1.5)^{2}=2.25$:$$\\begin{aligned}E_{\\Od}&=\\int_{-3}^{-2}1\\,\\d t+\\int_{-2}^{0}2.25\\,\\d t+\\int_{0}^{2}2.25\\,\\d t+\\int_{2}^{3}1\\,\\d t\\\\&=1+2.25\\cdot2+2.25\\cdot2+1=1+4.5+4.5+1=11.\\end{aligned}$$Then $E_{\\Ev}+E_{\\Od}=3+11=14=E_x$.<br>'
      +'<b>Check.</b> The two parts add back to $x$ on every region. On $(0,2)$, $0.5+1.5=2=x(t)$; on $[-3,-2)$, $1+(-1)=0=x(t)$. Also, orthogonality gives $E_x=E_{\\Ev}+E_{\\Od}$ with both terms non-negative, so $E_{\\Ev}\\le E_x$. Here $3<14$, as required.',
   err:'Computing $\\Ev\\{x\\}$ and $\\Od\\{x\\}$ only on the region where $x(t)$ itself is non-zero, $[-2,3]$, and missing that $x(-t)$ is non-zero on $[-3,2]$ — a different interval — so the even and odd parts extend over $[-3,3]$, wider than $x$ itself.',
   teach:'Ask for $x(-t)$ to be written out fully, as in part (a), before either part (b) is attempted. The commonest failure is reusing the support of $x(t)$ for $x(-t)$ instead of reflecting it.' },
@@ -34798,8 +34831,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   sol:'<b>Given.</b> Three integrals of an ordinary function against an impulse.<br>'
      +'<b>Find.</b> Their values, and the property behind each.<br>'
      +'<b>Method.</b> The <b>sifting</b> property, $\\int_{-\\infty}^{\\infty}x(t)\\delta(t-t_0)\\,\\d t=x(t_0)$, evaluates the function at the location of the impulse. A scaled argument first needs$$\\delta(at-b)=\\frac{1}{|a|}\\,\\delta\\!\\left(t-\\frac{b}{a}\\right),$$because the impulse must keep unit area under the substitution $\\tau=at-b$, $\\d t=\\d\\tau/|a|$.<br>'
-     +'<b>Solution — (i).</b> The integral is linear, so split it at the plus sign and sift each impulse at its own location, $t_0=-2$ and $t_0=4$:$$\\begin{aligned}\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\delta(t+2)\\,\\d t+\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\delta(t-4)\\,\\d t&=\\bigl(3(-2)^{2}+1\\bigr)+\\bigl(3\\cdot4^{2}+1\\bigr)\\\\&=(3\\cdot4+1)+(3\\cdot16+1)=13+49=62.\\end{aligned}$$'
-     +'<b>Solution — (ii).</b> The impulse sits at $t_0=1.5$, so sift there:$$\\int_{-\\infty}^{\\infty}\\!e^{-2t}\\sin(\\pi t)\\,\\delta(t-1.5)\\,\\d t=e^{-2\\cdot1.5}\\sin(1.5\\pi)=e^{-3}\\sin\\!\\left(\\tfrac{3\\pi}{2}\\right)=e^{-3}\\cdot(-1)=-e^{-3}\\approx-0.0498.$$'
+     +'<b>Solution — (i).</b> The integral is linear, so split it at the plus sign and sift each impulse at its own location, $t_0=-2$ and $t_0=4$:$$\\begin{aligned}&\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\delta(t+2)\\,\\d t+\\int_{-\\infty}^{\\infty}\\!\\left(3t^{2}+1\\right)\\delta(t-4)\\,\\d t\\\\&\\qquad=\\bigl(3(-2)^{2}+1\\bigr)+\\bigl(3\\cdot4^{2}+1\\bigr)\\\\&\\qquad=(3\\cdot4+1)+(3\\cdot16+1)=13+49=62.\\end{aligned}$$'
+     +'<b>Solution — (ii).</b> The impulse sits at $t_0=1.5$, so sift there:$$\\begin{aligned}\\int_{-\\infty}^{\\infty}\\!e^{-2t}\\sin(\\pi t)\\,\\delta(t-1.5)\\,\\d t&=e^{-2\\cdot1.5}\\sin(1.5\\pi)=e^{-3}\\sin\\!\\left(\\tfrac{3\\pi}{2}\\right)\\\\&=e^{-3}\\cdot(-1)=-e^{-3}\\approx-0.0498.\\end{aligned}$$'
      +'<b>Solution — (iii).</b> Rewrite the impulse with $a=4$, $b=8$: $\\delta(4t-8)=\\tfrac14\\delta\\!\\left(t-\\tfrac84\\right)=\\tfrac14\\delta(t-2)$. Then sift at $t_0=2$:$$\\int_{-\\infty}^{\\infty}t^{2}\\,\\delta(4t-8)\\,\\d t=\\int_{-\\infty}^{\\infty}t^{2}\\cdot\\tfrac14\\delta(t-2)\\,\\d t=\\tfrac14\\cdot2^{2}=\\tfrac14\\cdot4=1.$$The same value comes from a direct substitution $\\tau=4t-8$, so $t=\\tfrac{\\tau+8}{4}$ and $\\d t=\\tfrac14\\d\\tau$:$$\\int_{-\\infty}^{\\infty}\\left(\\tfrac{\\tau+8}{4}\\right)^{2}\\delta(\\tau)\\,\\tfrac14\\d\\tau=\\tfrac14\\left(\\tfrac{0+8}{4}\\right)^{2}=\\tfrac14\\cdot4=1.$$'
      +'<b>Solution — part (b).</b> All three use sifting. The result is a number because the integral runs over $t$ and removes every $t$-dependence. The <b>sampling</b> property is the other statement, $x(t)\\delta(t-t_0)=x(t_0)\\delta(t-t_0)$, and it returns a signal: an impulse at $t_0$ carrying the weight $x(t_0)$.<br>'
      +'<b>Check.</b> If $x$ is in volts, $\\delta$ has units $\\mathrm{s}^{-1}$, so integration returns volts. In (iii), $\\delta(4t-8)$ has area $\\tfrac14$, which confirms the scale factor. In (ii), $\\sin(1.5\\pi)=-1$, which confirms the sign.',
@@ -34837,7 +34870,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Method.</b> Sampling multiplies $x[n]$ by a shifted impulse and leaves one non-zero sample. Sifting sums that product and returns a number. The representation property rebuilds $x[n]$ by placing one weighted impulse at each non-zero sample. In every case the key fact is $\\delta[n-k]=1$ when $n=k$ and $0$ otherwise.<br>'
      +'<b>Solution — part (a).</b> $\\delta[n-1]$ is $1$ only at $n=1$, so the product $x[n]\\delta[n-1]$ is zero at every index except $n=1$, where it equals $x[1]\\cdot1=2$:$$x[n]\\delta[n-1]=x[1]\\delta[n-1]=2\\delta[n-1].$$This sequence equals $2$ at $n=1$ and zero elsewhere.<br>'
      +'<b>Solution — part (b).</b> Sum the sequence from part (a). Every term with $n\\neq1$ is zero, so only the $n=1$ term survives:$$\\sum_{n=-\\infty}^{\\infty}x[n]\\delta[n-1]=x[1]\\delta[0]=x[1]\\cdot1=2,$$and $x[1]=2$ as given.<br>'
-     +'<b>Solution — part (c).</b> The sum over $k$ has a non-zero term only where $x[k]\\neq0$, that is at $k=-1,0,1,2$:$$x[n]=x[-1]\\delta[n+1]+x[0]\\delta[n]+x[1]\\delta[n-1]+x[2]\\delta[n-2]=5\\delta[n+1]-3\\delta[n]+2\\delta[n-1]+7\\delta[n-2].$$At $n=0$ the four impulses take the values $\\delta[1]=0$, $\\delta[0]=1$, $\\delta[-1]=0$, $\\delta[-2]=0$:$$5\\cdot0-3\\cdot1+2\\cdot0+7\\cdot0=-3=x[0].$$'
+     +'<b>Solution — part (c).</b> The sum over $k$ has a non-zero term only where $x[k]\\neq0$, that is at $k=-1,0,1,2$:$$\\begin{aligned}x[n]&=x[-1]\\delta[n+1]+x[0]\\delta[n]+x[1]\\delta[n-1]+x[2]\\delta[n-2]\\\\&=5\\delta[n+1]-3\\delta[n]+2\\delta[n-1]+7\\delta[n-2].\\end{aligned}$$At $n=0$ the four impulses take the values $\\delta[1]=0$, $\\delta[0]=1$, $\\delta[-1]=0$, $\\delta[-2]=0$:$$5\\cdot0-3\\cdot1+2\\cdot0+7\\cdot0=-3=x[0].$$'
      +'<b>Check.</b> At $n=-1$, the same representation gives $5\\delta[0]-3\\delta[-1]+2\\delta[-2]+7\\delta[-3]=5\\cdot1-3\\cdot0+2\\cdot0+7\\cdot0=5=x[-1]$. This confirms the formula at a second index.',
   err:'Writing the sampling result in part (a) as the number $2$ instead of the sequence $2\\delta[n-1]$. Sampling produces a signal that happens to have only one non-zero sample; it does not collapse to a number until it is summed.',
   teach:'Ask for the check at a second index, as in the Check step, before accepting part (c). A single matching index is a weak test; the representation property has to hold everywhere.' },
@@ -34964,8 +34997,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — piecewise form.</b> On $|t|<2$ both windows are on: $x(t)=(t+3\\cdot1)\\cdot1=t+3$. On $2<|t|<3$ only the outer window is on: $x(t)=(t+3\\cdot0)\\cdot1=t$. On $|t|>3$ the outer window is off: $x(t)=0$. So$$x(t)=\\begin{cases}t+3,&|t|<2\\\\t,&2<|t|<3\\\\0,&|t|>3.\\end{cases}$$Because every region is symmetric about $t=0$, $x(-t)$ on each region is the same formula with $t$ replaced by $-t$: $-t+3$ on $|t|<2$ and $-t$ on $2<|t|<3$.<br>'
      +'<b>Solution — part (a).</b> On $|t|<2$: $\\tfrac12[(t+3)+(-t+3)]=\\tfrac12\\cdot6=3$. On $2<|t|<3$: $\\tfrac12[t+(-t)]=0$. So$$\\Ev\\{x(t)\\}=\\begin{cases}3,&|t|<2\\\\0,&\\text{otherwise,}\\end{cases}$$a rectangle of height $3$ and width $4$.<br>'
      +'<b>Solution — part (b).</b> On $|t|<2$: $\\tfrac12[(t+3)-(-t+3)]=\\tfrac12\\cdot2t=t$. On $2<|t|<3$: $\\tfrac12[t-(-t)]=\\tfrac12\\cdot2t=t$. So$$\\Od\\{x(t)\\}=\\begin{cases}t,&|t|<3\\\\0,&\\text{otherwise,}\\end{cases}$$a single ramp across the whole window.<br>'
-     +'<b>Solution — part (c).</b> Square and integrate each part over its support:$$E_{\\Ev}=\\int_{-2}^{2}3^{2}\\,\\d t=9\\bigl[t\\bigr]_{-2}^{2}=9\\bigl(2-(-2)\\bigr)=36\\;\\text{J},\\qquad E_{\\Od}=\\int_{-3}^{3}t^{2}\\,\\d t=\\left[\\frac{t^{3}}{3}\\right]_{-3}^{3}=\\frac{27}{3}-\\left(-\\frac{27}{3}\\right)=18\\;\\text{J}.$$Because the two parts are orthogonal, the energies add:$$E_x=E_{\\Ev}+E_{\\Od}=36+18=54\\;\\text{J}.$$'
-     +'<b>Check.</b> The two parts must add back to $x$: on $|t|<2$, $3+t$ is $x$; on $2<|t|<3$, $0+t$ is $x$. Computing $E_x$ directly confirms the split. Expand $(t+3)^{2}=t^{2}+6t+9$ for the middle piece:$$\\begin{aligned}\\int_{-3}^{-2}t^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}\\right]_{-3}^{-2}=-\\frac83+\\frac{27}{3}=\\frac{19}{3},\\\\[4pt]\\int_{-2}^{2}(t+3)^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}+3t^{2}+9t\\right]_{-2}^{2}=\\left(\\frac83+12+18\\right)-\\left(-\\frac83+12-18\\right)=\\frac{16}{3}+36=\\frac{124}{3},\\\\[4pt]\\int_{2}^{3}t^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}\\right]_{2}^{3}=\\frac{27}{3}-\\frac83=\\frac{19}{3},\\end{aligned}$$and the total is $\\dfrac{19+124+19}{3}=\\dfrac{162}{3}=54\\;\\text{J}$, so the energies do add, which they would not if the parts overlapped in the wrong way.',
+     +'<b>Solution — part (c).</b> Square and integrate each part over its support:$$\\begin{aligned}E_{\\Ev}&=\\int_{-2}^{2}3^{2}\\,\\d t=9\\bigl[t\\bigr]_{-2}^{2}=9\\bigl(2-(-2)\\bigr)=36\\;\\text{J},\\\\E_{\\Od}&=\\int_{-3}^{3}t^{2}\\,\\d t=\\left[\\frac{t^{3}}{3}\\right]_{-3}^{3}=\\frac{27}{3}-\\left(-\\frac{27}{3}\\right)=18\\;\\text{J}.\\end{aligned}$$Because the two parts are orthogonal, the energies add:$$E_x=E_{\\Ev}+E_{\\Od}=36+18=54\\;\\text{J}.$$'
+     +'<b>Check.</b> The two parts must add back to $x$: on $|t|<2$, $3+t$ is $x$; on $2<|t|<3$, $0+t$ is $x$. Computing $E_x$ directly confirms the split. Expand $(t+3)^{2}=t^{2}+6t+9$ for the middle piece:$$\\begin{aligned}\\int_{-3}^{-2}t^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}\\right]_{-3}^{-2}=-\\frac83+\\frac{27}{3}=\\frac{19}{3},\\\\[4pt]\\int_{-2}^{2}(t+3)^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}+3t^{2}+9t\\right]_{-2}^{2}\\\\&=\\left(\\frac83+12+18\\right)-\\left(-\\frac83+12-18\\right)=\\frac{16}{3}+36=\\frac{124}{3},\\\\[4pt]\\int_{2}^{3}t^{2}\\,\\d t&=\\left[\\frac{t^{3}}{3}\\right]_{2}^{3}=\\frac{27}{3}-\\frac83=\\frac{19}{3},\\end{aligned}$$and the total is $\\dfrac{19+124+19}{3}=\\dfrac{162}{3}=54\\;\\text{J}$, so the energies do add, which they would not if the parts overlapped in the wrong way.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-4.2,4.2],yr:[-0.5,3.8],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{x(t)\\}',
       pad:{l:56,r:26,t:28,b:36},xstep:1,ystep:1});
@@ -35087,7 +35120,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — piecewise form.</b> On $|t|<1$ both windows are on: $x(t)=(2t+1)\\cdot1=2t+1$. On $1<|t|<2$ only the outer window is on: $x(t)=(2t+0)\\cdot1=2t$. On $|t|>2$ everything is off. So$$x(t)=\\begin{cases}2t+1,&|t|<1\\\\2t,&1<|t|<2\\\\0,&|t|>2.\\end{cases}$$Each region is symmetric about $t=0$, so $x(-t)$ is the same formula with $t$ replaced by $-t$: $-2t+1$ on $|t|<1$ and $-2t$ on $1<|t|<2$.<br>'
      +'<b>Solution — part (a).</b> On $|t|<1$: $\\tfrac12[(2t+1)+(-2t+1)]=\\tfrac12\\cdot2=1$. On $1<|t|<2$: $\\tfrac12[2t+(-2t)]=0$. So$$\\Ev\\{x(t)\\}=\\begin{cases}1,&|t|<1\\\\0,&\\text{otherwise,}\\end{cases}$$a rectangle of height $1$ on $|t|<1$.<br>'
      +'<b>Solution — part (b).</b> On $|t|<1$: $\\tfrac12[(2t+1)-(-2t+1)]=\\tfrac12\\cdot4t=2t$. On $1<|t|<2$: $\\tfrac12[2t-(-2t)]=\\tfrac12\\cdot4t=2t$. So$$\\Od\\{x(t)\\}=\\begin{cases}2t,&|t|<2\\\\0,&\\text{otherwise,}\\end{cases}$$one ramp across the whole window.<br>'
-     +'<b>Solution — part (c).</b> Square and integrate each part over its support. For the odd part, $(2t)^{2}=4t^{2}$:$$E_{\\Ev}=\\int_{-1}^{1}1^{2}\\,\\d t=\\bigl[t\\bigr]_{-1}^{1}=1-(-1)=2\\;\\text{J},\\qquad E_{\\Od}=\\int_{-2}^{2}4t^{2}\\,\\d t=\\left[\\frac{4t^{3}}{3}\\right]_{-2}^{2}=\\frac{32}{3}-\\left(-\\frac{32}{3}\\right)=\\frac{64}{3}\\;\\text{J}.$$By orthogonality the energies add:$$E_x=E_{\\Ev}+E_{\\Od}=2+\\frac{64}{3}=\\frac{6}{3}+\\frac{64}{3}=\\frac{70}{3}\\;\\text{J}\\approx23.33\\;\\text{J}.$$'
+     +'<b>Solution — part (c).</b> Square and integrate each part over its support. For the odd part, $(2t)^{2}=4t^{2}$:$$\\begin{aligned}E_{\\Ev}&=\\int_{-1}^{1}1^{2}\\,\\d t=\\bigl[t\\bigr]_{-1}^{1}=1-(-1)=2\\;\\text{J},\\\\E_{\\Od}&=\\int_{-2}^{2}4t^{2}\\,\\d t=\\left[\\frac{4t^{3}}{3}\\right]_{-2}^{2}=\\frac{32}{3}-\\left(-\\frac{32}{3}\\right)=\\frac{64}{3}\\;\\text{J}.\\end{aligned}$$By orthogonality the energies add:$$E_x=E_{\\Ev}+E_{\\Od}=2+\\frac{64}{3}=\\frac{6}{3}+\\frac{64}{3}=\\frac{70}{3}\\;\\text{J}\\approx23.33\\;\\text{J}.$$'
      +'<b>Check.</b> The parts add back: $1+2t=x$ on $|t|<1$, and $0+2t=x$ on $1<|t|<2$. Integrating $x^{2}$ directly, with $(2t+1)^{2}=4t^{2}+4t+1$ on the middle piece:$$\\begin{aligned}\\int_{-2}^{-1}4t^{2}\\,\\d t&=\\left[\\frac{4t^{3}}{3}\\right]_{-2}^{-1}=-\\frac43+\\frac{32}{3}=\\frac{28}{3},\\\\[4pt]\\int_{-1}^{1}(2t+1)^{2}\\,\\d t&=\\left[\\frac{4t^{3}}{3}+2t^{2}+t\\right]_{-1}^{1}=\\left(\\frac43+2+1\\right)-\\left(-\\frac43+2-1\\right)=\\frac{13}{3}+\\frac13=\\frac{14}{3},\\\\[4pt]\\int_{1}^{2}4t^{2}\\,\\d t&=\\left[\\frac{4t^{3}}{3}\\right]_{1}^{2}=\\frac{32}{3}-\\frac43=\\frac{28}{3},\\end{aligned}$$and the total is $\\dfrac{28+14+28}{3}=\\dfrac{70}{3}$, which matches, so the split is right.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-3.2,3.2],yr:[-0.5,1.8],xlabel:'t\\;(\\text{s})',ylabel:'\\Ev\\{x(t)\\}',
@@ -35492,15 +35525,19 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
 
 { id:'D2-19', module:'M2', type:'p-connect',
   stem:'The system below is built with feedback: $$y[n]=x[n]-a\\,y[n-1],$$ where $a$ is a real constant, the output returning through a gain $a$ and a one-sample delay and entering with a negative sign.',
-  figure:()=>P.blocks({w:820,h:260,items:[
-    {t:'arrow',x1:50,y1:100,x2:190,y2:100},
-    {t:'box',x:190,y:68,w:140,h:64,label:'S',tex:true},
-    {t:'arrow',x1:330,y1:100,x2:470,y2:100},
-    {t:'text',x:130,y:86,label:'x[n]',tex:true,fs:17},
-    {t:'text',x:520,y:86,label:'y[n]',tex:true,fs:17},
-    {t:'line',d:'M470,100 L620,100 L620,200'},
-    {t:'arrow',x1:620,y1:200,x2:260,y2:200,label:'a\\,z^{-1}',tex:true,color:C.mid},
-    {t:'arrow',x1:260,y1:200,x2:260,y2:132}
+  figure:()=>P.blocks({w:700,h:250,items:[
+    {t:'arrow',x1:50,y1:90,x2:226,y2:90},
+    {t:'sum',x:240,y:90},
+    {t:'arrow',x1:254,y1:90,x2:640,y2:90},
+    {t:'dot',x:520,y:90,r:4},
+    {t:'text',x:130,y:76,label:'x[n]',tex:true,fs:17},
+    {t:'text',x:590,y:76,label:'y[n]',tex:true,fs:17},
+    {t:'line',d:'M520,90 V200 H469'},
+    {t:'line',d:'M460,200 l9,-4.5 v9 Z M462,200 l6,-3 v6 Z M464,200 l3,-1.5 v3 Z'},
+    {t:'box',x:340,y:176,w:120,h:48,label:'a\\,z^{-1}',tex:true},
+    {t:'line',d:'M340,200 H240 V113'},
+    {t:'line',d:'M240,104 l-4.5,9 h9 Z M240,106 l-3,6 h6 Z M240,108 l-1.5,3 h3 Z'},
+    {t:'text',x:262,y:130,label:'-',tex:true,fs:18,color:C.ink}
   ]}),
   parts:['Determine whether the system is memoryless, causal and linear, for any real value of $a$.',
          'Iterate the recursion to express $y[n]$ as a sum involving only $x[n],x[n-1],x[n-2],\\dots$, assuming $y[k]\\to0$ as $k\\to-\\infty$.',
@@ -35859,7 +35896,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> Their impulse responses, and the impulse response of the cascade and of the parallel combination.<br>'
      +'<b>Method.</b> Apply an impulse to each system to find $h_1$ and $h_2$. For the cascade, convolve them because cascaded LTI systems have impulse response $h_1*h_2$. For the parallel connection, add them because the two outputs are added.<br>'
      +'<b>Solution — part (a).</b>$$h_1[n]=\\delta[n]+\\delta[n-1],\\qquad h_2[n]=\\delta[n]-\\delta[n-1],$$that is $h_1[0]=h_1[1]=1$ and $h_2[0]=1,\\,h_2[1]=-1$.<br>'
-     +'<b>Solution — part (b).</b>$$h_c[0]=h_1[0]h_2[0]=1,\\quad h_c[1]=h_1[0]h_2[1]+h_1[1]h_2[0]=-1+1=0,\\quad h_c[2]=h_1[1]h_2[1]=-1,$$so$$h_c[n]=\\delta[n]-\\delta[n-2].$$'
+     +'<b>Solution — part (b).</b>$$\\begin{aligned}h_c[0]&=h_1[0]h_2[0]=1,\\\\h_c[1]&=h_1[0]h_2[1]+h_1[1]h_2[0]=-1+1=0,\\\\h_c[2]&=h_1[1]h_2[1]=-1,\\end{aligned}$$so$$h_c[n]=\\delta[n]-\\delta[n-2].$$'
      +'<b>Solution — part (c).</b>$$h_p[0]=1+1=2,\\qquad h_p[1]=1-1=0,$$so $h_p[n]=2\\delta[n]$ — a pure gain of $2$. The response to $x[n]=3\\delta[n-4]$ is $y[n]=h_p[n]*x[n]=2\\cdot3\\,\\delta[n-4]=6\\delta[n-4]$.<br>'
      +'<b>Check.</b> Commutativity requires $h_2*h_1$ to give the same result. It gives $h_2[0]h_1[0]=1$, $h_2[0]h_1[1]+h_2[1]h_1[0]=1-1=0$, and $h_2[1]h_1[1]=-1$. The total also agrees: $\\sum h_1=2$ and $\\sum h_2=0$, so $\\sum h_c=2\\cdot0=0$, and $1+0-1=0$.',
   figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-1.6,3.6],yr:[-1.6,1.6],xlabel:'n',ylabel:'h_c[n]',
@@ -36400,7 +36437,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> The impulse response, and the response to a second input.<br>'
      +'<b>Method.</b> Use causality to set $h[n]=0$ for $n<0$. The earliest convolution equation then contains only $h[0]$. Solve that equation first and continue in increasing order of $n$.<br>'
      +'<b>Solution — part (a).</b> With $x[0]=x[1]=1$,$$y[0]=h[0]=1,$$$$y[1]=h[1]+h[0]=3\\;\\Rightarrow\\;h[1]=2,$$$$y[2]=h[2]+h[1]=2\\;\\Rightarrow\\;h[2]=0.$$Every later equation gives $h[n]=-h[n-1]$ with $h[2]=0$, so all remaining samples vanish and$$h[n]=\\delta[n]+2\\delta[n-1].$$'
-     +'<b>Solution — part (b).</b> The relation is $y[n]=x[n]+2x[n-1]$. With $x_2=\\{1,-1,1,-1\\}$ on $0\\le n\\le3$,$$y_2[0]=1,\\;y_2[1]=-1+2=1,\\;y_2[2]=1-2=-1,\\;y_2[3]=-1+2=1,\\;y_2[4]=0-2=-2,$$and zero elsewhere.<br>'
+     +'<b>Solution — part (b).</b> The relation is $y[n]=x[n]+2x[n-1]$. With $x_2=\\{1,-1,1,-1\\}$ on $0\\le n\\le3$,$$\\begin{gathered}y_2[0]=1,\\;y_2[1]=-1+2=1,\\;y_2[2]=1-2=-1,\\\\y_2[3]=-1+2=1,\\;y_2[4]=0-2=-2,\\end{gathered}$$and zero elsewhere.<br>'
      +'<b>Check.</b> The sum rule holds in both parts. In (a), $\\sum x=2$ and $\\sum y=6$, so $\\sum h$ must be $3$, and $1+2=3$. In (b), $\\sum x_2=0$, so $\\sum y_2$ must be zero: $1+1-1+1-2=0$. The support is right too, $[0,3]+[0,1]=[0,4]$.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-1.6,3.6],yr:[-0.6,2.6],xlabel:'n',ylabel:'h[n]',
@@ -36443,7 +36480,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> The difference equation, one convolution, and two properties.<br>'
      +'<b>Method.</b> Read the difference equation directly from the two impulse terms in $h$. For the rectangular input, use those same terms to write the output as the difference of two shifted copies of $x[n]$, which is shorter than evaluating the full sum.<br>'
      +'<b>Solution — part (a).</b> Reading the taps off $h$,$$y[n]=x[n]-x[n-2].$$'
-     +'<b>Solution — part (b).</b> The input has $x[n]=1$ for $0\\le n\\le3$ and zero elsewhere. Then $y[n]=x[n]-x[n-2]$ gives$$y[0]=1,\\;y[1]=1,\\;y[2]=1-1=0,\\;y[3]=1-1=0,\\;y[4]=0-1=-1,\\;y[5]=0-1=-1,$$and zero elsewhere. The system passes the two edges of the pulse and cancels its flat interior.<br>'
+     +'<b>Solution — part (b).</b> The input has $x[n]=1$ for $0\\le n\\le3$ and zero elsewhere. Then $y[n]=x[n]-x[n-2]$ gives$$\\begin{gathered}y[0]=1,\\;y[1]=1,\\;y[2]=1-1=0,\\\\y[3]=1-1=0,\\;y[4]=0-1=-1,\\;y[5]=0-1=-1,\\end{gathered}$$and zero elsewhere. The system passes the two edges of the pulse and cancels its flat interior.<br>'
      +'<b>Solution — part (c).</b> <b>Causal</b>, since $h[n]=0$ for $n<0$; the output uses only $x[n]$ and $x[n-2]$. <b>Stable</b>, since $\\sum_n|h[n]|=1+1=2<\\infty$.<br>'
      +'<b>Check.</b> The sum rule gives $\\sum y=(\\sum x)(\\sum h)=4(1-1)=0$, and the computed samples give $1+1+0+0-1-1=0$. The support is $[0,3]+[0,2]=[0,5]$. The zero samples in the interior also agree with the role of a difference operator: a constant region has no change to measure.',
   figSol:()=>{const a=P.Axes({w:1080,h:260,xr:[-1.6,7.6],yr:[-1.8,1.8],xlabel:'n',ylabel:'y[n]',
@@ -36688,7 +36725,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Method.</b> Complex exponentials are eigenfunctions, so $b_k=a_kH(jk\\omega_0)$ — one product per harmonic, never a convolution.<br>'
      +'<b>Solution — part (a).</b>$$H(j\\omega)=\\int_0^\\infty3e^{-3\\tau}e^{-j\\omega\\tau}\\,\\d\\tau=\\frac{3}{3+j\\omega}.$$'
      +'<b>Solution — part (b).</b> Here $\\omega_0=4$, $a_0=2$, $a_{\\pm1}=1.5$.<br>'
-     +'<b>Solution — part (c).</b> $H(0)=1$ and $H(j4)=\\dfrac{3}{3+4j}=\\dfrac{3(3-4j)}{25}=0.36-0.48j$, with $|H(j4)|=0.6$ and $\\angle H(j4)=-\\arctan(4/3)\\approx-0.9273$ rad. So$$b_0=2\\cdot1=2,\\qquad b_1=1.5\\,(0.36-0.48j)=0.54-0.72j,\\qquad|b_1|=0.9,\\quad\\angle b_1\\approx-0.9273.$$'
+     +'<b>Solution — part (c).</b> $H(0)=1$ and $H(j4)=\\dfrac{3}{3+4j}=\\dfrac{3(3-4j)}{25}=0.36-0.48j$, with $|H(j4)|=0.6$ and $\\angle H(j4)=-\\arctan(4/3)\\approx-0.9273$ rad. So$$\\begin{gathered}b_0=2\\cdot1=2,\\qquad b_1=1.5\\,(0.36-0.48j)=0.54-0.72j,\\\\|b_1|=0.9,\\quad\\angle b_1\\approx-0.9273.\\end{gathered}$$'
      +'<b>Solution — part (d).</b>$$y(t)=2+1.8\\cos(4t-0.9273).$$'
      +'<b>Check.</b> Convolving directly, $y(t)=\\displaystyle\\int_0^\\infty3e^{-3\\tau}x(t-\\tau)\\,\\d\\tau$, evaluated numerically at $t=0$ gives $3.08$ and at $t=1$ gives $0.2043$, matching $2+1.8\\cos(-0.9273)\\approx3.08$ and $2+1.8\\cos(4-0.9273)\\approx0.2043$ from the closed form above — a route through the time-domain convolution integral entirely independent of the eigenfunction argument.',
   err:'Convolving the coefficients with $H$ instead of multiplying, for instance writing $b_1=a_1*H(j4)$ as though the two had to be combined the way $x$ and $h$ are in the time domain. The eigenfunction property turns the frequency-domain operation into a plain product.',
@@ -36705,7 +36742,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   sol:'<b>Given.</b> A three-tap discrete-time filter with symmetric weights.<br>'
      +'<b>Find.</b> $H(e^{j\\omega})$ in closed form, and two of its values.<br>'
      +'<b>Method.</b> $H(e^{j\\omega})=\\displaystyle\\sum_nh[n]e^{-j\\omega n}$, a finite sum here since $h[n]$ has only three non-zero samples. Factor an exponential out to expose a real envelope.<br>'
-     +'<b>Solution — part (a).</b>$$H(e^{j\\omega})=0.25+0.5e^{-j\\omega}+0.25e^{-j2\\omega}=e^{-j\\omega}\\bigl(0.25e^{j\\omega}+0.5+0.25e^{-j\\omega}\\bigr)=e^{-j\\omega}\\bigl(0.5+0.5\\cos\\omega\\bigr).$$'
+     +'<b>Solution — part (a).</b>$$\\begin{aligned}H(e^{j\\omega})&=0.25+0.5e^{-j\\omega}+0.25e^{-j2\\omega}\\\\&=e^{-j\\omega}\\bigl(0.25e^{j\\omega}+0.5+0.25e^{-j\\omega}\\bigr)=e^{-j\\omega}\\bigl(0.5+0.5\\cos\\omega\\bigr).\\end{aligned}$$'
      +'<b>Solution — part (b).</b> Using $1+\\cos\\omega=2\\cos^2(\\omega/2)$,$$H(e^{j\\omega})=e^{-j\\omega}\\cos^2(\\omega/2),$$and since $\\cos^2(\\omega/2)\\ge0$ for every $\\omega$, this <em>is</em> the magnitude: $|H(e^{j\\omega})|=\\cos^2(\\omega/2)$, with $\\angle H(e^{j\\omega})=-\\omega$.<br>'
      +'<b>Solution — part (c).</b> $H(e^{j0})=\\cos^2(0)=1$, and $H(e^{j\\pi})=\\cos^2(\\pi/2)=0$: the taps pass a constant unchanged and remove the fastest-alternating sequence entirely. This is a <b>low-pass</b> filter.<br>'
      +'<b>Check.</b> Summing the taps directly at $\\omega=\\pi$, where $e^{-j\\pi n}=(-1)^n$: $0.25(1)+0.5(-1)+0.25(1)=0.25-0.5+0.25=0$, matching part (c) without using the closed form at all. The three weights sum to $1$, which is exactly $H(e^{j0})$, the two facts being the same statement at the two ends of one period.',
@@ -36853,7 +36890,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> Every coefficient, and their common symmetry.<br>'
      +'<b>Method.</b> An odd signal has zero mean, which settles $a_0$ immediately. For $k\\neq0$, split the analysis integral at the sign change and combine.<br>'
      +'<b>Solution — part (a).</b> The negative half of the period cancels the positive half exactly, so the average over one period is $0$: $a_0=0$.<br>'
-     +'<b>Solution — part (b).</b>$$a_k=\\frac12\\left[\\int_{-1}^{0}(-1)e^{-jk\\pi t}\\,\\d t+\\int_0^1(1)e^{-jk\\pi t}\\,\\d t\\right]=\\frac{1}{2jk\\pi}\\Bigl[2-\\bigl(e^{jk\\pi}+e^{-jk\\pi}\\bigr)\\Bigr]=\\frac{1-\\cos(k\\pi)}{jk\\pi}=-j\\,\\frac{1-(-1)^k}{k\\pi}.$$'
+     +'<b>Solution — part (b).</b>$$\\begin{aligned}a_k&=\\frac12\\left[\\int_{-1}^{0}(-1)e^{-jk\\pi t}\\,\\d t+\\int_0^1(1)e^{-jk\\pi t}\\,\\d t\\right]\\\\&=\\frac{1}{2jk\\pi}\\Bigl[2-\\bigl(e^{jk\\pi}+e^{-jk\\pi}\\bigr)\\Bigr]=\\frac{1-\\cos(k\\pi)}{jk\\pi}=-j\\,\\frac{1-(-1)^k}{k\\pi}.\\end{aligned}$$'
      +'<b>Solution — part (c).</b> For odd $k$, $a_k=-\\dfrac{2j}{k\\pi}$; for even $k\\neq0$, $a_k=0$. Every non-zero coefficient is purely imaginary, because a real signal that is also odd forces $a_{-k}=a_k^{*}$ (realness) and $a_{-k}=-a_k$ (oddness) simultaneously, so $a_k^{*}=-a_k$ and $\\operatorname{Re}\\{a_k\\}=0$. Magnitudes: $|a_1|=2/\\pi\\approx0.6366$, $|a_3|=2/(3\\pi)\\approx0.2122$, decaying as $1/|k|$.<br>'
      +'<b>Check.</b> As $k\\to0$, $1-\\cos(k\\pi)\\approx(k\\pi)^2/2$, so $a_k\\approx-j(k\\pi)/2\\to0$, consistent with $a_0=0$ from part (a) by a limit rather than by symmetry. The general symmetry argument used in part (c) — real and odd forces purely imaginary — matches the concrete formula exactly: $-j(1-(-1)^k)/(k\\pi)$ has no real part at any $k$, by two independent routes to the same conclusion.',
   figSol:()=>{const ak=k=>k%2===0?0:2/(Math.abs(k)*Math.PI);
@@ -37013,7 +37050,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (a).</b> The samples $2,0,-2,0$ are $x[n]=2\\cos\\!\\left(\\tfrac{\\pi}{2}n\\right)$, so with $N=4$ and $\\omega_0=\\tfrac{\\pi}{2}$,$$x[n]=e^{j\\omega_0n}+e^{-j\\omega_0n},$$giving $a_1=a_{-1}=a_3=1$ and $a_0=a_2=0$.<br>'
      +'<b>Solution — part (b).</b> The step difference gives $h[n]=1$ for $-1\\le n\\le1$, so$$H\\!\\left(e^{j\\omega}\\right)=\\sum_{n=-1}^{1}e^{-j\\omega n}=e^{j\\omega}+1+e^{-j\\omega}=1+2\\cos\\omega,$$real and even, as a symmetric impulse response must be.<br>'
      +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
-     +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\;y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
+     +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$\\begin{gathered}y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\\\y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,\\end{gathered}$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
   figSol:()=>pair(
     (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
       pad:{l:58,r:26,t:28,b:38},ystep:1});
@@ -37283,7 +37320,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   sol:'<b>Given.</b> A linear differential equation with constant coefficients, relating $y$ to $x$.<br>'
      +'<b>Find.</b> $H(j\\omega)$ and $h(t)$.<br>'
      +'<b>Method.</b> Transform both sides. By the differentiation property each $\\d^{k}/\\d t^{k}$ becomes $(j\\omega)^{k}$, so the equation becomes algebra in $j\\omega$, and $H$ is read straight off the coefficients.<br>'
-     +'<b>Solution — part (a).</b>$$\\left[(j\\omega)^{2}+6j\\omega+8\\right]Y(j\\omega)=2X(j\\omega)\\quad\\Longrightarrow\\quad H(j\\omega)=\\frac{2}{(j\\omega)^{2}+6j\\omega+8}=\\frac{2}{(j\\omega+2)(j\\omega+4)}.$$'
+     +'<b>Solution — part (a).</b>$$\\begin{gathered}\\left[(j\\omega)^{2}+6j\\omega+8\\right]Y(j\\omega)=2X(j\\omega)\\\\\\Longrightarrow\\quad H(j\\omega)=\\frac{2}{(j\\omega)^{2}+6j\\omega+8}=\\frac{2}{(j\\omega+2)(j\\omega+4)}.\\end{gathered}$$'
      +'<b>Solution — part (b).</b> Writing $s=j\\omega$, $\\dfrac{2}{(s+2)(s+4)}=\\dfrac{A}{s+2}+\\dfrac{B}{s+4}$. Cover-up gives $A=\\left.\\dfrac{2}{s+4}\\right|_{s=-2}=1$ and $B=\\left.\\dfrac{2}{s+2}\\right|_{s=-4}=-1$, so$$h(t)=\\left(e^{-2t}-e^{-4t}\\right)u(t).$$Both poles have negative real part, so the system is stable and $H$ exists.<br>'
      +'<b>Check.</b> $H(0)=\\dfrac{2}{8}=0.25$, and directly $\\displaystyle\\int_{0}^{\\infty}\\left(e^{-2t}-e^{-4t}\\right)\\d t=\\frac12-\\frac14=0.25$. They agree. As a second check, $h(0^{+})=1-1=0$, consistent with the numerator degree being two below the denominator\u2019s.',
   err:'Writing the algebraic equation as $\\left[(j\\omega)^{2}+6j\\omega+8\\right]=2X(j\\omega)/Y(j\\omega)$ and inverting the ratio, which swaps $H$ for $1/H$ and produces a frequency response with poles where the true one has none.',
@@ -37721,7 +37758,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Find.</b> The spectrum before and after modulation, and the condition on the carrier.<br>'
      +'<b>Method.</b> A periodic signal transforms to impulses at its harmonics, of weight $2\\pi a_k$. Multiplying by a cosine makes two half-height copies at $\\pm\\omega_c$.<br>'
      +'<b>Solution — part (a).</b> The coefficients are $a_0=1$ and $a_{\\pm1}=\\tfrac32$ against $\\omega_0=2\\pi$, so$$X(j\\omega)=2\\pi\\delta(\\omega)+3\\pi\\left[\\delta(\\omega-2\\pi)+\\delta(\\omega+2\\pi)\\right].$$'
-     +'<b>Solution — part (b).</b> With $\\omega_c=10\\pi$,$$S(j\\omega)=\\tfrac12X(j(\\omega-10\\pi))+\\tfrac12X(j(\\omega+10\\pi)),$$so$$S(j\\omega)=\\pi\\left[\\delta(\\omega-10\\pi)+\\delta(\\omega+10\\pi)\\right]+\\tfrac{3\\pi}{2}\\left[\\delta(\\omega-12\\pi)+\\delta(\\omega-8\\pi)+\\delta(\\omega+8\\pi)+\\delta(\\omega+12\\pi)\\right].$$Six impulses in all: a pair at the carrier and a pair of sidebands on each side of it.<br>'
+     +'<b>Solution — part (b).</b> With $\\omega_c=10\\pi$,$$S(j\\omega)=\\tfrac12X(j(\\omega-10\\pi))+\\tfrac12X(j(\\omega+10\\pi)),$$so$$\\begin{aligned}S(j\\omega)&=\\pi\\left[\\delta(\\omega-10\\pi)+\\delta(\\omega+10\\pi)\\right]\\\\&\\quad+\\tfrac{3\\pi}{2}\\left[\\delta(\\omega-12\\pi)+\\delta(\\omega-8\\pi)+\\delta(\\omega+8\\pi)+\\delta(\\omega+12\\pi)\\right].\\end{aligned}$$Six impulses in all: a pair at the carrier and a pair of sidebands on each side of it.<br>'
      +'<b>Solution — part (c).</b> The spectrum of $x$ extends to $\\omega_M=2\\pi$, so a copy centred at $\\omega_c$ occupies $\\omega_c\\pm2\\pi$ and the copy centred at $-\\omega_c$ occupies $-\\omega_c\\pm2\\pi$. They stay apart as long as$$\\omega_c-2\\pi>-\\omega_c+2\\pi\\quad\\Longleftrightarrow\\quad\\omega_c>2\\pi.$$Below that the upper sideband of the negative copy crosses the lower sideband of the positive one, the two add, and the original cannot be recovered by filtering — the components that overlap can no longer be told apart.<br>'
      +'<b>Check.</b> The total weight is preserved in the right way. Each impulse of $X$ has been halved and duplicated, so the sum of all weights in $S$ is the same as in $X$: $2\\pi+3\\pi+3\\pi=8\\pi$ before, and $\\pi+\\pi+4\\cdot\\tfrac{3\\pi}{2}=8\\pi$ after. With $\\omega_c=10\\pi$ the copies run over $8\\pi$ to $12\\pi$ and $-12\\pi$ to $-8\\pi$, comfortably clear of each other, consistent with part (c).',
   figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-14,14],yr:[-1,6.2],xlabel:'\\omega\\;(\\text{rad/s})',xtickfmt:v=>P.piTick(v*Math.PI),ylabel:'S(j\\omega)',
@@ -38477,7 +38514,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
   sol:'<b>Given.</b> A band-limited signal plus its square.<br>'
      +'<b>Find.</b> The Nyquist rate of $y(t)$.<br>'
      +'<b>Method.</b> Expand the square because a non-linear operation can create new frequencies. Use $\\cos^{2}\\theta=\\tfrac12+\\tfrac12\\cos2\\theta$ and the product-to-sum identity, then list every frequency in the full result.<br>'
-     +'<b>Solution — part (a).</b> Write $A=20\\pi$ and $B=70\\pi$. Then$$x^{2}(t)=\\cos^{2}(At)+2\\cos(At)\\cos(Bt)+\\cos^{2}(Bt)=1+\\tfrac12\\cos(2At)+\\tfrac12\\cos(2Bt)+\\cos\\bigl((A{+}B)t\\bigr)+\\cos\\bigl((B{-}A)t\\bigr),$$so the frequencies present in $y=x+x^{2}$ are$$0,\\;20\\pi,\\;40\\pi,\\;50\\pi,\\;70\\pi,\\;90\\pi,\\;140\\pi\\;\\text{rad/s},$$where $2A=40\\pi$, $B-A=50\\pi$, $A+B=90\\pi$ and $2B=140\\pi$.<br>'
+     +'<b>Solution — part (a).</b> Write $A=20\\pi$ and $B=70\\pi$. Then$$\\begin{aligned}x^{2}(t)&=\\cos^{2}(At)+2\\cos(At)\\cos(Bt)+\\cos^{2}(Bt)\\\\&=1+\\tfrac12\\cos(2At)+\\tfrac12\\cos(2Bt)+\\cos\\bigl((A{+}B)t\\bigr)+\\cos\\bigl((B{-}A)t\\bigr),\\end{aligned}$$so the frequencies present in $y=x+x^{2}$ are$$0,\\;20\\pi,\\;40\\pi,\\;50\\pi,\\;70\\pi,\\;90\\pi,\\;140\\pi\\;\\text{rad/s},$$where $2A=40\\pi$, $B-A=50\\pi$, $A+B=90\\pi$ and $2B=140\\pi$.<br>'
      +'<b>Solution — part (b).</b>$$\\omega_M=140\\pi\\;\\text{rad/s}\\;(f_M=70\\;\\text{Hz}),\\qquad\\omega_s=280\\pi\\;\\text{rad/s},\\qquad f_s=140\\;\\text{Hz}.$$'
      +'<b>Check.</b> The general rule agrees without repeating the expansion: squaring in time convolves the spectrum with itself, so a signal band-limited to $70\\pi$ produces a square band-limited to $2\\times70\\pi=140\\pi$, and adding the linear term $x(t)$ back cannot widen a band that already reaches $140\\pi$. The constant term $1$ in $x^{2}$ is its mean, present because a squared real signal is never negative.',
   err:'Quoting $\\omega_M=70\\pi$ from $x$ alone and ignoring the square. A nonlinearity creates frequencies that were absent from its input, which is exactly why it is not an LTI operation.',

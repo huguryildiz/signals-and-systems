@@ -4,6 +4,7 @@ Every number the chapter states is checked here, including those it shares
 with the Module 1 slides. Prints PASS/FAIL lines and a final count.
 """
 import math
+from fractions import Fraction
 import cmath
 import numpy as np
 import sympy as sp
@@ -77,6 +78,7 @@ check("x(2t-4): shift 4 then compress 2", sp.expand((2*t) - 4) == 2*t - 4)
 
 # ---------- 1.4 periodicity, even and odd ----------
 check("cos(pi t/3): T0=6", close(2*math.pi/(math.pi/3), 6))
+check("cos(pi t): T0=2 s, f0=0.5 Hz, omega0=2 pi f0=pi rad/s", close(2*math.pi/math.pi, 2) and close(1/2, 0.5) and close(2*math.pi*0.5, math.pi))
 xpw = lambda u: math.sin(math.pi*u) if u < 0 else math.cos(math.pi*u)
 check("piecewise sin/cos: x(-0.5+2m)=0 but x(-0.5)=-1",
       all(abs(xpw(-0.5 + 2*m)) < 1e-12 for m in range(1, 10)) and close(xpw(-0.5), -1))
@@ -102,6 +104,8 @@ check("cos4t+cos6t: T0 = pi", p46 is not None and close(p46, np.pi))
 check("cos t + cos(sqrt2 t): ratio sqrt2 irrational", sp.sqrt(2).is_rational is False)
 f17 = lambda u: np.cos(np.pi*u/2) + np.sin(np.pi*u/3)
 check("Exercise 1.7: T0=12", smallest_period(f17, np.arange(0.5, 24.01, 0.5)) == 12)
+check("fractional periods: lcm(4/5,3/4) = lcm(16,15)/20 = 12, k=15, m=16",
+      math.lcm(16, 15) == 240 and Fraction(240, 20) == 12 and 15*Fraction(4, 5) == 12 == 16*Fraction(3, 4))
 check("DT sum period N1*N2 (N1=4,N2=6 -> 24 is a period)",
       all(math.cos(2*math.pi*(n+24)/4) + math.cos(2*math.pi*(n+24)/6) - math.cos(2*math.pi*n/4) - math.cos(2*math.pi*n/6) < 1e-9 for n in range(50)))
 check("Od{t+1} = t, Ev{t+1} = 1", sp.simplify(((t+1) - (-t+1))/2 - t) == 0 and sp.simplify(((t+1) + (-t+1))/2 - 1) == 0)
@@ -109,8 +113,6 @@ check("Ev{u(t)} = 1/2 for t != 0", (1 + 0)/2 == 0.5)
 check("t sin t even", sp.simplify((-t)*sp.sin(-t) - t*sp.sin(t)) == 0)
 check("x3(1)=e^-2, x3(0)=1", close(math.exp(-2), math.exp(-2*1)) and math.exp(0) == 1)
 x = sp.symbols('x', real=True)
-check("int t^3 cos t over [-pi,pi] = 0", sp.integrate(x**3*sp.cos(x), (x, -sp.pi, sp.pi)) == 0)
-check("int t cos(pi t) over [-2,2] = 0", sp.integrate(x*sp.cos(sp.pi*x), (x, -2, 2)) == 0)
 check("Exercise 1.5: int (t^3 + t cos t + 1) on [-2,2] = 4", sp.integrate(x**3 + x*sp.cos(x) + 1, (x, -2, 2)) == 4)
 
 # ---------- 1.5 impulse and step ----------

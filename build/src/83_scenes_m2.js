@@ -144,30 +144,35 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Abstraction', src:'p. 11'},
   {t:'title', text:'One Equation, Many Systems'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:390,items:[
-      {t:'arrow',x1:20,y1:95,x2:150,y2:95,label:'v_s(t)',tex:true},
-      {t:'box',x:150,y:15,w:270,h:160,label:''},
-      {t:'arrow',x1:420,y1:95,x2:545,y2:95,label:'v_C(t)',tex:true},
-      {t:'line',d:'M195,79 V45 H235 l5,-8 l10,16 l10,-16 l10,16 l10,-16 l10,16 l5,-8 H370 V87 M352,87 H388 M352,103 H388 M370,103 V145 H195 V111'},
-      {t:'line',d:'M195,79 a16,16 0 1,0 0.01,0 M190,89 h10 M195,84 v10 M190,103 h10'},
-      {t:'text',x:265,y:72,label:'R',tex:true,fs:16},
-      {t:'text',x:402,y:99,label:'C',tex:true,fs:16},
-      {t:'arrow',x1:20,y1:300,x2:150,y2:300,label:'f(t)',tex:true},
-      {t:'box',x:150,y:215,w:270,h:160,label:''},
-      {t:'arrow',x1:420,y1:300,x2:545,y2:300,label:'v(t)',tex:true},
-      {t:'box',x:225,y:265,w:120,h:52,label:'m',tex:true},
-      {t:'dot',x:250,y:328,r:10},{t:'dot',x:320,y:328,r:10},
-      {t:'line',d:'M175,339 H395'},
-      {t:'arrow',x1:172,y1:291,x2:223,y2:291,label:'f',tex:true},
-      {t:'arrow',x1:290,y1:245,x2:345,y2:245,label:'v',tex:true},
-      {t:'text',x:285,y:361,label:'\\text{friction }\\rho v',tex:true,fs:14}
-    ]}), caption:'Each system drawn inside a box: one signal goes in, one comes out.'},
-    {t:'reveal', at:1, items:[
-      {t:'fig', frame:true, svg:()=>P.blocks({w:560,h:130,items:[
-        {t:'arrow',x1:20,y1:65,x2:150,y2:65,label:'x(t)',tex:true},
-        {t:'box',x:150,y:15,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
-        {t:'arrow',x1:420,y1:65,x2:545,y2:65,label:'y(t)',tex:true}
-      ]}), caption:'Seen from outside, both boxes are the same box.'}]}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['RC circuit','Car','One equation']},
+      svg:v=>{
+      const k=v?v.frame:0, H=Math.max(P.hOverride||440,220), dy=((H-220)/2).toFixed(1); P.hOverride=null;
+      const groups=[
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'v_s(t)',tex:true},
+         {t:'box',x:150,y:30,w:270,h:160,label:''},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'v_C(t)',tex:true},
+         {t:'line',d:'M195,94 V60 H235 l5,-8 l10,16 l10,-16 l10,16 l10,-16 l10,16 l5,-8 H370 V102 M352,102 H388 M352,118 H388 M370,118 V160 H195 V126'},
+         {t:'line',d:'M195,94 a16,16 0 1,0 0.01,0 M190,104 h10 M195,99 v10 M190,118 h10'},
+         {t:'text',x:265,y:87,label:'R',tex:true,fs:16},
+         {t:'text',x:402,y:114,label:'C',tex:true,fs:16}],
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'f(t)',tex:true},
+         {t:'box',x:150,y:30,w:270,h:160,label:''},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'v(t)',tex:true},
+         {t:'box',x:225,y:75,w:120,h:52,label:'m',tex:true},
+         {t:'dot',x:250,y:138,r:10},{t:'dot',x:320,y:138,r:10},
+         {t:'line',d:'M175,149 H395'},
+         {t:'arrow',x1:172,y1:101,x2:223,y2:101,label:'f',tex:true},
+         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:'v',tex:true},
+         {t:'text',x:285,y:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
+        [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'x(t)',tex:true},
+         {t:'box',x:150,y:60,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
+         {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'y(t)',tex:true}]
+      ];
+      // one system at a time; Next cross-fades to the following one
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:220,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'An RC circuit and a car, each drawn inside a box, taken one at a time with Next. Seen from outside, both boxes are the same box.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\frac{dv_C(t)}{dt}+\\frac{1}{RC}\\,v_C(t)&=\\frac{1}{RC}\\,v_s(t)\\\\[10pt]\\frac{dv(t)}{dt}+\\frac{\\rho}{m}\\,v(t)&=\\frac{1}{m}\\,f(t)\\end{aligned}', label:'Two systems',
       note:'RC circuit: voltage $v_s$ in, $v_C$ out. Car of mass $m$: force $f$ in, speed $v$ out, friction $\\rho v$.'},
@@ -404,8 +409,8 @@ const SC = [
         {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
         {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
-        'y[n]=x[n]+\\underbrace{x[n-1]+x[n-2]+\\cdots}_{y[n-1]},\\quad y[0]=x[0]+y[-1]=1+0=1','y[1]=y[0]+x[1]=1+1=2','y[2]=y[1]+x[2]=2+1=3',
-        'y[n]=y[n-1]+0=3,\\quad n\\ge3',
+        'y[0]=\\sum_{k=-\\infty}^{0}x[k]=x[0]=1','y[1]=\\sum_{k=-\\infty}^{1}x[k]=x[0]+x[1]=1+1=2','y[2]=\\sum_{k=-\\infty}^{2}x[k]=x[0]+x[1]+x[2]=1+1+1=3',
+        'y[n]=\\sum_{k=-\\infty}^{n}x[k]=x[0]+x[1]+x[2]=1+1+1=3,\\quad n\\ge3',
         'w[0]=y[0]-y[-1]=1-0=1','w[1]=y[1]-y[0]=2-1=1','w[2]=y[2]-y[1]=3-2=1',
         'w[n]=y[n]-y[n-1]=3-3=0,\\quad n\\ge3'];
       const r=Math.round(k), wop=cl(1.6-3.2*Math.abs(k-r));
@@ -575,19 +580,14 @@ const SC = [
         show:v=>v<-2?'input only':'$y['+v+']='+Math.max(0,v+1)+'$'}]},
       svg:v=>{
       /* The slider runs the accumulator one sample at a time. At its left end
-         only the input u[n] is drawn. At n the outputs up to n are drawn; the
-         sample at n is the old level y[n-1] (dashed) with the piece u[n]=1
-         stacked on it in the input colour. */
+         only the input u[n] is drawn. At n the outputs up to n are drawn. */
       const m=v?v.n:12;
       const a=P.Axes({w:560,h:380,xr:[-2,12],yr:[-1,18],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:20,b:34},xtarget:8,ytarget:4});
-      const X=n=>a.sx(n).toFixed(2), Y=u=>a.sy(u).toFixed(2), y=n=>n>=0?n+1:0;
+      const y=n=>n>=0?n+1:0;
       a.raw(`<g opacity="${m<-2?1:0.35}">`); a.stem(disc(n=>n>=0?1:0,-2,12),{color:C.in}); a.raw('</g>');
       if(m>=-2){
-        a.stem(disc(n=>n<m?y(n):y(n-1),-2,m),{color:C.err});
+        a.stem(disc(y,-2,m),{color:C.err});
         if(m>=0){
-          a.raw(`<line x1="${X(m-1)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m-1))}" stroke="${C.err}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/>`);
-          a.raw(`<line x1="${X(m)}" y1="${Y(y(m-1))}" x2="${X(m)}" y2="${Y(y(m))}" stroke="${C.in}" stroke-width="3"/>`);
-          a.raw(`<circle cx="${X(m)}" cy="${Y(y(m))}" r="4.6" fill="${C.in}"/>`);
           const lab='y['+m+']=\\displaystyle\\sum_{k=-\\infty}^{'+m+'}u[k]='+y(m);
           if(m<6) a.note(m+0.4,y(m)+1.8,lab,{anchor:'start',color:C.err,fs:15,tex:true});
           else a.note(m-0.5,y(m)+1.5,lab,{anchor:'end',color:C.err,fs:15,tex:true});
@@ -613,20 +613,30 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 5', src:'p. 13'},
   {t:'title', text:'Time Invariance'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:35,y:50,label:'PATH 1 — shift, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:125,x2:145,y2:125},{t:'box',x:145,y:90,w:120,h:70,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:265,y1:125,x2:330,y2:125},{t:'box',x:330,y:90,w:100,h:70,label:'S',tex:true},
-      {t:'arrow',x1:430,y1:125,x2:540,y2:125},
-      {t:'text',x:90,y:109,label:'x(t)',tex:true,fs:17},{t:'text',x:485,y:109,label:'y_2(t)',tex:true,fs:17},
-      {t:'text',x:35,y:235,label:'PATH 2 — process, then shift',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:310,x2:145,y2:310},{t:'box',x:145,y:275,w:100,h:70,label:'S',tex:true},
-      {t:'arrow',x1:245,y1:310,x2:310,y2:310},{t:'box',x:310,y:275,w:120,h:70,label:'\\text{shift}\\;t_0',tex:true},
-      {t:'arrow',x1:430,y1:310,x2:540,y2:310},
-      {t:'text',x:90,y:294,label:'x(t)',tex:true,fs:17},{t:'text',x:485,y:294,label:'y_1(t-t_0)',tex:true,fs:17}
-    ]}), caption:'Path 1 shifts the input, then applies $S$. Path 2 applies $S$, then shifts the output. A time-invariant system makes them agree.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_1\\to y_1$','$x_2=x_1(t-t_0)\\to y_2$','Compare']},
+      svg:v=>{
+      /* Rows build up one per Next, worked for y(t)=sin(x(t)): the input and
+         its output, the shifted input and its output, then the comparison of
+         y2 with the shifted y1. */
+      const k=v?v.frame:0, H=Math.max(P.hOverride||420,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
+      const op=i=>Math.max(0,Math.min(1,k-i+1)).toFixed(3);
+      const nm=(x,y,l)=>({t:'text',x,y:y-16,label:l,tex:true,fs:15,color:C.ink});
+      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*(r||0),label:l,tex:true,fs:14,color:C.coral});
+      const row=y=>[{t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
+        {t:'arrow',x1:355,y1:y,x2:530,y2:y}];
+      const r1=70, r2=205, r3=345;
+      const groups=[
+        [...row(r1),nm(117,r1,'x_1(t)'),nm(443,r1,'y_1(t)'),ex(443,r1,'=\\sin\\bigl(x_1(t)\\bigr)')],
+        [...row(r2),nm(117,r2,'x_2(t)'),ex(117,r2,'=x_1(t-t_0)'),nm(443,r2,'y_2(t)'),
+         ex(443,r2,'=\\sin\\bigl(x_2(t)\\bigr)'),ex(443,r2,'=\\sin\\bigl(x_1(t-t_0)\\bigr)',1)],
+        [{t:'line',d:`M15,${r3-32} H545 V${r3+32} H15 Z`,color:C.coral},
+         {t:'text',x:280,y:r3+4,label:'y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)=y_2(t)',tex:true,fs:16,color:C.coral}]];
+      const body=groups.map((items,i)=>`<g opacity="${op(i)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'Worked for $y(t)=\\sin\\bigl(x(t)\\bigr)$. The shifted input $x_2$ gives $y_2$, and $y_2$ equals $y_1$ shifted by $t_0$, so the system is time invariant.'}
   ], right:[
-    {t:'note', kind:'def', head:'Criterion', html:'If $x(t)$ produces $y(t)$, then $x(t-t_0)$ must produce $y(t-t_0)$, for every shift $t_0$.'},
+    {t:'note', kind:'def', head:'Criterion', html:'If $x_1(t)$ produces $y_1(t)$, then the shifted input $x_2(t)=x_1(t-t_0)$ must produce $y_2(t)=y_1(t-t_0)$, for every shift $t_0$.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Given', html:'$y(t)=\\sin\\bigl(x(t)\\bigr)$.<div class="nsep"></div>Is the system time invariant?',
         ask:{key:'m2-ti', choices:['Time invariant','Not time invariant'], answer:0}}]},
@@ -715,20 +725,24 @@ const SC = [
   {t:'eyebrow', text:'Module 2 · Property 6', src:'p. 14'},
   {t:'title', text:'Linearity'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'text',x:35,y:50,label:'PATH 1 — combine, then process',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:125,x2:190,y2:125},{t:'box',x:190,y:90,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:125,x2:500,y2:125},
-      {t:'text',x:112,y:109,label:'a\\,x_1+b\\,x_2',tex:true,fs:15},
-      {t:'text',x:420,y:109,label:'y_3',tex:true,fs:15},
-      {t:'text',x:35,y:235,label:'PATH 2 — process, then combine',fs:14,anchor:'start',color:C.slate},
-      {t:'arrow',x1:35,y1:310,x2:190,y2:310},{t:'box',x:190,y:275,w:150,h:70,label:'S',tex:true},
-      {t:'arrow',x1:340,y1:310,x2:500,y2:310},
-      {t:'text',x:112,y:294,label:'x_1,\\;x_2',tex:true,fs:15},
-      {t:'text',x:420,y:294,label:'a\\,y_1+b\\,y_2',tex:true,fs:15},
-      {t:'text',x:490,y:222,label:'equal?',fs:16,anchor:'end',color:C.coral},
-      {t:'line',d:'M505 125 h20 v185 h-20',color:C.coral}
-    ]}), caption:'A linear system gives the same result when the signals are combined before the system or after it.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x_1\\to y_1$','$x_2\\to y_2$','Superposition']},
+      svg:v=>{
+      const k=v?v.frame:0, H=Math.max(P.hOverride||440,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
+      const row=(y,xin,yout)=>[
+        {t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
+        {t:'arrow',x1:355,y1:y,x2:530,y2:y},
+        {t:'text',x:117,y:y-16,label:xin,tex:true,fs:15},{t:'text',x:443,y:y-16,label:yout,tex:true,fs:15}];
+      const groups=[
+        row(70,'x_1(t)','y_1(t)'),
+        row(190,'x_2(t)','y_2(t)'),
+        [...row(330,'a\\,x_1(t)+b\\,x_2(t)','a\\,y_1(t)+b\\,y_2(t)'),
+         {t:'line',d:'M15,276 H545 V384 H15 Z',color:C.coral}]
+      ];
+      // rows build up one per Next: the two known pairs, then the combined input
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
+      caption:'$x_1$ gives $y_1$ and $x_2$ gives $y_2$. In a linear system the input $a\\,x_1+b\\,x_2$ gives $a\\,y_1+b\\,y_2$.'}
   ], right:[
     {t:'eq', key:true, result:true, tex:'a\\,x_1+b\\,x_2\\;\\longrightarrow\\;a\\,y_1+b\\,y_2', label:'Key result · Superposition', note:'$a$ and $b$ are complex. $x_1$ produces $y_1$ and $x_2$ produces $y_2$.'},
     {t:'reveal', at:1, items:[
@@ -892,17 +906,17 @@ REAL_SYSTEMS,
      the test, then opens the card. The sketch on each card is the picture to
      remember. */
   {t:'raw', html:()=>RECALL.deck('m2', [
-    {tag:'Limit', q:'Memoryless', glyph:G.mem,
+    {q:'Memoryless', glyph:G.mem,
      a:'<b>Memoryless.</b> The output at $t$ uses only the input at the same $t$.'},
-    {tag:'Limit', q:'Invertible', glyph:G.inv,
+    {q:'Invertible', glyph:G.inv,
      a:'<b>Invertible.</b> Different inputs give different outputs, so the input can be recovered from the output.'},
-    {tag:'Limit', q:'Causal', glyph:G.caus,
+    {q:'Causal', glyph:G.caus,
      a:'<b>Causal.</b> The output at $t$ uses only $x(\\tau)$ for $\\tau\\le t$.'},
-    {tag:'Limit', q:'BIBO stable', glyph:G.stab,
+    {q:'BIBO stable', glyph:G.stab,
      a:'<b>BIBO stable.</b> Every bounded input gives a bounded output.'},
-    {tag:'LTI', q:'Time invariant', glyph:G.ti,
+    {q:'Time invariant', glyph:G.ti,
      a:'<b>Time invariant.</b> $x(t-t_0)\\;\\to\\;y(t-t_0)$ for every shift $t_0$.'},
-    {tag:'LTI', q:'Linear', glyph:G.lin,
+    {q:'Linear', glyph:G.lin,
      a:'<b>Linear.</b> $ax_1+bx_2\\;\\to\\;ay_1+by_2$ for all $a$ and $b$.'},
     {tag:'Method', q:'How do you prove or disprove a property?', glyph:G.proof,
      a:'A proof must hold for <b>every</b> input. <b>One</b> explicit counterexample disproves the property.'},

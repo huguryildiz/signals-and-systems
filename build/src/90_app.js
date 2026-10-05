@@ -254,7 +254,7 @@ const RENDER = (() => {
     if(!b.live.v){ b.live.v = {}; b.live.controls.forEach(c=>{ b.live.v[c.k] = c.v; }); }
     return b.live.v;
   }
-  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(b.frames ? {frame:b.frames.t!=null ? b.frames.t : b.frames.i|0} : liveVals(b)) : b.svg;
+  function figSvg(b){ const s = typeof b.svg==='function' ? b.svg(b.frames ? Object.assign({frame:b.frames.t!=null ? b.frames.t : b.frames.i|0}, liveVals(b)) : liveVals(b)) : b.svg;
     return b.sketch ? sketchInk(s, b.sketch) : s; }
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){

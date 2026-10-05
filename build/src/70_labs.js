@@ -46,7 +46,12 @@ const LABS = (() => {
       const e1=(P.sup[0]+b)/a, e2=(P.sup[1]+b)/a;
       const lo=Math.min(e1,e2), hi=Math.max(e1,e2);
       const critY = P.crit.map(c=>(c+b)/a).sort((p,q)=>p-q);
-      const xr=[-8,8];
+      /* The window grows to hold x, v and y whole; all three panels share it so
+         the shift and the scaling stay comparable by eye. */
+      const ends=[P.sup[0],P.sup[1],P.sup[0]+b,P.sup[1]+b];
+      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40) ends.push(lo,hi);
+      const xr=[Math.min(-8,2*Math.floor((Math.min(...ends)-1)/2)),
+                Math.max(8,2*Math.ceil((Math.max(...ends)+1)/2))];
       const ax = o => PLOT.Axes(Object.assign({w:760,h:190,xr,yr:P.yr,xlabel:st.dt?'n':'t',ylabel:'\\text{amplitude}',
         pad:{l:44,r:26,t:16,b:34}, xtarget:9, ytarget:3},o));
       const disc = f => { const out=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) out.push([n,f(n)]); return out; };
@@ -59,7 +64,18 @@ const LABS = (() => {
       const y = t => P.f(a*t-b);
       if(st.dt){ A3.stem(disc(y),{color:PLOT.COL.out}); } else { A3.curve(y,{color:PLOT.COL.out}); }
       A3.note(xr[1]-0.2,P.yr[1]*0.78, st.dt?'y[n] = x[an − b]':'y(t) = x(at − b)',{anchor:'end',color:PLOT.COL.out,fs:15,italic:true});
-      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40){ A3.vline(lo,{color:PLOT.COL.out}); A3.vline(hi,{color:PLOT.COL.out}); }
+      if(isFinite(lo)&&isFinite(hi)&&hi-lo<40){
+        if(st.dt){ A3.vline(lo,{color:PLOT.COL.out}); A3.vline(hi,{color:PLOT.COL.out}); }
+        else {
+          /* Each mapped critical point gets its dashed line and its exact value.
+             Values closer than a label's width alternate between two rows. */
+          const pxU = 690/(xr[1]-xr[0]), dyRow = (P.yr[1]-P.yr[0])*0.13;
+          let prev=-Infinity, row=0;
+          critY.forEach(c=>{ A3.vline(c,{color:PLOT.COL.out});
+            row = (c-prev)*pxU < 40 ? 1-row : 0; prev=c;
+            A3.note(c,P.yr[1]-row*dyRow,F(c,3),{anchor:'middle',color:PLOT.COL.out,fs:12.5}); });
+        }
+      }
       const stages = [A1,A2,A3].slice(0, st.stage+1);
       root.querySelector('.plots').innerHTML = stages.map(z=>z.svg()).join('');
       root.querySelector('.ro').innerHTML = `
@@ -105,7 +121,11 @@ const LABS = (() => {
               intermediate signal v(t) = x(t − b). Then scale that signal.</div>
           </div></div>`;
       root.addEventListener('input', e=>{ const k=e.target.dataset.v; if(!k) return;
-        st[k]=parseFloat(e.target.value); draw(root); });
+        let v=parseFloat(e.target.value);
+        /* a = 0 collapses x(at − b) to the constant x(−b); the slider steps over it
+           to ±0.25 in the direction it was moving. */
+        if(k==='a' && v===0){ v = st.a>0 ? -0.25 : 0.25; e.target.value=v; }
+        st[k]=v; draw(root); });
       root.addEventListener('click', e=>{ const b=e.target.closest('[data-seg]'); if(!b) return;
         if(b.dataset.seg==='dom') st.dt = b.dataset.val==='dt';
         else if(b.dataset.seg==='proto') st.proto=b.dataset.val;
