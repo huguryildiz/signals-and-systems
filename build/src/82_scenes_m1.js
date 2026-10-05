@@ -1091,21 +1091,25 @@ REAL_ENERGY,
   {t:'eyebrow', text:'Module 1 · Signal operations', src:'p. 4'},
   {t:'title', text:'Plotting $x(3t-5)$'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      /* x(t) is the faint reference. The answer is the .sk-key group, which the
-         slide keeps hidden until the reader asks for it. */
+    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'},
+      frames:{labels:['$x(t)$','(1) shift: $v(t)=x(t-5)$','(2) scale: $y(t)=v(3t)$']}, svg:v=>{
+      /* One signal at a time: frame 0 draws x(t); frame 1 draws v(t)=x(t-5) over a
+         faded x; frame 2 draws y(t)=x(3t-5) over a faded, dashed v, and x is gone.
+         Before frame 2 the answer is the .sk-key group, hidden until asked for. */
+      const st=v?Math.round(v.frame):0;
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
-      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,2.5],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,3],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
-      a.curve(x,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
-      a.note(4.3,1.2,'x(t)',{color:C.ink,fs:15,tex:true});
-      a.raw('<g class="sk-key">');
-      a.curve(t=>x(3*t-5),{color:C.out,n:1200});
-      a.note(9.6,2.2,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
-      [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
-      a.raw('</g>');
+      if(st<2){ a.curve(x,{color:C.ink,opacity:st?.3:1,n:1200});
+        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true}); }
+      if(st>=1){ a.curve(t=>x(t-5),{color:C.mid,opacity:st>1?.45:1,dash:st>1?'6 5':null,n:1200});
+        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true}); }
+      const y=()=>{ a.curve(t=>x(3*t-5),{color:C.out,width:2.6,n:1200});
+        a.note(9.6,2.35,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
+        [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5})); };
+      if(st>=2) y(); else { a.raw('<g class="sk-key">'); y(); a.raw('</g>'); }
       return a.svg(); },
-      caption:'The dashed trace is $x(t)$. Draw where each of its corners lands, then show the answer.'}
+      caption:'Draw where each corner of $x(t)$ lands, then show the answer. Next shifts $x$ by 5, then compresses by 3; each step fades the signal before it.'}
   ], right:[
     {t:'note', kind:'def', head:'Method', html:'Each original corner $c$ moves to the time that satisfies $3t-5=c$.<ol class="steps"><li>Read the corners of $x(t)$: $c=-2,0,2,4$.</li><li>Solve $3t-5=c$ for $t$ at each corner.</li><li>Carry each height to its new time and join the points.</li></ol>'},
     {t:'reveal', at:1, items:[
