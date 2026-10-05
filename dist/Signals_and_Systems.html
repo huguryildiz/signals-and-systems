@@ -20522,9 +20522,9 @@ const SC = [
       cols.forEach((c,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="30" font-size="12" fill="${C.slate}" text-anchor="middle" font-family="ui-monospace,monospace" letter-spacing="1.2">${c.toUpperCase()}</text>`));
       rows.forEach((r,j)=>{
         const y=74+rh*j;
-        g.push(`<line x1="0" y1="${y-14}" x2="${W}" y2="${y-14}" stroke="${C.grid}"/>`);
-        g.push(P.texName(r[0],{xLeft:8, baseline:y+9, size:14, color:C.ink, figW:x0-16}));
-        r[1].forEach((v,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="${y+7}" font-size="16" text-anchor="middle"
+        g.push(`<line x1="0" y1="${y-26}" x2="${W}" y2="${y-26}" stroke="${C.grid}"/>`);
+        g.push(P.texName(r[0],{xLeft:8, baseline:y+12, size:14, color:C.ink, figW:x0-16}));
+        r[1].forEach((v,i)=>g.push(`<text x="${x0+cw*i+cw/2}" y="${y+2}" dominant-baseline="central" font-size="16" text-anchor="middle"
           fill="${v?'#4A7A46':'#A63B2A'}">${v?'✓':'✗'}</text>`));
       });
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
