@@ -94,7 +94,7 @@ CONTENT.SECTIONS = {
         'm1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
-        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-ct-impulse-scale','m1-ct-deriv','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
         'm1-polar','m1-ct-cexp','m1-ct-cexp-grow','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c','m1-cexp-sum',
         'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c','m1-dt-freq',
@@ -301,7 +301,7 @@ CONTENT.BOOK = {
   'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
-  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-ct-impulse-scale':'1.4.2', 'm1-ct-deriv':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
+  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
   'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-grow':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
   'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1', 'm1-polar':'1.3.1', 'm1-cexp-sum':'1.3.1',
   'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2', 'm1-dt-freq':'1.3.3',
