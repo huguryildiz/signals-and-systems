@@ -504,52 +504,6 @@ window.C1 = [
  ['Check','The result is a number, not a signal. It equals $x(t_0)=\\cos\\pi=-1$, as the sifting property requires.']
 ]},
 
-{t:'h3', text:'Scaling the impulse'},
-{t:'p', text:'Compressing the time axis changes the weight of an impulse, not its position. Find the area of $\\delta(at)$ with the substitution $s=at$, so $\\d t=\\d s/a$. For $a>0$ the limits stay $-\\infty$ and $\\infty$:'},
-{t:'eq', tex:'\\int_{-\\infty}^{\\infty}\\delta(at)\\,\\d t=\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\frac{\\d s}{a}=\\frac{1}{a}\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\d s=\\frac{1}{a}.'},
-{t:'p', text:'For $a<0$ the substitution swaps the limits: $t=-\\infty$ gives $s=+\\infty$, and $t=+\\infty$ gives $s=-\\infty$. Swapping them back changes the sign:'},
-{t:'eq', tex:'\\int_{-\\infty}^{\\infty}\\delta(at)\\,\\d t=\\int_{\\infty}^{-\\infty}\\delta(s)\\,\\frac{\\d s}{a}=-\\frac{1}{a}\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\d s=-\\frac{1}{a}=\\frac{1}{|a|}.'},
-{t:'p', text:'The same substitution inside a sifting integral gives $\\int x(t)\\,\\delta(at)\\,\\d t=x(0)/|a|$, because $x(s/a)$ equals $x(0)$ at $s=0$. So $\\delta(at)$ acts exactly like $\\delta(t)/|a|$:'},
-{t:'eqbox', cap:'Scaling property', tex:'\\delta(at)=\\frac{1}{|a|}\\,\\delta(t),\\qquad a\\neq0',
- after:'The impulse stays at $t=0$. Only its weight changes. In the rectangle picture, $\\delta_\\varepsilon(at)$ keeps its height and has width $1/|a|$ times the original, so its area is $1/|a|$.'},
-{t:'fig', svg:()=>{const a=ax({xr:[-1.2,1.2],yr:[-0.25,1.6],xlabel:'t',ylabel:'\\delta_\\varepsilon',w:700,h:180,xtarget:5,ytarget:3});
-  a.poly([[-0.5,0],[-0.5,1],[0.5,1],[0.5,0]],{color:C.in,width:1.6,dash:'6 5'});
-  a.area(t=>Math.abs(t)<0.25?1:0,-0.25,0.25,{color:'rgba(74,122,70,.2)',n:200});
-  a.poly([[-0.25,0],[-0.25,1],[0.25,1],[0.25,0]],{color:C.out,width:2.2});
-  a.note(0.55,1.2,'\\delta_\\varepsilon(t)\\;\\text{dashed, area }1',{anchor:'start',color:C.in,fs:12,tex:true});
-  a.note(-0.55,1.2,'\\delta_\\varepsilon(2t)\\;\\text{solid, area }1/2',{anchor:'end',color:C.out,fs:12,tex:true});
-  return a.svg();},
- cap:'A unit-area rectangle of width 1 and height 1, and the same rectangle with $t$ replaced by $2t$. The height stays 1 and the width halves, so the area halves.'},
-{t:'ex', hd:'Example 1.8', rows:[
- ['Given','$x(t)=\\cos t$.'],
- ['Find','$\\displaystyle\\int_{-\\infty}^{\\infty}\\cos t\\;\\delta(2t)\\,\\d t$.'],
- ['Method','Use the scaling property to rewrite $\\delta(2t)$ as a weighted impulse at $t=0$. Then sift.'],
- ['Solution','With $a=2$, $\\delta(2t)=\\tfrac12\\delta(t)$. Then $$\\begin{aligned}\\int_{-\\infty}^{\\infty}\\cos t\\;\\delta(2t)\\,\\d t&=\\frac12\\int_{-\\infty}^{\\infty}\\cos t\\;\\delta(t)\\,\\d t\\\\&=\\frac12\\cos0=\\frac12.\\end{aligned}$$'],
- ['Check','Substitute $s=2t$ directly, with $\\d t=\\d s/2$ and unchanged limits: $\\int\\cos(s/2)\\,\\delta(s)\\,\\d s/2=\\tfrac12\\cos0=\\tfrac12$. The two routes agree.']
-]},
-
-{t:'h3', text:'Differentiating a signal with jumps'},
-{t:'p', text:'A signal with jumps has a derivative in two parts. On each smooth piece, differentiate as usual. At a jump of size $k$ at $t_0$, the signal contains a step $k\\,u(t-t_0)$, and its derivative is $k\\,\\delta(t-t_0)$. So each jump adds an impulse whose weight is the jump.'},
-{t:'ex', hd:'Example 1.9', rows:[
- ['Given','$x(t)=t$ on $[0,2]$, $x(t)=1$ on $(2,3)$, and $x(t)=0$ elsewhere.'],
- ['Find','$x^{\\prime}(t)$.'],
- ['Method','(1) Differentiate each piece: the ramp gives 1 and a constant gives 0. (2) At each jump of size $k$ at $t_0$, add $k\\,\\delta(t-t_0)$. (3) Check that the running integral of the result returns $x(t)$.'],
- ['Solution','The pieces give slope $0$ for $t<0$, slope $1$ for $0<t<2$, and slope $0$ for $2<t<3$ and for $t>3$. The slope $1$ on $(0,2)$ is $u(t)-u(t-2)$. Now read the jumps as the value just after minus the value just before: $$\\begin{aligned}t=0:&\\quad x(0^{+})-x(0^{-})=0-0=0,\\\\t=2:&\\quad x(2^{+})-x(2^{-})=1-2=-1,\\\\t=3:&\\quad x(3^{+})-x(3^{-})=0-1=-1.\\end{aligned}$$ The ramp starts at 0, so there is no impulse at $t=0$. Therefore $$x^{\\prime}(t)=u(t)-u(t-2)-\\delta(t-2)-\\delta(t-3).$$'],
- ['Check','Integrate $x^{\\prime}$ from $-\\infty$ to $t$. For $0<t<2$: $\\int_{0}^{t}1\\,\\d\\tau=t=x(t)$. For $2<t<3$: $\\int_{0}^{2}1\\,\\d\\tau-1=2-1=1=x(t)$. For $t>3$: $2-1-1=0=x(t)$.']
-]},
-{t:'figrow', items:[
- {svg:()=>{const x=t=> t<0?0 : t<=2?t : t<3?1 : 0;
-   const a=two({xr:[-1,4.5],yr:[-1.6,2.5],xlabel:'t',ylabel:'x(t)',ytarget:4});
-   a.curve(x,{color:C.ink,n:1200}); return a.svg();},
-  cap:'$x(t)$: a ramp to 2, a drop to 1 at $t=2$, and a drop to 0 at $t=3$.'},
- {svg:()=>{const a=two({xr:[-1,4.5],yr:[-1.6,2.5],xlabel:'t',ylabel:'x^{\\prime}(t)',ytarget:4});
-   a.poly([[-1,0],[0,0]],{color:C.out}); a.poly([[0,1],[2,1]],{color:C.out}); a.poly([[2,0],[4.5,0]],{color:C.out});
-   a.impulse(2,-1,{color:C.out,label:false}); a.impulse(3,-1,{color:C.out,label:false});
-   a.note(2.12,-0.6,'-1',{anchor:'start',color:C.out,fs:12,tex:true}); a.note(3.12,-0.6,'-1',{anchor:'start',color:C.out,fs:12,tex:true});
-   return a.svg();},
-  cap:'$x^{\\prime}(t)$: slope 1 on $(0,2)$ and two impulses of weight $-1$, drawn pointing down.'}
-]},
-
 /* ---------- 1.6 ---------- */
 {t:'h2', num:'1.6', text:'Complex exponentials'},
 {t:'h3', text:'Complex numbers in polar form'},
@@ -614,7 +568,7 @@ window.C1 = [
 {t:'eq', tex:'\\begin{aligned}x(t+T)&=x(t)\\\\Ae^{j[\\omega_0(t+T)+\\theta]}&=Ae^{j(\\omega_0t+\\theta)}\\\\e^{j\\omega_0T}&=1\\\\\\omega_0T&=2\\pi k,\\qquad k\\in\\mathbb{Z}\\\\T&=\\frac{2\\pi k}{\\omega_0}.\\end{aligned}'},
 {t:'p', text:'The fourth line holds because $e^{j\\phi}=\\cos\\phi+j\\sin\\phi$ equals $1$ only when $\\cos\\phi=1$ and $\\sin\\phi=0$, that is when $\\phi$ is a whole number of turns: $e^{j2\\pi k}=\\cos(2\\pi k)+j\\sin(2\\pi k)=1+j0=1$.'},
 {t:'box', kind:'ok', html:'<span class="t">Result</span>The smallest positive period comes from $k=1$ when $\\omega_0>0$, so $T_0=2\\pi/|\\omega_0|$. Every continuous-time complex exponential with $\\omega_0\\neq0$ is periodic. There is no extra condition.'},
-{t:'ex', hd:'Example 1.10', rows:[
+{t:'ex', hd:'Example 1.8', rows:[
  ['Given','$x(t)=e^{j0.5\\pi t}$.'],
  ['Find','The fundamental period.'],
  ['Method','Use $T_0=2\\pi/\\omega_0$ because the exponent is purely imaginary and $\\omega_0\\neq0$.'],
@@ -636,7 +590,7 @@ window.C1 = [
 {t:'h3', text:'A sum of two exponentials'},
 {t:'p', text:'A sum of two complex exponentials with different frequencies can be written as one exponential times a cosine. Take out the exponential at the average frequency. What is left is two exponentials with opposite frequencies, and Euler\'s relation turns them into a cosine:'},
 {t:'eq', tex:'\\begin{aligned}e^{j\\phi}+e^{-j\\phi}&=(\\cos\\phi+j\\sin\\phi)+(\\cos\\phi-j\\sin\\phi)\\\\&=2\\cos\\phi.\\end{aligned}'},
-{t:'ex', hd:'Example 1.11', rows:[
+{t:'ex', hd:'Example 1.9', rows:[
  ['Given','$x(t)=e^{j3t}+e^{j5t}$.'],
  ['Find','$x(t)$ as one exponential times a real signal, and $|x(t)|$.'],
  ['Method','Factor out $e^{j4t}$, because $4=(3+5)/2$ is the average frequency. Then use $e^{j\\phi}+e^{-j\\phi}=2\\cos\\phi$ and $|e^{j4t}|=1$.'],
@@ -700,7 +654,7 @@ window.C1 = [
  ['Periodic?','For every $\\omega_0\\neq0$','Only if $\\omega_0/2\\pi$ is rational'],
  ['Distinct frequencies','Each $\\omega_0$ gives a different signal','$\\omega_0$ and $\\omega_0+2\\pi$ give the same sequence']
 ]},
-{t:'ex', hd:'Example 1.12', rows:[
+{t:'ex', hd:'Example 1.10', rows:[
  ['Given','$x[n]=e^{j(3\\pi/5)n}$.'],
  ['Find','The fundamental period $N_0$.'],
  ['Method','Use $N=2\\pi k/\\omega_0$ and take the smallest positive integer $k$ that makes $N$ an integer.'],
@@ -719,7 +673,7 @@ window.C1 = [
 
 {t:'h3', text:'A sampled sinusoid has its own period'},
 {t:'p', text:'A sequence may take its values from a periodic curve and still have a different period from the curve.'},
-{t:'ex', hd:'Example 1.13', rows:[
+{t:'ex', hd:'Example 1.11', rows:[
  ['Given','$x[n]=\\cos(6\\pi n/17)$, the values of the curve $\\cos(6\\pi t/17)$ at integer $t$.'],
  ['Find','The period $T_0$ of the curve, the fundamental period $N_0$ of the sequence, and the fundamental frequency of the sequence.'],
  ['Method','The curve has $T_0=2\\pi/\\omega_0$. The sequence needs the smallest integer $N=2\\pi k/\\omega_0$.'],

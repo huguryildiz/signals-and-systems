@@ -17610,26 +17610,27 @@ const CAT_BLOCKS = realGallery({ id:'m1-cat-blocks', nav:'Step, ramp, sign, expo
     {t:'note', kind:'def', head:'How they relate', html:'The ramp is the running integral of the step: $r(t)=\\int_{-\\infty}^{t}u(\\tau)\\,\\d\\tau$. The step is the running integral of $\\delta(t)$.'}
   ]});
 
+const EXP = o => EXO(Object.assign({h:220}, o));
 const CAT_PULSE = realGallery({ id:'m1-cat-pulse', nav:'Rectangle, triangle, sinc, Gaussian',
   title:'Pulses: Rectangle, Triangle, Sinc and Gaussian', eyebrow:'Module 1 · Common signals', src:'pp. 2–10',
   objective:'Give the formulas of four standard pulses and hear each one shape a tone.',
   keywords:'catalogue common signals pulse rect rectangle triangle tri sinc gaussian window energy tone sound',
   budget:'A catalogue of four pulses; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'\\operatorname{rect}(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXP({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'\\operatorname{rect}(t)',xstep:1}));
       a.curve(rectP,{color:C.in,n:1000});
       return a.svg(); }, 'Rectangle: $\\operatorname{rect}(t)=1$ for $|t|<\\tfrac12$ and $0$ for $|t|>\\tfrac12$. Energy $1$.',
       toneIn(rectP,0.75,1.5)],
-    [()=>{ const a=P.Axes(EXO({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'\\operatorname{tri}(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXP({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'\\operatorname{tri}(t)',xstep:1}));
       a.curve(triP,{color:C.in});
       return a.svg(); }, 'Triangle: $\\operatorname{tri}(t)=1-|t|$ for $|t|\\le1$ and $0$ otherwise. Energy $2/3$.',
       toneIn(triP,1.2,2.4)],
-    [()=>{ const a=P.Axes(EXO({xr:[-5,5],yr:[-0.4,1.2],xlabel:'t',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXP({xr:[-5,5],yr:[-0.4,1.2],xlabel:'t',ylabel:'x(t)',xstep:1}));
       a.hline(0,{color:C.muted});
       a.curve(sincP,{color:C.in,n:1000});
       return a.svg(); }, '$x(t)=\\operatorname{sinc}(\\pi t)$, with $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$. Peak $1$ at $t=0$; zeros at $t=\\pm1,\\pm2,\\dots$',
       toneIn(sincP,2,4)],
-    [()=>{ const a=P.Axes(EXO({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(EXP({xr:[-2,2],yr:[-0.3,1.3],xlabel:'t',ylabel:'x(t)',xstep:1}));
       a.curve(gaussP,{color:C.in});
       return a.svg(); }, 'Gaussian: $x(t)=e^{-\\pi t^2}$. It is smooth everywhere and its area is $1$.',
       toneIn(gaussP,1,2)]
@@ -19180,73 +19181,6 @@ REAL_PERIODIC,
       {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos t$ and $t_0=\\pi$.<div class="nsep"></div>What is $\\int_{-\\infty}^{\\infty}\\cos t\\,\\delta(t-\\pi)\\,\\d t$?',
         ask:{key:'m1-ct-impulse-c', choices:['$-1$','$0$','$1$'], answer:0,
           why:'Sifting returns the value at $t=\\pi$, and $\\cos\\pi=-1$.'}}]}
-  ]}
-]},
-
-{ id:'m1-ct-impulse-scale', module:'M1', nav:'Scaling an impulse', title:'Scaling the Impulse', src:'p. 7',
-  objective:'Show that a time-scaled impulse keeps its location and has weight 1/|a|.',
-  keywords:'delta(at) scaling weight 1/|a| substitution area compress',
-  slide:true, steps:2, blocks:[
-  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
-  {t:'title', text:'Scaling the Impulse'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      live:{controls:[{k:'a', label:'scale $a$', min:0.5, max:4, step:0.25, v:2, show:v=>'$a='+num(v)+'$'}]},
-      svg:v=>{
-      /* delta_eps(t) has width 1 and height 1. delta_eps(at) keeps the height
-         and has width 1/a, so its area is 1/a. */
-      const k=v?v.a:2, w=0.5/k;
-      const a=P.Axes({w:560,h:380,xr:[-1.2,1.2],yr:[-0.25,1.75],xlabel:'t',ylabel:'\\text{amplitude}',pad:{l:52,r:24,t:22,b:34},xtarget:5,ytarget:3,yticksLeft:true});
-      a.poly([[-0.5,0],[-0.5,1],[0.5,1],[0.5,0]],{color:C.in,width:1.6,dash:'6 5'});
-      a.raw('<g opacity=".18">'); a.rect(-w,0,w,1,{fill:C.out}); a.raw('</g>');
-      a.poly([[-w,0],[-w,1],[w,1],[w,0]],{color:C.out,width:2.2});
-      a.note(-1.12,1.5,'\\text{area of }\\delta_\\varepsilon(at)=1/a='+num(1/k),{anchor:'start',color:C.out,fs:15,tex:true});
-      return a.svg(); },
-      caption:'Drag $a$. The rectangle $\\delta_\\varepsilon(at)$ keeps its height and has width $1/a$ times the original, so its area is $1/a$. The dashed rectangle is $\\delta_\\varepsilon(t)$, of area 1.'},
-    {t:'legend', items:[['in','$\\delta_\\varepsilon(t)$',true],['out','$\\delta_\\varepsilon(at)$']]}
-  ], right:[
-    {t:'eq', tex:'\\begin{aligned}\\int_{-\\infty}^{\\infty}\\delta(at)\\,\\d t&=\\int_{-\\infty}^{\\infty}\\delta(s)\\,\\dfrac{\\d s}{a}\\\\&=\\dfrac{1}{a}\\end{aligned}', label:'Area for $a>0$',
-      note:'Substitute $s=at$, so $\\d t=\\d s/a$ and the limits stay $\\mp\\infty$. For $a<0$ the limits swap, and the area is $1/|a|$.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'\\delta(at)=\\dfrac{1}{|a|}\\,\\delta(t),\\qquad a\\neq0', label:'Scaling',
-        note:'The impulse stays at $t=0$. Only its weight changes.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Given', html:'$x(t)=\\cos t$.<div class="nsep"></div>What is $\\int_{-\\infty}^{\\infty}\\cos t\\;\\delta(2t)\\,\\d t$?',
-        ask:{key:'m1-ct-impulse-scale', choices:['$1/2$','$1$','$2$'], answer:0,
-          why:'$\\delta(2t)=\\tfrac12\\delta(t)$, and sifting at $t=0$ gives $\\tfrac12\\cos 0=\\tfrac12$.'}}]}
-  ]}
-]},
-
-/* The derivative of a signal with jumps: ordinary slopes plus one impulse per
-   jump, weighted by the jump. The reader sketches it first (fig.sketch). */
-{ id:'m1-ct-deriv', module:'M1', nav:'Derivative of a signal with jumps', title:'Differentiating a Signal with Jumps', src:'p. 7',
-  objective:'Differentiate a piecewise signal: slopes give the ordinary part, each jump gives an impulse weighted by the jump.',
-  keywords:'derivative jump discontinuity impulse weight running integral ramp worked example',
-  slide:true, steps:2, blocks:[
-  {t:'eyebrow', text:'Module 1 · Impulse and step', src:'p. 7'},
-  {t:'title', text:'Differentiating a Signal with Jumps'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $x^{\\prime}(t)$ on the axes, then check it.'}, svg:()=>{
-      /* x(t) is the faint reference. The answer is the .sk-key group. */
-      const x=t=> t<0?0 : t<2?t : t<3?1 : 0;
-      const a=P.Axes({w:560,h:380,xr:[-1,4.5],yr:[-1.6,2.5],xlabel:'t',ylabel:'x^{\\prime}(t)',pad:{l:52,r:24,t:18,b:32},xtarget:6,ytarget:4});
-      a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
-      a.curve(x,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
-      a.note(1.2,1.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
-      a.raw('<g class="sk-key">');
-      a.poly([[-1,0],[0,0]],{color:C.out}); a.poly([[0,1],[2,1]],{color:C.out}); a.poly([[2,0],[4.5,0]],{color:C.out});
-      a.impulse(2,-1,{color:C.out}); a.impulse(3,-1,{color:C.out});
-      a.note(4.4,2.2,'x^{\\prime}(t)',{anchor:'end',color:C.out,fs:15,tex:true});
-      a.raw('</g>');
-      return a.svg(); },
-      caption:'The dashed trace is $x(t)$: $x(t)=t$ on $[0,2]$, $x(t)=1$ on $(2,3)$, and 0 elsewhere. Draw its derivative, then show the answer.'}
-  ], right:[
-    {t:'note', kind:'def', head:'Method', html:'Find $x^{\\prime}(t)$ in two parts.<ol class="steps"><li>Differentiate each piece: the ramp gives 1, a constant gives 0.</li><li>At each jump of size $k$ at $t_0$, add $k\\,\\delta(t-t_0)$.</li><li>Check that the running integral returns $x(t)$.</li></ol>'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'x^{\\prime}(t)=\\underbrace{u(t)-u(t-2)}_{\\text{slope of the ramp}}\\;\\underbrace{-\\,\\delta(t-2)-\\delta(t-3)}_{\\text{jumps of }-1\\text{ and }-1}', label:'Solution',
-        note:'At $t=2$ the signal falls from 2 to 1, and at $t=3$ from 1 to 0. At $t=0$ the ramp starts at 0, so there is no jump and no impulse.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'Check', html:'For $2<t<3$: $\\int_{-\\infty}^{t}x^{\\prime}(\\tau)\\,\\d\\tau=\\int_0^2 1\\,\\d\\tau-1=2-1=1=x(t)$. For $t>3$: $2-1-1=0=x(t)$.'}]}
   ]}
 ]},
 
@@ -34010,7 +33944,7 @@ CONTENT.SECTIONS = {
         'm1-real-periodic','m1-lab-k','m1-code-periodic'] },
     { n:'1.5', title:'The impulse and the step',                   ids:[
         'm1-dt-impulse','m1-dt-step','m1-dt-impulse-b','m1-dt-step-rep','m1-dt-sift','m1-dt-sift-b',
-        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-ct-impulse-scale','m1-ct-deriv','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
+        'm1-ct-impulse','m1-ct-impulse-b','m1-ct-impulse-c','m1-real-impulse','m1-lab-l','m1-code-impulse'] },
     { n:'1.6', title:'Complex exponentials',                       ids:[
         'm1-polar','m1-ct-cexp','m1-ct-cexp-grow','m1-ct-cexp-im','m1-ct-cexp-b','m1-ct-cexp-c','m1-cexp-sum',
         'm1-dt-cexp','m1-dt-cexp-b','m1-dt-cexp-c','m1-dt-freq',
@@ -34217,7 +34151,7 @@ CONTENT.BOOK = {
   'm1-evenodd':'1.2.3', 'm1-evenodd-quiz':'1.2.3', 'm1-evenodd-b':'1.2.3', 'm1-lab-k':'1.2.3', 'm1-code-periodic':'1.2.3',
   'm1-dt-impulse':'1.4.1', 'm1-dt-step':'1.4.1', 'm1-dt-impulse-b':'1.4.1', 'm1-dt-step-rep':'1.4.1',
   'm1-dt-sift':'1.4.1', 'm1-dt-sift-b':'1.4.1',
-  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-ct-impulse-scale':'1.4.2', 'm1-ct-deriv':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
+  'm1-ct-impulse':'1.4.2', 'm1-real-impulse':'1.4', 'm1-ct-impulse-b':'1.4.2', 'm1-ct-impulse-c':'1.4.2', 'm1-lab-l':'1.4.2', 'm1-code-impulse':'1.4.2',
   'm1-ct-cexp':'1.3.1', 'm1-ct-cexp-grow':'1.3.1', 'm1-ct-cexp-im':'1.3.1',
   'm1-ct-cexp-b':'1.3.1', 'm1-ct-cexp-c':'1.3.1', 'm1-polar':'1.3.1', 'm1-cexp-sum':'1.3.1',
   'm1-dt-cexp':'1.3.2', 'm1-dt-cexp-b':'1.3.2', 'm1-dt-cexp-c':'1.3.2', 'm1-dt-freq':'1.3.3',
