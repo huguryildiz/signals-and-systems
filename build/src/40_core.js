@@ -196,7 +196,7 @@ const APP = (() => {
     const hold = () => state.trailSec*1000;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0, zoom=1;
-    let head=null, drawing=false, released=0;
+    let head=null, drawing=false, released=0, tap=null, clicked=false;
     const strokes = [];
     function count(){ let n=0; for(const s of strokes) n+=s.length; return n; }
     function drop(){
@@ -267,6 +267,7 @@ const APP = (() => {
     function move(e){
       if(!mouse(e)) return;
       head=at(e);
+      if(tap && Math.hypot(e.clientX-tap.x, e.clientY-tap.y)>10) tap=null;
       if(drawing){ strokes[strokes.length-1].push(head); drop(); }
       tick();
     }
@@ -274,9 +275,23 @@ const APP = (() => {
       if(!mouse(e)||e.button!==0) return;
       if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
       drawing=true; head=at(e); strokes.push([head]); tick();
+      tap = e.pointerType==='pen' ? { x:e.clientX, y:e.clientY, t:performance.now() } : null;
+    }
+    /* a pencil tap must still press what it lands on. On an iPad the browser
+       may cancel the pencil's pointer, or take its small wobble for a stroke,
+       and then sends no click; a tap that travelled little and briefly is
+       clicked here, unless the browser's own click arrives first */
+    function pressed(){ clicked=true; }
+    function press(p){
+      clicked=false;
+      setTimeout(()=>{ if(clicked) return; const el=document.elementFromPoint(p.x,p.y); if(el && el.click) el.click(); }, 350);
     }
     /* a pencil lifted from glass leaves no hover to follow, so its dot goes with it */
-    function up(e){ if(e && e.pointerType==='pen') head=null; if(!drawing) return; drawing=false; released=performance.now(); tick(); }
+    function up(e){
+      if(e && e.pointerType==='pen'){ head=null; if(tap && performance.now()-tap.t<500) press(tap); }
+      tap=null;
+      if(!drawing) return; drawing=false; released=performance.now(); tick();
+    }
     /* on a tablet the browser takes a moving pencil for a scroll and cancels the
        stroke; while a stroke is being drawn its touch moves are kept from it */
     function still(e){ if(drawing && e.cancelable) e.preventDefault(); }
@@ -298,13 +313,14 @@ const APP = (() => {
       window.addEventListener('pointerup',up,{passive:true});
       window.addEventListener('pointercancel',up,{passive:true});
       window.addEventListener('dragstart',nodrag);
+      window.addEventListener('click',pressed,true);
       window.addEventListener('touchmove',still,{passive:false});
       document.addEventListener('mouseleave',leave); window.addEventListener('blur',leave); window.addEventListener('resize',refit);
     }
     function stop(){
       if(!on) return;
       on=false; window.removeEventListener('pointermove',move); window.removeEventListener('pointerdown',down);
-      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag); window.removeEventListener('touchmove',still);
+      window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); window.removeEventListener('dragstart',nodrag); window.removeEventListener('click',pressed,true); window.removeEventListener('touchmove',still);
       document.removeEventListener('mouseleave',leave); window.removeEventListener('blur',leave); window.removeEventListener('resize',refit);
       document.removeEventListener('toggle',toggled,true);
       if(window.visualViewport){ visualViewport.removeEventListener('resize',refit); }
