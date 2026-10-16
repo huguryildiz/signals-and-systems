@@ -705,7 +705,7 @@ REAL_CONVSUM,
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
       frames:{labels:['$h(\\tau)=u(\\tau-3)$','flip: $h(-\\tau)$','shift: $h(t-\\tau)$']},
-      live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, frame:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       /* Frame 0 is h(tau)=u(tau-3), edge at tau=3. Frame 1 mirrors it about
          tau=0: the edge moves to -3 and the step now points left. Frame 2
