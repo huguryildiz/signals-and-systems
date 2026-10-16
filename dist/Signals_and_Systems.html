@@ -21636,18 +21636,25 @@ REAL_CONVSUM,
   {t:'title', text:'Limits from the Overlap'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
+      frames:{labels:['$h(\\tau)=u(\\tau-3)$','flip: $h(-\\tau)$','shift: $h(t-\\tau)$']},
       live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
-      const t=v?v.t:1.5, e=t-3, hi=Math.min(0,e);
+      /* Frame 0 is h(tau)=u(tau-3), edge at tau=3. Frame 1 mirrors it about
+         tau=0: the edge moves to -3 and the step now points left. Frame 2
+         shifts it by t, so the edge sits at tau=t-3 and the slider moves it. */
+      const k=v&&v.frame!=null?v.frame:2, t=v?v.t:1.5, f=cl(k), g=1-2*f, sh=cl(k-1)*t;
+      const e=3*g+sh, hi=Math.min(0,e);
       const a=P.Axes({w:560,h:380,xr:[-5,7],yr:[-0.1,1.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:22,b:34},xtarget:7,yticksOverride:[1]});
-      a.area(z=>z<=hi?Math.exp(2*z):0,-5,hi,{color:'rgba(74,122,70,.22)'});
+      if(k>1) fade(a,cl(k-1),()=>a.area(z=>z<=hi?Math.exp(2*z):0,-5,hi,{color:'rgba(74,122,70,.22)'}));
       a.curve(z=>z<=0?Math.exp(2*z):0,{color:C.in,n:1200});
-      a.curve(z=>z<=e?1:0,{color:C.h,n:1200});
+      a.curve(z=>(g>=0 ? z>=e : z<=e)?1:0,{color:C.h,n:1200});
       a.vline(e,{color:C.coral,dash:'4 4'});
-      a.note(e>-3?e-0.15:e+0.15,1.25,'\\tau=t-3',{anchor:e>-3?'end':'start',color:C.coral,fs:15,tex:true});
+      const names=['\\tau=3','\\tau=-3','\\tau=t-3'], i=Math.min(2,Math.floor(k)), fr=k-i;
+      const lab=(s,o)=>fade(a,o,()=>a.note(e>-3?e-0.15:e+0.15,1.25,s,{anchor:e>-3?'end':'start',color:C.coral,fs:15,tex:true}));
+      lab(names[i],1-fr); if(i<2) lab(names[i+1],fr);
       return a.svg(); },
-      caption:'Drag $t$ and watch the edge $\\tau=t-3$ of $h(t-\\tau)$. The shaded area is $y(t)$.'},
-    {t:'legend', items:[['in','$x(\\tau)$'],['h','$h(t-\\tau)$']]}
+      caption:'Step from $h(\\tau)$ to $h(t-\\tau)$, then drag $t$ and watch the edge $\\tau=t-3$. The shaded area is $y(t)$.'},
+    {t:'legend', items:[['in','$x(\\tau)$'],['h','$h$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.<div class="nsep"></div>At which $t$ does the upper limit of the integral change?',
       ask:{key:'m3-ex-ct1', choices:['$t=0$','$t=3$','$t=-3$'], answer:1}},
