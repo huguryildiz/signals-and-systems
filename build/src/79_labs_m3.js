@@ -220,14 +220,14 @@ Object.assign(LABS, (function(){
     dt1:{ btn:'\\{1,2,1,2\\}*\\{1,1\\}', name:'x[n]=\\{1,2,1,2\\},\\ h[n]=\\{1,1\\}',
           x:n=>[1,2,1,2][n]!==undefined&&n>=0&&n<=3?[1,2,1,2][n]:0,
           h:n=>(n===0||n===1)?1:0, kr:[-4,9], nr:[-2,7], yr:[-0.4,3.6],
-          exact:'y[n]=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]' },
+          exact:'\\begin{aligned}y[n]&=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]\\\\&\\quad+3\\delta[n-3]+2\\delta[n-4]\\end{aligned}' },
     dt2:{ btn:'(1/2)^{n}u[n]*u[n]', name:'x[n]=\\left(\\tfrac12\\right)^{n}u[n],\\ h[n]=u[n]',
           x:n=>n>=0?Math.pow(.5,n):0, h:n=>n>=0?1:0, kr:[-6,14], nr:[-3,12], yr:[-0.3,2.4],
           exact:'y[n]=\\left(2-\\left(\\tfrac12\\right)^{n}\\right)u[n]' },
     dt3:{ btn:'\\{1,2,1,2\\}*\\{1,0.6,0.3\\}', name:'x[n]=\\{1,2,1,2\\},\\ h[n]=\\{1,0.6,0.3\\}',
           x:n=>[1,2,1,2][n]!==undefined&&n>=0&&n<=3?[1,2,1,2][n]:0,
           h:n=>[1,0.6,0.3][n]!==undefined&&n>=0&&n<=2?[1,0.6,0.3][n]:0, kr:[-4,10], nr:[-2,7], yr:[-0.4,3.6],
-          exact:'y[n]=\\delta[n]+2.6\\delta[n-1]+2.5\\delta[n-2]+3.2\\delta[n-3]+1.5\\delta[n-4]+0.6\\delta[n-5]' }
+          exact:'\\begin{aligned}y[n]&=\\delta[n]+2.6\\delta[n-1]+2.5\\delta[n-2]\\\\&\\quad+3.2\\delta[n-3]+1.5\\delta[n-4]+0.6\\delta[n-5]\\end{aligned}' }
   }, { dt:true, defaultKey:'dt1' });
 
   /* =======================================================================
