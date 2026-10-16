@@ -21746,13 +21746,21 @@ REAL_CONVSUM,
     {t:'fig', frame:true, grow:true,
       frames:{labels:['$0<t<1$','$1<t<2$','$2<t<3$']},
       svg:v=>{
-      const t=0.6+0.95*(v?v.frame:0), lo=Math.max(0,t-1), hi=Math.min(2,t);
-      const a=P.Axes({w:560,h:380,xr:[-1.5,4],yr:[-0.15,2.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const k=v?v.frame:0, t=0.6+0.95*k, lo=Math.max(0,t-1), hi=Math.min(2,t);
+      const a=P.Axes({w:560,h:470,xr:[-1.5,4],yr:[-0.75,2.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:96,b:34},xtarget:7,ytarget:3,yticksOverride:[1,2]});
       if(hi>lo) a.area(z=>z,lo,hi,{color:'rgba(74,122,70,.22)'});
       a.curve(z=>(z>0&&z<2)?z:0,{color:C.h,n:1200});
       a.curve(z=>(z>t-1&&z<t)?1:0,{color:C.in,n:1200});
+      /* The two moving edges of the window are marked under the axis, and the
+         case condition above the plot compares them with the ramp's edges 0 and 2. */
+      [[t-1,'t-1'],[t,'t']].forEach(([z,s])=>{
+        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
+        a.note(z,-0.62,s,{anchor:'middle',color:C.in,fs:15,tex:true}); });
+      const conds=['t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3'];
+      const i=Math.min(2,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));
+      cond(conds[i],1-fr); if(i<2) cond(conds[i+1],fr);
       return a.svg(); },
-      caption:'Step through the three overlapping cases. The shaded region is the interval of integration.'},
+      caption:'Step through the three overlapping cases. Compare the window edges $t-1$ and $t$ with the ramp edges $0$ and $2$. The shaded region is the interval of integration.'},
     {t:'legend', items:[['h','$h(\\tau)$'],['in','$x(t-\\tau)$']]}
   ], right:[
     {t:'note', kind:'def', head:'No overlap', html:'For $t<0$ and for $t>3$ the window misses the ramp, so $y(t)=0$.'},
@@ -21931,37 +21939,6 @@ REAL_CONVINT,
       {t:'note', kind:'def', head:'Given', html:'$h[n]=\\left(-\\tfrac12\\right)^{n}u[n]$.<div class="nsep"></div>Is the system BIBO stable?',
         ask:{key:'m3-lti-stable', choices:['Stable','Not stable'], answer:0,
           why:'$\\sum_{n\\ge0}\\left(\\tfrac12\\right)^{n}=2<\\infty$.'}}]}
-  ]}
-]},
-
-{ id:'m3-lti-stable-b', module:'M3', nav:'Why the test is needed', title:'A Bounded Input That Reaches the Sum', src:'p. 21',
-  objective:'Prove that absolute summability of h is also necessary for BIBO stability.',
-  keywords:'BIBO stability necessity sign input sgn h[-n] unbounded y[0]', slide:true, steps:2, blocks:[
-  {t:'eyebrow', text:'Module 3 · Properties of LTI systems', src:'p. 21'},
-  {t:'title', text:'A Bounded Input That Reaches the Sum'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      frames:{labels:['$h[n]=(-0.8)^{n}u[n]$','$x[n]=\\operatorname{sgn}h[-n]$']},
-      svg:v=>{
-      /* frame 0 is h; going to frame 1 lowers h and raises the sign input,
-         which is h reversed in time with every sample set to +1 or -1 */
-      const f=cl(v?v.frame:0), h=n=>n>=0?Math.pow(-0.8,n):0, sg=n=>n<=0?Math.sign(h(-n)):0;
-      const a=P.Axes({w:560,h:380,xr:[-8,8],yr:[-1.3,1.45],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:3});
-      if(f<1) fade(a,1-f,()=>a.stem(disc(h,-8,8),{color:C.h}));
-      if(f>0) fade(a,f,()=>a.stem(disc(sg,-8,8),{color:C.in}));
-      return a.svg(); },
-      caption:'The input copies only the sign of $h$, reversed in time. It never exceeds 1.'},
-    {t:'legend', items:[['h','$h[n]$'],['in','$x[n]$']]}
-  ], right:[
-    {t:'eq', tex:'x[n]=\\operatorname{sgn}h[-n],\\qquad |x[n]|\\le1', label:'Choose the input',
-      note:'$\\operatorname{sgn}$ is $+1$ for a positive argument, $-1$ for a negative one and $0$ at zero.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\begin{aligned}y[0]&=\\sum_k h[k]\\,x[-k]\\\\&=\\sum_k h[k]\\operatorname{sgn}h[k]\\\\&=\\sum_k\\bigl|h[k]\\bigr|\\end{aligned}', label:'Evaluate at $n=0$',
-        note:'If $\\sum|h|$ diverges, this bounded input gives an unbounded output, so the test is also necessary.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Given', html:'$h[n]=(-0.8)^{n}u[n]$ and $x[n]=\\operatorname{sgn}h[-n]$.<div class="nsep"></div>What is $y[0]$?',
-        ask:{key:'m3-lti-stable-b', choices:['$5$','$1$','$-5$'], answer:0,
-          why:'$y[0]=\\sum_{k\\ge0}0.8^{k}=\\frac{1}{1-0.8}=5$.'}}]}
   ]}
 ]},
 
@@ -34112,7 +34089,7 @@ CONTENT.SECTIONS = {
         'm3-convint','m3-convint-b','m3-ex-ct1','m3-ex-ct1-b','m3-ex-ct2','m3-ex-ct2-b','m3-ex-ct2-c',
         'm3-real-convint','m3-lab-n','m3-code-convint'] },
     { n:'3.4', title:'Properties of convolution',                        ids:[
-        'm3-props','m3-props-b','m3-lti-props','m3-lti-stable','m3-lti-stable-b','m3-step','m3-singular',
+        'm3-props','m3-props-b','m3-lti-props','m3-lti-stable','m3-step','m3-singular',
         'm3-real-props','m3-lab-o','m3-code-props'] },
     { n:'3.5', title:'Difference and differential equations',            ids:[
         'm3-diffeq','m3-fir-iir','m3-blockdiag','m3-diffeq-ct','m3-real-diffeq','m3-lab-t','m3-code-diffeq'] },
@@ -34313,7 +34290,7 @@ CONTENT.BOOK = {
   'm3-convint':'2.2.2', 'm3-convint-b':'2.2.2', 'm3-ex-ct1':'2.2.2', 'm3-ex-ct1-b':'2.2.2',
   'm3-ex-ct2':'2.2.2', 'm3-ex-ct2-b':'2.2.2', 'm3-ex-ct2-c':'2.2.2', 'm3-real-convint':'2.2.2',
   'm3-lab-n':'2.2.2', 'm3-code-convint':'2.2.2',
-  'm3-props':'2.3', 'm3-props-b':'2.3', 'm3-lti-props':'2.3', 'm3-lti-stable':'2.3', 'm3-lti-stable-b':'2.3',
+  'm3-props':'2.3', 'm3-props-b':'2.3', 'm3-lti-props':'2.3', 'm3-lti-stable':'2.3',
   'm3-real-props':'2.3', 'm3-lab-o':'2.3', 'm3-code-props':'2.3',
   'm3-step':'2.3.8', 'm3-singular':'2.5',
   'm3-diffeq':'2.4.2', 'm3-fir-iir':'2.4.2', 'm3-blockdiag':'2.4.3', 'm3-diffeq-ct':'2.4.1',
