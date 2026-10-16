@@ -639,19 +639,19 @@ REAL_CONVSUM,
   {t:'title', text:'Deriving the Convolution Integral'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x(\\tau)$','$\\Delta=1$','$\\Delta=0.5$','$\\Delta=0.25$']},
+      frames:{labels:['$x(\\tau)$','$\\Delta=1$','$\\Delta=0.5$','$\\Delta=0.25$','$\\Delta=0.1$','$\\Delta=0.05$','$\\Delta=0.02$']},
       svg:v=>{
-      /* Frame 0 is x(τ). Frames 1–3 cover it with pulses of width Δ whose
+      /* Frame 0 is x(τ). Frames 1–6 cover it with pulses of width Δ whose
          height is the value of x at the left edge; between two frames the two
          pulse trains cross-fade. */
       const x=t=>t>0?2.2*t*Math.exp(-t):0, k=v?v.frame:0;
       const a=P.Axes({w:560,h:380,xr:[-1,7],yr:[-0.1,1.1],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:3});
       const train=D=>{ const pts=[[0,0]]; for(let t=0;t<7-1e-9;t+=D){ pts.push([t,x(t)],[Math.min(t+D,7),x(t)]); }
-        pts.push([7,0]); for(let t=0;t<7-1e-9;t+=D) a.rect(t,0,Math.min(t+D,7),x(t),{fill:'rgba(106,90,146,.16)'});
+        pts.push([7,0]); a.area(t=>x(Math.floor(t/D+1e-9)*D),0,7,{n:2400,color:'rgba(106,90,146,.16)'});
         a.poly(pts,{color:C.mid,width:1.6}); };
-      const lo=Math.floor(k), w=k-lo, Ds=[0,1,0.5,0.25];
+      const lo=Math.floor(k), w=k-lo, Ds=[0,1,0.5,0.25,0.1,0.05,0.02];
       if(lo>=1) fade(a,1-w,()=>train(Ds[lo]));
-      if(lo+1<=3&&w>0) fade(a,w,()=>train(Ds[lo+1]));
+      if(lo+1<=6&&w>0) fade(a,w,()=>train(Ds[lo+1]));
       a.curve(x,{color:C.in,n:900});
       return a.svg(); },
       caption:'Each pulse has area $x(k\\Delta)\\,\\Delta$. As $\\Delta\\to0$ the pulses become impulses of weight $x(\\tau)\\,\\d\\tau$.'},
