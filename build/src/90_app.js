@@ -259,7 +259,8 @@ const RENDER = (() => {
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){
     const v = liveVals(b);
-    return b.live.controls.map(c=>`<label class="live-ctrl">
+    /* A control with `frame` shows only from that frame of `fig.frames` on. */
+    return b.live.controls.map(c=>`<label class="live-ctrl"${c.frame!=null?` data-live-frame="${c.frame}"${(b.frames&&b.frames.i|0)<c.frame?' hidden':''}`:''}>
         <span class="live-k">${md(c.label)}</span>
         <input type="range" data-live="${c.k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${v[c.k]}">
         <span class="live-v" data-live-v="${c.k}">${liveVal(c, v[c.k])}</span></label>`).join('');
@@ -705,6 +706,7 @@ def _ss_figs():
         fig.querySelector('[data-frame-v]').innerHTML = frameVal(b);
         fig.querySelectorAll('[data-frame]').forEach(x=>{ const d=+x.dataset.frame;
           x.disabled = d<0 ? b.frames.i<=0 : b.frames.i>=n-1; });
+        fig.querySelectorAll('[data-live-frame]').forEach(x=>{ x.hidden = b.frames.i < +x.dataset.liveFrame; });
         frameTween(fig, b, from, b.frames.i); }
       return; }
     const lb = e.target.closest('[data-listen]');

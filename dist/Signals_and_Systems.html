@@ -1941,6 +1941,7 @@ body[data-layout=phone] #counter{ font-size:10px; white-space:nowrap; }
 .live-ctrl{ flex:1 1 280px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:14px; }
 /* beside Previous/Next the slider takes its own row, so a longer frame label never moves it */
 .frame-v ~ .live-ctrl{ flex-basis:100%; }
+.live-ctrl[hidden]{ display:none; }
 .live-k{ font-size:calc(19px * var(--ts)); color:var(--ink); }
 .live-v{ font-size:calc(20px * var(--ts)); color:var(--coral); text-align:right; font-weight:600; }
 
@@ -5189,7 +5190,8 @@ const RENDER = (() => {
   function liveVal(c, v){ return md(c.show ? c.show(v) : '$'+v+'$'); }
   function liveHTML(b){
     const v = liveVals(b);
-    return b.live.controls.map(c=>`<label class="live-ctrl">
+    /* A control with `frame` shows only from that frame of `fig.frames` on. */
+    return b.live.controls.map(c=>`<label class="live-ctrl"${c.frame!=null?` data-live-frame="${c.frame}"${(b.frames&&b.frames.i|0)<c.frame?' hidden':''}`:''}>
         <span class="live-k">${md(c.label)}</span>
         <input type="range" data-live="${c.k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${v[c.k]}">
         <span class="live-v" data-live-v="${c.k}">${liveVal(c, v[c.k])}</span></label>`).join('');
@@ -5635,6 +5637,7 @@ def _ss_figs():
         fig.querySelector('[data-frame-v]').innerHTML = frameVal(b);
         fig.querySelectorAll('[data-frame]').forEach(x=>{ const d=+x.dataset.frame;
           x.disabled = d<0 ? b.frames.i<=0 : b.frames.i>=n-1; });
+        fig.querySelectorAll('[data-live-frame]').forEach(x=>{ x.hidden = b.frames.i < +x.dataset.liveFrame; });
         frameTween(fig, b, from, b.frames.i); }
       return; }
     const lb = e.target.closest('[data-listen]');
@@ -21639,7 +21642,7 @@ REAL_CONVSUM,
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
       frames:{labels:['$h(\\tau)=u(\\tau-3)$','flip: $h(-\\tau)$','shift: $h(t-\\tau)$']},
-      live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, show:v=>'$'+num(v)+'$'}]},
+      live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, frame:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
       /* Frame 0 is h(tau)=u(tau-3), edge at tau=3. Frame 1 mirrors it about
          tau=0: the edge moves to -3 and the step now points left. Frame 2
