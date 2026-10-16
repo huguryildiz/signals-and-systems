@@ -492,17 +492,18 @@ REAL_IMPULSE,
       const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-0.3,3.9],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
       const nz=f=>disc(f,-1,6).filter(p=>p[1]>1e-9);
       const copy=(j,s)=>nz(n=>s*xs[j]*h(n-j));
+      const tag=j=>a.note(j+1.15,xs[j],['h[n]','2h[n-1]','h[n-2]','2h[n-3]'][j],{anchor:'start',color:C.mid,fs:16,tex:true});
       const sum=(m,t)=>nz(n=>{ let s=0; for(let j=0;j<m;j++) s+=xs[j]*h(n-j); return s+t*xs[m]*h(n-m); });
       fade(a,1-cl(k),()=>a.stem(disc(n=>(n>=0&&n<=3)?xs[n]:0,-1,6),{color:C.in}));
-      if(k>0&&k<=1) a.stem(copy(0,cl(k)),{color:C.mid});
+      if(k>0&&k<=1){ a.stem(copy(0,cl(k)),{color:C.mid}); fade(a,cl(k),()=>tag(0)); }
       else if(k>1){
         const seg=Math.min(6,Math.ceil(k-1e-9)-1), j=Math.ceil(seg/2), t=cl(k-seg);
         if(seg%2){
-          if(j===1){ fade(a,1-t,()=>a.stem(copy(0,1),{color:C.mid})); fade(a,LO*t,()=>a.stem(sum(1,0),{color:C.out})); }
+          if(j===1){ fade(a,1-t,()=>{ a.stem(copy(0,1),{color:C.mid}); tag(0); }); fade(a,LO*t,()=>a.stem(sum(1,0),{color:C.out})); }
           else fade(a,1-(1-LO)*t,()=>a.stem(sum(j,0),{color:C.out}));
-          a.stem(copy(j,t),{color:C.mid});
+          a.stem(copy(j,t),{color:C.mid}); fade(a,t,()=>tag(j));
         } else {
-          fade(a,1-t,()=>a.stem(copy(j,1),{color:C.mid}));
+          fade(a,1-t,()=>{ a.stem(copy(j,1),{color:C.mid}); tag(j); });
           fade(a,LO+(1-LO)*t,()=>a.stem(sum(j,t),{color:C.out}));
         }
       }
