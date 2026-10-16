@@ -21646,24 +21646,11 @@ REAL_CONVSUM,
          shifts it by t, so the edge sits at tau=t-3 and the slider moves it. */
       const k=v&&v.frame!=null?v.frame:2, t=v?v.t:1.5, f=cl(k), g=1-2*f, sh=cl(k-1)*t;
       const e=3*g+sh, hi=Math.min(0,e);
-      const a=P.Axes({w:560,h:430,xr:[-5,7],yr:[-0.62,1.95],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:22,b:34},xtarget:7,yticksOverride:[1]});
+      const a=P.Axes({w:560,h:380,xr:[-5,7],yr:[-0.1,1.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:22,b:34},xtarget:7,yticksOverride:[1]});
       if(k>1) fade(a,cl(k-1),()=>a.area(z=>z<=hi?Math.exp(2*z):0,-5,hi,{color:'rgba(74,122,70,.22)'}));
-      /* In the shift frame the range of integration is drawn under the axis,
-         from -infinity (the arrow) to the end of the overlap, min(0, t-3), and
-         the integral is written out with the same limits. */
-      if(k>1) fade(a,cl(k-1),()=>{
-        const up=e<0?'t-3':'0', Y=a.sy(-0.34), L=a.sx(-4.9), R=a.sx(hi), w=1.6;
-        a.raw(`<path d="M${L.toFixed(2)},${Y.toFixed(2)} H${R.toFixed(2)} M${R.toFixed(2)},${(Y-6).toFixed(2)} v12" fill="none" stroke="${C.out}" stroke-width="${w}"/>`);
-        a.raw(`<path d="M${(L-2).toFixed(2)},${Y.toFixed(2)} l9,-4.5 l0,9 Z" fill="${C.out}"/>`);
-        a.raw(`<line x1="${R.toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${R.toFixed(2)}" y2="${(Y-6).toFixed(2)}" stroke="${C.out}" stroke-width="1" stroke-dasharray="3 3"/>`);
-        a.note(-4.9,-0.52,'-\\infty',{anchor:'start',color:C.out,fs:15,tex:true});
-        a.note(hi,-0.52,up,{anchor:'middle',color:C.out,fs:15,tex:true});
-        a.note(-4.6,1.72,'\\begin{aligned}y(t)&=\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau\\\\&=\\int_{-\\infty}^{'+up+'}e^{2\\tau}\\cdot 1\\,\\d\\tau\\end{aligned}',{anchor:'start',color:C.ink,fs:16,tex:true});
-      });
       a.curve(z=>z<=0?Math.exp(2*z):0,{color:C.in,n:1200});
       a.curve(z=>(g>=0 ? z>=e : z<=e)?1:0,{color:C.h,n:1200});
-      /* the edge marker keeps its old height, clear of the formula and the range */
-      a.raw(`<line x1="${a.sx(e).toFixed(2)}" y1="${a.sy(1.4).toFixed(2)}" x2="${a.sx(e).toFixed(2)}" y2="${a.sy(-0.1).toFixed(2)}" stroke="${C.coral}" stroke-width="1" stroke-dasharray="4 4" opacity=".8"/>`);
+      a.vline(e,{color:C.coral,dash:'4 4'});
       const names=['\\tau=3','\\tau=-3','\\tau=t-3'], i=Math.min(2,Math.floor(k)), fr=k-i;
       const lab=(s,o)=>fade(a,o,()=>a.note(e>-3?e-0.15:e+0.15,1.25,s,{anchor:e>-3?'end':'start',color:C.coral,fs:15,tex:true}));
       lab(names[i],1-fr); if(i<2) lab(names[i+1],fr);
