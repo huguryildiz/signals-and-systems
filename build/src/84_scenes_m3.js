@@ -535,24 +535,24 @@ REAL_IMPULSE,
          summed. The last frame keeps only y[n], which rises toward 2. */
       const k=v?v.frame:0, f=cl(k-2), S=[0,0,0,0,-2,0,1,2,3,4,5,5], L=11;
       const i=Math.min(L,Math.floor(k)), fr=k-i, s=S[i]+(i<L?(S[i+1]-S[i])*fr:0), sn=S[Math.round(k)];
-      const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,2.8],xlabel:k<0.5||k>10.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
+      const a=P.Axes({w:560,h:380,xr:[-9,8],yr:[-0.2,2.8],xlabel:k<0.5||k>10.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
       const xk=m=>m>=0?Math.pow(0.5,m):0, g=1-cl(k-10);
       /* the overlap 0 <= k <= n, where x[k] h[n-k] is not zero */
       if(k>3&&s>-0.5) fade(a,g*cl(k-3),()=>{
         a.rect(-0.45,0,s+0.45,1.18,{fill:'rgba(74,122,70,.26)'});
-        a.note(-5.8,1.45,'\\text{shaded: }x[k]\\,h[n-k]\\neq0',{anchor:'start',color:C.out,fs:15,tex:true}); });
+        a.note(-8.8,1.45,'\\text{shaded: }x[k]\\,h[n-k]\\neq0',{anchor:'start',color:C.out,fs:15,tex:true}); });
       fade(a,g*cl(k-1),()=>{
-        const hp=[]; for(let j=0;j<=14;j++){ const p=j*(1-2*f)+s; if(p>=-6.01&&p<=8.01) hp.push([p,1]); }
+        const hp=[]; for(let j=0;j<=17;j++){ const p=j*(1-2*f)+s; if(p>=-9.01&&p<=8.01) hp.push([p,1]); }
         a.stem(hp,{color:C.h,r:6.5,width:1.4}); });
       const on=cl(k-3);
       fade(a,g,()=>{
-        a.stem(disc(m=>on>0.5&&m>=0&&m<=sn?0:xk(m),-6,8),{color:C.in});
-        if(on>0.5) a.stem(disc(m=>m>=0&&m<=sn?xk(m):0,-6,8),{color:C.out,r:3.4}); });
-      if(k>3) fade(a,g*on,()=>{ a.vline(s,{color:C.coral,dash:'4 4'});
+        a.stem(disc(m=>on>0.5&&m>=0&&m<=sn?0:xk(m),-9,8),{color:C.in});
+        if(on>0.5) a.stem(disc(m=>m>=0&&m<=sn?xk(m):0,-9,8),{color:C.out,r:3.4}); });
+      if(k>3) fade(a,g*on,()=>{ a.poly([[s,-0.2],[s,1.3]],{color:C.coral,dash:'4 4',width:1});
         a.note(s+0.15,1.12,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true}); });
       fade(a,cl(k-10),()=>{ a.hline(2,{color:C.coral,dash:'3 5'});
-        a.stem(disc(n=>n>=0?2-Math.pow(0.5,n):0,-6,8),{color:C.out,r:3});
-        a.note(-5.8,2.2,'y[n]\\to 2',{anchor:'start',color:C.coral,fs:16,tex:true}); });
+        a.stem(disc(n=>n>=0?2-Math.pow(0.5,n):0,-9,8),{color:C.out,r:3});
+        a.note(-8.8,2.2,'y[n]\\to 2',{anchor:'start',color:C.coral,fs:16,tex:true}); });
       const names=['x[n]','x[k]','u[k]','u[-k]','u[-2-k]','u[-k]','u[1-k]','u[2-k]','u[3-k]','u[4-k]','u[5-k]',''];
       /* each shift writes y[n] from the sum: the overlap sets the limits, then
          the terms are added */
@@ -560,8 +560,8 @@ REAL_IMPULSE,
       const ys=[[],[],[],[],['y[-2]=\\sum_k x[k]\\,u[-2-k]','=0\\quad(\\text{no overlap})'],Y(0,'=1'),Y(1,'=1+\\tfrac12=1.5'),Y(2,'=1.5+\\tfrac14=1.75'),
         Y(3,'=1.75+\\tfrac18=1.875'),Y(4,'=1.875+\\tfrac1{16}=1.9375'),Y(5,'=1.9375+\\tfrac1{32}=1.96875'),[]];
       const lab=(q,al)=>fade(a,al,()=>{
-        if(names[q]) a.note(-5.8,2.6,names[q],{anchor:'start',color:q<2?C.in:C.h,fs:16,tex:true});
-        ys[q].forEach((t,r)=>a.note(-5.8+(r?0.6:0),2.34-0.26*r,t,{anchor:'start',color:C.out,fs:16,tex:true})); });
+        if(names[q]) a.note(-8.8,2.6,names[q],{anchor:'start',color:q<2?C.in:C.h,fs:16,tex:true});
+        ys[q].forEach((t,r)=>a.note(-8.8+(r?0.6:0),2.34-0.26*r,t,{anchor:'start',color:C.out,fs:16,tex:true})); });
       lab(i,1-fr); if(i<L) lab(i+1,fr);
       return a.svg(); },
       caption:'Rename, flip, then slide the step. $u[n-k]$ is 1 for $k\\le n$. The green samples of $x[k]$ lie under it, and their sum is $y[n]$. The last frame shows $y[n]$ alone.'},
