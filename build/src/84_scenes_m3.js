@@ -812,13 +812,21 @@ REAL_CONVSUM,
     {t:'fig', frame:true, grow:true,
       frames:{labels:['$0<t<1$','$1<t<2$','$2<t<3$']},
       svg:v=>{
-      const t=0.6+0.95*(v?v.frame:0), lo=Math.max(0,t-1), hi=Math.min(2,t);
-      const a=P.Axes({w:560,h:380,xr:[-1.5,4],yr:[-0.15,2.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:7,ytarget:3});
+      const k=v?v.frame:0, t=0.6+0.95*k, lo=Math.max(0,t-1), hi=Math.min(2,t);
+      const a=P.Axes({w:560,h:470,xr:[-1.5,4],yr:[-0.75,2.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:96,b:34},xtarget:7,ytarget:3,yticksOverride:[1,2]});
       if(hi>lo) a.area(z=>z,lo,hi,{color:'rgba(74,122,70,.22)'});
       a.curve(z=>(z>0&&z<2)?z:0,{color:C.h,n:1200});
       a.curve(z=>(z>t-1&&z<t)?1:0,{color:C.in,n:1200});
+      /* The two moving edges of the window are marked under the axis, and the
+         case condition above the plot compares them with the ramp's edges 0 and 2. */
+      [[t-1,'t-1'],[t,'t']].forEach(([z,s])=>{
+        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
+        a.note(z,-0.62,s,{anchor:'middle',color:C.in,fs:15,tex:true}); });
+      const conds=['t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3'];
+      const i=Math.min(2,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));
+      cond(conds[i],1-fr); if(i<2) cond(conds[i+1],fr);
       return a.svg(); },
-      caption:'Step through the three overlapping cases. The shaded region is the interval of integration.'},
+      caption:'Step through the three overlapping cases. Compare the window edges $t-1$ and $t$ with the ramp edges $0$ and $2$. The shaded region is the interval of integration.'},
     {t:'legend', items:[['h','$h(\\tau)$'],['in','$x(t-\\tau)$']]}
   ], right:[
     {t:'note', kind:'def', head:'No overlap', html:'For $t<0$ and for $t>3$ the window misses the ramp, so $y(t)=0$.'},
