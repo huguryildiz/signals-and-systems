@@ -572,11 +572,11 @@ REAL_IMPULSE,
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>$u[k]$ keeps only $k\\ge0$.</li><li>$u[n-k]$ keeps only $k\\le n$.</li><li>Split by the sign of $n$.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'y[n]=\\sum_{k}\\underbrace{\\left(\\tfrac12\\right)^{k}u[k]}_{x[k]}\\;\\underbrace{u[n-k]}_{h[n-k]}=0', label:'Case I · $n<0$',
+      {t:'eq', tex:'x[k]\\,h[n-k]=0\\ \\text{ for every }k\\quad\\Rightarrow\\quad y[n]=0', label:'Case I · $n<0$',
         note:'No $k$ satisfies both $k\\ge0$ and $k\\le n<0$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', tex:'y[n]=\\sum_{k=0}^{n}\\left(\\tfrac12\\right)^{k}', label:'Case II · $n\\ge0$',
-        note:'Both steps equal 1 on $0\\le k\\le n$.'}]}
+      {t:'eq', tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}x[k]\\,h[n-k]=\\sum_{k=0}^{n}\\left(\\tfrac12\\right)^{k}', label:'Case II · $n\\ge0$',
+        note:'$x[k]\\,h[n-k]=\\left(\\tfrac12\\right)^{k}$ on $0\\le k\\le n$, where both steps equal 1, and $0$ elsewhere.'}]}
   ]}
 ]},
 
