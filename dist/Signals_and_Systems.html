@@ -21455,33 +21455,38 @@ REAL_IMPULSE,
   {t:'title', text:'Two Infinite Sequences'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$u[n]$','rename: $u[k]$','flip: $u[-k]$','shift: $u[-2-k]$','shift: $u[-k]$','shift: $u[1-k]$','shift: $u[2-k]$','shift: $u[3-k]$']},
+      frames:{labels:['$x[n]$','rename: $x[k]$','$u[k]$','flip: $u[-k]$','shift: $u[-2-k]$','shift: $u[-k]$','shift: $u[1-k]$','shift: $u[2-k]$','shift: $u[3-k]$','shift: $u[4-k]$','shift: $u[5-k]$','$y[n]$']},
       svg:v=>{
-      /* Frame 0 is h[n] = u[n]. Frame 1 renames n as k. Frame 2 mirrors it
-         about k = 0. From frame 3 x[k] joins and the flipped step sits at
-         n = -2, 0, 1, 2, 3; the samples of x[k] under the step are summed. */
-      const k=v?v.frame:0, f=cl(k-1), S=[0,0,0,-2,0,1,2,3];
-      const i=Math.min(7,Math.floor(k)), fr=k-i, s=S[i]+(i<7?(S[i+1]-S[i])*fr:0), sn=S[Math.round(k)];
-      const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,1.5],xlabel:k<0.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
-      const hp=[]; for(let j=0;j<=14;j++){ const p=j*(1-2*f)+s; if(p>=-6.01&&p<=8.01) hp.push([p,1]); }
-      a.stem(hp,{color:C.h,r:2.6,width:1.4});
-      const xk=m=>m>=0?Math.pow(0.5,m):0;
-      if(k>2){
-        fade(a,cl(k-2),()=>{
-          a.stem(disc(m=>(m<0||m>sn)?xk(m):0,-6,8),{color:C.in});
-          a.stem(disc(m=>(m>=0&&m<=sn)?xk(m):0,-6,8),{color:C.out,r:3.4});
-          a.vline(s,{color:C.coral,dash:'4 4'});
-          a.note(s+0.15,1.12,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true}); });
-      }
-      const names=['u[n]','u[k]','u[-k]','u[-2-k]','u[-k]','u[1-k]','u[2-k]','u[3-k]'];
-      const ys=[[],[],[],['y[-2]=0'],['y[0]=1'],['y[1]=1+\\tfrac12','=1.5'],['y[2]=1+\\tfrac12+\\tfrac14','=1.75'],['y[3]=1+\\tfrac12+\\tfrac14+\\tfrac18','=1.875']];
+      /* Frame 0 is x[n]; frame 1 renames n as k. Frame 2 adds h[k] = u[k] and
+         frame 3 mirrors it about k = 0. From frame 4 the flipped step sits at
+         n = -2, 0, 1, ..., 5; the samples of x[k] under it turn green and are
+         summed. The last frame keeps only y[n], which rises toward 2. */
+      const k=v?v.frame:0, f=cl(k-2), S=[0,0,0,0,-2,0,1,2,3,4,5,5], L=11;
+      const i=Math.min(L,Math.floor(k)), fr=k-i, s=S[i]+(i<L?(S[i+1]-S[i])*fr:0), sn=S[Math.round(k)];
+      const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,2.8],xlabel:k<0.5||k>10.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
+      const xk=m=>m>=0?Math.pow(0.5,m):0, g=1-cl(k-10);
+      fade(a,g*cl(k-1),()=>{
+        const hp=[]; for(let j=0;j<=14;j++){ const p=j*(1-2*f)+s; if(p>=-6.01&&p<=8.01) hp.push([p,1]); }
+        a.stem(hp,{color:C.h,r:2.6,width:1.4}); });
+      const on=cl(k-3);
+      fade(a,g,()=>{
+        a.stem(disc(m=>on>0.5&&m>=0&&m<=sn?0:xk(m),-6,8),{color:C.in});
+        if(on>0.5) a.stem(disc(m=>m>=0&&m<=sn?xk(m):0,-6,8),{color:C.out,r:3.4}); });
+      if(k>3) fade(a,g*on,()=>{ a.vline(s,{color:C.coral,dash:'4 4'});
+        a.note(s+0.15,1.12,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true}); });
+      fade(a,cl(k-10),()=>{ a.hline(2,{color:C.coral,dash:'3 5'});
+        a.stem(disc(n=>n>=0?2-Math.pow(0.5,n):0,-6,8),{color:C.out,r:3});
+        a.note(-5.8,2.2,'y[n]\\to 2',{anchor:'start',color:C.coral,fs:16,tex:true}); });
+      const names=['x[n]','x[k]','u[k]','u[-k]','u[-2-k]','u[-k]','u[1-k]','u[2-k]','u[3-k]','u[4-k]','u[5-k]',''];
+      const ys=[[],[],[],[],['y[-2]=0'],['y[0]=1'],['y[1]=1+\\tfrac12','=1.5'],['y[2]=1.5+\\tfrac14','=1.75'],['y[3]=1.75+\\tfrac18','=1.875'],
+        ['y[4]=1.875+\\tfrac1{16}','=1.9375'],['y[5]=1.9375+\\tfrac1{32}','=1.96875'],[]];
       const lab=(q,al)=>fade(a,al,()=>{
-        a.note(-5.8,1.42,names[q],{anchor:'start',color:C.h,fs:16,tex:true});
-        ys[q].forEach((t,r)=>a.note(-5.8+(r?0.6:0),1.29-0.13*r,t,{anchor:'start',color:C.out,fs:16,tex:true})); });
-      lab(i,1-fr); if(i<7) lab(i+1,fr);
+        if(names[q]) a.note(-5.8,2.6,names[q],{anchor:'start',color:q<2?C.in:C.h,fs:16,tex:true});
+        ys[q].forEach((t,r)=>a.note(-5.8+(r?0.6:0),2.36-0.22*r,t,{anchor:'start',color:C.out,fs:16,tex:true})); });
+      lab(i,1-fr); if(i<L) lab(i+1,fr);
       return a.svg(); },
-      caption:'Rename, flip, then slide the step. $u[n-k]$ is 1 for $k\\le n$. The green samples of $x[k]$ lie under it, and their sum is $y[n]$.'},
-    {t:'legend', items:[['in','$x[k]$'],['h','$h[n-k]=u[n-k]$']]}
+      caption:'Rename, flip, then slide the step. $u[n-k]$ is 1 for $k\\le n$. The green samples of $x[k]$ lie under it, and their sum is $y[n]$. The last frame shows $y[n]$ alone.'},
+    {t:'legend', items:[['in','$x[k]$'],['h','$h[n-k]=u[n-k]$'],['out','$y[n]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=\\left(\\tfrac12\\right)^{n}u[n]$ and $h[n]=u[n]$.<div class="nsep"></div>As $n\\to\\infty$, what does $y[n]$ approach?',
       ask:{key:'m3-ex-dt2', choices:['$1$','$2$','$\\infty$'], answer:1}},
