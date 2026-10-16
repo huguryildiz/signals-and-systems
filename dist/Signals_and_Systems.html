@@ -21328,36 +21328,32 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 3 · The convolution sum', src:'p. 15'},
   {t:'title', text:'Either Signal Can Be Flipped'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      /* x = {1,2,1,2} and h = {1,0.6,0.3} at n = 3. The left table flips h,
-         the right table flips x. Each row is one nonzero product; rows of the
-         same tint hold the same pair, so the products agree in reverse order. */
-      const W=560,H=340,TW=264,GAP=32,cw=[38,62,94,70],rh=58,y0=96;
-      const tint=['rgba(42,111,151,.10)','rgba(200,140,40,.13)','rgba(74,122,70,.12)'];
-      const tables=[
-        {title:'\\text{flip }h', head:['k','x[k]','h[3-k]','\\text{term}'],
-         rows:[['1','2','0.3','0.6'],['2','1','0.6','0.6'],['3','2','1','2']], tint:[0,1,2]},
-        {title:'\\text{flip }x', head:['m','h[m]','x[3-m]','\\text{term}'],
-         rows:[['0','1','2','2'],['1','0.6','1','0.6'],['2','0.3','2','0.6']], tint:[2,1,0]}];
-      const ink=[C.ink,C.in,C.h,C.out], g=[];
-      tables.forEach((t,ti)=>{
-        const ox=ti*(TW+GAP), mids=[]; let cx=ox;
-        cw.forEach(w=>{ mids.push(cx+w/2); cx+=w; });
-        g.push(P.texName(t.title,{xLeft:ox, baseline:26, size:15, color:C.slate, figW:W}));
-        const hc=ti?[C.ink,C.h,C.in,C.out]:ink;
-        t.head.forEach((h,i)=>g.push(P.texName(h,{xMid:mids[i], baseline:66, size:15, color:hc[i], figW:W})));
-        g.push(`<line x1="${ox}" y1="${y0-14}" x2="${ox+TW}" y2="${y0-14}" stroke="${C.ink}" stroke-width="1"/>`);
-        t.rows.forEach((r,j)=>{
-          const y=y0+rh*j;
-          g.push(`<rect x="${ox}" y="${y-8}" width="${TW}" height="${rh-8}" rx="4" fill="${tint[t.tint[j]]}"/>`);
-          r.forEach((v,i)=>g.push(P.texName(v,{xMid:mids[i], baseline:y+28, size:16, color:hc[i], figW:W})));
-        });
-        const ys=y0+rh*3;
-        g.push(`<line x1="${ox}" y1="${ys}" x2="${ox+TW}" y2="${ys}" stroke="${C.ink}" stroke-width="1"/>`);
-        g.push(P.texName('\\text{sum}=3.2',{xRight:ox+TW-4, baseline:ys+40, size:17, color:C.out, figW:W}));
-      });
-      return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
-    }, caption:'Each row is one term of the sum at $n=3$. Rows of the same tint hold the same pair, so both sums are $y[3]=3.2$.'}
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$x[n]$','$h[n]$','flip $x$: $x[3-m]$','flip $h$: $h[3-k]$']},
+      svg:v=>{
+      /* x = {1,2,1,2} on the upper axes, h = {1,0.6,0.3} on the lower ones.
+         Frame 1 adds h. Frame 2 mirrors x about 1.5, which is x[3-m]. Frame 3
+         puts x back and mirrors h instead, which is h[3-k]. Either way the
+         products at n = 3 are 2, 0.6 and 0.6. */
+      const xs=[1,2,1,2], hs=[1,0.6,0.3], k=v?v.frame:0, i=Math.round(k);
+      const fx=k<=2?cl(k-1):1-cl(k-2), fh=cl(k-2), idx=['n','n','m','k'][i];
+      const H=P.hOverride||380, h=H/2; P.hOverride=null;
+      const ax=(yr,name)=>P.Axes({w:560,h,xr:[-1.5,5.5],yr,xlabel:idx,ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:14,b:30},xstep:1,ytarget:3});
+      const tag=(a,y,names,col)=>{ const j=Math.min(3,Math.floor(k)), fr=k-j;
+        fade(a,1-fr,()=>a.note(5.4,y,names[j],{anchor:'end',color:col,fs:16,tex:true}));
+        if(j<3) fade(a,fr,()=>a.note(5.4,y,names[j+1],{anchor:'end',color:col,fs:16,tex:true})); };
+      const top=ax([-0.3,2.7]);
+      xs.forEach((val,j)=>top.stem([[j*(1-2*fx)+3*fx,val]],{color:C.in}));
+      tag(top,2.45,['x[n]','x[n]','x[3-m]','x[k]'],C.in);
+      const bot=ax([-0.2,1.6]);
+      fade(bot,cl(k),()=>{ hs.forEach((val,j)=>bot.stem([[j*(1-2*fh)+3*fh,val]],{color:C.h}));
+        tag(bot,1.42,['h[n]','h[n]','h[m]','h[3-k]'],C.h); });
+      fade(bot,Math.min(cl(k-1),cl(2.6-k)*1.67),()=>bot.note(5.4,1.12,'2+0.6+0.6=3.2',{anchor:'end',color:C.out,fs:15,tex:true}));
+      fade(bot,cl(k-2.4)*1.67,()=>bot.note(5.4,1.12,'0.6+0.6+2=3.2',{anchor:'end',color:C.out,fs:15,tex:true}));
+      return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
+        + top.svg().replace('<svg ',`<svg x="0" y="0" width="560" height="${h}" `)
+        + bot.svg().replace('<svg ',`<svg x="0" y="${h}" width="560" height="${h}" `) + '</svg>'; },
+      caption:'Step through the frames. Flip $x$ or flip $h$: the samples that meet give the same products, so both sums are $y[3]=3.2$.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\sum_{k}x[k]\\,h[n-k]&=\\sum_{m}x[n-m]\\,h[n-(n-m)]\\\\&=\\sum_{m}h[m]\\,x[n-m]=h[n]*x[n]\\end{aligned}', label:'Change the index',
       note:'Put $m=n-k$. As $k$ runs over all integers, so does $m$.'},
@@ -21415,22 +21411,31 @@ REAL_IMPULSE,
   {t:'title', text:'Convolution as a Sum of Copies'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x[n]$','$x[0]\\,h[n]$','$+\\,2h[n-1]$','$+\\,h[n-2]$','$+\\,2h[n-3]$']},
+      frames:{labels:['$x[n]$','$x[0]\\,h[n]$','$+\\,2h[n-1]$','$\\text{sum of }2$','$+\\,h[n-2]$','$\\text{sum of }3$','$+\\,2h[n-3]$','$y[n]$']},
       svg:v=>{
-      /* Frame 0 is the input. From frame 1 the output is built one copy at a
-         time: copy m rises while the frame runs from m to m+1. The part just
-         added is violet and the sum so far is green. */
-      const xs=[1,2,1,2], h=n=>(n===0||n===1)?1:0, k=v?v.frame:0;
+      /* Frame 0 is the input, frame 1 the first copy. Each later copy takes two
+         frames: it rises alone in violet over the faded sum so far, then the
+         next frame adds it in and the green sum returns to full strength. */
+      const xs=[1,2,1,2], h=n=>(n===0||n===1)?1:0, k=v?v.frame:0, LO=0.25;
       const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-0.3,3.9],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
+      const nz=f=>disc(f,-1,6).filter(p=>p[1]>1e-9);
+      const copy=(j,s)=>nz(n=>s*xs[j]*h(n-j));
+      const sum=(m,t)=>nz(n=>{ let s=0; for(let j=0;j<m;j++) s+=xs[j]*h(n-j); return s+t*xs[m]*h(n-m); });
       fade(a,1-cl(k),()=>a.stem(disc(n=>(n>=0&&n<=3)?xs[n]:0,-1,6),{color:C.in}));
-      if(k>0){
-        const g=j=>j===0?cl(k):cl(k-j), cur=k>=4-1e-9?-1:k<=1?0:Math.ceil(k-1e-9)-1;
-        const upto=(n,last)=>{ let s=0; for(let j=0;j<=last;j++) s+=g(j)*xs[j]*h(n-j); return s; };
-        if(cur>=0) a.stem(disc(n=>upto(n,cur),-1,6).filter(p=>p[1]>1e-9),{color:C.mid});
-        a.stem(disc(n=>upto(n,cur>=0?cur-1:3),-1,6).filter(p=>p[1]>1e-9),{color:C.out,r:cur>=0?0.01:undefined});
+      if(k>0&&k<=1) a.stem(copy(0,cl(k)),{color:C.mid});
+      else if(k>1){
+        const seg=Math.min(6,Math.ceil(k-1e-9)-1), j=Math.ceil(seg/2), t=cl(k-seg);
+        if(seg%2){
+          if(j===1){ fade(a,1-t,()=>a.stem(copy(0,1),{color:C.mid})); fade(a,LO*t,()=>a.stem(sum(1,0),{color:C.out})); }
+          else fade(a,1-(1-LO)*t,()=>a.stem(sum(j,0),{color:C.out}));
+          a.stem(copy(j,t),{color:C.mid});
+        } else {
+          fade(a,1-t,()=>a.stem(copy(j,1),{color:C.mid}));
+          fade(a,LO+(1-LO)*t,()=>a.stem(sum(j,t),{color:C.out}));
+        }
       }
       return a.svg(); },
-      caption:'Step through the frames. Each sample of $x$ adds one copy of $h$, delayed to that sample and scaled by its value.'},
+      caption:'Step through the frames. Each sample of $x$ adds one copy of $h$, delayed to that sample and scaled by its value; the next frame adds it to the sum.'},
     {t:'legend', items:[['in','$x[n]$'],['mid','$\\text{new copy}$'],['out','$\\text{sum so far}$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=\\{1,2,1,2\\}$ on $n=0,\\dots,3$ and $h[n]=\\{1,1\\}$ on $n=0,1$.<div class="nsep"></div>How many shifted copies of $h$ make up $y[n]$?',
