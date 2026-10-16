@@ -120,7 +120,7 @@ CONTENT.SECTIONS = {
     { n:'3.1', title:'Impulse response and the representation property', ids:[
         'm3-impulse','m3-representation','m3-real-impulse','m3-lab-m','m3-code-impulse'] },
     { n:'3.2', title:'The convolution sum',                              ids:[
-        'm3-convsum','m3-convsum-b','m3-steps','m3-ex-dt1','m3-ex-dt1-b','m3-ex-dt2','m3-ex-dt2-b',
+        'm3-convsum','m3-convsum-b','m3-steps','m3-ex-dt1','m3-ex-dt2','m3-ex-dt2-b',
         'm3-real-convsum','m3-lab-e','m3-code-convsum'] },
     { n:'3.3', title:'The convolution integral',                         ids:[
         'm3-convint','m3-convint-b','m3-ex-ct1','m3-ex-ct1-b','m3-ex-ct2','m3-ex-ct2-b','m3-ex-ct2-c',
@@ -322,7 +322,7 @@ CONTENT.BOOK = {
   'm3-impulse':'2.1.1', 'm3-representation':'2.1.1', 'm3-real-impulse':'2.1.1',
   'm3-lab-m':'2.1.1', 'm3-code-impulse':'2.1.1',
   'm3-convsum':'2.1.2', 'm3-convsum-b':'2.1.2', 'm3-steps':'2.1.2', 'm3-ex-dt1':'2.1.2',
-  'm3-ex-dt1-b':'2.1.2', 'm3-ex-dt2':'2.1.2', 'm3-ex-dt2-b':'2.1.2', 'm3-real-convsum':'2.1.2',
+  'm3-ex-dt2':'2.1.2', 'm3-ex-dt2-b':'2.1.2', 'm3-real-convsum':'2.1.2',
   'm3-lab-e':'2.1.2', 'm3-code-convsum':'2.1.2',
   'm3-convint':'2.2.2', 'm3-convint-b':'2.2.2', 'm3-ex-ct1':'2.2.2', 'm3-ex-ct1-b':'2.2.2',
   'm3-ex-ct2':'2.2.2', 'm3-ex-ct2-b':'2.2.2', 'm3-ex-ct2-c':'2.2.2', 'm3-real-convint':'2.2.2',
