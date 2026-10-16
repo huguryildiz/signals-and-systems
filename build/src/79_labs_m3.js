@@ -160,9 +160,13 @@ Object.assign(LABS, (function(){
       if(dt){
         const terms=[]; for(let k=c.kr[0]-6;k<=c.kr[1]+6;k++){ const xk=c.x(k), hk=c.h(n-k);
           if(xk && hk) terms.push({k,xk,hk}); }
-        const rhs = terms.map(t=>`x[${t.k}]h[${n}${t.k===0?'':(t.k>0?'-'+t.k:'+'+(-t.k))}]`).join('+');
-        const val = terms.map(t=>`${N3(t.xk,3)}\\cdot${N3(t.hk,3)}`).join('+');
-        root.querySelector('.stepeq').innerHTML = terms.length ? T(`y[${n}]=${rhs}=${val}=${N3(yv,4)}`,true)
+        /* more than four terms: the first two and the last, joined by \cdots;
+           the symbols and the numbers go on separate lines so the box is not overrun */
+        const elide=a=>a.length>4?[a[0],a[1],'\\cdots',a[a.length-1]]:a;
+        const rhs = elide(terms.map(t=>`x[${t.k}]h[${n}${t.k===0?'':(t.k>0?'-'+t.k:'+'+(-t.k))}]`)).join('+');
+        const val = elide(terms.map(t=>`${N3(t.xk,3)}\\cdot${N3(t.hk,3)}`)).join('+');
+        root.querySelector('.stepeq').innerHTML = terms.length
+          ? T(`\\begin{aligned}y[${n}]&=${rhs}\\\\&=${val}=${N3(yv,4)}\\end{aligned}`,true)
           : T(`y[${n}]=0`,true);
       } else {
         root.querySelector('.stepeq').innerHTML = T(`y(${N3(n,2)})=\\int x(\\tau)h(${N3(n,2)}-\\tau)\\,\\mathrm{d}\\tau=${N3(yv,4)}`,true);
