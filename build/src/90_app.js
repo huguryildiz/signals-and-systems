@@ -592,7 +592,10 @@ def _ss_figs():
     const holder = document.createElement('div');
     holder.innerHTML = markup || '';
     const next = holder.querySelector('svg');
-    if(next) old.replaceWith(next);
+    if(next){
+      old.replaceWith(next);
+      if(S.layout==='phone') phoneFigures([next]);
+    }
   }
 
   function blocks(list){
