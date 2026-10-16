@@ -21476,6 +21476,9 @@ REAL_IMPULSE,
       fade(a,g,()=>{
         a.stem(disc(m=>on>0.5&&m>=0&&m<=sn?0:xk(m),-6,8),{color:C.in});
         if(on>0.5) a.stem(disc(m=>m>=0&&m<=sn?xk(m):0,-6,8),{color:C.out,r:3.4}); });
+      /* x[0] = 1 hides the step's sample at k = 0; ring it so u[0] = 1 shows */
+      fade(a,g*cl(k-1),()=>{ for(let j=0;j<=14;j++) if(Math.abs(j*(1-2*f)+s)<0.02){
+        a.point(0,1,{color:'none',ring:C.h,ringw:2,r:6.5}); break; } });
       if(k>3) fade(a,g*on,()=>{ a.vline(s,{color:C.coral,dash:'4 4'});
         a.note(s+0.15,1.12,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true}); });
       fade(a,cl(k-10),()=>{ a.hline(2,{color:C.coral,dash:'3 5'});
