@@ -520,35 +520,6 @@ REAL_IMPULSE,
   ]}
 ]},
 
-{ id:'m3-ex-dt1-b', module:'M3', nav:'Worked example · adding the copies', title:'Adding the Four Copies', src:'pp. 15–16',
-  objective:'Add the shifted impulse responses and check the result two ways.',
-  keywords:'convolution superposition sum support length moving sum check', slide:true, steps:3, blocks:[
-  {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 15–16'},
-  {t:'title', text:'Adding the Four Copies'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y[n]$ on the axes, then check it.'}, svg:()=>{
-      const a=P.Axes({w:560,h:380,xr:[-1,6],yr:[-0.3,3.9],xlabel:'n',ylabel:'y[n]',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
-      skArea(a);
-      fade(a,0.35,()=>a.stem(disc(n=>(n>=0&&n<=3)?[1,2,1,2][n]:0,-1,6),{color:C.ink}));
-      a.note(3.2,2.25,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
-      a.raw('<g class="sk-key">');
-      a.stem(disc(n=>(n>=0&&n<=4)?[1,3,3,3,2][n]:0,-1,6),{color:C.out});
-      a.note(5.7,3.55,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true});
-      a.raw('</g>');
-      return a.svg(); },
-      caption:'The faint stems are $x[n]$. Add the four copies at each $n$, sketch $y[n]$, then show the answer.'}
-  ], right:[
-    {t:'eq', tex:'\\begin{aligned}y[0]&=x[0]h[0]=1\\\\y[1]&=x[0]h[1]+x[1]h[0]=1+2=3\\\\y[2]&=x[1]h[1]+x[2]h[0]=2+1=3\\\\y[3]&=x[2]h[1]+x[3]h[0]=1+2=3\\\\y[4]&=x[3]h[1]=2\\end{aligned}', label:'Evaluate at each n',
-      note:'$h[n-k]$ is non-zero only for $n-k=0$ or $1$.'},
-    {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'Solution', html:'$y[n]=\\{1,3,3,3,2\\}$ on $n=0,\\dots,4$, and $0$ elsewhere.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Check', html:'The support has $4+2-1=5$ samples. The sums agree: $1+3+3+3+2=12=6\\times2$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'A two-point moving sum', html:'With $h=\\{1,1\\}$ each output adds two neighbouring inputs: $1$, $1+2$, $2+1$, $1+2$, $2$.'}]}
-  ]}
-]},
-
 { id:'m3-ex-dt2', module:'M3', nav:'Worked example · geometric', title:'Two Infinite Sequences', src:'pp. 16–17',
   objective:'Set up the geometric example and split it into two cases by the overlap.',
   keywords:'geometric series convolution u[n] (1/2)^n case split overlap support', slide:true, steps:3, blocks:[
