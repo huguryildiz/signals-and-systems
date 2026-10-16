@@ -21189,9 +21189,9 @@ const SC = [
          height a grown figure is handed sets the output plot; the input plot
          and the box keep their size. */
       const H=Math.max(P.hOverride||400,360); P.hOverride=null;
-      const W=560, HO=H-170, BX=316, BY=40, BW=132, BH=72, BC=BX+BW/2, WY=BY+BH/2;
+      const W=560, HO=H-170, BX=324, BY=48, BW=132, BH=72, BC=BX+BW/2, WY=BY+BH/2;
       const at=(x,y,w,h,svg)=>svg.replace('<svg ',`<svg x="${x}" y="${y}" width="${w}" height="${h}" overflow="visible" `);
-      const ai=P.Axes({w:240,h:150,xr:[-2,2],yr:[-0.3,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:44,r:20,t:20,b:34},xtarget:5,ytarget:2});
+      const ai=P.Axes({w:236,h:180,xr:[-2,2],yr:[-0.3,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:44,r:22,t:22,b:34},xtarget:5,ytarget:2});
       ai.stem(disc(()=>0,-2,-1).concat(disc(()=>0,1,2)),{color:C.in});
       ai.raw(`<g class="ir-in" style="transform-origin:${ai.sx(0).toFixed(1)}px ${ai.sy(0).toFixed(1)}px">`);
       ai.stem([[0,1]],{color:C.in}); ai.raw('</g>');
@@ -21201,17 +21201,17 @@ const SC = [
         ao.raw(`<g class="ir-out" style="--i:${i};transform-origin:${ao.sx(n).toFixed(1)}px ${ao.sy(0).toFixed(1)}px">`);
         ao.stem([[n,v]],{color:C.h}); ao.raw('</g>'); });
       const bl=P.blocks({w:W,h:H,items:[
-        {t:'arrow',x1:232,y1:WY,x2:BX,y2:WY,label:'\\delta[n]',tex:true,color:C.in},
+        {t:'arrow',x1:250,y1:WY,x2:BX,y2:WY,label:'\\delta[n]',tex:true,color:C.in},
         {t:'box',x:BX,y:BY,w:BW,h:BH,label:'LTI system'}]});
       const oy=BY+BH, oe=H-HO+14;
       return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif"
         style="--ir-ink:${C.ink};--ir-h:${C.h}">
-        ${at(0,0,240,150,ai.svg())}${at(0,H-HO,W,HO,ao.svg())}${bl}
+        ${at(0,0,236,180,ai.svg())}${at(0,H-HO,W,HO,ao.svg())}${bl}
         <rect class="ir-box" x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="2" fill="none" stroke="${C.ink}" stroke-width="1.6"/>
         <line x1="${BC}" y1="${oy}" x2="${BC}" y2="${oe-8}" stroke="${C.h}" stroke-width="1.5"/>
         <path d="M${BC},${oe} l-4.5,-9 h9 Z" fill="${C.h}"/>
         ${P.texName('y[n]=h[n]',{xLeft:BC+12, baseline:oy+(oe-oy)/2+6, size:15, color:C.h, figW:W})}
-        <circle class="ir-pulse-in" cx="232" cy="${WY}" r="6" fill="${C.in}" style="--dx:${BX-232}px"/>
+        <circle class="ir-pulse-in" cx="250" cy="${WY}" r="6" fill="${C.in}" style="--dx:${BX-250}px"/>
         <circle class="ir-pulse-out" cx="${BC}" cy="${oy}" r="6" fill="${C.h}" style="--dy:${oe-oy}px"/>
       </svg>`; },
       caption:'The unit sample $\\delta[n]$ enters the system at $n=0$. The output answers one step later, and its answer dies away.'},
