@@ -537,6 +537,10 @@ REAL_IMPULSE,
       const i=Math.min(L,Math.floor(k)), fr=k-i, s=S[i]+(i<L?(S[i+1]-S[i])*fr:0), sn=S[Math.round(k)];
       const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,2.8],xlabel:k<0.5||k>10.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
       const xk=m=>m>=0?Math.pow(0.5,m):0, g=1-cl(k-10);
+      /* the overlap 0 <= k <= n, where x[k] h[n-k] is not zero */
+      if(k>3&&s>-0.5) fade(a,g*cl(k-3),()=>{
+        a.rect(-0.45,0,s+0.45,1.18,{fill:'rgba(74,122,70,.26)'});
+        a.note(-5.8,1.45,'\\text{shaded: }x[k]\\,h[n-k]\\neq0',{anchor:'start',color:C.out,fs:15,tex:true}); });
       fade(a,g*cl(k-1),()=>{
         const hp=[]; for(let j=0;j<=14;j++){ const p=j*(1-2*f)+s; if(p>=-6.01&&p<=8.01) hp.push([p,1]); }
         a.stem(hp,{color:C.h,r:2.6,width:1.4}); });
