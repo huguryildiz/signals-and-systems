@@ -704,14 +704,15 @@ REAL_CONVSUM,
   {t:'title', text:'Limits from the Overlap'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$h(\\tau)=u(\\tau-3)$','flip: $h(-\\tau)$','shift: $h(t-\\tau)$']},
+      frames:{labels:['$h(\\tau)=u(\\tau-3)$','shift: $h(t+\\tau)$','scale: $h(t-\\tau)$']},
       live:{controls:[{k:'t', label:'$t$', min:-2, max:6, step:0.25, v:1.5, frame:2, show:v=>'$'+num(v)+'$'}]},
       svg:v=>{
-      /* Frame 0 is h(tau)=u(tau-3), edge at tau=3. Frame 1 mirrors it about
-         tau=0: the edge moves to -3 and the step now points left. Frame 2
-         shifts it by t, so the edge sits at tau=t-3 and the slider moves it. */
-      const k=v&&v.frame!=null?v.frame:2, t=v?v.t:1.5, f=cl(k), g=1-2*f, sh=cl(k-1)*t;
-      const e=3*g+sh, hi=Math.min(0,e);
+      /* Frame 0 is h(tau)=u(tau-3), edge at tau=3. Frame 1 shifts it to
+         h(t+tau): the edge moves to tau=3-t. Frame 2 scales tau by -1, which
+         mirrors it about tau=0 into h(t-tau): the edge lands at tau=t-3, the
+         step now points left, and the slider moves it. */
+      const k=v&&v.frame!=null?v.frame:2, t=v?v.t:1.5, sh=cl(k)*t, g=1-2*cl(k-1);
+      const e=(3-sh)*g, hi=Math.min(0,e);
       const a=P.Axes({w:560,h:430,xr:[-5,7],yr:[-0.62,1.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:96,b:34},xtarget:7,yticksOverride:[1]});
       if(k>1) fade(a,cl(k-1),()=>a.area(z=>z<=hi?Math.exp(2*z):0,-5,hi,{color:'rgba(74,122,70,.22)'}));
       /* In the shift frame the range of integration is drawn under the axis,
@@ -730,11 +731,12 @@ REAL_CONVSUM,
       a.curve(z=>(g>=0 ? z>=e : z<=e)?1:0,{color:C.h,n:1200});
       /* the edge marker keeps its old height, clear of the formula and the range */
       a.raw(`<line x1="${a.sx(e).toFixed(2)}" y1="${a.sy(1.4).toFixed(2)}" x2="${a.sx(e).toFixed(2)}" y2="${a.sy(-0.1).toFixed(2)}" stroke="${C.coral}" stroke-width="1" stroke-dasharray="4 4" opacity=".8"/>`);
-      const names=['\\tau=3','\\tau=-3','\\tau=t-3'], i=Math.min(2,Math.floor(k)), fr=k-i;
-      const lab=(s,o)=>fade(a,o,()=>a.note(e>-3?e-0.15:e+0.15,1.25,s,{anchor:e>-3?'end':'start',color:C.coral,fs:15,tex:true}));
+      const names=['\\tau=3','\\tau=3-t','\\tau=t-3'], i=Math.min(2,Math.floor(k)), fr=k-i;
+      /* the label sits on the side of the edge away from the amplitude axis */
+      const rt=e>0||e<=-3, lab=(s,o)=>fade(a,o,()=>a.note(rt?e+0.15:e-0.15,1.25,s,{anchor:rt?'start':'end',color:C.coral,fs:15,tex:true}));
       lab(names[i],1-fr); if(i<2) lab(names[i+1],fr);
       return a.svg(); },
-      caption:'Step from $h(\\tau)$ to $h(t-\\tau)$, then drag $t$ and watch the edge $\\tau=t-3$. The shaded area is $y(t)$.'},
+      caption:'Shift $h(\\tau)$ to $h(t+\\tau)$, scale $\\tau$ by $-1$ to get $h(t-\\tau)$, then drag $t$ and watch the edge $\\tau=t-3$. The shaded area is $y(t)$.'},
     {t:'legend', items:[['in','$x(\\tau)$'],['h','$h(\\tau)$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{2t}u(-t)$ and $h(t)=u(t-3)$.<div class="nsep"></div>At which $t$ does the upper limit of the integral change?',
@@ -810,9 +812,9 @@ REAL_CONVSUM,
   {t:'title', text:'The Five Cases'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$0<t<1$','$1<t<2$','$2<t<3$']},
+      frames:{labels:['$t<0$','$0<t<1$','$1<t<2$','$2<t<3$','$t>3$']},
       svg:v=>{
-      const k=v?v.frame:0, t=0.6+0.95*k, lo=Math.max(0,t-1), hi=Math.min(2,t);
+      const k=v?v.frame:0, T=[-0.3,0.6,1.55,2.5,3.6], j=Math.min(3,Math.floor(k)), t=T[j]+(T[j+1]-T[j])*(k-j), lo=Math.max(0,t-1), hi=Math.min(2,t);
       const a=P.Axes({w:560,h:470,xr:[-1.5,4],yr:[-0.75,2.4],xlabel:'\\tau',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:96,b:34},xtarget:7,ytarget:3,yticksOverride:[1,2]});
       if(hi>lo) a.area(z=>z,lo,hi,{color:'rgba(74,122,70,.22)'});
       a.curve(z=>(z>0&&z<2)?z:0,{color:C.h,n:1200});
@@ -822,11 +824,11 @@ REAL_CONVSUM,
       [[t-1,'t-1'],[t,'t']].forEach(([z,s])=>{
         a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
         a.note(z,-0.62,s,{anchor:'middle',color:C.in,fs:15,tex:true}); });
-      const conds=['t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3'];
-      const i=Math.min(2,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));
-      cond(conds[i],1-fr); if(i<2) cond(conds[i+1],fr);
+      const conds=['t<0\\;\\Rightarrow\\;\\text{no overlap}','t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3','t-1>2\\;\\Rightarrow\\;t>3\\;\\;(\\text{no overlap})'];
+      const i=Math.min(4,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));
+      cond(conds[i],1-fr); if(i<4) cond(conds[i+1],fr);
       return a.svg(); },
-      caption:'Step through the three overlapping cases. Compare the window edges $t-1$ and $t$ with the ramp edges $0$ and $2$. The shaded region is the interval of integration.'},
+      caption:'Step through the five cases. Compare the window edges $t-1$ and $t$ with the ramp edges $0$ and $2$. The shaded region is the interval of integration.'},
     {t:'legend', items:[['h','$h(\\tau)$'],['in','$x(t-\\tau)$']]}
   ], right:[
     {t:'note', kind:'def', head:'No overlap', html:'For $t<0$ and for $t>3$ the window misses the ramp, so $y(t)=0$.'},
