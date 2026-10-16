@@ -21328,20 +21328,36 @@ REAL_IMPULSE,
   {t:'eyebrow', text:'Module 3 · The convolution sum', src:'p. 15'},
   {t:'title', text:'Either Signal Can Be Flipped'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x[k]$ and $h[3-k]$','$h[m]$ and $x[3-m]$']},
-      svg:v=>{
-      /* x = {1,2,1,2} and h = {1,0.6,0.3} at n = 3. Frame 0 flips h, frame 1
-         flips x; between them every sample moves to its mirror position about
-         1.5, so the pairs that multiply stay together. */
-      const xs=[1,2,1,2], hs=[1,0.6,0.3], f=cl(v?v.frame:0);
-      const a=P.Axes({w:560,h:380,xr:[-2,6],yr:[-0.3,2.9],xlabel:f<0.5?'k':'m',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
-      xs.forEach((val,j)=>a.stem([[j+(3-2*j)*f,val]],{color:C.in}));
-      hs.forEach((val,j)=>a.stem([[(3-j)+(2*j-3)*f,val]],{color:C.h}));
-      a.note(5.7,2.55,'y[3]=3.2',{anchor:'end',color:C.out,fs:16,tex:true});
-      return a.svg(); },
-      caption:'Frame 1 flips $h$ and frame 2 flips $x$. The same pairs meet, so both sums give 3.2 at $n=3$.'},
-    {t:'legend', items:[['in','$x$'],['h','$h$']], at:'tl'}
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      /* x = {1,2,1,2} and h = {1,0.6,0.3} at n = 3. The left table flips h,
+         the right table flips x. Each row is one nonzero product; rows of the
+         same tint hold the same pair, so the products agree in reverse order. */
+      const W=560,H=340,TW=264,GAP=32,cw=[38,62,94,70],rh=58,y0=96;
+      const tint=['rgba(42,111,151,.10)','rgba(200,140,40,.13)','rgba(74,122,70,.12)'];
+      const tables=[
+        {title:'\\text{flip }h', head:['k','x[k]','h[3-k]','\\text{term}'],
+         rows:[['1','2','0.3','0.6'],['2','1','0.6','0.6'],['3','2','1','2']], tint:[0,1,2]},
+        {title:'\\text{flip }x', head:['m','h[m]','x[3-m]','\\text{term}'],
+         rows:[['0','1','2','2'],['1','0.6','1','0.6'],['2','0.3','2','0.6']], tint:[2,1,0]}];
+      const ink=[C.ink,C.in,C.h,C.out], g=[];
+      tables.forEach((t,ti)=>{
+        const ox=ti*(TW+GAP), mids=[]; let cx=ox;
+        cw.forEach(w=>{ mids.push(cx+w/2); cx+=w; });
+        g.push(P.texName(t.title,{xLeft:ox, baseline:26, size:15, color:C.slate, figW:W}));
+        const hc=ti?[C.ink,C.h,C.in,C.out]:ink;
+        t.head.forEach((h,i)=>g.push(P.texName(h,{xMid:mids[i], baseline:66, size:15, color:hc[i], figW:W})));
+        g.push(`<line x1="${ox}" y1="${y0-14}" x2="${ox+TW}" y2="${y0-14}" stroke="${C.ink}" stroke-width="1"/>`);
+        t.rows.forEach((r,j)=>{
+          const y=y0+rh*j;
+          g.push(`<rect x="${ox}" y="${y-8}" width="${TW}" height="${rh-8}" rx="4" fill="${tint[t.tint[j]]}"/>`);
+          r.forEach((v,i)=>g.push(P.texName(v,{xMid:mids[i], baseline:y+28, size:16, color:hc[i], figW:W})));
+        });
+        const ys=y0+rh*3;
+        g.push(`<line x1="${ox}" y1="${ys}" x2="${ox+TW}" y2="${ys}" stroke="${C.ink}" stroke-width="1"/>`);
+        g.push(P.texName('\\text{sum}=3.2',{xRight:ox+TW-4, baseline:ys+40, size:17, color:C.out, figW:W}));
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter,-apple-system,sans-serif">${g.join('')}</svg>`;
+    }, caption:'Each row is one term of the sum at $n=3$. Rows of the same tint hold the same pair, so both sums are $y[3]=3.2$.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}\\sum_{k}x[k]\\,h[n-k]&=\\sum_{m}x[n-m]\\,h[n-(n-m)]\\\\&=\\sum_{m}h[m]\\,x[n-m]=h[n]*x[n]\\end{aligned}', label:'Change the index',
       note:'Put $m=n-k$. As $k$ runs over all integers, so does $m$.'},
