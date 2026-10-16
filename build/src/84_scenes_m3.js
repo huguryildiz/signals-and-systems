@@ -6,6 +6,7 @@ const P = PLOT, C = P.COL;
 const disc=(f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
 const convDT=(x,h,n,lo,hi)=>{let s=0;for(let k=lo;k<=hi;k++)s+=x(k)*h(n-k);return s;};
 const num=v=>String(Math.round(v*100)/100);
+const yCt2=t=> t<0?0 : t<1?0.5*t*t : t<2?t-0.5 : t<3?(-0.5*t*t+t+1.5) : 0;
 const cl=u=>Math.max(0,Math.min(1,u));
 /* a group drawn at an opacity: the faint given signal on a sketch slide, or a
    state fading in or out while a figure plays between frames */
@@ -847,19 +848,19 @@ REAL_CONVSUM,
   {t:'eyebrow', text:'Module 3 · Worked example', src:'pp. 19–20'},
   {t:'title', text:'Assembling the Five Cases'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      live:{controls:[{k:'t', label:'$t$', min:-0.5, max:3.5, step:0.05, v:2, show:v=>'$'+num(v)+'$'}]},
+      svg:v=>{
+      const t=v?v.t:2, y=yCt2(t);
       const a=P.Axes({w:560,h:380,xr:[-0.5,3.6],yr:[-0.15,2.3],xlabel:'t',ylabel:'y(t)',pad:{l:50,r:24,t:20,b:34},xtarget:9,ytarget:3});
-      skArea(a);
-      a.curve(t=>(t>0&&t<2)?t:0,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
-      a.note(0.9,1.3,'h(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
-      a.raw('<g class="sk-key">');
-      a.curve(t=> t<0?0 : t<1?0.5*t*t : t<2?t-0.5 : t<3?(-0.5*t*t+t+1.5) : 0,{color:C.out,n:1400});
-      [1,2,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5}));
-      a.point(2,1.5,{color:C.coral});
-      a.note(3.5,1.9,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
-      a.raw('</g>');
+      a.curve(yCt2,{color:C.out,n:1400});
+      /* The data cursor: guides from both axes to the point (t, y(t)); its value sits in the free top-right corner. */
+      const seg=(x1,y1,x2,y2)=>a.raw(`<line x1="${a.sx(x1).toFixed(2)}" y1="${a.sy(y1).toFixed(2)}" x2="${a.sx(x2).toFixed(2)}" y2="${a.sy(y2).toFixed(2)}" stroke="${C.coral}" stroke-width="1" stroke-dasharray="3 3"/>`);
+      seg(t,0,t,y); seg(0,y,t,y);
+      a.point(t,y,{color:C.coral});
+      a.note(3.5,2.1,'y('+num(t)+')='+num(y),{anchor:'end',color:C.coral,fs:16,tex:true});
       return a.svg(); },
-      caption:'The dashed trace is $h(t)$. Sketch $y(t)$ from the five cases, then show the answer.'}
+      caption:'Drag $t$. The cursor reads the value of $y(t)$ on each of the five pieces.'}
   ], right:[
     {t:'eq', tex:'y(t)=\\begin{cases}0,&t<0\\\\ \\tfrac12t^{2},&0<t<1\\\\ t-\\tfrac12,&1<t<2\\\\ -\\tfrac12t^{2}+t+\\tfrac32,&2<t<3\\\\ 0,&t>3\\end{cases}', label:'Solution'},
     {t:'reveal', at:1, items:[
