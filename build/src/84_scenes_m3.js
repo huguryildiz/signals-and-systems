@@ -255,14 +255,38 @@ const SC = [
   {t:'title', text:'Impulse Response'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      /* the input is drawn up to n = 0 and the response from n = 1, so the two
-         sets of stems never share a position */
-      const a=P.Axes({w:560,h:380,xr:[-2,9],yr:[-0.3,1.4],xlabel:'n',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
-      a.stem(disc(n=>n===0?1:0,-2,0),{color:C.in});
-      a.stem(disc(n=>Math.pow(0.8,n-1),1,9),{color:C.h});
-      return a.svg(); },
-      caption:'The input is one unit sample at $n=0$. This system answers one step later, and its answer dies away.'},
-    {t:'legend', items:[['in','$x[n]=\\delta[n]$'],['h','$y[n]=h[n]$']]}
+      /* δ[n] rises, a pulse carries it into the system box, the box lights,
+         and h[n] comes out under it one sample at a time. The cycle repeats;
+         with reduced motion and on paper the finished state is drawn. The
+         height a grown figure is handed sets the output plot; the input plot
+         and the box keep their size. */
+      const H=Math.max(P.hOverride||400,360); P.hOverride=null;
+      const W=560, HO=H-170, BX=316, BY=40, BW=132, BH=72, BC=BX+BW/2, WY=BY+BH/2;
+      const at=(x,y,w,h,svg)=>svg.replace('<svg ',`<svg x="${x}" y="${y}" width="${w}" height="${h}" overflow="visible" `);
+      const ai=P.Axes({w:240,h:150,xr:[-2,2],yr:[-0.3,1.4],xlabel:'n',ylabel:'x[n]',pad:{l:44,r:20,t:20,b:34},xtarget:5,ytarget:2});
+      ai.stem(disc(()=>0,-2,-1).concat(disc(()=>0,1,2)),{color:C.in});
+      ai.raw(`<g class="ir-in" style="transform-origin:${ai.sx(0).toFixed(1)}px ${ai.sy(0).toFixed(1)}px">`);
+      ai.stem([[0,1]],{color:C.in}); ai.raw('</g>');
+      const ao=P.Axes({w:W,h:HO,xr:[-2,9],yr:[-0.3,1.4],xlabel:'n',ylabel:'y[n]',pad:{l:50,r:24,t:26,b:34},xtarget:11,ytarget:3});
+      ao.stem(disc(()=>0,-2,0),{color:C.h});
+      disc(n=>Math.pow(0.8,n-1),1,9).forEach(([n,v],i)=>{
+        ao.raw(`<g class="ir-out" style="--i:${i};transform-origin:${ao.sx(n).toFixed(1)}px ${ao.sy(0).toFixed(1)}px">`);
+        ao.stem([[n,v]],{color:C.h}); ao.raw('</g>'); });
+      const bl=P.blocks({w:W,h:H,items:[
+        {t:'arrow',x1:232,y1:WY,x2:BX,y2:WY,label:'\\delta[n]',tex:true,color:C.in},
+        {t:'box',x:BX,y:BY,w:BW,h:BH,label:'LTI system'}]});
+      const oy=BY+BH, oe=H-HO+14;
+      return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif"
+        style="--ir-ink:${C.ink};--ir-h:${C.h}">
+        ${at(0,0,240,150,ai.svg())}${at(0,H-HO,W,HO,ao.svg())}${bl}
+        <rect class="ir-box" x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="2" fill="none" stroke="${C.ink}" stroke-width="1.6"/>
+        <line x1="${BC}" y1="${oy}" x2="${BC}" y2="${oe-8}" stroke="${C.h}" stroke-width="1.5"/>
+        <path d="M${BC},${oe} l-4.5,-9 h9 Z" fill="${C.h}"/>
+        ${P.texName('y[n]=h[n]',{xLeft:BC+12, baseline:oy+(oe-oy)/2+6, size:15, color:C.h, figW:W})}
+        <circle class="ir-pulse-in" cx="232" cy="${WY}" r="6" fill="${C.in}" style="--dx:${BX-232}px"/>
+        <circle class="ir-pulse-out" cx="${BC}" cy="${oy}" r="6" fill="${C.h}" style="--dy:${oe-oy}px"/>
+      </svg>`; },
+      caption:'The unit sample $\\delta[n]$ enters the system at $n=0$. The output answers one step later, and its answer dies away.'},
   ], right:[
     {t:'note', kind:'def', head:'Definition', html:'The impulse response $h[n]$ is the output when the input is the unit impulse $\\delta[n]$. In continuous time, $\\delta(t)$ gives $h(t)$.'},
     {t:'reveal', at:1, items:[
@@ -288,10 +312,10 @@ const SC = [
       /* Frame 0 is x[n]. Going to frame 1 lowers every sample but n = 0, which
          is x[0]δ[n]; from there the term m rises while the frame runs from m
          to m+1 and keeps the violet of the current term until the next one
-         starts. Frame 4 is x[n] again. */
+         starts. Frame 4 shows x[n] with the last term, x[3]δ[n-3], in violet. */
       const xs=[1,2,1,2];
       const a=P.Axes({w:560,h:380,xr:[-2,6],yr:[-0.3,2.9],xlabel:'n',ylabel:'x[n]',pad:{l:48,r:24,t:20,b:34},xtarget:9,ytarget:3});
-      const k=v?v.frame:0, done=k<=1e-9||k>=4-1e-9;
+      const k=v?v.frame:0, done=k<=1e-9;
       const cur=done?-1:k<=1?0:Math.ceil(k-1e-9)-1;
       a.stem(disc(()=>0,-2,6),{color:C.in});
       for(let m=0;m<=3;m++){
