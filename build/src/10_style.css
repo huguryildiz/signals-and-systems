@@ -1055,6 +1055,47 @@ body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,b
 }
 @keyframes mtf-tip{ 0%,50%{ transform:scale(1) } 56%{ transform:scale(1.6) } 66%,100%{ transform:scale(1) } }
 
+/* 3.1 impulse response: δ[n] goes into the system box and h[n] comes out.
+   One 8 s cycle: the input rises, a pulse runs along the input wire, the box
+   lights, a pulse runs down the output wire, the output stems rise in turn,
+   and everything clears before the next cycle. */
+.ir-in,.ir-out{ transform-box:view-box; }
+.ir-in { animation:ir-in 8s var(--ease) infinite both; }
+.ir-out{ animation:ir-out 8s var(--ease) calc(var(--i) * .12s) infinite both; }
+.ir-box{ animation:ir-box 8s var(--ease) infinite both; }
+.ir-pulse-in { opacity:0; animation:ir-pin  8s linear infinite both; }
+.ir-pulse-out{ opacity:0; animation:ir-pout 8s linear infinite both; }
+@keyframes ir-in{
+  0%      { transform:scaleY(0); opacity:0 }
+  7%,88%  { transform:scaleY(1); opacity:1 }
+  96%,100%{ transform:scaleY(1); opacity:0 }
+}
+@keyframes ir-pin{
+  0%,8%   { transform:translateX(0); opacity:0 }
+  10%     { transform:translateX(0); opacity:1 }
+  22%     { transform:translateX(var(--dx)); opacity:1 }
+  24%,100%{ transform:translateX(var(--dx)); opacity:0 }
+}
+@keyframes ir-box{
+  0%,22%  { stroke:var(--ir-ink); stroke-width:1.6 }
+  27%,32% { stroke:var(--ir-h);   stroke-width:2.8 }
+  42%,100%{ stroke:var(--ir-ink); stroke-width:1.6 }
+}
+@keyframes ir-pout{
+  0%,28%  { transform:translateY(0); opacity:0 }
+  30%     { transform:translateY(0); opacity:1 }
+  38%     { transform:translateY(var(--dy)); opacity:1 }
+  40%,100%{ transform:translateY(var(--dy)); opacity:0 }
+}
+@keyframes ir-out{
+  0%,38%  { transform:scaleY(0); opacity:0 }
+  44%,86% { transform:scaleY(1); opacity:1 }
+  94%,100%{ transform:scaleY(1); opacity:0 }
+}
+body[data-motion=reduced] .ir-in,body[data-motion=reduced] .ir-out,
+body[data-motion=reduced] .ir-box{ animation:none; opacity:1; transform:none; }
+body[data-motion=reduced] .ir-pulse-in,body[data-motion=reduced] .ir-pulse-out{ display:none; }
+
 /* the highlight is the one purely visual motion here: it stops entirely when
    motion is reduced, and never appears on paper */
 body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
@@ -1802,6 +1843,8 @@ body[data-layout=phone] #counter{ font-size:10px; white-space:nowrap; }
   .mtf-sparkwrap{ display:none !important; }
   .mtf-trace,.mtf-fade,.mtf-stem,.mtf-box,.mtf-stem-dot,.mtf-tip,
   .mtf-wire-in,.mtf-wire-out{ animation:none !important; opacity:1 !important; }
+  .ir-in,.ir-out,.ir-box{ animation:none !important; opacity:1 !important; transform:none !important; }
+  .ir-pulse-in,.ir-pulse-out{ display:none !important; }
 }
 
 /* ==========================================================================
