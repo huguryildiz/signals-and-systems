@@ -21361,20 +21361,26 @@ REAL_IMPULSE,
   {t:'title', text:'Flip, Shift, Multiply, Add'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$h[k]$','flip: $h[-k]$','shift: $h[3-k]$']},
+      frames:{labels:['$h[n]$','rename: $h[k]$','flip: $h[-k]$','shift: $h[1-k]$','shift: $h[2-k]$','shift: $h[3-k]$']},
       svg:v=>{
-      /* Frame 0 is h[k]. Going to frame 1 mirrors every sample about k = 0;
-         going to frame 2 moves the mirrored samples 3 to the right. */
-      const hs=[1,0.6,0.3], k=v?v.frame:0, f=cl(k), s=cl(k-1);
-      const a=P.Axes({w:560,h:380,xr:[-4,6],yr:[-0.25,1.45],xlabel:'k',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
-      hs.forEach((val,j)=>a.stem([[j*(1-2*f)+3*s,val]],{color:C.h}));
-      if(s>0) fade(a,s,()=>{ a.vline(3,{color:C.coral,dash:'4 4'});
-        a.note(3.15,1.18,'k=n=3',{anchor:'start',color:C.coral,fs:15,tex:true}); });
-      a.note(5.7,1.33,k<0.5?'h[k]':k<1.5?'h[-k]':'h[3-k]',{anchor:'end',color:C.h,fs:16,tex:true});
+      /* Frame 0 is h[n]. Frame 1 renames the index n as k: the samples stay
+         where they are. Frame 2 mirrors every sample about k = 0. Frames 3 to 5
+         move the mirrored samples right by n = 1, 2, 3. */
+      const hs=[1,0.6,0.3], k=v?v.frame:0, f=cl(k-1), s=Math.max(0,Math.min(3,k-2)), sn=Math.round(s);
+      const a=P.Axes({w:560,h:380,xr:[-4,6],yr:[-0.25,1.45],xlabel:k<0.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
+      hs.forEach((val,j)=>a.stem([[j*(1-2*f)+s,val]],{color:C.h}));
+      fade(a,Math.min(cl(k),cl(2-k)),()=>{
+        a.note(-3.8,1.3,'n\\;\\to\\;k',{anchor:'start',color:C.coral,fs:16,tex:true});
+        a.note(-3.8,1.19,'\\text{same samples, new index name}',{anchor:'start',color:C.coral,fs:14,tex:true}); });
+      if(k>2) fade(a,cl(k-2),()=>{ a.vline(s,{color:C.coral,dash:'4 4'});
+        a.note(s+0.15,1.18,`k=n=${sn}`,{anchor:'start',color:C.coral,fs:15,tex:true}); });
+      const names=['h[n]','h[k]','h[-k]','h[1-k]','h[2-k]','h[3-k]'], i=Math.min(5,Math.floor(k)), fr=k-i;
+      fade(a,1-fr,()=>a.note(5.7,1.33,names[i],{anchor:'end',color:C.h,fs:16,tex:true}));
+      if(i<5) fade(a,fr,()=>a.note(5.7,1.33,names[i+1],{anchor:'end',color:C.h,fs:16,tex:true}));
       return a.svg(); },
-      caption:'An asymmetric $h$ shows the flip. After the shift, the sample $h[0]$ sits at $k=n$.'}
+      caption:'Renaming $n$ as $k$ moves nothing. An asymmetric $h$ shows the flip. After each shift, the sample $h[0]$ sits at $k=n$.'}
   ], right:[
-    {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Flip: reverse $h[k]$ to get $h[-k]$.</li><li>Shift: move it by $n$ to get $h[n-k]$.</li><li>Multiply by $x[k]$ and add over $k$.</li><li>Repeat for every $n$.</li></ol>'},
+    {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Rename $n$ as $k$, then flip: $h[k]\\to h[-k]$.</li><li>Shift: move it by $n$ to get $h[n-k]$.</li><li>Multiply by $x[k]$ and add over $k$.</li><li>Repeat for every $n$.</li></ol>'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'warn', head:'Read the argument', html:'In $h[n-k]$ the variable is $k$. The sample $h[0]$ sits where $n-k=0$, that is at $k=n$.'}]},
     {t:'reveal', at:2, items:[
