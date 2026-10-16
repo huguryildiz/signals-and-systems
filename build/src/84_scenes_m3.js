@@ -689,7 +689,7 @@ REAL_CONVSUM,
     {t:'eq', tex:'\\begin{aligned}\\int_{-\\infty}^{\\infty}x(\\tau)\\,h(t-\\tau)\\,\\d\\tau&=\\int_{+\\infty}^{-\\infty}x(t-\\sigma)\\,h(\\sigma)\\,(-\\d\\sigma)\\\\&=\\int_{-\\infty}^{\\infty}h(\\sigma)\\,x(t-\\sigma)\\,\\d\\sigma\\end{aligned}', label:'Substitute $\\sigma=t-\\tau$',
       note:'The limits swap, and $\\d\\tau=-\\d\\sigma$ swaps them back. So $x*h=h*x$.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'warn', head:'Shift, then reverse', html:'For $\\delta(-t+5)$, first form $v(t)=\\delta(t+5)$, then $v(-t)$. Writing both moves prevents a sign error in the limits.'}]},
+      {t:'note', kind:'warn', head:'Shift, then reverse', html:'For $\\delta(-t+5)$, first form $v(t)=\\delta(t+5)$, then $v(-t)$. Writing both moves prevents a sign error in the limits.<div class="nsep"></div>The impulse is even, $\\delta(-t)=\\delta(t)$, so $\\delta(-t+5)=\\delta\\bigl(-(t-5)\\bigr)=\\delta(t-5)$.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'def', head:'Given', html:'The impulse $\\delta(3-t)$.<div class="nsep"></div>Where is it?',
         ask:{key:'m3-convint-b', choices:['$t=3$','$t=-3$'], answer:0,
