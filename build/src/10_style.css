@@ -1926,6 +1926,8 @@ body[data-layout=phone] #counter{ font-size:10px; white-space:nowrap; }
 
 .fxbar{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:10px; }
 .live-ctrl{ flex:1 1 280px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:14px; }
+/* beside Previous/Next the slider takes its own row, so a longer frame label never moves it */
+.frame-v ~ .live-ctrl{ flex-basis:100%; }
 .live-k{ font-size:calc(19px * var(--ts)); color:var(--ink); }
 .live-v{ font-size:calc(20px * var(--ts)); color:var(--coral); text-align:right; font-weight:600; }
 
