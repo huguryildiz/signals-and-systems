@@ -516,7 +516,7 @@ REAL_IMPULSE,
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Method', html:'Write the sum term by term. Only $k=0,1,2,3$ have $x[k]\\neq0$, so four terms remain.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'\\begin{aligned}y[n]&=\\sum_{k}x[k]\\,h[n-k]\\\\&=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]\\\\&=h[n]+2h[n-1]+h[n-2]+2h[n-3]\\end{aligned}', label:'Expand the sum'}]}
+      {t:'eq', tex:'\\begin{aligned}y[n]&=\\sum_{k}x[k]\\,h[n-k]\\\\&=x[0]h[n]+x[1]h[n-1]+x[2]h[n-2]+x[3]h[n-3]\\\\&=h[n]+2h[n-1]+h[n-2]+2h[n-3]\\\\&=\\delta[n]+3\\delta[n-1]+3\\delta[n-2]+3\\delta[n-3]+2\\delta[n-4]\\end{aligned}', label:'Expand the sum'}]}
   ]}
 ]},
 
@@ -527,20 +527,33 @@ REAL_IMPULSE,
   {t:'title', text:'Two Infinite Sequences'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$n=-2$: no overlap','$n=4$: overlap $0\\le k\\le 4$']},
+      frames:{labels:['$u[n]$','rename: $u[k]$','flip: $u[-k]$','shift: $u[-2-k]$','shift: $u[-k]$','shift: $u[1-k]$','shift: $u[2-k]$','shift: $u[3-k]$']},
       svg:v=>{
-      /* the reversed step h[n-k] slides from n = -2 to n = 4; its samples sit
-         at k = n - m for m >= 0 */
-      const f=cl(v?v.frame:0), nn=-2+6*f;
-      const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,1.5],xlabel:'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
-      const hp=[]; for(let m=0;nn-m>=-6;m++) hp.push([nn-m,1]);
+      /* Frame 0 is h[n] = u[n]. Frame 1 renames n as k. Frame 2 mirrors it
+         about k = 0. From frame 3 x[k] joins and the flipped step sits at
+         n = -2, 0, 1, 2, 3; the samples of x[k] under the step are summed. */
+      const k=v?v.frame:0, f=cl(k-1), S=[0,0,0,-2,0,1,2,3];
+      const i=Math.min(7,Math.floor(k)), fr=k-i, s=S[i]+(i<7?(S[i+1]-S[i])*fr:0), sn=S[Math.round(k)];
+      const a=P.Axes({w:560,h:380,xr:[-6,8],yr:[-0.2,1.5],xlabel:k<0.5?'n':'k',ylabel:'\\text{amplitude}',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
+      const hp=[]; for(let j=0;j<=14;j++){ const p=j*(1-2*f)+s; if(p>=-6.01&&p<=8.01) hp.push([p,1]); }
       a.stem(hp,{color:C.h,r:2.6,width:1.4});
-      a.stem(disc(k=>k>=0?Math.pow(0.5,k):0,-6,8),{color:C.in});
-      a.vline(nn,{color:C.coral,dash:'4 4'});
-      a.note(nn+0.2,1.3,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true});
+      const xk=m=>m>=0?Math.pow(0.5,m):0;
+      if(k>2){
+        fade(a,cl(k-2),()=>{
+          a.stem(disc(m=>(m<0||m>sn)?xk(m):0,-6,8),{color:C.in});
+          a.stem(disc(m=>(m>=0&&m<=sn)?xk(m):0,-6,8),{color:C.out,r:3.4});
+          a.vline(s,{color:C.coral,dash:'4 4'});
+          a.note(s+0.15,1.12,'k=n',{anchor:'start',color:C.coral,fs:15,tex:true}); });
+      }
+      const names=['u[n]','u[k]','u[-k]','u[-2-k]','u[-k]','u[1-k]','u[2-k]','u[3-k]'];
+      const ys=[[],[],[],['y[-2]=0'],['y[0]=1'],['y[1]=1+\\tfrac12','=1.5'],['y[2]=1+\\tfrac12+\\tfrac14','=1.75'],['y[3]=1+\\tfrac12+\\tfrac14+\\tfrac18','=1.875']];
+      const lab=(q,al)=>fade(a,al,()=>{
+        a.note(-5.8,1.42,names[q],{anchor:'start',color:C.h,fs:16,tex:true});
+        ys[q].forEach((t,r)=>a.note(-5.8+(r?0.6:0),1.29-0.13*r,t,{anchor:'start',color:C.out,fs:16,tex:true})); });
+      lab(i,1-fr); if(i<7) lab(i+1,fr);
       return a.svg(); },
-      caption:'The reversed step $h[n-k]$ is 1 for $k\\le n$. It meets $x[k]$ only when $n\\ge0$.'},
-    {t:'legend', items:[['in','$x[k]$'],['h','$h[n-k]$']]}
+      caption:'Rename, flip, then slide the step. $u[n-k]$ is 1 for $k\\le n$. The green samples of $x[k]$ lie under it, and their sum is $y[n]$.'},
+    {t:'legend', items:[['in','$x[k]$'],['h','$h[n-k]=u[n-k]$']]}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x[n]=\\left(\\tfrac12\\right)^{n}u[n]$ and $h[n]=u[n]$.<div class="nsep"></div>As $n\\to\\infty$, what does $y[n]$ approach?',
       ask:{key:'m3-ex-dt2', choices:['$1$','$2$','$\\infty$'], answer:1}},
