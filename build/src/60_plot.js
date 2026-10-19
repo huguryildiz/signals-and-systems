@@ -487,11 +487,32 @@ const PLOT = (() => {
            They are drawn after the data, so the halo interrupts the trace and the
            number stays readable. */
         const tl=[];
+        /* Tick numbers grow with the labels (LBLS) but their spacing does not,
+           so where neighbours would touch only every n-th number is written,
+           counted from zero when zero is a tick. The tick marks all stay. */
+        const TW = L => String(L).length*0.58*TICK_SIZE;
+        const thin = (vals, fmt, pos, need) => {
+          const k = vals.map((v,i)=>i).filter(i=>fmt(vals[i])!=='');
+          let n = 1;
+          for(; n < k.length; n++){
+            let ok = true;
+            for(let j=n; j<k.length && ok; j++){ const a=vals[k[j-n]], b=vals[k[j]];
+              if(Math.abs(pos(b)-pos(a)) < need(fmt(a), fmt(b))) ok = false; }
+            if(ok) break; }
+          const z = vals.findIndex(v=>Math.abs(v)<1e-12), r0 = z>=0 ? z : k[0];
+          const keep = new Set(k.filter(i=>((i-r0)%n+n)%n===0));
+          return v => keep.has(vals.indexOf(v));
+        };
+        const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(TW(a)+TW(b))/2+6*LBLS);
+        const showY = thin(yt, o.ytickfmt, sy, ()=>TICK_SIZE*1.15);
+        const xBoxes=[];
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           /* a number at the very left would sit on the rule of yticksLeft */
           if(o.yticksLeft && xz!=null && sx(v)-x0 < 16) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
+          if(!showX(v)) return;
+          xBoxes.push([sx(v)-TW(L)/2, yBase+20*LBLS-TICK_SIZE*0.8, sx(v)+TW(L)/2, yBase+20*LBLS+TICK_SIZE*0.2]);
           tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         /* A spectrum drawn about k = 0 peaks on its own zero axis, where the
            tick numbers would sit on the trace. yticksLeft sets them against the
@@ -501,6 +522,10 @@ const PLOT = (() => {
         yt.forEach(v=>{ const L=o.ytickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
           g.push(`<line x1="${xBase.toFixed(2)}" y1="${sy(v).toFixed(2)}" x2="${(xBase-5).toFixed(2)}" y2="${sy(v).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
+          if(!showY(v)) return;
+          /* a y number that would sit on an x number near the corner is left out */
+          const yb = [xBase-10-TW(L), sy(v)+4.5-TICK_SIZE*0.8, xBase-10, sy(v)+4.5+TICK_SIZE*0.2];
+          if(xBoxes.some(b=>b[0]<yb[2] && yb[0]<b[2] && b[1]<yb[3] && yb[1]<b[3])) return;
           g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal

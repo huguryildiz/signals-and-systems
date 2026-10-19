@@ -24,6 +24,9 @@ const AXIS = ['#8A939C', '#7C858F'];
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   await page.goto(file, { waitUntil: 'load' });
   await page.waitForTimeout(400);
+  /* --projector sweeps the lecture view, where every figure label is drawn
+     1.36 times larger and labels placed in data units can run together */
+  if (process.argv.includes('--projector')) { await page.click('#btn-display'); await page.waitForTimeout(300); }
 
   const scenes = await page.evaluate(() => APP.scenes().map(s => ({ id: s.id, steps: s.steps || 0 })));
   const all = [];
@@ -161,7 +164,10 @@ const AXIS = ['#8A939C', '#7C858F'];
         return out;
       }, { GRID, AXIS });
 
+  /* --only=m3 sweeps the scenes whose id starts with that prefix */
+  const only = (process.argv.find(a => a.startsWith('--only=')) || '').slice(7);
   for (const s of scenes) {
+    if (only && !s.id.startsWith(only)) continue;
     for (let st = 0; st <= (s.steps || 0); st++) {
       await page.evaluate(([id, step]) => APP.goId(id, step), [s.id, st]);
       await page.waitForTimeout(120);
@@ -230,5 +236,5 @@ const AXIS = ['#8A939C', '#7C858F'];
   console.log('FIGURES CHECKED: ' + rows.length + ' flagged, of which ' + soft.length
     + ' are haloed tick labels (accepted)');
   console.log('TOTAL COLLISIONS: ' + hard.length);
-  fs.writeFileSync(path.resolve(__dirname, '..', 'textclash.json'), JSON.stringify(rows, null, 1));
+  if (!only) fs.writeFileSync(path.resolve(__dirname, '..', 'textclash.json'), JSON.stringify(rows, null, 1));
 })();
