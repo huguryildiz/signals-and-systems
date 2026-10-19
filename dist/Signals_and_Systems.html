@@ -5525,6 +5525,9 @@ def _ss_figs():
     holder.innerHTML = markup || '';
     const next = holder.querySelector('svg');
     if(next){
+      /* fitScene may have capped the figure to make the scene fit; the
+         redrawn svg keeps that cap, or it overflows its column */
+      next.style.maxHeight = old.style.maxHeight;
       old.replaceWith(next);
       if(S.layout==='phone') phoneFigures([next]);
     }
