@@ -495,7 +495,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-1,7.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:2,yticksOverride:[0,2,4]});
       [[-5,Math.PI],[-3,1.5*Math.PI],[-1,2*Math.PI],[1,2*Math.PI],[3,1.5*Math.PI],[5,Math.PI]]
-        .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
+        .forEach(p=>{
+          /* in projector mode a weight written beside its impulse reaches the next one, so it is centred over the tip */
+          if(P.labelScale()>1){ a.impulse(p[0],p[1],{color:C.out,label:false});
+            a.note(p[0],p[1],'('+p[1].toFixed(3)+')',{anchor:'middle',dy:-8*P.labelScale(),fs:13,color:C.out}); }
+          else a.impulse(p[0],p[1],{color:C.out}); });
       return a.svg();})()),
   err:'Taking $H$ to be the product of the two rectangles, giving a rectangle on $|\\omega|<2$. The signals are multiplied in time, so their transforms are convolved, and the result is wider than either rectangle, not narrower.',
   teach:'State the width rule for convolving two rectangles: the flat region is set by the narrower rectangle, and the total support is the sum of the supports. Apply this rule before evaluating an integral.' },

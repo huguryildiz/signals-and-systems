@@ -42,6 +42,10 @@ const markPeriod = (a, v, o) => {
   const lo = o.lo!=null ? o.lo : -PI, hi = o.hi!=null ? o.hi : PI;
   a.vline(lo,{color:C.coral,opacity:.5}); a.vline(hi,{color:C.coral,opacity:.5});
   a.span(lo,hi,v,'',{color:C.coral});
+  /* a slide or a laboratory sets the name of the dependent variable at the
+     upper-left edge, where the enlarged words of projector mode reach it;
+     there the name goes back to the zero line, clear of the words */
+  if(P.labelScale() > 1) a.o.ynameAtAxis = true;
   a.note(lo,v,'\\text{one period},\\;2\\pi',{tex:true,color:C.coral,fs:13,anchor:'end',dx:-8,dy:-3});
   return a;
 };
@@ -98,6 +102,18 @@ const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.
 const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
 /* the same axes for a spectrum over omega, with the tick row in multiples of pi */
 const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+/* In projector mode the enlarged name of the independent variable, set below
+   the zero line, reaches data that runs down to the lower edge. Such a figure
+   is laid out to measure the zero line, then again with the name dropped just
+   below the data area; the room the name takes moves the zero line, so the
+   layout is repeated until it settles. mk is the axes maker, o its options. */
+const nameBelow = (mk, o) => {
+  if(P.labelScale() <= 1) return mk(o);
+  const D = 26*P.labelScale();
+  let a = mk(Object.assign({}, o, {xnameDrop:0}));
+  for(let k=0; k<3; k++) a = mk(Object.assign({}, o, {xnameDrop:(a.y0 - a.sy(0)) + D}));
+  return a;
+};
 
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
@@ -1427,7 +1443,7 @@ codeScene({ id:'m6-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       live:{controls:[{k:'N', label:'$N$', min:3, max:16, step:1, v:5, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const N=v?v.N:5;
-      const a=s3SP([-0.35,2.75],{yticksOverride:[0,2*PI/N],ytickfmt:v=>v.toFixed(4)});
+      const a=s3SP([-0.35,2.75],{yticksOverride:[0,2*PI/N],ytickfmt:v=>v.toFixed(4),pad:{l:P.labelScale()>1?78:52,r:24,t:20,b:34}});
       for(let k=-Math.ceil(1.5*N)+1;k<=Math.ceil(1.5*N)-1;k++) a.impulse(2*PI*k/N,2*PI/N,{color:C.in,label:false,width:N>10?1.6:2.1});
       markPeriod(a,2.4);
       return a.svg(); },
@@ -1740,7 +1756,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
   {t:'title', text:'Even Part of a One-Sided Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=s4AX({yr:[-0.4,3.4],ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',yticksOverride:[0,0.625,2.5],ytickfmt:v=>String(v)});
+      const a=s4AX({yr:[-0.4,3.4],ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',yticksOverride:[0,0.625,2.5],ytickfmt:v=>String(v),pad:{l:P.labelScale()>1?70:52,r:24,t:20,b:34}});
       a.curve(w=>(1-0.6*Math.cos(w))/(1-1.2*Math.cos(w)+0.36),{color:C.mid,n:3000});
       markPeriod(a,2.95);
       return a.svg(); },
@@ -1856,7 +1872,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
   {t:'title', text:'Denominator of the Pulse Transform'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=s4AX({yr:[-2.6,8.6],ylabel:'\\text{value}',yticksOverride:[-1,0,1,5]});
+      const a=nameBelow(s4AX,{yr:[-2.6,8.6],ylabel:'\\text{value}',yticksOverride:[-1,0,1,5]});
       a.curve(w=>dirich(wrap(w),2),{color:C.in,n:6000});
       a.curve(w=>{ const s=Math.sin(w); return Math.abs(s)<1e-3?NaN:Math.sin(2.5*w)/s; },{color:C.err,dash:'9 6',n:9000});
       markPeriod(a,6.6);
@@ -2028,7 +2044,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
       frames:{labels:['$x[n]$: impulse train, $N=8$','$a_k=1/8$ for every $k$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-10.5,10.5],yr:[-0.15,1.3],xlabel:f<0.5?'n':'k',ylabel:'\\text{value}',yticksOverride:[0,0.125,1],ytickfmt:v=>String(v),xtarget:8});
+      const a=AX({xr:[-10.5,10.5],yr:[-0.15,1.3],xlabel:f<0.5?'n':'k',ylabel:'\\text{value}',yticksOverride:[0,0.125,1],ytickfmt:v=>String(v),xtarget:8,pad:{l:P.labelScale()>1?70:52,r:24,t:20,b:34}});
       fade(a,1-f,()=>a.stem(D(n=>((n%8)+8)%8===0?1:0,-10,10),{color:C.in}));
       fade(a,f,()=>a.stem(D(()=>1/8,-10,10),{color:C.mid}));
       return a.svg(); },
@@ -2090,7 +2106,7 @@ realGallery({ id:'m6-real-props', nav:'Properties around us',
       a.curve(t=>p(-t),{color:C.out,n:3000});
       return a.svg(); }, 'A drum hit $p(t)=e^{-t/25}\\sin(2\\pi\\,0.06\\,t)$, $t\\ge0$ in ms, played backwards: $p(-t)$.',
       [['out','$p(-t)$'],['in','$p(t)$']], 'tl'],
-    [()=>{ const a=P.Axes(EXO({xr:[-0.5,24.5],yr:[-1.2,1.5],xlabel:'n\\;(\\text{sample at }16\\text{ kHz})',ylabel:'\\text{amplitude}',xstep:4}));
+    [()=>{ const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[-0.5,24.5],yr:[-1.2,1.5],xlabel:'n\\;(\\text{sample at }16\\text{ kHz})',ylabel:'\\text{amplitude}',xstep:4});
       a.stem(D(n=>n%2===0?Math.cos(PI*n/8):0,0,24),{color:C.out,r:2.6});
       return a.svg(); }, 'An $8$ kHz record with a zero after each sample, for $16$ kHz: $x_{(2)}[n]$, $x[m]=\\cos(\\pi m/4)$.'],
     [()=>{ const v=n=>bGeoS4(n,0.7);
@@ -2503,7 +2519,7 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Spectrum of the Modulated Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $Z(e^{j\\omega})$ on the axes, then check it.'}, svg:()=>{
-      const a=AXW(-3*PI,3*PI,PI,{yr:[-0.3,1.6],ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],ytickfmt:v=>String(v)});
+      const a=nameBelow(o=>AXW(-3*PI,3*PI,PI,o),{yr:[-0.3,1.6],ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],ytickfmt:v=>String(v)});
       skArea(a);
       fade(a,.4,()=>a.curve(w=>lpf(w,PI/4),{color:C.in,n:9000,dash:'9 6'}));
       markPeriod(a,1.22);
@@ -2541,7 +2557,7 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
       const w0=(v?v.w:0.25)*PI, L=v?v.L:16;
       const x=[]; for(let n=0;n<L;n++) x.push(Math.cos(w0*n));
       return s5Stack([380,414], [0.36,0.48], h=>{
-        const a=AX({h,xr:[-4.5,36.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
+        const a=nameBelow(AX,{h,xr:[-4.5,36.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
         fade(a,.25,()=>a.stem(D(n=>n>=0&&n<L?NaN:Math.cos(w0*n),-4,36).filter(p=>isFinite(p[1])),{color:C.in,r:2.6}));
         a.stem(D(n=>Math.cos(w0*n),0,L-1),{color:C.in,r:3});
         return a.svg(); }, h=>{
@@ -2705,7 +2721,7 @@ codeScene({ id:'m6-code-conv', nav:'Convolution and multiplication', title:'Conv
       {t:'box',x:150,y:36,w:260,h:148,label:'\\dfrac{\\sum_k b_k e^{-j\\omega k}}{\\sum_k a_k e^{-j\\omega k}}',tex:true,fs:17},
       {t:'arrow',x1:410,y1:110,x2:546,y2:110,color:C.out},
       {t:'text',x:478,y:86,label:'Y(e^{j\\omega})',tex:true,fs:16,color:C.out},
-      {t:'text',x:280,y:206,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:C.slate},
+      {t:'text',x:280,y:P.labelScale()>1?216:206,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:C.slate},
       {t:'box',x:20,y:262,w:170,h:66,label:'H(e^{j\\omega})',tex:true,fs:18},
       {t:'arrow',x1:190,y1:295,x2:370,y2:295,label:'\\text{partial fractions}',tex:true,color:C.coral},
       {t:'box',x:370,y:262,w:170,h:66,label:'h[n]',tex:true,fs:19,color:C.h},

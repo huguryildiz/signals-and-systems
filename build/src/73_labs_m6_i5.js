@@ -36,6 +36,10 @@ Object.assign(LABS, (function(){
   function frame(a, top){
     a.vline(-PI,{color:PLOT.COL.coral,opacity:.5}); a.vline(PI,{color:PLOT.COL.coral,opacity:.5});
     a.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }

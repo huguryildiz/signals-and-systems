@@ -459,7 +459,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:48,r:26,t:28,b:34},xstep:3,ystep:1});
       a.stem([[0,1],[3,0],[6,1],[7,-1],[9,1],[11,-1]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
-      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5,
+      yticksLeft:P.labelScale()>1});   /* projector: the grown numbers leave the stems at n=±1 */
       a.stem([[-3,0.5],[-1,-0.5],[1,0.5],[3,-0.5]],{color:C.mid}); return a.svg();})()),
   err:'Missing the cancellation at $n=3$ in part (a) and reporting both a $+1$ and a $-1$ there. Where two trains land on the same index the values add, and here they add to zero.',
   teach:'Part (b) is the one students get wrong by multiplying: $3\\cdot4=12$ happens to be right here because $3$ and $4$ are coprime. Ask what the answer would be for trains of period $4$ and $6$ — the product $24$ is a period, but the fundamental one is $12$.' },
@@ -582,7 +583,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:48,r:26,t:28,b:34},xstep:2,ystep:1});
       a.stem([[0,1],[4,1],[5,-1],[8,1],[11,-1]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-5.6,5.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
-      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5,
+      yticksLeft:P.labelScale()>1});   /* projector: the grown numbers leave the stems at n=±1 */
       a.stem([[-1,-0.5],[1,0.5]],{color:C.mid}); return a.svg();})()),
   err:'Reporting $N_0=24$ in part (b) by multiplying the two periods. The product is always a period; it is the fundamental one only when the two are coprime, and $4$ and $6$ share the factor $2$.',
   teach:'Part (c) is the useful contrast with the previous question of this kind. Here the window is symmetric and catches equal samples at $n=\\pm4$, so those drop out of the odd part entirely — a student who reports four non-zero samples has not applied the definition at $n=4$.' },

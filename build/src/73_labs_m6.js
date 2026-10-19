@@ -52,6 +52,10 @@ Object.assign(LABS, (function(){
     /* the name of the dependent variable is anchored on the zero line, which is
        the middle of a symmetric frequency axis, so the words go to the left of
        the bracket rather than above its midpoint */
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }
@@ -152,7 +156,7 @@ Object.assign(LABS, (function(){
            and the dashed markers at odd multiples of pi. */
         const big = phmax > 2.5, ph = Math.max(phmax, 0.05);
         const A3 = PLOT.Axes(Object.assign({w:760,h:150,yr:big?[-4.3,5.6]:[-1.35*ph,1.95*ph],
-          ylabel:'\\angle X(e^{j\\omega})\\;(\\text{rad})',pad:{l:70,r:24,t:28,b:36},xtickfmt:()=>'',
+          ylabel:'\\angle X(e^{j\\omega})\\;(\\text{rad})',pad:{l:PLOT.labelScale()>1?86:70,r:24,t:28,b:36},xtickfmt:()=>'',
           yticksOverride:big?[-PI,PI]:uniq([-phmax,phmax]),ytickfmt:v=>fmt(v,big?2:4)}, W));
         frame(A3, big?4.3:1.6*ph);
         A3.curve(broken(w=>arg(s.X(w,p))),{color:PLOT.COL.mid,width:2,n:6000});

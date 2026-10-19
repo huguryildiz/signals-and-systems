@@ -14,7 +14,20 @@ const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f
 /* the invisible data area a sketch is drawn in */
 const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
 /* the standard slide axes: one figure in the left column of a 5:7 slide */
-const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o));
+/* In projector mode the labels are larger, and an axis name that Axes sets
+   inside the data area (the zero line lies inside the range) meets the curves,
+   the sketch frame or the lower axis line. A figure that asks for it (dropX)
+   sets the name under the data area there: the lower margin is made what the
+   name needs, and the drop, which Axes measures from the zero line, is solved
+   for that margin. Normal mode is left as it is. */
+const dropX = o => {
+  const L = P.labelScale(), ya = o.yr[0], yb = o.yr[1];
+  if(!o.dropX || L <= 1 || !o.xlabel || !(ya <= 0 && yb >= 0)) return o;
+  const h0 = P.hOverride, t = P.Axes(o); P.hOverride = h0;   /* the drawn height and top margin */
+  const NB = 26*L, G = NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
+  return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
+};
+const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o)));
 /* two axes in one figure, the upper panel over the lower one. Each builder
    takes a height and returns an svg; the halves are placed as nested svgs. A
    grown figure hands its height through P.hOverride, which is taken here and
@@ -59,7 +72,7 @@ Object.assign(CONTENT.GLOSS, {
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
        is about. A figure with two traces carries its legend as a third entry. */
-const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+const EXO = o => dropX(Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o));
 function realGallery(cfg){
   return { id:cfg.id, module:'M4', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -279,13 +292,13 @@ const SC = [
   {t:'title', text:'Two Cosines Through the Delay'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[-1,8],yr:[-2.4,3.2],xlabel:'t',ylabel:'y(t)',xtarget:9});
+      const a=AX({dropX:true,xr:[-1,8],yr:[-2.4,3.2],xlabel:'t',ylabel:'y(t)',xtarget:9});
       skArea(a);
       a.curve(t=>Math.cos(4*t)+Math.cos(7*t),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(-0.8,2.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(-0.8,2.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>Math.cos(4*(t-3))+Math.cos(7*(t-3)),{color:C.out,n:1600});
-      a.note(7.8,2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(7.8,2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)=\\cos 4t+\\cos 7t$. Sketch the output of the 3 s delay, then show the answer.'}
@@ -310,7 +323,7 @@ realGallery({ id:'m4-real-eigen', nav:'Eigenfunctions around us',
       a.curve(t=>325/Math.SQRT2*Math.cos(2*Math.PI*0.05*t-Math.PI/4),{color:C.out,n:900});
       return a.svg(); }, 'Mains through an RC filter with $RC=3.18$ ms: $230\\cos(2\\pi\\,50\\,t-\\pi/4)$ V.',
       [['in','$v_s(t)$',true],['out','$v_C(t)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,30],yr:[-1.3,1.9],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,30],yr:[-1.3,1.9],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
       a.curve(t=>Math.sin(2*Math.PI*0.1*t),{color:C.in,dash:'9 6',n:900});
       a.curve(t=>Math.sin(2*Math.PI*0.1*(t-2.9)),{color:C.out,n:900});
       return a.svg(); }, 'A 100 Hz tone 1 m from the loudspeaker arrives $2.9$ ms late.',
@@ -557,7 +570,7 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       const f=cl(v?v.frame:0);
       const a=AX({yticksLeft:true,xr:[-2.2,2.2],yr:[-0.9,1.5],xlabel:'t',ylabel:'x(t)',xtarget:9});
       fade(a,1-f,()=>{ a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
-        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(2.1,0.62,'a_0=1/2',{anchor:'end',color:C.coral,fs:15,tex:true}); });
+        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(P.labelScale()>1?1:2.1,0.62,'a_0=1/2',{anchor:P.labelScale()>1?'middle':'end',color:C.coral,fs:15,tex:true}); });
       if(f>0) fade(a,f,()=>{ a.curve(t=>sawWave(t,1),{color:C.in,n:3000});
         a.hline(0,{color:C.coral,dash:'4 5'}); a.note(2.1,0.62,'a_0=0',{anchor:'end',color:C.coral,fs:15,tex:true}); });
       return a.svg(); },
@@ -771,7 +784,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
       frames:{labels:['$N=9$','$N=27$','$N=81$']},
       svg:v=>{
       const k=v?v.frame:0, lo=Math.floor(k), w=k-lo, Ns=[9,27,81];
-      const a=AX({xr:[0.4,1.6],yr:[-0.25,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
+      const a=AX({dropX:true,xr:[0.4,1.6],yr:[-0.25,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
       a.curve(t=>rectWave(t,4,1),{color:C.in,dash:'9 6',n:3000});
       fade(a,1-w,()=>a.curve(t=>rectPS(t,Ns[lo],4,1),{color:C.out,n:4000}));
       if(w>0&&lo<2) fade(a,w,()=>a.curve(t=>rectPS(t,Ns[lo+1],4,1),{color:C.out,n:4000}));
@@ -1464,7 +1477,7 @@ codeScene({ id:'m4-code-dtfs', nav:'Discrete-time series', title:'Discrete-Time 
       const tri=t=>{ const u=t-2*Math.round(t/2); return Math.abs(u)<0.5 ? 0.5*u : (u>0 ? 0.25-0.5*(u-0.5) : -0.25-0.5*(u+0.5)); };
       const a=AX({xr:[-0.2,4.2],yr:[-0.5,2.4],xlabel:'t',ylabel:'\\text{amplitude}',ytarget:4});
       if(f===0){ a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
-        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(4.1,0.68,'a_0=0.5',{anchor:'end',color:C.coral,fs:15,tex:true}); }
+        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(P.labelScale()>1?3:4.1,0.68,'a_0=0.5',{anchor:P.labelScale()>1?'middle':'end',color:C.coral,fs:15,tex:true}); }
       if(f===1) a.curve(t=>tri(t)+0.5*t,{color:C.err,n:3000});
       if(f===2) a.curve(tri,{color:C.out,n:3000});
       return a.svg(); },
@@ -1569,7 +1582,7 @@ realGallery({ id:'m4-real-props', nav:'Properties around us',
       a.curve(s,{color:C.in,n:900}); a.curve(t=>s(t-1),{color:C.out,dash:'8 5',n:900});
       return a.svg(); }, 'A two-tone signal and its copy $1$ ms later: the same $|a_k|$, new phases.',
       [['in','$x(t)$'],['out','$x(t-t_0)$',true]]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,2],yr:[-1.8,3],xlabel:'t\\;(\\text{ms})',ylabel:'\\text{amplitude}',xstep:0.5}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,2],yr:[-1.8,3],xlabel:'t\\;(\\text{ms})',ylabel:'\\text{amplitude}',xstep:0.5}));
       const m=t=>1+0.5*Math.cos(2*Math.PI*t);
       a.curve(t=>m(t)*Math.cos(2*Math.PI*10*t),{color:C.in,n:1600}); a.curve(m,{color:C.out,dash:'8 5',n:400});
       return a.svg(); }, 'AM: the carrier $\\cos(10\\omega_0t)$ moves each envelope coefficient to $k\\pm10$.',
@@ -1691,13 +1704,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Low-Pass Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[0,4],yr:[-1.5,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      const a=AX({dropX:true,xr:[0,4],yr:[-1.5,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
       skArea(a);
       a.curve(t=>1+Math.cos(Math.PI*t)+Math.sin(2*Math.PI*t)+Math.cos(3*Math.PI*t+Math.PI/3),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>1+0.303316*Math.cos(Math.PI*t-1.262627)+0.157177*Math.cos(2*Math.PI*t-2.983761)+0.105510*Math.cos(3*Math.PI*t-0.417840),{color:C.out,n:1600});
-      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)$. Sketch the output: the average stays at $1$ and the fast wiggles shrink.'}
@@ -1745,13 +1758,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'High-Pass Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[0,4],yr:[-2.8,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      const a=AX({dropX:true,xr:[0,4],yr:[-2.8,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
       skArea(a);
       a.curve(t=>1+Math.cos(Math.PI*t)+Math.sin(2*Math.PI*t)+Math.cos(3*Math.PI*t+Math.PI/3),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>0.952891*Math.cos(Math.PI*t+0.308169)+0.987573*Math.cos(2*Math.PI*t-1.412965)+0.994418*Math.cos(3*Math.PI*t+1.152956),{color:C.out,n:1600});
-      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)$. Sketch the output: the harmonics pass almost unchanged and the average drops to $0$.'}
@@ -1817,8 +1830,9 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xpi:Math.PI/4,ytarget:4});
         a.curve(w=>w,{color:C.h,n:200});
         a.point(1,1,{color:C.coral,r:5}); a.point(3,3,{color:C.coral,r:5});
-        a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true});
-        a.note(3.12,2.72,'k=3:\\ \\text{gain }3',{anchor:'start',color:C.coral,fs:15,tex:true});
+        a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true,dy:(P.labelScale()-1)*24});
+        if(P.labelScale()>1) a.note(3.95,2.2,'k=3:\\ \\text{gain }3',{anchor:'end',color:C.coral,fs:15,tex:true});   /* under the point, clear of the right edge */
+        else a.note(3.12,2.72,'k=3:\\ \\text{gain }3',{anchor:'start',color:C.coral,fs:15,tex:true});
         return a.svg(); }
       const f=cl(k-1);
       const a=AX({xr:[0,12.6],yr:[-1.6,1.9],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
@@ -2017,13 +2031,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Recursive Filter Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y[n]$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-13,13],yr:[-0.2,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:9,ytarget:4});
+      const a=AX({dropX:true,yticksLeft:true,xr:[-13,13],yr:[-0.2,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:9,ytarget:4});
       skArea(a);
       a.raw('<g opacity=".35">'); a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.ink,r:3}); a.raw('</g>');
-      a.note(-12.6,1.3,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(-12.6,1.3,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.stem(D(n=>0.5+Math.sqrt(0.2)*Math.cos(Math.PI*n/2-Math.atan(0.5))+Math.pow(-1,n)/6,-12,12),{color:C.out,r:3.4,showZero:true});
-      a.note(12.6,1.3,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(12.6,1.3,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The faint stems are $x[n]$. Sketch the output of the recursive filter, then show the answer.'}
@@ -2052,7 +2066,7 @@ realGallery({ id:'m4-real-lti', nav:'Filtered periodic signals around us',
       a.curve(t=>0.995*Math.cos(2*Math.PI*0.05*t+0.0997),{color:C.out,n:900});
       return a.svg(); }, 'A 5 Hz coupling capacitor removes the 2 V offset and keeps $0.995$ of 50 Hz.',
       [['in','$x(t)$',true],['out','$y(t)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[-0.5,16.5],yr:[-4,6.5],xlabel:'n\\;(6\\,\\text{h})',ylabel:'T-20\\;(^{\\circ}\\text{C})',xstep:4}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[-0.5,16.5],yr:[-4,6.5],xlabel:'n\\;(6\\,\\text{h})',ylabel:'T-20\\;(^{\\circ}\\text{C})',xstep:4}));
       a.stem(D(n=>3*Math.cos(Math.PI*n/2),0,16),{color:C.in,r:3});
       a.stem(D(n=>2.1213*Math.cos(Math.PI*n/2-Math.PI/4),0,16),{color:C.out,r:3});
       return a.svg(); }, 'Temperature every 6 h, less 20 °C, and its two-point average: $3\\to2.12$.',

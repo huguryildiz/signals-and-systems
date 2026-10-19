@@ -235,9 +235,12 @@ function blackBoxFig(){
   const L=d=>it.push({t:'line',d}), T=(x,y,label,o)=>it.push(Object.assign({t:'text',x,y,label,tex:true,fs:14},o||{}));
   rows.forEach((cy,k)=>{
     it.push({t:'arrow',x1:30,y1:cy,x2:bx,y2:cy}, {t:'arrow',x1:bx+bw,y1:cy,x2:690,y2:cy});
-    it.push({t:'box',x:bx,y:cy-45,w:bw,h:110});
+    /* projector: the third box opens upward, so the feedback wire and the larger
+       R_2 between it and the resistor fit inside */
+    const up=(k===2 && P.labelScale()>1)?12:0;
+    it.push({t:'box',x:bx,y:cy-45-up,w:bw,h:110+up});
     T(90,cy-16,'x(t)',{fs:18}); T(630,cy-16,'y(t)',{fs:18});
-    it.push({t:'text',x:bx+6,y:cy-54,label:['Low-pass filter','High-pass filter','A complicated circuit'][k],fs:14,anchor:'start'});
+    it.push({t:'text',x:bx+6,y:cy-54-up,label:['Low-pass filter','High-pass filter','A complicated circuit'][k],fs:14,anchor:'start'});
   });
   /* low-pass: series R, shunt C */
   let cy=rows[0];
@@ -251,19 +254,22 @@ function blackBoxFig(){
   T(285,cy-20,'C'); T(416,cy+24,'R');
   /* a tangle: two RC sections, a coil, an op-amp buffer with feedback, an output RC */
   cy=rows[2];
+  /* projector mode: the feedback wire rises and the labels drop, so the larger
+     R_2 fits between them and R_1, C_2 clear the resistors */
+  const PJ=P.labelScale()>1, FB=PJ?46:32, LD=PJ?10:0;
   L(CK.wire(bx,cy,168,cy)); L(CK.res(168,cy,50)); L(CK.wire(218,cy,262,cy));
   L(CK.dot(240,cy)); L(CK.indV(240,cy,36)); L(CK.gnd(240,cy+36));
-  L(CK.capV(240,cy-32,32)); L(CK.wire(240,cy-32,425,cy-32));
+  L(CK.capV(240,cy-FB,FB)); L(CK.wire(240,cy-FB,425,cy-FB));
   L(CK.res(262,cy,46)); L(CK.wire(308,cy,345,cy));
   L(CK.dot(322,cy)); L(CK.capV(322,cy,30)); L(CK.gnd(322,cy+30));
   L(`M345,${cy-16}V${cy+34}L400,${cy+9}Z`);
   L(CK.wire(335,cy+22,345,cy+22)); L(`M335,${cy+22}V${cy+56}H425V${cy+9}`);
-  L(CK.wire(400,cy+9,425,cy+9)); L(CK.wire(425,cy-32,425,cy+9)); L(CK.dot(425,cy+9));
+  L(CK.wire(400,cy+9,425,cy+9)); L(CK.wire(425,cy-FB,425,cy+9)); L(CK.dot(425,cy+9));
   L(CK.wire(425,cy,440,cy)); L(CK.res(440,cy,50)); L(CK.wire(490,cy,bx+bw,cy));
   L(CK.dot(522,cy)); L(CK.capV(522,cy,30)); L(CK.gnd(522,cy+30));
-  T(193,cy+24,'R_1'); T(285,cy-16,'R_2'); T(465,cy-16,'R_3');
-  T(224,cy-18,'C_1',{anchor:'end'}); T(258,cy+26,'L',{anchor:'start'});
-  T(296,cy+26,'C_2',{anchor:'end'}); T(540,cy+22,'C_3',{anchor:'start'});
+  T(193,cy+24+LD+(PJ?4:0),'R_1'); T(285,cy-16,'R_2'); T(465,cy-16,'R_3');
+  T(224,cy-18,'C_1',{anchor:'end'}); T(PJ?232:258,cy+26,'L',{anchor:PJ?'end':'start'});
+  T(PJ?306:296,cy+26+LD,'C_2',{anchor:'end'}); T(540,cy+22+LD,'C_3',{anchor:'start'});
   T(352,cy+1,'+',{fs:12,anchor:'start'}); T(352,cy+24,'-',{fs:12,anchor:'start'});
   return P.blocks({w:720,h:500,items:it});
 }
@@ -369,7 +375,7 @@ function dimensionsFigure(v){
   a.point(tp, vowel(tp/1000), {color:C.coral});
   a.note(tp+0.5, -1.05, '\\text{one instant}\\to\\text{one value}', {fs:14, color:C.coral, tex:true});
   g.push(a.svg().replace(/^<svg[^>]*>/, '<g>').replace(/<\/svg>$/, '</g>'));
-  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, 28, 16);
+  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, P.labelScale()>1 ? 34 : 28, 16);
   /* ---- 2-D: image ---- */
   const Y0 = 284, NX = 48, NY = 36, CELL = 8.25;
   const ix = 62, iy = Y0 + 44, iw = NX*CELL, ih = NY*CELL;

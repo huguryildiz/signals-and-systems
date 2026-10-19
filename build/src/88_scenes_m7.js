@@ -87,6 +87,18 @@ const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.
 const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
 /* the same axes for a spectrum over omega, with the tick row in multiples of pi */
 const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+/* In projector mode the enlarged name of the independent variable, set below
+   the zero line, reaches data that runs down to the lower edge. Such a figure
+   is laid out to measure the zero line, then again with the name dropped just
+   below the data area; the room the name takes moves the zero line, so the
+   layout is repeated until it settles. mk is the axes maker, o its options. */
+const nameBelow = (mk, o) => {
+  if(P.labelScale() <= 1) return mk(o);
+  const D = 26*P.labelScale();
+  let a = mk(Object.assign({}, o, {xnameDrop:0}));
+  for(let k=0; k<3; k++) a = mk(Object.assign({}, o, {xnameDrop:(a.y0 - a.sy(0)) + D}));
+  return a;
+};
 
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
@@ -604,8 +616,8 @@ const SC = [
       live:{controls:[{k:'T', label:'$T$', min:0.1, max:0.5, step:0.05, v:0.25, show:v=>'$'+v.toFixed(2)+'\\ \\text{s}$'}]},
       svg:v=>{
       const T=v?v.T:0.25, N=Math.floor(2.2/T+1e-9);
-      return s1Stack(370, 0.5, h=>{
-        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,xr:[-2.2,2.2],yr:[-0.15,1.3],xlabel:'t\\;[\\text{s}]',ylabel:'x_p(t)',yticksOverride:[0,1],xtarget:9});
+      return s1Stack(370, P.labelScale()>1 ? 0.56 : 0.5, h=>{
+        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:P.labelScale()>1?72:54,xr:[-2.2,2.2],yr:[-0.15,1.3],xlabel:'t\\;[\\text{s}]',ylabel:'x_p(t)',yticksOverride:[0,1],xtarget:9});
         a.curve(xB,{color:C.in,width:1.3,dash:'4 5',n:1600});
         D(n=>xB(n*T),-N,N).forEach(([n,x])=>s1Imp(a,n*T,x,C.mid));
         return a.svg(); }, h=>{
@@ -673,13 +685,16 @@ const SC = [
       live:{controls:[{k:'T', label:'$T$', min:0.25, max:1, step:0.05, v:0.4, show:v=>'$'+v.toFixed(2)+'\\ \\text{s}$'}]},
       svg:v=>{
       const T=v?v.T:0.4, ws=2*PI/T;
-      return s1Stack(370, 0.42, h=>{
-        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,xr:[-2.2,2.2],yr:[-0.15,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'p(t)',yticksOverride:[0,1],xtarget:9});
+      return s1Stack(370, P.labelScale()>1 ? 0.5 : 0.42, h=>{
+        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:P.labelScale()>1?72:54,xr:[-2.2,2.2],yr:[-0.15,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'p(t)',yticksOverride:[0,1],xtarget:9});
         for(let n=-Math.floor(2.2/T+1e-9);n*T<=2.2+1e-9;n++) a.impulse(n*T,1,{color:C.h,label:false});
         return a.svg(); }, h=>{
         const a=AXW(-20*PI,20*PI,8*PI,{h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,yr:[-1.2,34],ylabel:'P(j\\omega)',yticksOverride:[0,10,20]});
         for(let k=-Math.floor(20*PI/ws+1e-9);k*ws<=20*PI+1e-9;k++) a.impulse(k*ws,ws,{color:C.h,label:false});
-        a.note(-18.8*PI,30,'\\text{weight}\\;\\tfrac{2\\pi}{T}='+s1Pi(2/T),{tex:true,anchor:'start',color:C.h,fs:15});
+        /* in projector mode the enlarged words reach the name P(jw) at the upper-left
+           edge, so they go to the upper right */
+        const R=P.labelScale()>1;
+        a.note(R?18.8*PI:-18.8*PI,30,'\\text{weight}\\;\\tfrac{2\\pi}{T}='+s1Pi(2/T),{tex:true,anchor:R?'end':'start',color:C.h,fs:15});
         return a.svg(); }); },
       caption:'Top: $p(t)$, weight $1$ every $T$ seconds. Bottom: $P(j\\omega)$, weight $2\\pi/T$ every $\\omega_s$. Move $T$: closer samples push the impulses of $P$ apart and up.'}
   ], right:[
@@ -1097,7 +1112,7 @@ codeScene({ id:'m7-code-sampler', nav:'The sampler', title:'The Sampler in Code'
       a.curve(T=>T<0.19?NaN:2*PI/T,{color:C.in,n:900});
       [[0.4,'T_1',C.out],[0.5,'T_2',C.coral],[2/3,'T_3',C.err]].forEach(([T,l,c])=>{
         a.point(T,2*PI/T,{color:c,r:6,ring:C.plate});
-        a.note(T+0.025,2*PI/T+(T>0.6?-1.1:0.45)*PI,l,{anchor:'start',color:c,fs:15,tex:true}); });
+        a.note(T+0.025,2*PI/T+(T>0.6?-1.1:0.45)*PI,l,{anchor:'start',color:c,fs:15,tex:true,dy:T>0.6&&P.labelScale()>1?10:0}); });
       return a.svg(); },
       caption:'$\\omega_s=2\\pi/T$ against $T$. A period is safe while its point lies above the coral line, in the green band.'}
   ], right:[
@@ -1369,7 +1384,7 @@ realGallery({ id:'m7-real-nyquist', nav:'Sampling rates around us',
       return a.svg(); }, 'Phone speech, below $3.4$ kHz: $x(t)=0.7\\cos(\\pi t)+0.3\\cos(6.8\\pi t)$, $t$ in ms.',
       [['in','$x(t)$',true],['mid','$x(n/8)$']]],
     [()=>{ const x=t=>Math.cos(40*PI*t);
-      const a=P.Axes(EXO({xr:[0,0.255],yr:[-1.3,2.9],xlabel:'t\\;(\\text{ms})',ylabel:'x(t)',xticksOverride:[0,0.05,0.1,0.15,0.2,0.25],xtickfmt:v=>String(+v.toFixed(2)),yticksOverride:[-1,0,1],ytickfmt:v=>String(v)}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,0.255],yr:[-1.3,2.9],xlabel:'t\\;(\\text{ms})',ylabel:'x(t)',xticksOverride:[0,0.05,0.1,0.15,0.2,0.25],xtickfmt:v=>String(+v.toFixed(2)),yticksOverride:[-1,0,1],ytickfmt:v=>String(v)});
       a.curve(x,{color:C.in,dash:'9 6',n:1200});
       a.stem(samp(x,1/44.1,0,0.2501),{color:C.mid,r:3});
       return a.svg(); }, 'The top tone a CD keeps, $20$ kHz: $x(t)=\\cos(40\\pi t)$, $t$ in ms.',
@@ -1847,7 +1862,7 @@ realGallery({ id:'m7-real-recon', nav:'Reconstruction around us',
   keywords:'examples converter staircase audio player LED dimmer temperature chart straight lines phone smoothing filter',
   figs:[
     [()=>{ const T=1/16, x=t=>Math.sin(2*PI*t);
-      const a=P.Axes(EXO({xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]});
       a.curve(x,{color:C.in,dash:'9 6',width:1.6,n:600});
       a.poly(s3stair(x,T,0,2).slice(2),{color:C.out,width:2.2});
       return a.svg(); }, 'A music player holds each sample of a $1$ kHz tone for $T=62.5\\ \\mu\\text{s}$: $v(t)=\\sin(2\\pi\\,1000\\,nT)$.',
@@ -1867,7 +1882,7 @@ realGallery({ id:'m7-real-recon', nav:'Reconstruction around us',
       return a.svg(); }, 'Readings every $3$ h, $\\theta[n]=18+6\\sin\\bigl(2\\pi(3n-9)/24\\bigr)\\ ^{\\circ}\\text{C}$, joined by straight lines.',
       [['mid','$\\theta[n]$'],['out','joined by lines']]],
     [()=>{ const T=1/8, x=t=>Math.sin(2*PI*t);
-      const a=P.Axes(EXO({xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'y(t)\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'y(t)\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]});
       a.curve(x,{color:C.out,width:2.4,n:600});
       a.stem(D(n=>x(n*T),0,16).map(p=>[p[0]*T,p[1]]),{color:C.mid,r:3});
       return a.svg(); }, 'A phone filters samples $T=125\\ \\mu\\text{s}$ apart: $y(t)=\\sum_n x(nT)\\operatorname{sinc}\\bigl(\\pi(t-nT)/T\\bigr)=\\sin(2\\pi\\,1000\\,t)$.',
@@ -2836,7 +2851,7 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
       const dTex = Math.abs(+Dl.toFixed(4)-Dl)<1e-12 ? '='+s5n(Dl,4) : '\\approx'+s5n(Dl,4);
       const pad={l:74,r:24,t:20,b:34};
       return s5Stack([380,400],[0.6,0.6], h=>{
-        const a=AX({h,pad,xr:[-0.02,1.02],yr:[-1.25,2.55],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
+        const a=nameBelow(AX,{h,pad,xr:[-0.02,1.02],yr:[-1.25,2.55],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
           xlabel:'t\\;[\\text{ms}]',ylabel:'x(t),\\;Q\\bigl(x(t)\\bigr)',xticksOverride:[0,0.25,0.5,0.75,1]});
         if(B<=4) for(let i=0;i<L;i++) a.hline(-1+Dl*(i+0.5),{color:C.muted,opacity:.45});
         a.curve(x,{color:C.in,width:1.5,dash:'5 5',n:1600});
@@ -2907,7 +2922,7 @@ realGallery({ id:'m7-real-dtproc', nav:'Digital processing around us',
   objective:'Recognise everyday devices that sample a signal, process the numbers and convert back.',
   keywords:'examples phone hum 50 Hz 8 kHz equaliser bass 48 kHz ABS wheel speed sensor moving average 400 Hz camera sharpening edge pixels',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[-0.05,2.55],yr:[-1.5,3.4],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0.5,1,1.5,2],yticksOverride:[-1,0,1]}));
+    [()=>{ const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[-0.05,2.55],yr:[-1.5,3.4],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0.5,1,1.5,2],yticksOverride:[-1,0,1]});
       a.curve(t=>Math.sin(2*PI*0.8*t)+0.8*Math.sin(2*PI*0.05*t),{color:C.in,width:1.6,dash:'6 5',n:1200});
       a.stem(D(n=>Math.sin(2*PI*800*n/8000),0,20).map(([n,y])=>[n/8,Math.abs(y)<1e-9?0:y]),{color:C.out,r:3});
       return a.svg(); }, 'A phone at $8$ kHz removes the $50$ Hz hum: $y[n]=\\sin(2\\pi\\,800n/8000)$ V.',

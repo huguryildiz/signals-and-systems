@@ -244,8 +244,17 @@ const LABS = (() => {
       const N0 = (2*st.q)/g, kmin = st.p/g;
       const T0 = 2*Math.PI/w0;
       const xr = st.dt? [-2, 34] : [-1, 26];
-      const ax = PLOT.Axes({w:660,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
-        pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3});
+      const ao = {w:660,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
+        pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3};
+      /* projector mode: the larger axis name, a fixed drop under the zero line,
+         lands on a negative stem; it is set under the data area instead */
+      const LS = PLOT.labelScale();
+      if(LS > 1){
+        const D = 26*LS; ao.pad = Object.assign({}, ao.pad, {b: Math.max(36, D + 0.42*26*LS + 2)});
+        const t = PLOT.Axes(Object.assign({}, ao, {xnameDrop:0}));
+        ao.xnameDrop = D + t.y0 - t.sy(0);
+      }
+      const ax = PLOT.Axes(ao);
       if(st.dt){
         const pts=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) pts.push([n,Math.cos(w0*n+th)]);
         ax.stem(pts,{color:PLOT.COL.in});
