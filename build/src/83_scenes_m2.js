@@ -11,6 +11,11 @@ const num=v=>String(Math.round(v*100)/100);
 const groupOp=(k,g)=>{ const at=i=>(i===0||i===g)?1:0.18, i0=Math.floor(k), i1=Math.ceil(k);
   return at(i0)+(at(i1)-at(i0))*(k-i0); };
 const inner=s=>s.replace(/^<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'');
+/* A drawing placed at height y inside a larger figure, as a nested svg rather
+   than a translated group, so its labels and lines share one coordinate frame.
+   The inline size outweighs the figure.fig svg rule, which would stretch it. */
+const place=(svg,y,w,h)=>svg.replace('<svg ',`<svg x="0" y="${y}" width="${w}" height="${h}" overflow="visible" style="width:${w}px;height:${h}px;overflow:visible" `);
+const PJ=()=>P.labelScale()>1;
 /* ---- everyday systems, one gallery slide at the end of the teaching
        sections. The traces are schematic; each keeps the property it shows.
        A figure with two traces carries its legend as a third entry. */
@@ -163,14 +168,16 @@ const SC = [
          {t:'dot',x:250,y:138,r:10},{t:'dot',x:320,y:138,r:10},
          {t:'line',d:'M175,149 H395'},
          {t:'arrow',x1:172,y1:101,x2:223,y2:101,label:'f',tex:true},
-         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:'v',tex:true},
-         {t:'text',x:285,y:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
+         /* the projector's larger v would sit on the box edge above the arrow, so it goes after the arrowhead */
+         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:PJ()?'':'v',tex:true},
+         ...(PJ()?[{t:'text',x:353,y:60,label:'v',tex:true,fs:15,anchor:'start'}]:[]),
+         {t:'text',x:285,y:PJ()?180:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
         [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'x(t)',tex:true},
          {t:'box',x:150,y:60,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
          {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'y(t)',tex:true}]
       ];
       // one system at a time; Next cross-fades to the following one
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:220,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}">${place(P.blocks({w:560,h:220,items}),dy,560,220)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'An RC circuit and a car, each drawn inside a box, taken one at a time with Next. Seen from outside, both boxes are the same box.'}
   ], right:[
@@ -215,15 +222,15 @@ const SC = [
           {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17}],
          head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z'),
          {t:'text',x:525,y:146,label:'y=S_1(x)+S_2(x)',tex:true,fs:15,anchor:'end',color:C.ink}],
-        [[tag(296,'FEEDBACK',3),
+        [[tag(PJ()?292:296,'FEEDBACK',3),
           {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
           {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
           {t:'arrow',x1:300,y1:345,x2:525,y2:345},
           {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
           {t:'text',x:58,y:329,label:'x[n]',tex:true,fs:17},{t:'text',x:480,y:329,label:'y[n]',tex:true,fs:17},
-          {t:'text',x:175,y:388,label:'y[n-1]',tex:true,fs:15}],
+          {t:'text',x:PJ()?156:175,y:388,label:'y[n-1]',tex:true,fs:15}],
          head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z'),
-         {t:'text',x:525,y:296,label:'y[n]=x[n]+y[n-1]',tex:true,fs:15,anchor:'end',color:C.ink}]
+         {t:'text',x:525,y:PJ()?292:296,label:'y[n]=x[n]+y[n-1]',tex:true,fs:15,anchor:'end',color:C.ink}]
       ];
       // each relation appears once Next reaches its connection, and stays
       const body=groups.map(([items,extra,eq],i)=>`<g opacity="${groupOp(k,i+1).toFixed(3)}">${inner(P.blocks({w:560,h:440,items}))}${extra}<g opacity="${Math.min(1,Math.max(0,k-i)).toFixed(3)}">${inner(P.blocks({w:560,h:440,items:[eq]}))}</g></g>`).join('');
@@ -331,8 +338,8 @@ const SC = [
       {t:'line',d:'M105 240 C 210 270, 350 270, 455 240',color:C.out},
       {t:'dot',x:105,y:180,r:7,color:C.in},{t:'dot',x:455,y:180,r:7,color:C.in},
       {t:'dot',x:105,y:240,r:7,color:C.out},{t:'dot',x:455,y:240,r:7,color:C.out},
-      {t:'text',x:93,y:186,label:'x_1',fs:19,tex:true,color:C.in,anchor:'end'},{t:'text',x:93,y:246,label:'x_2',fs:19,tex:true,color:C.out,anchor:'end'},
-      {t:'text',x:467,y:186,label:'y_1',fs:19,tex:true,color:C.in,anchor:'start'},{t:'text',x:467,y:246,label:'y_2',fs:19,tex:true,color:C.out,anchor:'start'},
+      {t:'text',x:93,y:PJ()?190:186,label:'x_1',fs:19,tex:true,color:C.in,anchor:'end'},{t:'text',x:93,y:246,label:'x_2',fs:19,tex:true,color:C.out,anchor:'end'},
+      {t:'text',x:467,y:PJ()?190:186,label:'y_1',fs:19,tex:true,color:C.in,anchor:'start'},{t:'text',x:467,y:246,label:'y_2',fs:19,tex:true,color:C.out,anchor:'start'},
       {t:'text',x:280,y:138,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
     ]}), caption:'Invertibility is a property of the map. Distinct inputs must land on distinct outputs.'}
   ], right:[
@@ -408,8 +415,8 @@ const SC = [
         {t:'arrow',x1:262,y1:70,x2:282,y2:70},
         {t:'box',x:282,y:35,w:226,h:70,label:'w[n]=y[n]-y[n-1]',tex:true,fs:14,color:on(2)?C.coral:C.ink},
         {t:'arrow',x1:508,y1:70,x2:552,y2:70},
-        {t:'text',x:36,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:272,y:22,label:'y[n]',tex:true,fs:16},
-        {t:'text',x:530,y:24,label:'w[n]',tex:true,fs:16}]});
+        {t:'text',x:36,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:272,y:PJ()?28:22,label:'y[n]',tex:true,fs:16},
+        {t:'text',x:530,y:PJ()?29:24,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
         'y[0]=\\sum_{k=-\\infty}^{0}x[k]=x[0]=1','y[1]=\\sum_{k=-\\infty}^{1}x[k]=x[0]+x[1]=1+1=2','y[2]=\\sum_{k=-\\infty}^{2}x[k]=x[0]+x[1]+x[2]=1+1+1=3',
         'y[n]=\\sum_{k=-\\infty}^{n}x[k]=x[0]+x[1]+x[2]=1+1+1=3,\\quad n\\ge3',
@@ -547,7 +554,7 @@ const SC = [
         {t:'text',x:102,y:54,label:'x(t)',tex:true,fs:18},
         {t:'text',x:458,y:54,label:'y(t)',tex:true,fs:18}]});
       const a=P.Axes({w:560,h:H,xr:[-1,4.5],yr:[-0.3,2.6],xlabel:'t',ylabel:'\\text{amplitude}',
-        pad:{l:50,r:24,t:150,b:34},xstep:1,ystep:1});
+        pad:{l:50,r:24,t:PJ()?158:150,b:34},xstep:1,ystep:1});
       const x=t=>(t>=0&&t<=2)?1-Math.abs(t-1):0;
       const y=t=>2*x(t-1)*x(t-1)+x(3*t);
       a.raw(`<g opacity="${b.toFixed(3)}">`);
@@ -557,7 +564,7 @@ const SC = [
       a.raw('</g>');
       a.raw(`<g opacity="${(1-.45*b).toFixed(3)}">`);
       a.curve(x,{color:C.in,dash:b>0.5?'8 5':null,n:1400});
-      a.note(1.35,1.15,'x(t)',{anchor:'start',color:C.in,fs:16,tex:true});
+      a.note(PJ()?0.9:1.35,1.15,'x(t)',{anchor:PJ()?'end':'start',color:C.in,fs:16,tex:true});
       a.raw('</g>');
       return a.svg().replace(/<\/svg>\s*$/, inner(top)+'</svg>'); },
       caption:'Step through: first the input $x(t)$, a triangle of height $1$, then the output. The term $x(3t)$ gives a narrow triangle on $0\\le t\\le\\tfrac{2}{3}$; the term $2x^{2}(t-1)$ gives a bump of height $2$ on $1\\le t\\le3$. A proof of stability has to hold for every input that stays within $B$.'},
@@ -624,7 +631,7 @@ const SC = [
       const k=v?v.frame:0, H=Math.max(P.hOverride||420,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
       const op=i=>Math.max(0,Math.min(1,k-i+1)).toFixed(3);
       const nm=(x,y,l)=>({t:'text',x,y:y-16,label:l,tex:true,fs:15,color:C.ink});
-      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*(r||0),label:l,tex:true,fs:14,color:C.coral});
+      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*P.labelScale()*(r||0),label:l,tex:true,fs:14,color:C.coral});
       const row=y=>[{t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
         {t:'arrow',x1:355,y1:y,x2:530,y2:y}];
       const r1=70, r2=205, r3=345;
@@ -634,7 +641,7 @@ const SC = [
          ex(443,r2,'=\\sin\\bigl(x_2(t)\\bigr)'),ex(443,r2,'=\\sin\\bigl(x_1(t-t_0)\\bigr)',1)],
         [{t:'line',d:`M15,${r3-32} H545 V${r3+32} H15 Z`,color:C.coral},
          {t:'text',x:280,y:r3+4,label:'y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)=y_2(t)',tex:true,fs:16,color:C.coral}]];
-      const body=groups.map((items,i)=>`<g opacity="${op(i)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${op(i)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'Worked for $y(t)=\\sin\\bigl(x(t)\\bigr)$. The shifted input $x_2$ gives $y_2$, and $y_2$ equals $y_1$ shifted by $t_0$, so the system is time invariant.'}
   ], right:[
@@ -660,7 +667,7 @@ const SC = [
     {t:'fig', frame:true, grow:true, svg:()=>{
       const H = P.hOverride || 420, h = Math.round(H/3); P.hOverride = null;
       const panel = (ylabel, f, col, tag)=>{
-        const a=P.Axes({w:560,h,xr:[-3,4],yr:[-0.3,1.4],grid:false,xlabel:'n',ylabel,xnameDrop:30,
+        const a=P.Axes({w:560,h,xr:[-3,4],yr:[-0.3,1.4],grid:false,xlabel:'n',ylabel,xnameDrop:PJ()?36:30,
           pad:{l:46,r:30,t:12,b:24},xticksOverride:[-3,-2,-1,0,1,2,3],yticksOverride:[0,1]});
         a.vline(1,{color:C.muted});
         a.stem(disc(f,-3,3),{color:col,r:4});
@@ -742,7 +749,7 @@ const SC = [
          {t:'line',d:'M15,276 H545 V384 H15 Z',color:C.coral}]
       ];
       // rows build up one per Next: the two known pairs, then the combined input
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'$x_1$ gives $y_1$ and $x_2$ gives $y_2$. In a linear system the input $a\\,x_1+b\\,x_2$ gives $a\\,y_1+b\\,y_2$.'}
   ], right:[
@@ -778,7 +785,7 @@ const SC = [
          {t:'line',d:'M15,246 H545 V390 H15 Z',color:C.coral}]
       ];
       // same three rows as the Linearity slide; the third one fails
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'Each input alone comes out squared. The combined input comes out as $(a\\,x_1[2n]+b\\,x_2[2n])^2$, which carries the cross term $2ab\\,x_1[2n]x_2[2n]$.'}
   ], right:[

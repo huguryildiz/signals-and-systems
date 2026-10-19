@@ -263,9 +263,17 @@ Object.assign(LABS, (function(){
          scale is read off the magnitude panel above. */
       const wrap = a=>{ let v=((a+PI)%(2*PI)+2*PI)%(2*PI)-PI; return v; };
       const phaseAfter = w=>{ const X=Xa(w); if(Math.hypot(X.re,X.im)<1e-9) return 0; return wrap(Math.atan2(X.im,X.re)); };
-      const A3 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
+      const o3 = {w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
         xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',
-        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
+        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)};
+      /* In projector mode the larger axis name, set from the zero line, would
+         sit on the phase trace; it goes under the data area instead, with the
+         lower margin made what it needs and the drop solved for that margin. */
+      const LS = PLOT.labelScale();
+      if(LS > 1){ const h0 = PLOT.hOverride, t = PLOT.Axes(o3); PLOT.hOverride = h0;
+        const NB = 26*LS, G = 0.8*NB + 2, Pb = Math.max(o3.pad.b, G + 0.42*NB + 1);
+        o3.pad = Object.assign({}, o3.pad, {b:Pb}); o3.xnameDrop = G + 0.5*(t.H - t.y1 - Pb); }
+      const A3 = PLOT.Axes(o3);
       A3.curve(phaseAfter,{color:PLOT.COL.out,n:1600});
 
       root.querySelector('.plots').innerHTML =

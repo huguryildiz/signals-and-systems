@@ -4789,8 +4789,17 @@ const LABS = (() => {
       const N0 = (2*st.q)/g, kmin = st.p/g;
       const T0 = 2*Math.PI/w0;
       const xr = st.dt? [-2, 34] : [-1, 26];
-      const ax = PLOT.Axes({w:660,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
-        pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3});
+      const ao = {w:660,h:250,xr,yr:[-1.35,1.35],xlabel:st.dt?'n':'t',ylabel:st.dt?'x[n]':'x(t)',
+        pad:{l:46,r:26,t:20,b:36},xtarget:10,ytarget:3};
+      /* projector mode: the larger axis name, a fixed drop under the zero line,
+         lands on a negative stem; it is set under the data area instead */
+      const LS = PLOT.labelScale();
+      if(LS > 1){
+        const D = 26*LS; ao.pad = Object.assign({}, ao.pad, {b: Math.max(36, D + 0.42*26*LS + 2)});
+        const t = PLOT.Axes(Object.assign({}, ao, {xnameDrop:0}));
+        ao.xnameDrop = D + t.y0 - t.sy(0);
+      }
+      const ax = PLOT.Axes(ao);
       if(st.dt){
         const pts=[]; for(let n=Math.ceil(xr[0]);n<=xr[1];n++) pts.push([n,Math.cos(w0*n+th)]);
         ax.stem(pts,{color:PLOT.COL.in});
@@ -9515,9 +9524,17 @@ Object.assign(LABS, (function(){
          scale is read off the magnitude panel above. */
       const wrap = a=>{ let v=((a+PI)%(2*PI)+2*PI)%(2*PI)-PI; return v; };
       const phaseAfter = w=>{ const X=Xa(w); if(Math.hypot(X.re,X.im)<1e-9) return 0; return wrap(Math.atan2(X.im,X.re)); };
-      const A3 = PLOT.Axes({w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
+      const o3 = {w:760,h:145,xr:[-wmax,wmax],yr:[-3.6,3.6],
         xlabel:'\\omega\\;[\\text{rad/s}]',ylabel:'\\angle X(j\\omega)\\;[\\text{rad}]',
-        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)});
+        pad:{l:60,r:24,t:12,b:28},xpi:true,xtarget:10,xtickfmt:()=>'',yticksOverride:[-PI,0,PI],ytickfmt:v=>v.toFixed(2)};
+      /* In projector mode the larger axis name, set from the zero line, would
+         sit on the phase trace; it goes under the data area instead, with the
+         lower margin made what it needs and the drop solved for that margin. */
+      const LS = PLOT.labelScale();
+      if(LS > 1){ const h0 = PLOT.hOverride, t = PLOT.Axes(o3); PLOT.hOverride = h0;
+        const NB = 26*LS, G = 0.8*NB + 2, Pb = Math.max(o3.pad.b, G + 0.42*NB + 1);
+        o3.pad = Object.assign({}, o3.pad, {b:Pb}); o3.xnameDrop = G + 0.5*(t.H - t.y1 - Pb); }
+      const A3 = PLOT.Axes(o3);
       A3.curve(phaseAfter,{color:PLOT.COL.out,n:1600});
 
       root.querySelector('.plots').innerHTML =
@@ -11063,6 +11080,10 @@ Object.assign(LABS, (function(){
     /* the name of the dependent variable is anchored on the zero line, which is
        the middle of a symmetric frequency axis, so the words go to the left of
        the bracket rather than above its midpoint */
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }
@@ -11163,7 +11184,7 @@ Object.assign(LABS, (function(){
            and the dashed markers at odd multiples of pi. */
         const big = phmax > 2.5, ph = Math.max(phmax, 0.05);
         const A3 = PLOT.Axes(Object.assign({w:760,h:150,yr:big?[-4.3,5.6]:[-1.35*ph,1.95*ph],
-          ylabel:'\\angle X(e^{j\\omega})\\;(\\text{rad})',pad:{l:70,r:24,t:28,b:36},xtickfmt:()=>'',
+          ylabel:'\\angle X(e^{j\\omega})\\;(\\text{rad})',pad:{l:PLOT.labelScale()>1?86:70,r:24,t:28,b:36},xtickfmt:()=>'',
           yticksOverride:big?[-PI,PI]:uniq([-phmax,phmax]),ytickfmt:v=>fmt(v,big?2:4)}, W));
         frame(A3, big?4.3:1.6*ph);
         A3.curve(broken(w=>arg(s.X(w,p))),{color:PLOT.COL.mid,width:2,n:6000});
@@ -11330,6 +11351,10 @@ Object.assign(LABS, (function(){
         pad:{l:64,r:24,t:30,b:36},xticksOverride:wTicks(-2.2*PI,2.2*PI,PI),xtickfmt:piTick,ytarget:3,yticksLeft:true});
       A2.vline(-PI,{color:PLOT.COL.coral,opacity:.5}); A2.vline(PI,{color:PLOT.COL.coral,opacity:.5});
       A2.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+      /* a slide or a laboratory sets the name of the dependent variable at the
+         upper-left edge, where the enlarged words of projector mode reach it;
+         there the name goes back to the zero line, clear of the words */
+      if(PLOT.labelScale() > 1) A2.o.ynameAtAxis = true;
       A2.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
       A2.curve(w=>Xw(sh,w),{color:PLOT.COL.mid,width:1.8,dash:'6 5',n:2400});
       A2.stem(stems,{color:PLOT.COL.in,r:N>20?2.4:3.2,showZero:true});
@@ -11618,6 +11643,10 @@ Object.assign(LABS, (function(){
   function period(a, top){
     for(const m of [-3,-1,1,3]) a.vline(m*PI,{color:PLOT.COL.coral,opacity:.5});
     a.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }
@@ -11820,6 +11849,10 @@ Object.assign(LABS, (function(){
   function frame(a, top){
     a.vline(-PI,{color:PLOT.COL.coral,opacity:.5}); a.vline(PI,{color:PLOT.COL.coral,opacity:.5});
     a.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }
@@ -12067,6 +12100,10 @@ Object.assign(LABS, (function(){
   function period(a, top){
     for(const m of [-3,-1,1,3]) a.vline(m*PI,{color:PLOT.COL.coral,opacity:.5});
     a.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+    /* a slide or a laboratory sets the name of the dependent variable at the
+       upper-left edge, where the enlarged words of projector mode reach it;
+       there the name goes back to the zero line, clear of the words */
+    if(PLOT.labelScale() > 1) a.o.ynameAtAxis = true;
     a.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
     return a;
   }
@@ -13973,9 +14010,15 @@ Object.assign(LABS, (function(){
       const outCol = s.above && !s.removed ? C.err : C.out;
 
       /* ---- 1: the tone, its samples, and the cosine through them ---- */
-      const A1 = PLOT.Axes({w:760,h:170,xr:[-0.03,TMAX+0.03],yr:[-1.35,1.35],
+      const o1 = {w:760,h:PLOT.labelScale()>1?194:170,xr:[-0.03,TMAX+0.03],yr:[-1.35,1.35],
         xlabel:'t\\;[\\text{ms}]',ylabel:'x(t),\\;x_r(t)',pad:{l:56,r:24,t:20,b:30},yticksLeft:true,
-        yticksOverride:[-1,0,1],xticksOverride:[0,0.5,1,1.5,2]});
+        yticksOverride:[-1,0,1],xticksOverride:[0,0.5,1,1.5,2]};
+      /* in projector mode the enlarged name t [ms] reaches the trough of the
+         tone, so the panel is taller and the name is dropped just below the
+         data area; the layout is repeated until the zero line settles */
+      if(PLOT.labelScale() > 1){ let t0 = PLOT.Axes(Object.assign({}, o1, {xnameDrop:0}));
+        for(let k=0; k<3; k++){ o1.xnameDrop = (t0.y0 - t0.sy(0)) + 26*PLOT.labelScale(); t0 = PLOT.Axes(o1); } }
+      const A1 = PLOT.Axes(o1);
       A1.curve(xin,{color:C.in,width:1.4,dash:'5 5',n:3200});
       A1.curve(out,{color:outCol,width:2.4,n:2000});
       const pts=[]; for(let n=0;n<=TMAX*fs+1e-9;n++) pts.push([n/fs, xs(n/fs)]);
@@ -17144,9 +17187,12 @@ function blackBoxFig(){
   const L=d=>it.push({t:'line',d}), T=(x,y,label,o)=>it.push(Object.assign({t:'text',x,y,label,tex:true,fs:14},o||{}));
   rows.forEach((cy,k)=>{
     it.push({t:'arrow',x1:30,y1:cy,x2:bx,y2:cy}, {t:'arrow',x1:bx+bw,y1:cy,x2:690,y2:cy});
-    it.push({t:'box',x:bx,y:cy-45,w:bw,h:110});
+    /* projector: the third box opens upward, so the feedback wire and the larger
+       R_2 between it and the resistor fit inside */
+    const up=(k===2 && P.labelScale()>1)?12:0;
+    it.push({t:'box',x:bx,y:cy-45-up,w:bw,h:110+up});
     T(90,cy-16,'x(t)',{fs:18}); T(630,cy-16,'y(t)',{fs:18});
-    it.push({t:'text',x:bx+6,y:cy-54,label:['Low-pass filter','High-pass filter','A complicated circuit'][k],fs:14,anchor:'start'});
+    it.push({t:'text',x:bx+6,y:cy-54-up,label:['Low-pass filter','High-pass filter','A complicated circuit'][k],fs:14,anchor:'start'});
   });
   /* low-pass: series R, shunt C */
   let cy=rows[0];
@@ -17160,19 +17206,22 @@ function blackBoxFig(){
   T(285,cy-20,'C'); T(416,cy+24,'R');
   /* a tangle: two RC sections, a coil, an op-amp buffer with feedback, an output RC */
   cy=rows[2];
+  /* projector mode: the feedback wire rises and the labels drop, so the larger
+     R_2 fits between them and R_1, C_2 clear the resistors */
+  const PJ=P.labelScale()>1, FB=PJ?46:32, LD=PJ?10:0;
   L(CK.wire(bx,cy,168,cy)); L(CK.res(168,cy,50)); L(CK.wire(218,cy,262,cy));
   L(CK.dot(240,cy)); L(CK.indV(240,cy,36)); L(CK.gnd(240,cy+36));
-  L(CK.capV(240,cy-32,32)); L(CK.wire(240,cy-32,425,cy-32));
+  L(CK.capV(240,cy-FB,FB)); L(CK.wire(240,cy-FB,425,cy-FB));
   L(CK.res(262,cy,46)); L(CK.wire(308,cy,345,cy));
   L(CK.dot(322,cy)); L(CK.capV(322,cy,30)); L(CK.gnd(322,cy+30));
   L(`M345,${cy-16}V${cy+34}L400,${cy+9}Z`);
   L(CK.wire(335,cy+22,345,cy+22)); L(`M335,${cy+22}V${cy+56}H425V${cy+9}`);
-  L(CK.wire(400,cy+9,425,cy+9)); L(CK.wire(425,cy-32,425,cy+9)); L(CK.dot(425,cy+9));
+  L(CK.wire(400,cy+9,425,cy+9)); L(CK.wire(425,cy-FB,425,cy+9)); L(CK.dot(425,cy+9));
   L(CK.wire(425,cy,440,cy)); L(CK.res(440,cy,50)); L(CK.wire(490,cy,bx+bw,cy));
   L(CK.dot(522,cy)); L(CK.capV(522,cy,30)); L(CK.gnd(522,cy+30));
-  T(193,cy+24,'R_1'); T(285,cy-16,'R_2'); T(465,cy-16,'R_3');
-  T(224,cy-18,'C_1',{anchor:'end'}); T(258,cy+26,'L',{anchor:'start'});
-  T(296,cy+26,'C_2',{anchor:'end'}); T(540,cy+22,'C_3',{anchor:'start'});
+  T(193,cy+24+LD+(PJ?4:0),'R_1'); T(285,cy-16,'R_2'); T(465,cy-16,'R_3');
+  T(224,cy-18,'C_1',{anchor:'end'}); T(PJ?232:258,cy+26,'L',{anchor:PJ?'end':'start'});
+  T(PJ?306:296,cy+26+LD,'C_2',{anchor:'end'}); T(540,cy+22+LD,'C_3',{anchor:'start'});
   T(352,cy+1,'+',{fs:12,anchor:'start'}); T(352,cy+24,'-',{fs:12,anchor:'start'});
   return P.blocks({w:720,h:500,items:it});
 }
@@ -17278,7 +17327,7 @@ function dimensionsFigure(v){
   a.point(tp, vowel(tp/1000), {color:C.coral});
   a.note(tp+0.5, -1.05, '\\text{one instant}\\to\\text{one value}', {fs:14, color:C.coral, tex:true});
   g.push(a.svg().replace(/^<svg[^>]*>/, '<g>').replace(/<\/svg>$/, '</g>'));
-  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, 28, 16);
+  name('\\text{1-D}\\quad x(t)\\text{: air pressure of a spoken vowel}', {xRight:W-8}, P.labelScale()>1 ? 34 : 28, 16);
   /* ---- 2-D: image ---- */
   const Y0 = 284, NX = 48, NY = 36, CELL = 8.25;
   const ix = 62, iy = Y0 + 44, iw = NX*CELL, ih = NY*CELL;
@@ -17517,6 +17566,21 @@ const ecgBeat = t => { const u=((t%0.8)+0.8)%0.8, g=(c,w,a)=>a*Math.exp(-(((u-c)
 /* the slides whose captions run to three lines get a shorter plot, so the page
    does not lean on the fit-to-scene rescue in projector mode */
 const EXS = o => EXO(Object.assign({h:205}, o));
+/* Projector mode: when the data run down to the right-hand end of the x axis,
+   the time-axis name, set a fixed drop under the zero line, lands on the trace.
+   There the name is set under the data area instead, with the bottom margin
+   widened to hold it; a throw-away pass finds where the zero line falls.
+   Normal size is unchanged. */
+const XLOW = o => {
+  const L = P.labelScale();
+  if(L <= 1 || !o.xlabel || o.xnameDrop != null || !(o.yr[0] < 0 && o.yr[1] > 0)) return o;
+  const b = Object.assign({}, o);
+  if(P.hOverride){ b.h = P.hOverride; P.hOverride = null; }
+  const D = 26*L, pad = Object.assign({}, b.pad||{});
+  pad.b = Math.max(pad.b||0, D + 0.42*26*L + 2);
+  const t = P.Axes(Object.assign({}, b, {pad, xnameDrop:0}));
+  return Object.assign(b, {pad, xnameDrop: D + t.y0 - t.sy(0)});
+};
 function realGallery(cfg){
   return { id:cfg.id, module:'M1', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -17579,7 +17643,7 @@ const REAL_TRANSFORM = realGallery({ id:'m1-real-transform', nav:'Transformation
       a.note(2.75,1.05,'x(t)',{tex:true,color:C.muted}); a.note(0.35,1.05,'x(2t)',{tex:true,color:C.in});
       return a.svg(); }, 'Double-speed playback: $x(2t)$ lasts half as long and every pitch doubles.'],
     [()=>{ const f=n=>Math.cos(2*Math.PI*n/16)+0.3*Math.sin(2*Math.PI*n/5);
-      const a=P.Axes(EXO({xr:[0,24],yr:[-1.5,1.5],xlabel:'n',ylabel:'\\text{frame value}',xstep:8}));
+      const a=P.Axes(XLOW(EXO({xr:[0,24],yr:[-1.5,1.5],xlabel:'n',ylabel:'\\text{frame value}',xstep:8})));
       a.stem(disc(f,0,24),{color:C.muted}); a.stem(disc(n=>f(2*n),0,12),{color:C.mid});
       return a.svg(); }, 'Keeping every second video frame: grey stems are $x[n]$, coloured stems $x[2n]$.']
   ],
@@ -17598,10 +17662,11 @@ const REAL_PERIODIC = realGallery({ id:'m1-real-periodic', nav:'Periodic signals
       a.curve(ecgBeat,{color:C.in,n:1400}); a.span(1.1,1.9,1.35,'T\\approx 0.8\\;\\text{s}',{tex:true});
       return a.svg(); }, 'A resting heartbeat repeats about every 0.8 s. A real heart is only nearly periodic.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,60],yr:[-400,480],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:20}));
-      a.curve(t=>325*Math.cos(2*Math.PI*0.05*t),{color:C.in,n:900}); a.span(0,20,380,'T=20\\;\\text{ms}',{tex:true});
+      a.curve(t=>325*Math.cos(2*Math.PI*0.05*t),{color:C.in,n:900}); /* projector: the second period, clear of the grown axis name */
+      const k=P.labelScale()>1?1:0; a.span(20*k,20*(k+1),380,'T=20\\;\\text{ms}',{tex:true});
       return a.svg(); }, 'Mains voltage at 50 Hz repeats every 20 ms.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,48],yr:[-2,2.4],xlabel:'t\\;(\\text{h})',ylabel:'h(t)\\;(\\text{m})',xstep:12}));
-      a.curve(t=>1.5*Math.cos(2*Math.PI*t/12.42),{color:C.in}); a.span(0,12.42,1.9,'T\\approx 12.4\\;\\text{h}',{tex:true});
+      a.curve(t=>1.5*Math.cos(2*Math.PI*t/12.42),{color:C.in}); const k=P.labelScale()>1?1:0; a.span(12.42*k,12.42*(k+1),1.9,'T\\approx 12.4\\;\\text{h}',{tex:true});
       return a.svg(); }, 'Sea level in a harbour: the tide repeats about every 12.4 hours.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,36],yr:[0,34],xlabel:'n\\;(\\text{month})',ylabel:'T[n]\\;(^\\circ\\text{C})',xstep:12}));
       a.stem(disc(n=>14-10*Math.cos(2*Math.PI*(n-0.5)/12),0,35),{color:C.mid}); a.span(12,24,31,'N=12',{tex:true});
@@ -17745,16 +17810,16 @@ const CAT_WAVE = realGallery({ id:'m1-cat-wave', nav:'Sine, square, triangle, sa
   keywords:'catalogue common signals periodic waveform sine square triangle sawtooth average power pitch timbre harmonics sound',
   budget:'A catalogue of four periodic waveforms; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.sine,{color:C.in,n:900});
       return a.svg(); }, 'Sine: $x(t)=A\\sin(2\\pi t/T_0)$. Average power $A^2/2$.', at220(WAVE.sine)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.square,{color:C.in,n:1800});
       return a.svg(); }, 'Square: $x(t)=A$ for $0\\le t<T_0/2$ and $-A$ for $T_0/2\\le t<T_0$. Average power $A^2$.', at220(WAVE.square)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.tri,{color:C.in,n:900});
       return a.svg(); }, 'Triangle: $x(t)=A\\,(1-4|t|/T_0)$ for $|t|\\le T_0/2$. Average power $A^2/3$.', at220(WAVE.tri)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.saw,{color:C.in,n:1800});
       return a.svg(); }, 'Sawtooth: $x(t)=A\\,(2t/T_0-1)$ for $0\\le t<T_0$. Average power $A^2/3$.', at220(WAVE.saw)]
   ],
@@ -17769,22 +17834,22 @@ const CAT_SOUND = realGallery({ id:'m1-cat-sound', nav:'Chirp, beats, AM, FM',
   keywords:'catalogue common signals chirp sweep instantaneous frequency beats amplitude modulation AM tremolo frequency modulation FM vibrato siren sound',
   budget:'A catalogue of four audible signals; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXS({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1})));
       a.curve(t=>Math.cos(2*Math.PI*(0.3*t+0.25*t*t)),{color:C.in,n:1600});
       return a.svg(); }, 'Chirp: $x(t)=\\cos\\!\\big(2\\pi(f_0t+\\tfrac{k}{2}t^2)\\big)$. Its frequency $f_0+kt$ rises with time. Drawn with $f_0=0.3$ Hz, $k=0.5$ Hz/s.',
       {items:[{label:'Play 200 Hz to 2 kHz', sound:()=>({f:t=>Math.cos(2*Math.PI*(200*t+450*t*t)), dur:2})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       a.curve(t=>2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'}); a.curve(t=>-2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'});
       a.curve(t=>Math.cos(2*Math.PI*10*t)+Math.cos(2*Math.PI*11*t),{color:C.in,n:1600});
       return a.svg(); }, 'Beats: $\\cos(2\\pi f_1t)+\\cos(2\\pi f_2t)=2\\cos(\\pi(f_1-f_2)t)\\cos(\\pi(f_1+f_2)t)$. The loudness peaks $|f_1-f_2|$ times a second.',
       {items:[{label:'Play 440 Hz + 444 Hz', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+Math.cos(2*Math.PI*444*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       const env=t=>1+0.8*Math.cos(2*Math.PI*t);
       a.curve(env,{color:C.muted,dash:'4 4'}); a.curve(t=>-env(t),{color:C.muted,dash:'4 4'});
       a.curve(t=>env(t)*Math.cos(2*Math.PI*12*t),{color:C.in,n:1600});
       return a.svg(); }, 'AM: $x(t)=\\big(1+m\\cos(2\\pi f_mt)\\big)\\cos(2\\pi f_ct)$ with $0<m\\le1$. The dashed envelope is $\\pm\\big(1+m\\cos(2\\pi f_mt)\\big)$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz', sound:()=>({f:t=>(1+0.8*Math.cos(2*Math.PI*3*t))*Math.cos(2*Math.PI*440*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       a.curve(t=>Math.cos(2*Math.PI*10*t+5*Math.sin(2*Math.PI*t)),{color:C.in,n:1600});
       return a.svg(); }, 'FM: $x(t)=\\cos\\!\\big(2\\pi f_ct+\\beta\\sin(2\\pi f_mt)\\big)$. The amplitude stays fixed; the frequency $f_c+\\beta f_m\\cos(2\\pi f_mt)$ swings about $f_c$. Drawn with $f_c=10$ Hz, $f_m=1$ Hz, $\\beta=5$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz, $\\beta=30$', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t+30*Math.sin(2*Math.PI*3*t)), dur:3})}]}]
@@ -17817,7 +17882,7 @@ const CAT_RANDOM = realGallery({ id:'m1-cat-random', nav:'Noise, noisy tone, ran
       a.curve(t=>Math.cos(2*Math.PI*t)+0.35*hiss(Math.floor(60*t)),{color:C.in,n:1800});
       return a.svg(); }, 'Signal plus noise: $x(t)=\\cos(2\\pi f_0t)+\\sigma\\,w(t)$. The dashed curve is the tone alone. A measured signal almost always looks like this.',
       {items:[{label:'Play 440 Hz + noise', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+0.5*hiss(Math.floor(16000*t)), dur:2})}]}],
-    [()=>{ const w=walkSeq(60,1), a=P.Axes(EXS({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20}));
+    [()=>{ const w=walkSeq(60,1), a=P.Axes(XLOW(EXS({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20})));
       a.stem(w.map((v,n)=>[n,v]),{color:C.mid,r:2.6});
       return a.svg(); }, 'Random walk: $x[n]=x[n-1]+w[n]$ with $x[0]=0$. Each step is random, but the sum wanders far from zero.',
       {items:[{label:'Play a random walk', sound:()=>{ const w=walkSeq(16000*2,0.995); return {f:t=>w[Math.floor(16000*t)]||0, dur:2}; }}]}],
@@ -18198,7 +18263,7 @@ const SC = [
       a.curve(t=>1,{color:C.h});
       a.note(3.9,1.1,'x(t)=1',{anchor:'end',color:C.h,fs:15,tex:true});
       a.vline(-2,{color:C.coral}); a.vline(2,{color:C.coral});
-      a.span(-2,2,1.3,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});
+      a.span(-2,2,P.labelScale()>1?1.2:1.3,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});   /* projector: under the 1.5 tick */
       return a.svg(); },
       caption:'The constant $x(t)=1$. The energy in the window grows with the window, so the total energy is infinite.'}
   ], right:[
@@ -18359,7 +18424,7 @@ REAL_ENERGY,
         const lbl=(t0>0?'delay by ':'advance by ')+num(Math.abs(t0))+' s';
         // the label goes under the bracket, clear of the tick numbers above it
         a.span(Math.min(0,t0),Math.max(0,t0),-0.38,'',{color:C.h});
-        a.note(t0>0?0.15:-0.15,-0.38,lbl,{anchor:t0>0?'start':'end',color:C.h,dy:16});   // starts beside the vertical axis, never across it
+        a.note(t0>0?0.15:-0.15,-0.38,lbl,{anchor:t0>0?'start':'end',color:C.h,dy:16*P.labelScale()});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $t_0$. The pulse keeps its shape and only its position changes. A positive $t_0$ moves it to the right.'},
@@ -18396,7 +18461,7 @@ REAL_ENERGY,
         const lbl=(n0>0?'delay by ':'advance by ')+num(Math.abs(n0))+(Math.abs(n0)===1?' sample':' samples');
         // the label goes under the bracket, clear of the tick numbers above it
         a.span(Math.min(0,n0),Math.max(0,n0),-0.38,'',{color:C.h});
-        a.note(n0>0?0.3:-0.3,-0.38,lbl,{anchor:n0>0?'start':'end',color:C.h,dy:16});   // starts beside the vertical axis, never across it
+        a.note(n0>0?0.3:-0.3,-0.38,lbl,{anchor:n0>0?'start':'end',color:C.h,dy:16*P.labelScale()});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $n_0$. Every sample moves by the same whole number of steps. A positive $n_0$ moves the sequence to the right.'},
@@ -18499,7 +18564,7 @@ REAL_ENERGY,
            that is not a short decimal is written as a reduced fraction */
         const g=(m,n)=>n?g(n,m%n):m, edge=p=>{ const n=Math.round(4*k), q=4*p, d=g(q,n);
           return Math.abs(100*p/k-Math.round(100*p/k))<1e-9 ? num(p/k) : '\\tfrac{'+q/d+'}{'+n/d+'}'; };
-        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true}));
+        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true,dy:(P.labelScale()-1)*50}));
       }
       return a.svg(); },
       caption:'Drag $a$. The pulse on $[1,3]$ moves to $[1/a,\\,3/a]$. Its height does not change.'},
@@ -18573,21 +18638,24 @@ REAL_ENERGY,
       const b=v?v.b:5, k=v?v.a:3;
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const hi=Math.max(10, Math.ceil((4+b)/k)+1);
-      const a=P.Axes({w:560,h:380,xr:[-3,hi],yr:[-0.85,3],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:hi>10?8:9,ytarget:3});
-      const at=k===1?'t':num(k)+'t', arg=b>0?at+'-'+num(b):at;
+      /* projector: more room above for the three grown names, set a line apart
+         in pixels, and below for the corner fractions under the tick row */
+      const LS=P.labelScale(), PJ=LS>1, top=PJ?3.6:3, ny=PJ?3.45:2.85;
+      const a=P.Axes({w:560,h:380,xr:[-3,hi],yr:[PJ?-1.5:-0.85,top],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:hi>10?8:9,ytarget:3});
+      const at=k===1?'t':num(k)+'t', arg=b>0?at+'-'+num(b):at, gap=PJ?26*LS:0;
       a.curve(x,{color:C.ink,opacity:.3,n:1200});
-      a.note(hi-0.4,2.85,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.note(hi-0.4,ny,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
       a.curve(t=>x(t-b),{color:C.mid,opacity:.6,dash:'6 5',n:1200});
-      a.note(hi-0.4,2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true});
+      a.note(hi-0.4,PJ?ny:2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true,dy:gap});
       a.curve(t=>x(k*t-b),{color:C.out,width:2.6,n:1200});
-      a.note(hi-0.4,2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(hi-0.4,PJ?ny:2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true,dy:2*gap});
       /* corner times (c+b)/a of y for the corners c=-2,0,2,4 of x, written as
          reduced fractions under the tick labels, each on its own guide line */
       const g=(m,n)=>n?g(n,m%n):m;
       [-2,0,2,4].forEach(c=>{ const t=(c+b)/k, p=Math.round(4*(c+b)), q=Math.round(4*k), d=Math.abs(g(p,q))||1;
         const l=q/d===1 ? String(p/d) : (p<0?'-':'')+'\\dfrac{'+Math.abs(p)/d+'}{'+q/d+'}';
         a.poly([[t,0],[t,2.2]],{color:C.out,width:.8,dash:'3 4'});
-        a.note(t,-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true}); });
+        a.note(t,PJ?-0.95:-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true,dy:PJ?30:0}); });
       return a.svg(); },
       caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Move $b$ to shift $x(t)$ right; move $a$ to scale the shifted signal about $t=0$: $a>1$ compresses, $0<a<1$ stretches, and the axis widens to follow it. The green numbers are the new corner times $(c+b)/a$.'}
   ], right:[
@@ -18619,12 +18687,13 @@ REAL_ENERGY,
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,3],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+      const dn=P.labelScale()>1?8:0;   /* projector: the grown names clear the frame's top edge */
       if(st<2){ a.curve(x,{color:C.ink,opacity:st?.3:1,n:1200});
-        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true}); }
+        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true,dy:dn}); }
       if(st>=1){ a.curve(t=>x(t-5),{color:C.mid,opacity:st>1?.45:1,dash:st>1?'6 5':null,n:1200});
-        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true}); }
+        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true,dy:dn}); }
       const y=()=>{ a.curve(t=>x(3*t-5),{color:C.out,width:2.6,n:1200});
-        a.note(9.6,2.35,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
+        a.note(9.6,2.35,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true,dy:dn});
         [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5})); };
       if(st>=2) y(); else { a.raw('<g class="sk-key">'); y(); a.raw('</g>'); }
       return a.svg(); },
@@ -18698,7 +18767,7 @@ REAL_TRANSFORM,
       a.curve(t=>Math.cos(Math.PI*t),{color:C.in,n:1200});
       a.span(0,2,1.3,'T_0=2\\ \\text{s}',{color:C.coral,tex:true});
       ['0','\\pi','2\\pi','3\\pi','4\\pi'].forEach((s,k)=>a.note(k,1.95,s,{anchor:'middle',color:C.h,fs:15,tex:true}));
-      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true});
+      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true,dy:(P.labelScale()-1)*30});
       return a.svg(); },
       caption:'$x(t)=\\cos(\\pi t)$. In one period, $T_0=2$ s, the angle $\\omega_0 t$ grows by $2\\pi$ rad. So $f_0=0.5$ Hz and $\\omega_0=\\pi$ rad/s.'}
   ], right:[
@@ -18736,7 +18805,7 @@ REAL_TRANSFORM,
           <ellipse cx="${nx+3}" cy="${ny-25}" rx="6" ry="3" fill="rgba(0,0,0,.3)"/>
           <circle cx="${nx}" cy="${ny-29}" r="7" fill="#D13B3B"/>
           <circle cx="${nx-2.2}" cy="${ny-31.2}" r="2.2" fill="rgba(255,255,255,.55)"/>`);
-        a.note(x,y,tex,{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
+        a.note(x,y,tex,{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:P.labelScale()>1?9:4});
         a.raw('</g>'); };
       sticky(-8,-3.2,210,0,'N\\text{ must be an integer}');
       sticky(8,-3.2,210,0,'N_0=\\text{smallest }N>0');
@@ -18840,7 +18909,7 @@ REAL_TRANSFORM,
       return a.svg(); },
       caption:'$t^2$ is even: the graph is its own mirror image about the axis $t=0$.'},
     {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:560,h:218,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
+      const a=P.Axes(XLOW({w:560,h:P.labelScale()>1?262:218,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3}));
       a.curve(t=>t*t*t,{color:C.mid});
       a.poly([[-0.8,-0.512],[0.8,0.512]],{color:C.err,dash:'4 4',width:1.2});
       a.point(-0.8,-0.512,{color:C.mid}); a.point(0.8,0.512,{color:C.mid}); a.point(0,0,{color:C.err});
@@ -18917,7 +18986,7 @@ REAL_TRANSFORM,
           a.area(t=>0.5,0,1,{color:C.h+'40'});
           a.area(t=>0.5*sg,-1,0,{color:C.muted+'40'});
           a.note(0.5,odd?0.72:0.8,'\\tfrac12\\,x(t)',{anchor:'middle',color:C.h,fs:14,tex:true});
-          a.note(odd?-0.55:-0.5,odd?-1.08:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true}); }
+          a.note(odd?-0.55:-0.5,odd?-1.08:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true,dy:odd?(P.labelScale()-1)*16:0}); }
         a.curve(r[0],{color:r[2],width:2.6,n:1600});
         if(i===0){ a.note(-0.5,1.25,'x(-t)',{anchor:'middle',color:C.muted,fs:13,tex:true});
           a.note(1.08,1,'1',{anchor:'start',color:r[2],fs:14,tex:true}); }
@@ -19682,7 +19751,11 @@ REAL_IMPULSE,
       const a=P.Axes({w:560,h:380,xr:[-1,35],yr:[-1.4,2.1],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:3});
       a.curve(t=>Math.cos(w*t),{color:C.muted,width:1.4,dash:'5 5',n:1400});
       a.stem(disc(n=>Math.cos(w*n),0,35),{color:C.in,r:3});
-      a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
+      /* projector: the grown label is wider than the bracket, so it ends at the
+         bracket's right end instead of running into the marker line */
+      if(P.labelScale()>1){ a.span(0,17/3,1.3,null,{color:C.muted});
+        a.note(17/3-0.3,1.3,'T_0=17/3',{anchor:'end',dy:-10,fs:13,color:C.muted,tex:true}); }
+      else a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
       a.vline(te,{color:C.coral,opacity:.9,width:1.6,dash:'6 4'});
       if(at){ const txt=['t=17/3\\approx5.67\\text{: no sample}','t=34/3\\approx11.33\\text{: no sample}','t=17\\text{: a sample}'][i];
         a.note(te+0.5,1.75,txt,{anchor:'start',color:C.coral,fs:14,tex:true});
@@ -19789,7 +19862,7 @@ REAL_IMPULSE,
       pts.forEach(([X,Y])=>{ a.poly([[0,0],[X,Y]],{color:C.in,width:1.8}); a.point(X,Y,{color:C.in}); });
       if(at){ const groups={}; pts.forEach(([X,Y],m)=>{ const key=Math.round(X*100)+','+Math.round(Y*100); (groups[key]=groups[key]||{X,Y,ns:[]}).ns.push(m); });
         Object.values(groups).forEach(({X,Y,ns})=>a.note(X>0.3?1.1*X+0.06:X<-0.3?1.1*X-0.06:X,Y>0.3?1.12*Y+0.04:Y<-0.3?1.12*Y-0.1:Y+0.12,'n='+(ns.length===6?'0,\\dots,5':ns.join(',')),{anchor:X>0.3?'start':X<-0.3?'end':'middle',color:C.in,fs:14,tex:true}));
-        a.note(a.o.xr[0]+0.08,1.62,'\\textstyle\\sum_{n=0}^{5}e^{jk(2\\pi/6)n}='+(ki%6===0?'6':'0'),{anchor:'start',color:C.coral,fs:15,tex:true}); }
+        a.note(a.o.xr[0]+0.08,1.62,'\\textstyle\\sum_{n=0}^{5}e^{jk(2\\pi/6)n}='+(ki%6===0?'6':'0'),{anchor:'start',color:C.coral,fs:15,tex:true,dy:(P.labelScale()-1)*30}); }
       a.point(0,0,{color:C.coral});
       return a.svg(); },
       caption:'Step through $k=0,\\dots,6$ with $N=6$. For $k=0$ and $k=6$ all six terms sit at 1 and add to 6. For every other $k$ the terms spread evenly over the circle and add to 0.'}
@@ -19987,6 +20060,11 @@ const num=v=>String(Math.round(v*100)/100);
 const groupOp=(k,g)=>{ const at=i=>(i===0||i===g)?1:0.18, i0=Math.floor(k), i1=Math.ceil(k);
   return at(i0)+(at(i1)-at(i0))*(k-i0); };
 const inner=s=>s.replace(/^<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'');
+/* A drawing placed at height y inside a larger figure, as a nested svg rather
+   than a translated group, so its labels and lines share one coordinate frame.
+   The inline size outweighs the figure.fig svg rule, which would stretch it. */
+const place=(svg,y,w,h)=>svg.replace('<svg ',`<svg x="0" y="${y}" width="${w}" height="${h}" overflow="visible" style="width:${w}px;height:${h}px;overflow:visible" `);
+const PJ=()=>P.labelScale()>1;
 /* ---- everyday systems, one gallery slide at the end of the teaching
        sections. The traces are schematic; each keeps the property it shows.
        A figure with two traces carries its legend as a third entry. */
@@ -20139,14 +20217,16 @@ const SC = [
          {t:'dot',x:250,y:138,r:10},{t:'dot',x:320,y:138,r:10},
          {t:'line',d:'M175,149 H395'},
          {t:'arrow',x1:172,y1:101,x2:223,y2:101,label:'f',tex:true},
-         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:'v',tex:true},
-         {t:'text',x:285,y:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
+         /* the projector's larger v would sit on the box edge above the arrow, so it goes after the arrowhead */
+         {t:'arrow',x1:290,y1:55,x2:345,y2:55,label:PJ()?'':'v',tex:true},
+         ...(PJ()?[{t:'text',x:353,y:60,label:'v',tex:true,fs:15,anchor:'start'}]:[]),
+         {t:'text',x:285,y:PJ()?180:173,label:'\\text{friction }\\rho v',tex:true,fs:14}],
         [{t:'arrow',x1:20,y1:110,x2:150,y2:110,label:'x(t)',tex:true},
          {t:'box',x:150,y:60,w:270,h:100,label:'\\dfrac{dy}{dt}+a\\,y=b\\,x',tex:true,fs:18},
          {t:'arrow',x1:420,y1:110,x2:545,y2:110,label:'y(t)',tex:true}]
       ];
       // one system at a time; Next cross-fades to the following one
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:220,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,1-Math.abs(k-i)).toFixed(3)}">${place(P.blocks({w:560,h:220,items}),dy,560,220)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'An RC circuit and a car, each drawn inside a box, taken one at a time with Next. Seen from outside, both boxes are the same box.'}
   ], right:[
@@ -20191,15 +20271,15 @@ const SC = [
           {t:'text',x:58,y:199,label:'x',tex:true,fs:17},{t:'text',x:480,y:199,label:'y',tex:true,fs:17}],
          head(410,201,'l-4.5,-9 h9 Z')+head(410,229,'l-4.5,9 h9 Z'),
          {t:'text',x:525,y:146,label:'y=S_1(x)+S_2(x)',tex:true,fs:15,anchor:'end',color:C.ink}],
-        [[tag(296,'FEEDBACK',3),
+        [[tag(PJ()?292:296,'FEEDBACK',3),
           {t:'arrow',x1:35,y1:345,x2:86,y2:345},{t:'sum',x:100,y:345},
           {t:'arrow',x1:114,y1:345,x2:200,y2:345},{t:'box',x:200,y:323,w:100,h:44,label:'S_1',tex:true},
           {t:'arrow',x1:300,y1:345,x2:525,y2:345},
           {t:'line',d:'M430 345 V402 H330 M250 402 H100 V359'},{t:'box',x:250,y:380,w:80,h:44,label:'S_2',tex:true},
           {t:'text',x:58,y:329,label:'x[n]',tex:true,fs:17},{t:'text',x:480,y:329,label:'y[n]',tex:true,fs:17},
-          {t:'text',x:175,y:388,label:'y[n-1]',tex:true,fs:15}],
+          {t:'text',x:PJ()?156:175,y:388,label:'y[n-1]',tex:true,fs:15}],
          head(100,359,'l-4.5,9 h9 Z')+head(330,402,'l9,-4.5 v9 Z'),
-         {t:'text',x:525,y:296,label:'y[n]=x[n]+y[n-1]',tex:true,fs:15,anchor:'end',color:C.ink}]
+         {t:'text',x:525,y:PJ()?292:296,label:'y[n]=x[n]+y[n-1]',tex:true,fs:15,anchor:'end',color:C.ink}]
       ];
       // each relation appears once Next reaches its connection, and stays
       const body=groups.map(([items,extra,eq],i)=>`<g opacity="${groupOp(k,i+1).toFixed(3)}">${inner(P.blocks({w:560,h:440,items}))}${extra}<g opacity="${Math.min(1,Math.max(0,k-i)).toFixed(3)}">${inner(P.blocks({w:560,h:440,items:[eq]}))}</g></g>`).join('');
@@ -20307,8 +20387,8 @@ const SC = [
       {t:'line',d:'M105 240 C 210 270, 350 270, 455 240',color:C.out},
       {t:'dot',x:105,y:180,r:7,color:C.in},{t:'dot',x:455,y:180,r:7,color:C.in},
       {t:'dot',x:105,y:240,r:7,color:C.out},{t:'dot',x:455,y:240,r:7,color:C.out},
-      {t:'text',x:93,y:186,label:'x_1',fs:19,tex:true,color:C.in,anchor:'end'},{t:'text',x:93,y:246,label:'x_2',fs:19,tex:true,color:C.out,anchor:'end'},
-      {t:'text',x:467,y:186,label:'y_1',fs:19,tex:true,color:C.in,anchor:'start'},{t:'text',x:467,y:246,label:'y_2',fs:19,tex:true,color:C.out,anchor:'start'},
+      {t:'text',x:93,y:PJ()?190:186,label:'x_1',fs:19,tex:true,color:C.in,anchor:'end'},{t:'text',x:93,y:246,label:'x_2',fs:19,tex:true,color:C.out,anchor:'end'},
+      {t:'text',x:467,y:PJ()?190:186,label:'y_1',fs:19,tex:true,color:C.in,anchor:'start'},{t:'text',x:467,y:246,label:'y_2',fs:19,tex:true,color:C.out,anchor:'start'},
       {t:'text',x:280,y:138,label:'\\text{one-to-one}\\Rightarrow\\text{invertible}',fs:14,color:C.slate,tex:true}
     ]}), caption:'Invertibility is a property of the map. Distinct inputs must land on distinct outputs.'}
   ], right:[
@@ -20384,8 +20464,8 @@ const SC = [
         {t:'arrow',x1:262,y1:70,x2:282,y2:70},
         {t:'box',x:282,y:35,w:226,h:70,label:'w[n]=y[n]-y[n-1]',tex:true,fs:14,color:on(2)?C.coral:C.ink},
         {t:'arrow',x1:508,y1:70,x2:552,y2:70},
-        {t:'text',x:36,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:272,y:22,label:'y[n]',tex:true,fs:16},
-        {t:'text',x:530,y:24,label:'w[n]',tex:true,fs:16}]});
+        {t:'text',x:36,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:272,y:PJ()?28:22,label:'y[n]',tex:true,fs:16},
+        {t:'text',x:530,y:PJ()?29:24,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
         'y[0]=\\sum_{k=-\\infty}^{0}x[k]=x[0]=1','y[1]=\\sum_{k=-\\infty}^{1}x[k]=x[0]+x[1]=1+1=2','y[2]=\\sum_{k=-\\infty}^{2}x[k]=x[0]+x[1]+x[2]=1+1+1=3',
         'y[n]=\\sum_{k=-\\infty}^{n}x[k]=x[0]+x[1]+x[2]=1+1+1=3,\\quad n\\ge3',
@@ -20523,7 +20603,7 @@ const SC = [
         {t:'text',x:102,y:54,label:'x(t)',tex:true,fs:18},
         {t:'text',x:458,y:54,label:'y(t)',tex:true,fs:18}]});
       const a=P.Axes({w:560,h:H,xr:[-1,4.5],yr:[-0.3,2.6],xlabel:'t',ylabel:'\\text{amplitude}',
-        pad:{l:50,r:24,t:150,b:34},xstep:1,ystep:1});
+        pad:{l:50,r:24,t:PJ()?158:150,b:34},xstep:1,ystep:1});
       const x=t=>(t>=0&&t<=2)?1-Math.abs(t-1):0;
       const y=t=>2*x(t-1)*x(t-1)+x(3*t);
       a.raw(`<g opacity="${b.toFixed(3)}">`);
@@ -20533,7 +20613,7 @@ const SC = [
       a.raw('</g>');
       a.raw(`<g opacity="${(1-.45*b).toFixed(3)}">`);
       a.curve(x,{color:C.in,dash:b>0.5?'8 5':null,n:1400});
-      a.note(1.35,1.15,'x(t)',{anchor:'start',color:C.in,fs:16,tex:true});
+      a.note(PJ()?0.9:1.35,1.15,'x(t)',{anchor:PJ()?'end':'start',color:C.in,fs:16,tex:true});
       a.raw('</g>');
       return a.svg().replace(/<\/svg>\s*$/, inner(top)+'</svg>'); },
       caption:'Step through: first the input $x(t)$, a triangle of height $1$, then the output. The term $x(3t)$ gives a narrow triangle on $0\\le t\\le\\tfrac{2}{3}$; the term $2x^{2}(t-1)$ gives a bump of height $2$ on $1\\le t\\le3$. A proof of stability has to hold for every input that stays within $B$.'},
@@ -20600,7 +20680,7 @@ const SC = [
       const k=v?v.frame:0, H=Math.max(P.hOverride||420,400), dy=((H-400)/2).toFixed(1); P.hOverride=null;
       const op=i=>Math.max(0,Math.min(1,k-i+1)).toFixed(3);
       const nm=(x,y,l)=>({t:'text',x,y:y-16,label:l,tex:true,fs:15,color:C.ink});
-      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*(r||0),label:l,tex:true,fs:14,color:C.coral});
+      const ex=(x,y,l,r)=>({t:'text',x,y:y+30+22*P.labelScale()*(r||0),label:l,tex:true,fs:14,color:C.coral});
       const row=y=>[{t:'arrow',x1:30,y1:y,x2:205,y2:y},{t:'box',x:205,y:y-32,w:150,h:64,label:'S',tex:true},
         {t:'arrow',x1:355,y1:y,x2:530,y2:y}];
       const r1=70, r2=205, r3=345;
@@ -20610,7 +20690,7 @@ const SC = [
          ex(443,r2,'=\\sin\\bigl(x_2(t)\\bigr)'),ex(443,r2,'=\\sin\\bigl(x_1(t-t_0)\\bigr)',1)],
         [{t:'line',d:`M15,${r3-32} H545 V${r3+32} H15 Z`,color:C.coral},
          {t:'text',x:280,y:r3+4,label:'y_1(t-t_0)=\\sin\\bigl(x_1(t-t_0)\\bigr)=y_2(t)',tex:true,fs:16,color:C.coral}]];
-      const body=groups.map((items,i)=>`<g opacity="${op(i)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${op(i)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'Worked for $y(t)=\\sin\\bigl(x(t)\\bigr)$. The shifted input $x_2$ gives $y_2$, and $y_2$ equals $y_1$ shifted by $t_0$, so the system is time invariant.'}
   ], right:[
@@ -20636,7 +20716,7 @@ const SC = [
     {t:'fig', frame:true, grow:true, svg:()=>{
       const H = P.hOverride || 420, h = Math.round(H/3); P.hOverride = null;
       const panel = (ylabel, f, col, tag)=>{
-        const a=P.Axes({w:560,h,xr:[-3,4],yr:[-0.3,1.4],grid:false,xlabel:'n',ylabel,xnameDrop:30,
+        const a=P.Axes({w:560,h,xr:[-3,4],yr:[-0.3,1.4],grid:false,xlabel:'n',ylabel,xnameDrop:PJ()?36:30,
           pad:{l:46,r:30,t:12,b:24},xticksOverride:[-3,-2,-1,0,1,2,3],yticksOverride:[0,1]});
         a.vline(1,{color:C.muted});
         a.stem(disc(f,-3,3),{color:col,r:4});
@@ -20718,7 +20798,7 @@ const SC = [
          {t:'line',d:'M15,276 H545 V384 H15 Z',color:C.coral}]
       ];
       // rows build up one per Next: the two known pairs, then the combined input
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'$x_1$ gives $y_1$ and $x_2$ gives $y_2$. In a linear system the input $a\\,x_1+b\\,x_2$ gives $a\\,y_1+b\\,y_2$.'}
   ], right:[
@@ -20754,7 +20834,7 @@ const SC = [
          {t:'line',d:'M15,246 H545 V390 H15 Z',color:C.coral}]
       ];
       // same three rows as the Linearity slide; the third one fails
-      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}" transform="translate(0,${dy})">${inner(P.blocks({w:560,h:400,items}))}</g>`).join('');
+      const body=groups.map((items,i)=>`<g opacity="${Math.max(0,Math.min(1,k-i+1)).toFixed(3)}">${place(P.blocks({w:560,h:400,items}),dy,560,400)}</g>`).join('');
       return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Inter,-apple-system,sans-serif">${body}</svg>`; },
       caption:'Each input alone comes out squared. The combined input comes out as $(a\\,x_1[2n]+b\\,x_2[2n])^2$, which carries the cross term $2ab\\,x_1[2n]x_2[2n]$.'}
   ], right:[
@@ -21206,7 +21286,7 @@ const SC = [
        on the same n axis. Each signal has its own panel, so no stem hides
        another. The motion is the stem() anim of the other module openings. */
     {t:'grid', cols:1, gap:'14px', items:[x3,h3,y3].map(([f,lab,col,yr,d])=>[{t:'fig', svg:()=>{
-      const a=P.Axes({w:520,h:124,xr:[-1,9],yr,grid:false,xlabel:'n',ylabel:lab,xnameDrop:32,
+      const a=P.Axes({w:520,h:124,xr:[-1,9],yr,grid:false,xlabel:'n',ylabel:lab,xnameDrop:32*P.labelScale(),
         chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#E6E2D9'},
         pad:{l:46,r:30,t:14,b:28},xstep:2,ytarget:2});
       a.stem(disc(f,-1,8),{color:col,r:4.5,width:2,anim:{delay:d,step:.1,tip:true}});
@@ -21558,7 +21638,9 @@ REAL_IMPULSE,
       const a=P.Axes({w:560,h:380,xr:[-2,11],yr:[-0.2,2.5],xlabel:'n',ylabel:'y[n]',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
       skArea(a);
       fade(a,0.35,()=>a.stem(disc(n=>n>=0?Math.pow(0.5,n):0,-2,11),{color:C.ink}));
-      a.note(1.2,0.75,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
+      /* in projector mode the label is wider than the gap between stems, so it moves left of the vertical axis */
+      if(P.labelScale()>1) a.note(-0.3,0.6,'x[n]',{anchor:'end',color:C.ink,fs:15,tex:true});
+      else a.note(1.2,0.75,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
       a.raw('<g class="sk-key">');
       a.hline(2,{color:C.coral,dash:'3 5'});
       a.stem(disc(n=>n>=0?2-Math.pow(0.5,n):0,-2,11),{color:C.out,r:3});
@@ -21728,7 +21810,7 @@ REAL_CONVSUM,
       const a=P.Axes({w:560,h:380,xr:[-3,7],yr:[-0.1,1.2],xlabel:'t',ylabel:'y(t)',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
       skArea(a);
       a.curve(t=>t<=0?Math.exp(2*t):0,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
-      a.note(-0.2,1.05,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.note(P.labelScale()>1?-0.65:-0.2,1.05,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});   /* clear of the tick number 1 when larger */
       a.raw('<g class="sk-key">');
       a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out,n:1200});
       a.point(3,0.5,{color:C.coral});
@@ -21790,7 +21872,7 @@ REAL_CONVSUM,
       /* The two moving edges of the window are marked under the axis, and the
          case condition above the plot compares them with the ramp's edges 0 and 2. */
       [[t-1,'t-1'],[t,'t']].forEach(([z,s])=>{
-        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
+        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(P.labelScale()>1?-0.34:-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
         a.note(z,-0.62,s,{anchor:'middle',color:C.in,fs:15,tex:true}); });
       const conds=['t<0\\;\\Rightarrow\\;\\text{no overlap}','t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3','t-1>2\\;\\Rightarrow\\;t>3\\;\\;(\\text{no overlap})'];
       const i=Math.min(4,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));
@@ -22411,7 +22493,20 @@ const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f
 /* the invisible data area a sketch is drawn in */
 const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
 /* the standard slide axes: one figure in the left column of a 5:7 slide */
-const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o));
+/* In projector mode the labels are larger, and an axis name that Axes sets
+   inside the data area (the zero line lies inside the range) meets the curves,
+   the sketch frame or the lower axis line. A figure that asks for it (dropX)
+   sets the name under the data area there: the lower margin is made what the
+   name needs, and the drop, which Axes measures from the zero line, is solved
+   for that margin. Normal mode is left as it is. */
+const dropX = o => {
+  const L = P.labelScale(), ya = o.yr[0], yb = o.yr[1];
+  if(!o.dropX || L <= 1 || !o.xlabel || !(ya <= 0 && yb >= 0)) return o;
+  const h0 = P.hOverride, t = P.Axes(o); P.hOverride = h0;   /* the drawn height and top margin */
+  const NB = 26*L, G = NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
+  return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
+};
+const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o)));
 /* two axes in one figure, the upper panel over the lower one. Each builder
    takes a height and returns an svg; the halves are placed as nested svgs. A
    grown figure hands its height through P.hOverride, which is taken here and
@@ -22456,7 +22551,7 @@ Object.assign(CONTENT.GLOSS, {
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
        is about. A figure with two traces carries its legend as a third entry. */
-const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+const EXO = o => dropX(Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o));
 function realGallery(cfg){
   return { id:cfg.id, module:'M4', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -22676,13 +22771,13 @@ const SC = [
   {t:'title', text:'Two Cosines Through the Delay'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[-1,8],yr:[-2.4,3.2],xlabel:'t',ylabel:'y(t)',xtarget:9});
+      const a=AX({dropX:true,xr:[-1,8],yr:[-2.4,3.2],xlabel:'t',ylabel:'y(t)',xtarget:9});
       skArea(a);
       a.curve(t=>Math.cos(4*t)+Math.cos(7*t),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(-0.8,2.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(-0.8,2.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>Math.cos(4*(t-3))+Math.cos(7*(t-3)),{color:C.out,n:1600});
-      a.note(7.8,2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(7.8,2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)=\\cos 4t+\\cos 7t$. Sketch the output of the 3 s delay, then show the answer.'}
@@ -22707,7 +22802,7 @@ realGallery({ id:'m4-real-eigen', nav:'Eigenfunctions around us',
       a.curve(t=>325/Math.SQRT2*Math.cos(2*Math.PI*0.05*t-Math.PI/4),{color:C.out,n:900});
       return a.svg(); }, 'Mains through an RC filter with $RC=3.18$ ms: $230\\cos(2\\pi\\,50\\,t-\\pi/4)$ V.',
       [['in','$v_s(t)$',true],['out','$v_C(t)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,30],yr:[-1.3,1.9],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,30],yr:[-1.3,1.9],xlabel:'t\\;(\\text{ms})',ylabel:'p(t)\\;(\\text{Pa})',xstep:10}));
       a.curve(t=>Math.sin(2*Math.PI*0.1*t),{color:C.in,dash:'9 6',n:900});
       a.curve(t=>Math.sin(2*Math.PI*0.1*(t-2.9)),{color:C.out,n:900});
       return a.svg(); }, 'A 100 Hz tone 1 m from the loudspeaker arrives $2.9$ ms late.',
@@ -22954,7 +23049,7 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       const f=cl(v?v.frame:0);
       const a=AX({yticksLeft:true,xr:[-2.2,2.2],yr:[-0.9,1.5],xlabel:'t',ylabel:'x(t)',xtarget:9});
       fade(a,1-f,()=>{ a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
-        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(2.1,0.62,'a_0=1/2',{anchor:'end',color:C.coral,fs:15,tex:true}); });
+        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(P.labelScale()>1?1:2.1,0.62,'a_0=1/2',{anchor:P.labelScale()>1?'middle':'end',color:C.coral,fs:15,tex:true}); });
       if(f>0) fade(a,f,()=>{ a.curve(t=>sawWave(t,1),{color:C.in,n:3000});
         a.hline(0,{color:C.coral,dash:'4 5'}); a.note(2.1,0.62,'a_0=0',{anchor:'end',color:C.coral,fs:15,tex:true}); });
       return a.svg(); },
@@ -23168,7 +23263,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
       frames:{labels:['$N=9$','$N=27$','$N=81$']},
       svg:v=>{
       const k=v?v.frame:0, lo=Math.floor(k), w=k-lo, Ns=[9,27,81];
-      const a=AX({xr:[0.4,1.6],yr:[-0.25,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
+      const a=AX({dropX:true,xr:[0.4,1.6],yr:[-0.25,1.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
       a.curve(t=>rectWave(t,4,1),{color:C.in,dash:'9 6',n:3000});
       fade(a,1-w,()=>a.curve(t=>rectPS(t,Ns[lo],4,1),{color:C.out,n:4000}));
       if(w>0&&lo<2) fade(a,w,()=>a.curve(t=>rectPS(t,Ns[lo+1],4,1),{color:C.out,n:4000}));
@@ -23861,7 +23956,7 @@ codeScene({ id:'m4-code-dtfs', nav:'Discrete-time series', title:'Discrete-Time 
       const tri=t=>{ const u=t-2*Math.round(t/2); return Math.abs(u)<0.5 ? 0.5*u : (u>0 ? 0.25-0.5*(u-0.5) : -0.25-0.5*(u+0.5)); };
       const a=AX({xr:[-0.2,4.2],yr:[-0.5,2.4],xlabel:'t',ylabel:'\\text{amplitude}',ytarget:4});
       if(f===0){ a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
-        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(4.1,0.68,'a_0=0.5',{anchor:'end',color:C.coral,fs:15,tex:true}); }
+        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(P.labelScale()>1?3:4.1,0.68,'a_0=0.5',{anchor:P.labelScale()>1?'middle':'end',color:C.coral,fs:15,tex:true}); }
       if(f===1) a.curve(t=>tri(t)+0.5*t,{color:C.err,n:3000});
       if(f===2) a.curve(tri,{color:C.out,n:3000});
       return a.svg(); },
@@ -23966,7 +24061,7 @@ realGallery({ id:'m4-real-props', nav:'Properties around us',
       a.curve(s,{color:C.in,n:900}); a.curve(t=>s(t-1),{color:C.out,dash:'8 5',n:900});
       return a.svg(); }, 'A two-tone signal and its copy $1$ ms later: the same $|a_k|$, new phases.',
       [['in','$x(t)$'],['out','$x(t-t_0)$',true]]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,2],yr:[-1.8,3],xlabel:'t\\;(\\text{ms})',ylabel:'\\text{amplitude}',xstep:0.5}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,2],yr:[-1.8,3],xlabel:'t\\;(\\text{ms})',ylabel:'\\text{amplitude}',xstep:0.5}));
       const m=t=>1+0.5*Math.cos(2*Math.PI*t);
       a.curve(t=>m(t)*Math.cos(2*Math.PI*10*t),{color:C.in,n:1600}); a.curve(m,{color:C.out,dash:'8 5',n:400});
       return a.svg(); }, 'AM: the carrier $\\cos(10\\omega_0t)$ moves each envelope coefficient to $k\\pm10$.',
@@ -24088,13 +24183,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Low-Pass Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[0,4],yr:[-1.5,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      const a=AX({dropX:true,xr:[0,4],yr:[-1.5,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
       skArea(a);
       a.curve(t=>1+Math.cos(Math.PI*t)+Math.sin(2*Math.PI*t)+Math.cos(3*Math.PI*t+Math.PI/3),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>1+0.303316*Math.cos(Math.PI*t-1.262627)+0.157177*Math.cos(2*Math.PI*t-2.983761)+0.105510*Math.cos(3*Math.PI*t-0.417840),{color:C.out,n:1600});
-      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)$. Sketch the output: the average stays at $1$ and the fast wiggles shrink.'}
@@ -24142,13 +24237,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'High-Pass Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({xr:[0,4],yr:[-2.8,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
+      const a=AX({dropX:true,xr:[0,4],yr:[-2.8,4.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
       skArea(a);
       a.curve(t=>1+Math.cos(Math.PI*t)+Math.sin(2*Math.PI*t)+Math.cos(3*Math.PI*t+Math.PI/3),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(0.08,3.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.curve(t=>0.952891*Math.cos(Math.PI*t+0.308169)+0.987573*Math.cos(2*Math.PI*t-1.412965)+0.994418*Math.cos(3*Math.PI*t+1.152956),{color:C.out,n:1600});
-      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(3.92,3.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The dashed trace is $x(t)$. Sketch the output: the harmonics pass almost unchanged and the average drops to $0$.'}
@@ -24214,8 +24309,9 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
       if(k<0.5){ const a=AX({xr:[0,4],yr:[0,4.4],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'|H(j\\omega)|',xpi:Math.PI/4,ytarget:4});
         a.curve(w=>w,{color:C.h,n:200});
         a.point(1,1,{color:C.coral,r:5}); a.point(3,3,{color:C.coral,r:5});
-        a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true});
-        a.note(3.12,2.72,'k=3:\\ \\text{gain }3',{anchor:'start',color:C.coral,fs:15,tex:true});
+        a.note(1.12,0.72,'k=1:\\ \\text{gain }1',{anchor:'start',color:C.coral,fs:15,tex:true,dy:(P.labelScale()-1)*24});
+        if(P.labelScale()>1) a.note(3.95,2.2,'k=3:\\ \\text{gain }3',{anchor:'end',color:C.coral,fs:15,tex:true});   /* under the point, clear of the right edge */
+        else a.note(3.12,2.72,'k=3:\\ \\text{gain }3',{anchor:'start',color:C.coral,fs:15,tex:true});
         return a.svg(); }
       const f=cl(k-1);
       const a=AX({xr:[0,12.6],yr:[-1.6,1.9],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
@@ -24414,13 +24510,13 @@ codeScene({ id:'m4-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Recursive Filter Output'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y[n]$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-13,13],yr:[-0.2,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:9,ytarget:4});
+      const a=AX({dropX:true,yticksLeft:true,xr:[-13,13],yr:[-0.2,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:9,ytarget:4});
       skArea(a);
       a.raw('<g opacity=".35">'); a.stem(D(n=>(((n%4)+4)%4===0)?1:0,-12,12),{color:C.ink,r:3}); a.raw('</g>');
-      a.note(-12.6,1.3,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
+      a.note(-12.6,1.3,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('<g class="sk-key">');
       a.stem(D(n=>0.5+Math.sqrt(0.2)*Math.cos(Math.PI*n/2-Math.atan(0.5))+Math.pow(-1,n)/6,-12,12),{color:C.out,r:3.4,showZero:true});
-      a.note(12.6,1.3,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(12.6,1.3,'y[n]',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
       a.raw('</g>');
       return a.svg(); },
       caption:'The faint stems are $x[n]$. Sketch the output of the recursive filter, then show the answer.'}
@@ -24449,7 +24545,7 @@ realGallery({ id:'m4-real-lti', nav:'Filtered periodic signals around us',
       a.curve(t=>0.995*Math.cos(2*Math.PI*0.05*t+0.0997),{color:C.out,n:900});
       return a.svg(); }, 'A 5 Hz coupling capacitor removes the 2 V offset and keeps $0.995$ of 50 Hz.',
       [['in','$x(t)$',true],['out','$y(t)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[-0.5,16.5],yr:[-4,6.5],xlabel:'n\\;(6\\,\\text{h})',ylabel:'T-20\\;(^{\\circ}\\text{C})',xstep:4}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[-0.5,16.5],yr:[-4,6.5],xlabel:'n\\;(6\\,\\text{h})',ylabel:'T-20\\;(^{\\circ}\\text{C})',xstep:4}));
       a.stem(D(n=>3*Math.cos(Math.PI*n/2),0,16),{color:C.in,r:3});
       a.stem(D(n=>2.1213*Math.cos(Math.PI*n/2-Math.PI/4),0,16),{color:C.out,r:3});
       return a.svg(); }, 'Temperature every 6 h, less 20 °C, and its two-point average: $3\\to2.12$.',
@@ -24736,7 +24832,19 @@ const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtar
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
        is about. A figure with two traces carries its legend as a third entry. */
-const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+/* In projector mode the labels are larger, and an axis name that Axes sets
+   inside the data area (the zero line lies inside the range) meets the curves.
+   A figure that asks for it (dropX) sets the name under the data area there:
+   the lower margin is made what the name needs, and the drop, which Axes
+   measures from the zero line, is solved for that margin. */
+const dropX = o => {
+  const L = P.labelScale(), ya = o.yr[0], yb = o.yr[1];
+  if(!o.dropX || L <= 1 || !o.xlabel || !(ya <= 0 && yb >= 0)) return o;
+  const h0 = P.hOverride, t = P.Axes(o); P.hOverride = h0;   /* the drawn height and top margin */
+  const NB = 26*L, G = 0.8*NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
+  return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
+};
+const EXO = o => dropX(Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o));
 function realGallery(cfg){
   return { id:cfg.id, module:'M5', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -25554,7 +25662,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Cosine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
+      const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
       a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
       a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
       return a.svg(); },
@@ -25579,7 +25687,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Sine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
+      const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
       a.impulse(4*PI,-6*PI,{color:C.in,label:false});
       a.impulse(-4*PI,6*PI,{color:C.in,label:false});
       return a.svg(); },
@@ -25608,7 +25716,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{
           a.impulse(0,10*PI,{color:C.in,label:false});
           [3*PI,-3*PI].forEach(w=>a.impulse(w,4*PI,{color:C.in,label:false}));
@@ -26221,7 +26329,7 @@ realGallery({ id:'m5-real-props', nav:'Properties around us',
       a.curve(t=>t<40?0:0.5*Math.exp(-(t-40)/6)*Math.sin(2*PI*0.25*(t-40)),{color:C.out,n:3000});
       return a.svg(); }, 'A click and its echo from a wall: $p(t)+0.5\\,p(t-40)$, with $t$ in ms.',
       [['in','$p(t)$'],['out','$0.5\\,p(t-40)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,20],yr:[-1.2,1.6],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:5}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,20],yr:[-1.2,1.6],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:5}));
       a.curve(t=>Math.sin(2*PI*0.1*t),{color:C.in,dash:'9 6',n:1600});
       a.curve(t=>Math.sin(2*PI*0.2*t),{color:C.out,n:1600});
       return a.svg(); }, 'A recording played at double speed: $s(2t)$ with $s(t)=\\sin(2\\pi\\,0.1\\,t)$, $t$ in ms.',
@@ -26754,16 +26862,18 @@ codeScene({ id:'m5-code-conv', nav:'Convolution and multiplication', title:'Conv
   {t:'eyebrow', text:'Module 5 · Systems', src:'p. 62'},
   {t:'title', text:'Frequency Response from a Differential Equation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'box',x:20,y:50,w:210,h:70,label:'\\text{differential equation}',tex:true,fs:16},
-      {t:'arrow',x1:230,y1:85,x2:330,y2:85,label:'\\mathcal{F}',tex:true,color:C.coral},
-      {t:'box',x:330,y:50,w:210,h:70,label:'\\text{algebra in }j\\omega',tex:true,fs:16},
-      {t:'box',x:330,y:250,w:210,h:70,label:'H(j\\omega)=\\tfrac{B(j\\omega)}{A(j\\omega)}',tex:true,fs:17,color:C.h},
-      {t:'arrow',x1:435,y1:120,x2:435,y2:250,color:C.slate},
-      {t:'box',x:20,y:250,w:210,h:70,label:'h(t)',tex:true,fs:19,color:C.h},
-      {t:'arrow',x1:330,y1:285,x2:230,y2:285,color:C.slate},
+    /* in projector mode the boxes are widened so the larger labels fit inside them */
+    {t:'fig', frame:true, grow:true, svg:()=>{ const L=P.labelScale()>1, bw=L?250:210, lx=L?5:20, rx=L?305:330;
+      return P.blocks({w:560,h:380,items:[
+      {t:'box',x:lx,y:50,w:bw,h:70,label:'\\text{differential equation}',tex:true,fs:16},
+      {t:'arrow',x1:lx+bw,y1:85,x2:rx,y2:85,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'box',x:rx,y:50,w:bw,h:70,label:'\\text{algebra in }j\\omega',tex:true,fs:16},
+      {t:'box',x:rx,y:250,w:bw,h:70,label:'H(j\\omega)=\\tfrac{B(j\\omega)}{A(j\\omega)}',tex:true,fs:17,color:C.h},
+      {t:'arrow',x1:rx+bw/2,y1:120,x2:rx+bw/2,y2:250,color:C.slate},
+      {t:'box',x:lx,y:250,w:bw,h:70,label:'h(t)',tex:true,fs:19,color:C.h},
+      {t:'arrow',x1:rx,y1:285,x2:lx+bw,y2:285,color:C.slate},
       {t:'text',x:280,y:350,label:'\\text{partial fractions, then the table}',tex:true,fs:14,color:C.slate}
-    ]}), caption:'The route of this section: transform the equation, read $H(j\\omega)$, and invert it term by term.'}
+    ]}); }, caption:'The route of this section: transform the equation, read $H(j\\omega)$, and invert it term by term.'}
   ], right:[
     {t:'eq', tex:'\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y(t)}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x(t)}{\\d t^{k}}', label:'Linear, constant coefficients'},
     {t:'reveal', at:1, items:[
@@ -27214,6 +27324,10 @@ const markPeriod = (a, v, o) => {
   const lo = o.lo!=null ? o.lo : -PI, hi = o.hi!=null ? o.hi : PI;
   a.vline(lo,{color:C.coral,opacity:.5}); a.vline(hi,{color:C.coral,opacity:.5});
   a.span(lo,hi,v,'',{color:C.coral});
+  /* a slide or a laboratory sets the name of the dependent variable at the
+     upper-left edge, where the enlarged words of projector mode reach it;
+     there the name goes back to the zero line, clear of the words */
+  if(P.labelScale() > 1) a.o.ynameAtAxis = true;
   a.note(lo,v,'\\text{one period},\\;2\\pi',{tex:true,color:C.coral,fs:13,anchor:'end',dx:-8,dy:-3});
   return a;
 };
@@ -27270,6 +27384,18 @@ const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.
 const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
 /* the same axes for a spectrum over omega, with the tick row in multiples of pi */
 const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+/* In projector mode the enlarged name of the independent variable, set below
+   the zero line, reaches data that runs down to the lower edge. Such a figure
+   is laid out to measure the zero line, then again with the name dropped just
+   below the data area; the room the name takes moves the zero line, so the
+   layout is repeated until it settles. mk is the axes maker, o its options. */
+const nameBelow = (mk, o) => {
+  if(P.labelScale() <= 1) return mk(o);
+  const D = 26*P.labelScale();
+  let a = mk(Object.assign({}, o, {xnameDrop:0}));
+  for(let k=0; k<3; k++) a = mk(Object.assign({}, o, {xnameDrop:(a.y0 - a.sy(0)) + D}));
+  return a;
+};
 
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
@@ -28599,7 +28725,7 @@ codeScene({ id:'m6-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       live:{controls:[{k:'N', label:'$N$', min:3, max:16, step:1, v:5, show:v=>'$'+v+'$'}]},
       svg:v=>{
       const N=v?v.N:5;
-      const a=s3SP([-0.35,2.75],{yticksOverride:[0,2*PI/N],ytickfmt:v=>v.toFixed(4)});
+      const a=s3SP([-0.35,2.75],{yticksOverride:[0,2*PI/N],ytickfmt:v=>v.toFixed(4),pad:{l:P.labelScale()>1?78:52,r:24,t:20,b:34}});
       for(let k=-Math.ceil(1.5*N)+1;k<=Math.ceil(1.5*N)-1;k++) a.impulse(2*PI*k/N,2*PI/N,{color:C.in,label:false,width:N>10?1.6:2.1});
       markPeriod(a,2.4);
       return a.svg(); },
@@ -28912,7 +29038,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
   {t:'title', text:'Even Part of a One-Sided Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=s4AX({yr:[-0.4,3.4],ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',yticksOverride:[0,0.625,2.5],ytickfmt:v=>String(v)});
+      const a=s4AX({yr:[-0.4,3.4],ylabel:'\\operatorname{Re}\\{X(e^{j\\omega})\\}',yticksOverride:[0,0.625,2.5],ytickfmt:v=>String(v),pad:{l:P.labelScale()>1?70:52,r:24,t:20,b:34}});
       a.curve(w=>(1-0.6*Math.cos(w))/(1-1.2*Math.cos(w)+0.36),{color:C.mid,n:3000});
       markPeriod(a,2.95);
       return a.svg(); },
@@ -29028,7 +29154,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
   {t:'title', text:'Denominator of the Pulse Transform'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=s4AX({yr:[-2.6,8.6],ylabel:'\\text{value}',yticksOverride:[-1,0,1,5]});
+      const a=nameBelow(s4AX,{yr:[-2.6,8.6],ylabel:'\\text{value}',yticksOverride:[-1,0,1,5]});
       a.curve(w=>dirich(wrap(w),2),{color:C.in,n:6000});
       a.curve(w=>{ const s=Math.sin(w); return Math.abs(s)<1e-3?NaN:Math.sin(2.5*w)/s; },{color:C.err,dash:'9 6',n:9000});
       markPeriod(a,6.6);
@@ -29200,7 +29326,7 @@ codeScene({ id:'m6-code-periodic', nav:'Periodic sequences', title:'Periodic Seq
       frames:{labels:['$x[n]$: impulse train, $N=8$','$a_k=1/8$ for every $k$']},
       svg:v=>{
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-10.5,10.5],yr:[-0.15,1.3],xlabel:f<0.5?'n':'k',ylabel:'\\text{value}',yticksOverride:[0,0.125,1],ytickfmt:v=>String(v),xtarget:8});
+      const a=AX({xr:[-10.5,10.5],yr:[-0.15,1.3],xlabel:f<0.5?'n':'k',ylabel:'\\text{value}',yticksOverride:[0,0.125,1],ytickfmt:v=>String(v),xtarget:8,pad:{l:P.labelScale()>1?70:52,r:24,t:20,b:34}});
       fade(a,1-f,()=>a.stem(D(n=>((n%8)+8)%8===0?1:0,-10,10),{color:C.in}));
       fade(a,f,()=>a.stem(D(()=>1/8,-10,10),{color:C.mid}));
       return a.svg(); },
@@ -29262,7 +29388,7 @@ realGallery({ id:'m6-real-props', nav:'Properties around us',
       a.curve(t=>p(-t),{color:C.out,n:3000});
       return a.svg(); }, 'A drum hit $p(t)=e^{-t/25}\\sin(2\\pi\\,0.06\\,t)$, $t\\ge0$ in ms, played backwards: $p(-t)$.',
       [['out','$p(-t)$'],['in','$p(t)$']], 'tl'],
-    [()=>{ const a=P.Axes(EXO({xr:[-0.5,24.5],yr:[-1.2,1.5],xlabel:'n\\;(\\text{sample at }16\\text{ kHz})',ylabel:'\\text{amplitude}',xstep:4}));
+    [()=>{ const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[-0.5,24.5],yr:[-1.2,1.5],xlabel:'n\\;(\\text{sample at }16\\text{ kHz})',ylabel:'\\text{amplitude}',xstep:4});
       a.stem(D(n=>n%2===0?Math.cos(PI*n/8):0,0,24),{color:C.out,r:2.6});
       return a.svg(); }, 'An $8$ kHz record with a zero after each sample, for $16$ kHz: $x_{(2)}[n]$, $x[m]=\\cos(\\pi m/4)$.'],
     [()=>{ const v=n=>bGeoS4(n,0.7);
@@ -29675,7 +29801,7 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
   {t:'title', text:'Spectrum of the Modulated Sequence'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $Z(e^{j\\omega})$ on the axes, then check it.'}, svg:()=>{
-      const a=AXW(-3*PI,3*PI,PI,{yr:[-0.3,1.6],ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],ytickfmt:v=>String(v)});
+      const a=nameBelow(o=>AXW(-3*PI,3*PI,PI,o),{yr:[-0.3,1.6],ylabel:'\\text{spectrum}',yticksOverride:[0,0.5,1],ytickfmt:v=>String(v)});
       skArea(a);
       fade(a,.4,()=>a.curve(w=>lpf(w,PI/4),{color:C.in,n:9000,dash:'9 6'}));
       markPeriod(a,1.22);
@@ -29713,7 +29839,7 @@ codeScene({ id:'m6-code-props', nav:'Properties', title:'Properties in Code', sr
       const w0=(v?v.w:0.25)*PI, L=v?v.L:16;
       const x=[]; for(let n=0;n<L;n++) x.push(Math.cos(w0*n));
       return s5Stack([380,414], [0.36,0.48], h=>{
-        const a=AX({h,xr:[-4.5,36.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
+        const a=nameBelow(AX,{h,xr:[-4.5,36.5],yr:[-1.35,1.35],xlabel:'n',ylabel:'x[n]',yticksOverride:[-1,0,1],ytickfmt:v=>String(v),xtarget:8});
         fade(a,.25,()=>a.stem(D(n=>n>=0&&n<L?NaN:Math.cos(w0*n),-4,36).filter(p=>isFinite(p[1])),{color:C.in,r:2.6}));
         a.stem(D(n=>Math.cos(w0*n),0,L-1),{color:C.in,r:3});
         return a.svg(); }, h=>{
@@ -29877,7 +30003,7 @@ codeScene({ id:'m6-code-conv', nav:'Convolution and multiplication', title:'Conv
       {t:'box',x:150,y:36,w:260,h:148,label:'\\dfrac{\\sum_k b_k e^{-j\\omega k}}{\\sum_k a_k e^{-j\\omega k}}',tex:true,fs:17},
       {t:'arrow',x1:410,y1:110,x2:546,y2:110,color:C.out},
       {t:'text',x:478,y:86,label:'Y(e^{j\\omega})',tex:true,fs:16,color:C.out},
-      {t:'text',x:280,y:206,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:C.slate},
+      {t:'text',x:280,y:P.labelScale()>1?216:206,label:'\\text{one ratio of polynomials in }e^{-j\\omega}',tex:true,fs:15,color:C.slate},
       {t:'box',x:20,y:262,w:170,h:66,label:'H(e^{j\\omega})',tex:true,fs:18},
       {t:'arrow',x1:190,y1:295,x2:370,y2:295,label:'\\text{partial fractions}',tex:true,color:C.coral},
       {t:'box',x:370,y:262,w:170,h:66,label:'h[n]',tex:true,fs:19,color:C.h},
@@ -30467,6 +30593,18 @@ const skArea=a=>a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.
 const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,yticksLeft:true}, o));
 /* the same axes for a spectrum over omega, with the tick row in multiples of pi */
 const AXW = (lo,hi,step,o) => AX(Object.assign({xr:[lo,hi],xlabel:'\\omega',xticksOverride:wTicks(lo,hi,step),xtickfmt:piTick}, o));
+/* In projector mode the enlarged name of the independent variable, set below
+   the zero line, reaches data that runs down to the lower edge. Such a figure
+   is laid out to measure the zero line, then again with the name dropped just
+   below the data area; the room the name takes moves the zero line, so the
+   layout is repeated until it settles. mk is the axes maker, o its options. */
+const nameBelow = (mk, o) => {
+  if(P.labelScale() <= 1) return mk(o);
+  const D = 26*P.labelScale();
+  let a = mk(Object.assign({}, o, {xnameDrop:0}));
+  for(let k=0; k<3; k++) a = mk(Object.assign({}, o, {xnameDrop:(a.y0 - a.sy(0)) + D}));
+  return a;
+};
 
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
@@ -30984,8 +31122,8 @@ const SC = [
       live:{controls:[{k:'T', label:'$T$', min:0.1, max:0.5, step:0.05, v:0.25, show:v=>'$'+v.toFixed(2)+'\\ \\text{s}$'}]},
       svg:v=>{
       const T=v?v.T:0.25, N=Math.floor(2.2/T+1e-9);
-      return s1Stack(370, 0.5, h=>{
-        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,xr:[-2.2,2.2],yr:[-0.15,1.3],xlabel:'t\\;[\\text{s}]',ylabel:'x_p(t)',yticksOverride:[0,1],xtarget:9});
+      return s1Stack(370, P.labelScale()>1 ? 0.56 : 0.5, h=>{
+        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:P.labelScale()>1?72:54,xr:[-2.2,2.2],yr:[-0.15,1.3],xlabel:'t\\;[\\text{s}]',ylabel:'x_p(t)',yticksOverride:[0,1],xtarget:9});
         a.curve(xB,{color:C.in,width:1.3,dash:'4 5',n:1600});
         D(n=>xB(n*T),-N,N).forEach(([n,x])=>s1Imp(a,n*T,x,C.mid));
         return a.svg(); }, h=>{
@@ -31053,13 +31191,16 @@ const SC = [
       live:{controls:[{k:'T', label:'$T$', min:0.25, max:1, step:0.05, v:0.4, show:v=>'$'+v.toFixed(2)+'\\ \\text{s}$'}]},
       svg:v=>{
       const T=v?v.T:0.4, ws=2*PI/T;
-      return s1Stack(370, 0.42, h=>{
-        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,xr:[-2.2,2.2],yr:[-0.15,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'p(t)',yticksOverride:[0,1],xtarget:9});
+      return s1Stack(370, P.labelScale()>1 ? 0.5 : 0.42, h=>{
+        const a=AX({h,pad:{l:52,r:24,t:16,b:28},xnameDrop:P.labelScale()>1?72:54,xr:[-2.2,2.2],yr:[-0.15,1.35],xlabel:'t\\;[\\text{s}]',ylabel:'p(t)',yticksOverride:[0,1],xtarget:9});
         for(let n=-Math.floor(2.2/T+1e-9);n*T<=2.2+1e-9;n++) a.impulse(n*T,1,{color:C.h,label:false});
         return a.svg(); }, h=>{
         const a=AXW(-20*PI,20*PI,8*PI,{h,pad:{l:52,r:24,t:16,b:28},xnameDrop:54,yr:[-1.2,34],ylabel:'P(j\\omega)',yticksOverride:[0,10,20]});
         for(let k=-Math.floor(20*PI/ws+1e-9);k*ws<=20*PI+1e-9;k++) a.impulse(k*ws,ws,{color:C.h,label:false});
-        a.note(-18.8*PI,30,'\\text{weight}\\;\\tfrac{2\\pi}{T}='+s1Pi(2/T),{tex:true,anchor:'start',color:C.h,fs:15});
+        /* in projector mode the enlarged words reach the name P(jw) at the upper-left
+           edge, so they go to the upper right */
+        const R=P.labelScale()>1;
+        a.note(R?18.8*PI:-18.8*PI,30,'\\text{weight}\\;\\tfrac{2\\pi}{T}='+s1Pi(2/T),{tex:true,anchor:R?'end':'start',color:C.h,fs:15});
         return a.svg(); }); },
       caption:'Top: $p(t)$, weight $1$ every $T$ seconds. Bottom: $P(j\\omega)$, weight $2\\pi/T$ every $\\omega_s$. Move $T$: closer samples push the impulses of $P$ apart and up.'}
   ], right:[
@@ -31477,7 +31618,7 @@ codeScene({ id:'m7-code-sampler', nav:'The sampler', title:'The Sampler in Code'
       a.curve(T=>T<0.19?NaN:2*PI/T,{color:C.in,n:900});
       [[0.4,'T_1',C.out],[0.5,'T_2',C.coral],[2/3,'T_3',C.err]].forEach(([T,l,c])=>{
         a.point(T,2*PI/T,{color:c,r:6,ring:C.plate});
-        a.note(T+0.025,2*PI/T+(T>0.6?-1.1:0.45)*PI,l,{anchor:'start',color:c,fs:15,tex:true}); });
+        a.note(T+0.025,2*PI/T+(T>0.6?-1.1:0.45)*PI,l,{anchor:'start',color:c,fs:15,tex:true,dy:T>0.6&&P.labelScale()>1?10:0}); });
       return a.svg(); },
       caption:'$\\omega_s=2\\pi/T$ against $T$. A period is safe while its point lies above the coral line, in the green band.'}
   ], right:[
@@ -31749,7 +31890,7 @@ realGallery({ id:'m7-real-nyquist', nav:'Sampling rates around us',
       return a.svg(); }, 'Phone speech, below $3.4$ kHz: $x(t)=0.7\\cos(\\pi t)+0.3\\cos(6.8\\pi t)$, $t$ in ms.',
       [['in','$x(t)$',true],['mid','$x(n/8)$']]],
     [()=>{ const x=t=>Math.cos(40*PI*t);
-      const a=P.Axes(EXO({xr:[0,0.255],yr:[-1.3,2.9],xlabel:'t\\;(\\text{ms})',ylabel:'x(t)',xticksOverride:[0,0.05,0.1,0.15,0.2,0.25],xtickfmt:v=>String(+v.toFixed(2)),yticksOverride:[-1,0,1],ytickfmt:v=>String(v)}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,0.255],yr:[-1.3,2.9],xlabel:'t\\;(\\text{ms})',ylabel:'x(t)',xticksOverride:[0,0.05,0.1,0.15,0.2,0.25],xtickfmt:v=>String(+v.toFixed(2)),yticksOverride:[-1,0,1],ytickfmt:v=>String(v)});
       a.curve(x,{color:C.in,dash:'9 6',n:1200});
       a.stem(samp(x,1/44.1,0,0.2501),{color:C.mid,r:3});
       return a.svg(); }, 'The top tone a CD keeps, $20$ kHz: $x(t)=\\cos(40\\pi t)$, $t$ in ms.',
@@ -32227,7 +32368,7 @@ realGallery({ id:'m7-real-recon', nav:'Reconstruction around us',
   keywords:'examples converter staircase audio player LED dimmer temperature chart straight lines phone smoothing filter',
   figs:[
     [()=>{ const T=1/16, x=t=>Math.sin(2*PI*t);
-      const a=P.Axes(EXO({xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]});
       a.curve(x,{color:C.in,dash:'9 6',width:1.6,n:600});
       a.poly(s3stair(x,T,0,2).slice(2),{color:C.out,width:2.2});
       return a.svg(); }, 'A music player holds each sample of a $1$ kHz tone for $T=62.5\\ \\mu\\text{s}$: $v(t)=\\sin(2\\pi\\,1000\\,nT)$.',
@@ -32247,7 +32388,7 @@ realGallery({ id:'m7-real-recon', nav:'Reconstruction around us',
       return a.svg(); }, 'Readings every $3$ h, $\\theta[n]=18+6\\sin\\bigl(2\\pi(3n-9)/24\\bigr)\\ ^{\\circ}\\text{C}$, joined by straight lines.',
       [['mid','$\\theta[n]$'],['out','joined by lines']]],
     [()=>{ const T=1/8, x=t=>Math.sin(2*PI*t);
-      const a=P.Axes(EXO({xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'y(t)\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]}));
+      const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[0,2],yr:[-1.35,2.2],xlabel:'t\\;(\\text{ms})',ylabel:'y(t)\\;(\\text{V})',xstep:0.5,yticksOverride:[-1,0,1]});
       a.curve(x,{color:C.out,width:2.4,n:600});
       a.stem(D(n=>x(n*T),0,16).map(p=>[p[0]*T,p[1]]),{color:C.mid,r:3});
       return a.svg(); }, 'A phone filters samples $T=125\\ \\mu\\text{s}$ apart: $y(t)=\\sum_n x(nT)\\operatorname{sinc}\\bigl(\\pi(t-nT)/T\\bigr)=\\sin(2\\pi\\,1000\\,t)$.',
@@ -33216,7 +33357,7 @@ codeScene({ id:'m7-code-alias', nav:'Aliasing in practice', title:'Aliasing in C
       const dTex = Math.abs(+Dl.toFixed(4)-Dl)<1e-12 ? '='+s5n(Dl,4) : '\\approx'+s5n(Dl,4);
       const pad={l:74,r:24,t:20,b:34};
       return s5Stack([380,400],[0.6,0.6], h=>{
-        const a=AX({h,pad,xr:[-0.02,1.02],yr:[-1.25,2.55],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
+        const a=nameBelow(AX,{h,pad,xr:[-0.02,1.02],yr:[-1.25,2.55],yticksOverride:[-1,0,1],ytickfmt:v=>String(v),
           xlabel:'t\\;[\\text{ms}]',ylabel:'x(t),\\;Q\\bigl(x(t)\\bigr)',xticksOverride:[0,0.25,0.5,0.75,1]});
         if(B<=4) for(let i=0;i<L;i++) a.hline(-1+Dl*(i+0.5),{color:C.muted,opacity:.45});
         a.curve(x,{color:C.in,width:1.5,dash:'5 5',n:1600});
@@ -33287,7 +33428,7 @@ realGallery({ id:'m7-real-dtproc', nav:'Digital processing around us',
   objective:'Recognise everyday devices that sample a signal, process the numbers and convert back.',
   keywords:'examples phone hum 50 Hz 8 kHz equaliser bass 48 kHz ABS wheel speed sensor moving average 400 Hz camera sharpening edge pixels',
   figs:[
-    [()=>{ const a=P.Axes(EXO({xr:[-0.05,2.55],yr:[-1.5,3.4],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0.5,1,1.5,2],yticksOverride:[-1,0,1]}));
+    [()=>{ const a=nameBelow(o=>P.Axes(EXO(o)),{xr:[-0.05,2.55],yr:[-1.5,3.4],xlabel:'t\\;(\\text{ms})',ylabel:'v\\;(\\text{V})',xticksOverride:[0.5,1,1.5,2],yticksOverride:[-1,0,1]});
       a.curve(t=>Math.sin(2*PI*0.8*t)+0.8*Math.sin(2*PI*0.05*t),{color:C.in,width:1.6,dash:'6 5',n:1200});
       a.stem(D(n=>Math.sin(2*PI*800*n/8000),0,20).map(([n,y])=>[n/8,Math.abs(y)<1e-9?0:y]),{color:C.out,r:3});
       return a.svg(); }, 'A phone at $8$ kHz removes the $50$ Hz hum: $y[n]=\\sin(2\\pi\\,800n/8000)$ V.',
@@ -35069,7 +35210,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:48,r:26,t:28,b:34},xstep:3,ystep:1});
       a.stem([[0,1],[3,0],[6,1],[7,-1],[9,1],[11,-1]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
-      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5,
+      yticksLeft:P.labelScale()>1});   /* projector: the grown numbers leave the stems at n=±1 */
       a.stem([[-3,0.5],[-1,-0.5],[1,0.5],[3,-0.5]],{color:C.mid}); return a.svg();})()),
   err:'Missing the cancellation at $n=3$ in part (a) and reporting both a $+1$ and a $-1$ there. Where two trains land on the same index the values add, and here they add to zero.',
   teach:'Part (b) is the one students get wrong by multiplying: $3\\cdot4=12$ happens to be right here because $3$ and $4$ are coprime. Ask what the answer would be for trains of period $4$ and $6$ — the product $24$ is a period, but the fundamental one is $12$.' },
@@ -35192,7 +35334,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:48,r:26,t:28,b:34},xstep:2,ystep:1});
       a.stem([[0,1],[4,1],[5,-1],[8,1],[11,-1]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-5.6,5.6],yr:[-1.1,1.1],xlabel:'n',ylabel:'\\Od\\{x_2\\}[n]',
-      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5});
+      pad:{l:56,r:26,t:28,b:34},xstep:1,ystep:0.5,
+      yticksLeft:P.labelScale()>1});   /* projector: the grown numbers leave the stems at n=±1 */
       a.stem([[-1,-0.5],[1,0.5]],{color:C.mid}); return a.svg();})()),
   err:'Reporting $N_0=24$ in part (b) by multiplying the two periods. The product is always a period; it is the fundamental one only when the two are coprime, and $4$ and $6$ share the factor $2$.',
   teach:'Part (c) is the useful contrast with the previous question of this kind. Here the window is symmetric and catches equal samples at $n=\\pm4$, so those drop out of the odd part entirely — a student who reports four non-zero samples has not applied the definition at $n=4$.' },
@@ -37754,7 +37897,11 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
     (()=>{const a=P.Axes({w:520,h:250,xr:[-7,7],yr:[-1,7.5],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'Y(j\\omega)',
       pad:{l:56,r:26,t:28,b:38},xstep:2,yticksOverride:[0,2,4]});
       [[-5,Math.PI],[-3,1.5*Math.PI],[-1,2*Math.PI],[1,2*Math.PI],[3,1.5*Math.PI],[5,Math.PI]]
-        .forEach(p=>a.impulse(p[0],p[1],{color:C.out}));
+        .forEach(p=>{
+          /* in projector mode a weight written beside its impulse reaches the next one, so it is centred over the tip */
+          if(P.labelScale()>1){ a.impulse(p[0],p[1],{color:C.out,label:false});
+            a.note(p[0],p[1],'('+p[1].toFixed(3)+')',{anchor:'middle',dy:-8*P.labelScale(),fs:13,color:C.out}); }
+          else a.impulse(p[0],p[1],{color:C.out}); });
       return a.svg();})()),
   err:'Taking $H$ to be the product of the two rectangles, giving a rectangle on $|\\omega|<2$. The signals are multiplied in time, so their transforms are convolved, and the result is wider than either rectangle, not narrower.',
   teach:'State the width rule for convolving two rectangles: the flat region is set by the narrower rectangle, and the total support is the sum of the supports. Apply this rule before evaluating an integral.' },

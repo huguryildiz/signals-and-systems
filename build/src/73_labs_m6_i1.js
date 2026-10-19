@@ -79,6 +79,10 @@ Object.assign(LABS, (function(){
         pad:{l:64,r:24,t:30,b:36},xticksOverride:wTicks(-2.2*PI,2.2*PI,PI),xtickfmt:piTick,ytarget:3,yticksLeft:true});
       A2.vline(-PI,{color:PLOT.COL.coral,opacity:.5}); A2.vline(PI,{color:PLOT.COL.coral,opacity:.5});
       A2.span(-PI,PI,top,'',{color:PLOT.COL.coral});
+      /* a slide or a laboratory sets the name of the dependent variable at the
+         upper-left edge, where the enlarged words of projector mode reach it;
+         there the name goes back to the zero line, clear of the words */
+      if(PLOT.labelScale() > 1) A2.o.ynameAtAxis = true;
       A2.note(-PI,top,'\\text{one period},\\;2\\pi',{tex:true,color:PLOT.COL.coral,fs:13,anchor:'end',dx:-8,dy:-3});
       A2.curve(w=>Xw(sh,w),{color:PLOT.COL.mid,width:1.8,dash:'6 5',n:2400});
       A2.stem(stems,{color:PLOT.COL.in,r:N>20?2.4:3.2,showZero:true});

@@ -239,7 +239,7 @@ const SC = [
        on the same n axis. Each signal has its own panel, so no stem hides
        another. The motion is the stem() anim of the other module openings. */
     {t:'grid', cols:1, gap:'14px', items:[x3,h3,y3].map(([f,lab,col,yr,d])=>[{t:'fig', svg:()=>{
-      const a=P.Axes({w:520,h:124,xr:[-1,9],yr,grid:false,xlabel:'n',ylabel:lab,xnameDrop:32,
+      const a=P.Axes({w:520,h:124,xr:[-1,9],yr,grid:false,xlabel:'n',ylabel:lab,xnameDrop:32*P.labelScale(),
         chrome:{axis:'rgba(239,231,216,.34)',tick:'#9EACB9',name:'#E6E2D9'},
         pad:{l:46,r:30,t:14,b:28},xstep:2,ytarget:2});
       a.stem(disc(f,-1,8),{color:col,r:4.5,width:2,anim:{delay:d,step:.1,tip:true}});
@@ -591,7 +591,9 @@ REAL_IMPULSE,
       const a=P.Axes({w:560,h:380,xr:[-2,11],yr:[-0.2,2.5],xlabel:'n',ylabel:'y[n]',pad:{l:48,r:24,t:20,b:34},xtarget:8,ytarget:3});
       skArea(a);
       fade(a,0.35,()=>a.stem(disc(n=>n>=0?Math.pow(0.5,n):0,-2,11),{color:C.ink}));
-      a.note(1.2,0.75,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
+      /* in projector mode the label is wider than the gap between stems, so it moves left of the vertical axis */
+      if(P.labelScale()>1) a.note(-0.3,0.6,'x[n]',{anchor:'end',color:C.ink,fs:15,tex:true});
+      else a.note(1.2,0.75,'x[n]',{anchor:'start',color:C.ink,fs:15,tex:true});
       a.raw('<g class="sk-key">');
       a.hline(2,{color:C.coral,dash:'3 5'});
       a.stem(disc(n=>n>=0?2-Math.pow(0.5,n):0,-2,11),{color:C.out,r:3});
@@ -761,7 +763,7 @@ REAL_CONVSUM,
       const a=P.Axes({w:560,h:380,xr:[-3,7],yr:[-0.1,1.2],xlabel:'t',ylabel:'y(t)',pad:{l:50,r:24,t:20,b:34},xtarget:11,ytarget:3});
       skArea(a);
       a.curve(t=>t<=0?Math.exp(2*t):0,{color:C.ink,opacity:.35,dash:'6 5',n:1200});
-      a.note(-0.2,1.05,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.note(P.labelScale()>1?-0.65:-0.2,1.05,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});   /* clear of the tick number 1 when larger */
       a.raw('<g class="sk-key">');
       a.curve(t=>t<3?0.5*Math.exp(2*(t-3)):0.5,{color:C.out,n:1200});
       a.point(3,0.5,{color:C.coral});
@@ -823,7 +825,7 @@ REAL_CONVSUM,
       /* The two moving edges of the window are marked under the axis, and the
          case condition above the plot compares them with the ramp's edges 0 and 2. */
       [[t-1,'t-1'],[t,'t']].forEach(([z,s])=>{
-        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
+        a.raw(`<line x1="${a.sx(z).toFixed(2)}" y1="${a.sy(0).toFixed(2)}" x2="${a.sx(z).toFixed(2)}" y2="${a.sy(P.labelScale()>1?-0.34:-0.42).toFixed(2)}" stroke="${C.in}" stroke-width="1" stroke-dasharray="3 3"/>`);
         a.note(z,-0.62,s,{anchor:'middle',color:C.in,fs:15,tex:true}); });
       const conds=['t<0\\;\\Rightarrow\\;\\text{no overlap}','t>0\\;\\text{and}\\;t-1<0\\;\\Rightarrow\\;0<t<1','t-1>0\\;\\text{and}\\;t<2\\;\\Rightarrow\\;1<t<2','t-1<2\\;\\text{and}\\;t>2\\;\\Rightarrow\\;2<t<3','t-1>2\\;\\Rightarrow\\;t>3\\;\\;(\\text{no overlap})'];
       const i=Math.min(4,Math.floor(k)), fr=k-i, cond=(s,o)=>fade(a,o,()=>a.note(-1.4,2.4,s,{anchor:'start',dy:-62,color:C.ink,fs:16,tex:true}));

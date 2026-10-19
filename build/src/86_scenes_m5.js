@@ -43,7 +43,19 @@ const AX = o => P.Axes(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtar
 /* ---- everyday signals, one gallery slide at the end of each teaching
        section. The traces are schematic; each keeps the feature its section
        is about. A figure with two traces carries its legend as a third entry. */
-const EXO = o => Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o);
+/* In projector mode the labels are larger, and an axis name that Axes sets
+   inside the data area (the zero line lies inside the range) meets the curves.
+   A figure that asks for it (dropX) sets the name under the data area there:
+   the lower margin is made what the name needs, and the drop, which Axes
+   measures from the zero line, is solved for that margin. */
+const dropX = o => {
+  const L = P.labelScale(), ya = o.yr[0], yb = o.yr[1];
+  if(!o.dropX || L <= 1 || !o.xlabel || !(ya <= 0 && yb >= 0)) return o;
+  const h0 = P.hOverride, t = P.Axes(o); P.hOverride = h0;   /* the drawn height and top margin */
+  const NB = 26*L, G = 0.8*NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
+  return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
+};
+const EXO = o => dropX(Object.assign({w:520,h:250,pad:{l:60,r:26,t:24,b:40},ytarget:3}, o));
 function realGallery(cfg){
   return { id:cfg.id, module:'M5', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -861,7 +873,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Cosine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
+      const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-14,14],yr:[-1.4,15.5],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'X(j\\omega)',yticksOverride:[0,4,8,12.566],ytickfmt:v=>v===12.566?'12.57':String(v)});
       a.impulse(3*PI,4*PI,{color:C.in,labelText:'12.57'});
       a.impulse(-3*PI,4*PI,{color:C.in,labelText:'12.57'});
       return a.svg(); },
@@ -886,7 +898,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
   {t:'title', text:'Line Spectrum of a Sine'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
+      const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-18,18],yr:[-22,22],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,xtickfmt:v=>Math.abs(Math.abs(v)-4*PI)<1e-9?'':P.piTick(v),ylabel:'\\operatorname{Im}\\{X(j\\omega)\\}',yticksOverride:[-18.85,-10,10,18.85],ytickfmt:v=>Math.abs(v)>18?(v<0?'-18.85':'18.85'):String(v)});
       a.impulse(4*PI,-6*PI,{color:C.in,label:false});
       a.impulse(-4*PI,6*PI,{color:C.in,label:false});
       return a.svg(); },
@@ -915,7 +927,7 @@ codeScene({ id:'m5-code-pairs', nav:'Standard pairs', title:'Standard Pairs in C
       svg:v=>{
       const f=cl(v?v.frame:0);
       if(f<0.5){
-        const a=AX({xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
+        const a=AX({pad:{l:P.labelScale()>1?74:52,r:24,t:20,b:34},xr:[-16,16],yr:[-3,36],xlabel:'\\omega\\;(\\text{rad/s})',xpi:PI,ylabel:'|X(j\\omega)|',yticksOverride:[12.566,18.850,31.416],ytickfmt:v=>v.toFixed(2)});
         fade(a,1-2*f,()=>{
           a.impulse(0,10*PI,{color:C.in,label:false});
           [3*PI,-3*PI].forEach(w=>a.impulse(w,4*PI,{color:C.in,label:false}));
@@ -1528,7 +1540,7 @@ realGallery({ id:'m5-real-props', nav:'Properties around us',
       a.curve(t=>t<40?0:0.5*Math.exp(-(t-40)/6)*Math.sin(2*PI*0.25*(t-40)),{color:C.out,n:3000});
       return a.svg(); }, 'A click and its echo from a wall: $p(t)+0.5\\,p(t-40)$, with $t$ in ms.',
       [['in','$p(t)$'],['out','$0.5\\,p(t-40)$']]],
-    [()=>{ const a=P.Axes(EXO({xr:[0,20],yr:[-1.2,1.6],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:5}));
+    [()=>{ const a=P.Axes(EXO({dropX:true,xr:[0,20],yr:[-1.2,1.6],xlabel:'t\\;(\\text{ms})',ylabel:'s(t)',xstep:5}));
       a.curve(t=>Math.sin(2*PI*0.1*t),{color:C.in,dash:'9 6',n:1600});
       a.curve(t=>Math.sin(2*PI*0.2*t),{color:C.out,n:1600});
       return a.svg(); }, 'A recording played at double speed: $s(2t)$ with $s(t)=\\sin(2\\pi\\,0.1\\,t)$, $t$ in ms.',
@@ -2061,16 +2073,18 @@ codeScene({ id:'m5-code-conv', nav:'Convolution and multiplication', title:'Conv
   {t:'eyebrow', text:'Module 5 · Systems', src:'p. 62'},
   {t:'title', text:'Frequency Response from a Differential Equation'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:560,h:380,items:[
-      {t:'box',x:20,y:50,w:210,h:70,label:'\\text{differential equation}',tex:true,fs:16},
-      {t:'arrow',x1:230,y1:85,x2:330,y2:85,label:'\\mathcal{F}',tex:true,color:C.coral},
-      {t:'box',x:330,y:50,w:210,h:70,label:'\\text{algebra in }j\\omega',tex:true,fs:16},
-      {t:'box',x:330,y:250,w:210,h:70,label:'H(j\\omega)=\\tfrac{B(j\\omega)}{A(j\\omega)}',tex:true,fs:17,color:C.h},
-      {t:'arrow',x1:435,y1:120,x2:435,y2:250,color:C.slate},
-      {t:'box',x:20,y:250,w:210,h:70,label:'h(t)',tex:true,fs:19,color:C.h},
-      {t:'arrow',x1:330,y1:285,x2:230,y2:285,color:C.slate},
+    /* in projector mode the boxes are widened so the larger labels fit inside them */
+    {t:'fig', frame:true, grow:true, svg:()=>{ const L=P.labelScale()>1, bw=L?250:210, lx=L?5:20, rx=L?305:330;
+      return P.blocks({w:560,h:380,items:[
+      {t:'box',x:lx,y:50,w:bw,h:70,label:'\\text{differential equation}',tex:true,fs:16},
+      {t:'arrow',x1:lx+bw,y1:85,x2:rx,y2:85,label:'\\mathcal{F}',tex:true,color:C.coral},
+      {t:'box',x:rx,y:50,w:bw,h:70,label:'\\text{algebra in }j\\omega',tex:true,fs:16},
+      {t:'box',x:rx,y:250,w:bw,h:70,label:'H(j\\omega)=\\tfrac{B(j\\omega)}{A(j\\omega)}',tex:true,fs:17,color:C.h},
+      {t:'arrow',x1:rx+bw/2,y1:120,x2:rx+bw/2,y2:250,color:C.slate},
+      {t:'box',x:lx,y:250,w:bw,h:70,label:'h(t)',tex:true,fs:19,color:C.h},
+      {t:'arrow',x1:rx,y1:285,x2:lx+bw,y2:285,color:C.slate},
       {t:'text',x:280,y:350,label:'\\text{partial fractions, then the table}',tex:true,fs:14,color:C.slate}
-    ]}), caption:'The route of this section: transform the equation, read $H(j\\omega)$, and invert it term by term.'}
+    ]}); }, caption:'The route of this section: transform the equation, read $H(j\\omega)$, and invert it term by term.'}
   ], right:[
     {t:'eq', tex:'\\sum_{k=0}^{N}a_k\\frac{\\d^{k}y(t)}{\\d t^{k}}=\\sum_{k=0}^{M}b_k\\frac{\\d^{k}x(t)}{\\d t^{k}}', label:'Linear, constant coefficients'},
     {t:'reveal', at:1, items:[

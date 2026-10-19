@@ -12,6 +12,21 @@ const ecgBeat = t => { const u=((t%0.8)+0.8)%0.8, g=(c,w,a)=>a*Math.exp(-(((u-c)
 /* the slides whose captions run to three lines get a shorter plot, so the page
    does not lean on the fit-to-scene rescue in projector mode */
 const EXS = o => EXO(Object.assign({h:205}, o));
+/* Projector mode: when the data run down to the right-hand end of the x axis,
+   the time-axis name, set a fixed drop under the zero line, lands on the trace.
+   There the name is set under the data area instead, with the bottom margin
+   widened to hold it; a throw-away pass finds where the zero line falls.
+   Normal size is unchanged. */
+const XLOW = o => {
+  const L = P.labelScale();
+  if(L <= 1 || !o.xlabel || o.xnameDrop != null || !(o.yr[0] < 0 && o.yr[1] > 0)) return o;
+  const b = Object.assign({}, o);
+  if(P.hOverride){ b.h = P.hOverride; P.hOverride = null; }
+  const D = 26*L, pad = Object.assign({}, b.pad||{});
+  pad.b = Math.max(pad.b||0, D + 0.42*26*L + 2);
+  const t = P.Axes(Object.assign({}, b, {pad, xnameDrop:0}));
+  return Object.assign(b, {pad, xnameDrop: D + t.y0 - t.sy(0)});
+};
 function realGallery(cfg){
   return { id:cfg.id, module:'M1', nav:cfg.nav, title:cfg.title, src:cfg.src,
     objective:cfg.objective, keywords:cfg.keywords,
@@ -74,7 +89,7 @@ const REAL_TRANSFORM = realGallery({ id:'m1-real-transform', nav:'Transformation
       a.note(2.75,1.05,'x(t)',{tex:true,color:C.muted}); a.note(0.35,1.05,'x(2t)',{tex:true,color:C.in});
       return a.svg(); }, 'Double-speed playback: $x(2t)$ lasts half as long and every pitch doubles.'],
     [()=>{ const f=n=>Math.cos(2*Math.PI*n/16)+0.3*Math.sin(2*Math.PI*n/5);
-      const a=P.Axes(EXO({xr:[0,24],yr:[-1.5,1.5],xlabel:'n',ylabel:'\\text{frame value}',xstep:8}));
+      const a=P.Axes(XLOW(EXO({xr:[0,24],yr:[-1.5,1.5],xlabel:'n',ylabel:'\\text{frame value}',xstep:8})));
       a.stem(disc(f,0,24),{color:C.muted}); a.stem(disc(n=>f(2*n),0,12),{color:C.mid});
       return a.svg(); }, 'Keeping every second video frame: grey stems are $x[n]$, coloured stems $x[2n]$.']
   ],
@@ -93,10 +108,11 @@ const REAL_PERIODIC = realGallery({ id:'m1-real-periodic', nav:'Periodic signals
       a.curve(ecgBeat,{color:C.in,n:1400}); a.span(1.1,1.9,1.35,'T\\approx 0.8\\;\\text{s}',{tex:true});
       return a.svg(); }, 'A resting heartbeat repeats about every 0.8 s. A real heart is only nearly periodic.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,60],yr:[-400,480],xlabel:'t\\;(\\text{ms})',ylabel:'v(t)\\;(\\text{V})',xstep:20}));
-      a.curve(t=>325*Math.cos(2*Math.PI*0.05*t),{color:C.in,n:900}); a.span(0,20,380,'T=20\\;\\text{ms}',{tex:true});
+      a.curve(t=>325*Math.cos(2*Math.PI*0.05*t),{color:C.in,n:900}); /* projector: the second period, clear of the grown axis name */
+      const k=P.labelScale()>1?1:0; a.span(20*k,20*(k+1),380,'T=20\\;\\text{ms}',{tex:true});
       return a.svg(); }, 'Mains voltage at 50 Hz repeats every 20 ms.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,48],yr:[-2,2.4],xlabel:'t\\;(\\text{h})',ylabel:'h(t)\\;(\\text{m})',xstep:12}));
-      a.curve(t=>1.5*Math.cos(2*Math.PI*t/12.42),{color:C.in}); a.span(0,12.42,1.9,'T\\approx 12.4\\;\\text{h}',{tex:true});
+      a.curve(t=>1.5*Math.cos(2*Math.PI*t/12.42),{color:C.in}); const k=P.labelScale()>1?1:0; a.span(12.42*k,12.42*(k+1),1.9,'T\\approx 12.4\\;\\text{h}',{tex:true});
       return a.svg(); }, 'Sea level in a harbour: the tide repeats about every 12.4 hours.'],
     [()=>{ const a=P.Axes(EXO({xr:[0,36],yr:[0,34],xlabel:'n\\;(\\text{month})',ylabel:'T[n]\\;(^\\circ\\text{C})',xstep:12}));
       a.stem(disc(n=>14-10*Math.cos(2*Math.PI*(n-0.5)/12),0,35),{color:C.mid}); a.span(12,24,31,'N=12',{tex:true});
@@ -240,16 +256,16 @@ const CAT_WAVE = realGallery({ id:'m1-cat-wave', nav:'Sine, square, triangle, sa
   keywords:'catalogue common signals periodic waveform sine square triangle sawtooth average power pitch timbre harmonics sound',
   budget:'A catalogue of four periodic waveforms; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.sine,{color:C.in,n:900});
       return a.svg(); }, 'Sine: $x(t)=A\\sin(2\\pi t/T_0)$. Average power $A^2/2$.', at220(WAVE.sine)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.square,{color:C.in,n:1800});
       return a.svg(); }, 'Square: $x(t)=A$ for $0\\le t<T_0/2$ and $-A$ for $T_0/2\\le t<T_0$. Average power $A^2$.', at220(WAVE.square)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.tri,{color:C.in,n:900});
       return a.svg(); }, 'Triangle: $x(t)=A\\,(1-4|t|/T_0)$ for $|t|\\le T_0/2$. Average power $A^2/3$.', at220(WAVE.tri)],
-    [()=>{ const a=P.Axes(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,3],yr:[-1.4,1.4],xlabel:'t/T_0',ylabel:'x(t)/A',xstep:1})));
       a.curve(WAVE.saw,{color:C.in,n:1800});
       return a.svg(); }, 'Sawtooth: $x(t)=A\\,(2t/T_0-1)$ for $0\\le t<T_0$. Average power $A^2/3$.', at220(WAVE.saw)]
   ],
@@ -264,22 +280,22 @@ const CAT_SOUND = realGallery({ id:'m1-cat-sound', nav:'Chirp, beats, AM, FM',
   keywords:'catalogue common signals chirp sweep instantaneous frequency beats amplitude modulation AM tremolo frequency modulation FM vibrato siren sound',
   budget:'A catalogue of four audible signals; each figure carries its formula and a sound button.',
   figs:[
-    [()=>{ const a=P.Axes(EXS({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,6],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:1})));
       a.curve(t=>Math.cos(2*Math.PI*(0.3*t+0.25*t*t)),{color:C.in,n:1600});
       return a.svg(); }, 'Chirp: $x(t)=\\cos\\!\\big(2\\pi(f_0t+\\tfrac{k}{2}t^2)\\big)$. Its frequency $f_0+kt$ rises with time. Drawn with $f_0=0.3$ Hz, $k=0.5$ Hz/s.',
       {items:[{label:'Play 200 Hz to 2 kHz', sound:()=>({f:t=>Math.cos(2*Math.PI*(200*t+450*t*t)), dur:2})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-2.4,2.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       a.curve(t=>2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'}); a.curve(t=>-2*Math.cos(Math.PI*t),{color:C.muted,dash:'4 4'});
       a.curve(t=>Math.cos(2*Math.PI*10*t)+Math.cos(2*Math.PI*11*t),{color:C.in,n:1600});
       return a.svg(); }, 'Beats: $\\cos(2\\pi f_1t)+\\cos(2\\pi f_2t)=2\\cos(\\pi(f_1-f_2)t)\\cos(\\pi(f_1+f_2)t)$. The loudness peaks $|f_1-f_2|$ times a second.',
       {items:[{label:'Play 440 Hz + 444 Hz', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+Math.cos(2*Math.PI*444*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-2.1,2.1],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       const env=t=>1+0.8*Math.cos(2*Math.PI*t);
       a.curve(env,{color:C.muted,dash:'4 4'}); a.curve(t=>-env(t),{color:C.muted,dash:'4 4'});
       a.curve(t=>env(t)*Math.cos(2*Math.PI*12*t),{color:C.in,n:1600});
       return a.svg(); }, 'AM: $x(t)=\\big(1+m\\cos(2\\pi f_mt)\\big)\\cos(2\\pi f_ct)$ with $0<m\\le1$. The dashed envelope is $\\pm\\big(1+m\\cos(2\\pi f_mt)\\big)$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz', sound:()=>({f:t=>(1+0.8*Math.cos(2*Math.PI*3*t))*Math.cos(2*Math.PI*440*t), dur:3})}]}],
-    [()=>{ const a=P.Axes(EXS({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5}));
+    [()=>{ const a=P.Axes(XLOW(EXS({xr:[0,2],yr:[-1.4,1.4],xlabel:'t\\;(\\text{s})',ylabel:'x(t)',xstep:0.5})));
       a.curve(t=>Math.cos(2*Math.PI*10*t+5*Math.sin(2*Math.PI*t)),{color:C.in,n:1600});
       return a.svg(); }, 'FM: $x(t)=\\cos\\!\\big(2\\pi f_ct+\\beta\\sin(2\\pi f_mt)\\big)$. The amplitude stays fixed; the frequency $f_c+\\beta f_m\\cos(2\\pi f_mt)$ swings about $f_c$. Drawn with $f_c=10$ Hz, $f_m=1$ Hz, $\\beta=5$.',
       {items:[{label:'Play $f_c=440$ Hz, $f_m=3$ Hz, $\\beta=30$', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t+30*Math.sin(2*Math.PI*3*t)), dur:3})}]}]
@@ -312,7 +328,7 @@ const CAT_RANDOM = realGallery({ id:'m1-cat-random', nav:'Noise, noisy tone, ran
       a.curve(t=>Math.cos(2*Math.PI*t)+0.35*hiss(Math.floor(60*t)),{color:C.in,n:1800});
       return a.svg(); }, 'Signal plus noise: $x(t)=\\cos(2\\pi f_0t)+\\sigma\\,w(t)$. The dashed curve is the tone alone. A measured signal almost always looks like this.',
       {items:[{label:'Play 440 Hz + noise', sound:()=>({f:t=>Math.cos(2*Math.PI*440*t)+0.5*hiss(Math.floor(16000*t)), dur:2})}]}],
-    [()=>{ const w=walkSeq(60,1), a=P.Axes(EXS({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20}));
+    [()=>{ const w=walkSeq(60,1), a=P.Axes(XLOW(EXS({xr:[0,60],yr:[-6,6],xlabel:'n',ylabel:'x[n]',xstep:20})));
       a.stem(w.map((v,n)=>[n,v]),{color:C.mid,r:2.6});
       return a.svg(); }, 'Random walk: $x[n]=x[n-1]+w[n]$ with $x[0]=0$. Each step is random, but the sum wanders far from zero.',
       {items:[{label:'Play a random walk', sound:()=>{ const w=walkSeq(16000*2,0.995); return {f:t=>w[Math.floor(16000*t)]||0, dur:2}; }}]}],
@@ -693,7 +709,7 @@ const SC = [
       a.curve(t=>1,{color:C.h});
       a.note(3.9,1.1,'x(t)=1',{anchor:'end',color:C.h,fs:15,tex:true});
       a.vline(-2,{color:C.coral}); a.vline(2,{color:C.coral});
-      a.span(-2,2,1.3,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});
+      a.span(-2,2,P.labelScale()>1?1.2:1.3,'\\text{window }-T\\ldots T',{color:C.coral,tex:true});   /* projector: under the 1.5 tick */
       return a.svg(); },
       caption:'The constant $x(t)=1$. The energy in the window grows with the window, so the total energy is infinite.'}
   ], right:[
@@ -854,7 +870,7 @@ REAL_ENERGY,
         const lbl=(t0>0?'delay by ':'advance by ')+num(Math.abs(t0))+' s';
         // the label goes under the bracket, clear of the tick numbers above it
         a.span(Math.min(0,t0),Math.max(0,t0),-0.38,'',{color:C.h});
-        a.note(t0>0?0.15:-0.15,-0.38,lbl,{anchor:t0>0?'start':'end',color:C.h,dy:16});   // starts beside the vertical axis, never across it
+        a.note(t0>0?0.15:-0.15,-0.38,lbl,{anchor:t0>0?'start':'end',color:C.h,dy:16*P.labelScale()});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $t_0$. The pulse keeps its shape and only its position changes. A positive $t_0$ moves it to the right.'},
@@ -891,7 +907,7 @@ REAL_ENERGY,
         const lbl=(n0>0?'delay by ':'advance by ')+num(Math.abs(n0))+(Math.abs(n0)===1?' sample':' samples');
         // the label goes under the bracket, clear of the tick numbers above it
         a.span(Math.min(0,n0),Math.max(0,n0),-0.38,'',{color:C.h});
-        a.note(n0>0?0.3:-0.3,-0.38,lbl,{anchor:n0>0?'start':'end',color:C.h,dy:16});   // starts beside the vertical axis, never across it
+        a.note(n0>0?0.3:-0.3,-0.38,lbl,{anchor:n0>0?'start':'end',color:C.h,dy:16*P.labelScale()});   // starts beside the vertical axis, never across it
       }
       return a.svg(); },
       caption:'Drag $n_0$. Every sample moves by the same whole number of steps. A positive $n_0$ moves the sequence to the right.'},
@@ -994,7 +1010,7 @@ REAL_ENERGY,
            that is not a short decimal is written as a reduced fraction */
         const g=(m,n)=>n?g(n,m%n):m, edge=p=>{ const n=Math.round(4*k), q=4*p, d=g(q,n);
           return Math.abs(100*p/k-Math.round(100*p/k))<1e-9 ? num(p/k) : '\\tfrac{'+q/d+'}{'+n/d+'}'; };
-        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true}));
+        [1,3].forEach(p=>a.note(p/k,-0.36,edge(p),{anchor:'middle',color:C.h,fs:14,tex:true,dy:(P.labelScale()-1)*50}));
       }
       return a.svg(); },
       caption:'Drag $a$. The pulse on $[1,3]$ moves to $[1/a,\\,3/a]$. Its height does not change.'},
@@ -1068,21 +1084,24 @@ REAL_ENERGY,
       const b=v?v.b:5, k=v?v.a:3;
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const hi=Math.max(10, Math.ceil((4+b)/k)+1);
-      const a=P.Axes({w:560,h:380,xr:[-3,hi],yr:[-0.85,3],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:hi>10?8:9,ytarget:3});
-      const at=k===1?'t':num(k)+'t', arg=b>0?at+'-'+num(b):at;
+      /* projector: more room above for the three grown names, set a line apart
+         in pixels, and below for the corner fractions under the tick row */
+      const LS=P.labelScale(), PJ=LS>1, top=PJ?3.6:3, ny=PJ?3.45:2.85;
+      const a=P.Axes({w:560,h:380,xr:[-3,hi],yr:[PJ?-1.5:-0.85,top],xlabel:'t',ylabel:'x(t)',pad:{l:48,r:24,t:18,b:32},xtarget:hi>10?8:9,ytarget:3});
+      const at=k===1?'t':num(k)+'t', arg=b>0?at+'-'+num(b):at, gap=PJ?26*LS:0;
       a.curve(x,{color:C.ink,opacity:.3,n:1200});
-      a.note(hi-0.4,2.85,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
+      a.note(hi-0.4,ny,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true});
       a.curve(t=>x(t-b),{color:C.mid,opacity:.6,dash:'6 5',n:1200});
-      a.note(hi-0.4,2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true});
+      a.note(hi-0.4,PJ?ny:2.55,'v(t)=x(t-'+num(b)+')',{anchor:'end',color:C.mid,fs:15,tex:true,dy:gap});
       a.curve(t=>x(k*t-b),{color:C.out,width:2.6,n:1200});
-      a.note(hi-0.4,2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true});
+      a.note(hi-0.4,PJ?ny:2.25,'y(t)=x('+arg+')',{anchor:'end',color:C.out,fs:15,tex:true,dy:2*gap});
       /* corner times (c+b)/a of y for the corners c=-2,0,2,4 of x, written as
          reduced fractions under the tick labels, each on its own guide line */
       const g=(m,n)=>n?g(n,m%n):m;
       [-2,0,2,4].forEach(c=>{ const t=(c+b)/k, p=Math.round(4*(c+b)), q=Math.round(4*k), d=Math.abs(g(p,q))||1;
         const l=q/d===1 ? String(p/d) : (p<0?'-':'')+'\\dfrac{'+Math.abs(p)/d+'}{'+q/d+'}';
         a.poly([[t,0],[t,2.2]],{color:C.out,width:.8,dash:'3 4'});
-        a.note(t,-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true}); });
+        a.note(t,PJ?-0.95:-0.68,l,{anchor:'middle',color:C.out,fs:16,tex:true,dy:PJ?30:0}); });
       return a.svg(); },
       caption:'Zero for $t<-2$, height 1 on $[-2,0]$, height 2 on $[0,2]$, then a straight fall to 0 at $t=4$. Move $b$ to shift $x(t)$ right; move $a$ to scale the shifted signal about $t=0$: $a>1$ compresses, $0<a<1$ stretches, and the axis widens to follow it. The green numbers are the new corner times $(c+b)/a$.'}
   ], right:[
@@ -1114,12 +1133,13 @@ REAL_ENERGY,
       const x=t=> t<-2?0 : t<0?1 : t<2?2 : t<4?(4-t) : 0;
       const a=P.Axes({w:560,h:380,xr:[-3,10],yr:[-0.3,3],xlabel:'t',ylabel:'y(t)',pad:{l:48,r:24,t:18,b:32},xtarget:9,ytarget:3});
       a.raw(`<rect class="sk-area" x="${a.x0}" y="${a.y1}" width="${a.x1-a.x0}" height="${a.y0-a.y1}" fill="none"/>`);
+      const dn=P.labelScale()>1?8:0;   /* projector: the grown names clear the frame's top edge */
       if(st<2){ a.curve(x,{color:C.ink,opacity:st?.3:1,n:1200});
-        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true}); }
+        a.note(9.6,2.75,'x(t)',{anchor:'end',color:C.ink,fs:15,tex:true,dy:dn}); }
       if(st>=1){ a.curve(t=>x(t-5),{color:C.mid,opacity:st>1?.45:1,dash:st>1?'6 5':null,n:1200});
-        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true}); }
+        a.note(9.6,st>1?2.75:2.35,'v(t)=x(t-5)',{anchor:'end',color:C.mid,fs:15,tex:true,dy:dn}); }
       const y=()=>{ a.curve(t=>x(3*t-5),{color:C.out,width:2.6,n:1200});
-        a.note(9.6,2.35,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true});
+        a.note(9.6,2.35,'y(t)=x(3t-5)',{anchor:'end',color:C.out,fs:15,tex:true,dy:dn});
         [1,5/3,7/3,3].forEach(b=>a.vline(b,{color:C.out,opacity:.5})); };
       if(st>=2) y(); else { a.raw('<g class="sk-key">'); y(); a.raw('</g>'); }
       return a.svg(); },
@@ -1193,7 +1213,7 @@ REAL_TRANSFORM,
       a.curve(t=>Math.cos(Math.PI*t),{color:C.in,n:1200});
       a.span(0,2,1.3,'T_0=2\\ \\text{s}',{color:C.coral,tex:true});
       ['0','\\pi','2\\pi','3\\pi','4\\pi'].forEach((s,k)=>a.note(k,1.95,s,{anchor:'middle',color:C.h,fs:15,tex:true}));
-      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true});
+      a.note(4.4,1.62,'\\omega_0 t\\ (\\text{rad})',{anchor:'end',color:C.h,fs:14,tex:true,dy:(P.labelScale()-1)*30});
       return a.svg(); },
       caption:'$x(t)=\\cos(\\pi t)$. In one period, $T_0=2$ s, the angle $\\omega_0 t$ grows by $2\\pi$ rad. So $f_0=0.5$ Hz and $\\omega_0=\\pi$ rad/s.'}
   ], right:[
@@ -1231,7 +1251,7 @@ REAL_TRANSFORM,
           <ellipse cx="${nx+3}" cy="${ny-25}" rx="6" ry="3" fill="rgba(0,0,0,.3)"/>
           <circle cx="${nx}" cy="${ny-29}" r="7" fill="#D13B3B"/>
           <circle cx="${nx-2.2}" cy="${ny-31.2}" r="2.2" fill="rgba(255,255,255,.55)"/>`);
-        a.note(x,y,tex,{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:4});
+        a.note(x,y,tex,{anchor:'middle',color:'#232B33',fs:15,tex:true,dx:-2,dy:P.labelScale()>1?9:4});
         a.raw('</g>'); };
       sticky(-8,-3.2,210,0,'N\\text{ must be an integer}');
       sticky(8,-3.2,210,0,'N_0=\\text{smallest }N>0');
@@ -1335,7 +1355,7 @@ REAL_TRANSFORM,
       return a.svg(); },
       caption:'$t^2$ is even: the graph is its own mirror image about the axis $t=0$.'},
     {t:'fig', frame:true, svg:()=>{
-      const a=P.Axes({w:560,h:218,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3});
+      const a=P.Axes(XLOW({w:560,h:P.labelScale()>1?262:218,xr:[-1,1],yr:[-1.15,1.15],xlabel:'t',ylabel:'x(t)',pad:{l:44,r:20,t:20,b:34},xtarget:3,ytarget:3}));
       a.curve(t=>t*t*t,{color:C.mid});
       a.poly([[-0.8,-0.512],[0.8,0.512]],{color:C.err,dash:'4 4',width:1.2});
       a.point(-0.8,-0.512,{color:C.mid}); a.point(0.8,0.512,{color:C.mid}); a.point(0,0,{color:C.err});
@@ -1412,7 +1432,7 @@ REAL_TRANSFORM,
           a.area(t=>0.5,0,1,{color:C.h+'40'});
           a.area(t=>0.5*sg,-1,0,{color:C.muted+'40'});
           a.note(0.5,odd?0.72:0.8,'\\tfrac12\\,x(t)',{anchor:'middle',color:C.h,fs:14,tex:true});
-          a.note(odd?-0.55:-0.5,odd?-1.08:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true}); }
+          a.note(odd?-0.55:-0.5,odd?-1.08:0.8,(odd?'-':'')+'\\tfrac12\\,x(-t)',{anchor:'middle',color:C.muted,fs:14,tex:true,dy:odd?(P.labelScale()-1)*16:0}); }
         a.curve(r[0],{color:r[2],width:2.6,n:1600});
         if(i===0){ a.note(-0.5,1.25,'x(-t)',{anchor:'middle',color:C.muted,fs:13,tex:true});
           a.note(1.08,1,'1',{anchor:'start',color:r[2],fs:14,tex:true}); }
@@ -2177,7 +2197,11 @@ REAL_IMPULSE,
       const a=P.Axes({w:560,h:380,xr:[-1,35],yr:[-1.4,2.1],xlabel:'n',ylabel:'x[n]',pad:{l:52,r:24,t:22,b:34},xtarget:8,ytarget:3});
       a.curve(t=>Math.cos(w*t),{color:C.muted,width:1.4,dash:'5 5',n:1400});
       a.stem(disc(n=>Math.cos(w*n),0,35),{color:C.in,r:3});
-      a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
+      /* projector: the grown label is wider than the bracket, so it ends at the
+         bracket's right end instead of running into the marker line */
+      if(P.labelScale()>1){ a.span(0,17/3,1.3,null,{color:C.muted});
+        a.note(17/3-0.3,1.3,'T_0=17/3',{anchor:'end',dy:-10,fs:13,color:C.muted,tex:true}); }
+      else a.span(0,17/3,1.3,'T_0=17/3',{color:C.muted,tex:true});
       a.vline(te,{color:C.coral,opacity:.9,width:1.6,dash:'6 4'});
       if(at){ const txt=['t=17/3\\approx5.67\\text{: no sample}','t=34/3\\approx11.33\\text{: no sample}','t=17\\text{: a sample}'][i];
         a.note(te+0.5,1.75,txt,{anchor:'start',color:C.coral,fs:14,tex:true});
@@ -2284,7 +2308,7 @@ REAL_IMPULSE,
       pts.forEach(([X,Y])=>{ a.poly([[0,0],[X,Y]],{color:C.in,width:1.8}); a.point(X,Y,{color:C.in}); });
       if(at){ const groups={}; pts.forEach(([X,Y],m)=>{ const key=Math.round(X*100)+','+Math.round(Y*100); (groups[key]=groups[key]||{X,Y,ns:[]}).ns.push(m); });
         Object.values(groups).forEach(({X,Y,ns})=>a.note(X>0.3?1.1*X+0.06:X<-0.3?1.1*X-0.06:X,Y>0.3?1.12*Y+0.04:Y<-0.3?1.12*Y-0.1:Y+0.12,'n='+(ns.length===6?'0,\\dots,5':ns.join(',')),{anchor:X>0.3?'start':X<-0.3?'end':'middle',color:C.in,fs:14,tex:true}));
-        a.note(a.o.xr[0]+0.08,1.62,'\\textstyle\\sum_{n=0}^{5}e^{jk(2\\pi/6)n}='+(ki%6===0?'6':'0'),{anchor:'start',color:C.coral,fs:15,tex:true}); }
+        a.note(a.o.xr[0]+0.08,1.62,'\\textstyle\\sum_{n=0}^{5}e^{jk(2\\pi/6)n}='+(ki%6===0?'6':'0'),{anchor:'start',color:C.coral,fs:15,tex:true,dy:(P.labelScale()-1)*30}); }
       a.point(0,0,{color:C.coral});
       return a.svg(); },
       caption:'Step through $k=0,\\dots,6$ with $N=6$. For $k=0$ and $k=6$ all six terms sit at 1 and add to 6. For every other $k$ the terms spread evenly over the circle and add to 0.'}

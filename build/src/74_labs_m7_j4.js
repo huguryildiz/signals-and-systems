@@ -44,9 +44,15 @@ Object.assign(LABS, (function(){
       const outCol = s.above && !s.removed ? C.err : C.out;
 
       /* ---- 1: the tone, its samples, and the cosine through them ---- */
-      const A1 = PLOT.Axes({w:760,h:170,xr:[-0.03,TMAX+0.03],yr:[-1.35,1.35],
+      const o1 = {w:760,h:PLOT.labelScale()>1?194:170,xr:[-0.03,TMAX+0.03],yr:[-1.35,1.35],
         xlabel:'t\\;[\\text{ms}]',ylabel:'x(t),\\;x_r(t)',pad:{l:56,r:24,t:20,b:30},yticksLeft:true,
-        yticksOverride:[-1,0,1],xticksOverride:[0,0.5,1,1.5,2]});
+        yticksOverride:[-1,0,1],xticksOverride:[0,0.5,1,1.5,2]};
+      /* in projector mode the enlarged name t [ms] reaches the trough of the
+         tone, so the panel is taller and the name is dropped just below the
+         data area; the layout is repeated until the zero line settles */
+      if(PLOT.labelScale() > 1){ let t0 = PLOT.Axes(Object.assign({}, o1, {xnameDrop:0}));
+        for(let k=0; k<3; k++){ o1.xnameDrop = (t0.y0 - t0.sy(0)) + 26*PLOT.labelScale(); t0 = PLOT.Axes(o1); } }
+      const A1 = PLOT.Axes(o1);
       A1.curve(xin,{color:C.in,width:1.4,dash:'5 5',n:3200});
       A1.curve(out,{color:outCol,width:2.4,n:2000});
       const pts=[]; for(let n=0;n<=TMAX*fs+1e-9;n++) pts.push([n/fs, xs(n/fs)]);
