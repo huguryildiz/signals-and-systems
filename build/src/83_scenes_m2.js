@@ -400,14 +400,16 @@ const SC = [
       const ys=xs.map((_,i)=>xs.slice(0,i+1).reduce((p,q)=>p+q,0));
       const cl=u=>Math.max(0,Math.min(1,u));
       const stage=k<0.5?0:k<4.5?1:2, on=i=>stage===i;
+      /* The label scale of a phone, a tablet in portrait and projector mode is 1.36, so each
+         formula must fit its box at that size, not only at 1. */
       const top=P.blocks({w:560,h:140,items:[
-        {t:'arrow',x1:15,y1:70,x2:85,y2:70,color:on(0)?C.coral:C.ink},
-        {t:'box',x:85,y:35,w:190,h:70,label:'y[n]=\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:15,color:on(1)?C.coral:C.ink},
-        {t:'arrow',x1:275,y1:70,x2:305,y2:70},
-        {t:'box',x:305,y:35,w:190,h:70,label:'w[n]=y[n]-y[n-1]',tex:true,fs:15,color:on(2)?C.coral:C.ink},
-        {t:'arrow',x1:495,y1:70,x2:550,y2:70},
-        {t:'text',x:50,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:290,y:22,label:'y[n]',tex:true,fs:16},
-        {t:'text',x:523,y:54,label:'w[n]',tex:true,fs:16}]});
+        {t:'arrow',x1:12,y1:70,x2:60,y2:70,color:on(0)?C.coral:C.ink},
+        {t:'box',x:60,y:35,w:202,h:70,label:'y[n]=\\sum_{k=-\\infty}^{n}x[k]',tex:true,fs:14,color:on(1)?C.coral:C.ink},
+        {t:'arrow',x1:262,y1:70,x2:282,y2:70},
+        {t:'box',x:282,y:35,w:226,h:70,label:'w[n]=y[n]-y[n-1]',tex:true,fs:14,color:on(2)?C.coral:C.ink},
+        {t:'arrow',x1:508,y1:70,x2:552,y2:70},
+        {t:'text',x:36,y:54,label:'x[n]',tex:true,fs:16},{t:'text',x:272,y:22,label:'y[n]',tex:true,fs:16},
+        {t:'text',x:530,y:24,label:'w[n]',tex:true,fs:16}]});
       const work=['x[n]=\\delta[n]+\\delta[n-1]+\\delta[n-2]',
         'y[0]=\\sum_{k=-\\infty}^{0}x[k]=x[0]=1','y[1]=\\sum_{k=-\\infty}^{1}x[k]=x[0]+x[1]=1+1=2','y[2]=\\sum_{k=-\\infty}^{2}x[k]=x[0]+x[1]+x[2]=1+1+1=3',
         'y[n]=\\sum_{k=-\\infty}^{n}x[k]=x[0]+x[1]+x[2]=1+1+1=3,\\quad n\\ge3',
