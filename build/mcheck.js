@@ -40,6 +40,9 @@ const path = require('path');
           /* the shapes inside a drawing are laid out by its viewBox and clipped
              by it; the box that belongs to the page is the svg itself */
           if(e.ownerSVGElement) return;
+          /* KaTeX's MathML copy is for screen readers and is clipped to one
+             pixel; its own boxes are as wide as the formula and never seen */
+          if(e.closest('.katex-mathml')) return;
           const b = e.getBoundingClientRect();
           if(b.width <= vw + 1) return;
           for(let p=e.parentElement; p; p=p.parentElement){ if(scrolls(p)) return; }
