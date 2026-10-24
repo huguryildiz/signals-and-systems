@@ -25,7 +25,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       # content_guard.py reads the lecture-notes PDF through pdftotext.
-      - run: sudo apt-get install -y poppler-utils
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
       - name: Syntax check
         run: node --check build/src/8*.js build/src/9*.js
