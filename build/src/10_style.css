@@ -1603,7 +1603,8 @@ body[data-layout=phone] .note-h{ font-size:calc(11.5px * var(--ts)); letter-spac
    stage. On the narrowest phones a long tab title can still outrun the
    column at that floor; there it is allowed to wrap rather than push the
    card past the edge of the screen. */
-body[data-layout=phone] .scene.slide .note > .note-h{
+body[data-layout=phone] .scene.slide .note > .note-h,
+body[data-layout=phone] .scene.slide .eq > .eq-label{
   white-space:normal; max-width:calc(100% + 6px); text-align:left;
 }
 /* A scene may raise the type scale inline to fill the spare height of the wide
@@ -1668,19 +1669,23 @@ body[data-layout=phone] .wex-v{
 }
 
 /* --- mathematics: a formula pans rather than being cut ------------------ */
-body[data-layout=phone] .eq{ padding:11px 13px 11px 15px; overflow-x:auto; overflow-y:hidden; }
+/* a formula box never clips: a slide card's tab sits above the box, and a
+   scroll box or a mask on it cuts the tab off. A formula that pans scrolls
+   inside its own line instead (see .eq.pans below) */
+body[data-layout=phone] .eq{ padding:11px 13px 11px 15px; }
 body[data-layout=phone] .eq.plain{ padding:9px 0; }
 body[data-layout=phone] .eq .katex{ font-size:1.22em; }
 body[data-layout=phone] .eq.lg .katex{ font-size:1.38em; }
 body[data-layout=phone] .eq.sm .katex{ font-size:1.08em; }
-/* the displayed formula must not clip itself: overflow on one axis turns the
-   other from `visible` into `auto`, and a formula that scrolls inside its own
-   box never reaches the box outside it, which is the one measured and faded */
+/* a formula that fits clips nothing: overflow on one axis turns the other
+   from `visible` into `auto`. phoneMath() measures the typeset pieces, not a
+   scrolled width, so where the scrolling happens does not change the answer */
 body[data-layout=phone] .katex-display{ overflow:visible; }
 /* the one formula in a hundred that is still wider than the column at the
-   smallest size it may be set: its right edge is faded, so that the reader can
-   see there is more of it and push it across */
-body[data-layout=phone] .eq.pans{
+   smallest size it may be set scrolls inside its own line, with its right edge
+   faded, so that the reader can see there is more of it and push it across */
+body[data-layout=phone] .eq.pans .katex-display{
+  overflow-x:auto; overflow-y:hidden;
   -webkit-mask-image:linear-gradient(90deg,#000 90%,rgba(0,0,0,.28) 100%);
           mask-image:linear-gradient(90deg,#000 90%,rgba(0,0,0,.28) 100%);
 }

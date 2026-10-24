@@ -1030,13 +1030,17 @@ def _ss_figs():
       if(!k) return;
       k.style.fontSize = '';
       eq.classList.remove('pans');
-      /* the box a formula has to fit in is the content box, and what a scroll
-         container reports as its scrolled width carries the left padding with
-         it; both are taken off, or the closing bracket lands on the border */
+      /* the box a formula has to fit in is the content box. What the formula
+         needs is the span of its typeset pieces: a scrolled width is never
+         less than the box it scrolls in, padding and all, so it called every
+         formula too wide and set all of them small, faded and panning */
       const cs = getComputedStyle(eq);
       const padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight);
       const room = () => eq.clientWidth - padL - padR;
-      const need = () => eq.scrollWidth - padL;
+      const need = () => { let l = Infinity, r = -Infinity;
+        k.querySelectorAll('.katex-html > .base').forEach(b => { const q = b.getBoundingClientRect();
+          if(q.width){ l = Math.min(l, q.left); r = Math.max(r, q.right); } });
+        return r > l ? r - l : 0; };
       let f = 1;
       for(let pass=0; pass<4; pass++){
         if(need() <= room()) break;
