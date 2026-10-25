@@ -6,8 +6,14 @@ This file is authoritative for routine work. `AGENTS.md` links to it so Codex an
 
 - Be exact about what was verified. Do not invent source content, references, results, or gate outcomes.
 - The build pipeline, content schema, and sections of `DESIGN.md` marked LOCKED are locked. If a requested change needs one of them to change, report the issue before modifying it.
-- Use `TODO.md` for current work and release state. Read the relevant plan and latest report in `.claude/plans/slides/` when working on the slide redesign. Older kickoff files are historical when their status conflicts with `TODO.md` or a later report.
+- Use `TODO.md` for current work and release state. Older `.claude/plans/` files are historical when their status conflicts with `TODO.md` or a later report.
 - Read `DESIGN.md` before editing a scene, figure, or style; read `PRODUCT.md` before design work. Read `.claude/reference/history.md` when the reason for a decision is unclear. Consult `.claude/reports/` when the source is ambiguous.
+
+## Facts
+
+- The artifact is `dist/Signals_and_Systems.html`, built by `build/build.js` from `build/src/*`.
+- Eight modules, M0–M7. Addresses, sections and textbook anchors are declared once in `build/src/89_sections.js`.
+- **Module 1 is locked in the slide design and is the reference.** Modules 2 and 3 are reviewed by the owner (2026-10-19). Modules 4–7 are converted to the same design and are on `main`, awaiting owner review (status per module in `TODO.md`). Any further change to them follows `DESIGN.md` and `.claude/rules/`, with no design decision of their own.
 
 ## Task-specific rules
 
@@ -29,7 +35,7 @@ Read all applicable rows. These files hold the detailed editorial rules R1–R9,
 - The one place for chapter, section, address, and textbook anchors is `build/src/89_sections.js`. Scene order is assembled in `build/src/99_tail.html`.
 - Run `git status` before writing generated output. Preserve unrelated changes in this shared tree. Stage only task-owned paths and state what a commit contains beyond your own work.
 - Never hand-edit `dist/`, run `npm install`, or fetch dependencies from the network. Do not run blanket search-and-replace across `build/src/*.js`.
-- `.claude/settings.json` and `.codex/hooks.json` call one repository guard: `agent_guard.py` blocks common `npm install` calls and direct agent edits to `dist/` before a tool runs. `stop_guard.py` and `derivation_advisor.py` are temporarily unwired to cut per-edit overhead; they can still be run by hand. Codex requires review and trust of new hook definitions before it runs them. These agent hooks are not CI gates.
+- `.claude/settings.json` and `.codex/hooks.json` call one repository guard: `agent_guard.py` blocks common `npm install` calls and direct agent edits to `dist/` before a tool runs. `stop_guard.py` is not wired to a hook and can be run by hand. Codex requires review and trust of new hook definitions before it runs them. These agent hooks are not CI gates.
 - For routine source changes (styling, wording, a single figure), rebuild and inspect a screenshot; that is the whole loop. Run the full gate chain only before a release, after a change to mathematics or laboratory logic, or when the owner asks. Run the PDF text and page inspection before shipping PDFs. Report actual gate numbers; do not substitute old baseline counts.
 - Commit rebuilt tracked `dist/` files with the sources that produced them. For implementation work, commit and push to `main` unless the current task or active plan explicitly holds publication for review. No pull requests or AI attribution in commits.
 - This repository and `digital-communications` share one engine. `build/src/40_core.js` is kept byte-identical in both; `60_plot.js`, `90_app.js`, `10_style.css`, `notes/src/notes.css`, `notes/src/render.js`, `notes/topdf.js`, and `web/` share their machinery but carry course-specific parts (π-form frequency axes here; noise, decision regions, and error-probability axes there). A fix to shared machinery (a browser bug, a layout or print fix, touch handling, a guard) goes into both repositories in the same working session, each rebuilt and checked, and each commit message names the sync. Course-specific additions stay in their own repository. Do not align the two files wholesale.
