@@ -22936,7 +22936,7 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
         a.stem(D(k=>k===0?1:(Math.abs(k)===2?0.25:(Math.abs(k)===3?0.5:0)),-4,4),{color:C.in,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-4.5,4.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
       a.stem(D(k=>k===3?-Math.PI/2:(k===-3?Math.PI/2:0),-4,4),{color:C.mid,showZero:true});
       return a.svg(); },
       caption:'Step to the phases. Only $k=\\pm3$ carries a phase, because only the sine needed the factor $\\tfrac{1}{2j}$.'}
