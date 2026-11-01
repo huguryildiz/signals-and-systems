@@ -13,6 +13,11 @@ def chk(name, cond, detail=""):
 
 t, tau, k, n = sp.symbols('t tau k n', real=True)
 
+# side-by-side slide prediction: h[n] = delta[n-1] has H(e^{jw}) = e^{-jw}
+wg = np.linspace(-np.pi, np.pi, 101)
+Hd = sum((1.0 if kk == 1 else 0.0) * np.exp(-1j * wg * kk) for kk in range(-5, 6))
+chk("M4 h[n]=delta[n-1] gives H(e^jw)=e^-jw", np.allclose(Hd, np.exp(-1j * wg)))
+
 # ================================================================ periods
 def lcm_frac(fracs):
     """Least common multiple of positive rationals:

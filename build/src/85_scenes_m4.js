@@ -269,9 +269,40 @@ const SC = [
   ]}
 ]},
 
+{ id:'m4-eigen-sum', module:'M4', nav:'Eigenfunctions · side by side', title:'Continuous and Discrete Time Side by Side', src:'pp. 22–23',
+  objective:'Set the continuous-time and discrete-time eigenfunction results side by side.',
+  keywords:'summary eigenfunction e^{st} z^n transfer function H(s) H(z) frequency response H(jw) H(e^jw) fourier transform comparison', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · The eigenfunction property', src:'pp. 22–23'},
+  {t:'title', text:'Continuous and Discrete Time Side by Side'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const row=(y0,head,xin,sys,out,cond)=>[
+        {t:'text',x:20,y:y0,label:head,fs:15,anchor:'start'},
+        {t:'arrow',x1:120,y1:y0+110,x2:200,y2:y0+110,color:C.in},
+        {t:'text',x:110,y:y0+117,label:xin,tex:true,fs:24,anchor:'end',color:C.in},
+        {t:'box',x:200,y:y0+55,w:130,h:110,label:sys,tex:true,fs:22},
+        {t:'arrow',x1:330,y1:y0+110,x2:410,y2:y0+110,color:C.out},
+        {t:'text',x:420,y:y0+117,label:out,tex:true,fs:24,anchor:'start',color:C.out},
+        {t:'text',x:265,y:y0+205,label:cond,tex:true,fs:18,color:C.mid}];
+      return P.blocks({w:700,h:540,items:[
+        ...row(40,'Continuous time','e^{st}','h(t)','H(s)\\,e^{st}','s=j\\omega'),
+        {t:'line',d:'M20,282 H680',color:C.grid},
+        ...row(310,'Discrete time','z^{n}','h[n]','H(z)\\,z^{n}','z=e^{j\\omega}')]}); },
+      caption:'The same statement twice. An LTI system returns its eigenfunction scaled by one complex number. For $s=j\\omega$ and $z=e^{j\\omega}$ that number is the frequency response.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Transfer function', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>$\\displaystyle H(s)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau$</div><div><span class="cmp-h">Discrete time</span>$\\displaystyle H(z)=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}$</div></div><div class="nsep"></div>The eigenvalue for the input $e^{st}$ or $z^{n}$, with $s$ and $z$ complex.'},
+    {t:'reveal', at:1, items:[
+      {t:'note', kind:'ok', head:'Frequency response', html:'<div class="cmp"><div><span class="cmp-h">Continuous time</span>Put $s=j\\omega$:<br>$\\displaystyle H(j\\omega)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-j\\omega\\tau}\\,\\d\\tau$<br>The continuous-time Fourier transform of $h(t)$.</div><div><span class="cmp-h">Discrete time</span>Put $z=e^{j\\omega}$:<br>$\\displaystyle H(e^{j\\omega})=\\sum_{k=-\\infty}^{\\infty}h[k]\\,e^{-j\\omega k}$<br>The discrete-time Fourier transform of $h[n]$. Period $2\\pi$ in $\\omega$.</div></div>'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Given', html:'A discrete-time LTI system has $h[n]=\\delta[n-1]$.<div class="nsep"></div>What is $H(e^{j\\omega})$?',
+        ask:{key:'m4-eigen-sum', choices:['$e^{-j\\omega}$','$e^{j\\omega}$','$1$'], answer:0,
+          why:'Only $k=1$ survives the sum: $H(e^{j\\omega})=1\\cdot e^{-j\\omega\\cdot1}=e^{-j\\omega}$.'}}]}
+  ]}
+]},
+
 { id:'m4-eigen-why', module:'M4', nav:'Eigenfunctions in LTI analysis', title:'Eigenfunctions in LTI Analysis', src:'p. 24',
   objective:'Show that a linear combination of eigenfunctions needs no convolution.',
-  keywords:'linear combination superposition eigenvalue no convolution multiplication', slide:true, steps:3, blocks:[
+  keywords:'linear combination superposition eigenvalue no convolution multiplication', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · The eigenfunction property', src:'p. 24'},
   {t:'title', text:'Eigenfunctions in LTI Analysis'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -285,16 +316,12 @@ const SC = [
       return P.blocks({w:560,h:380,items}); },
       caption:'Each exponential passes through the system on its own. Superposition then adds the three outputs.'}
   ], right:[
-    {t:'eq', key:true, tex:'x(t)=\\sum_{k}a_k\\,e^{s_kt}\\;\\longrightarrow\\;y(t)=\\sum_{k}a_k\\,H(s_k)\\,e^{s_kt}', label:'Superposition of eigenfunctions',
-      note:'Linearity sends each term through on its own. The eigenfunction property multiplies it by $H(s_k)$.'},
+    {t:'eq', key:true, tex:'\\begin{aligned}x(t)&=\\sum_{k}a_k\\,e^{s_kt}&&\\longrightarrow\\quad y(t)=\\sum_{k}a_k\\,H(s_k)\\,e^{s_kt}\\\\[6pt] x[n]&=\\sum_{k}a_k\\,z_k^{\\,n}&&\\longrightarrow\\quad y[n]=\\sum_{k}a_k\\,H(z_k)\\,z_k^{\\,n}\\end{aligned}', label:'Superposition of eigenfunctions',
+      note:'Linearity sends each term through on its own. The eigenfunction property multiplies it by $H(s_k)$ in continuous time and by $H(z_k)$ in discrete time.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'ok', head:'No convolution needed', html:'Once $x$ is a sum of exponentials, the output needs one multiplication for each term. The same holds in discrete time with $z_k^{\\,n}$ and $H(z_k)$.'}]},
+      {t:'note', kind:'ok', head:'No convolution needed', html:'Once $x$ is a sum of exponentials, the output needs one multiplication for each term.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The next task', html:'Write $x$ as a sum of complex exponentials. For a periodic signal, the rest of this module does exactly that.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'$x(t)=2e^{jt}+e^{j3t}$, with $H(j1)=0.5$ and $H(j3)=0$.<div class="nsep"></div>What is $y(t)$?',
-        ask:{key:'m4-eigen-why', choices:['$e^{jt}$','$2e^{jt}$','$e^{jt}+e^{j3t}$'], answer:0,
-          why:'$2\\cdot0.5\\,e^{jt}+1\\cdot0\\cdot e^{j3t}=e^{jt}$.'}}]}
+      {t:'note', kind:'def', head:'The next task', html:'Write $x$ as a sum of complex exponentials. For a periodic signal, the rest of this module does exactly that.'}]}
   ]}
 ]},
 
