@@ -232,25 +232,23 @@ chk("P: DT first difference, |H(e^{j1})| = 0.4794",
     abs(abs(_Hdiff) - 0.47942554) < 1e-6)
 
 # Laboratory Q: the analysis integral for x1(t) = 1 + 0.5cos(2*pi*t) + sin(3*pi*t),
-# T0 = 2, w0 = pi, evaluated by the same Simpson's-rule probe the laboratory uses,
+# T0 = 2, w0 = pi, evaluated by the same midpoint-rule probe the laboratory uses,
 # against the closed-form coefficients a0=1, a(+-2)=1/4, a3=1/(2j), a(-3)=-1/(2j).
 def _x1(t):
     return 1 + 0.5*np.cos(2*np.pi*t) + np.sin(3*np.pi*t)
 
-def _simpson_ak(f, k, T0q=2.0, Nq=4000):
+def _midpoint_ak(f, k, T0q=2.0, Nq=800):
     w0q = 2*np.pi/T0q
-    tt = np.linspace(-T0q/2, T0q/2, Nq+1)
-    vals = f(tt)*np.exp(-1j*k*w0q*tt)
-    wgt = np.ones(Nq+1); wgt[1:-1:2] = 4; wgt[2:-1:2] = 2
-    return np.sum(wgt*vals)*(T0q/Nq)/3/T0q
+    tt = -T0q/2 + (np.arange(Nq)+0.5)*(T0q/Nq)
+    return np.sum(f(tt)*np.exp(-1j*k*w0q*tt))*(T0q/Nq)/T0q
 
-chk("Q: x1 analysis integral a_0 = 1", abs(_simpson_ak(_x1, 0) - 1) < 1e-9)
-chk("Q: x1 analysis integral a_2 = 1/4", abs(_simpson_ak(_x1, 2) - 0.25) < 1e-9)
-chk("Q: x1 analysis integral a_-2 = 1/4", abs(_simpson_ak(_x1, -2) - 0.25) < 1e-9)
+chk("Q: x1 analysis integral a_0 = 1", abs(_midpoint_ak(_x1, 0) - 1) < 1e-9)
+chk("Q: x1 analysis integral a_2 = 1/4", abs(_midpoint_ak(_x1, 2) - 0.25) < 1e-9)
+chk("Q: x1 analysis integral a_-2 = 1/4", abs(_midpoint_ak(_x1, -2) - 0.25) < 1e-9)
 chk("Q: x1 analysis integral a_3 = 1/(2j)",
-    abs(_simpson_ak(_x1, 3) - 1/(2j)) < 1e-9)
+    abs(_midpoint_ak(_x1, 3) - 1/(2j)) < 1e-9)
 chk("Q: x1 analysis integral a_-3 = -1/(2j)",
-    abs(_simpson_ak(_x1, -3) - (-1/(2j))) < 1e-9)
+    abs(_midpoint_ak(_x1, -3) - (-1/(2j))) < 1e-9)
 
 # rectangular wave (Q's second case): a0 = 0.5.
 def _rectq(t):
@@ -258,11 +256,23 @@ def _rectq(t):
     return np.where(np.abs(u) < 0.5, 1.0, 0.0)
 
 chk("Q: rectangular-wave analysis integral a_0 = 0.5",
-    # the Simpson grid samples exactly on the wave's jump at t = +-0.5, so the
-    # numerical integral (like the laboratory's own probe) carries a small,
-    # grid-resolution bias there; the tolerance reflects that discretisation.
-    abs(_simpson_ak(_rectq, 0) - 0.5) < 2e-4,
-    f"{_simpson_ak(_rectq, 0):.6f}")
+    abs(_midpoint_ak(_rectq, 0) - 0.5) < 5e-5,
+    f"{_midpoint_ak(_rectq, 0):.6f}")
+chk("Q: rectangular-wave analysis integral a_1 = 1/pi",
+    abs(_midpoint_ak(_rectq, 1) - 1/np.pi) < 5e-5)
+chk("Q: rectangular-wave analysis integral a_2 = 0",
+    abs(_midpoint_ak(_rectq, 2)) < 5e-5)
+
+# sawtooth (Q's third case): a0 = 0, a_k = j(-1)^k/(k*pi).
+def _sawq(t):
+    return t - 2*np.round(t/2)
+
+chk("Q: sawtooth analysis integral a_0 = 0",
+    abs(_midpoint_ak(_sawq, 0)) < 5e-5)
+chk("Q: sawtooth analysis integral a_1 = -j/pi",
+    abs(_midpoint_ak(_sawq, 1) - (-1j/np.pi)) < 5e-5)
+chk("Q: sawtooth analysis integral a_2 = j/(2pi)",
+    abs(_midpoint_ak(_sawq, 2) - (1j/(2*np.pi))) < 5e-5)
 
 # Laboratory R: DT square wave default (N=11, N1=2): a_0 = (2N1+1)/N, and the
 # reconstruction is exact (error 0) once all floor(N/2) coefficients are kept.
