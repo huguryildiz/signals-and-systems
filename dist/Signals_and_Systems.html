@@ -2790,6 +2790,11 @@ const PLOT = (() => {
     }
     return fmt(v,2);
   }
+  /* piTeX(L) turns a pi-form tick written by piTick into TeX (π/2 -> \pi/2).
+     Axes with texTicks:true typesets every tick number of an axis that carries
+     a multiple of pi through texName, so π/2 reads as the π of the running
+     mathematics. It is opt-in per figure. */
+  const piTeX = L => String(L).replace(/π/g, '\\pi ').trim();
   function piTicks(lo,hi,step){ const o=[];
     for(let k=Math.ceil(lo/step-1e-9); k<=hi/step+1e-9; k++) o.push(k===0?0:k*step);
     return o; }
@@ -2798,7 +2803,7 @@ const PLOT = (() => {
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi,texTicks}
      xlabel and ylabel are TeX source — see texName above.
      xpi: a frequency axis. Ticks at every multiple of xpi (radians) in the
      range, written in pi form; xpi:true chooses the step from xtarget;
@@ -2843,6 +2848,18 @@ const PLOT = (() => {
        margins below reserve the strip each name needs; the data area shrinks
        inside the same figure box, so nothing in the page layout moves. */
     const P = Object.assign({l:52,r:22,t:20,b:40}, o.pad||{}), W=o.w, H=o.h;
+    /* TeX tick numbers set against the left edge of the data area are wider
+       than the plain ones (and larger again in projector mode), so the left
+       margin grows to hold the widest of them. Widths are KaTeX em widths. */
+    if(o.texTicks && (o.yticksLeft || !(xa<=0 && xb>=0))){
+      const yfmt = o.ytickfmt, yv = o.yticksOverride || [];
+      const em = L => [...String(L)].reduce((w,c)=>w+(c==='-'||c==='−'?0.78:c==='π'?0.58:0.5),0);
+      if(yv.some(v=>/π/.test(yfmt(v)))){
+        const fs = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13)*LBLS*1.06*1.21;
+        const need = 10 + 4 + Math.max(...yv.map(v=>em(yfmt(v))))*fs;
+        P.l = Math.max(P.l, Math.ceil(need));
+      }
+    }
     const zeroInside = (ya<=0 && yb>=0);
     /* A typeset name is one line of mathematics tall: everything from the top of
        a tall bracket down to the tail of a parenthesis. NAMEBOX is that height at
@@ -3094,6 +3111,12 @@ const PLOT = (() => {
           const keep = new Set(k.filter(i=>((i-r0)%n+n)%n===0));
           return v => keep.has(vals.indexOf(v));
         };
+        /* texTicks: an axis whose ticks carry pi is typeset in TeX, all of its
+           numbers, so one axis never mixes two typefaces */
+        const xTeX = !!o.texTicks && xt.some(v=>/π/.test(o.xtickfmt(v)));
+        const yTeX = !!o.texTicks && yt.some(v=>/π/.test(o.ytickfmt(v)));
+        const tickTeX = (L, at) => texName(piTeX(L), Object.assign({ size:TICK_SIZE/LBLS*1.06, color:CH.tick,
+          role:'tick', figW:W, boxHeight:24 }, at));
         const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(TW(a)+TW(b))/2+6*LBLS);
         const showY = thin(yt, o.ytickfmt, sy, ()=>TICK_SIZE*1.15);
         const xBoxes=[];
@@ -3104,6 +3127,7 @@ const PLOT = (() => {
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
           if(!showX(v)) return;
           xBoxes.push([sx(v)-TW(L)/2, yBase+20*LBLS-TICK_SIZE*0.8, sx(v)+TW(L)/2, yBase+20*LBLS+TICK_SIZE*0.2]);
+          if(xTeX){ tl.push(tickTeX(L, { xMid:sx(v), baseline:yBase+20*LBLS+0.27*TICK_SIZE })); return; }
           tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         /* A spectrum drawn about k = 0 peaks on its own zero axis, where the
            tick numbers would sit on the trace. yticksLeft sets them against the
@@ -3117,6 +3141,7 @@ const PLOT = (() => {
           /* a y number that would sit on an x number near the corner is left out */
           const yb = [xBase-10-TW(L), sy(v)+4.5-TICK_SIZE*0.8, xBase-10, sy(v)+4.5+TICK_SIZE*0.2];
           if(xBoxes.some(b=>b[0]<yb[2] && yb[0]<b[2] && b[1]<yb[3] && yb[1]<b[3])) return;
+          if(yTeX){ g.push(tickTeX(L, { xRight:xBase-10, baseline:sy(v)+4.5+0.27*TICK_SIZE })); return; }
           g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal
@@ -7488,7 +7513,7 @@ Object.assign(LABS, (function(){
       const wmax = c.dt ? Math.PI : 4*Math.PI;
       const A2 = PLOT.Axes({w:760,h:191,xr:[-wmax,wmax],yr:[-0.12,1.45],
         xlabel:c.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2,texTicks:true});
       A2.curve(w=>cabs(c.dt?Hdt(w,c.hp):Hct(w,par,c.hp)),{color:PLOT.COL.h,n:1400});
       for(let k=-m.K;k<=m.K;k++){ const w=k*m.w0; if(Math.abs(w)>wmax) continue;
         A2.point(w, cabs(m.H(k)), {color:PLOT.COL.coral,r:4}); }
@@ -7616,7 +7641,7 @@ Object.assign(LABS, (function(){
       /* panel 2 — |H(w)| with the current point marked */
       const A2 = PLOT.Axes({w:760,h:267,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
         xlabel:s.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2,texTicks:true});
       A2.curve(v=>cabs(s.H(v)),{color:PLOT.COL.h,n:1200});
       A2.point(w,mag,{color:PLOT.COL.coral,r:5});
 
@@ -7973,7 +7998,7 @@ Object.assign(LABS, (function(){
         pa.push([k, cabs(av)<1e-9?0:carg(av)]); pb.push([k, cabs(bv)<1e-9?0:carg(bv)]); }
       const A3 = PLOT.Axes({w:760,h:185,xr:[kr[0]-1,kr[1]+1],yr:[-3.9,3.9],
         xlabel:'k',ylabel:'\\text{phase [rad]}',pad:{l:62,r:24,t:18,b:26},xtarget:7,
-        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:PLOT.piTick,texTicks:true});
       A3.stem(pa,{color:PLOT.COL.in,r:2.6,showZero:true});
       A3.stem(pb,{color:PLOT.COL.out,r:2.2,showZero:true});
 
@@ -22525,7 +22550,7 @@ const dropX = o => {
   const NB = 26*L, G = NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
   return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
 };
-const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o)));
+const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,texTicks:true}, o)));
 /* two axes in one figure, the upper panel over the lower one. Each builder
    takes a height and returns an svg; the halves are placed as nested svgs. A
    grown figure hands its height through P.hOverride, which is taken here and
@@ -36955,7 +36980,8 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       pad:{l:50,r:26,t:32,b:34},xstep:1,ystep:1});
       a.stem([[-3,1],[-1,3],[0,4],[1,3],[3,1]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-4.6,4.6],yr:[-2.2,2.2],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',
-      pad:{l:62,r:26,t:32,b:34},xstep:1,ystep:1});
+      pad:{l:62,r:26,t:32,b:34},xstep:1,
+      yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick,texTicks:true});
       a.stem([[-3,0],[-1,Math.PI/2],[0,0],[1,-Math.PI/2],[3,0]],{color:C.mid,showZero:true}); return a.svg();})()),
   err:'Taking $T_0=1\\cdot3=3$ correctly but then indexing the sine term against $\\omega_0=2\\pi$ (the cosine\'s own frequency) instead of the true fundamental $2\\pi/3$, which reports the sine as the third harmonic and the cosine as the first — the two swapped.',
   teach:'Ask for the harmonic number of each term before any coefficient is written down. A student who cannot say "first harmonic, third harmonic" here will mis-index every longer sum later in the module.' },
@@ -37136,7 +37162,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (b).</b> Using $1+\\cos\\omega=2\\cos^2(\\omega/2)$,$$H(e^{j\\omega})=e^{-j\\omega}\\cos^2(\\omega/2),$$and since $\\cos^2(\\omega/2)\\ge0$ for every $\\omega$, this <em>is</em> the magnitude: $|H(e^{j\\omega})|=\\cos^2(\\omega/2)$, with $\\angle H(e^{j\\omega})=-\\omega$.<br>'
      +'<b>Solution — part (c).</b> $H(e^{j0})=\\cos^2(0)=1$, and $H(e^{j\\pi})=\\cos^2(\\pi/2)=0$: the taps pass a constant unchanged and remove the fastest-alternating sequence entirely. This is a <b>low-pass</b> filter.<br>'
      +'<b>Check.</b> Summing the taps directly at $\\omega=\\pi$, where $e^{-j\\pi n}=(-1)^n$: $0.25(1)+0.5(-1)+0.25(1)=0.25-0.5+0.25=0$, matching part (c) without using the closed form at all. The three weights sum to $1$, which is exactly $H(e^{j0})$, the two facts being the same statement at the two ends of one period.',
-  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,ylabel:'|H(e^{j\\omega})|',
+  figSol:()=>{const a=P.Axes({w:1080,h:280,xr:[-Math.PI,Math.PI],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/4,texTicks:true,ylabel:'|H(e^{j\\omega})|',
       pad:{l:60,r:28,t:32,b:38},ystep:0.25});
     a.curve(w=>Math.cos(w/2)**2,{color:C.h,n:900});
     return a.svg();},
@@ -37182,7 +37208,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
       a.stem([[-8,0.5],[-3,1.5],[3,1.5],[8,0.5]],{color:C.in}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-13,12],yr:[-2.0,2.0],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',
       pad:{l:62,r:26,t:32,b:34},xstep:4,
-      yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:v=>v.toFixed(2)});
+      yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick,texTicks:true});
       a.stem([[-8,Math.PI/2],[-3,0],[3,0],[8,-Math.PI/2]],{color:C.mid,showZero:true}); return a.svg();})()),
   err:'Taking $N_0=8\\times3=24$ correctly but then indexing both terms against $\\omega_0=2\\pi/8$ (the first term\'s own frequency), which mislabels the second term\'s harmonic number.',
   teach:'Insist that the harmonic number of each term — here third and eighth — is stated in words before any coefficient is written down. It is the step that most often goes silently wrong.' },
@@ -37393,7 +37419,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{2\\pi}{4}=\\tfrac{\\pi}{2}$,$$b_k=\\frac14\\cdot\\frac{1}{1-\\tfrac12e^{-jk\\pi/2}}.$$Evaluating the four distinct harmonics:$$b_0=\\frac{1/4}{1-\\tfrac12}=\\frac12,\\qquad b_2=\\frac{1/4}{1+\\tfrac12}=\\frac16,$$$$b_1=\\frac{1/4}{1+\\tfrac j2},\\qquad b_3=\\frac{1/4}{1-\\tfrac j2},$$so $|b_1|=|b_3|=\\dfrac{1/4}{\\sqrt{5}/2}=\\dfrac{1}{2\\sqrt5}\\approx0.2236$.<br>'
      +'<b>Check.</b> The magnitudes must follow the shape of $\\left|H\\right|$, and they do: largest at $k=0$ where $|H|=2$, smallest at $k=2$ where $|H|=\\tfrac23$, and equal at $k=1$ and $k=3$ because those two frequencies, $\\tfrac{\\pi}{2}$ and $\\tfrac{3\\pi}{2}\\equiv-\\tfrac{\\pi}{2}$, are a conjugate pair. Each is $\\tfrac14$ times the corresponding $|H|$: $\\tfrac14\\cdot2=\\tfrac12$ and $\\tfrac14\\cdot\\tfrac23=\\tfrac16$.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'|H(e^{j\\omega})|',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,2.3],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,texTicks:true,ylabel:'|H(e^{j\\omega})|',
       pad:{l:60,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>1/Math.sqrt(1.25-Math.cos(w)),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.06,0.62],xlabel:'k',ylabel:'|b_k|',
@@ -37415,7 +37441,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> With $\\omega_0=\\tfrac{\\pi}{2}$,$$b_0=a_0H(0)=0,$$so the constant is removed entirely. For the first harmonic, $\\left|H\\!\\left(j\\tfrac{\\pi}{2}\\right)\\right|=\\dfrac{\\pi/2}{\\sqrt{4+\\pi^{2}/4}}\\approx0.6177$, so $|b_{\\pm1}|\\approx0.6177$. For the second, $\\left|H(j\\pi)\\right|=\\dfrac{\\pi}{\\sqrt{4+\\pi^{2}}}\\approx0.8436$, so $|b_{\\pm2}|=\\tfrac32\\cdot0.8436\\approx1.2654$.<br>'
      +'<b>Check.</b> The shape of the answer is what a high-pass filter must produce: the DC term is gone, the first harmonic is attenuated to about $62\\%$, and the second, being at twice the frequency, passes at about $84\\%$. The ordering $|b_0|<|b_1|<|b_2|$ is the reverse of what the low-pass system in the previous question gave, on an input with the same shape.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,ylabel:'|H(j\\omega)|',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-0.4,7],yr:[-0.08,1.15],xlabel:'\\omega\\;(\\text{rad/s})',xpi:Math.PI/2,texTicks:true,ylabel:'|H(j\\omega)|',
       pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.curve(w=>Math.abs(w)/Math.sqrt(4+w*w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-2.6,2.6],yr:[-0.12,1.5],xlabel:'k',ylabel:'|b_k|',
@@ -37442,7 +37468,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> Evaluate $H$ at the four harmonics of $\\omega_0=\\tfrac{\\pi}{2}$:$$H(e^{j0})=3,\\quad H\\!\\left(e^{j\\pi/2}\\right)=1,\\quad H\\!\\left(e^{j\\pi}\\right)=-1,\\quad H\\!\\left(e^{j3\\pi/2}\\right)=1.$$Then $b_k=a_kH$ gives$$b_0=0,\\quad b_1=1,\\quad b_2=0,\\quad b_3=1,$$identical to $a_k$. The filter leaves this input untouched, because $H=1$ at exactly the frequency the input occupies.<br>'
      +'<b>Check.</b> Convolve directly. With $y[n]=x[n+1]+x[n]+x[n-1]$ and $x=\\{2,0,-2,0\\}$,$$\\begin{gathered}y[0]=0+2+0=2,\\;y[1]=-2+0+2=0,\\\\y[2]=0-2+0=-2,\\;y[3]=2+0-2=0,\\end{gathered}$$so $y[n]=x[n]$ exactly, as the coefficients predicted. The gain of $3$ at $k=0$ never shows, because the input carries no constant term for it to act on.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-1.6,3.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,texTicks:true,ylabel:'H(e^{j\\omega})',
       pad:{l:58,r:26,t:28,b:38},ystep:1});
       a.curve(w=>1+2*Math.cos(w),{color:C.h}); return a.svg();})(),
     (()=>{const a=P.Axes({w:520,h:250,xr:[-0.6,3.6],yr:[-0.2,1.4],xlabel:'k',ylabel:'b_k',
@@ -37484,7 +37510,7 @@ CONTENT.DRILL = CONTENT.DRILL.concat([
      +'<b>Solution — part (c).</b> The harmonics sit at $k\\omega_0=k\\tfrac{\\pi}{3}$. Taking $k$ over one period and folding to $|\\omega|\\le\\pi$: $k=0$ gives $0$, $k=1$ gives $\\tfrac{\\pi}{3}$, $k=5$ gives $-\\tfrac{\\pi}{3}$ — all inside the band; $k=2,3,4$ give $\\tfrac{2\\pi}{3}$, $\\pi$, $-\\tfrac{2\\pi}{3}$ — all outside. So$$b_0=b_1=b_5=\\tfrac16,\\qquad b_2=b_3=b_4=0,$$and by Parseval$$P_y=\\sum_{k=\\langle6\\rangle}|b_k|^{2}=3\\cdot\\frac{1}{36}=\\frac{1}{12}\\;\\text{W}\\approx0.0833\\;\\text{W}.$$'
      +'<b>Check.</b> Build $y[n]$ and average it directly. From the three surviving coefficients,$$y[n]=\\tfrac16\\left(1+2\\cos\\tfrac{\\pi n}{3}\\right),$$so over one period $y=\\tfrac12,\\tfrac13,0,-\\tfrac16,0,\\tfrac13$ at $n=0,\\dots,5$, and$$P_y=\\frac16\\left(\\tfrac14+\\tfrac19+0+\\tfrac1{36}+0+\\tfrac19\\right)=\\frac16\\cdot\\frac12=\\frac1{12}\\;\\text{W}.$$The two routes agree. The input power is $\\sum|a_k|^{2}=6\\cdot\\tfrac1{36}=\\tfrac16$, so the filter removed exactly half of it.',
   figSol:()=>pair(
-    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,ylabel:'H(e^{j\\omega})',
+    (()=>{const a=P.Axes({w:520,h:250,xr:[-3.4,3.4],yr:[-0.15,1.4],xlabel:'\\omega\\;(\\text{rad/sample})',xpi:Math.PI/2,texTicks:true,ylabel:'H(e^{j\\omega})',
       pad:{l:58,r:26,t:28,b:38},ystep:0.5});
       a.poly([[-3.4,0],[-Math.PI/2,0],[-Math.PI/2,1],[Math.PI/2,1],[Math.PI/2,0],[3.4,0]],{color:C.h});
       return a.svg();})(),

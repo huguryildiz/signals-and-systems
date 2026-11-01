@@ -32,7 +32,7 @@ const dropX = o => {
   const NB = 26*L, G = NB + 2, Pb = Math.max((o.pad||{}).b || 40, G + 0.42*NB + 1), f = -ya/(yb - ya);
   return Object.assign({}, o, {pad:Object.assign({}, o.pad||{}, {b:Pb}), xnameDrop:G + f*(t.H - t.y1 - Pb)});
 };
-const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3}, o)));
+const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34},xtarget:7,ytarget:3,texTicks:true}, o)));
 /* two axes in one figure, the upper panel over the lower one. Each builder
    takes a height and returns an svg; the halves are placed as nested svgs. A
    grown figure hands its height through P.hOverride, which is taken here and

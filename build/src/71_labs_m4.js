@@ -247,7 +247,7 @@ Object.assign(LABS, (function(){
       const wmax = c.dt ? Math.PI : 4*Math.PI;
       const A2 = PLOT.Axes({w:760,h:191,xr:[-wmax,wmax],yr:[-0.12,1.45],
         xlabel:c.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:c.dt?Math.PI/2:Math.PI,ytarget:2,texTicks:true});
       A2.curve(w=>cabs(c.dt?Hdt(w,c.hp):Hct(w,par,c.hp)),{color:PLOT.COL.h,n:1400});
       for(let k=-m.K;k<=m.K;k++){ const w=k*m.w0; if(Math.abs(w)>wmax) continue;
         A2.point(w, cabs(m.H(k)), {color:PLOT.COL.coral,r:4}); }
@@ -375,7 +375,7 @@ Object.assign(LABS, (function(){
       /* panel 2 — |H(w)| with the current point marked */
       const A2 = PLOT.Axes({w:760,h:267,xr:[s.dt?0:0,wmax],yr:[-0.08,1.35],
         xlabel:s.dt?'\\omega\\;[\\text{rad/sample}]':'\\omega\\;[\\text{rad/s}]',ylabel:'|H|',
-        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2});
+        pad:{l:56,r:24,t:20,b:30},xpi:s.dt?Math.PI/4:Math.PI/2,ytarget:2,texTicks:true});
       A2.curve(v=>cabs(s.H(v)),{color:PLOT.COL.h,n:1200});
       A2.point(w,mag,{color:PLOT.COL.coral,r:5});
 
@@ -732,7 +732,7 @@ Object.assign(LABS, (function(){
         pa.push([k, cabs(av)<1e-9?0:carg(av)]); pb.push([k, cabs(bv)<1e-9?0:carg(bv)]); }
       const A3 = PLOT.Axes({w:760,h:185,xr:[kr[0]-1,kr[1]+1],yr:[-3.9,3.9],
         xlabel:'k',ylabel:'\\text{phase [rad]}',pad:{l:62,r:24,t:18,b:26},xtarget:7,
-        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:PLOT.piTick,texTicks:true});
       A3.stem(pa,{color:PLOT.COL.in,r:2.6,showZero:true});
       A3.stem(pb,{color:PLOT.COL.out,r:2.2,showZero:true});
 

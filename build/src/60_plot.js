@@ -199,6 +199,11 @@ const PLOT = (() => {
     }
     return fmt(v,2);
   }
+  /* piTeX(L) turns a pi-form tick written by piTick into TeX (π/2 -> \pi/2).
+     Axes with texTicks:true typesets every tick number of an axis that carries
+     a multiple of pi through texName, so π/2 reads as the π of the running
+     mathematics. It is opt-in per figure. */
+  const piTeX = L => String(L).replace(/π/g, '\\pi ').trim();
   function piTicks(lo,hi,step){ const o=[];
     for(let k=Math.ceil(lo/step-1e-9); k<=hi/step+1e-9; k++) o.push(k===0?0:k*step);
     return o; }
@@ -207,7 +212,7 @@ const PLOT = (() => {
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi,texTicks}
      xlabel and ylabel are TeX source — see texName above.
      xpi: a frequency axis. Ticks at every multiple of xpi (radians) in the
      range, written in pi form; xpi:true chooses the step from xtarget;
@@ -252,6 +257,18 @@ const PLOT = (() => {
        margins below reserve the strip each name needs; the data area shrinks
        inside the same figure box, so nothing in the page layout moves. */
     const P = Object.assign({l:52,r:22,t:20,b:40}, o.pad||{}), W=o.w, H=o.h;
+    /* TeX tick numbers set against the left edge of the data area are wider
+       than the plain ones (and larger again in projector mode), so the left
+       margin grows to hold the widest of them. Widths are KaTeX em widths. */
+    if(o.texTicks && (o.yticksLeft || !(xa<=0 && xb>=0))){
+      const yfmt = o.ytickfmt, yv = o.yticksOverride || [];
+      const em = L => [...String(L)].reduce((w,c)=>w+(c==='-'||c==='−'?0.78:c==='π'?0.58:0.5),0);
+      if(yv.some(v=>/π/.test(yfmt(v)))){
+        const fs = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13)*LBLS*1.06*1.21;
+        const need = 10 + 4 + Math.max(...yv.map(v=>em(yfmt(v))))*fs;
+        P.l = Math.max(P.l, Math.ceil(need));
+      }
+    }
     const zeroInside = (ya<=0 && yb>=0);
     /* A typeset name is one line of mathematics tall: everything from the top of
        a tall bracket down to the tail of a parenthesis. NAMEBOX is that height at
@@ -503,6 +520,12 @@ const PLOT = (() => {
           const keep = new Set(k.filter(i=>((i-r0)%n+n)%n===0));
           return v => keep.has(vals.indexOf(v));
         };
+        /* texTicks: an axis whose ticks carry pi is typeset in TeX, all of its
+           numbers, so one axis never mixes two typefaces */
+        const xTeX = !!o.texTicks && xt.some(v=>/π/.test(o.xtickfmt(v)));
+        const yTeX = !!o.texTicks && yt.some(v=>/π/.test(o.ytickfmt(v)));
+        const tickTeX = (L, at) => texName(piTeX(L), Object.assign({ size:TICK_SIZE/LBLS*1.06, color:CH.tick,
+          role:'tick', figW:W, boxHeight:24 }, at));
         const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(TW(a)+TW(b))/2+6*LBLS);
         const showY = thin(yt, o.ytickfmt, sy, ()=>TICK_SIZE*1.15);
         const xBoxes=[];
@@ -513,6 +536,7 @@ const PLOT = (() => {
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
           if(!showX(v)) return;
           xBoxes.push([sx(v)-TW(L)/2, yBase+20*LBLS-TICK_SIZE*0.8, sx(v)+TW(L)/2, yBase+20*LBLS+TICK_SIZE*0.2]);
+          if(xTeX){ tl.push(tickTeX(L, { xMid:sx(v), baseline:yBase+20*LBLS+0.27*TICK_SIZE })); return; }
           tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         /* A spectrum drawn about k = 0 peaks on its own zero axis, where the
            tick numbers would sit on the trace. yticksLeft sets them against the
@@ -526,6 +550,7 @@ const PLOT = (() => {
           /* a y number that would sit on an x number near the corner is left out */
           const yb = [xBase-10-TW(L), sy(v)+4.5-TICK_SIZE*0.8, xBase-10, sy(v)+4.5+TICK_SIZE*0.2];
           if(xBoxes.some(b=>b[0]<yb[2] && yb[0]<b[2] && b[1]<yb[3] && yb[1]<b[3])) return;
+          if(yTeX){ g.push(tickTeX(L, { xRight:xBase-10, baseline:sy(v)+4.5+0.27*TICK_SIZE })); return; }
           g.push(`<text x="${(xBase-10).toFixed(2)}" y="${(sy(v)+4.5).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="end">${esc(L)}</text>`); });
         /* axis names — below the data area for the independent variable, above
            it for the dependent one. They are drawn after the data, so a signal
