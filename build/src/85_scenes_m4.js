@@ -704,15 +704,20 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
         [[-1,'-1'],[-0.5,'-\\tfrac12'],[0.5,'\\tfrac12'],[1,'1']].forEach(([t,l])=>a.note(t,LOW+0.3,l,{anchor:'middle',color:C.muted,fs:14,tex:true})); return a; };
       const bot=h=>AX({h,pad:{l:52,r:24,t:30,b:30},yticksLeft:true,xr:[-4.5,4.5],yr:[-0.4,1.2],xlabel:'k',ylabel:'a_k',xtarget:9,ytarget:2});
       const pm=(k,y)=>k?[[-k,y],[k,y]]:[[0,y]];
+      /* an earlier term fades once the next one comes in */
+      const FAINT=0.18, old=l=>1-(1-FAINT)*cl(fr-l);
       if(fr<=2){ const n=Math.floor(fr), p=fr-n, g=i=>i<n?1:(i===n?p:0);
         /* g(i): how much of harmonic number i (k = 1, 3) is in the sum so far */
         const K=[1,3], AMP=[2,1], S=t=>1+K.reduce((s,k,i)=>s+g(i)*AMP[i]*Math.cos(k*W*t),0);
         return stack2(h=>{ const a=top(h);
-          K.forEach((k,i)=>{ if(g(i)>0) fade(a,i<n?0.3:0.8,()=>a.curve(t=>AMP[i]*Math.cos(k*W*t),{color:i?C.mid:C.h,dash:'5 4',n:900})); });
+          K.forEach((k,i)=>{ if(g(i)>0) fade(a,0.85-0.73*cl(fr-i-1),()=>a.curve(t=>AMP[i]*Math.cos(k*W*t),{color:i?C.mid:C.h,dash:'5 4',n:900})); });
           a.curve(S,{color:C.in,n:1200});
           a.note(1.05,5.2,fr>1?'1+2\\cos(2\\pi t)+\\cos(6\\pi t)':(fr>0?'1+2\\cos(2\\pi t)':'1'),{anchor:'end',color:C.in,fs:15,tex:true});
           return a.svg(); }, h=>{ const b=bot(h);
-          b.stem(D(k=>k===0?1:(Math.abs(k)===1?g(0):(Math.abs(k)===3?0.5*g(1):0)),-4,4),{color:C.out});
+          b.stem(D(()=>0,-4,4).filter(([k])=>![0,1,3].includes(Math.abs(k))),{color:C.out});
+          fade(b,old(0),()=>b.stem([[0,1]],{color:C.out}));
+          if(g(0)>0) fade(b,old(1),()=>b.stem(pm(1,g(0)),{color:C.out}));
+          if(g(1)>0) b.stem(pm(3,0.5*g(1)),{color:C.out});
           return b.svg(); }, P.labelScale()>1?0.55:0.58); }
       const k=Math.min(Math.ceil(fr)-3,3), p=cl(fr-(k+2)), m=cl(p/0.3), u=-0.5+cl((p-0.3)/0.7);
       const G=t=>X(t)*Math.cos(k*W*t), R=t=>X(t)*(1-m+m*Math.cos(k*W*t));
@@ -727,11 +732,10 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
         a.curve(R,{color:C.out,n:1400});
         a.note(1.05,5.2,k?'x(t)\\cos('+(k>1?k:'')+'\\omega_0t)':'x(t)\\cdot1',{anchor:'end',color:C.out,fs:15,tex:true});
         return a.svg(); }, h=>{ const b=bot(h);
-        if(k===0&&m<1) fade(b,1-m,()=>b.stem(D(n=>Math.abs(n)===1?1:(Math.abs(n)===3?0.5:(n===0?1:0)),-4,4),{color:C.out}));
-        const found=[]; for(let i=0;i<k;i++) found.push(...pm(i,A[i]));
+        if(k===0&&m<1){ fade(b,FAINT*(1-m),()=>b.stem(pm(0,1).concat(pm(1,1)),{color:C.out})); fade(b,1-m,()=>b.stem(pm(3,0.5),{color:C.out})); }
         const rest=[]; for(let n=-4;n<=4;n++) if(Math.abs(n)>k) rest.push([n,0]);
         b.stem(rest,{color:C.muted});
-        b.stem(found.map(([n,y])=>[n,y]),{color:C.out,showZero:true});
+        for(let i=0;i<k;i++) fade(b,i===k-1?1-(1-FAINT)*m:FAINT,()=>b.stem(pm(i,A[i]),{color:C.out,showZero:true}));
         b.stem(pm(k,done?A[k]:run),{color:C.coral,showZero:true});
         b.note(4.5,1.42,done?name+'='+fin:'\\frac{1}{T_0}\\int_{-T_0/2}^{t}=\\,'+run.toFixed(2),{anchor:'end',color:C.coral,fs:15,tex:true});
         return b.svg(); }, P.labelScale()>1?0.55:0.58); },
