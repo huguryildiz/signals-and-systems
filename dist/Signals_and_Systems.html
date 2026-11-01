@@ -22890,7 +22890,7 @@ const SC = [
       {t:'eq', tex:'x(t)=\\tfrac12e^{j4t}+\\tfrac12e^{-j4t}+\\tfrac12e^{j7t}+\\tfrac12e^{-j7t}', label:'Expand $x(t)$ with Euler\'s relationship',
         note:'Four eigenfunctions $e^{st}$, with $s=\\pm j4$ and $s=\\pm j7$.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'\\begin{aligned}y(t)&=\\tfrac12H(j4)e^{j4t}+\\tfrac12H(-j4)e^{-j4t}+\\tfrac12H(j7)e^{j7t}+\\tfrac12H(-j7)e^{-j7t}\\\\&=\\tfrac12e^{-j12}e^{j4t}+\\tfrac12e^{j12}e^{-j4t}+\\tfrac12e^{-j21}e^{j7t}+\\tfrac12e^{j21}e^{-j7t}\\\\&=\\underbrace{\\tfrac12e^{j4(t-3)}+\\tfrac12e^{-j4(t-3)}}_{\\cos(4(t-3))}+\\underbrace{\\tfrac12e^{j7(t-3)}+\\tfrac12e^{-j7(t-3)}}_{\\cos(7(t-3))}\\\\&=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr)\\end{aligned}', label:'Solution · multiply each term by its own $H(s)$',
+      {t:'eq', tex:'\\begin{aligned}y(t)&=H(s)\\,x(t)\\quad\\text{for each term } e^{st}\\\\&=\\tfrac12H(j4)e^{j4t}+\\tfrac12H(-j4)e^{-j4t}+\\tfrac12H(j7)e^{j7t}+\\tfrac12H(-j7)e^{-j7t}\\\\&=\\tfrac12e^{-j12}e^{j4t}+\\tfrac12e^{j12}e^{-j4t}+\\tfrac12e^{-j21}e^{j7t}+\\tfrac12e^{j21}e^{-j7t}\\\\&=\\underbrace{\\tfrac12e^{j4(t-3)}+\\tfrac12e^{-j4(t-3)}}_{\\cos(4(t-3))}+\\underbrace{\\tfrac12e^{j7(t-3)}+\\tfrac12e^{-j7(t-3)}}_{\\cos(7(t-3))}\\\\&=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr)\\end{aligned}', label:'Solution · multiply each term by its own $H(s)$',
         note:'Check: the rule $y(t)=x(t-3)$ gives the same output directly.'}]}
   ]}
 ]},
