@@ -2454,3 +2454,7 @@ body[data-display=projector] .scene.slide .lab[data-lab="J6"] .derive.stack :is(
 body[data-display=projector] .scene.slide .lab[data-lab="J6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
 body[data-display=projector] .scene.slide .lab[data-lab="J6"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s6-css> */
+
+/* A harmonic index circled in red under an underbrace: \htmlClass{kc}{k=2} */
+.katex .kc{ display:inline-block; color:var(--sig-err); border:1.5px solid var(--sig-err);
+  border-radius:999px; padding:.05em .5em; margin-top:.15em; line-height:1.25; }

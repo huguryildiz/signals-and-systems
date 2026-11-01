@@ -8,6 +8,7 @@ const RENDER = (() => {
 
   /* ---------- math ---------- */
   const texOpts = { throwOnError:false, strict:false, output:'html',
+    trust:c=>c.command==='\\htmlClass',
     macros:{ '\\d':'\\mathrm{d}', '\\Ev':'\\mathcal{E}\\mathrm{v}', '\\Od':'\\mathcal{O}\\mathrm{dd}' } };
   /* Mathematics that does not parse is reported to the console before it falls
      back, so that a broken formula fails qa.js instead of sitting in the page. */
