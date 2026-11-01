@@ -7,7 +7,12 @@ const P = PLOT, C = P.COL;
 /* stems over an integer range */
 const D = (f,a,b)=>{const o=[];for(let n=Math.ceil(a);n<=b;n++)o.push([n,f(n)]);return o;};
 const cl = u=>Math.max(0,Math.min(1,u));
-const num = v=>String(Math.round(v*100)/100);
+/* Axes with one unit the same length on both axes, for figures in the complex
+   plane (the same helper as in Module 1) */
+const eqAxes=o=>{ const h=P.hOverride||o.h, q=Object.assign({},o,{h});
+  const pr=P.Axes(q), k=(pr.x1-pr.x0)/(pr.y0-pr.y1), c=(o.xr[0]+o.xr[1])/2, half=(o.yr[1]-o.yr[0])*k/2;
+  return P.Axes(Object.assign(q,{xr:[c-half,c+half]})); };
+const num =v=>String(Math.round(v*100)/100);
 /* a group drawn at an opacity: the faint given signal on a sketch slide, or a
    state fading in or out while a figure plays between frames */
 const fade=(a,o,f)=>{ if(o<=0) return; a.raw(`<g opacity="${o.toFixed(3)}">`); f(); a.raw('</g>'); };
@@ -341,7 +346,27 @@ const SC = [
         note:'Put an impulse into the rule. The last step is the sifting property of Module 1.'}]}
   ], right:[
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'e^{j2t}\\;\\longrightarrow\\;H(j2)\\,e^{j2t}=e^{-3(j2)}\\,e^{j2t}=e^{j2(t-3)}', label:'Solution · here $s=j2$'}]},
+      {t:'eq', tex:'e^{j2t}\\;\\longrightarrow\\;H(j2)\\,e^{j2t}=e^{-3(j2)}\\,e^{j2t}=e^{j2(t-3)}', label:'Solution · here $s=j2$'},
+      {t:'fig', frame:true,
+        frames:{labels:['$x(1)=e^{j2}$','$\\times\\,H(j2)=e^{-j6}$','$y(1)=e^{-j4}$']},
+        svg:v=>{
+        /* the input at t=1 s, then multiplication by H(j2)=e^{-j6} played as a
+           clockwise turn of 6 rad, then the output on the same circle */
+        const fr=v?v.frame:0, p=cl(fr), q=cl(fr-1), th0=2, th=th0-6*p;
+        const a=eqAxes({w:560,h:210,xr:[-1.5,1.5],yr:[-1.3,1.3],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',pad:{l:52,r:24,t:22,b:34},xtarget:7,ytarget:5,xtickfmt:()=>'',ytickfmt:()=>''});
+        const circ=[]; for(let i=0;i<=120;i++){ const u=2*Math.PI*i/120; circ.push([Math.cos(u),Math.sin(u)]); }
+        a.poly(circ,{color:C.muted,width:1.2,dash:'4 5'});
+        /* every label sits in the side margins, clear of the circle */
+        a.note(1.15,0.7,'|z|=1',{anchor:'start',color:C.muted,fs:14,tex:true});
+        if(p>0){ const sp=[]; for(let i=0;i<=90;i++){ const u=p*i/90; sp.push([(0.55-0.2*u)*Math.cos(th0-6*u),(0.55-0.2*u)*Math.sin(th0-6*u)]); }
+          a.poly(sp,{color:C.coral,width:1.8});
+          a.note(1.15,-0.7,'-6\\ \\text{rad, clockwise}',{anchor:'start',color:C.coral,fs:14,tex:true}); }
+        fade(a,1-0.6*q,()=>{ a.poly([[0,0],[Math.cos(th0),Math.sin(th0)]],{color:C.in,width:2.6}); a.point(Math.cos(th0),Math.sin(th0),{color:C.in});
+          a.note(-1.15,0.95,'x(1)=e^{j2}',{anchor:'end',color:C.in,fs:15,tex:true}); });
+        if(p>0){ a.poly([[0,0],[Math.cos(th),Math.sin(th)]],{color:p<1?C.mid:C.out,width:2.6}); a.point(Math.cos(th),Math.sin(th),{color:p<1?C.mid:C.out}); }
+        fade(a,q,()=>a.note(-1.15,0.2,'y(1)=e^{-j4}',{anchor:'end',color:C.out,fs:15,tex:true}));
+        return a.svg(); },
+        caption:'The input at $t=1$ s, then the product with $H(j2)=e^{-j6}$. The point turns by $-6$ rad and stays on the unit circle, because $|H(j2)|=1$.'}]},
     {t:'reveal', at:3, items:[
       {t:'eq', tex:'y(t)=x(t-3)=e^{j2(t-3)}', label:'Check with the input–output rule',
         note:'Both methods give the same output.'}]}
