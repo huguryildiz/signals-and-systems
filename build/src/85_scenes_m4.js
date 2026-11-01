@@ -743,39 +743,6 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   ]}
 ]},
 
-{ id:'m4-trig', module:'M4', nav:'Real signals · two real forms', title:'Real Signals: Cosine and Sine Forms', src:'—',
-  objective:'Write the series of a real signal with real functions only, in amplitude–phase form and in cosine–sine form.',
-  keywords:'real signal conjugate symmetry trigonometric form amplitude phase A_k theta_k cosine sine B_k C_k real part', slide:true, steps:3, blocks:[
-  {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'—'},
-  {t:'title', text:'Real Signals: Cosine and Sine Forms'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      frames:{labels:['$2B_1\\cos\\pi t$','$\\text{add }-2C_1\\sin\\pi t$','$\\text{sum: }2A_1\\cos(\\pi t+\\theta_1)$']},
-      svg:v=>{
-      const k=v?v.frame:0, s=cl(k), m=cl(k-1);
-      const a=AX({xr:[0,4],yr:[-1.4,2.3],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
-      fade(a,1-0.6*m,()=>a.curve(t=>0.8*Math.cos(Math.PI*t),{color:C.in,dash:'8 5',n:1600}));
-      fade(a,s*(1-0.6*m),()=>a.curve(t=>-0.6*Math.sin(Math.PI*t),{color:C.mid,dash:'3 5',n:1600}));
-      fade(a,m,()=>a.curve(t=>Math.cos(Math.PI*t+Math.atan2(0.3,0.4)),{color:C.out,n:1600}));
-      return a.svg(); },
-      caption:'$a_1=0.4+j0.3$ with $\\omega_0=\\pi$: $B_1=0.4$, $C_1=0.3$, $A_1=0.5$, $\\theta_1=0.644$ rad. Step through: the cosine and the sine add to one cosine of amplitude $2A_1=1$.'},
-    {t:'legend', items:[['in','$2B_1\\cos\\pi t$',true],['mid','$-2C_1\\sin\\pi t$',true],['out','$2A_1\\cos(\\pi t+\\theta_1)$']]}
-  ], right:[
-    {t:'eq', key:true, tex:'x(t)=a_0+\\sum_{k=1}^{\\infty}\\bigl(a_ke^{jk\\omega_0t}+a_k^{*}e^{-jk\\omega_0t}\\bigr)=a_0+2\\sum_{k=1}^{\\infty}\\operatorname{Re}\\bigl\\{a_ke^{jk\\omega_0t}\\bigr\\}', label:'Real signal',
-      note:'For real $x(t)$, $a_{-k}=a_k^{*}$. A number plus its conjugate is twice its real part.'},
-    {t:'reveal', at:1, items:[
-      {t:'eq', tex:'a_k=A_ke^{j\\theta_k}:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}A_k\\cos\\bigl(k\\omega_0t+\\theta_k\\bigr)', label:'Amplitude–phase form',
-        note:'Each harmonic is one cosine with its own phase.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'eq', tex:'a_k=B_k+jC_k:\\qquad x(t)=a_0+2\\sum_{k=1}^{\\infty}\\bigl[B_k\\cos k\\omega_0t-C_k\\sin k\\omega_0t\\bigr]', label:'Cosine–sine form',
-        note:'With $\\phi=k\\omega_0t$, $\\operatorname{Re}\\{(B_k+jC_k)(\\cos\\phi+j\\sin\\phi)\\}=B_k\\cos\\phi-C_k\\sin\\phi$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'$a_1=1-j$, $a_{-1}=1+j$, every other $a_k=0$, and $\\omega_0=\\pi$.<div class="nsep"></div>Which signal is $x(t)$?',
-        ask:{key:'m4-trig', choices:['$2\\cos\\pi t+2\\sin\\pi t$','$2\\cos\\pi t-2\\sin\\pi t$','$\\cos\\pi t+\\sin\\pi t$'], answer:0,
-          why:'$B_1=1$ and $C_1=-1$, so $2[B_1\\cos\\pi t-C_1\\sin\\pi t]=2\\cos\\pi t+2\\sin\\pi t$.'}}]}
-  ]}
-]},
-
 realGallery({ id:'m4-real-harmonics', nav:'Harmonics around us',
   title:'Harmonics Around Us', eyebrow:'Module 4 · Synthesis and analysis', src:'pp. 26–29',
   objective:'See periodic everyday signals as sums of harmonics of one fundamental.',
