@@ -303,24 +303,17 @@ const SC = [
   keywords:'worked example delay y(t)=x(t-3) sifting eigenvalue e^{-3s} complex exponential', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 24–25'},
   {t:'title', text:'Pure Delay as an Eigenfunction Example'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[-1,9],yr:[-1.3,2.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:10});
-      a.curve(t=>Math.cos(2*t),{color:C.in,dash:'9 6',n:900});
-      a.curve(t=>Math.cos(2*(t-3)),{color:C.out,n:900});
-      return a.svg(); },
-      caption:'The real parts of $e^{j2t}$ and of the output. A delay of 3 s is a phase lag of $2\\times3=6$ rad at this frequency.'},
-    {t:'legend', items:[['in','$\\cos 2t$',true],['out','$\\cos\\bigl(2(t-3)\\bigr)$']]}
-  ], right:[
-    {t:'note', kind:'def', head:'Given', html:'An LTI system delays its input by 3 s: $y(t)=x(t-3)$. The input is $x(t)=e^{j2t}$.<div class="nsep"></div>What is $|H(j2)|$?',
-      ask:{key:'m4-eigen-ex', choices:['$1$','$2$','$3$'], answer:0}},
+  {t:'cols', ratio:'c-5-7', left:[
+    {t:'note', kind:'def', head:'Given', html:'An LTI system with $y(t)=x(t-3)$.<br>The input is $x(t)=e^{j2t}$.<div class="nsep"></div><b>Find</b> $y(t)$ by the eigenfunction method.'},
     {t:'reveal', at:1, items:[
-      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Write $h(t)$ from the rule.</li><li>Compute $H(s)$ from $h(t)$.</li><li>Multiply the input by $H(j2)$.</li></ol>'}]},
+      {t:'eq', tex:'\\begin{aligned}x(t)=\\delta(t)\\;&\\longrightarrow\\;y(t)=h(t)=\\delta(t-3)\\\\H(s)&=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau\\\\&=\\int_{-\\infty}^{\\infty}\\delta(\\tau-3)\\,e^{-s\\tau}\\,\\d\\tau=e^{-3s}\\end{aligned}', label:'Impulse response and transfer function',
+        note:'Put an impulse into the rule. The last step is the sifting property of Module 1.'}]}
+  ], right:[
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'h(t)=\\delta(t-3),\\qquad H(s)=\\int_{-\\infty}^{\\infty}\\delta(\\tau-3)\\,e^{-s\\tau}\\,\\d\\tau=e^{-3s}', label:'Impulse response and eigenvalue',
-        note:'The integral is the sifting property of Module 1.'}]},
+      {t:'eq', tex:'e^{j2t}\\;\\longrightarrow\\;H(j2)\\,e^{j2t}=e^{-3(j2)}\\,e^{j2t}=e^{j2(t-3)}', label:'Solution · here $s=j2$'}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', tex:'e^{j2t}\\;\\longrightarrow\\;H(j2)\\,e^{j2t}=e^{-j6}\\,e^{j2t}=e^{j2(t-3)}', label:'Solution'}]}
+      {t:'eq', tex:'y(t)=x(t-3)=e^{j2(t-3)}', label:'Check with the input–output rule',
+        note:'Both methods give the same output.'}]}
   ]}
 ]},
 
