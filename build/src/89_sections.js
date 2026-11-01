@@ -140,7 +140,7 @@ CONTENT.SECTIONS = {
         'm4-lab-p','m4-code-eigen'] },
     { n:'4.2', title:'Synthesis and analysis',               ids:[
         'm4-fs-exist','m4-fs-synth','m4-fs-synth-b','m4-period','m4-period-ex','m4-period-ex-b','m4-period-ex-c','m4-fs-coef',
-        'm4-fs-proof','m4-dc','m4-trig','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
+        'm4-dc','m4-trig','m4-real-harmonics','m4-lab-q','m4-code-synth'] },
     { n:'4.3', title:'Series worked out',                    ids:[
         'm4-rect','m4-rect-b','m4-rect-sample','m4-howmany','m4-howmany-b','m4-saw','m4-saw-b',
         'm4-imptrain','m4-real-series','m4-lab-f','m4-code-series'] },
@@ -337,7 +337,7 @@ CONTENT.BOOK = {
   'm4-objective':'3.2', 'm4-eigen-ct':'3.2', 'm4-eigen-dt':'3.2', 'm4-eigen-sum':'3.2', 'm4-eigen-why':'3.2', 'm4-eigen-ex':'3.2',
   'm4-eigen-ex-b':'3.2', 'm4-real-eigen':'3.2', 'm4-fs-exist':'3.4', 'm4-fs-synth':'3.3.1',
   'm4-fs-synth-b':'3.3.1', 'm4-period':'3.3.1', 'm4-period-ex':'3.3.1', 'm4-period-ex-b':'3.3.1', 'm4-period-ex-c':'3.3.1', 'm4-fs-coef':'3.3.2',
-  'm4-fs-proof':'3.3.2', 'm4-dc':'3.3.2', 'm4-real-harmonics':'3.3', 'm4-rect':'3.3.2',
+  'm4-dc':'3.3.2', 'm4-real-harmonics':'3.3', 'm4-rect':'3.3.2',
   'm4-rect-b':'3.3.2', 'm4-rect-sample':'3.3.2', 'm4-howmany':'3.4', 'm4-howmany-b':'3.4',
   'm4-saw':'3.3.2', 'm4-saw-b':'3.3.2', 'm4-imptrain':'3.3.2', 'm4-real-series':'3.3',
   'm4-dtfs':'3.6.1', 'm4-dtfs-b':'3.6.1', 'm4-dtfs-ex':'3.6.2', 'm4-dtfs-ex-b':'3.6.2',
