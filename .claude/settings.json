@@ -1,4 +1,9 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +12,20 @@
           {
             "type": "command",
             "command": "/usr/bin/python3",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/agent_guard.py"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/agent_guard.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"$CLAUDE_CODE_REMOTE\" = \"true\" ]; then git config user.name huguryildiz; git config user.email 103906958+huguryildiz@users.noreply.github.com; fi",
             "timeout": 5
           }
         ]
