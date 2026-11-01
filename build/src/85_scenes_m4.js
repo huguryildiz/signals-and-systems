@@ -326,29 +326,20 @@ const SC = [
 
 { id:'m4-eigen-ex-b', module:'M4', nav:'Worked example · two cosines', title:'Two Cosines Through the Delay', src:'pp. 24–25',
   objective:'Expand two cosines into exponentials, apply the eigenvalue to each, and check against the rule.',
-  keywords:'worked example delay cosine euler expansion eigenvalue each term check phase proportional to frequency', slide:true, steps:3, blocks:[
+  keywords:'worked example delay cosine euler expansion eigenvalue each term check', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 24–25'},
   {t:'title', text:'Two Cosines Through the Delay'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, sketch:{label:'Sketch $y(t)$ on the axes, then check it.'}, svg:()=>{
-      const a=AX({dropX:true,xr:[-1,8],yr:[-2.4,3.2],xlabel:'t',ylabel:'y(t)',xtarget:9});
-      skArea(a);
-      a.curve(t=>Math.cos(4*t)+Math.cos(7*t),{color:C.ink,opacity:.35,dash:'6 5',n:1600});
-      a.note(-0.8,2.75,'x(t)',{anchor:'start',color:C.ink,fs:15,tex:true,dy:(P.labelScale()-1)*16});
-      a.raw('<g class="sk-key">');
-      a.curve(t=>Math.cos(4*(t-3))+Math.cos(7*(t-3)),{color:C.out,n:1600});
-      a.note(7.8,2.75,'y(t)',{anchor:'end',color:C.out,fs:15,tex:true,dy:(P.labelScale()-1)*16});
-      a.raw('</g>');
-      return a.svg(); },
-      caption:'The dashed trace is $x(t)=\\cos 4t+\\cos 7t$. Sketch the output of the 3 s delay, then show the answer.'}
-  ], right:[
-    {t:'eq', tex:'\\cos 4t=\\tfrac12e^{j4t}+\\tfrac12e^{-j4t},\\qquad \\cos 7t=\\tfrac12e^{j7t}+\\tfrac12e^{-j7t}', label:'Write each cosine as exponentials'},
+  {t:'cols', ratio:'c-5-7', left:[
+    {t:'note', kind:'def', head:'Given', html:'The same LTI system: $y(t)=x(t-3)$, $H(s)=e^{-3s}$.<br>The input is $x(t)=\\cos 4t+\\cos 7t$.<div class="nsep"></div><b>Find</b> $y(t)$ by the eigenfunction method.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'\\begin{aligned}y(t)&=\\tfrac12e^{-j12}e^{j4t}+\\tfrac12e^{j12}e^{-j4t}+\\tfrac12e^{-j21}e^{j7t}+\\tfrac12e^{j21}e^{-j7t}\\\\&=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr)\\end{aligned}', label:'Multiply each term by $H(j\\omega)=e^{-j3\\omega}$'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Check', html:'The rule $y(t)=x(t-3)$ applied directly gives the same output.'}]},
+      {t:'eq', tex:'\\begin{aligned}x(t)&=\\tfrac12e^{j4t}+\\tfrac12e^{-j4t}\\\\&\\quad+\\tfrac12e^{j7t}+\\tfrac12e^{-j7t}\\end{aligned}', label:'Expand $x(t)$ with Euler\'s relationship',
+        note:'Four eigenfunctions $e^{st}$, with $s=\\pm j4$ and $s=\\pm j7$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'warn', head:'What a delay does', html:'$|H(j\\omega)|=1$ at every $\\omega$ and $\\angle H(j\\omega)=-3\\omega$. A delay changes no amplitude. It adds a phase proportional to frequency.'}]}
+      {t:'eq', tex:'y(t)=x(t-3)=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr)', label:'Check with the input–output rule',
+        note:'Both methods give the same output.'}]}
+  ], right:[
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}y(t)&=\\tfrac12H(j4)e^{j4t}+\\tfrac12H(-j4)e^{-j4t}\\\\&\\quad+\\tfrac12H(j7)e^{j7t}+\\tfrac12H(-j7)e^{-j7t}\\\\&=\\tfrac12e^{-j12}e^{j4t}+\\tfrac12e^{j12}e^{-j4t}\\\\&\\quad+\\tfrac12e^{-j21}e^{j7t}+\\tfrac12e^{j21}e^{-j7t}\\\\&=\\underbrace{\\tfrac12e^{j4(t-3)}+\\tfrac12e^{-j4(t-3)}}_{\\cos(4(t-3))}\\\\&\\quad+\\underbrace{\\tfrac12e^{j7(t-3)}+\\tfrac12e^{-j7(t-3)}}_{\\cos(7(t-3))}\\\\&=\\cos\\bigl(4(t-3)\\bigr)+\\cos\\bigl(7(t-3)\\bigr)\\end{aligned}', label:'Solution · multiply each term by its own $H(s)$'}]}
   ]}
 ]},
 
