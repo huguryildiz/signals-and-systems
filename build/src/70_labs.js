@@ -7,7 +7,8 @@ const LABS = (() => {
   /* A label that fails to parse still renders, in KaTeX's own red, but it also
      reaches the console so that qa.js turns red with it. Silent failure here is
      how a broken label survives a full pass of the gates. */
-  const T = (s,d)=>{ try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:true,strict:false}); }
+  const T = (s,d)=>{ s = String(s).replace(/(\d\.\d{2})e\+?(-?\d+)/g,'$1\\times10^{$2}');   /* F's toExponential form */
+                     try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:true,strict:false}); }
                      catch(e){ console.error('LAB: label is not valid TeX: ' + s + ' — ' + e.message);
                                try{ return katex.renderToString(s,{displayMode:!!d,throwOnError:false,strict:false}); }
                                catch(e2){ return s; } } };

@@ -484,7 +484,7 @@ Object.assign(LABS, (function(){
       root.querySelector('.sigdef').innerHTML = M(
         `<div class="eq key"><span class="eq-label">Signal · ${T(sig.label,false)}</span>${T(sig.name,true)}</div>`);
       root.querySelector('.ro').innerHTML = `
-        <div><dt>a_k (re + j im)</dt><dd class="okv">${N4(a.re,4)} ${a.im>=0?'+':'−'} ${N4(Math.abs(a.im),4)}j</dd></div>
+        <div><dt>a_k (re + j im)</dt><dd class="okv">${M(`$${N4(a.re,4)}$`)} ${a.im>=0?'+':'−'} ${M(`$${N4(Math.abs(a.im),4)}$`)}j</dd></div>
         <div><dt>|a_k|</dt><dd>${N4(cabs(a),4)}</dd></div>
         <div><dt>∠a_k (rad)</dt><dd>${cabs(a)<1e-9?'no phase (a_k = 0)':N4(carg(a),4)}</dd></div>
         <div><dt>Probe index k</dt><dd>${k}</dd></div>`;
