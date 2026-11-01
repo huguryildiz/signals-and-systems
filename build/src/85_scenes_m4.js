@@ -867,7 +867,7 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
         a.stem(D(k=>k===0?0:1/(2*Math.abs(k)*Math.PI),-10,10),{color:C.in,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-10.5,10.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
       a.stem(D(k=>k===0?0:(Math.pow(-1,k)/k>0?Math.PI/2:-Math.PI/2),-10,10),{color:C.mid,showZero:true});
       return a.svg(); },
       caption:'$T_0=1$. The magnitudes fall like $1/|k|$ from $0.159$ at $k=\\pm1$. Every phase is $\\pm\\pi/2$.'}
@@ -1043,7 +1043,7 @@ codeScene({ id:'m4-code-series', nav:'Series worked out', title:'Fourier Series 
         a.stem(D(k=>(Math.abs(k)===9||Math.abs(k)===10)?0.5:0,-12,12),{color:C.in,r:3,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-12.5,12.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
       a.stem(D(k=>k===9?Math.PI/5:(k===-9?-Math.PI/5:(k===10?-Math.PI/2:(k===-10?Math.PI/2:0))),-12,12),{color:C.mid,r:3,showZero:true});
       return a.svg(); },
       caption:'One period of the coefficients, $-12\\le k\\le11$, and $k=12\\equiv-12$. Outside it the same stems repeat every 24.'}
@@ -1186,7 +1186,7 @@ codeScene({ id:'m4-code-series', nav:'Series worked out', title:'Fourier Series 
         a.stem(D(k=>Math.abs(sawS(k)),-17,17),{color:C.in,r:2.8,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-17.5,17.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
       a.stem(D(k=>Math.abs(sawS(k))<1e-9?0:(sawS(k)>0?-Math.PI/2:Math.PI/2),-17,17),{color:C.mid,r:2.8,showZero:true});
       return a.svg(); },
       caption:'The largest magnitude sits at $k=\\pm1$ and returns every 11. Only two phases occur.'}
@@ -1285,7 +1285,7 @@ codeScene({ id:'m4-code-dtfs', nav:'Discrete-time series', title:'Discrete-Time 
         a.stem(D(k=>Math.abs(aq(k)),-8,8),{color:C.in,r:3.2,showZero:true});
         return a.svg(); }
       const a=AX({yticksLeft:true,xr:[-8.5,8.5],yr:[-3.6,3.6],xlabel:'k',ylabel:'\\angle b_k-\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:v=>v.toFixed(2)});
+        yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:P.piTick});
       a.stem(D(k=>{ let p=-0.4*Math.PI*k; while(p>Math.PI+1e-9)p-=2*Math.PI; while(p<-Math.PI-1e-9)p+=2*Math.PI; return Math.abs(aq(k))<1e-12?0:p; },-8,8),{color:C.mid,r:3.2,showZero:true});
       return a.svg(); },
       caption:'The wave of the previous slide, $T_0=2$ and $t_0=0.4$. Step to the phase change, drawn in $[-\\pi,\\pi]$. Where $a_k=0$ there is no phase to change.'}
