@@ -430,6 +430,17 @@ chk("LabF sawtooth partial sum converges away from the jump",
     all(abs(labF_partial(lambda kk: complex(a_saw(kk, 2)), np.pi, tt, 400) - tt) < 0.02
         for tt in [-0.8, -0.3, 0.0, 0.4, 0.8]))
 
+# m4-fs-coef figure: x(t) = 1 + 2cos(2 pi t) + cos(6 pi t), T0 = 1
+_t = (np.arange(4000) + 0.5) / 4000 - 0.5
+_x = 1 + 2 * np.cos(2 * np.pi * _t) + np.cos(6 * np.pi * _t)
+_a = {kk: np.mean(_x * np.exp(-2j * np.pi * kk * _t)) for kk in range(-4, 5)}
+chk("m4-fs-coef a_0=1, a_+-1=1, a_+-2=0, a_+-3=1/2, a_+-4=0",
+    all(abs(_a[kk] - {0: 1, 1: 1, 2: 0, 3: 0.5, 4: 0}[abs(kk)]) < 1e-9 for kk in _a))
+chk("m4-fs-coef sine part of the analysis integral is zero for even x",
+    all(abs(np.mean(_x * np.sin(2 * np.pi * kk * _t))) < 1e-9 for kk in range(5)))
+chk("m4-fs-coef running value stays inside the stem axis [-0.4, 1.2]",
+    all(-0.4 < v < 1.2 for kk in range(4) for v in np.cumsum(_x * np.cos(2 * np.pi * kk * _t)) / 4000))
+
 print("\n%d passed, %d failed" % (len(P), len(F)))
 if F:
     print("FAILURES:", F)

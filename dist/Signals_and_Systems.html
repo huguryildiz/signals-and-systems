@@ -22558,11 +22558,11 @@ const AX = o => P.Axes(dropX(Object.assign({w:560,h:380,pad:{l:52,r:24,t:20,b:34
    takes a height and returns an svg; the halves are placed as nested svgs. A
    grown figure hands its height through P.hOverride, which is taken here and
    split, so that neither panel claims the whole of it. */
-const stack2 = (top,bot)=>{
-  const H = P.hOverride || 380, h = H/2; P.hOverride = null;
+const stack2 = (top,bot,share=0.5)=>{
+  const H = P.hOverride || 380, h = H*share, h2 = H-h; P.hOverride = null;
   return `<svg viewBox="0 0 560 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`
     + top(h).replace('<svg ',`<svg x="0" y="0" width="560" height="${h}" `)
-    + bot(h).replace('<svg ',`<svg x="0" y="${h}" width="560" height="${h}" `) + '</svg>'; };
+    + bot(h2).replace('<svg ',`<svg x="0" y="${h}" width="560" height="${h2}" `) + '</svg>'; };
 
 /* the periodic rectangular wave of this module: 1 on |t| < T1, zero to T/2 */
 const rectWave = (t,T,T1)=>{ let u = t - T*Math.round(t/T); return Math.abs(u) < T1 ? 1 : 0; };
@@ -23205,25 +23205,64 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   ]}
 ]},
 
-{ id:'m4-fs-coef', module:'M4', nav:'Analysis equation', title:'Fourier-Series Analysis', src:'p. 28',
-  objective:'State the analysis equation and the sign that separates it from synthesis.',
-  keywords:'analysis equation coefficients integral over one period sign of exponent pair', slide:true, steps:3, blocks:[
-  {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'p. 28'},
-  {t:'title', text:'Fourier-Series Analysis'},
+{ id:'m4-fs-coef', module:'M4', nav:'Synthesis and analysis equations', title:'Fourier-Series Synthesis and Analysis', src:'pp. 26–28',
+  objective:'State the synthesis and analysis equations together and see what each one does to a signal.',
+  keywords:'synthesis equation analysis equation pair coefficients integral over one period sign of exponent harmonics add multiply area running average', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'pp. 26–28'},
+  {t:'title', text:'Fourier-Series Synthesis and Analysis'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-1.2,1.2],yr:[-1.3,2.3],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
-      a.curve(t=>Math.cos(2*Math.PI*t),{color:C.in,n:1200});
-      a.curve(t=>Math.cos(4*Math.PI*t),{color:C.mid,n:1200});
-      a.vline(-0.5,{color:C.coral,dash:'4 4'}); a.vline(0.5,{color:C.coral,dash:'4 4'});
-      return a.svg(); },
-      caption:'Two harmonics of $T_0=1$: $k=1$ and $k=2$. The dashed lines mark one period.'},
-    {t:'legend', items:[['in','$\\cos(2\\pi t)$'],['mid','$\\cos(4\\pi t)$']]}
+    {t:'fig', frame:true, grow:true,
+      frames:{ms:2600,labels:['Synthesis: $a_0$','Synthesis: add $k=\\pm1$','Synthesis: add $k=\\pm3$','Analysis: find $a_0$','Analysis: find $a_{\\pm1}$','Analysis: find $a_{\\pm2}$','Analysis: find $a_{\\pm3}$']},
+      svg:v=>{
+      /* x(t) = 1 + 2cos(2 pi t) + cos(6 pi t), T0 = 1. Frames 0-2 add the terms.
+         Frames 3-6 take x apart: the trace turns into x cos(k w0 t), then the
+         area fills across one period while the stem follows the running value. */
+      const fr=v?v.frame:0, W=2*Math.PI, A=[1,1,0,0.5];
+      const X=t=>1+2*Math.cos(W*t)+Math.cos(3*W*t);
+      /* the time numbers sit in a row of their own under the data: on the zero line the traces would cross them */
+      const LOW=P.labelScale()>1?-4.6:-3.5;
+      const top=h=>{ const a=AX({h,pad:{l:52,r:24,t:34,b:30},yticksLeft:true,xr:[-1.14,1.05],yr:[LOW,4.5],xlabel:'t',ylabel:'\\text{amplitude}',xticksOverride:[-1,-0.5,0.5,1],xtickfmt:()=>'',yticksOverride:[-2,2,4]});
+        [[-1,'-1'],[-0.5,'-\\tfrac12'],[0.5,'\\tfrac12'],[1,'1']].forEach(([t,l])=>a.note(t,LOW+0.3,l,{anchor:'middle',color:C.muted,fs:14,tex:true})); return a; };
+      const bot=h=>AX({h,pad:{l:52,r:24,t:30,b:30},yticksLeft:true,xr:[-4.5,4.5],yr:[-0.4,1.2],xlabel:'k',ylabel:'a_k',xtarget:9,ytarget:2});
+      const pm=(k,y)=>k?[[-k,y],[k,y]]:[[0,y]];
+      if(fr<=2){ const n=Math.floor(fr), p=fr-n, g=i=>i<n?1:(i===n?p:0);
+        /* g(i): how much of harmonic number i (k = 1, 3) is in the sum so far */
+        const K=[1,3], AMP=[2,1], S=t=>1+K.reduce((s,k,i)=>s+g(i)*AMP[i]*Math.cos(k*W*t),0);
+        return stack2(h=>{ const a=top(h);
+          K.forEach((k,i)=>{ if(g(i)>0) fade(a,i<n?0.3:0.8,()=>a.curve(t=>AMP[i]*Math.cos(k*W*t),{color:i?C.mid:C.h,dash:'5 4',n:900})); });
+          a.curve(S,{color:C.in,n:1200});
+          a.note(1.05,5.2,fr>1?'1+2\\cos(2\\pi t)+\\cos(6\\pi t)':(fr>0?'1+2\\cos(2\\pi t)':'1'),{anchor:'end',color:C.in,fs:15,tex:true});
+          return a.svg(); }, h=>{ const b=bot(h);
+          b.stem(D(k=>k===0?1:(Math.abs(k)===1?g(0):(Math.abs(k)===3?0.5*g(1):0)),-4,4),{color:C.out});
+          return b.svg(); }, P.labelScale()>1?0.55:0.58); }
+      const k=Math.min(Math.ceil(fr)-3,3), p=cl(fr-(k+2)), m=cl(p/0.3), u=-0.5+cl((p-0.3)/0.7);
+      const G=t=>X(t)*Math.cos(k*W*t), R=t=>X(t)*(1-m+m*Math.cos(k*W*t));
+      let run=0; const N=240; for(let i=0;i<N;i++){ const t=-0.5+(u+0.5)*(i+0.5)/N; run+=G(t)*(u+0.5)/N; }
+      const done=p>=0.999, name=k?'a_{\\pm'+k+'}':'a_0', fin=['1','1','0','\\tfrac12'][k];
+      return stack2(h=>{ const a=top(h);
+        [-0.5,0.5].forEach(t=>a.poly([[t,-2.6],[t,4.5]],{color:C.coral,dash:'4 4',width:1}));
+        fade(a,0.45,()=>a.curve(X,{color:C.ink,dash:'6 5',n:1200}));
+        if(k&&m>0) fade(a,0.75*m,()=>a.curve(t=>Math.cos(k*W*t),{color:C.mid,n:900}));
+        if(u>-0.5){ a.area(t=>Math.max(G(t),0),-0.5,u,{color:'rgba(74,122,70,.30)',n:400}); a.area(t=>Math.min(G(t),0),-0.5,u,{color:'rgba(192,80,50,.30)',n:400});
+          if(!done) a.poly([[u,-2.6],[u,4.5]],{color:C.coral,dash:'2 3',width:1}); }
+        a.curve(R,{color:C.out,n:1400});
+        a.note(1.05,5.2,k?'x(t)\\cos('+(k>1?k:'')+'\\omega_0t)':'x(t)\\cdot1',{anchor:'end',color:C.out,fs:15,tex:true});
+        return a.svg(); }, h=>{ const b=bot(h);
+        if(k===0&&m<1) fade(b,1-m,()=>b.stem(D(n=>Math.abs(n)===1?1:(Math.abs(n)===3?0.5:(n===0?1:0)),-4,4),{color:C.out}));
+        const found=[]; for(let i=0;i<k;i++) found.push(...pm(i,A[i]));
+        const rest=[]; for(let n=-4;n<=4;n++) if(Math.abs(n)>k) rest.push([n,0]);
+        b.stem(rest,{color:C.muted});
+        b.stem(found.map(([n,y])=>[n,y]),{color:C.out,showZero:true});
+        b.stem(pm(k,done?A[k]:run),{color:C.coral,showZero:true});
+        b.note(4.5,1.42,done?name+'='+fin:'\\frac{1}{T_0}\\int_{-T_0/2}^{t}=\\,'+run.toFixed(2),{anchor:'end',color:C.coral,fs:15,tex:true});
+        return b.svg(); }, P.labelScale()>1?0.55:0.58); },
+      caption:'Synthesis adds harmonics. Analysis multiplies $x$ by one harmonic; the area over one period, divided by $T_0=1$, is $a_k$. As $x$ is real and even, the cosine part of $e^{-jk\\omega_0t}$ alone gives $a_k$.'}
   ], right:[
-    {t:'note', kind:'def', head:'Why a formula', html:'Reading coefficients off works only for a sum of sinusoids. Every other periodic signal needs a formula.'},
+    {t:'eq', key:true, tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0 t},\\qquad \\omega_0=\\frac{2\\pi}{T_0}', label:'Synthesis equation',
+      note:'Build $x$ from its harmonics, each weighted by {{sym:ak|$a_k$}}.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'a_k=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jk\\omega_0 t}\\,\\d t,\\qquad \\omega_0=\\frac{2\\pi}{T_0}', label:'Analysis equation',
-        note:'$\\int_{T_0}$ means over any one period. The integrand repeats, so every period gives the same value.'}]},
+      {t:'eq', key:true, tex:'a_k=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jk\\omega_0 t}\\,\\d t', label:'Analysis equation',
+        note:'Find each $a_k$ from $x$. $\\int_{T_0}$ means over any one period. Unlike reading off, this works when $x$ is not a finite sum of sinusoids.'}]},
     {t:'reveal', at:2, items:[
       {t:'note', kind:'warn', head:'Only the sign differs', html:'Synthesis uses $e^{+jk\\omega_0t}$ and analysis uses $e^{-jk\\omega_0t}$, with the same $\\omega_0$.'}]},
     {t:'reveal', at:3, items:[
