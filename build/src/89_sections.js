@@ -136,7 +136,7 @@ CONTENT.SECTIONS = {
   M4: [
     { n:'4.0', title:'Opening',                              ids:['m4-open'] },
     { n:'4.1', title:'The eigenfunction property',           ids:[
-        'm4-eigen-ct','m4-eigen-dt','m4-eigen-why','m4-eigen-ex','m4-eigen-ex-b','m4-real-eigen',
+        'm4-objective','m4-eigen-ct','m4-eigen-dt','m4-eigen-why','m4-eigen-ex','m4-eigen-ex-b','m4-real-eigen',
         'm4-lab-p','m4-code-eigen'] },
     { n:'4.2', title:'Synthesis and analysis',               ids:[
         'm4-fs-exist','m4-fs-synth','m4-fs-synth-b','m4-period','m4-period-ex','m4-fs-coef',
@@ -334,7 +334,7 @@ CONTENT.BOOK = {
   'm3-real-diffeq':'2.4', 'm3-lab-t':'2.4.2', 'm3-code-diffeq':'2.4',
   'm3-quick':'2.6', 'm3-synth':'2.6', 'm3-projects':'2.6',
 
-  'm4-eigen-ct':'3.2', 'm4-eigen-dt':'3.2', 'm4-eigen-why':'3.2', 'm4-eigen-ex':'3.2',
+  'm4-objective':'3.2', 'm4-eigen-ct':'3.2', 'm4-eigen-dt':'3.2', 'm4-eigen-why':'3.2', 'm4-eigen-ex':'3.2',
   'm4-eigen-ex-b':'3.2', 'm4-real-eigen':'3.2', 'm4-fs-exist':'3.4', 'm4-fs-synth':'3.3.1',
   'm4-fs-synth-b':'3.3.1', 'm4-period':'3.3.1', 'm4-period-ex':'3.3.1', 'm4-fs-coef':'3.3.2',
   'm4-fs-proof':'3.3.2', 'm4-dc':'3.3.2', 'm4-real-harmonics':'3.3', 'm4-rect':'3.3.2',
