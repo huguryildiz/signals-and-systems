@@ -45,6 +45,27 @@ chk("M4 T0 = 2 s for the filtering input (periods 2, 1, 2/3)",
     lcm_frac([Fraction(2), Fraction(1), Fraction(2, 3)]) == 2)
 chk("M4 w0 = pi rad/s follows from T0 = 2", sp.simplify(2 * sp.pi / 2 - sp.pi) == 0)
 
+# worked example with phases: x(t) = 3 + 5 cos(10 pi t/3 + pi/4) + 4 sin(5 pi t/4 - pi/5)
+T0p = lcm_frac([Fraction(3, 5), Fraction(8, 5)])
+chk("M4 phases example T0 = LCM(3/5, 8/5) = 24/5 s", T0p == Fraction(24, 5), str(T0p))
+w0p = 2 * sp.pi / sp.Rational(24, 5)
+chk("M4 phases example w0 = 5 pi/12 rad/s", sp.simplify(w0p - 5 * sp.pi / 12) == 0)
+chk("M4 phases example 10 pi/3 = 8 w0 and 5 pi/4 = 3 w0",
+    sp.simplify(10 * sp.pi / 3 - 8 * w0p) == 0 and sp.simplify(5 * sp.pi / 4 - 3 * w0p) == 0)
+xp = 3 + 5 * sp.cos(10 * sp.pi / 3 * t + sp.pi / 4) + 4 * sp.sin(5 * sp.pi / 4 * t - sp.pi / 5)
+xpn = sp.lambdify(t, xp, 'numpy')
+chk("M4 phases example x(t + 24/5) = x(t)",
+    np.allclose(xpn(np.linspace(-5, 5, 2001) + 4.8), xpn(np.linspace(-5, 5, 2001))))
+tt = np.linspace(0, 4.8, 200001)[:-1]
+def akp(kk): return np.mean(xpn(tt) * np.exp(-1j * kk * (5 * np.pi / 12) * tt))
+want = {0: 3, 8: 2.5 * np.exp(1j * np.pi / 4), -8: 2.5 * np.exp(-1j * np.pi / 4),
+        3: 2 * np.exp(-1j * 7 * np.pi / 10), -3: 2 * np.exp(1j * 7 * np.pi / 10)}
+for kk in range(-9, 10):
+    got = akp(kk); w = want.get(kk, 0)
+    chk(f"M4 phases example a_{kk}", abs(got - w) < 1e-6, f"got {got:.6f}")
+chk("M4 phases example 4/(2j) e^(-j pi/5) = 2 e^(-j 7 pi/10)",
+    sp.simplify(sp.Rational(4, 1) / (2 * sp.I) * sp.exp(-sp.I * sp.pi / 5) - 2 * sp.exp(-sp.I * 7 * sp.pi / 10)) == 0)
+
 # =========================================== sum of sinusoids, a0 and stems
 # x(t) = 1 + cos(2 pi t)/2 + sin(3 pi t), T0 = 2, w0 = pi
 w0 = sp.pi

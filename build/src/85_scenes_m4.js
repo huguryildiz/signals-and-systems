@@ -470,12 +470,16 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'pp. 26–27, 38'},
   {t:'title', text:'Fundamental Period of a Signal Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$T_1=2/9$','$T_2=8/21$']},
+      svg:v=>{
+      /* one component at full strength, the other faded; Next swaps them */
+      const f=cl(v?v.frame:0);
       const a=AX({xr:[-0.1,3],yr:[-1.3,2.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
-      a.curve(t=>Math.cos(2*Math.PI*t/(2/9)),{color:C.in,n:3000});
-      a.curve(t=>Math.cos(2*Math.PI*t/(8/21)),{color:C.mid,n:3000});
+      fade(a,1-0.85*f,()=>a.curve(t=>Math.cos(2*Math.PI*t/(2/9)),{color:C.in,n:3000}));
+      fade(a,0.15+0.85*f,()=>a.curve(t=>Math.cos(2*Math.PI*t/(8/21)),{color:C.mid,n:3000}));
       return a.svg(); },
-      caption:'Two components, of periods $2/9$ s and $8/21$ s. They line up again only after a common period.'},
+      caption:'Step between the components, of periods $2/9$ s and $8/21$ s. They line up again only after a common period.'},
     {t:'legend', items:[['in','$T_1=2/9$'],['mid','$T_2=8/21$']]}
   ], right:[
     {t:'note', kind:'def', head:'When a sum is periodic', html:'A sum is periodic when each component period is a rational multiple of every other. Its period $T_0$ is the smallest positive time that is a whole number of each component period.'},
@@ -514,6 +518,60 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       {t:'note', kind:'def', head:'Given', html:'Two components have periods $\\tfrac43$ s and $\\tfrac25$ s.<div class="nsep"></div>What is $T_0$?',
         ask:{key:'m4-period-ex', choices:['$4$ s','$\\tfrac{4}{15}$ s','$2$ s'], answer:0,
           why:'$\\operatorname{LCM}(4,2)/\\operatorname{GCD}(3,5)=4/1=4$, and $4\\div\\tfrac43=3$, $4\\div\\tfrac25=10$.'}}]}
+  ]}
+]},
+
+{ id:'m4-period-ex-b', module:'M4', nav:'Worked example · a sum with phases', title:'A Sum with Phases', src:'pp. 26–27',
+  objective:'Find the fundamental period and the harmonic numbers of a sum of sinusoids that carry phases.',
+  keywords:'worked example fundamental period LCM 24/5 phase shift harmonic number 8 and 3 omega_0 5pi/12', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 26–27'},
+  {t:'title', text:'A Sum with Phases'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true, svg:()=>{
+      const a=AX({xr:[-5,5],yr:[-10,14.5],xlabel:'t',ylabel:'x(t)',xtarget:11});
+      a.curve(t=>3+5*Math.cos(10*Math.PI/3*t+Math.PI/4)+4*Math.sin(5*Math.PI/4*t-Math.PI/5),{color:C.in,n:3000});
+      a.span(0,4.8,13,'T_0=24/5',{color:C.coral,fs:15,tex:true});
+      return a.svg(); },
+      caption:'A constant and two sinusoids with phases. The sum repeats every $24/5$ s.'}
+  ], right:[
+    {t:'note', kind:'def', head:'Given', html:'$x(t)=3+5\\cos\\!\\left(\\tfrac{10\\pi}{3}t+\\tfrac{\\pi}{4}\\right)+4\\sin\\!\\left(\\tfrac{5\\pi}{4}t-\\tfrac{\\pi}{5}\\right)$.<div class="nsep"></div>What is $\\omega_0$?',
+      ask:{key:'m4-period-ex-b', choices:['$\\tfrac{5\\pi}{12}$ rad/s','$\\tfrac{5\\pi}{4}$ rad/s','$\\tfrac{10\\pi}{3}$ rad/s'], answer:0,
+        why:'The periods $\\tfrac35$ s and $\\tfrac85$ s give $T_0=\\tfrac{24}{5}$ s, so $\\omega_0=2\\pi/T_0=\\tfrac{5\\pi}{12}$ rad/s.'}},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}T_1&=\\frac{2\\pi}{10\\pi/3}=\\frac35\\ \\text{s},\\qquad T_2=\\frac{2\\pi}{5\\pi/4}=\\frac85\\ \\text{s}\\\\[6pt] T_0&=\\operatorname{LCM}\\!\\left(\\tfrac35,\\tfrac85\\right)=\\frac{\\operatorname{LCM}(3,8)}{5}=\\frac{24}{5}\\ \\text{s}\\\\[6pt] \\omega_0&=\\frac{2\\pi}{T_0}=\\frac{2\\pi}{24/5}=\\frac{5\\pi}{12}\\ \\text{rad/s}\\end{aligned}', label:'Solution · fundamental period',
+        note:'The constant is left out. Then $\\tfrac{10\\pi}{3}=8\\omega_0$ and $\\tfrac{5\\pi}{4}=3\\omega_0$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'x(t)=3+5\\cos\\!\\left(8\\omega_0t+\\tfrac{\\pi}{4}\\right)+4\\sin\\!\\left(3\\omega_0t-\\tfrac{\\pi}{5}\\right),\\qquad \\omega_0=\\tfrac{5\\pi}{12}', label:'Solution · in harmonics of $\\omega_0$',
+        note:'The phases do not change the periods. They only enter the coefficients, on the next slide.'}]}
+  ]}
+]},
+
+{ id:'m4-period-ex-c', module:'M4', nav:'Worked example · its coefficients', title:'Coefficients of a Sum with Phases', src:'pp. 26–27',
+  objective:'Expand the sum with Euler, read off each complex coefficient, and plot magnitude and phase.',
+  keywords:'worked example euler expansion complex coefficients magnitude phase a_8 a_3 7pi/10 conjugate symmetry', slide:true, steps:2, blocks:[
+  {t:'eyebrow', text:'Module 4 · Worked example', src:'pp. 26–27'},
+  {t:'title', text:'Coefficients of a Sum with Phases'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$|a_k|$','$\\angle a_k$']},
+      svg:v=>{
+      const f=v?Math.round(v.frame):0;
+      if(!f){ const a=AX({yticksLeft:true,xr:[-9.5,9.5],yr:[-0.3,3.4],xlabel:'k',ylabel:'|a_k|',xtarget:10});
+        a.stem(D(k=>k===0?3:(Math.abs(k)===8?2.5:(Math.abs(k)===3?2:0)),-9,9),{color:C.in,showZero:true});
+        return a.svg(); }
+      const a=AX({yticksLeft:true,xr:[-9.5,9.5],yr:[-3.6,3.6],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:10,
+        yticksOverride:[-Math.PI,-Math.PI/2,0,Math.PI/2,Math.PI],ytickfmt:P.piTick});
+      a.stem(D(k=>k===8?Math.PI/4:k===-8?-Math.PI/4:k===3?-7*Math.PI/10:k===-3?7*Math.PI/10:0,-9,9),{color:C.mid,showZero:true});
+      return a.svg(); },
+      caption:'Step to the phases. Only $k=0$, $\\pm3$ and $\\pm8$ carry a coefficient.'}
+  ], right:[
+      {t:'eq', tex:'\\begin{aligned}x(t)&=3+5\\cos\\!\\left(8\\omega_0t+\\tfrac{\\pi}{4}\\right)+4\\sin\\!\\left(3\\omega_0t-\\tfrac{\\pi}{5}\\right)\\\\[6pt]&=\\underbrace{3}_{a_0}+\\underbrace{\\tfrac52e^{j\\pi/4}}_{a_8}e^{j8\\omega_0t}+\\underbrace{\\tfrac52e^{-j\\pi/4}}_{a_{-8}}e^{-j8\\omega_0t}\\\\[2pt]&\\quad+\\underbrace{\\tfrac{4}{2j}e^{-j\\pi/5}}_{a_3}e^{j3\\omega_0t}\\underbrace{-\\tfrac{4}{2j}e^{j\\pi/5}}_{a_{-3}}e^{-j3\\omega_0t}\\end{aligned}', label:'Expand with Euler and match each exponent',
+        note:'Each phase stays with its exponential: $e^{j(8\\omega_0t+\\pi/4)}=e^{j\\pi/4}e^{j8\\omega_0t}$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}a_{\\pm8}&=\\tfrac52e^{\\pm j\\pi/4}\\\\[4pt] a_3&=\\tfrac{4}{2j}e^{-j\\pi/5}=2e^{-j\\pi/2}e^{-j\\pi/5}=2e^{-j7\\pi/10},\\qquad a_{-3}=2e^{j7\\pi/10}\\end{aligned}', label:'Solution · magnitude and phase',
+        note:'Use $\\tfrac1j=e^{-j\\pi/2}$. So $|a_0|=3$, $|a_{\\pm8}|=\\tfrac52$, $|a_{\\pm3}|=2$, $\\angle a_{\\pm8}=\\pm\\tfrac{\\pi}{4}$ and $\\angle a_{\\pm3}=\\mp\\tfrac{7\\pi}{10}$.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'note', kind:'def', head:'Check', html:'$a_{-3}=a_3^{*}$ and $a_{-8}=a_8^{*}$. The magnitudes are even in $k$ and the phases odd, as for any real $x$. Every other $a_k$ is zero.'}]}
   ]}
 ]},
 
