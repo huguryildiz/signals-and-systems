@@ -507,17 +507,55 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'title', text:'Reading Off the Coefficients'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$|a_k|$','$\\angle a_k$']},
+      frames:{labels:['$|a_k|$','$\\angle a_k$','$a_3=\\tfrac{1}{2j}$','$a_{-3}=-\\tfrac{1}{2j}$']},
       svg:v=>{
-      const f=v?Math.round(v.frame):0;
-      if(!f){ const a=AX({yticksLeft:true,xr:[-4.5,4.5],yr:[-0.15,1.3],xlabel:'k',ylabel:'|a_k|',xtarget:9});
-        a.stem(D(k=>k===0?1:(Math.abs(k)===2?0.25:(Math.abs(k)===3?0.5:0)),-4,4),{color:C.in,showZero:true});
+      const fr=v?v.frame:0;
+      if(fr<=1){ const f=Math.round(fr);
+        if(!f){ const a=AX({yticksLeft:true,xr:[-4.5,4.5],yr:[-0.15,1.3],xlabel:'k',ylabel:'|a_k|',xtarget:9});
+          a.stem(D(k=>k===0?1:(Math.abs(k)===2?0.25:(Math.abs(k)===3?0.5:0)),-4,4),{color:C.in,showZero:true});
+          return a.svg(); }
+        const a=AX({yticksLeft:true,xr:[-4.5,4.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
+          yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
+        a.stem(D(k=>k===3?-Math.PI/2:(k===-3?Math.PI/2:0),-4,4),{color:C.mid,showZero:true});
         return a.svg(); }
-      const a=AX({yticksLeft:true,xr:[-4.5,4.5],yr:[-2.1,2.1],xlabel:'k',ylabel:'\\angle a_k\\;(\\text{rad})',xtarget:9,
-        yticksOverride:[-Math.PI/2,0,Math.PI/2],ytickfmt:P.piTick});
-      a.stem(D(k=>k===3?-Math.PI/2:(k===-3?Math.PI/2:0),-4,4),{color:C.mid,showZero:true});
+      /* a_3 = 1/(2j), then a_{-3} = -1/(2j), in the complex plane. A quotient
+         divides the magnitudes and subtracts the angles: the result starts on
+         the numerator, shrinks to |1|/|2j| = 1/2 and turns by -angle(2j) = -pi/2.
+         On the way to a_{-3} the numerator first swings from 1 to -1. */
+      const u=cl(fr-1), w=cl(fr-2), g=cl(u/0.35), r=cl((u-0.4)/0.6), sw=cl(w/0.45), r2=cl((w-0.5)/0.5);
+      const PI=Math.PI, phN=PI*sw, neg=w>0;
+      const a=eqAxes({w:560,h:380,xr:[-1.6,1.6],yr:[-1.35,2.45],xlabel:'\\operatorname{Re}',ylabel:'\\operatorname{Im}',
+        pad:{l:40,r:24,t:22,b:34},xtarget:7,ytarget:5,xtickfmt:()=>'',ytickfmt:()=>''});
+      const arc=(rad,t0,t1,o)=>{ const pts=[]; for(let i=0;i<=60;i++){ const t=t0+(t1-t0)*i/60; pts.push([rad*Math.cos(t),rad*Math.sin(t)]); } a.poly(pts,o); };
+      const vec=(m,t,col,wd)=>{ a.poly([[0,0],[m*Math.cos(t),m*Math.sin(t)]],{color:col,width:wd||2.6}); a.point(m*Math.cos(t),m*Math.sin(t),{color:col}); };
+      arc(1,0,2*PI,{color:C.muted,width:1.2,dash:'4 5'});
+      a.note(-0.86,-1.0,'|z|=1',{anchor:'end',color:C.muted,fs:14,tex:true});
+      /* the denominator 2j and its angle pi/2 */
+      fade(a,g,()=>{ vec(2,PI/2,C.mid); a.note(0.14,2.02,'2j',{anchor:'start',color:C.mid,fs:15,tex:true});
+        arc(0.32,0,PI/2,{color:C.mid,width:1.8});
+        a.note(0.14,1.4,'\\angle 2j=\\tfrac{\\pi}{2}',{anchor:'start',color:C.mid,fs:14,tex:true}); });
+      /* the numerator, 1 and then -1 */
+      fade(a,g*(1-0.55*(neg?r2:r)),()=>{ vec(1,phN,C.in);
+        if(!neg) a.note(1.08,0.14,'1',{anchor:'start',color:C.in,fs:15,tex:true});
+        else if(sw>=1) a.note(-1.08,0.14,'-1',{anchor:'end',color:C.in,fs:15,tex:true});
+        if(sw>0){ arc(0.2,0,phN,{color:C.in,width:1.6}); if(sw>=1) a.note(-1.08,-0.3,'\\angle(-1)=\\pi',{anchor:'end',color:C.in,fs:14,tex:true}); }
+        else a.note(1.08,-0.3,'\\angle 1=0',{anchor:'start',color:C.in,fs:14,tex:true}); });
+      /* the quotient: from the numerator, shrink and turn by -pi/2 */
+      const q=neg?r2:r;
+      if(!neg ? r>0 : r2>0){
+        const t0=neg?PI:0, t=t0-PI/2*q, m=1-0.5*q;
+        arc(0.72,t0,t,{color:C.coral,width:1.8});
+        vec(m,t,C.out,3);
+        fade(a,q,()=>{
+          a.note(neg?-1.0:0.95,neg?0.62:-0.55,'-\\tfrac{\\pi}{2}',{anchor:neg?'end':'start',color:C.coral,fs:14,tex:true});
+          a.note(neg?0.14:-0.14,neg?0.6:-0.62,neg?'a_{-3}':'a_3',{anchor:neg?'start':'end',color:C.out,fs:15,tex:true}); });
+        /* the result in words, in the empty upper-left quadrant */
+        fade(a,q,()=>{
+          a.note(-0.25,2.05,neg?'a_{-3}=-\\tfrac{1}{2j}=\\tfrac{j}{2}':'a_3=\\tfrac{1}{2j}=-\\tfrac{j}{2}',{anchor:'end',color:C.out,fs:15,tex:true});
+          a.note(-0.25,1.6,neg?'|a_{-3}|=\\tfrac12,\\quad \\angle a_{-3}=\\tfrac{\\pi}{2}':'|a_3|=\\tfrac12,\\quad \\angle a_3=-\\tfrac{\\pi}{2}',{anchor:'end',color:C.out,fs:15,tex:true}); });
+      }
       return a.svg(); },
-      caption:'Step to the phases. Only $k=\\pm3$ carries a phase, because only the sine needed the factor $\\tfrac{1}{2j}$.'}
+      caption:'Step to the phases, then into the complex plane. A quotient divides the magnitudes and subtracts the angles, so $\\tfrac{1}{2j}$ has length $\\tfrac{|1|}{|2j|}=\\tfrac12$ and angle $\\angle1-\\angle2j$.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}x(t)&=1+\\tfrac12\\cos(2\\omega_0t)+\\sin(3\\omega_0t)\\\\[6pt]&=1+\\tfrac12\\cdot\\tfrac12\\bigl(e^{j2\\omega_0t}+e^{-j2\\omega_0t}\\bigr)+\\tfrac{1}{2j}\\bigl(e^{j3\\omega_0t}-e^{-j3\\omega_0t}\\bigr)\\\\[6pt]&=\\underbrace{1}_{\\htmlClass{kc}{k=0}}+\\underbrace{\\tfrac14e^{j2\\omega_0t}}_{\\htmlClass{kc}{k=2}}+\\underbrace{\\tfrac14e^{-j2\\omega_0t}}_{\\htmlClass{kc}{k=-2}}\\\\[8pt]&\\quad+\\underbrace{\\tfrac{1}{2j}e^{j3\\omega_0t}}_{\\htmlClass{kc}{k=3}}\\,\\underbrace{-\\tfrac{1}{2j}e^{-j3\\omega_0t}}_{\\htmlClass{kc}{k=-3}}\\end{aligned}', label:'Expand with Euler and match each exponent',
       note:'With $\\omega_0=\\pi$: $2\\pi t=2\\omega_0t$ and $3\\pi t=3\\omega_0t$. Then $\\cos\\theta=\\tfrac12(e^{j\\theta}+e^{-j\\theta})$ and $\\sin\\theta=\\tfrac{1}{2j}(e^{j\\theta}-e^{-j\\theta})$.'},
@@ -526,7 +564,8 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
     {t:'reveal', at:2, items:[
       {t:'note', kind:'err', head:'The constant is a harmonic', html:'The constant $1$ is the $k=0$ term, $1\\cdot e^{j0\\omega_0t}$. So $a_0=1$, not $0$. It is the average of $x$ over one period.'}]},
     {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Check', html:'$\\tfrac{1}{2j}=-\\tfrac{j}{2}$, so $|a_{\\pm3}|=\\tfrac12$ and $\\angle a_{\\pm3}=\\mp\\tfrac{\\pi}{2}$. The magnitudes are even in $k$ and the phases odd, as for any real $x$.'}]}
+      {t:'eq', tex:'\\begin{aligned}|a_{\\pm3}|&=\\frac{|{\\pm1}|}{|2j|}=\\frac12\\\\[4pt]\\angle a_3&=\\angle1-\\angle2j=0-\\tfrac{\\pi}{2}=-\\tfrac{\\pi}{2}\\\\[4pt]\\angle a_{-3}&=\\angle(-1)-\\angle2j=\\pi-\\tfrac{\\pi}{2}=\\tfrac{\\pi}{2}\\end{aligned}', label:'Check · magnitude and phase of $a_{\\pm3}$',
+        note:'The magnitudes are even in $k$ and the phases odd, as for any real $x$.'}]}
   ]}
 ]},
 
