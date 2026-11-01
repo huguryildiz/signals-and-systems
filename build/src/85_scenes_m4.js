@@ -710,7 +710,7 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
         /* g(i): how much of harmonic number i (k = 1, 3) is in the sum so far */
         const K=[1,3], AMP=[2,1], S=t=>1+K.reduce((s,k,i)=>s+g(i)*AMP[i]*Math.cos(k*W*t),0);
         return stack2(h=>{ const a=top(h);
-          K.forEach((k,i)=>{ if(g(i)>0) fade(a,0.85-0.73*cl(fr-i-1),()=>a.curve(t=>AMP[i]*Math.cos(k*W*t),{color:i?C.mid:C.h,dash:'5 4',n:900})); });
+          K.forEach((k,i)=>{ if(g(i)>0) fade(a,0.85*(1-cl(fr-i-1)),()=>a.curve(t=>AMP[i]*Math.cos(k*W*t),{color:i?C.mid:C.h,dash:'5 4',n:900})); });
           a.curve(S,{color:C.in,n:1200});
           a.note(1.05,5.2,fr>1?'1+2\\cos(2\\pi t)+\\cos(6\\pi t)':(fr>0?'1+2\\cos(2\\pi t)':'1'),{anchor:'end',color:C.in,fs:15,tex:true});
           return a.svg(); }, h=>{ const b=bot(h);
@@ -725,8 +725,6 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       const done=p>=0.999, name=k?'a_{\\pm'+k+'}':'a_0', fin=['1','1','0','\\tfrac12'][k];
       return stack2(h=>{ const a=top(h);
         [-0.5,0.5].forEach(t=>a.poly([[t,-2.6],[t,4.5]],{color:C.coral,dash:'4 4',width:1}));
-        fade(a,0.45,()=>a.curve(X,{color:C.ink,dash:'6 5',n:1200}));
-        if(k&&m>0) fade(a,0.75*m,()=>a.curve(t=>Math.cos(k*W*t),{color:C.mid,n:900}));
         if(u>-0.5){ a.area(t=>Math.max(G(t),0),-0.5,u,{color:'rgba(74,122,70,.30)',n:400}); a.area(t=>Math.min(G(t),0),-0.5,u,{color:'rgba(192,80,50,.30)',n:400});
           if(!done) a.poly([[u,-2.6],[u,4.5]],{color:C.coral,dash:'2 3',width:1}); }
         a.curve(R,{color:C.out,n:1400});
