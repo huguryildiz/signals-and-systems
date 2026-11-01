@@ -453,8 +453,8 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       return a.svg(); },
       caption:'Step to the phases. Only $k=\\pm3$ carries a phase, because only the sine needed the factor $\\tfrac{1}{2j}$.'}
   ], right:[
-    {t:'eq', tex:'\\begin{aligned}x(t)&=\\underbrace{1}_{k=0}+\\underbrace{\\tfrac14e^{j2\\omega_0t}+\\tfrac14e^{-j2\\omega_0t}}_{k=\\pm2}\\\\&\\quad+\\underbrace{\\tfrac{1}{2j}e^{j3\\omega_0t}-\\tfrac{1}{2j}e^{-j3\\omega_0t}}_{k=\\pm3}\\end{aligned}', label:'Match each exponent',
-      note:'With $\\omega_0=\\pi$: $2\\pi t=2\\omega_0t$ and $3\\pi t=3\\omega_0t$.'},
+    {t:'eq', tex:'\\begin{aligned}x(t)&=1+\\tfrac12\\cos(2\\omega_0t)+\\sin(3\\omega_0t)\\\\[6pt]&=1+\\tfrac12\\cdot\\tfrac12\\bigl(e^{j2\\omega_0t}+e^{-j2\\omega_0t}\\bigr)+\\tfrac{1}{2j}\\bigl(e^{j3\\omega_0t}-e^{-j3\\omega_0t}\\bigr)\\\\[6pt]&=\\underbrace{1}_{k=0}+\\underbrace{\\tfrac14e^{j2\\omega_0t}+\\tfrac14e^{-j2\\omega_0t}}_{k=\\pm2}\\\\&\\quad+\\underbrace{\\tfrac{1}{2j}e^{j3\\omega_0t}-\\tfrac{1}{2j}e^{-j3\\omega_0t}}_{k=\\pm3}\\end{aligned}', label:'Expand with Euler and match each exponent',
+      note:'With $\\omega_0=\\pi$: $2\\pi t=2\\omega_0t$ and $3\\pi t=3\\omega_0t$. Then $\\cos\\theta=\\tfrac12(e^{j\\theta}+e^{-j\\theta})$ and $\\sin\\theta=\\tfrac{1}{2j}(e^{j\\theta}-e^{-j\\theta})$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'a_0=1,\\quad a_{\\pm2}=\\tfrac14,\\quad a_3=\\tfrac{1}{2j},\\quad a_{-3}=-\\tfrac{1}{2j},\\quad a_k=0\\ \\text{otherwise}', label:'Solution'}]},
     {t:'reveal', at:2, items:[
