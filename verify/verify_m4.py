@@ -145,6 +145,11 @@ saw_sym = [sp.simplify(sp.integrate(t * sp.exp(-sp.I * kk * 2 * sp.pi / 1 * t),
 ok = all(abs(complex(saw_sym[kk]) - a_saw(kk, 1)) < 1e-12 for kk in range(0, 6))
 chk("M4 sawtooth: closed form j T0 (-1)^k /(2 k pi) matches the symbolic integral", ok)
 chk("M4 sawtooth a_0 = 0", abs(complex(saw_sym[0])) < 1e-15)
+_t = sp.symbols('t', real=True)
+chk("m4-dc figure: rect T0=2 has area 1 and a_0=1/2; sawtooth x=t on (-1,1) has areas -1/2, +1/2 and a_0=0",
+    sp.integrate(1, (_t, -sp.Rational(1, 2), sp.Rational(1, 2))) == 1
+    and sp.integrate(_t, (_t, -1, 0)) == -sp.Rational(1, 2)
+    and sp.integrate(_t, (_t, 0, 1)) == sp.Rational(1, 2))
 chk("M4 sawtooth peak |a_1| = 0.159 for T0 = 1", abs(abs(a_saw(1, 1)) - 0.15915494) < 1e-6,
     f"{abs(a_saw(1,1)):.6f}")
 chk("M4 sawtooth coefficients are purely imaginary",

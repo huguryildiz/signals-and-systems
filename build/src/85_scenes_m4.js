@@ -719,16 +719,36 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'title', text:'The DC Coefficient'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$\\text{half on, half off}$','$\\text{sawtooth}$']},
+      frames:{ms:1900,labels:['$\\text{one period, }T_0=2$','$\\text{the area under }x(t)$','$\\text{divide by }T_0$','$\\text{sawtooth: the area}$','$\\text{sawtooth: divide by }T_0$']},
       svg:v=>{
-      const f=cl(v?v.frame:0);
-      const a=AX({yticksLeft:true,xr:[-2.2,2.2],yr:[-0.9,1.5],xlabel:'t',ylabel:'x(t)',xtarget:9});
-      fade(a,1-f,()=>{ a.curve(t=>rectWave(t,2,0.5),{color:C.in,n:3000});
-        a.hline(0.5,{color:C.coral,dash:'4 5'}); a.note(P.labelScale()>1?1:2.1,0.62,'a_0=1/2',{anchor:P.labelScale()>1?'middle':'end',color:C.coral,fs:15,tex:true}); });
-      if(f>0) fade(a,f,()=>{ a.curve(t=>sawWave(t,1),{color:C.in,n:3000});
-        a.hline(0,{color:C.coral,dash:'4 5'}); a.note(2.1,0.62,'a_0=0',{anchor:'end',color:C.coral,fs:15,tex:true}); });
+      /* a_0 as an integral over one period [-1,1]: a sweep fills the area, then
+         the fill flattens to height a_0 over the same width, which keeps the area
+         because the shape moves linearly. The sawtooth areas -1/2 and +1/2 cancel. */
+      const fr=v?v.frame:0, g=cl((fr-2)/0.2), saw=g>0;
+      const tauR=-1+2*cl(fr), tauS=-1+2*cl((fr-2.2)/0.8), tau=saw?tauS:tauR, sR=cl(fr-1), sS=cl(fr-3), s=saw?sS:sR;
+      const X=t=>rectWave(t,2,0.5), Z=t=>sawWave(t,2), a0=saw?0:0.5;
+      const a=AX({yticksLeft:true,xr:[-2.2,2.2],yr:[-1.3,1.75],xlabel:'t',ylabel:'x(t)',xticksOverride:[-2,-1.5,-0.5,0.5,1.5,2]});
+      const lv=(x,t)=>(1-s)*x(t)+s*a0, edge=(t,o)=>a.poly([[t,-1.15],[t,1.2]],o);
+      fade(a,1-g,()=>{ a.area(t=>(1-sR)*X(t)+sR*0.5,-1,tauR,{color:'rgba(20,112,127,.24)',n:800}); a.curve(X,{color:C.in,n:3000}); });
+      if(saw) fade(a,g,()=>{
+        a.area(t=>lv(Z,t),-1,Math.min(tau,0),{color:'rgba(179,74,40,.26)',n:400});
+        if(tau>0) a.area(t=>lv(Z,t),0,tau,{color:'rgba(20,112,127,.24)',n:400});
+        a.curve(Z,{color:C.in,n:3000});
+        fade(a,cl((tau+0.3)/0.3)*(1-s),()=>a.note(-0.75,-0.45,'-\\tfrac12',{anchor:'middle',color:C.coral,fs:14,tex:true}));
+        fade(a,cl((tau-0.7)/0.3)*(1-s),()=>a.note(0.62,0.3,'+\\tfrac12',{anchor:'middle',color:C.in,fs:14,tex:true})); });
+      edge(-1,{color:C.coral,dash:'4 4',width:1.4}); edge(1,{color:C.coral,dash:'4 4',width:1.4});
+      a.span(-1,1,-1.15,''); a.note(0.5,-1.02,'T_0=2',{anchor:'middle',color:C.coral,fs:14,tex:true});
+      const sweeping=(fr>0&&fr<1)||(fr>2.2&&fr<3);
+      if(sweeping) edge(tau,{color:C.mid,width:1.8});
+      /* running integral, then the division */
+      const run=saw?(tau*tau-1)/2:Math.max(0,Math.min(tau,0.5)+0.5);
+      if(fr>0&&s===0&&(!saw||fr>2.2)) a.note(-2.1,1.4,'\\int_{-1}^{'+(tau>=1?'1':'t')+'}x(\\tau)\\,\\mathrm{d}\\tau='+num(Math.abs(run)<0.005?0:run),{anchor:'start',color:C.mid,fs:15,tex:true});
+      if(s>0) fade(a,s,()=>{
+        a.hline(a0,{color:C.coral,dash:'4 5'});
+        a.note(-2.1,1.4,saw?'a_0=\\tfrac12\\left(-\\tfrac12+\\tfrac12\\right)=0':'a_0=\\tfrac12\\cdot1=\\tfrac12',{anchor:'start',color:C.coral,fs:15,tex:true});
+        a.note(2.1,saw?0.62:-0.72,saw?'a_0=0':'a_0=\\tfrac12',{anchor:'end',color:C.coral,fs:15,tex:true}); });
       return a.svg(); },
-      caption:'A wave that is 1 for half of each period has average $\\tfrac12$. A sawtooth that is odd about the middle of each period has average $0$.'}
+      caption:'Step through the integral. The shaded area is $\\int_{T_0}x(t)\\,\\d t$. Dividing by $T_0$ spreads it to a level of the same area, and that height is $a_0$. The sawtooth has areas $-\\tfrac12$ and $+\\tfrac12$, which cancel, so $a_0=0$.'}
   ], right:[
     {t:'eq', key:true, tex:'a_0=\\frac{1}{T_0}\\int_{T_0}x(t)\\,\\d t', label:'DC coefficient',
       note:'Put $k=0$ in the analysis equation, so $e^{0}=1$. $a_0$ is the average of $x$ over one period.'},
