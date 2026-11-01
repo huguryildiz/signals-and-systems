@@ -575,17 +575,21 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'title', text:'Fundamental Period of a Signal Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$T_1=3$ s','$T_2=4$ s']},
+      frames:{labels:['$T_1=3$ s','$T_2=4$ s','Sum, $T_0=12$ s']},
       svg:v=>{
-      /* one component at full strength, the other faded; Next swaps them */
-      const f=cl(v?v.frame:0);
-      const a=AX({xr:[-0.4,13.4],yr:[-1.3,2.4],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',xticksOverride:f<0.5?[3,6,9,12]:[4,8,12]});
+      /* one component at full strength, the other faded; Next swaps them, then
+         the components give way to their sum and the axes open to two periods */
+      const fr=v?v.frame:0, f=cl(fr), g=cl(fr-1), mix=(p,q)=>p+(q-p)*g;
+      const a=AX({xr:[-0.4,mix(13.4,27)],yr:[mix(-1.3,-2.9),mix(2.4,4)],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',xticksOverride:g>0?[12,24]:f<0.5?[3,6,9,12]:[4,8,12]});
       a.vline(12,{color:C.coral});
-      fade(a,1-0.85*f,()=>{ a.curve(t=>Math.cos(2*Math.PI*t/3),{color:C.in,n:1200}); if(f<0.5) a.span(0,3,1.6,'T_1=3',{color:C.in,fs:15,tex:true}); });
-      fade(a,0.15+0.85*f,()=>{ a.curve(t=>Math.cos(2*Math.PI*t/4),{color:C.mid,n:1200}); if(f>=0.5) a.span(0,4,1.6,'T_2=4',{color:C.mid,fs:15,tex:true}); });
+      fade(a,g,()=>a.vline(24,{color:C.coral}));
+      fade(a,(1-0.85*f)*(1-g),()=>{ a.curve(t=>Math.cos(2*Math.PI*t/3),{color:C.in,n:1200}); if(f<0.5) a.span(0,3,1.6,'T_1=3',{color:C.in,fs:15,tex:true}); });
+      fade(a,(0.15+0.85*f)*(1-g),()=>{ a.curve(t=>Math.cos(2*Math.PI*t/4),{color:C.mid,n:1200}); if(f>=0.5) a.span(0,4,1.6,'T_2=4',{color:C.mid,fs:15,tex:true}); });
+      fade(a,g,()=>{ a.curve(t=>Math.cos(2*Math.PI*t/3)+Math.cos(2*Math.PI*t/4),{color:C.out,n:1600});
+        a.span(0,12,-2.4,'T_0=12',{color:C.out,fs:15,tex:true}); a.span(12,24,-2.4,'T_0=12',{color:C.out,fs:15,tex:true}); });
       return a.svg(); },
-      caption:'Step between the components, of periods $3$ s and $4$ s. They first line up again at $t=12$ s: four cycles of the first and three of the second.'},
-    {t:'legend', items:[['in','$T_1=3$ s'],['mid','$T_2=4$ s']]}
+      caption:'Step through the components, of periods $3$ s and $4$ s, to their sum. The sum first repeats after $12$ s: four cycles of the first and three of the second.'},
+    {t:'legend', items:[['in','$T_1=3$ s'],['mid','$T_2=4$ s'],['out','Sum']]}
   ], right:[
     {t:'note', kind:'def', head:'When a sum is periodic', html:'A sum is periodic when each component period is a rational multiple of every other. Its period $T_0$ is the smallest positive time that is a whole number of each component period.'},
     {t:'reveal', at:1, items:[
@@ -705,6 +709,40 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       {t:'note', kind:'def', head:'Given', html:'$x(t)=e^{j3\\omega_0t}$.<div class="nsep"></div>For which $k$ is $a_k\\neq0$?',
         ask:{key:'m4-fs-coef', choices:['$k=3$ only','$k=-3$ only','every $k$'], answer:0,
           why:'The signal is the single harmonic $k=3$, so $a_3=1$ and every other $a_k$ is $0$.'}}]}
+  ]}
+]},
+
+{ id:'m4-fs-proof', module:'M4', nav:'Orthogonality', title:'Orthogonality of Complex Exponentials', src:'p. 28',
+  objective:'Prove the analysis equation from the orthogonality of complex exponentials.',
+  keywords:'proof orthogonality complex exponentials integral over one period derivation analysis equation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'p. 28'},
+  {t:'title', text:'Orthogonality of Complex Exponentials'},
+  {t:'cols', ratio:'c-5-7', fill:true, left:[
+    {t:'fig', frame:true, grow:true,
+      frames:{labels:['$\\cos(2\\pi t)\\cos(4\\pi t)$','$\\cos^{2}(2\\pi t)$']},
+      svg:v=>{
+      const f=cl(v?v.frame:0);
+      const a=AX({xr:[-0.75,0.75],yr:[-1.2,1.35],xlabel:'t',ylabel:'\\text{product}',xtarget:7});
+      const g0=t=>Math.cos(2*Math.PI*t)*Math.cos(4*Math.PI*t), g1=t=>Math.cos(2*Math.PI*t)**2;
+      const draw=(g,c,fill)=>{ a.area(g,-0.5,0.5,{color:fill}); a.curve(g,{color:c,n:1600}); };
+      fade(a,1-f,()=>draw(g0,C.mid,'rgba(106,90,146,.20)'));
+      if(f>0) fade(a,f,()=>draw(g1,C.out,'rgba(74,122,70,.22)'));
+      a.vline(-0.5,{color:C.coral,dash:'4 4'}); a.vline(0.5,{color:C.coral,dash:'4 4'});
+      return a.svg(); },
+      caption:'Two different harmonics multiplied: the lobes cancel and the area is zero. A harmonic times itself never goes negative.'}
+  ], right:[
+    {t:'eq', tex:'\\int_{T_0}x(t)\\,e^{-jn\\omega_0t}\\,\\d t=\\sum_{k=-\\infty}^{\\infty}a_k\\int_{T_0}e^{j(k-n)\\omega_0t}\\,\\d t', label:'Multiply the synthesis equation and integrate',
+      note:'Multiply both sides by $e^{-jn\\omega_0t}$ and integrate over one period.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', key:true, tex:'\\int_{-T_0/2}^{T_0/2}e^{jm\\omega_0t}\\,\\d t=\\begin{cases}T_0,&m=0\\\\[2pt] \\dfrac{e^{jm\\pi}-e^{-jm\\pi}}{jm\\omega_0}=\\dfrac{2\\sin(m\\pi)}{m\\omega_0}=0,&m\\neq0\\end{cases}', label:'Orthogonality',
+        note:'Put $m=k-n$ and use $\\omega_0T_0/2=\\pi$. The sine of a whole multiple of $\\pi$ is zero.'}]},
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\int_{T_0}x(t)\\,e^{-jn\\omega_0t}\\,\\d t=T_0\\,a_n\\;\\Longrightarrow\\;a_n=\\frac{1}{T_0}\\int_{T_0}x(t)\\,e^{-jn\\omega_0t}\\,\\d t', label:'Only $k=n$ survives',
+        note:'Every term with $k\\neq n$ integrates to zero. Rename $n$ as $k$ to get the analysis equation.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$T_0=1$, so $\\omega_0=2\\pi$.<div class="nsep"></div>What is $\\int_0^1 e^{j2\\pi t}\\,e^{-j6\\pi t}\\,\\d t$?',
+        ask:{key:'m4-fs-proof', choices:['$0$','$1$','$\\tfrac12$'], answer:0,
+          why:'The integrand is $e^{jm\\omega_0t}$ with $m=1-3=-2\\neq0$.'}}]}
   ]}
 ]},
 
