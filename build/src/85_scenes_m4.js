@@ -302,7 +302,7 @@ const SC = [
 
 { id:'m4-eigen-why', module:'M4', nav:'Eigenfunctions in LTI analysis', title:'Eigenfunctions in LTI Analysis', src:'p. 24',
   objective:'Show that a linear combination of eigenfunctions needs no convolution.',
-  keywords:'linear combination superposition eigenvalue no convolution multiplication', slide:true, steps:2, blocks:[
+  keywords:'linear combination superposition eigenvalue no convolution multiplication', slide:true, steps:3, blocks:[
   {t:'eyebrow', text:'Module 4 · The eigenfunction property', src:'p. 24'},
   {t:'title', text:'Eigenfunctions in LTI Analysis'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
@@ -321,7 +321,11 @@ const SC = [
     {t:'reveal', at:1, items:[
       {t:'note', kind:'ok', head:'No convolution needed', html:'Once $x$ is a sum of exponentials, the output needs one multiplication for each term.'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'The next task', html:'Write $x$ as a sum of complex exponentials. For a periodic signal, the rest of this module does exactly that.'}]}
+      {t:'note', kind:'def', head:'The next task', html:'Write $x$ as a sum of complex exponentials. For a periodic signal, the rest of this module does exactly that.'}]},
+    {t:'reveal', at:3, items:[
+      {t:'note', kind:'def', head:'Given', html:'$x(t)=2e^{jt}+e^{j3t}$, with $H(j1)=0.5$ and $H(j3)=0$.<div class="nsep"></div>What is $y(t)$?',
+        ask:{key:'m4-eigen-why', choices:['$e^{jt}$','$2e^{jt}$','$e^{jt}+e^{j3t}$'], answer:0,
+          why:'$2\\cdot0.5\\,e^{jt}+1\\cdot0\\cdot e^{j3t}=e^{jt}$.'}}]}
   ]}
 ]},
 
