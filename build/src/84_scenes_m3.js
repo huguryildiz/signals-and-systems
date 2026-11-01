@@ -204,8 +204,6 @@ const G = (()=>{
                +`<rect x="70" y="26" width="18" height="12" fill="none" stroke="${AM}" stroke-width="1.6"/>`),
     caus:   sv(ln('M1 40 H91',AX,1)+ln('M40 4 V42',RD,1.6)+[0,1,2,3,4].map(i=>st(48+i*9,40-30*Math.pow(0.7,i),AM)).join('')),
     stab:   sv(ln('M1 40 H91',AX,1)+[0,1,2,3,4,5,6].map(i=>st(8+i*12,40-30*Math.pow(0.65,i),GR)).join('')),
-    step:   sv(ln('M1 40 H91',AX,1)+[0,1,2,3,4,5,6].map(i=>st(8+i*12,40-30*(1-Math.pow(0.55,i+1)),GR)).join('')
-               +ln('M4 10 H90',RD,1)),
     recur:  sv(ln('M2 16 H35 M47 16 H90 M72 16 V28 M62 34 H41 V22',AX,1.3)
                +`<circle cx="41" cy="16" r="6" fill="none" stroke="${CY}" stroke-width="1.6"/>`
                +`<rect x="62" y="28" width="20" height="12" fill="none" stroke="${AM}" stroke-width="1.6"/>`),
@@ -1286,8 +1284,6 @@ REAL_DIFFEQ,
      a:'<b>Memoryless</b> if and only if $h=a\\,\\delta$. <b>Causal</b> if and only if $h=0$ for negative time.'},
     {q:'BIBO stable', glyph:G.stab,
      a:'<b>BIBO stable</b> if and only if $\\sum_k|h[k]|<\\infty$, or $\\int|h(t)|\\,\\d t<\\infty$.'},
-    {q:'What is the step response?', glyph:G.step,
-     a:'$s=h*u$, the running sum or running integral of $h$. Back to $h$: $h[n]=s[n]-s[n-1]$ and $h(t)=s^{\\prime}(t)$.'},
     {q:'When does a difference equation give an LTI system?', glyph:G.recur,
      a:'<b>At initial rest.</b> Then it is causal and LTI, and $y[n]=a\\,y[n-1]+x[n]$ has $h[n]=a^{n}u[n]$.'}
   ], {cols:2})},
