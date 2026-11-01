@@ -368,8 +368,8 @@ Object.assign(LABS, (function(){
         A1.stem(p,{color:PLOT.COL.in,r:3,showZero:true});
         A1.stem(q,{color:PLOT.COL.out,r:2.4,showZero:true});
       } else {
-        A1.curve(t=>Math.cos(w*t),{color:PLOT.COL.in,n:2000});
-        A1.curve(t=>mag*Math.cos(w*t+ang),{color:PLOT.COL.out,n:2000,dash:'9 6'});
+        A1.curve(t=>Math.cos(w*t),{color:PLOT.COL.in,n:2000,dash:'9 6'});
+        A1.curve(t=>mag*Math.cos(w*t+ang),{color:PLOT.COL.out,n:2000});
       }
 
       /* panel 2 — |H(w)| with the current point marked */
@@ -380,7 +380,7 @@ Object.assign(LABS, (function(){
       A2.point(w,mag,{color:PLOT.COL.coral,r:5});
 
       root.querySelector('.plots').innerHTML =
-        `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L('in','\\operatorname{Re}\\{x\\}')}${L(s.dt?'out':'out lg-dash','\\operatorname{Re}\\{y\\}')}</div></div>`
+        `<div class="plot-wrap">${A1.svg()}<div class="legend in-plot lg-at-tr">${L(s.dt?'in':'in lg-dash','\\operatorname{Re}\\{x\\}')}${L('out','\\operatorname{Re}\\{y\\}')}</div></div>`
       + `<div class="plot-wrap">${A2.svg()}<div class="legend in-plot lg-at-tr">${L('h','|H|')}</div></div>`;
 
       root.querySelector('.sysdef').innerHTML = M(
