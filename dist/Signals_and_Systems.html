@@ -22899,28 +22899,26 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
 ]},
 
 { id:'m4-fs-synth', module:'M4', nav:'Synthesis equation', title:'Fourier-Series Synthesis', src:'pp. 26–27',
-  objective:'State the synthesis equation and set up reading the coefficients off a sum of sinusoids.',
-  keywords:'synthesis equation harmonic component a_k euler fundamental frequency worked example', slide:true, steps:3, blocks:[
+  objective:'State the synthesis equation and find the fundamental period of a sum of sinusoids.',
+  keywords:'synthesis equation harmonic component a_k euler fundamental frequency fundamental period LCM worked example', slide:true, steps:3,
+  budget:'The derivation of T_0 takes the place of the figure; five cards, as the worked solution is written.', blocks:[
   {t:'eyebrow', text:'Module 4 · Synthesis and analysis', src:'pp. 26–27'},
   {t:'title', text:'Fourier-Series Synthesis'},
-  {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-4,4],yr:[-1.1,2.9],xlabel:'t',ylabel:'x(t)',xtarget:9});
-      a.curve(t=>1+0.5*Math.cos(2*Math.PI*t)+Math.sin(3*Math.PI*t),{color:C.in,n:2000});
-      a.span(0,2,2.6,'T_0=2',{color:C.coral,fs:15,tex:true});
-      return a.svg(); },
-      caption:'$x(t)=1+\\tfrac12\\cos(2\\pi t)+\\sin(3\\pi t)$: a constant and two sinusoids.'}
-  ], right:[
+  {t:'cols', ratio:'c-5-7', left:[
     {t:'eq', key:true, tex:'x(t)=\\sum_{k=-\\infty}^{\\infty}a_k\\,e^{jk\\omega_0 t},\\qquad \\omega_0=\\frac{2\\pi}{T_0}', label:'Synthesis equation',
       note:'$e^{jk\\omega_0t}$ is the $k$-th <b>harmonic</b>. The complex numbers {{sym:ak|$a_k$}} are the Fourier series coefficients.'},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Given', html:'$x(t)=1+\\tfrac12\\cos(2\\pi t)+\\sin(3\\pi t)$.<div class="nsep"></div>What is $\\omega_0$?',
         ask:{key:'m4-fs-synth', choices:['$\\pi$ rad/s','$2\\pi$ rad/s','$3\\pi$ rad/s'], answer:0}}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Find $T_0$, then $\\omega_0=2\\pi/T_0$.</li><li>Write each term with Euler’s relations.</li><li>Match each exponent with $jk\\omega_0t$ and read off $k$.</li></ol>'}]},
+      {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Find $T_0$, then $\\omega_0=2\\pi/T_0$.</li><li>Write each term with Euler’s relations.</li><li>Match each exponent with $jk\\omega_0t$ and read off $k$.</li></ol>'}]}
+  ], right:[
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}1&:\\quad T=\\frac{2\\pi}{0}\\ \\rightarrow\\ \\infty\\quad(\\text{left out})\\\\[6pt] \\cos(2\\pi t)&:\\quad T_1=\\frac{2\\pi}{2\\pi}=1\\ \\text{s}\\\\[6pt] \\sin(3\\pi t)&:\\quad T_2=\\frac{2\\pi}{3\\pi}=\\frac23\\ \\text{s}\\end{aligned}', label:'Solution · period of each term',
+        note:'A term $\\cos(\\omega t)$ or $\\sin(\\omega t)$ has period $2\\pi/\\omega$. The constant has $\\omega=0$ and no finite period, so it does not limit $T_0$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', tex:'\\cos\\theta=\\tfrac12\\bigl(e^{j\\theta}+e^{-j\\theta}\\bigr),\\qquad \\sin\\theta=\\tfrac{1}{2j}\\bigl(e^{j\\theta}-e^{-j\\theta}\\bigr)', label:'Euler’s relations',
-        note:'The periods $1$ s and $\\tfrac23$ s give $T_0=2$ s, so $\\omega_0=\\pi$ rad/s. The rule comes two slides later.'}]}
+      {t:'eq', tex:'\\begin{aligned}T_0&=\\operatorname{LCM}\\!\\left(1,\\tfrac23\\right)=\\operatorname{LCM}\\!\\left(\\tfrac33,\\tfrac23\\right)\\\\[6pt]&=\\frac{\\operatorname{LCM}(3,2)}{3}=\\frac{6}{3}=2\\ \\text{s}\\\\[6pt] \\omega_0&=\\frac{2\\pi}{T_0}=\\frac{2\\pi}{2}=\\pi\\ \\text{rad/s}\\end{aligned}', label:'Solution · least common multiple',
+        note:'Over the common denominator $3$, take the LCM of the numerators. Check: $2\\div1=2$ and $2\\div\\tfrac23=3$ are whole numbers.'}]}
   ]}
 ]},
 
