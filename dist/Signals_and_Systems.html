@@ -22689,61 +22689,71 @@ const SC = [
 
 { id:'m4-eigen-ct', module:'M4', nav:'Eigenfunctions · continuous time', title:'Continuous-Time Eigenfunctions', src:'p. 22',
   objective:'Derive the eigenfunction property in continuous time and name the eigenvalue.',
-  keywords:'eigenfunction eigenvalue complex exponential H(s) frequency response continuous', slide:true, steps:3, blocks:[
+  keywords:'eigenfunction eigenvalue complex exponential H(s) transfer function frequency response continuous', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · The eigenfunction property', src:'p. 22'},
   {t:'title', text:'Continuous-Time Eigenfunctions'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({xr:[0,8],yr:[-1.3,2.2],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:8});
-      a.curve(t=>Math.cos(2*t),{color:C.in,dash:'9 6',n:900});
-      a.curve(t=>Math.cos(2*t-Math.atan(2))/Math.sqrt(5),{color:C.out,n:900});
-      return a.svg(); },
-      caption:'The input $\\operatorname{Re}\\{e^{j2t}\\}$ and the output of $h(t)=e^{-t}u(t)$. The frequency stays. Only the amplitude and the phase change.'},
-    {t:'legend', items:[['in','$\\cos 2t$',true],['out','$0.447\\cos(2t-1.107)$']]}
+    /* the output is written as two labels so each factor gets its own leader:
+       H(s) to the eigenvalue, e^{st} to the eigenfunction */
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:700,h:520,items:[
+      {t:'arrow',x1:66,y1:200,x2:140,y2:200,color:C.in},
+      {t:'text',x:58,y:207,label:'e^{st}',tex:true,fs:26,anchor:'end',color:C.in},
+      {t:'box',x:140,y:135,w:130,h:130,label:'h(t)',tex:true,fs:24},
+      {t:'arrow',x1:270,y1:200,x2:344,y2:200,color:C.out},
+      {t:'text',x:400,y:207,label:'H(s)',tex:true,fs:26,color:C.out},
+      {t:'text',x:484,y:207,label:'e^{st}',tex:true,fs:26,color:C.in},
+      {t:'line',d:'M400,156 V90',color:C.out},
+      {t:'text',x:400,y:74,label:'complex constant',fs:18,color:C.out},
+      {t:'line',d:'M484,244 V320',color:C.in},
+      {t:'arrow',x1:484,y1:320,x2:510,y2:320,color:C.in},
+      {t:'text',x:518,y:326,label:'eigenfunction',fs:18,anchor:'start',color:C.in},
+      {t:'line',d:'M400,244 V430',color:C.out},
+      {t:'arrow',x1:400,y1:430,x2:510,y2:430,color:C.out},
+      {t:'text',x:518,y:426,label:'eigenvalue',fs:18,anchor:'start',color:C.out},
+      {t:'text',x:518,y:452,label:'independent of time',fs:15,anchor:'start',color:C.out}
+    ]}),
+      caption:'The LTI system with impulse response $h(t)$ returns $e^{st}$ scaled by one complex constant. The form of the signal does not change.'}
   ], right:[
     {t:'note', kind:'def', head:'Eigenfunction', html:'A signal is an <b>{{sym:eigen|eigenfunction}}</b> of a system when the output is the same signal times a constant. The constant is the <b>eigenvalue</b>.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', tex:'y(t)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{s(t-\\tau)}\\,\\d\\tau=e^{st}\\underbrace{\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau}_{H(s)}', label:'Put $x(t)=e^{st}$ into the convolution integral',
+      {t:'eq', tex:'\\begin{aligned}y(t)&=h(t)*x(t)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,x(t-\\tau)\\,\\d\\tau\\\\&=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{s(t-\\tau)}\\,\\d\\tau=\\underbrace{\\left[\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau\\right]}_{H(s)}e^{st}\\\\&=H(s)\\,e^{st}=H(s)\\,x(t)\\end{aligned}', label:'Put $x(t)=e^{st}$, $s$ complex, into the convolution integral',
         note:'$e^{st}$ does not depend on $\\tau$, so it leaves the integral. What is left depends on $s$ only.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', key:true, tex:'e^{st}\\;\\longrightarrow\\;H(s)\\,e^{st},\\qquad H(s)=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau', label:'Eigenfunction property',
-        note:'For $s=j\\omega$ the eigenvalue $H(j\\omega)$ is the <b>frequency response</b> of the system.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'An LTI system with a real $h(t)$ and the input $\\cos 2t$.<div class="nsep"></div>Is $\\cos 2t$ an eigenfunction of every such system?',
-        ask:{key:'m4-eigen-ct', choices:['Yes','No'], answer:1,
-          why:'The output is $|H(j2)|\\cos\\bigl(2t+\\angle H(j2)\\bigr)$, which is a constant times $\\cos 2t$ only when $\\angle H(j2)$ is $0$ or $\\pi$.'}}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}H(s)&=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-s\\tau}\\,\\d\\tau\\\\H(j\\omega)&=H(s)\\big|_{s=j\\omega}=\\int_{-\\infty}^{\\infty}h(\\tau)\\,e^{-j\\omega\\tau}\\,\\d\\tau\\end{aligned}', label:'Transfer function and frequency response',
+        note:'$H(s)$ is the <b>transfer function</b> of the system. For $s=j\\omega$, $\\omega$ real, the input is the periodic complex exponential $e^{j\\omega t}$, and $H(j\\omega)$ is the <b>frequency response</b>: the continuous-time Fourier transform of $h(t)$.'}]}
   ]}
 ]},
 
 { id:'m4-eigen-dt', module:'M4', nav:'Eigenfunctions · discrete time', title:'Discrete-Time Eigenfunctions', src:'p. 23',
-  objective:'Derive the discrete-time eigenfunction property and keep it separate from the continuous-time one.',
-  keywords:'discrete eigenfunction z^n eigenvalue H(z) frequency response sequence', slide:true, steps:3, blocks:[
+  objective:'Derive the discrete-time eigenfunction property, name the eigenvalue, and reach the frequency response.',
+  keywords:'discrete eigenfunction z^n eigenvalue H(z) transfer function frequency response discrete-time fourier transform sequence', slide:true, steps:1, blocks:[
   {t:'eyebrow', text:'Module 4 · The eigenfunction property', src:'p. 23'},
   {t:'title', text:'Discrete-Time Eigenfunctions'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
-    {t:'fig', frame:true, grow:true,
-      frames:{labels:['$x[n]=\\cos(2\\pi n/3)$','$y[n]=\\tfrac12\\cos(2\\pi n/3-\\pi/3)$']},
-      svg:v=>{
-      /* frame 0 is the input; going to frame 1 fades it out and the output of
-         the two-point average in, sample for sample */
-      const f=cl(v?v.frame:0);
-      const a=AX({xr:[-1,13],yr:[-1.3,1.45],xlabel:'n',ylabel:'\\text{amplitude}',xtarget:8});
-      if(f<1) fade(a,1-f,()=>a.stem(D(n=>Math.cos(2*Math.PI*n/3),-1,13),{color:C.in}));
-      if(f>0) fade(a,f,()=>a.stem(D(n=>0.5*Math.cos(2*Math.PI*n/3-Math.PI/3),-1,13),{color:C.out}));
-      return a.svg(); },
-      caption:'A cosine sequence through $y[n]=\\tfrac12x[n]+\\tfrac12x[n-1]$. The output is a cosine sequence of the same frequency.'}
+    {t:'fig', frame:true, grow:true, svg:()=>P.blocks({w:700,h:520,items:[
+      {t:'arrow',x1:66,y1:200,x2:140,y2:200,color:C.in},
+      {t:'text',x:58,y:207,label:'z^{n}',tex:true,fs:26,anchor:'end',color:C.in},
+      {t:'box',x:140,y:135,w:130,h:130,label:'h[n]',tex:true,fs:24},
+      {t:'arrow',x1:270,y1:200,x2:344,y2:200,color:C.out},
+      {t:'text',x:400,y:207,label:'H(z)',tex:true,fs:26,color:C.out},
+      {t:'text',x:484,y:207,label:'z^{n}',tex:true,fs:26,color:C.in},
+      {t:'line',d:'M400,156 V90',color:C.out},
+      {t:'text',x:400,y:74,label:'complex constant',fs:18,color:C.out},
+      {t:'line',d:'M484,244 V320',color:C.in},
+      {t:'arrow',x1:484,y1:320,x2:510,y2:320,color:C.in},
+      {t:'text',x:518,y:326,label:'eigenfunction',fs:18,anchor:'start',color:C.in},
+      {t:'line',d:'M400,244 V430',color:C.out},
+      {t:'arrow',x1:400,y1:430,x2:510,y2:430,color:C.out},
+      {t:'text',x:518,y:426,label:'eigenvalue',fs:18,anchor:'start',color:C.out},
+      {t:'text',x:518,y:426+26*P.labelScale(),label:'\\text{independent of }n',tex:true,fs:15,anchor:'start',color:C.out}
+    ]}),
+      caption:'The LTI system with impulse response $h[n]$ returns $z^{n}$ scaled by one complex constant. The form of the sequence does not change.'}
   ], right:[
-    {t:'eq', tex:'y[n]=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{\\,n-k}=z^{n}\\underbrace{\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}}_{H(z)}', label:'Put $x[n]=z^{n}$ into the convolution sum',
+    {t:'eq', tex:'\\begin{aligned}y[n]&=h[n]*x[n]=\\sum_{k=-\\infty}^{\\infty}h[k]\\,x[n-k]\\\\&=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{\\,n-k}=z^{n}\\underbrace{\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}}_{H(z)}=H(z)\\,z^{n}\\end{aligned}', label:'Put $x[n]=z^{n}$, $z\\in\\mathbb{C}$, into the convolution sum',
       note:'$z^{n}$ does not depend on $k$, so it leaves the sum.'},
     {t:'reveal', at:1, items:[
-      {t:'eq', key:true, tex:'z^{n}\\;\\longrightarrow\\;H(z)\\,z^{n},\\qquad H(z)=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}', label:'Eigenfunction property, discrete time',
-        note:'For $z=e^{j\\omega}$ this is the frequency response $H(e^{j\\omega})$. It repeats every $2\\pi$ in $\\omega$.'}]},
-    {t:'reveal', at:2, items:[
-      {t:'note', kind:'err', head:'Keep the two statements apart', html:'The output is a sequence, $y[n]=H(z)\\,z^{n}$. A discrete-time line has no $t$ and no $s$.'}]},
-    {t:'reveal', at:3, items:[
-      {t:'note', kind:'def', head:'Given', html:'$h[n]=\\tfrac12\\delta[n]+\\tfrac12\\delta[n-1]$ and $x[n]=(-1)^{n}$.<div class="nsep"></div>What is $y[n]$?',
-        ask:{key:'m4-eigen-dt', choices:['$0$','$(-1)^{n}$','$\\tfrac12(-1)^{n}$'], answer:0,
-          why:'$(-1)^{n}=z^{n}$ with $z=-1$, and $H(-1)=\\tfrac12-\\tfrac12=0$.'}}]}
+      {t:'eq', key:true, tex:'\\begin{aligned}H(z)&=\\sum_{k=-\\infty}^{\\infty}h[k]\\,z^{-k}\\\\H(e^{j\\omega})&=H(z)\\big|_{z=e^{j\\omega}}=\\sum_{k=-\\infty}^{\\infty}h[k]\\,e^{-j\\omega k}\\end{aligned}', label:'Transfer function and frequency response',
+        note:'$H(z)$ is the <b>transfer function</b> of the system. For $z=e^{j\\omega}$, $\\omega$ real, the input is $e^{j\\omega n}$ and $H(e^{j\\omega})$ is the <b>frequency response</b>, the discrete-time Fourier transform of $h[n]$. It repeats every $2\\pi$ in $\\omega$.'}]}
   ]}
 ]},
 
