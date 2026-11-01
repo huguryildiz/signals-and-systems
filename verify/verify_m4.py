@@ -33,6 +33,8 @@ def lcm_frac(fracs):
 
 T0 = lcm_frac([Fraction(2, 9), Fraction(8, 21)])
 chk("M4 period rule LCM(2/9, 8/21) = 8/3", T0 == Fraction(8, 3), str(T0))
+chk("M4 period figure: LCM(3, 4) = 12, with 4 and 3 cycles",
+    lcm_frac([Fraction(3), Fraction(4)]) == 12 and 12 // 3 == 4 and 12 // 4 == 3)
 chk("M4 period 8/3 divides both component periods",
     (T0 / Fraction(2, 9)).denominator == 1 and (T0 / Fraction(8, 3 * 7)).denominator == 1,
     f"{T0/Fraction(2,9)} and {T0/Fraction(8,21)}")

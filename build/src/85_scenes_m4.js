@@ -576,16 +576,17 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
   {t:'title', text:'Fundamental Period of a Signal Sum'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$T_1=2/9$','$T_2=8/21$']},
+      frames:{labels:['$T_1=3$ s','$T_2=4$ s']},
       svg:v=>{
       /* one component at full strength, the other faded; Next swaps them */
       const f=cl(v?v.frame:0);
-      const a=AX({xr:[-0.1,3],yr:[-1.3,2.4],xlabel:'t',ylabel:'\\text{amplitude}',xtarget:7});
-      fade(a,1-0.85*f,()=>a.curve(t=>Math.cos(2*Math.PI*t/(2/9)),{color:C.in,n:3000}));
-      fade(a,0.15+0.85*f,()=>a.curve(t=>Math.cos(2*Math.PI*t/(8/21)),{color:C.mid,n:3000}));
+      const a=AX({xr:[-0.4,13.4],yr:[-1.3,2.4],xlabel:'t\\;(\\text{s})',ylabel:'\\text{amplitude}',xticksOverride:f<0.5?[3,6,9,12]:[4,8,12]});
+      a.vline(12,{color:C.coral});
+      fade(a,1-0.85*f,()=>{ a.curve(t=>Math.cos(2*Math.PI*t/3),{color:C.in,n:1200}); if(f<0.5) a.span(0,3,1.6,'T_1=3',{color:C.in,fs:15,tex:true}); });
+      fade(a,0.15+0.85*f,()=>{ a.curve(t=>Math.cos(2*Math.PI*t/4),{color:C.mid,n:1200}); if(f>=0.5) a.span(0,4,1.6,'T_2=4',{color:C.mid,fs:15,tex:true}); });
       return a.svg(); },
-      caption:'Step between the components, of periods $2/9$ s and $8/21$ s. They line up again only after a common period.'},
-    {t:'legend', items:[['in','$T_1=2/9$'],['mid','$T_2=8/21$']]}
+      caption:'Step between the components, of periods $3$ s and $4$ s. They first line up again at $t=12$ s: four cycles of the first and three of the second.'},
+    {t:'legend', items:[['in','$T_1=3$ s'],['mid','$T_2=4$ s']]}
   ], right:[
     {t:'note', kind:'def', head:'When a sum is periodic', html:'A sum is periodic when each component period is a rational multiple of every other. Its period $T_0$ is the smallest positive time that is a whole number of each component period.'},
     {t:'reveal', at:1, items:[
@@ -612,7 +613,7 @@ codeScene({ id:'m4-code-eigen', nav:'Eigenfunctions', title:'Eigenfunctions in C
       a.vline(0,{color:C.coral}); a.vline(8/3,{color:C.coral});
       a.span(0,8/3,2.8,'T_0=8/3',{color:C.coral,fs:15,tex:true});
       return a.svg(); },
-      caption:'The sum of the two components first repeats after $8/3$ s: twelve cycles of the first and seven of the second.'}
+      caption:'Two cosines of periods $2/9$ s and $8/21$ s, added. The sum first repeats after $8/3$ s: twelve cycles of the first and seven of the second.'}
   ], right:[
     {t:'eq', tex:'\\begin{aligned}1,\\ \\tfrac23&:\\ \\frac{\\operatorname{LCM}(1,2)}{\\operatorname{GCD}(1,3)}=2\\\\ \\tfrac35,\\ \\tfrac85&:\\ \\frac{\\operatorname{LCM}(3,8)}{\\operatorname{GCD}(5,5)}=\\tfrac{24}{5}\\\\ 2,\\ 1,\\ \\tfrac23&:\\ \\frac{\\operatorname{LCM}(2,1,2)}{\\operatorname{GCD}(1,1,3)}=2\\end{aligned}', label:'Three sums, periods in seconds'},
     {t:'reveal', at:1, items:[
