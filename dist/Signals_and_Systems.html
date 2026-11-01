@@ -7699,7 +7699,7 @@ Object.assign(LABS, (function(){
   /* =======================================================================
      Q · THE ANALYSIS INTEGRAL AS A PROBE             [Source: 26–29]
      Multiply x(t) by e^{-jkω0t} and integrate over one period; the area is
-     the coefficient a_k. Simpson's rule evaluates the integral numerically.
+     the coefficient a_k. The midpoint rule evaluates the integral numerically.
      ======================================================================= */
   const Q = (() => {
     const sigs = {
@@ -7712,17 +7712,18 @@ Object.assign(LABS, (function(){
     };
     let key='x1', k=0;
 
-    /* Simpson's rule for the analysis integral a_k = (1/T0) ∫ x(t) e^{-jkω0t} dt */
+    /* Midpoint rule for the analysis integral a_k = (1/T0) ∫ x(t) e^{-jkω0t} dt.
+       No sample falls on a jump of the rectangular wave (t = ±0.5) or the
+       sawtooth (t = ±1), which is where Simpson's rule lost accuracy. */
     function ak(sig, kk){
       const T0=sig.T0, w0=2*Math.PI/T0, N=800, d=T0/N;
       let sre=0, sim=0;
-      for(let i=0;i<=N;i++){
-        const t=-T0/2+i*d, xv=sig.f(t), ph=-kk*w0*t;
-        const wgt=(i===0||i===N)?1:(i%2?4:2);
-        sre += wgt*xv*Math.cos(ph); sim += wgt*xv*Math.sin(ph);
+      for(let i=0;i<N;i++){
+        const t=-T0/2+(i+0.5)*d, xv=sig.f(t), ph=-kk*w0*t;
+        sre += xv*Math.cos(ph); sim += xv*Math.sin(ph);
       }
       const snap = v => Math.abs(v)<1e-12 ? 0 : v;   /* floating-point residue is an exact zero */
-      return cx(snap(sre*d/3/T0), snap(sim*d/3/T0));
+      return cx(snap(sre*d/T0), snap(sim*d/T0));
     }
 
     function draw(root){
