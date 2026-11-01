@@ -450,7 +450,8 @@ Object.assign(LABS, (function(){
         const wgt=(i===0||i===N)?1:(i%2?4:2);
         sre += wgt*xv*Math.cos(ph); sim += wgt*xv*Math.sin(ph);
       }
-      return cx(sre*d/3/T0, sim*d/3/T0);
+      const snap = v => Math.abs(v)<1e-12 ? 0 : v;   /* floating-point residue is an exact zero */
+      return cx(snap(sre*d/3/T0), snap(sim*d/3/T0));
     }
 
     function draw(root){

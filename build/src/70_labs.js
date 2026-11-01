@@ -18,7 +18,8 @@ const LABS = (() => {
      &lt; and fails, and a bare < in a formula is read as a tag on the way in. */
   const M = h => String(h).replace(/\$([^$]+)\$/g,(m,a)=>T(a,false));
   const F = (v,d=3)=>{ if(!isFinite(v)) return '∞';
-                       if(v!==0 && Math.abs(v)<0.5*Math.pow(10,-d)) return v.toExponential(2);
+                       if(Math.abs(v)<1e-12) return '0';   /* floating-point residue */
+                       if(Math.abs(v)<0.5*Math.pow(10,-d)) return v.toExponential(2);
                        const r=Math.round(v*10**d)/10**d;
                        return Object.is(r,-0)?'0':String(r); };
   const el = (h)=>{ const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstElementChild; };
