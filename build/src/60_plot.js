@@ -200,10 +200,12 @@ const PLOT = (() => {
     return fmt(v,2);
   }
   /* piTeX(L) turns a pi-form tick written by piTick into TeX (π/2 -> \pi/2).
-     Axes with texTicks:true typesets every tick number of an axis that carries
-     a multiple of pi through texName, so π/2 reads as the π of the running
-     mathematics. It is opt-in per figure. */
+     Axes typesets every tick number of an axis that carries a multiple of pi
+     through texName (texTicks, on by default; texTicks:false turns it off),
+     so π/2 reads as the π of the running mathematics. */
   const piTeX = L => String(L).replace(/π/g, '\\pi ').trim();
+  /* the width of such a tick number in em of its KaTeX size */
+  const texEm = L => [...String(L)].reduce((w,c)=>w+(c==='-'||c==='−'?0.78:c==='π'?0.58:c==='.'?0.28:0.5),0);
   function piTicks(lo,hi,step){ const o=[];
     for(let k=Math.ceil(lo/step-1e-9); k<=hi/step+1e-9; k++) o.push(k===0?0:k*step);
     return o; }
@@ -232,7 +234,7 @@ const PLOT = (() => {
       xlabel:'', ylabel:'', grid:true, zeroAxes:true,
       xtarget:7, ytarget:4, xstep:null, ystep:null,
       xtickfmt:v=>fmt(v,3), ytickfmt:v=>fmt(v,3),
-      xticksOverride:null, yticksOverride:null, arrows:true
+      xticksOverride:null, yticksOverride:null, arrows:true, texTicks:true
     }, opt);
     /* On a phone a laboratory's plot is the width of the screen, and a plot
        drawn four times wider than tall comes out a strip a finger high. There
@@ -262,10 +264,9 @@ const PLOT = (() => {
        margin grows to hold the widest of them. Widths are KaTeX em widths. */
     if(o.texTicks && (o.yticksLeft || !(xa<=0 && xb>=0))){
       const yfmt = o.ytickfmt, yv = o.yticksOverride || [];
-      const em = L => [...String(L)].reduce((w,c)=>w+(c==='-'||c==='−'?0.78:c==='π'?0.58:0.5),0);
       if(yv.some(v=>/π/.test(yfmt(v)))){
         const fs = (EMPH ? (W < 500 ? 12.5 : 13.5) : 13)*LBLS*1.06*1.21;
-        const need = 10 + 4 + Math.max(...yv.map(v=>em(yfmt(v))))*fs;
+        const need = 10 + 4 + Math.max(...yv.map(v=>texEm(yfmt(v))))*fs;
         P.l = Math.max(P.l, Math.ceil(need));
       }
     }
@@ -526,8 +527,10 @@ const PLOT = (() => {
         const yTeX = !!o.texTicks && yt.some(v=>/π/.test(o.ytickfmt(v)));
         const tickTeX = (L, at) => texName(piTeX(L), Object.assign({ size:TICK_SIZE/LBLS*1.06, color:CH.tick,
           role:'tick', figW:W, boxHeight:24 }, at));
-        const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(TW(a)+TW(b))/2+6*LBLS);
-        const showY = thin(yt, o.ytickfmt, sy, ()=>TICK_SIZE*1.15);
+        /* a TeX tick number is set larger and wider than the plain one */
+        const XW = xTeX ? (L => texEm(L)*TICK_SIZE*1.06*1.21) : TW;
+        const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(XW(a)+XW(b))/2+6*LBLS);
+        const showY = thin(yt, o.ytickfmt, sy, ()=>yTeX ? TICK_SIZE*1.06*1.21*1.3 : TICK_SIZE*1.15);
         const xBoxes=[];
         xt.forEach(v=>{ const L=o.xtickfmt(v); if(L==='')return;
           if(Math.abs(v)<1e-12 && xz!=null && yz!=null) return;
@@ -535,7 +538,7 @@ const PLOT = (() => {
           if(o.yticksLeft && xz!=null && sx(v)-x0 < 16) return;
           g.push(`<line x1="${sx(v).toFixed(2)}" y1="${yBase.toFixed(2)}" x2="${sx(v).toFixed(2)}" y2="${(yBase+5).toFixed(2)}" stroke="${CH.axis}" stroke-width="${1.2*STRW}"/>`);
           if(!showX(v)) return;
-          xBoxes.push([sx(v)-TW(L)/2, yBase+20*LBLS-TICK_SIZE*0.8, sx(v)+TW(L)/2, yBase+20*LBLS+TICK_SIZE*0.2]);
+          xBoxes.push([sx(v)-XW(L)/2, yBase+20*LBLS-TICK_SIZE*0.8, sx(v)+XW(L)/2, yBase+20*LBLS+TICK_SIZE*0.2]);
           if(xTeX){ tl.push(tickTeX(L, { xMid:sx(v), baseline:yBase+20*LBLS+0.27*TICK_SIZE })); return; }
           tl.push(`<text x="${sx(v).toFixed(2)}" y="${(yBase+20*LBLS).toFixed(2)}" ${halo(3.4)} font-size="${TICK_SIZE}" fill="${CH.tick}" text-anchor="middle">${esc(L)}</text>`); });
         /* A spectrum drawn about k = 0 peaks on its own zero axis, where the

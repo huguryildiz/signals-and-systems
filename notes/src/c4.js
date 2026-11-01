@@ -496,7 +496,7 @@ window.C4 = [
    a.curve(t=>rectWave(t-0.4,2,0.5),{color:C.out,n:3000});
    a.span(1.5,1.9,1.3,'t_0',{color:C.coral,fs:13,tex:true}); return a.svg();},
   cap:'A rectangular wave with $T_0=2$ (dashed), delayed by $t_0=0.4$ (solid).'},
- {svg:()=>{const a=ax2({xr:[-8.5,8.5],yr:[-3.6,3.6],xlabel:'k',ylabel:'\\angle b_k-\\angle a_k\\;(\\text{rad})',yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:v=>v.toFixed(2)});
+ {svg:()=>{const a=ax2({xr:[-8.5,8.5],yr:[-3.6,3.6],xlabel:'k',ylabel:'\\angle b_k-\\angle a_k\\;(\\text{rad})',yticksOverride:[-Math.PI,0,Math.PI],ytickfmt:piTick});
    a.stem(D(k=>Math.abs(aq(k))<1e-12?0:wrap(-0.4*Math.PI*k),-8,8),{color:C.mid,r:2.6,showZero:true}); return a.svg();},
   cap:'The phase change $-0.4\\pi k$, drawn in $[-\\pi,\\pi]$. Where $a_k=0$ there is no phase to change.'}
 ]},
