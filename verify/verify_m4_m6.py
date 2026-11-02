@@ -366,6 +366,9 @@ def _aq(k):
     return 0.5 if k == 0 else np.sin(_pi*k/2)/(_pi*k)
 chk("M4 rect-b: a_1 = 1/pi for T0 = 4T1", _near(_aq(1), 1/_pi, 1e-12))
 chk("M4 rect-b: every even coefficient except a_0 is zero", all(abs(_aq(k)) < 1e-12 for k in range(2, 40, 2)))
+for _m0 in (4, 8, 16, 32, 64):
+    chk(f"M4 rect-sample: T0 = {_m0}T1 has a_0 = 2T1/T0 and first zero at k = T0/(2T1)",
+        abs(np.sin(2*_pi*(_m0/2)/_m0)) < 1e-12 and all(np.sin(2*_pi*k/_m0) > 0 for k in range(1, _m0//2)))
 def _mse(N):
     return 0.5 - (0.25 + 2*sum(_aq(k)**2 for k in range(1, N+1)))
 _m = [_mse(N) for N in (3, 9, 27, 81)]

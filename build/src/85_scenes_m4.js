@@ -897,27 +897,33 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
   {t:'title', text:'Rectangular-Wave Spectral Envelope'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true,
-      frames:{labels:['$T_0=4T_1$','$T_0=8T_1$']},
+      frames:{labels:['$T_0=4T_1$','$T_0=8T_1$','$T_0=16T_1$','$T_0=32T_1$','$T_0=64T_1$']},
       svg:v=>{
-      /* a_k placed at w = k w0, with the envelope E(w)/T0 they sample; T1 = 1 */
-      const f=cl(v?v.frame:0), E=w=>Math.abs(w)<1e-9?2:2*Math.sin(w)/w;
-      const a=AX({yticksLeft:true,xr:[-10,10],yr:[-0.16,0.62],xlabel:'\\omega\\;(\\text{rad/s})',ylabel:'a_k',xpi:Math.PI,ytarget:4});
-      const one=T0=>{ const w0=2*Math.PI/T0;
-        a.curve(w=>E(w)/T0,{color:C.mid,dash:'6 5',n:900});
-        const pts=[]; for(let k=-20;k<=20;k++){ const w=k*w0; if(Math.abs(w)<=10) pts.push([w,E(w)/T0]); }
-        a.stem(pts,{color:C.in,r:3.4,showZero:true}); };
-      fade(a,1-f,()=>one(4));
-      if(f>0) fade(a,f,()=>one(8));
+      /* a_k against k, T1 = 1. The y axis follows a_0 = 2/T0, so each period is
+         read at its own scale; a step fades one set of stems into the next. */
+      const f=v?v.frame:0, i=Math.floor(f), u=f-i, ms=[4,8,16,32,64];
+      const top=2/(4*Math.pow(2,f)), n=ms[Math.round(f)];
+      const a=AX({yticksLeft:true,xr:[-33,33],yr:[-0.42*top,1.25*top],xlabel:'k',ylabel:'a_k',
+        xticksOverride:[-30,-20,-10,10,20,30],xtickfmt:()=>'',yticksOverride:[0,2/n],ytickfmt:t=>t?'1/'+(n/2):'0'});
+      const one=T0=>{ const pts=[], z=T0/2;
+        for(let k=-30;k<=30;k++) pts.push([k,k===0?2/T0:Math.sin(2*Math.PI*k/T0)/(Math.PI*k)]);
+        a.stem(pts,{color:C.in,r:3.2,showZero:true});
+        if(z<=30){ a.stem([[-z,0],[z,0]],{color:C.coral,r:4,showZero:true});
+          a.note(z,0,String(z),{tex:true,anchor:'start',fs:15,dx:2,dy:-12,color:C.coral});
+          a.note(-z,0,String(-z),{tex:true,anchor:'end',fs:15,dx:-2,dy:-12,color:C.coral}); } };
+      fade(a,1-u,()=>one(ms[i]));
+      if(u>0) fade(a,u,()=>one(ms[i+1]));
+      /* the k numbers sit under the lowest stems, not on the zero line they would cross */
+      [-30,-20,-10,10,20,30].forEach(k=>a.note(k,-0.42*top,String(k),{tex:true,anchor:'middle',fs:14,dy:-4}));
       return a.svg(); },
-      caption:'Each $a_k$ sits at $\\omega=k\\omega_0$ on the dashed envelope $E(\\omega)/T_0$. Step to a longer period and compare.'},
-    {t:'legend', items:[['mid','$E(\\omega)/T_0$',true],['in','$a_k$']]}
+      caption:'The same pulse with a longer period at each step. The first zero of $a_k$, marked in coral, sits at $k=T_0/(2T_1)$. For $T_0=64T_1$ it lies at $k=32$, outside this range.'}
   ], right:[
     {t:'eq', key:true, tex:'E(\\omega)=\\int_{-T_1}^{T_1}e^{-j\\omega t}\\,\\d t=\\frac{2\\sin(\\omega T_1)}{\\omega}=2T_1\\operatorname{sinc}(\\omega T_1)', label:'Envelope',
       note:'Here $\\operatorname{sinc}(\\theta)=\\sin\\theta/\\theta$, the unnormalised sinc. $E$ depends on one pulse only, not on $T_0$.'},
     {t:'reveal', at:1, items:[
       {t:'eq', tex:'a_k=\\frac{1}{T_0}\\,E(k\\omega_0)=\\frac{1}{T_0}\\cdot\\frac{2\\sin(k\\omega_0T_1)}{k\\omega_0}=\\frac{\\sin(2\\pi kT_1/T_0)}{\\pi k}', label:'Sample it at the harmonics'}]},
     {t:'reveal', at:2, items:[
-      {t:'note', kind:'ok', head:'A longer period', html:'Keep the pulse and raise $T_0$. The envelope stays. The samples come closer, $\\omega_0=2\\pi/T_0$, and each one scales by $1/T_0$. Module 5 takes this limit.'}]},
+      {t:'note', kind:'ok', head:'A longer period', html:'Keep the pulse and raise $T_0$. The envelope stays. The sample spacing $\\omega_0=2\\pi/T_0$ gets smaller, so more samples fit before its first zero at $\\omega=\\pi/T_1$. Each sample scales by $1/T_0$. Module 5 takes this limit.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'def', head:'Given', html:'The pulse stays and $T_0$ doubles.<div class="nsep"></div>What happens to $a_0$?',
         ask:{key:'m4-rect-sample', choices:['It halves','It doubles','It stays'], answer:0,
