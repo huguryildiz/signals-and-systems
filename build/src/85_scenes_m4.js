@@ -905,12 +905,12 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
       const top=2/(4*Math.pow(2,f)), n=ms[Math.round(f)];
       const a=AX({yticksLeft:true,xr:[-33,33],yr:[-0.42*top,1.25*top],xlabel:'k',ylabel:'a_k',
         xticksOverride:[-30,-20,-10,10,20,30],xtickfmt:()=>'',yticksOverride:[0,2/n],ytickfmt:t=>t?'1/'+(n/2):'0'});
-      const one=T0=>{ const pts=[], z=T0/2;
+      const one=T0=>{ const pts=[], z=T0/2, dy=z===2?-30:-12; /* T0=4T1: above the tip at k=5 */
         for(let k=-30;k<=30;k++) pts.push([k,k===0?2/T0:Math.sin(2*Math.PI*k/T0)/(Math.PI*k)]);
         a.stem(pts,{color:C.in,r:3.2,showZero:true});
         if(z<=30){ a.stem([[-z,0],[z,0]],{color:C.coral,r:4,showZero:true});
-          a.note(z,0,String(z),{tex:true,anchor:'start',fs:15,dx:2,dy:-12,color:C.coral});
-          a.note(-z,0,String(-z),{tex:true,anchor:'end',fs:15,dx:-2,dy:-12,color:C.coral}); } };
+          a.note(z,0,String(z),{tex:true,anchor:'start',fs:15,dx:2,dy,color:C.coral});
+          a.note(-z,0,String(-z),{tex:true,anchor:'end',fs:15,dx:-2,dy,color:C.coral}); } };
       fade(a,1-u,()=>one(ms[i]));
       if(u>0) fade(a,u,()=>one(ms[i+1]));
       /* the k numbers sit under the lowest stems, not on the zero line they would cross */
