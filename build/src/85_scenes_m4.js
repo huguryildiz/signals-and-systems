@@ -1073,7 +1073,8 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Method', html:'Integrate over $-T_0/2<t<T_0/2$. Only the impulse at $t=0$ lies inside, so the sifting property of Module 1 finishes the integral.'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'a_k=\\frac{1}{T_0}\\int_{-T_0/2}^{T_0/2}\\delta(t)\\,e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T_0}\\,e^{-jk\\omega_0\\cdot0}=\\frac{1}{T_0}\\quad\\text{for every }k', label:'Solution'}]},
+      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{1}{T_0}\\int_{-T_0/2}^{T_0/2}\\delta(t)\\,e^{-jk\\omega_0t}\\,\\d t\\\\&=\\frac{1}{T_0}\\,e^{-jk\\omega_0t}\\Big|_{t=0}=\\frac{1}{T_0}\\quad\\text{for every }k\\end{aligned}', label:'Solution',
+        note:'Sifting property: $\\int_{-a}^{a}\\delta(t)\\,f(t)\\,\\d t=f(0)$ for $a>0$. Here $f(t)=e^{-jk\\omega_0t}$, so $f(0)=1$.'}]},
     {t:'reveal', at:3, items:[
       {t:'note', kind:'ok', head:'A flat spectrum', html:'Every harmonic has the same coefficient and zero phase. At $t=0$ they all add; elsewhere they cancel. Module 7 uses this pair for sampling.'}]}
   ]}
