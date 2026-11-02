@@ -214,7 +214,8 @@ const PLOT = (() => {
      Axes — a plotting frame with mathematical coordinates.
      opt: {w,h,xr,yr,xlabel,ylabel,xticks,yticks,pad,grid,xstep,ystep,
            xnameDrop,
-           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi,texTicks}
+           xtickfmt,ytickfmt,zeroAxes,yticksLeft,xpi,texTicks,xtickTeX}
+     xtickTeX: xtickfmt returns TeX, for an axis ticked in symbols (T_0, -T_1).
      xlabel and ylabel are TeX source — see texName above.
      xpi: a frequency axis. Ticks at every multiple of xpi (radians) in the
      range, written in pi form; xpi:true chooses the step from xtarget;
@@ -425,7 +426,7 @@ const PLOT = (() => {
         return api;
       },
       vline(t, opts={}){
-        parts.push(`<line x1="${sx(t).toFixed(2)}" y1="${y1}" x2="${sx(t).toFixed(2)}" y2="${y0}"
+        parts.push(`<line x1="${sx(t).toFixed(2)}" y1="${y1}" x2="${sx(t).toFixed(2)}" y2="${opts.from!=null?sy(opts.from).toFixed(2):y0}"
           stroke="${opts.color||COL.muted}" stroke-width="${(opts.width||1)*STRW}"
           stroke-dasharray="${opts.dash||'3 4'}" opacity="${opts.opacity||.8}"/>`);
         return api;
@@ -523,12 +524,12 @@ const PLOT = (() => {
         };
         /* texTicks: an axis whose ticks carry pi is typeset in TeX, all of its
            numbers, so one axis never mixes two typefaces */
-        const xTeX = !!o.texTicks && xt.some(v=>/π/.test(o.xtickfmt(v)));
+        const xTeX = !!o.xtickTeX || (!!o.texTicks && xt.some(v=>/π/.test(o.xtickfmt(v))));
         const yTeX = !!o.texTicks && yt.some(v=>/π/.test(o.ytickfmt(v)));
         const tickTeX = (L, at) => texName(piTeX(L), Object.assign({ size:TICK_SIZE/LBLS*1.06, color:CH.tick,
           role:'tick', figW:W, boxHeight:24 }, at));
         /* a TeX tick number is set larger and wider than the plain one */
-        const XW = xTeX ? (L => texEm(L)*TICK_SIZE*1.06*1.21) : TW;
+        const XW = xTeX ? (L => texEm(String(L).replace(/_/g,''))*TICK_SIZE*1.06*1.21) : TW;
         const showX = thin(xt, o.xtickfmt, sx, (a,b)=>(XW(a)+XW(b))/2+6*LBLS);
         const showY = thin(yt, o.ytickfmt, sy, ()=>yTeX ? TICK_SIZE*1.06*1.21*1.3 : TICK_SIZE*1.15);
         const xBoxes=[];

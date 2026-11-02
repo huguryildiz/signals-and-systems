@@ -840,28 +840,49 @@ codeScene({ id:'m4-code-synth', nav:'Synthesis and analysis', title:'Synthesis a
 /* ======================================================= 4.3 series worked out */
 
 { id:'m4-rect', module:'M4', nav:'Rectangular wave · the integral', title:'Rectangular-Wave Coefficients', src:'p. 29',
-  objective:'Set up the analysis integral of the periodic rectangular wave and evaluate it for k ≠ 0.',
-  keywords:'periodic rectangular wave pulse train coefficients analysis integral limits sine', slide:true, steps:3, blocks:[
+  objective:'Set up the analysis integral of the periodic rectangular wave for k ≠ 0.',
+  keywords:'periodic rectangular wave pulse train coefficients analysis integral limits sine', slide:true, steps:2, blocks:[
   {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 29'},
   {t:'title', text:'Rectangular-Wave Coefficients'},
   {t:'cols', ratio:'c-5-7', fill:true, left:[
     {t:'fig', frame:true, grow:true, svg:()=>{
-      const a=AX({yticksLeft:true,xr:[-5,5],yr:[-0.3,1.9],xlabel:'t',ylabel:'x(t)',xtarget:11});
+      const a=AX({yticksLeft:true,xr:[-5,5],yr:[-0.3,1.9],xlabel:'t',ylabel:'x(t)',
+        xticksOverride:[-4,-2,-1,1,2,4],xtickTeX:true,
+        xtickfmt:v=>({'-4':'-T_0','-2':'-T_0/2','-1':'-T_1','1':'T_1','2':'T_0/2','4':'T_0'})[v]});
       a.curve(t=>rectWave(t,4,1),{color:C.in,n:3000});
-      a.vline(-1,{color:C.coral,dash:'4 4'}); a.vline(1,{color:C.coral,dash:'4 4'});
+      a.vline(-1,{color:C.coral,dash:'4 4',from:0}); a.vline(1,{color:C.coral,dash:'4 4',from:0});
       a.span(-1,1,1.5,'2T_1',{color:C.coral,fs:15,tex:true});
       return a.svg(); },
-      caption:'The wave for $T_1=1$ and $T_0=4$. Inside the period $-T_0/2<t<T_0/2$ it is 1 only on $-T_1<t<T_1$.'}
+      caption:'The wave, drawn for $T_0=4T_1$. Inside the period $-T_0/2<t<T_0/2$ it is 1 only on $-T_1<t<T_1$.'}
   ], right:[
     {t:'note', kind:'def', head:'Given', html:'$x(t)=1$ for $|t|<T_1$ and $x(t)=0$ for $T_1<|t|<T_0/2$, repeated with period $T_0$.<div class="nsep"></div>What is $a_0$?',
       ask:{key:'m4-rect', choices:['$2T_1/T_0$','$T_1/T_0$','$1$'], answer:0}},
     {t:'reveal', at:1, items:[
       {t:'note', kind:'def', head:'Method', html:'<ol class="steps"><li>Integrate over $-T_0/2<t<T_0/2$.</li><li>$x=1$ only on $-T_1<t<T_1$, so these are the limits.</li><li>Treat $k=0$ on its own: the antiderivative divides by $k$.</li></ol>'}]},
     {t:'reveal', at:2, items:[
-      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{1}{T_0}\\int_{-T_1}^{T_1}e^{-jk\\omega_0t}\\,\\d t=\\frac{1}{T_0}\\left[\\frac{e^{-jk\\omega_0t}}{-jk\\omega_0}\\right]_{-T_1}^{T_1}\\\\&=\\frac{1}{k\\omega_0T_0}\\cdot\\frac{e^{jk\\omega_0T_1}-e^{-jk\\omega_0T_1}}{j}\\end{aligned}', label:'Evaluate the integral, $k\\neq0$'}]},
+      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{1}{T_0}\\int_{-T_0/2}^{T_0/2}x(t)\\,e^{-jk\\omega_0t}\\,\\d t\\\\&=\\frac{1}{T_0}\\int_{-T_1}^{T_1}e^{-jk\\omega_0t}\\,\\d t\\end{aligned}', label:'Set up the integral, $k\\neq0$',
+        note:'Outside $-T_1<t<T_1$ the signal is 0 and adds nothing. Inside, $x(t)=1$.'}]}
+  ]}
+]},
+
+{ id:'m4-rect-eval', module:'M4', nav:'Rectangular wave · the evaluation', title:'Evaluating the Rectangular-Wave Integral', src:'p. 29',
+  objective:'Evaluate the rectangular-wave integral for k ≠ 0 one step at a time.',
+  keywords:'rectangular wave integral antiderivative limits euler sine evaluate derivation', slide:true, steps:3, blocks:[
+  {t:'eyebrow', text:'Module 4 · Worked example', src:'p. 29'},
+  {t:'title', text:'Evaluating the Rectangular-Wave Integral'},
+  {t:'cols', ratio:'c-6-6', left:[
+    {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{1}{T_0}\\left[\\frac{e^{-jk\\omega_0t}}{-jk\\omega_0}\\right]_{-T_1}^{T_1}\\\\[8pt]&=\\frac{-1}{jk\\omega_0T_0}\\left[e^{-jk\\omega_0t}\\right]_{-T_1}^{T_1}\\end{aligned}', label:'1. Take the antiderivative',
+      note:'The factor $-jk\\omega_0$ is not zero, because $k\\neq0$.'},
+    {t:'reveal', at:1, items:[
+      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{-1}{jk\\omega_0T_0}\\left[e^{-jk\\omega_0T_1}-e^{jk\\omega_0T_1}\\right]\\\\[8pt]&=\\frac{1}{jk\\omega_0T_0}\\left[e^{jk\\omega_0T_1}-e^{-jk\\omega_0T_1}\\right]\\end{aligned}', label:'2. Evaluate at the limits',
+        note:'Write the value at $T_1$ minus the value at $-T_1$. The factor $-1$ then swaps the two terms.'}]}
+  ], right:[
+    {t:'reveal', at:2, items:[
+      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{2}{k\\omega_0T_0}\\cdot\\frac{e^{jk\\omega_0T_1}-e^{-jk\\omega_0T_1}}{2j}\\\\[8pt]&=\\frac{2\\sin(k\\omega_0T_1)}{k\\omega_0T_0}\\end{aligned}', label:'3. Multiply and divide by 2',
+        note:'Euler’s relation is $\\sin\\theta=\\dfrac{e^{j\\theta}-e^{-j\\theta}}{2j}$. Here $\\theta=k\\omega_0T_1$.'}]},
     {t:'reveal', at:3, items:[
-      {t:'eq', tex:'a_k=\\frac{2\\sin(k\\omega_0T_1)}{k\\omega_0T_0}=\\frac{\\sin(2\\pi kT_1/T_0)}{\\pi k}', label:'Use $e^{j\\theta}-e^{-j\\theta}=2j\\sin\\theta$',
-        note:'Then $\\omega_0T_0=2\\pi$ in the denominator and $\\omega_0T_1=2\\pi T_1/T_0$ inside the sine.'}]}
+      {t:'eq', tex:'\\begin{aligned}a_k&=\\frac{2\\sin(2\\pi kT_1/T_0)}{2\\pi k}\\\\[8pt]&=\\frac{\\sin(2\\pi kT_1/T_0)}{\\pi k}\\end{aligned}', label:'4. Substitute $\\omega_0=2\\pi/T_0$',
+        note:'This gives $k\\omega_0T_0=2\\pi k$ in the denominator and $k\\omega_0T_1=2\\pi kT_1/T_0$ inside the sine.'}]}
   ]}
 ]},
 
