@@ -123,7 +123,7 @@ what a curve *is*, and the card colours say what a card *does*.
 - One slide, one figure, two to four tabbed cards. See "A slide" under Layout.
 - One idea a card, one or two short sentences a card.
 - The stage is full: nothing top-heavy, nothing clipped.
-- The same slide works in both themes and in lecture mode without a second design.
+- The same slide works in both themes without a second design.
 
 ## Colors
 
@@ -254,9 +254,9 @@ Mono is used for labels and addresses only, never for running text.
 | explanation below a slide equation | 21.5 px / 1.52 | matches the information-card body; legacy equations retain 15 px |
 | figure caption | 18 px / 1.45 on converted slides and converted-module laboratories | legacy scenes remain 14 px |
 
-**Every size is written `calc(Npx * var(--ts))`.** `--ts` is 1 in normal display and 1.36 in lecture
-mode (`body[data-display=projector]`). A size written as a bare pixel value does not grow in the
-lecture room, which is the one place it has to. The mockup hard-coded its sizes; the build must not.
+**Every size is written `calc(Npx * var(--ts))`.** `--ts` is 1 on the page and is raised only where
+a block sets it for itself. A size written as a bare pixel value cannot follow it. The mockup
+hard-coded its sizes; the build must not.
 
 **Every scene title reads at one size.** The eyebrow and the scene title (`h1.display`, `h2.title`)
 keep their table sizes on every scene, including a dense scene that `fitScene()` scales down. The fit
@@ -269,7 +269,7 @@ exempt from the fit.
 at least 16 px, segmented choices at least 17 px, live and result values at least 20 px, and
 explanatory prose at least 19 px at `--ts:1`. These are source sizes, all multiplied by `var(--ts)`;
 inline pixel sizes do not qualify. Inspect populated, long-text states in both themes and display
-modes at 1920×1080. In lecture mode the scene must keep a fit factor of at least 0.90 with no
+modes at 1920×1080. The scene must keep a fit factor of at least 0.90 with no
 clipping. Reflow controls or results, or split the laboratory, before reducing type. A common
 font-size override is not a substitute for checking each laboratory's fit.
 
@@ -287,20 +287,19 @@ Do not remove it, and do not set either property on a `.katex` subtree.
   exception, opened by the owner on 2026-09-23 when the course moved to site-only use: the Python
   runtime for a code drawer's **Run** button, loaded from the course site on the first press. The
   instructor keeps `dist/Signals_and_Systems.html` as an offline copy; there **Run** is not offered.
-- **Fixed 1920×1080 stage**, scaled to fit the window and centred. A window that is not 16:9 shows
-  bands in the page colour above and below. This is accepted: the lecture room is 16:9.
-  The one exception is a practice-question page (below, *Practice questions*): there the stage
-  keeps the window's width scale, grows downward to the window's foot and sits at the top.
-- Scene padding `54px 104px 74px`; the content box under the padding is 952 px tall.
-- `fitScene()` scales an oversized scene down to a floor of 0.82 (0.70 in lecture mode). It is a
-  safety net, not a licence to overfill: a scene that needs below about 0.90 is split instead. On the
-  floor, what is left is taken from the figures in proportion to their height, and a scene that gives
-  up more than 3% of its figure height marks itself `data-capped`. `qa.js` names both under `dense`.
-  Reaching that rescue is the signal to split the scene.
-  Module 1 keeps three approved slides on the floor, `m1-power`, `m1-avgpower` and `m1-evenodd-b`
-  (locked 2026-09-23). They are not a precedent: a converted slide in another module that reaches
-  the floor is split.
-- **Radial and orbital compositions** are reserved for course maps and synthesis scenes.
+  - **Fixed 1920×1080 stage**, scaled to fit the window and centred. A window that is not 16:9 shows
+  bands in the page colour above and below. This is accepted: the lecture room is 16:9. The one
+  exception is a practice-question page (below, *Practice questions*): there the stage keeps the
+  window's width scale, grows downward to the window's foot and sits at the top. - Scene padding
+  `54px 104px 74px`; the content box under the padding is 952 px tall. - `fitScene()` scales an
+  oversized scene down to a floor of 0.82. It is a safety net, not a licence to overfill: a scene
+  that needs below about 0.90 is split instead. On the floor, what is left is taken from the figures
+  in proportion to their height, and a scene that gives up more than 3% of its figure height marks
+  itself `data-capped`. `qa.js` names both under `dense`. Reaching that rescue is the signal to
+  split the scene. Module 1 keeps three approved slides on the floor, `m1-power`, `m1-avgpower` and
+  `m1-evenodd-b` (locked 2026-09-23). They are not a precedent: a converted slide in another module
+  that reaches the floor is split. - **Radial and orbital compositions** are reserved for course
+  maps and synthesis scenes.
 
 ### Rollout: a scene opts in — DECIDED 2026-09-21
 
@@ -377,9 +376,8 @@ picks the layout and writes it to `body[data-layout]`:
 
 In the phone layout:
 
-- The contents rail becomes a drawer over the scene, and the display, theme, mode, edition and
-  motion switches move to its foot, and the settings gear opens the drawer rather than an emptied
-  menu. Their icons are one size. The laser and ink tools are hidden.
+- The contents rail becomes a drawer over the scene and the theme switch moves to its foot. Its icon
+  is one size. The laser, its ink and the board are hidden.
 - Columns become one column, capped at 680 px and centred, so a portrait tablet keeps a readable
   line. Type follows the phone sizes in `10_style.css`. A scene that raises `--ts` inline to fill
   the stage does not raise it here.
@@ -573,7 +571,7 @@ through `md()`.
 
 - Both faces share one grid cell, so a card is as tall as its longer face and opening it moves
   nothing. The open card takes a coral left edge and a coral number; the flip is a short `rotateX`
-  that `data-motion=reduced` and `prefers-reduced-motion` turn off.
+  that `prefers-reduced-motion` turns off.
 - A bar above the deck counts `Recalled k of N` and holds one `Show all / Hide all` button. Opened
   cards last for the session, so a reveal step does not close them; nothing is stored.
 - The answer must stand without its question: when the front is only a name (a property, a step),
@@ -619,8 +617,8 @@ program draws its own figure. The scene calls it through a raw block,
   `site/pyodide/v0.29.3/`, checks each file against a pinned SHA-256, and caches it in `web/.cache/`.
   The site serves it with a one-year immutable cache header, so a student downloads it once.
 - **Look.** Highlighting uses the ink ramp, slate for keywords and terracotta for strings; the signal
-  colours keep their figure meanings. Code type grows less than prose in projector mode
-  (`--code-fs`), so a 21-line program fits the stage at k = 1. The chosen language is kept on the
+  colours keep their figure meanings. Code type is set from `--code-fs`, so a 21-line program fits
+  the stage at k = 1. The chosen language is kept on the
   device.
 - **Check.** `verify/code_check.py` runs every entry in MATLAB (`-batch`) and in Python and compares
   what each prints with `out`. It needs a Python with Matplotlib (here `/usr/bin/python3`).
@@ -669,9 +667,9 @@ their current look until their module is converted.
   a verdict under the figure where the column has spare height, or lower a stacked plot's viewBox
   height. A laboratory that grows after an answer or a reveal calls `RENDER.fit()` so that state is
   refitted too.
-- The lecture-mode floor of 0.90 is the target for every new laboratory. Module 1's laboratories
-  were locked below it on 2026-09-23 (lecture mode, 1920×1080: A 0.85, C 0.80, K 0.70, L 0.84; B
-  fits), and `m1-lab-c` also scales to 0.95 in normal display. That is recorded debt, not the
+- The floor of 0.90 is the target for every new laboratory. Module 1's laboratories were locked
+  below it on 2026-09-23, measured in the enlarged display of the time (1920×1080: A 0.85, C 0.80,
+  K 0.70, L 0.84; B fits), and `m1-lab-c` also scales to 0.95 at the page size. That is recorded debt, not the
   pattern: a new laboratory is reflowed until it meets the floor.
 
 ### Practice questions
@@ -716,62 +714,59 @@ systems apart. `#scene-host svg` makes every SVG a full-width figure, so
 
 ### Figures — LOCKED
 
-- **Axis names live outside the data area**: the independent variable under it, the dependent variable
-  above it. `Axes` widens the bottom or top margin by itself when the given `pad` is too small. Every
-  label carries a halo in `--fig-halo`. Do not move labels back inside the data area.
-- **`xlabel` and `ylabel` are TeX source**, typeset with KaTeX. Words go in `\text{...}`, Greek letters
-  are `\tau`, `\omega`, and `\operatorname{Re}` is the house spelling. A name that fails to parse falls
-  back to its source and logs a console error, which turns `qa.js` red. The name is laid out in a
-  `foreignObject` and drawn after the data. The strip reserved for a name is one line of mathematics
-  tall (`NAMEBOX` in `60_plot.js`), and the independent variable sits `XNAME_DROP` below its axis so it
-  clears the tick row and the arrowhead. Do not shrink either. If a name still lands on a tick number
-  or on the axis, raise `pad`, not the name.
-- **`texName` typesets every other piece of mathematics in a figure.** It anchors a formula on
-  `xLeft`, `xMid` or `xRight` at a baseline. In `blocks()` a label that is mathematics is marked
-  `tex:true` on a `box`, a `text` or an `arrow`; plain words stay ordinary text. Each typeset label is
-  a `foreignObject` marked `data-texlabel`, which is what `textclash.js` measures.
-- **Every piece of figure mathematics is TeX (R7).** Never a plain string, never a Unicode substitute:
-  no `x₁`, `Σ`, `∫`, `−`, `τ`, `ω`, `∞`, `²`, `⇒`, `→`, `×`, `·`, `≤`, `≥`. `italic:true` is not a
-  substitute for `tex:true`. Mixed text and mathematics is one TeX string with the words in
-  `\text{...}`. A TeX backslash is doubled in a JavaScript string: `'\\;'`, `'\\text{...}'`. A bare
-  `;` or a stray tab in a label means a lost backslash. Tick numbers and the weight an `impulse()`
-  carries are part of the scale and stay plain.
-- **Nothing written in a figure is crossed by anything drawn in it**, and no label sits on another, at
-  any step. Annotations go in free space. `textclash.js` fails on any contact, and an axis name fails
-  on any hit at all. Where a name has no room, widen the margin.
-- **A trace stays inside the data area.** `curve()` and `poly()` are clipped to it, widened by
-  `CLIP_PAD`. Do not remove the clip to make an overshoot visible; choose a range that holds the
-  signal, or say in the caption that it leaves.
-- **A figure belongs to the palette it is drawn in.** No figure code carries a page, plate or ink
-  colour of its own: `PLOT.COL` holds them and `setTheme` swaps them. A figure built in JavaScript is
-  produced per render (`fig` takes a function; a `raw` block may take one too). A figure generated once
-  at load time keeps the palette it was born with.
-- Continuous-time signals are curves, discrete-time signals are stems, impulses are arrows whose
+- **Axis names live outside the data area**: the independent variable under it, the dependent
+  variable above it. `Axes` widens the bottom or top margin by itself when the given `pad` is too
+  small. Every label carries a halo in `--fig-halo`. Do not move labels back inside the data area. -
+  **`xlabel` and `ylabel` are TeX source**, typeset with KaTeX. Words go in `\text{...}`, Greek
+  letters are `\tau`, `\omega`, and `\operatorname{Re}` is the house spelling. A name that fails to
+  parse falls back to its source and logs a console error, which turns `qa.js` red. The name is laid
+  out in a `foreignObject` and drawn after the data. The strip reserved for a name is one line of
+  mathematics tall (`NAMEBOX` in `60_plot.js`), and the independent variable sits `XNAME_DROP` below
+  its axis so it clears the tick row and the arrowhead. Do not shrink either. If a name still lands
+  on a tick number or on the axis, raise `pad`, not the name. - **`texName` typesets every other
+  piece of mathematics in a figure.** It anchors a formula on `xLeft`, `xMid` or `xRight` at a
+  baseline. In `blocks()` a label that is mathematics is marked `tex:true` on a `box`, a `text` or
+  an `arrow`; plain words stay ordinary text. Each typeset label is a `foreignObject` marked
+  `data-texlabel`, which is what `textclash.js` measures. - **Every piece of figure mathematics is
+  TeX (R7).** Never a plain string, never a Unicode substitute: no `x₁`, `Σ`, `∫`, `−`, `τ`, `ω`,
+  `∞`, `²`, `⇒`, `→`, `×`, `·`, `≤`, `≥`. `italic:true` is not a substitute for `tex:true`. Mixed
+  text and mathematics is one TeX string with the words in `\text{...}`. A TeX backslash is doubled
+  in a JavaScript string: `'\\;'`, `'\\text{...}'`. A bare `;` or a stray tab in a label means a
+  lost backslash. Tick numbers and the weight an `impulse()` carries are part of the scale and stay
+  plain. - **Nothing written in a figure is crossed by anything drawn in it**, and no label sits on
+  another, at any step. Annotations go in free space. `textclash.js` fails on any contact, and an
+  axis name fails on any hit at all. Where a name has no room, widen the margin. - **A trace stays
+  inside the data area.** `curve()` and `poly()` are clipped to it, widened by `CLIP_PAD`. Do not
+  remove the clip to make an overshoot visible; choose a range that holds the signal, or say in the
+  caption that it leaves. - **A figure belongs to the palette it is drawn in.** No figure code
+  carries a page, plate or ink colour of its own: `PLOT.COL` holds them and `setTheme` swaps them. A
+  figure built in JavaScript is produced per render (`fig` takes a function; a `raw` block may take
+  one too). A figure generated once at load time keeps the palette it was born with. -
+  Continuous-time signals are curves, discrete-time signals are stems, impulses are arrows whose
   height is the weight. Negative frequencies are shown when they exist. Every quantitative axis is
   labelled. A multi-trace plot also carries a legend; an in-plot annotation may supplement but does
-  not replace it.
-- **Legend type.** A legend is set at 19 px (21 px in projector mode), a step above the 18 px slide
-  caption, so the TeX in each entry reads at the size of the caption beside it. The swatch is 26 px.
-  Size is set once on `.legend` in `10_style.css`; no scene sets its own legend size. On the light
-  page the swatch carries the signal colour and the label is set in graphite. Where a cyan and a green
-  curve of the same family run close together and differ only in colour, the cyan one is dashed (`dash:'9 6'`) and its legend item takes a third entry,
-  `true`, which draws a dashed swatch.
-- **Legend placement.** A legend sits inside the plot it keys, as a small card (paper fill, rule
-  border) in a corner of the data area that the traces and annotations leave free. A scene writes it
-  as a `legend` block right after its `fig`; the renderer draws it inside that figure. `at` picks the
+  not replace it. - **Legend type.** A legend is set at 19 px, a step above the 18 px slide caption,
+  so the TeX in each entry reads at the size of the caption beside it. The swatch is 26 px. Size is
+  set once on `.legend` in `10_style.css`; no scene sets its own legend size. On the light page the
+  swatch carries the signal colour and the label is set in graphite. Where a cyan and a green curve
+  of the same family run close together and differ only in colour, the cyan one is dashed (`dash:'9
+  6'`) and its legend item takes a third entry, `true`, which draws a dashed swatch. - **Legend
+  placement.** A legend sits inside the plot it keys, as a small card (paper fill, rule border) in a
+  corner of the data area that the traces and annotations leave free. A scene writes it as a
+  `legend` block right after its `fig`; the renderer draws it inside that figure. `at` picks the
   corner: `'tr'` (default), `'tl'`, or `'tl-axis'` for a plot whose vertical axis is its left edge
-  (`m1-ct-cexp-grow`). A laboratory panel wraps each plot and its legend in
-  `.plot-wrap`, where the card lies in one row in the strip above the data area. In the phone
-  layout every figure legend lies in that row above the drawing, without the card. No legend sits
-  below or beside a plot, and no card may cover a trace, tick label or annotation in either display
-  mode; move the card or widen the axis range instead. In the dark theme the card fill is a light
-  step above the figure card (`--paper-2` mixed with 10% white) with a `--rule-strong` border, so the
-  card reads as raised; it is never darker than the plot behind it. Both theme fills are set once on
-  `.legend.in-plot` in `10_style.css`; no scene colours its own legend card.
-- Signal traces use the semantic palette, never arbitrary series colours: input cyan, system amber,
-  output green, intermediate violet and error red. Projector readability comes from adequate stroke,
-  stem and marker weight, not from changing those meanings from one figure to the next.
-- A caption says what the figure means, never where it came from.
+  (`m1-ct-cexp-grow`). A laboratory panel wraps each plot and its legend in `.plot-wrap`, where the
+  card lies in one row in the strip above the data area. In the phone layout every figure legend
+  lies in that row above the drawing, without the card. No legend sits below or beside a plot, and
+  no card may cover a trace, tick label or annotation in either display mode; move the card or widen
+  the axis range instead. In the dark theme the card fill is a light step above the figure card
+  (`--paper-2` mixed with 10% white) with a `--rule-strong` border, so the card reads as raised; it
+  is never darker than the plot behind it. Both theme fills are set once on `.legend.in-plot` in
+  `10_style.css`; no scene colours its own legend card. - Signal traces use the semantic palette,
+  never arbitrary series colours: input cyan, system amber, output green, intermediate violet and
+  error red. Projector readability comes from adequate stroke, stem and marker weight, not from
+  changing those meanings from one figure to the next. - A caption says what the figure means, never
+  where it came from.
 
 On converted slides and laboratories, tick numbers, axis names and traces carry the larger back-row
 floor. Normal teaching scenes keep the established plot geometry until their own slide conversion.

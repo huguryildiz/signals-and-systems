@@ -276,7 +276,7 @@ const RENDER = (() => {
   function frameTween(fig, b, from, to){
     const f = b.frames;
     if(f.raf) cancelAnimationFrame(f.raf);
-    if(S.motion==='reduced' || from===to){ f.t = null; redrawLive(fig); return; }
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches || from===to){ f.t = null; redrawLive(fig); return; }
     const ms = (f.ms || 900) * Math.min(Math.abs(to-from), 1.6), t0 = performance.now();
     const tick = now => {
       const u = Math.min((now-t0)/ms, 1), e = u<.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2;
@@ -771,7 +771,7 @@ def _ss_figs():
      no ink on the figure; a finger still sketches. */
   let SK = null;
   document.addEventListener('pointerdown', e=>{
-    if(S.display==='projector' && S.pointer==='laser' && e.pointerType!=='touch') return;
+    if(S.pointer==='laser' && e.pointerType!=='touch') return;
     const svg = e.target.closest('figure.sketch > svg');
     const fig = svg && svg.parentNode, b = fig && FX[+fig.dataset.fx];
     const area = svg && skArea(svg);
@@ -804,13 +804,12 @@ def _ss_figs():
        and printed at whatever width the column gives it. A desktop column is
        about 700 px, so the drawing is enlarged and its labels come out larger
        than the size they were written at. A phone column is about 350 px, which
-       halves them instead. The label scale projector mode already uses puts
-       them back where they belong, and it is a scale the figures are known to
-       survive, so the phone borrows it rather than inventing a second one. */
+       halves them instead. A label scale of 1.36 puts them back where they
+       belong, and it is a scale the figures are known to survive. */
     const sc = APP.scenes()[S.i];
     if(typeof PLOT!=='undefined' && PLOT.setTheme)
       PLOT.setTheme({ dark: S.theme==='dark',
-        scale: (S.display==='projector' || S.layout==='phone') ? 1.36 : 1,
+        scale: S.layout==='phone' ? 1.36 : 1,
         emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
@@ -926,7 +925,7 @@ def _ss_figs():
        pass of avail/need predicts is therefore optimistic, and the height has to
        be measured again in the widened column. Four passes settle it; each pass
        can only make the factor smaller, and the floor stops it. */
-    const FLOOR = S.display==='projector' ? 0.70 : 0.82;
+    const FLOOR = 0.82;
     const TARGET = avail - 3;               /* a hair under, so rounding cannot clip */
     let k = 1;
     inner.style.height = 'auto';
@@ -1159,22 +1158,12 @@ def _ss_figs():
   /* Toolbar icons: 24-unit strokes in the button's own colour. A toggle shows
      its current state; the label and the key stay in the tooltip. */
   const ICON = {
-    monitor:  '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
-    projector:'<rect x="2" y="8" width="20" height="9" rx="2"/><circle cx="8" cy="12.5" r="2.5"/><path d="M14 11h4M14 14h2M5 17v2M19 17v2"/>',
-    laser:    '<path d="M3 21l7-7" stroke-dasharray="2 2.5"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/><circle cx="15" cy="9" r="6"/>',
     arrow:    '<path d="M5 3l14 7.5-6.2 1.7L10 18.5z"/>',
-    trail:    '<path d="M3 19c3-1 4-5 7-5s3 3 6 2"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
-    trailfade:'<path d="M3 19c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 3"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
-    trailoff: '<path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/><path d="M3 3l18 18"/>',
+    laserdot: '<circle cx="12" cy="12" r="2.4" fill="currentColor"/><circle cx="12" cy="12" r="6.5"/>',
+    laserink: '<path d="M3 20c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 2.5"/><circle cx="17" cy="7" r="2.2" fill="currentColor"/><circle cx="17" cy="7" r="6"/>',
     board:    '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21l4-4 4 4M7 11c1.5-2 3 2 4.5 0s3-2 4.5 0"/>',
     sun:      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     moon:     '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
-    lecture:  '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v3M8 21l4-2 4 2M7 12l3-3 2 2 5-5"/>',
-    study:    '<path d="M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5v13"/>',
-    student:  '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v5"/>',
-    teacher:  '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
-    motion:   '<path d="M2 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0"/>',
-    still:    '<path d="M2 12h20"/><path d="M9 8v8M15 8v8"/>',
   };
   const ico = n => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICON[n]+'</svg>';
   function tb(el, on, icon, label, word=label){
@@ -1184,15 +1173,6 @@ def _ss_figs():
     el.setAttribute('aria-label', label);
     el.title = label+' — '+el.dataset.tip;
   }
-
-  /* The settings menu opens under its button, right-aligned to it. */
-  const setmenu = document.getElementById('setmenu');
-  if(setmenu) setmenu.addEventListener('beforetoggle', e=>{
-    if(e.newState!=='open') return;
-    const r = document.getElementById('btn-settings').getBoundingClientRect();
-    setmenu.style.top = (r.bottom+6)+'px';
-    setmenu.style.right = (innerWidth-r.right)+'px';
-  });
 
   function chrome(sc){
     const n = APP.scenes().length;
@@ -1205,25 +1185,17 @@ def _ss_figs():
       + (sc.steps?('  ·  step '+S.step+'/'+sc.steps):'');
     document.getElementById('srcref').textContent =
       (S.edition==='instructor' && sc.src) ? ('ref '+sc.src) : '';
-    const bm=document.getElementById('btn-mode'); if(bm) tb(bm, S.mode==='lecture',
-      S.mode==='lecture'?'lecture':'study', S.mode==='lecture'?'Lecture mode':'Self-study', S.mode==='lecture'?'Lecture':'Self-study');
-    const be=document.getElementById('btn-edition'); if(be) tb(be, S.edition==='instructor',
-      S.edition==='instructor'?'teacher':'student', S.edition==='instructor'?'Instructor':'Student',
-      S.edition==='instructor'?'Instructor edition':'Student edition');
-    const br=document.getElementById('btn-motion'); if(br) tb(br, S.motion==='reduced',
-      S.motion==='reduced'?'still':'motion', S.motion==='reduced'?'Motion: reduced':'Motion: full', S.motion==='reduced'?'Reduced motion':'Full motion');
     const bs=document.getElementById('sbtoggle'); if(bs) bs.setAttribute('aria-pressed', S.sidebar==='on');
     const bt=document.getElementById('btn-theme'); if(bt){ tb(bt, S.theme==='dark',
       S.theme==='dark'?'moon':'sun', S.theme==='dark'?'Dark':'Light'); bt.dataset.state = S.theme; }
-    const bd=document.getElementById('btn-display'); if(bd) tb(bd, S.display==='projector',
-      S.display==='projector'?'projector':'monitor', S.display==='projector'?'Projector':'Normal');
+    /* one button, three states: off, the dot, the dot with its ink */
+    const ink = S.pointer==='laser' && S.trail!=='off';
     const bp=document.getElementById('btn-pointer'); if(bp) tb(bp, S.pointer==='laser',
-      S.pointer==='laser'?'laser':'arrow', S.pointer==='laser'?'Laser':'Arrow');
-    const bi=document.getElementById('btn-trail'); if(bi){ tb(bi, S.trail!=='off',
-      S.trail==='off'?'trailoff':S.trail==='fade'?'trailfade':'trail', 'Trail: '+S.trail, 'Trail');
-      bi.disabled = S.pointer!=='laser'; }
+      S.pointer!=='laser'?'arrow':ink?'laserink':'laserdot',
+      S.pointer!=='laser' ? 'Laser off' : ink ? (S.trail==='hold'?'Laser ink, held':'Laser ink') : 'Laser dot',
+      'Laser');
     const tl=document.getElementById('trail-sec'); if(tl){ tl.value=S.trailSec;
-      tl.disabled = S.pointer!=='laser' || S.trail!=='fade';
+      tl.disabled = !ink || S.trail!=='fade';
       tl.nextElementSibling.textContent = S.trailSec+' s'; }
     const bb=document.getElementById('btn-board'); if(bb) tb(bb, false, 'board', 'Board');
     APP.buildMap();

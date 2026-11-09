@@ -25,7 +25,7 @@ full argument reads the notes; a student in the room reads the slide and listens
 
 ## Operating Context
 
-- Lecture room, 16:9 projector, read from the back row. `Lecture mode` raises the type scale.
+- Lecture room, 16:9 projector, read from the back row.
 - Laptop, independent study, either theme, any window shape.
 - Online, from the course site. Students open the course at its address and do not download it;
   only the PDF editions are offered as downloads (decided 2026-09-23).
@@ -84,28 +84,24 @@ These seven rules apply to every module. Module 1 is the worked example; the mec
 `DESIGN.md`, "Interaction on a slide".
 
 1. **Intuition before algebra.** A student first sees, hears or guesses what a signal does. The
-   calculation comes after that, not first.
-2. **Predict first.** Where a card already asks a question, it offers two to four choices
-   (`note.ask`). The student commits to an answer before the reveal step shows the working.
-3. **Move it.** When a parameter changes what the figure shows (a shift, a scale factor, a decay
-   rate), the figure gets a slider (`fig.live`). The default slider value draws the figure the slide
-   had before.
-4. **Hear it.** When the signal can be heard, the figure gets a play button (`fig.listen`). Good
-   candidates are time scaling, reversal, frequency, envelopes, filtering and aliasing. The sound is
-   computed from the same formula the figure draws.
-5. **Connect it to everyday life.** One sentence ties the signal to something the student already
+   calculation comes after that, not first. 2. **Predict first.** Where a card already asks a
+   question, it offers two to four choices (`note.ask`). The student commits to an answer before the
+   reveal step shows the working. 3. **Move it.** When a parameter changes what the figure shows (a
+   shift, a scale factor, a decay rate), the figure gets a slider (`fig.live`). The default slider
+   value draws the figure the slide had before. 4. **Hear it.** When the signal can be heard, the
+   figure gets a play button (`fig.listen`). Good candidates are time scaling, reversal, frequency,
+   envelopes, filtering and aliasing. The sound is computed from the same formula the figure draws.
+   5. **Connect it to everyday life.** One sentence ties the signal to something the student already
    knows: a voice message at double speed, a plucked string, a musical octave. The sentence goes in
-   the caption.
-6. **Close with a quick check.** Before its summary, each module has one slide of six short
-   predictions. None needs a calculation on paper, and each shows a one-sentence reason after the
-   answer.
-7. **Keep the rigour.** Interaction never replaces a derivation. Every derivation is still shown in
-   full, and the practice questions stay open-ended. A slide must keep a fit of at least 0.90 in
-   lecture mode, or it loses the interaction.
+   the caption. 6. **Close with a quick check.** Before its summary, each module has one slide of
+   six short predictions. None needs a calculation on paper, and each shows a one-sentence reason
+   after the answer. 7. **Keep the rigour.** Interaction never replaces a derivation. Every
+   derivation is still shown in full, and the practice questions stay open-ended. A slide must keep
+   a fit of at least 0.90, or it loses the interaction.
 
 ## Accessibility & Inclusion
 
-Keyboard access to every control. `Motion: reduced` and `prefers-reduced-motion` give a complete still
-frame, never a missing one. Text contrast of at least 4.5:1 in both themes, tab labels included. Signal
-colours are chosen as colour-blind-safe pairs and are never the only carrier of meaning: a curve is
-also labelled.
+Keyboard access to every control. `prefers-reduced-motion` gives a complete still frame, never a
+missing one; there is no motion control of the artifact's own. Text contrast of at least 4.5:1 in
+both themes, tab labels included. Signal colours are chosen as colour-blind-safe pairs and are never
+the only carrier of meaning: a curve is also labelled.

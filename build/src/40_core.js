@@ -24,15 +24,14 @@ const APP = (() => {
   const state = {
     i: 0,               // scene index
     step: 0,            // reveal step inside the scene
-    mode: 'study',      // 'lecture' | 'study'
-    edition: 'student', // 'student' | 'instructor'
-    motion: 'full',     // 'full' | 'reduced'
+    mode: 'lecture',    // 'lecture' | 'study' — fixed; the course is taught from these pages
+    edition: 'instructor', // 'student' | 'instructor' — fixed; the published copy is built as the student one
     visited: {},
     sidebar: 'on',      // contents rail
     theme: 'light',     // 'light' | 'dark'
-    display: 'normal',  // 'normal' | 'projector'
-    pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
-    trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
+    pointer: 'arrow',   // 'laser' | 'arrow' — the laser is off until it is turned on
+    trail:   'off',     // 'fade' | 'hold' | 'off' — ink drawn while the button is held
+    inkWas:  'fade',    // the ink the laser comes back to when it is turned on again
     trailSec: 1,        // seconds a faded trail stays fully visible
     paper:   'blank',   // 'blank' | 'grid' | 'lined' — the board's paper
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
@@ -68,6 +67,10 @@ const APP = (() => {
      closed, and the reader's stored choice is left for the desktop. */
   const SHORT = matchMedia('(max-height:480px) and (pointer:coarse)');
   const railRoom = () => !SHORT.matches;
+  /* There is no motion control. A reader who has asked the system for less
+     movement is answered here and in the `prefers-reduced-motion` blocks of
+     the stylesheet, which is the whole of it. */
+  const lessMotion = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   let SCENES = [], MODULES = [], CHAPTERS = [], onRender = ()=>{};
 
@@ -76,14 +79,13 @@ const APP = (() => {
     SCENES = scenes; MODULES = modules; CHAPTERS = chapters || []; onRender = render;
     const saved = store.read();
     Object.assign(state, {
-      mode: saved.mode || 'study',
-      edition: saved.edition || 'student',
-      motion: saved.motion || (matchMedia('(prefers-reduced-motion:reduce)').matches?'reduced':'full'),
+      mode: 'lecture',
+      edition: 'instructor',
       sidebar: saved.sidebar || 'on',
       theme: saved.theme || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),
-      display: saved.display || 'normal',
-      pointer: saved.pointer || 'laser',
-      trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
+      pointer: saved.laser==='on' ? 'laser' : 'arrow',
+      trail:   saved.laser==='on' ? (saved.trail==='hold' ? 'hold' : saved.trail==='off' ? 'off' : 'fade') : 'off',
+      inkWas:  saved.ink==='hold' ? 'hold' : 'fade',
       trailSec: saved.trailLen || 1,
       paper:   saved.paper || 'blank',
       visited: saved.visited || {},
@@ -113,18 +115,16 @@ const APP = (() => {
   function persist(){
     /* what is stored for the rail is always the wide-layout choice */
     if(state.layout!=='phone' && railRoom()) state.rail = state.sidebar;
-    store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.rail,
-                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec, paper:state.paper,
+    store.write({ sidebar:state.rail,
+                  theme:state.theme, laser:state.pointer==='laser'?'on':'off', trail:state.trail, ink:state.inkWas, trailLen:state.trailSec, paper:state.paper,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
   function applyBodyFlags(){
     document.body.dataset.mode = state.mode;
     document.body.dataset.edition = state.edition;
-    document.body.dataset.motion = state.motion;
     document.body.dataset.sidebar = state.sidebar;
     document.body.dataset.theme = state.theme;
-    document.body.dataset.display = state.display;
     document.body.dataset.pointer = state.pointer;
     document.body.dataset.trail = state.trail;
     document.body.dataset.layout = state.layout;
@@ -138,11 +138,11 @@ const APP = (() => {
      contents drawer, where there is room to label them and to hit them. The
      click handler is delegated on the document, so a control works exactly the
      same wherever it is sitting; only its styling has to follow it, which the
-     `hmoved` class does. The laser and its ink belong to a projector and are
-     dropped on a phone altogether.
+     `hmoved` class does. The laser, its ink and the board belong to teaching in
+     front of a class and are dropped on a phone altogether.
      Each control's first home is recorded the first time it is moved, so the
      way back is the DOM as it was authored rather than a second guess at it. */
-  const HANDOFF = ['btn-display','btn-theme','btn-mode','btn-edition','btn-motion'];
+  const HANDOFF = ['btn-theme'];
   let _home = null;
   function relayoutChrome(){
     const hd = document.getElementById('appheader');
@@ -153,23 +153,19 @@ const APP = (() => {
                document.querySelector('#chrome .byline')])
       .filter(Boolean);
     if(!_home) _home = items.map(el=>({el, parent:el.parentNode, next:el.nextSibling}));
-    /* The settings menu is emptied onto the drawer's foot, so on a phone the
-       gear opens the drawer, where its switches now sit, and not an empty menu. */
-    const gear = document.getElementById('btn-settings');
     if(state.layout==='phone'){
       const reset = foot.querySelector('[data-act=reset]');
       items.forEach(el=>{ el.classList.add('hmoved'); foot.insertBefore(el, reset); });
-      if(gear){ gear.removeAttribute('popovertarget'); gear.dataset.act = 'settings'; }
     } else {
       _home.forEach(h=>{ h.el.classList.remove('hmoved'); h.parent.insertBefore(h.el, h.next); });
-      if(gear){ gear.setAttribute('popovertarget', 'setmenu'); delete gear.dataset.act; }
     }
   }
 
-  /* ---------- laser pointer, projector mode only ----------
+  /* ---------- laser pointer ----------
      In front of a class the pointer is an instrument, not a control: the
-     system arrow is too small to follow from the back of a room. In
-     projector mode it becomes a red dot. Holding the mouse button down, or
+     system arrow is too small to follow from the back of a room. The Laser
+     button turns the arrow into a red dot, and turns it back. It is off until
+     it is asked for, so reading is never short of a cursor. Holding the mouse button down, or
      pressing a pen such as the Apple Pencil to a tablet, draws with it; a
      finger still scrolls. Strokes accumulate and fade together after a pause, or remain
      until cleared, according to the header control. Everything is drawn on
@@ -196,7 +192,7 @@ const APP = (() => {
     const hold = () => state.trailSec*1000;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0, zoom=1;
-    let head=null, drawing=false, released=0, tap=null, clicked=false;
+    let head=null, drawing=false, released=0, tap=null, clicked=false, stirred=0;
     const strokes = [];
     function count(){ let n=0; for(const s of strokes) n+=s.length; return n; }
     function drop(){
@@ -235,9 +231,16 @@ const APP = (() => {
       const idle = (drawing||keep) ? 0 : performance.now() - released;
       let a = idle<=hold() ? 1 : 1 - (idle-hold())/FADE;
       if(a<=0){ a=0; strokes.length=0; }
+      /* The dot is the cursor, so it goes out with the ink once the pointer has
+         been still for as long as the ink is held. A red mark left on a slide
+         that nobody is pointing at reads as part of the figure. Any movement
+         brings it straight back, at once and at full strength. */
+      const stillFor = drawing ? 0 : performance.now() - stirred;
+      let d = stillFor<=hold() ? 1 : 1 - (stillFor-hold())/FADE;
+      if(d<0) d=0;
       cx.save(); cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height); cx.restore();
       const u = 1/zoom;
-      if(a>0 && strokes.length && state.trail!=='off' && state.motion==='full'){
+      if(a>0 && strokes.length && state.trail!=='off' && !lessMotion()){
         cx.lineCap='round'; cx.lineJoin='round'; cx.globalAlpha=a;
         cx.beginPath();
         for(const pts of strokes){
@@ -251,7 +254,8 @@ const APP = (() => {
         cx.strokeStyle='rgba(255,231,226,0.96)'; cx.lineWidth=4*u; cx.stroke();
         cx.globalAlpha=1;
       }
-      if(head){
+      if(head && d>0){
+        cx.globalAlpha=d;
         const g=cx.createRadialGradient(head.x,head.y,0,head.x,head.y,19*u);
         g.addColorStop(0,'rgba(255,236,230,1)');
         g.addColorStop(.10,'rgba(255,64,40,1)');
@@ -259,14 +263,15 @@ const APP = (() => {
         g.addColorStop(.55,'rgba(214,45,32,.32)');
         g.addColorStop(1,'rgba(214,45,32,0)');
         cx.fillStyle=g; cx.beginPath(); cx.arc(head.x,head.y,19*u,0,Math.PI*2); cx.fill();
+        cx.globalAlpha=1;
       }
-      if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
+      if(!drawing && ((state.trail!=='hold' && a>0 && strokes.length) || (head && d>0))) raf=requestAnimationFrame(frame);
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(frame); }
     function mouse(e){ return (!board.isOpen() || board.lasering()) && (!e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'); }
     function move(e){
       if(!mouse(e)) return;
-      head=at(e);
+      head=at(e); stirred=performance.now();
       if(tap && Math.hypot(e.clientX-tap.x, e.clientY-tap.y)>10) tap=null;
       if(drawing){ strokes[strokes.length-1].push(head); drop(); }
       tick();
@@ -274,7 +279,7 @@ const APP = (() => {
     function down(e){
       if(!mouse(e)||e.button!==0) return;
       if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
-      drawing=true; head=at(e); strokes.push([head]); tick();
+      drawing=true; head=at(e); stirred=performance.now(); strokes.push([head]); tick();
       tap = e.pointerType==='pen' ? { x:e.clientX, y:e.clientY, t:performance.now() } : null;
     }
     /* a pencil tap must still press what it lands on. On an iPad the browser
@@ -327,7 +332,7 @@ const APP = (() => {
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
       if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
-    return { sync(){ ((state.display==='projector'&&state.pointer==='laser') || board.lasering()) ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
+    return { sync(){ ((state.pointer==='laser' && state.layout!=='phone') || board.lasering()) ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
              rest(){ if(on) leave(); } };
   })();
 
@@ -863,12 +868,9 @@ const APP = (() => {
         case '/': case 'f': case 'F': e.preventDefault(); open('ov-search'); break;
         case 'g': case 'G': e.preventDefault(); anyOpen()?closeAll():open('ov-gloss'); break;
         case '?': e.preventDefault(); anyOpen()?closeAll():open('ov-help'); break;
-        case 'l': case 'L': toggleMode(); break;
-        case 'i': case 'I': toggleEdition(); break;
-        case 'r': case 'R': toggleMotion(); break;
         case 's': case 'S': toggleSidebar(); break;
         case 'd': case 'D': toggleTheme(); break;
-        case 'p': case 'P': toggleDisplay(); break;
+        case 'p': case 'P': togglePointer(); break;
         case 't': case 'T': toggleTrail(); break;
         case 'c': case 'C': laser.clear(); break;
         case 'w': case 'W': e.preventDefault(); closeAll(); board.toggle(); break;
@@ -960,24 +962,24 @@ const APP = (() => {
     document.addEventListener('touchcancel', end);
   }
 
-  function toggleMode(){ state.mode = state.mode==='lecture'?'study':'lecture'; applyBodyFlags(); persist(); onRender(); }
-  function toggleEdition(){ state.edition = state.edition==='student'?'instructor':'student'; applyBodyFlags(); persist(); onRender(); }
-  function toggleMotion(){ state.motion = state.motion==='full'?'reduced':'full'; applyBodyFlags(); persist(); onRender(); }
   function toggleTheme(){ state.theme = state.theme==='light'?'dark':'light'; applyBodyFlags(); persist(); onRender(); }
-  function toggleDisplay(){
-    state.display = state.display==='normal'?'projector':'normal';
-    /* the rail costs ~19% of linear size; give the scene the full width when
-       projecting, and give it back when returning to normal. On a phone the
-       rail is a drawer that covers the scene either way, so it stays shut. */
-    if(state.layout!=='phone')
-      state.sidebar = state.display==='projector' ? 'off' : 'on';
-    applyBodyFlags(); persist();
-    requestAnimationFrame(()=>{ fit(); onRender(); });
+  /* The Laser button is one control with three states, in the order a lecturer
+     reaches for them: off, the red dot alone, and the dot that leaves ink
+     behind it. `pointer` says whether the dot is drawn and `trail` whether the
+     ink is, so the two keep the meanings the canvas already gives them. The
+     ink the T key holds until it is cleared is remembered, so a lecturer who
+     asked for held ink gets it back at the third press. */
+  function togglePointer(){
+    if(state.pointer!=='laser'){ state.pointer='laser'; state.trail='off'; }
+    else if(state.trail==='off'){ state.trail = state.inkWas || 'fade'; }
+    else { state.inkWas = state.trail; state.pointer='arrow'; state.trail='off'; laser.clear(); }
+    applyBodyFlags(); persist(); onRender();
   }
-  function togglePointer(){ state.pointer=state.pointer==='laser'?'arrow':'laser'; applyBodyFlags(); persist(); onRender(); }
+  /* T swaps the ink between fading on its own and staying until C clears it.
+     It has no button: it is the one choice a lecture needs mid-sentence. */
   function toggleTrail(){
-    state.trail=state.trail==='fade'?'hold':state.trail==='hold'?'off':'fade';
-    if(state.trail==='off') laser.clear();
+    if(state.pointer!=='laser' || state.trail==='off') return;
+    state.trail = state.trail==='fade' ? 'hold' : 'fade';
     applyBodyFlags(); persist(); onRender();
   }
   function toggleSidebar(){ state.sidebar = state.sidebar==='on'?'off':'on'; applyBodyFlags(); persist();
@@ -1002,13 +1004,8 @@ const APP = (() => {
       else if(a==='gloss') open('ov-gloss');
       else if(a==='help') open('ov-help');
       else if(a==='close') closeAll();
-      else if(a==='mode') toggleMode();
-      else if(a==='edition') toggleEdition();
-      else if(a==='motion') toggleMotion();
       else if(a==='sidebar') toggleSidebar();
-      else if(a==='settings'){ if(state.sidebar!=='on') toggleSidebar(); }
       else if(a==='theme') toggleTheme();
-      else if(a==='display') toggleDisplay();
       else if(a==='pointer') togglePointer();
       else if(a==='trail') toggleTrail();
       else if(a==='board') board.toggle();

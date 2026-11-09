@@ -65,12 +65,11 @@
   --s6: 44px; --s7: 80px; --s8: 104px;
   --flow: 18px;     /* gap between consecutive blocks in a scene flow */
 
-  --ts: 1;          /* type scale: 1 = normal, raised in projector mode */
+  --ts: 1;          /* type scale: 1 = the page size, raised in places that set it */
   --radius: 3px;
   --dur: 260ms;
   --ease: cubic-bezier(.22,.61,.36,1);
 }
-
 
 /* ==========================================================================
    Dark theme — a real palette swap, not a filter. Every token is redefined,
@@ -120,32 +119,10 @@ body[data-theme=dark] .box{ background:var(--paper-2); }
 body[data-theme=dark] .sheet{ background:var(--paper-2); }
 body[data-theme=dark] .overlay{ background:rgba(0,0,0,.66); }
 
-/* ==========================================================================
-   Display density. Projector mode raises the type scale and the weight of
-   every drawn element; the contents rail can be hidden with S to give the
-   scene the full width.
-   ========================================================================== */
-body[data-display=projector]{ --ts:1.36; }
 /* the smallest labels are what a back row loses first: raise their floor */
-body[data-display=projector] .small{ font-size:calc(17.5px * var(--ts)); }
-body[data-display=projector] figcaption{ font-size:calc(16.5px * var(--ts)); }
-body[data-display=projector] .eyebrow{ font-size:calc(16px * var(--ts) * var(--hk,1)); }
-body[data-display=projector] .eq-label,
-body[data-display=projector] .note-h,
-body[data-display=projector] .wex-k,
-body[data-display=projector] .qid,
-body[data-display=projector] .ctrl label,
-body[data-display=projector] .readout dt{ font-size:calc(14px * var(--ts)); }
-body[data-display=projector] .legend{ font-size:calc(21px * var(--ts)); }
-body[data-display=projector] .eq .katex{ font-size:1.30em; }
-body[data-display=projector] .katex{ font-size:1.10em; }
-body[data-display=projector]{ --rule:#C2BCB0; }      /* stronger hairlines */
-body[data-display=projector][data-theme=dark]{ --rule:#3A4754; }
-body[data-display=projector] .scene{ padding:44px 76px 60px; }
-body[data-display=projector] .cols{ gap:34px; }
 
-/* the laser pointer of projector mode. The canvas is created by the core the
-   first time projector mode is entered; it never takes a click. The system
+/* the laser pointer. The canvas is created by the core the
+   first time the laser is turned on; it never takes a click. The system
    arrow is hidden only while the laser is the pointer, and only where there
    is a real mouse to hide it from — on a touch screen there is nothing to
    replace it with. The core sizes it to the whole page and, where it can, lifts it into the top layer as a manual popover;
@@ -158,14 +135,14 @@ body[data-display=projector] .cols{ gap:34px; }
 }
 #laser::backdrop{ display:none; pointer-events:none; background:transparent; }
 @media (pointer:fine){
-  body[data-display=projector][data-pointer=laser],
-  body[data-display=projector][data-pointer=laser] *{ cursor:none; }
+  body[data-pointer=laser],
+  body[data-pointer=laser] *{ cursor:none; }
 }
 /* drawing with the button held would otherwise sweep a text selection across
    the scene; the fields the reader types into keep theirs */
-body[data-display=projector][data-pointer=laser]{ user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
-body[data-display=projector][data-pointer=laser] input,
-body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
+body[data-pointer=laser]{ user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+body[data-pointer=laser] input,
+body[data-pointer=laser] textarea{ user-select:text; -webkit-user-select:text; }
 
 /* the board: a page over the whole window, built by the core the first time
    it is opened and lifted into the top layer as a manual popover. The paper is
@@ -215,11 +192,12 @@ body[data-display=projector][data-pointer=laser] textarea{ user-select:text; -we
 }
 #board[data-over] canvas{ cursor:move !important; }
 
-/* the two pointer controls belong to projector mode and are hidden outside it */
-#appheader .proj-only{ display:none; }
-body[data-display=projector] #appheader .proj-only{ display:block; }
-body[data-display=projector] #appheader button.proj-only{ display:inline-flex; }
-body[data-display=projector] #appheader #trail-len{ display:inline-flex; align-items:center; gap:6px; }
+/* the teaching tools: the laser, its ink and the board. They need a mouse or a
+   pen and a screen the class can see, so a phone drops them altogether. */
+#appheader .teach-only{ display:block; }
+#appheader button.teach-only{ display:inline-flex; }
+#appheader #trail-len{ display:inline-flex; align-items:center; gap:6px; }
+body[data-layout=phone] .teach-only{ display:none !important; }
 #trail-len input{ width:72px; accent-color:var(--coral); cursor:pointer; }
 #trail-len input:disabled{ opacity:.4; cursor:default; }
 #trail-len output{ min-width:3.2em; font-size:11.5px; letter-spacing:.08em; }
@@ -273,9 +251,6 @@ body[data-sidebar=off] #viewport{ --sbw:0px; }
   15%{filter:drop-shadow(0 0 1.5px rgba(106,168,247,.35))}
   22%{filter:drop-shadow(0 0 2.5px rgba(106,168,247,.5))}
   31%{filter:none} 100%{filter:none} }
-body[data-motion=reduced] #appheader .eelogo,
-body[data-motion=reduced] .eelogo-beat,
-body[data-motion=reduced] .eelogo-halo{ animation:none; filter:none; }
 @media (prefers-reduced-motion:reduce){ #appheader .eelogo, .eelogo-beat, .eelogo-halo{ animation:none; filter:none; } }
 
 /* --- top bar --------------------------------------------------------- */
@@ -299,16 +274,8 @@ body[data-motion=reduced] .eelogo-halo{ animation:none; filter:none; }
 #appheader button:disabled:hover{ color:var(--muted); background:transparent; }
 #appheader button:has(svg){ display:inline-flex; align-items:center; gap:6px; }
 #appheader button svg{ display:block; width:16px; height:16px; flex:none; }
-@media (max-width:1180px){ #appheader button:has(svg) span{ display:none; } }
-/* projector mode adds four tools to the bar; below this width their words would wrap */
-@media (max-width:1500px){ body[data-display=projector] #appheader button:has(svg) span{ display:none; } }
-#setmenu{ position:fixed; inset:auto; margin:0; padding:6px; min-width:200px;
-  flex-direction:column; align-items:stretch; gap:2px;
-  background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius);
-  box-shadow:0 8px 24px rgba(0,0,0,.18); }
-#setmenu:popover-open{ display:flex; }
-#setmenu button{ justify-content:flex-start; }
-#appheader #setmenu button:has(svg) span{ display:inline; }
+/* the laser and the board add two tools to the bar; below this width their words would wrap */
+@media (max-width:1340px){ #appheader button:has(svg) span{ display:none; } }
 #sbtoggle{ font-size:15px !important; line-height:1; padding:5px 9px !important; }
 
 /* --- left contents rail ---------------------------------------------- */
@@ -627,8 +594,7 @@ h3.sub{
 .hi-reflect{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5h16v10.5h-9l-4.5 4v-4H4z'/%3E%3Cpath d='M8 9h8M8 12h5'/%3E%3C/svg%3E"); }
 .hi-next{ --hi:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M14 7l5 5-5 5'/%3E%3C/svg%3E"); }
 .proj-card .rc-q, .proj-card.is-open .rc-q{ font-size:calc(23px * var(--ts)); opacity:1; visibility:visible; transform:none; }
-body[data-motion=reduced] .proj-brief{ transition:none; }
-body[data-motion=reduced] .rc-face{ transition:none; transform:none; }
+@media (prefers-reduced-motion:reduce){ .proj-brief{ transition:none; } }
 @media (prefers-reduced-motion:reduce){ .rc-face{ transition:none; transform:none; } }
 
 /* vertical rhythm: two blocks in the same flow never touch. Headings, the lede
@@ -847,8 +813,7 @@ body[data-theme=dark] :is(.scene.slide, .dr-sol){ --tab-ink:var(--paper); --tab-
 
 /* The tab of a card and the tab of a labelled equation are one rule. It also
    sets the size of a tab in lecture mode: this selector out-specifies the
-   `body[data-display=projector] .note-h` floor, so a slide's tab is
-   13.5 px times the type scale in both displays and is set once. */
+   13.5 px times the type scale and is set once. */
 :is(.scene.slide, .dr-sol) .note > .note-h,
 .scene.slide .eq:not(.plain) > .eq-label{
   position:absolute; bottom:calc(100% - 1px); left:-3px;
@@ -930,11 +895,6 @@ body[data-theme=dark] :is(.scene.slide, .dr-sol){ --tab-ink:var(--paper); --tab-
    derive stack take the tighter Laboratory 1.4 spacing to keep the fit up */
 .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .ctrls.one{ gap:10px; padding:16px 20px; }
 .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .ctrls.one{ gap:6px; padding:10px 14px; }
-body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .plots{ gap:2px !important; }
-body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .derive.stack .eq{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab:is([data-lab="E"],[data-lab="N"]) .readout.ro div{ padding:8px 12px; }
 .scene.slide .lab .col > :is(.derive, .aper, .work){ margin-top:0; }
 .scene.slide .lab :is(.derive, .work) > .eq{ margin-bottom:0; }
 /* Laboratory 1.2 keeps its signal, plot and verdict together at the top */
@@ -976,7 +936,6 @@ body:not([data-layout=phone]) .scene.slide .lab:is([data-lab="E"],[data-lab="N"]
 @keyframes course-spoke-in{ from{ opacity:.3; } to{ opacity:1; } }
 @keyframes course-node-in{ from{ opacity:.34; transform:scale(.92); } to{ opacity:1; transform:scale(1); } }
 @keyframes course-node-pulse{ 0%,76%,100%{ filter:drop-shadow(0 0 0 transparent); } 84%{ filter:drop-shadow(0 0 7px color-mix(in srgb,var(--coral) 38%,transparent)); } }
-body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,body[data-motion=reduced] .course-node.is-active .course-node-disc{ animation:none; opacity:1; }
 @media (prefers-reduced-motion:reduce){ .course-spoke,.course-node,.course-node.is-active .course-node-disc{ animation:none; opacity:1; } }
 .fig-frame{
   background:var(--paper-2); border:1px solid var(--rule);
@@ -1105,13 +1064,12 @@ body[data-motion=reduced] .course-spoke,body[data-motion=reduced] .course-node,b
   44%,86% { transform:scaleY(1); opacity:1 }
   94%,100%{ transform:scaleY(1); opacity:0 }
 }
-body[data-motion=reduced] .ir-in,body[data-motion=reduced] .ir-out,
-body[data-motion=reduced] .ir-box{ animation:none; opacity:1; transform:none; }
-body[data-motion=reduced] .ir-pulse-in,body[data-motion=reduced] .ir-pulse-out{ display:none; }
+@media (prefers-reduced-motion:reduce){
+  .ir-in,.ir-out,.ir-box{ animation:none; opacity:1; transform:none; }
+  .ir-pulse-in,.ir-pulse-out{ display:none; } }
 
 /* the highlight is the one purely visual motion here: it stops entirely when
    motion is reduced, and never appears on paper */
-body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 @media (prefers-reduced-motion:reduce){ .mtf-sparkwrap{ display:none; } }
 /* difference of steps: each pair u[n], -u[n-1] collapses onto the axis, the
    sample at n=0 is left and marked. Start and end equal the still figure. */
@@ -1127,7 +1085,6 @@ body[data-motion=reduced] .mtf-sparkwrap{ display:none; }
 .dc-lbl{ animation:dc-hide 9s var(--ease) 1s infinite; }
 @keyframes dc-hide{ 0%,24%{ opacity:1 } 36%,82%{ opacity:.25 } 94%,100%{ opacity:1 } }
 @media (prefers-reduced-motion:reduce){ .dc-pair,.dc-zero,.dc-keep,.dc-lbl{ animation:none; } }
-
 
 /* ==========================================================================
    Reveal sequence
@@ -1380,7 +1337,6 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
 .gitem .gd a{ color:var(--slate); cursor:pointer; text-decoration:none;
   border-bottom:1px dotted var(--slate); }
 
-
 /* The pager. One question is on screen at a time, so the reader always knows
    which of the twenty they are on and never has to hunt for the next one. */
 .dr-pager{ display:flex; align-items:center; gap:16px; margin-bottom:18px;
@@ -1411,7 +1367,7 @@ body[data-edition=instructor] .instr-inline{ display:inline; }
    columns: CSS multicolumn inside a height-constrained box overflows sideways,
    which puts the overflow out of reach rather than below the fold. */
 /* the page runs to the foot of the stage; the footer strip is outside it */
-.scene:has(.dr-page), body[data-display=projector] .scene:has(.dr-page){ padding-bottom:20px; }
+.scene:has(.dr-page){ padding-bottom:20px; }
 .dr-page{ flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding-right:22px; }
 .dr-page::-webkit-scrollbar{ width:9px; }
 .dr-page::-webkit-scrollbar-thumb{ background:var(--rule-strong); border-radius:6px; }
@@ -1452,7 +1408,6 @@ kbd{ font-family:var(--mono); font-size:12px; background:var(--paper-3);
 :focus-visible{ outline:2px solid var(--slate); outline-offset:3px; border-radius:2px; }
 
 /* reduced motion */
-body[data-motion=reduced] *{ transition-duration:1ms !important; animation-duration:1ms !important; }
 @media (prefers-reduced-motion:reduce){
   *{ transition-duration:1ms !important; animation-duration:1ms !important; }
 }
@@ -1502,8 +1457,6 @@ body[data-layout=phone] #appheader{
   min-height:calc(50px + env(safe-area-inset-top));
 }
 body[data-layout=phone] #appheader .sep{ display:none; }
-/* the laser and its ink are instruments for a projected room */
-body[data-layout=phone] #appheader .proj-only{ display:none !important; }
 body[data-layout=phone] #appheader button{ padding:12px 10px; font-size:11px; min-height:42px; }
 body[data-layout=phone] #sbtoggle{ font-size:20px !important; padding:9px 12px !important; }
 /* the mark and the name shrink before any control does, and the name is cut
@@ -2001,7 +1954,6 @@ body[data-theme=dark] .listen-btn{ color:var(--slate); }
 body[data-theme=dark] .sk-btn:not([aria-pressed=true]){ color:var(--slate); }
 @media print{ .fig.sketch .sk-key{ opacity:1 !important; } .sk-ink{ display:none; } }
 
-
 /* ---------- card language additions (DESIGN.md, "Inside a card") ----------
    Classes used inside a card's html or on an equation block. None is a block
    of its own, so the slide budget counts them as the card they sit in. */
@@ -2158,21 +2110,12 @@ body[data-theme=dark] pre.code .tk-k{ color:var(--slate); }
    column, so its vertical rhythm is tightened here rather than shrinking the
    type below the floor. */
 .scene.slide .lab[data-lab="Y"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="Y"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="Y"] .derive.stack .eq{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="Y"] .ctrls{ padding:14px 20px; gap:12px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="Y"] .readout.ro div{ padding:8px 12px; }
 
 /* Laboratory 5.4 (key W): three stacked plots beside a readout row and three
    cards. In lecture mode the larger type pushes the right column past the
    plot column, so its vertical rhythm is tightened here rather than
    shrinking the type below the floor (see the key-Y rule above). */
 .scene.slide .lab[data-lab="W"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="W"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="W"] .ctrls{ padding:14px 20px; gap:12px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="W"] .readout.ro div{ padding:8px 12px; }
 
 /* Laboratory 5.5 (key X): two stacked plots beside a mode bar, a controls
    card, a readout row and two cards. In lecture mode the larger type pushes
@@ -2180,11 +2123,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="W"] .readout.ro div{ pa
    tightened here rather than shrinking the type below the floor (see the
    key-Y rule above). */
 .scene.slide .lab[data-lab="X"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="X"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="X"] .ctrls{ padding:14px 20px; gap:10px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="X"] .readout.ro div{ padding:8px 12px; }
 
 /* <m6-s1-css> */
 /* Laboratory 6.1 (key I1): two stacked plots beside a controls card, a
@@ -2193,11 +2131,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="X"] .readout.ro div{ pa
    tightened here rather than shrinking the type below the floor (see the
    key-W rule above). */
 .scene.slide .lab[data-lab="I1"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="I1"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I1"] .ctrls{ padding:14px 20px; gap:12px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I1"] .readout.ro div{ padding:8px 12px; }
 /* the laboratory type floor, as Module 1 sets it for its laboratories */
 .scene .lab[data-lab="I1"] .ctrl label,
 .scene .lab[data-lab="I1"] .readout dt,
@@ -2240,11 +2173,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="I1"] .readout.ro div{ p
    column, so its vertical rhythm is tightened rather than the type shrunk
    (the key-W rule for Laboratory 5.4 is the precedent). */
 .scene.slide .lab[data-lab="I3"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="I3"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I3"] .ctrls{ padding:14px 20px; gap:12px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I3"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s3-css> */
 
 /* <m6-s4-css> */
@@ -2269,11 +2197,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="I3"] .readout.ro div{ p
 .scene.slide .lab[data-lab="I4"] .note{ font-size:calc(19px * var(--ts)); }
 .scene.slide .lab[data-lab="I4"] .ctrls.one{ gap:12px; padding:16px 20px; }
 .scene.slide .lab[data-lab="I4"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="I4"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I4"] .ctrls.one{ padding:12px 18px; gap:8px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I4"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s4-css> */
 
 /* <m6-s5-css> */
@@ -2286,11 +2209,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="I4"] .readout.ro div{ p
 .scene .lab[data-lab="I5"] .readout dd{ font-size:calc(21px * var(--ts)); line-height:1.35; }
 .scene .lab[data-lab="I5"] .note{ font-size:calc(19px * var(--ts)); }
 .scene.slide .lab[data-lab="I5"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="I5"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I5"] .ctrls{ padding:14px 20px; gap:10px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I5"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s5-css> */
 
 /* <m6-s6-css> */
@@ -2313,10 +2231,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="I5"] .readout.ro div{ p
 .scene.slide .lab[data-lab="I6"] .ctrl:last-child{ grid-column:1 / -1; }
 .scene.slide .lab[data-lab="I6"] .ctrl:last-child label{ flex-direction:column; align-items:flex-start; gap:7px; }
 .scene.slide .lab[data-lab="I6"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I6"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I6"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="I6"] .readout.ro div{ padding:8px 12px; }
 /* </m6-s6-css> */
 
 /* <m7-s1-css> */
@@ -2335,10 +2249,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="I6"] .readout.ro div{ p
 .scene .lab[data-lab="J1"] .note{ font-size:calc(19px * var(--ts)); }
 .scene.slide .lab[data-lab="J1"] .readout{ grid-template-columns:repeat(4,minmax(0,1fr)); }
 .scene.slide .lab[data-lab="J1"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J1"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J1"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J1"] .ctrls{ padding:14px 20px; gap:12px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J1"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s1-css> */
 
 /* <m7-s2-css> */
@@ -2352,11 +2262,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="J1"] .readout.ro div{ p
 .scene .lab[data-lab="J2"] .note{ font-size:calc(19px * var(--ts)); }
 .scene.slide .lab[data-lab="J2"] .note .chips{ display:flex; margin:8px 0 0; }
 .scene.slide .lab[data-lab="J2"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack .eq,
-body[data-display=projector] .scene.slide .lab[data-lab="J2"] .derive.stack .note{ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J2"] .ctrls{ padding:14px 20px; gap:10px 24px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J2"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s2-css> */
 
 /* <m7-s3-css> */
@@ -2377,10 +2282,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="J2"] .readout.ro div{ p
 .scene .lab[data-lab="J"] .note{ font-size:calc(19px * var(--ts)); }
 .scene.slide .lab[data-lab="J"] .ctrl:has(.seg) label{ flex-direction:column; align-items:flex-start; gap:7px; }
 .scene.slide .lab[data-lab="J"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J"] .ctrls{ padding:12px 18px; gap:8px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s3-css> */
 
 /* <m7-s4-css> */
@@ -2406,10 +2307,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="J"] .readout.ro div{ pa
 .scene.slide .lab[data-lab="J4"] .j4-play .fig{ gap:0; }
 .scene.slide .lab[data-lab="J4"] .j4-play .fxbar{ margin-top:0; }
 .scene.slide .lab[data-lab="J4"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J4"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J4"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J4"] .ctrls{ padding:12px 18px; gap:8px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J4"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s4-css> */
 
 /* <m7-s5-css> */
@@ -2432,10 +2329,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="J4"] .readout.ro div{ p
 .scene.slide .lab[data-lab="J5"] .ctrl.j5-kind label{ justify-content:space-between; }
 .scene.slide .lab[data-lab="J5"] .readout{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 .scene.slide .lab[data-lab="J5"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J5"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J5"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J5"] .ctrls{ padding:12px 18px; gap:8px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J5"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s5-css> */
 
 /* <m7-s6-css> */
@@ -2462,10 +2355,6 @@ body[data-display=projector] .scene.slide .lab[data-lab="J5"] .readout.ro div{ p
 .scene.slide .lab[data-lab="J6"] .ctrl.j6-filt label{ flex-direction:row; align-items:center; justify-content:space-between; }
 .scene.slide .lab[data-lab="J6"] .readout{ grid-template-columns:repeat(4,minmax(0,1fr)); }
 .scene.slide .lab[data-lab="J6"] .derive.stack{ gap:10px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J6"] .derive.stack{ gap:6px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J6"] .derive.stack :is(.eq, .note){ padding:10px 16px 10px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J6"] .ctrls{ padding:12px 18px; gap:8px 20px; }
-body[data-display=projector] .scene.slide .lab[data-lab="J6"] .readout.ro div{ padding:8px 12px; }
 /* </m7-s6-css> */
 
 /* A harmonic index circled in red under an underbrace: \htmlClass{kc}{k=2} */
@@ -2473,7 +2362,7 @@ body[data-display=projector] .scene.slide .lab[data-lab="J6"] .readout.ro div{ p
   border-radius:999px; padding:.05em .5em; margin-top:.15em; line-height:1.25; }
 </style>
 </head>
-<body data-mode="study" data-edition="student" data-motion="full" data-sidebar="on">
+<body data-mode="lecture" data-sidebar="on">
 <div id="viewport">
 
   <header id="appheader">
@@ -2496,20 +2385,12 @@ body[data-display=projector] .scene.slide .lab[data-lab="J6"] .readout.ro div{ p
     <button data-act="search" title="Search (/)" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg><span>Search</span></button>
     <button data-act="gloss" title="Notation (G)" aria-label="Notation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5H7l6 7-6 7h10"/></svg><span>Notation</span></button>
     <span class="sep"></span>
-    <button id="btn-display" data-act="display" title="Normal / projector (P)">Normal</button>
-    <button id="btn-pointer" class="proj-only" data-act="pointer" title="Laser pointer / system arrow">Laser</button>
-    <button id="btn-trail" class="proj-only" data-act="trail" title="Ink: fade, hold, off (T) — hold the mouse button to draw, C clears">Trail: fade</button>
-    <label id="trail-len" class="proj-only" title="How long a faded trail stays visible"><input id="trail-sec" type="range" min="1" max="15" step="1" value="1" aria-label="Trail duration in seconds"><output for="trail-sec">1 s</output></label>
-    <button id="btn-board" class="proj-only" data-act="board" title="A blank board to write on (W)">Board</button>
-    <span class="sep proj-only"></span>
+    <button id="btn-pointer" class="teach-only" data-act="pointer" title="Laser: off, the dot, the dot with ink (P) — T holds the ink until C clears it">Laser</button>
+    <label id="trail-len" class="teach-only" title="How long the ink stays before it fades"><input id="trail-sec" type="range" min="1" max="15" step="1" value="1" aria-label="Ink duration in seconds"><output for="trail-sec">1 s</output></label>
+    <button id="btn-board" class="teach-only" data-act="board" title="A blank board to write on (W)">Board</button>
+    <span class="sep teach-only"></span>
     <button id="btn-theme" data-act="theme" title="Light / dark (D)">Light</button>
     <span class="sep"></span>
-    <button id="btn-mode" data-act="mode" title="Lecture / self-study (L)">Self-study</button>
-    <button id="btn-settings" popovertarget="setmenu" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></button>
-    <div id="setmenu" popover>
-      <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>
-      <button id="btn-motion" data-act="motion" title="Reduced motion (R)">Motion: full</button>
-    </div>
     <button data-act="help" title="Help (?)" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg><span>Help</span></button>
   </header>
 
@@ -3436,15 +3317,14 @@ const APP = (() => {
   const state = {
     i: 0,               // scene index
     step: 0,            // reveal step inside the scene
-    mode: 'study',      // 'lecture' | 'study'
-    edition: 'student', // 'student' | 'instructor'
-    motion: 'full',     // 'full' | 'reduced'
+    mode: 'lecture',    // 'lecture' | 'study' — fixed; the course is taught from these pages
+    edition: 'instructor', // 'student' | 'instructor' — fixed; the published copy is built as the student one
     visited: {},
     sidebar: 'on',      // contents rail
     theme: 'light',     // 'light' | 'dark'
-    display: 'normal',  // 'normal' | 'projector'
-    pointer: 'laser',   // 'laser' | 'arrow'  — projector mode only
-    trail:   'fade',    // 'fade' | 'hold' | 'off' — ink drawn while the button is held
+    pointer: 'arrow',   // 'laser' | 'arrow' — the laser is off until it is turned on
+    trail:   'off',     // 'fade' | 'hold' | 'off' — ink drawn while the button is held
+    inkWas:  'fade',    // the ink the laser comes back to when it is turned on again
     trailSec: 1,        // seconds a faded trail stays fully visible
     paper:   'blank',   // 'blank' | 'grid' | 'lined' — the board's paper
     quiz: {},           // qid -> {picked, correct, attempts, revealed}
@@ -3480,6 +3360,10 @@ const APP = (() => {
      closed, and the reader's stored choice is left for the desktop. */
   const SHORT = matchMedia('(max-height:480px) and (pointer:coarse)');
   const railRoom = () => !SHORT.matches;
+  /* There is no motion control. A reader who has asked the system for less
+     movement is answered here and in the `prefers-reduced-motion` blocks of
+     the stylesheet, which is the whole of it. */
+  const lessMotion = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   let SCENES = [], MODULES = [], CHAPTERS = [], onRender = ()=>{};
 
@@ -3488,14 +3372,13 @@ const APP = (() => {
     SCENES = scenes; MODULES = modules; CHAPTERS = chapters || []; onRender = render;
     const saved = store.read();
     Object.assign(state, {
-      mode: saved.mode || 'study',
-      edition: saved.edition || 'student',
-      motion: saved.motion || (matchMedia('(prefers-reduced-motion:reduce)').matches?'reduced':'full'),
+      mode: 'lecture',
+      edition: 'instructor',
       sidebar: saved.sidebar || 'on',
       theme: saved.theme || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),
-      display: saved.display || 'normal',
-      pointer: saved.pointer || 'laser',
-      trail:   saved.trail==='on' ? 'fade' : (saved.trail || 'fade'),
+      pointer: saved.laser==='on' ? 'laser' : 'arrow',
+      trail:   saved.laser==='on' ? (saved.trail==='hold' ? 'hold' : saved.trail==='off' ? 'off' : 'fade') : 'off',
+      inkWas:  saved.ink==='hold' ? 'hold' : 'fade',
       trailSec: saved.trailLen || 1,
       paper:   saved.paper || 'blank',
       visited: saved.visited || {},
@@ -3525,18 +3408,16 @@ const APP = (() => {
   function persist(){
     /* what is stored for the rail is always the wide-layout choice */
     if(state.layout!=='phone' && railRoom()) state.rail = state.sidebar;
-    store.write({ mode:state.mode, edition:state.edition, motion:state.motion, sidebar:state.rail,
-                  theme:state.theme, display:state.display, pointer:state.pointer, trail:state.trail, trailLen:state.trailSec, paper:state.paper,
+    store.write({ sidebar:state.rail,
+                  theme:state.theme, laser:state.pointer==='laser'?'on':'off', trail:state.trail, ink:state.inkWas, trailLen:state.trailSec, paper:state.paper,
                   visited:state.visited, quiz:state.quiz, drillPage:state.drillPage,
                   at:SCENES[state.i]&&SCENES[state.i].id });
   }
   function applyBodyFlags(){
     document.body.dataset.mode = state.mode;
     document.body.dataset.edition = state.edition;
-    document.body.dataset.motion = state.motion;
     document.body.dataset.sidebar = state.sidebar;
     document.body.dataset.theme = state.theme;
-    document.body.dataset.display = state.display;
     document.body.dataset.pointer = state.pointer;
     document.body.dataset.trail = state.trail;
     document.body.dataset.layout = state.layout;
@@ -3550,11 +3431,11 @@ const APP = (() => {
      contents drawer, where there is room to label them and to hit them. The
      click handler is delegated on the document, so a control works exactly the
      same wherever it is sitting; only its styling has to follow it, which the
-     `hmoved` class does. The laser and its ink belong to a projector and are
-     dropped on a phone altogether.
+     `hmoved` class does. The laser, its ink and the board belong to teaching in
+     front of a class and are dropped on a phone altogether.
      Each control's first home is recorded the first time it is moved, so the
      way back is the DOM as it was authored rather than a second guess at it. */
-  const HANDOFF = ['btn-display','btn-theme','btn-mode','btn-edition','btn-motion'];
+  const HANDOFF = ['btn-theme'];
   let _home = null;
   function relayoutChrome(){
     const hd = document.getElementById('appheader');
@@ -3565,23 +3446,19 @@ const APP = (() => {
                document.querySelector('#chrome .byline')])
       .filter(Boolean);
     if(!_home) _home = items.map(el=>({el, parent:el.parentNode, next:el.nextSibling}));
-    /* The settings menu is emptied onto the drawer's foot, so on a phone the
-       gear opens the drawer, where its switches now sit, and not an empty menu. */
-    const gear = document.getElementById('btn-settings');
     if(state.layout==='phone'){
       const reset = foot.querySelector('[data-act=reset]');
       items.forEach(el=>{ el.classList.add('hmoved'); foot.insertBefore(el, reset); });
-      if(gear){ gear.removeAttribute('popovertarget'); gear.dataset.act = 'settings'; }
     } else {
       _home.forEach(h=>{ h.el.classList.remove('hmoved'); h.parent.insertBefore(h.el, h.next); });
-      if(gear){ gear.setAttribute('popovertarget', 'setmenu'); delete gear.dataset.act; }
     }
   }
 
-  /* ---------- laser pointer, projector mode only ----------
+  /* ---------- laser pointer ----------
      In front of a class the pointer is an instrument, not a control: the
-     system arrow is too small to follow from the back of a room. In
-     projector mode it becomes a red dot. Holding the mouse button down, or
+     system arrow is too small to follow from the back of a room. The Laser
+     button turns the arrow into a red dot, and turns it back. It is off until
+     it is asked for, so reading is never short of a cursor. Holding the mouse button down, or
      pressing a pen such as the Apple Pencil to a tablet, draws with it; a
      finger still scrolls. Strokes accumulate and fade together after a pause, or remain
      until cleared, according to the header control. Everything is drawn on
@@ -3608,7 +3485,7 @@ const APP = (() => {
     const hold = () => state.trailSec*1000;
     const TOP = typeof HTMLElement!=='undefined' && 'showPopover' in HTMLElement.prototype;
     let cv=null, cx=null, on=false, raf=0, dpr=1, W=0, H=0, zoom=1;
-    let head=null, drawing=false, released=0, tap=null, clicked=false;
+    let head=null, drawing=false, released=0, tap=null, clicked=false, stirred=0;
     const strokes = [];
     function count(){ let n=0; for(const s of strokes) n+=s.length; return n; }
     function drop(){
@@ -3647,9 +3524,16 @@ const APP = (() => {
       const idle = (drawing||keep) ? 0 : performance.now() - released;
       let a = idle<=hold() ? 1 : 1 - (idle-hold())/FADE;
       if(a<=0){ a=0; strokes.length=0; }
+      /* The dot is the cursor, so it goes out with the ink once the pointer has
+         been still for as long as the ink is held. A red mark left on a slide
+         that nobody is pointing at reads as part of the figure. Any movement
+         brings it straight back, at once and at full strength. */
+      const stillFor = drawing ? 0 : performance.now() - stirred;
+      let d = stillFor<=hold() ? 1 : 1 - (stillFor-hold())/FADE;
+      if(d<0) d=0;
       cx.save(); cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,cv.width,cv.height); cx.restore();
       const u = 1/zoom;
-      if(a>0 && strokes.length && state.trail!=='off' && state.motion==='full'){
+      if(a>0 && strokes.length && state.trail!=='off' && !lessMotion()){
         cx.lineCap='round'; cx.lineJoin='round'; cx.globalAlpha=a;
         cx.beginPath();
         for(const pts of strokes){
@@ -3663,7 +3547,8 @@ const APP = (() => {
         cx.strokeStyle='rgba(255,231,226,0.96)'; cx.lineWidth=4*u; cx.stroke();
         cx.globalAlpha=1;
       }
-      if(head){
+      if(head && d>0){
+        cx.globalAlpha=d;
         const g=cx.createRadialGradient(head.x,head.y,0,head.x,head.y,19*u);
         g.addColorStop(0,'rgba(255,236,230,1)');
         g.addColorStop(.10,'rgba(255,64,40,1)');
@@ -3671,14 +3556,15 @@ const APP = (() => {
         g.addColorStop(.55,'rgba(214,45,32,.32)');
         g.addColorStop(1,'rgba(214,45,32,0)');
         cx.fillStyle=g; cx.beginPath(); cx.arc(head.x,head.y,19*u,0,Math.PI*2); cx.fill();
+        cx.globalAlpha=1;
       }
-      if(!drawing && state.trail!=='hold' && a>0 && strokes.length) raf=requestAnimationFrame(frame);
+      if(!drawing && ((state.trail!=='hold' && a>0 && strokes.length) || (head && d>0))) raf=requestAnimationFrame(frame);
     }
     function tick(){ if(!raf) raf=requestAnimationFrame(frame); }
     function mouse(e){ return (!board.isOpen() || board.lasering()) && (!e.pointerType || e.pointerType==='mouse' || e.pointerType==='pen'); }
     function move(e){
       if(!mouse(e)) return;
-      head=at(e);
+      head=at(e); stirred=performance.now();
       if(tap && Math.hypot(e.clientX-tap.x, e.clientY-tap.y)>10) tap=null;
       if(drawing){ strokes[strokes.length-1].push(head); drop(); }
       tick();
@@ -3686,7 +3572,7 @@ const APP = (() => {
     function down(e){
       if(!mouse(e)||e.button!==0) return;
       if(!drawing && state.trail!=='hold' && performance.now()-released>hold()) strokes.length=0;
-      drawing=true; head=at(e); strokes.push([head]); tick();
+      drawing=true; head=at(e); stirred=performance.now(); strokes.push([head]); tick();
       tap = e.pointerType==='pen' ? { x:e.clientX, y:e.clientY, t:performance.now() } : null;
     }
     /* a pencil tap must still press what it lands on. On an iPad the browser
@@ -3739,7 +3625,7 @@ const APP = (() => {
       if(raf){ cancelAnimationFrame(raf); raf=0; } leave();
       if(cv){ if(TOP){ try{ cv.hidePopover(); }catch(_){} } cv.style.display='none'; }
     }
-    return { sync(){ ((state.display==='projector'&&state.pointer==='laser') || board.lasering()) ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
+    return { sync(){ ((state.pointer==='laser' && state.layout!=='phone') || board.lasering()) ? start() : stop(); }, clear(){ if(on&&strokes.length){ strokes.length=0; drawing=false; tick(); } },
              rest(){ if(on) leave(); } };
   })();
 
@@ -4275,12 +4161,9 @@ const APP = (() => {
         case '/': case 'f': case 'F': e.preventDefault(); open('ov-search'); break;
         case 'g': case 'G': e.preventDefault(); anyOpen()?closeAll():open('ov-gloss'); break;
         case '?': e.preventDefault(); anyOpen()?closeAll():open('ov-help'); break;
-        case 'l': case 'L': toggleMode(); break;
-        case 'i': case 'I': toggleEdition(); break;
-        case 'r': case 'R': toggleMotion(); break;
         case 's': case 'S': toggleSidebar(); break;
         case 'd': case 'D': toggleTheme(); break;
-        case 'p': case 'P': toggleDisplay(); break;
+        case 'p': case 'P': togglePointer(); break;
         case 't': case 'T': toggleTrail(); break;
         case 'c': case 'C': laser.clear(); break;
         case 'w': case 'W': e.preventDefault(); closeAll(); board.toggle(); break;
@@ -4372,24 +4255,24 @@ const APP = (() => {
     document.addEventListener('touchcancel', end);
   }
 
-  function toggleMode(){ state.mode = state.mode==='lecture'?'study':'lecture'; applyBodyFlags(); persist(); onRender(); }
-  function toggleEdition(){ state.edition = state.edition==='student'?'instructor':'student'; applyBodyFlags(); persist(); onRender(); }
-  function toggleMotion(){ state.motion = state.motion==='full'?'reduced':'full'; applyBodyFlags(); persist(); onRender(); }
   function toggleTheme(){ state.theme = state.theme==='light'?'dark':'light'; applyBodyFlags(); persist(); onRender(); }
-  function toggleDisplay(){
-    state.display = state.display==='normal'?'projector':'normal';
-    /* the rail costs ~19% of linear size; give the scene the full width when
-       projecting, and give it back when returning to normal. On a phone the
-       rail is a drawer that covers the scene either way, so it stays shut. */
-    if(state.layout!=='phone')
-      state.sidebar = state.display==='projector' ? 'off' : 'on';
-    applyBodyFlags(); persist();
-    requestAnimationFrame(()=>{ fit(); onRender(); });
+  /* The Laser button is one control with three states, in the order a lecturer
+     reaches for them: off, the red dot alone, and the dot that leaves ink
+     behind it. `pointer` says whether the dot is drawn and `trail` whether the
+     ink is, so the two keep the meanings the canvas already gives them. The
+     ink the T key holds until it is cleared is remembered, so a lecturer who
+     asked for held ink gets it back at the third press. */
+  function togglePointer(){
+    if(state.pointer!=='laser'){ state.pointer='laser'; state.trail='off'; }
+    else if(state.trail==='off'){ state.trail = state.inkWas || 'fade'; }
+    else { state.inkWas = state.trail; state.pointer='arrow'; state.trail='off'; laser.clear(); }
+    applyBodyFlags(); persist(); onRender();
   }
-  function togglePointer(){ state.pointer=state.pointer==='laser'?'arrow':'laser'; applyBodyFlags(); persist(); onRender(); }
+  /* T swaps the ink between fading on its own and staying until C clears it.
+     It has no button: it is the one choice a lecture needs mid-sentence. */
   function toggleTrail(){
-    state.trail=state.trail==='fade'?'hold':state.trail==='hold'?'off':'fade';
-    if(state.trail==='off') laser.clear();
+    if(state.pointer!=='laser' || state.trail==='off') return;
+    state.trail = state.trail==='fade' ? 'hold' : 'fade';
     applyBodyFlags(); persist(); onRender();
   }
   function toggleSidebar(){ state.sidebar = state.sidebar==='on'?'off':'on'; applyBodyFlags(); persist();
@@ -4414,13 +4297,8 @@ const APP = (() => {
       else if(a==='gloss') open('ov-gloss');
       else if(a==='help') open('ov-help');
       else if(a==='close') closeAll();
-      else if(a==='mode') toggleMode();
-      else if(a==='edition') toggleEdition();
-      else if(a==='motion') toggleMotion();
       else if(a==='sidebar') toggleSidebar();
-      else if(a==='settings'){ if(state.sidebar!=='on') toggleSidebar(); }
       else if(a==='theme') toggleTheme();
-      else if(a==='display') toggleDisplay();
       else if(a==='pointer') togglePointer();
       else if(a==='trail') toggleTrail();
       else if(a==='board') board.toggle();
@@ -5281,7 +5159,7 @@ const RENDER = (() => {
   function frameTween(fig, b, from, to){
     const f = b.frames;
     if(f.raf) cancelAnimationFrame(f.raf);
-    if(S.motion==='reduced' || from===to){ f.t = null; redrawLive(fig); return; }
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches || from===to){ f.t = null; redrawLive(fig); return; }
     const ms = (f.ms || 900) * Math.min(Math.abs(to-from), 1.6), t0 = performance.now();
     const tick = now => {
       const u = Math.min((now-t0)/ms, 1), e = u<.5 ? 2*u*u : 1-Math.pow(-2*u+2,2)/2;
@@ -5776,7 +5654,7 @@ def _ss_figs():
      no ink on the figure; a finger still sketches. */
   let SK = null;
   document.addEventListener('pointerdown', e=>{
-    if(S.display==='projector' && S.pointer==='laser' && e.pointerType!=='touch') return;
+    if(S.pointer==='laser' && e.pointerType!=='touch') return;
     const svg = e.target.closest('figure.sketch > svg');
     const fig = svg && svg.parentNode, b = fig && FX[+fig.dataset.fx];
     const area = svg && skArea(svg);
@@ -5809,13 +5687,12 @@ def _ss_figs():
        and printed at whatever width the column gives it. A desktop column is
        about 700 px, so the drawing is enlarged and its labels come out larger
        than the size they were written at. A phone column is about 350 px, which
-       halves them instead. The label scale projector mode already uses puts
-       them back where they belong, and it is a scale the figures are known to
-       survive, so the phone borrows it rather than inventing a second one. */
+       halves them instead. A label scale of 1.36 puts them back where they
+       belong, and it is a scale the figures are known to survive. */
     const sc = APP.scenes()[S.i];
     if(typeof PLOT!=='undefined' && PLOT.setTheme)
       PLOT.setTheme({ dark: S.theme==='dark',
-        scale: (S.display==='projector' || S.layout==='phone') ? 1.36 : 1,
+        scale: S.layout==='phone' ? 1.36 : 1,
         emphasis:!!(sc && (sc.slide || /-lab-/.test(sc.id))) });
     const host = document.getElementById('scene-host');
     if(!sc||!host) return;
@@ -5931,7 +5808,7 @@ def _ss_figs():
        pass of avail/need predicts is therefore optimistic, and the height has to
        be measured again in the widened column. Four passes settle it; each pass
        can only make the factor smaller, and the floor stops it. */
-    const FLOOR = S.display==='projector' ? 0.70 : 0.82;
+    const FLOOR = 0.82;
     const TARGET = avail - 3;               /* a hair under, so rounding cannot clip */
     let k = 1;
     inner.style.height = 'auto';
@@ -6164,22 +6041,12 @@ def _ss_figs():
   /* Toolbar icons: 24-unit strokes in the button's own colour. A toggle shows
      its current state; the label and the key stay in the tooltip. */
   const ICON = {
-    monitor:  '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
-    projector:'<rect x="2" y="8" width="20" height="9" rx="2"/><circle cx="8" cy="12.5" r="2.5"/><path d="M14 11h4M14 14h2M5 17v2M19 17v2"/>',
-    laser:    '<path d="M3 21l7-7" stroke-dasharray="2 2.5"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/><circle cx="15" cy="9" r="6"/>',
     arrow:    '<path d="M5 3l14 7.5-6.2 1.7L10 18.5z"/>',
-    trail:    '<path d="M3 19c3-1 4-5 7-5s3 3 6 2"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
-    trailfade:'<path d="M3 19c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 3"/><path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/>',
-    trailoff: '<path d="M14.5 9.5l5-5 2 2-5 5-2.5.5z"/><path d="M3 3l18 18"/>',
+    laserdot: '<circle cx="12" cy="12" r="2.4" fill="currentColor"/><circle cx="12" cy="12" r="6.5"/>',
+    laserink: '<path d="M3 20c3-1 4-5 7-5s3 3 6 2" stroke-dasharray="2 2.5"/><circle cx="17" cy="7" r="2.2" fill="currentColor"/><circle cx="17" cy="7" r="6"/>',
     board:    '<rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21l4-4 4 4M7 11c1.5-2 3 2 4.5 0s3-2 4.5 0"/>',
     sun:      '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     moon:     '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
-    lecture:  '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v3M8 21l4-2 4 2M7 12l3-3 2 2 5-5"/>',
-    study:    '<path d="M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5v13"/>',
-    student:  '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v5"/>',
-    teacher:  '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
-    motion:   '<path d="M2 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0"/>',
-    still:    '<path d="M2 12h20"/><path d="M9 8v8M15 8v8"/>',
   };
   const ico = n => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICON[n]+'</svg>';
   function tb(el, on, icon, label, word=label){
@@ -6189,15 +6056,6 @@ def _ss_figs():
     el.setAttribute('aria-label', label);
     el.title = label+' — '+el.dataset.tip;
   }
-
-  /* The settings menu opens under its button, right-aligned to it. */
-  const setmenu = document.getElementById('setmenu');
-  if(setmenu) setmenu.addEventListener('beforetoggle', e=>{
-    if(e.newState!=='open') return;
-    const r = document.getElementById('btn-settings').getBoundingClientRect();
-    setmenu.style.top = (r.bottom+6)+'px';
-    setmenu.style.right = (innerWidth-r.right)+'px';
-  });
 
   function chrome(sc){
     const n = APP.scenes().length;
@@ -6210,25 +6068,17 @@ def _ss_figs():
       + (sc.steps?('  ·  step '+S.step+'/'+sc.steps):'');
     document.getElementById('srcref').textContent =
       (S.edition==='instructor' && sc.src) ? ('ref '+sc.src) : '';
-    const bm=document.getElementById('btn-mode'); if(bm) tb(bm, S.mode==='lecture',
-      S.mode==='lecture'?'lecture':'study', S.mode==='lecture'?'Lecture mode':'Self-study', S.mode==='lecture'?'Lecture':'Self-study');
-    const be=document.getElementById('btn-edition'); if(be) tb(be, S.edition==='instructor',
-      S.edition==='instructor'?'teacher':'student', S.edition==='instructor'?'Instructor':'Student',
-      S.edition==='instructor'?'Instructor edition':'Student edition');
-    const br=document.getElementById('btn-motion'); if(br) tb(br, S.motion==='reduced',
-      S.motion==='reduced'?'still':'motion', S.motion==='reduced'?'Motion: reduced':'Motion: full', S.motion==='reduced'?'Reduced motion':'Full motion');
     const bs=document.getElementById('sbtoggle'); if(bs) bs.setAttribute('aria-pressed', S.sidebar==='on');
     const bt=document.getElementById('btn-theme'); if(bt){ tb(bt, S.theme==='dark',
       S.theme==='dark'?'moon':'sun', S.theme==='dark'?'Dark':'Light'); bt.dataset.state = S.theme; }
-    const bd=document.getElementById('btn-display'); if(bd) tb(bd, S.display==='projector',
-      S.display==='projector'?'projector':'monitor', S.display==='projector'?'Projector':'Normal');
+    /* one button, three states: off, the dot, the dot with its ink */
+    const ink = S.pointer==='laser' && S.trail!=='off';
     const bp=document.getElementById('btn-pointer'); if(bp) tb(bp, S.pointer==='laser',
-      S.pointer==='laser'?'laser':'arrow', S.pointer==='laser'?'Laser':'Arrow');
-    const bi=document.getElementById('btn-trail'); if(bi){ tb(bi, S.trail!=='off',
-      S.trail==='off'?'trailoff':S.trail==='fade'?'trailfade':'trail', 'Trail: '+S.trail, 'Trail');
-      bi.disabled = S.pointer!=='laser'; }
+      S.pointer!=='laser'?'arrow':ink?'laserink':'laserdot',
+      S.pointer!=='laser' ? 'Laser off' : ink ? (S.trail==='hold'?'Laser ink, held':'Laser ink') : 'Laser dot',
+      'Laser');
     const tl=document.getElementById('trail-sec'); if(tl){ tl.value=S.trailSec;
-      tl.disabled = S.pointer!=='laser' || S.trail!=='fade';
+      tl.disabled = !ink || S.trail!=='fade';
       tl.nextElementSibling.textContent = S.trailSec+' s'; }
     const bb=document.getElementById('btn-board'); if(bb) tb(bb, false, 'board', 'Board');
     APP.buildMap();
@@ -17578,14 +17428,14 @@ const SC = [
 
 { id:'m0-howto', module:'M0', nav:'Using the course artifact', title:'Using the course artifact', src:'—',
   objective:'Explain modes, controls and the definition-citation policy.',
-  keywords:'help navigation modes instructor student reduced motion privacy', slide:true, steps:0, blocks:[
+  keywords:'help navigation laser board privacy', slide:true, steps:0, blocks:[
   {t:'eyebrow', text:'Module 0 · Orientation'},
   {t:'title', text:'Using the Course Artifact'},
   {t:'grid', cols:3, gap:'30px 28px', style:'flex:1;min-height:0;grid-auto-rows:1fr;', items:[
     [{t:'note', kind:'def', head:'Navigation', html:'<kbd>→</kbd> or <kbd>space</kbd> gives the next state, and <kbd>←</kbd> goes back one. <kbd>↑</kbd> and <kbd>↓</kbd> move a whole scene, and <kbd>Home</kbd> returns to the title.'}],
-    [{t:'note', kind:'def', head:'Keys', html:'<kbd>M</kbd> map, <kbd>/</kbd> search, <kbd>G</kbd> glossary, <kbd>?</kbd> help. <kbd>L</kbd> study mode, <kbd>I</kbd> edition, <kbd>R</kbd> reduced motion.'}],
-    [{t:'note', kind:'def', head:'Two modes', html:'<b>Lecture mode</b> returns to the last state of the previous scene, so a finished derivation stays finished. <b>Self-study mode</b> returns to the first state, so you can work through it again.'}],
-    [{t:'note', kind:'def', head:'Two editions', html:'The <b>student edition</b> hides solutions until you ask for them. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.'}],
+    [{t:'note', kind:'def', head:'Keys', html:'<kbd>M</kbd> map, <kbd>/</kbd> search, <kbd>G</kbd> glossary, <kbd>?</kbd> help. <kbd>P</kbd> laser, <kbd>W</kbd> board, <kbd>D</kbd> light or dark.'}],
+    [{t:'note', kind:'def', head:'The laser', html:'<kbd>P</kbd> steps the pointer through three states: off, a red dot, and a dot that leaves ink behind it while the button is held. <kbd>C</kbd> clears the ink and <kbd>T</kbd> holds it until you do.'}],
+    [{t:'note', kind:'def', head:'Worked solutions', html:'Every practice question carries a full worked solution, and it stays hidden until you ask for it. Work the question first, then open the solution and compare the method, not only the answer.'}],
     [{t:'note', kind:'warn', head:'Textbook anchors', html:'The band above the title gives the course address. An open book and a number such as <b>CH1.1.2</b> give the matching address in Oppenheim and Willsky, <em>Signals and Systems</em>, second edition.'}],
     [{t:'note', kind:'warn', head:'Conventions', html:'Energy and power use the <b>normalised</b> convention $R=1\\ \\Omega$, and the imaginary unit is $j$. Angular frequency $\\omega$ is in rad/s in continuous time and in rad/sample in discrete time.'}]
   ]},
@@ -39515,12 +39365,11 @@ window.DRILL_M7 = [
     ['Home / End','First / last scene'],
     ['M','Contents overlay'],['/ or F','Full-text search'],['G','Notation glossary'],
     ['S','Show or hide the contents rail'],
-    ['P','Normal ⇄ projector size; in projector size the mouse becomes a laser pointer'],
-    ['T','Ink of that pointer: fades a few seconds after the button is let go, is held until it is cleared, or is off'],
+    ['P','Laser: off, the red dot, the dot that leaves ink behind it'],
+    ['T','While the ink is on: let it fade on its own, or hold it until it is cleared'],
     ['C','Clear the ink now; a change of scene clears it too'],
     ['W','A board over the whole screen to write on, on blank, squared or ruled paper, with a laser of its own; there C clears it, Z undoes, Select circles strokes to cut, copy, paste or move them, W or Esc closes it'],
     ['D','Light ⇄ dark'],
-    ['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],
     ['Esc','Close any overlay']
   ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');
 

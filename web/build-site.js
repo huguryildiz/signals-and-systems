@@ -177,27 +177,17 @@ if (instrBlocks < 3) fail('found only ' + instrBlocks + ' instructor blocks');
 if (srcFields < 600) fail('found only ' + srcFields + ' src fields');
 if (teachFields < 200) fail('found only ' + teachFields + ' teaching notes');
 
-/* The edition control. Removing the data is what matters; removing the
-   control is what stops a reader from looking for it. */
-art = replaceExactly(art,
-  `      <button id="btn-edition" data-act="edition" title="Student / instructor (I)">Student</button>\n`,
-  '', 1, 'toolbar edition button');
-
-art = replaceExactly(art,
-  `['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],`,
-  `['L','Lecture ⇄ self-study'],['R','Reduced motion'],`,
-  1, 'help-screen shortcut line');
-
-art = replaceExactly(art,
-  `        case 'i': case 'I': toggleEdition(); break;\n`,
-  '', 1, 'I keyboard shortcut');
-
 /* A reader whose device already holds `edition:'instructor'` from an earlier
    visit would otherwise come back into a mode that no longer has content. */
 art = replaceExactly(art,
-  `      edition: saved.edition || 'student',`,
+  `      edition: 'instructor',`,
   `      edition: 'student',`,
-  1, 'saved edition restore');
+  1, 'fixed edition');
+
+art = replaceExactly(art,
+  `    edition: 'instructor', // 'student' | 'instructor' — fixed; the published copy is built as the student one`,
+  `    edition: 'student',`,
+  1, 'edition state field');
 
 /* Belt and braces: the renderer for an instructor block now draws nothing,
    so a block that some later edit reintroduces still cannot reach the page. */
@@ -207,34 +197,12 @@ art = replaceExactly(art,
   `    instr:   () => '',`,
   1, 'instructor block renderer');
 
-/* The help scene described two editions. On the published copy there is one,
-   so the card says what is actually true of it. */
-art = replaceExactly(art,
-  `    [{t:'note', kind:'def', head:'Two editions', html:'The <b>student edition</b> hides solutions until you ask for them. The <b>instructor edition</b> shows presenter notes, error warnings and every solution.'}],`,
-  `    [{t:'note', kind:'def', head:'Worked solutions', html:'Every practice question carries a full worked solution, and it stays hidden until you ask for it. Work the question first, then open the solution and compare the method, not only the answer.'}],`,
-  1, 'help scene editions card');
-
 /* The teaching note behind each question is gone with its `teach` field, so
    the branch that would have drawn it is emptied too — otherwise the words
    survive in the renderer and turn up in a source search. */
 art = replaceExactly(art,
   '${q.teach?`<div class="instr"><div class="instr-panel"><span class="note-h">Teaching note</span>${md(q.teach)}</div></div>`:\'\'}',
   '', 1, 'question teaching-note renderer');
-
-/* The help scene is findable by keyword; two of its keywords named the mode
-   that is no longer there. */
-art = replaceExactly(art,
-  `keywords:'help navigation modes instructor student reduced motion privacy'`,
-  `keywords:'help navigation modes reduced motion privacy'`,
-  1, 'help scene keywords');
-
-/* With the button, the shortcut and the saved state gone, the toggle can
-   still be reached from a console. It is emptied so the mode cannot be
-   entered at all, rather than entered and found empty. */
-art = replaceExactly(art,
-  `  function toggleEdition(){ state.edition = state.edition==='student'?'instructor':'student'; applyBodyFlags(); persist(); onRender(); }`,
-  `  function toggleEdition(){ /* the published copy has one edition */ }`,
-  1, 'edition toggle');
 
 /* Nothing that names the removed edition may survive as something a reader
    can see. What is left after the transforms above is code and comments —

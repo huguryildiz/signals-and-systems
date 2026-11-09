@@ -24,10 +24,6 @@ const AXIS = ['#8A939C', '#7C858F'];
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   await page.goto(file, { waitUntil: 'load' });
   await page.waitForTimeout(400);
-  /* --projector sweeps the lecture view, where every figure label is drawn
-     1.36 times larger and labels placed in data units can run together */
-  if (process.argv.includes('--projector')) { await page.click('#btn-display'); await page.waitForTimeout(300); }
-
   const scenes = await page.evaluate(() => APP.scenes().map(s => ({ id: s.id, steps: s.steps || 0 })));
   const all = [];
   /* The sweep is one function so it can be run on a state the step loop cannot

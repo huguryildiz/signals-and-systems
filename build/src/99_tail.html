@@ -35,12 +35,11 @@
     ['Home / End','First / last scene'],
     ['M','Contents overlay'],['/ or F','Full-text search'],['G','Notation glossary'],
     ['S','Show or hide the contents rail'],
-    ['P','Normal ⇄ projector size; in projector size the mouse becomes a laser pointer'],
-    ['T','Ink of that pointer: fades a few seconds after the button is let go, is held until it is cleared, or is off'],
+    ['P','Laser: off, the red dot, the dot that leaves ink behind it'],
+    ['T','While the ink is on: let it fade on its own, or hold it until it is cleared'],
     ['C','Clear the ink now; a change of scene clears it too'],
     ['W','A board over the whole screen to write on, on blank, squared or ruled paper, with a laser of its own; there C clears it, Z undoes, Select circles strokes to cut, copy, paste or move them, W or Esc closes it'],
     ['D','Light ⇄ dark'],
-    ['L','Lecture ⇄ self-study'],['I','Student ⇄ instructor edition'],['R','Reduced motion'],
     ['Esc','Close any overlay']
   ].map(([k,d])=>`<div class="gitem"><div class="gs"><kbd>${k}</kbd></div><div class="gd">${d}</div></div>`).join('');
 
